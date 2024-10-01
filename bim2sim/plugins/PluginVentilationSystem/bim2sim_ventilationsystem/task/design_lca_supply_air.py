@@ -64,6 +64,9 @@ class DesignSupplyLCA(ITask):
         thermal_zones = filter_elements(elements, 'ThermalZone')
         thermal_zones = [tz for tz in thermal_zones if tz.ventilation_system == True]
 
+        self.logger.info("Checking ceiling height for each room")
+        self.check_ceiling_height(thermal_zones, suspended_ceiling_space)
+
         self.logger.info("Start calculating points of the ventilation outlet at the ceiling")
         # Here, the center points of the individual rooms are read from the IFC model and then shifted upwards by half
         # the height of the room. The point at the UKRD (lower edge of the bare ceiling) in the middle of the room is
@@ -96,8 +99,8 @@ class DesignSupplyLCA(ITask):
         self.logger.info("Calculating intersection points successful")
 
         intersection_points_main_line = self.intersection_points(main_line,
-                                                                        z_coordinate_list
-                                                                        )
+                                                                 z_coordinate_list
+                                                                 )
         self.logger.info("Create main graph in traffic areas for each floor")
 
         main_line_graph = self.create_main_graph(main_line,
@@ -204,6 +207,12 @@ class DesignSupplyLCA(ITask):
         number_decimal = Decimal(number)
         rounding_rule = Decimal('1').scaleb(-places)  # Specifies the number of decimal places
         return float(number_decimal.quantize(rounding_rule, rounding=ROUND_HALF_UP))
+
+    def check_ceiling_height(self, thermal_zones, suspended_ceiling_space):
+        min_ceiling_height = 3 * ureg.meter
+        for tz in thermal_zones:
+            if tz.height - suspended_ceiling_space < min_ceiling_height:
+                self.logger.warning(f"Room {tz.name} (GUID: {tz.guid}) short of minimum ceiling height!")
 
     def center(self, thermal_zones, building_shaft_supply_air):
         """Function calculates position of the outlet of the LVA
@@ -1639,7 +1648,7 @@ class DesignSupplyLCA(ITask):
                                           list(filtered_main_graph.nodes()),
                                           filtered_coords_ceiling_without_airflow,
                                           None,
-                                         edge_label="equivalent_diameter",
+                                          edge_label="equivalent_diameter",
                                           name=f"Steinerbaum mit rechnerischem Durchmesser in mm",
                                           unit_edge="mm",
                                           total_coat_area=False,
