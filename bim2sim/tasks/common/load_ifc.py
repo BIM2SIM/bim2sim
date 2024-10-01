@@ -20,8 +20,7 @@ class LoadIFC(ITask):
 
     def run(self):
         self.logger.info("Loading IFC files")
-        base_path = self.paths.ifc_base
-        ifc_files = yield from self.load_ifc_files(base_path)
+        ifc_files = yield from self.load_ifc_files(self.paths.ifc_base)
         return ifc_files,
 
     def load_ifc_files(self, base_path: Path):
@@ -38,12 +37,14 @@ class LoadIFC(ITask):
             raise AssertionError(f"Given base_path {base_path} is not a"
                                  f" directory. Please provide a directory.")
         ifc_files = []
-        ifc_files_paths = list(base_path.glob("**/*.ifc"))
+        ifc_files_paths = list(base_path.glob("**/*.ifc")) + list(
+            base_path.glob("**/*.ifcxml")) + list(
+            base_path.glob("**/*.ifczip"))
         self.logger.info(f"Found {len(ifc_files_paths)} IFC files in project "
                          f"directory.")
         for i, total_ifc_path in enumerate(ifc_files_paths, start=1):
             self.logger.info(
-                f"Loading IFC file {i}/{len(ifc_files_paths)}.")
+                f"Loading IFC file {total_ifc_path.name} {i}/{len(ifc_files_paths)}.")
             ifc_domain = total_ifc_path.parent.name
             reset_guids = self.playground.sim_settings.reset_guids
             ifc_domain = IFCDomain[ifc_domain]
