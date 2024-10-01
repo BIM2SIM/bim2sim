@@ -96,8 +96,56 @@
 on <a class="reference external" href="https://github.com/RWTH-EBC/AixLib/blob/main/AixLib/Airflow/AirHandlingUnit/AHU.mo">this Modelica model from AixLib</a>.
 As the IFC can’t contain specific information for the AHU currently, like if
 the AHU uses heating, cooling, dehumidification etc. and what air profiles are
-used, we are using the defaults from TEASER. You can overwrite these values by
-using TEASER after you created the TEASER project with <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> if wanted.</p>
+used, we are using the defaults from TEASER for most of the values.
+For some values we allow configuration directly via the following <code class="docutils literal notranslate"><span class="pre">sim_settings</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">overwrite_ahu_by_settings</span> <span class="o">=</span> <span class="n">BooleanSetting</span><span class="p">(</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Overwrite central AHU settings with the following &#39;</span>
+                <span class="s1">&#39;settings.&#39;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ahu_heating</span> <span class="o">=</span> <span class="n">BooleanSetting</span><span class="p">(</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Choose if the central AHU should provide heating. &quot;</span>
+                <span class="s2">&quot;Set overwrite_ahu_by_settings to True, &quot;</span>
+                <span class="s2">&quot;otherwise this has no effect. &quot;</span>
+<span class="p">)</span>
+<span class="n">ahu_cooling</span> <span class="o">=</span> <span class="n">BooleanSetting</span><span class="p">(</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Choose if the central AHU should provide cooling.&quot;</span>
+                <span class="s2">&quot;Set overwrite_ahu_by_settings to True, &quot;</span>
+                <span class="s2">&quot;otherwise this has no effect. &quot;</span>
+<span class="p">)</span>
+<span class="n">ahu_dehumidification</span> <span class="o">=</span> <span class="n">BooleanSetting</span><span class="p">(</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Choose if the central AHU should provide &quot;</span>
+                <span class="s2">&quot;dehumidification.&quot;</span>
+                <span class="s2">&quot;Set overwrite_ahu_by_settings to True, &quot;</span>
+                <span class="s2">&quot;otherwise this has no effect. &quot;</span>
+<span class="p">)</span>
+<span class="n">ahu_humidification</span> <span class="o">=</span> <span class="n">BooleanSetting</span><span class="p">(</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Choose if the central AHU should provide humidification.&quot;</span>
+                <span class="s2">&quot;Set overwrite_ahu_by_settings to True, &quot;</span>
+                <span class="s2">&quot;otherwise this has no effect. &quot;</span>
+<span class="p">)</span>
+<span class="n">ahu_heat_recovery</span> <span class="o">=</span> <span class="n">BooleanSetting</span><span class="p">(</span>
+    <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Choose if the central AHU should zuse heat recovery.&quot;</span>
+                <span class="s2">&quot;Set overwrite_ahu_by_settings to True, &quot;</span>
+                <span class="s2">&quot;otherwise this has no effect. &quot;</span>
+<span class="p">)</span>
+<span class="n">ahu_heat_recovery_efficiency</span> <span class="o">=</span> <span class="n">NumberSetting</span><span class="p">(</span>
+    <span class="n">default</span><span class="o">=</span><span class="mf">0.65</span><span class="p">,</span>
+    <span class="n">min_value</span><span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">max_value</span><span class="o">=</span><span class="mf">0.99</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Choose the heat recovery efficiency of the central AHU.&quot;</span>
+                <span class="s2">&quot;Set overwrite_ahu_by_settings to True, &quot;</span>
+                <span class="s2">&quot;otherwise this has no effect. &quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>You can overwrite all other values by using TEASER after you created the TEASER
+project with <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> if wanted.</p>
 </section>
 </section>
 
