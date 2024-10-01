@@ -2051,12 +2051,26 @@ class CalculateHydraulicSystem(ITask):
 
                 graph.nodes[node]['ufh_area'] = room_area
                 graph.nodes[node]['heat_flow_per_area'] = heat_flow_per_area
-                
+
+                max_ufh_pipe_length = 100 * ureg.meter
+                length_per_area_100 = 8.8 * ureg.meter
+                length_per_area_200 = 4.6 * ureg.meter
+
                 if (heat_flow_per_area.magnitude <
                         self.playground.sim_settings.ufh_heat_flow_laying_distance_changeover):
                     graph.nodes[node]['ufh_laying_distance'] = 200 * ureg.millimeter
+                    ufh_pipe_length = length_per_area_100 * room_area / (ureg.meter ** 2)
                 else:
                     graph.nodes[node]['ufh_laying_distance'] = 100 * ureg.millimeter
+                    ufh_pipe_length = length_per_area_200 * room_area / (ureg.meter ** 2)
+
+                needed_pipes = math.ceil(ufh_pipe_length/max_ufh_pipe_length)
+
+                if needed_pipes > 1:
+                    for valve_node, data in graph.nodes(data=True):
+                        if 'Magnetventil' in data['type'] and data['element'] == graph.nodes[node]['element']:
+                            for i in range(needed_pipes-1):
+                                data['type'].append("Magnetventil")
 
             # Set node attributes based on design heat flow
             m_flow_design = self.calculate_m_dot(Q_H=Q_flow_design)
@@ -2260,6 +2274,8 @@ class CalculateHydraulicSystem(ITask):
                 coefficient_resistance = 3.0
                 graph.nodes[node]['head'] = {viewpoint: 0 * ureg.meter}
             elif "Thermostatventil" in graph.nodes[node]["type"]:
+                coefficient_resistance = 4.0
+            elif "Magnetventil" in graph.nodes[node]["type"]:
                 coefficient_resistance = 4.0
             elif "Krümmer" in graph.nodes[node]["type"]:
                 coefficient_resistance = 1.50
