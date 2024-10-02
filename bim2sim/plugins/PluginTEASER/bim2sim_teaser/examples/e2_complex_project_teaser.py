@@ -2,7 +2,7 @@ import tempfile
 from pathlib import Path
 
 import bim2sim
-from bim2sim import Project
+from bim2sim import Project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
@@ -46,6 +46,11 @@ def run_example_complex_building_teaser():
     # use cooling
     project.sim_settings.cooling = True
     project.sim_settings.setpoints_from_template = True
+
+    project.sim_settings.overwrite_ahu_by_settings = True
+    project.sim_settings.ahu_heating = True
+    project.sim_settings.ahu_cooling = True
+    project.sim_settings.ahu_heat_recovery = True
 
     # overwrite existing layer structures and materials based on templates
     project.sim_settings.layers_and_materials = LOD.low
@@ -99,6 +104,7 @@ def run_example_complex_building_teaser():
     answers = (space_boundary_genenerator,
                *handle_proxies,
                construction_year)
+    # handler = ConsoleDecisionHandler()
     handler = DebugDecisionHandler(answers)
     handler.handle(project.run())
 
