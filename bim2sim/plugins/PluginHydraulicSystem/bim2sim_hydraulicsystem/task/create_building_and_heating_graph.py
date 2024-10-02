@@ -30,20 +30,25 @@ from bim2sim.utilities.common_functions import filter_elements
 class CreateBuildingAndHeatingGraph(ITask):
     """Creates a heating circle out of an ifc model"""
 
-    reads = ('floor_dict', 'elements')
+    reads = ('floor_dict', 'elements', 'heat_demand_dict')
     touches = ('building_graph', 'heating_graph')
 
 
-    def run(self, floor_dict, elements):
+    def run(self, floor_dict, elements, heat_demand_dict):
 
         self.hydraulic_system_directory = Path(self.paths.export / 'hydraulic system')
 
         self.floor_dict = floor_dict
         self.elements = elements
+        self.heat_demand_dict = heat_demand_dict
 
         self.heating_graph_start_point = (self.playground.sim_settings.startpoint_heating_graph_x_axis,
                                           self.playground.sim_settings.startpoint_heating_graph_y_axis,
                                           self.playground.sim_settings.startpoint_heating_graph_z_axis)
+
+        self.temperature_forward = self.playground.sim_settings.t_forward * ureg.kelvin
+        self.temperature_backward = self.playground.sim_settings.t_backward * ureg.kelvin
+        self.temperature_room = self.playground.sim_settings.t_room * ureg.kelvin
 
         self.one_pump_flag = self.playground.sim_settings.one_pump_flag
 
@@ -208,11 +213,39 @@ class CreateBuildingAndHeatingGraph(ITask):
 
     def get_radiator_nodes(self, graph, windows):
 
+        radiator_dict = self.read_radiator_material_excel(
+                filename=self.playground.sim_settings.hydraulic_components_data_file_path,
+                sheet_name=self.playground.sim_settings.hydraulic_components_data_file_radiator_sheet)
+        Q_radiator_max = max(values['Normwärmeleistung'].magnitude for key, values in radiator_dict.items()
+                                                                        if values)/1000
+
+
         room_dict = {}
+        needed_windows_dict = {}
 
         for floor in self.floor_dict.values():
             for room_id, room in floor['rooms'].items():
+
+                Q_flow_operation, norm_indoor_temperature = self.read_bim2sim_data([room_id])
+
+                log_mean_temperature_operation = round(
+                    self.logarithmic_mean_temperature(forward_temperature=self.temperature_forward,
+                                                      backward_temperature=self.temperature_backward,
+                                                      room_temperature=norm_indoor_temperature), 2)
+
+                log_mean_temperature_norm = round(self.logarithmic_mean_temperature(forward_temperature=75,
+                                                                                    backward_temperature=65,
+                                                                                    room_temperature=20), 2)
+                Q_flow_design = self.heat_flow_design_radiator(
+                    log_mean_temperature_operation=log_mean_temperature_operation,
+                    heating_exponent=1.3,
+                    log_mean_temperature_norm=log_mean_temperature_norm,
+                    Q_heat_operation=Q_flow_operation)
+
+                needed_windows_dict[room_id] = math.ceil(Q_flow_design / Q_radiator_max)
+
                 room_dict[room_id] = {}
+
                 x_room = [x[0] for x in room['global_corners']]
                 y_room = [y[1] for y in room['global_corners']]
                 for wall_id, wall in room["room_elements"].items():
@@ -253,7 +286,8 @@ class CreateBuildingAndHeatingGraph(ITask):
                     room_dict[room_id][wall_id]['window_centres'].append(window_centre)
 
         window_dict = {}
-        for room in room_dict.values():
+        for room_id, room in room_dict.items():
+            room_radiators = []
             for wall in room.values():
                 if wall['window_centres']:
                     middle_window = min(wall['window_centres'], key=lambda x: abs(x - wall['wall_centre']))
@@ -263,10 +297,120 @@ class CreateBuildingAndHeatingGraph(ITask):
                         y_windows = [y[1] for y in window_nodes]
                         if wall['direction'] == 0 and (min(x_windows) <= middle_window <= max(x_windows)):
                             window_dict[window_id] = window_nodes
+                            room_radiators.append(window_id)
                         elif wall['direction'] == 1 and (min(y_windows) <= middle_window <= max(y_windows)):
                             window_dict[window_id] = window_nodes
+                            room_radiators.append(window_id)
 
+            if needed_windows_dict[room_id] < len(room_radiators):
+                further_needed_windows = len(room_radiators) - needed_windows_dict[room_id]
+                i = 0
+                for wall in room.values():
+                    for window_id, window_nodes in wall['windows'].items():
+                        if window_id not in room_radiators:
+                            window_dict[window_id] = window_nodes
+                            i += 1
+                        if i == further_needed_windows:
+                            break
+            if needed_windows_dict[room_id] < len(room_radiators):
+                assert KeyError(f"Not enough windows for radiators in room {room_id}")
         return window_dict
+
+    @staticmethod
+    def read_radiator_material_excel(filename,
+                                     sheet_name,
+                                     ):
+        """
+
+		Args:
+			filename ():
+			sheet_name ():
+
+		Returns:
+
+		"""
+        data = pd.read_excel(filename, sheet_name=sheet_name)
+        # Daten aus der Tabelle auslesen und verarbeiten
+        model_dict = {}
+        for index, row in data.iterrows():
+            data_dict = {}
+            if not pd.isnull(row['Typ']):
+                data_dict["typ"] = row['Typ']
+            if not pd.isnull(row['Normwärmeleistung ((75/65/20 °C) in W/m']):
+                data_dict["Normwärmeleistung"] = row['Normwärmeleistung ((75/65/20 °C) in W/m'] * (
+                        ureg.watt / ureg.meter)
+            if not pd.isnull(row['Wasserinhalt in l/m']):
+                data_dict["Wasserinhalt"] = row['Wasserinhalt in l/m'] * (ureg.liter / ureg.meter)
+            if not pd.isnull(row['Masse in kg/m']):
+                data_dict["Masse"] = row['Masse in kg/m'] * (ureg.kilogram / ureg.meter)
+            if not pd.isnull(row['Material']):
+                data_dict["Material"] = row['Material']
+            # Weiterverarbeitung der Daten (hier nur Ausgabe als Beispiel)
+            model_dict[index] = data_dict
+        return model_dict
+
+    def read_bim2sim_data(self, space_id):
+        for d in self.heat_demand_dict:
+
+            space_guids = self.heat_demand_dict[d]["space_guids"]
+            if set(space_id) & set(space_guids):
+                standard_indoor_temperature = self.define_standard_indoor_temperature(usage=self.heat_demand_dict[d]["usage"])
+                PHeater = self.heat_demand_dict[d]["PHeater"]
+                PHeater_max = np.max(PHeater)
+                return PHeater_max, standard_indoor_temperature
+
+    def define_standard_indoor_temperature(self, usage):
+        UseConditions_Path = Path(__file__).parent.parent / 'assets/UseConditions.json'
+        with open(UseConditions_Path, 'r') as file:
+            UseConditions = json.load(file)
+
+        standard_indoor_temperature = 0
+        for key, values in UseConditions.items():
+            if usage == key:
+                standard_indoor_temperature = (values["heating_profile"][12] - 273.15) * ureg.kelvin
+
+        if standard_indoor_temperature == 0:
+            standard_indoor_temperature = self.temperature_room
+        return standard_indoor_temperature
+
+    def logarithmic_mean_temperature(self, forward_temperature: float = 75,
+                                     backward_temperature: float = 65,
+                                     room_temperature: float = 20):
+        """
+
+        Args:
+            forward_temperature ():
+            backward_temperature ():
+            room_temperature ():
+
+        Returns:
+
+        """
+        log_mean_temperature = (forward_temperature - backward_temperature) / (math.log(
+            (forward_temperature - room_temperature) / (backward_temperature - room_temperature)))
+        if isinstance(log_mean_temperature, Quantity):
+            return log_mean_temperature.magnitude
+        else:
+            return log_mean_temperature
+
+    def heat_flow_design_radiator(self,
+                                  log_mean_temperature_operation: float,
+                                  heating_exponent: float,
+                                  log_mean_temperature_norm: float,
+                                  Q_heat_operation: float
+                                  ):
+        """
+
+        Args:
+            log_mean_temperature_operation ():
+            heating_exponent ():
+            log_mean_temperature_norm ():
+            Q_heat_operation ():
+            Q = 1,15 Q_N
+        """
+        Q_heat_norm = (Q_heat_operation / (
+                    (log_mean_temperature_operation / log_mean_temperature_norm) ** heating_exponent))
+        return Q_heat_norm
 
     def check_if_graph_in_building_boundaries(self, graph):
 
