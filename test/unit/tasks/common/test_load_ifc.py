@@ -43,7 +43,14 @@ class TestLoadIFC(unittest.TestCase):
         shutil.copy2(source_file, destination_file)
 
         self.load_ifc_task.paths.ifc_base = temp_path / 'ifc'
-        DebugDecisionHandler(answers=()).handle(self.load_ifc_task.run())
+        touches = DebugDecisionHandler(answers=()).handle(self.load_ifc_task.run())
+
+        ifc_file_name = touches[0][0].ifc_file_name
+        ifc_schema = touches[0][0].schema
+        n_windows = len(touches[0][0].file.by_type('IfcWindow'))
+        self.assertEqual(ifc_file_name, "AC20-FZK-Haus.ifc")
+        self.assertEqual(ifc_schema, "IFC4")
+        self.assertEqual(n_windows, 11)
 
     def test_load_ifczip(self):
         ifc_temp_dir = tempfile.TemporaryDirectory(
@@ -56,7 +63,15 @@ class TestLoadIFC(unittest.TestCase):
         shutil.copy2(source_file, destination_file)
 
         self.load_ifc_task.paths.ifc_base = temp_path / 'ifc'
-        DebugDecisionHandler(answers=()).handle(self.load_ifc_task.run())
+        touches = DebugDecisionHandler(
+            answers=()).handle(self.load_ifc_task.run())
+
+        ifc_file_name = touches[0][0].ifc_file_name
+        ifc_schema = touches[0][0].schema
+        n_windows = len(touches[0][0].file.by_type('IfcWindow'))
+        self.assertEqual(ifc_file_name, "AC20-FZK-Haus.ifczip")
+        self.assertEqual(ifc_schema, "IFC4")
+        self.assertEqual(n_windows, 11)
 
     @unittest.skip("IFCXML created with IfcOpenShell seems faulty, this might "
                    "not be due to bim2sim but IfcOpenShell itself")
@@ -71,4 +86,12 @@ class TestLoadIFC(unittest.TestCase):
         shutil.copy2(source_file, destination_file)
 
         self.load_ifc_task.paths.ifc_base = temp_path / 'ifc'
-        DebugDecisionHandler(answers=()).handle(self.load_ifc_task.run())
+        touches = DebugDecisionHandler(
+            answers=()).handle(self.load_ifc_task.run())
+
+        ifc_file_name = touches[0][0].ifc_file_name
+        ifc_schema = touches[0][0].schema
+        n_windows = len(touches[0][0].file.by_type('IfcWindow'))
+        self.assertEqual(ifc_file_name, "AC20-FZK-Haus.ifcxml")
+        self.assertEqual(ifc_schema, "IFC4")
+        self.assertEqual(n_windows, 11)
