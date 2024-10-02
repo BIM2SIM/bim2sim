@@ -6,7 +6,7 @@ from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginVentilationSystem.bim2sim_ventilationsystem.task import (CalcAirFlow, DesignExaustLCA, DesignSupplyLCA,
                                                         DesignVentilationSystem)
 from bim2sim.tasks import common, bps
-from bim2sim.sim_settings import VentilationSystemSimSettings
+from bim2sim.plugins.PluginVentilationSystem.bim2sim_ventilationsystem.sim_settings import VentilationSystemSimSettings
 
 
 class PluginVentilationSystem(Plugin):
@@ -17,6 +17,10 @@ class PluginVentilationSystem(Plugin):
         common.LoadIFC,
         common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
+        bps.AddSpaceBoundaries2B,
+        bps.CorrectSpaceBoundaries,
+        common.CreateRelations,
+        bps.DisaggregationCreationAndTypeCheck,
         bps.EnrichUseConditions,
         # bps.VerifyLayersMaterials,
         # bps.EnrichMaterial,

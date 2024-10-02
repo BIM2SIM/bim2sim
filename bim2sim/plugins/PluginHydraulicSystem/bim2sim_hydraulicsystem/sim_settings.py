@@ -1,7 +1,7 @@
 from bim2sim.elements import bps_elements as bps_elements, hvac_elements as hvac_elements
 from bim2sim.elements.base_elements import Material
 from bim2sim.sim_settings import BuildingSimSettings, BooleanSetting, ChoiceSetting, PathSetting, NumberSetting, StringSetting
-
+from pathlib import Path
 
 
 class HydraulicSystemSimSettings(BuildingSimSettings):
@@ -62,7 +62,7 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
     # TODO convert xlsx into json and translate to english
     hydraulic_components_data_file_path = PathSetting(
         default=Path(__file__).parent /
-                'plugins/PluginHydraulicSystem/bim2sim_hydraulicsystem/assets/hydraulic_components.xlsx',
+                'assets/hydraulic_components.xlsx',
         description='Path to the data file which holds information'
                     'about possible hydraulic system components',
         for_frontend=True,

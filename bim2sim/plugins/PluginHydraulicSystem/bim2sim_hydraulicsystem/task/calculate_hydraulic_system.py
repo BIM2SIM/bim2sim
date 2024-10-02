@@ -2031,7 +2031,7 @@ class CalculateHydraulicSystem(ITask):
 
             if delivery_type in ["UFH", "UFH+Radiator", "UFH+Air"]:
                 room_id = graph.nodes[node]["belongs_to"][0]
-                room_area = self.ufh_get_room_area(room_id)
+                room_area = self.elements[room_id].net_area
 
                 heat_flow_per_area = Q_flow_design / room_area / ureg.kW * ureg.W * 1000
 
@@ -2089,12 +2089,6 @@ class CalculateHydraulicSystem(ITask):
         Q_heat_design = Q_heat_operation / log_mean_temperature_operation * (log_mean_temperature_operation **
                                                                              heating_exponent)
         return Q_heat_design
-
-    def ufh_get_room_area(self, room_id):
-        for element in self.elements:
-            if self.elements[element].element_type == "ThermalZone" and element == room_id:
-                return self.elements[element].net_area
-        assert KeyError(f"Thermal zone for delivery node in space {room_id} not found")
 
 
     def iterate_backward_nodes_mass_volume_flow(self, graph, viewpoint: str):

@@ -6,7 +6,7 @@ from networkx.readwrite import json_graph
 from networkx.utils import pairwise
 from networkx.algorithms.components import is_strongly_connected
 import matplotlib
-matplotlib.use("TkAgg")
+#matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 from shapely.geometry import Polygon, Point, LineString
 from scipy.spatial import distance
@@ -16,9 +16,14 @@ import itertools
 from itertools import chain
 import math
 import pandas as pd
+import ifcopenshell.geom
+from OCC.Core.BRepClass3d import BRepClass3d_SolidClassifier
+from OCC.Core.gp import gp_Pnt
+from OCC.Core.TopAbs import TopAbs_IN, TopAbs_ON
 
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
+from bim2sim.utilities.common_functions import filter_elements
 
 
 
@@ -197,7 +202,7 @@ class CreateBuildingAndHeatingGraph(ITask):
 
         for room_id, room in to_be_checked.items():
             if room_id not in door_dict_new.keys():
-                door_dict_new[door_id] = room["door nodes"]
+                door_dict_new[room_id] = room
 
         return door_dict_new
 
@@ -262,6 +267,72 @@ class CreateBuildingAndHeatingGraph(ITask):
                             window_dict[window_id] = window_nodes
 
         return window_dict
+
+    def check_if_graph_in_building_boundaries(self, graph):
+
+        def is_point_inside_shape(shape, point):
+            classifier = BRepClass3d_SolidClassifier(shape)
+            classifier.Perform(gp_Pnt(*point), 1e-6)
+            return classifier.State() in (TopAbs_IN, TopAbs_ON)
+
+        def is_edge_inside_shape(shape, point1, point2, iteration=0.1):
+            edge_length = euclidean_distance(point1, point2)
+            num_points = int(edge_length / iteration)
+            x1, y1, z1 = point1
+            x2, y2, z2 = point2
+            for i in range(num_points):
+                t = i / (num_points - 1)
+                x = x1 * (1 - t) + x2 * t
+                y = y1 * (1 - t) + y2 * t
+                z = z1 * (1 - t) + z2 * t
+                classifier = BRepClass3d_SolidClassifier(shape)
+                classifier.Perform(gp_Pnt(x, y, z), 1e-6)
+                if classifier.State() not in (TopAbs_IN, TopAbs_ON):
+                    return False
+            return True
+
+        def euclidean_distance(point1, point2):
+            return round(
+                math.sqrt((point2[0] - point1[0]) ** 2 + (point2[1] - point1[1]) ** 2 + (point2[2] - point1[2]) ** 2),
+                2)
+
+        # Check if nodes and edges are inside the building geometry and not running through staircases, etc.
+
+        settings_products = ifcopenshell.geom.main.settings()
+        settings_products.set(settings_products.USE_PYTHON_OPENCASCADE, True)
+        stories = filter_elements(self.elements, 'Storey')
+
+        for storey in stories:
+            slabs = filter_elements(storey.elements, 'InnerFloor')
+            groundfloors = filter_elements(storey.elements, 'GroundFloor')
+            slabs_and_baseslabs = slabs + groundfloors
+            storey_floor_shapes = []
+            for bottom_ele in slabs_and_baseslabs:
+                if hasattr(bottom_ele.ifc, 'Representation'):
+                    shape = ifcopenshell.geom.create_shape(
+                        settings_products, bottom_ele.ifc).geometry
+                    storey_floor_shapes.append(shape)
+
+            for floor in self.floor_dict.keys():
+                if floor == storey.guid:
+                    nodes_floor = [node for node, data in graph.nodes(data=True)
+                                   if data["floor_belongs_to"] == floor]
+                    for node in nodes_floor:
+                        if not any(is_point_inside_shape(shape, node) for shape in storey_floor_shapes):
+                            print(f"Node {node} is not inside the building boundaries")
+                            if any(type in graph.nodes[node]["type"] for type in ["radiator_forward",
+                                                                                  "radiator_backward"]):
+                                assert KeyError(f"Delivery node {node} not in building boundaries")
+                            graph.remove_node(node)
+
+                    edges_floor = [edge for edge in graph.edges()
+                                   if graph.nodes[edge[0]]["floor_belongs_to"] == floor
+                                   and graph.nodes[edge[1]]["floor_belongs_to"] == floor]
+                    for edge in edges_floor:
+                        if not any(is_edge_inside_shape(shape, edge[0], edge[1]) for shape in storey_floor_shapes):
+                            print(f"Edge {edge} does not intersect boundaries")
+                            graph.remove_edge(edge[0], edge[1])
+        return graph
 
     def get_delivery_nodes(self,
                            graph,
@@ -604,12 +675,12 @@ class CreateBuildingAndHeatingGraph(ITask):
                                        positions[source_forward_list[i]][2] - positions[source_forward_list[i + 1]][
                                            2]))
 
-
+        print("Check if nodes and edges of forward graph are inside the boundaries of the building")
+        forward_graph = self.check_if_graph_in_building_boundaries(forward_graph)
+        print("Check done")
 
         for i, floor in enumerate(self.floor_dict):
-
             # Save graph for each floor
-
             nodes_floor = [tuple(data["pos"]) for node, data in forward_graph.nodes(data=True)
                            if data["pos"][2] == self.floor_dict[floor]["height"]]
             floor_graph = forward_graph.subgraph(nodes_floor)

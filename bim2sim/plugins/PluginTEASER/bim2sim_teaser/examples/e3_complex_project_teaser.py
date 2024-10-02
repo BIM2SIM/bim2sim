@@ -21,7 +21,7 @@ def run_example_complex_building_teaser():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    project_path = r"D:\dja-jho\Testing\Teaser"
+    project_path = r"D:\dja-jho\Testing\Teaser1"
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -40,7 +40,7 @@ def run_example_complex_building_teaser():
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
     # combine spaces to thermal zones based on their usage
-    project.sim_settings.zoning_setup = LOD.medium
+    project.sim_settings.zoning_setup = LOD.full
     project.sim_settings.zoning_criteria = ZoningCriteria.usage
     # use cooling
     project.sim_settings.cooling = True
@@ -49,7 +49,10 @@ def run_example_complex_building_teaser():
     project.sim_settings.overwrite_ahu_by_settings = True
     project.sim_settings.ahu_heating = True
     project.sim_settings.ahu_cooling = True
+    project.sim_settings.ahu_dehumidification = True
+    project.sim_settings.ahu_humidification = True
     project.sim_settings.ahu_heat_recovery = True
+    project.sim_settings.ahu_heat_recovery_efficiency = 0.8
 
     # overwrite existing layer structures and materials based on templates
     project.sim_settings.layers_and_materials = LOD.low
@@ -87,22 +90,16 @@ def run_example_complex_building_teaser():
         "heat_set_rooms",
         "cool_set_rooms"
     ]
-    project.sim_settings.prj_use_conditions = (Path(
-        bim2sim.__file__).parent.parent /
-            "test/resources/arch/custom_usages/"
-            "UseConditions_New.json")
+    project.sim_settings.prj_use_conditions = r"D:\dja-jho\Git\BIM2SIM\bim2sim\assets\enrichment\usage\UseConditions.json"
     project.sim_settings.prj_custom_usages = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
-            "customUsagesFM_ARC_DigitalHub_with_SB89.json")
+            "customUsagesAC20-Institute-Var-2_with_SB-1-0.json")
     # create plots based on the results after simulation
     project.sim_settings.create_plots = True
 
-    # Run the project with pre configured answers for decisions
-    space_boundary_genenerator = 'Other'
-    handle_proxies = (*(None,) * 12,)
-    construction_year = 2015
-    answers = (construction_year,)
+
+    answers = (2015,)
     handler = DebugDecisionHandler(answers)
     handler.handle(project.run())
 

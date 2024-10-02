@@ -21,6 +21,12 @@ from networkx.utils import pairwise
 from copy import deepcopy
 from scipy.interpolate import interpolate, interp1d, griddata, LinearNDInterpolator
 from pint import Quantity
+import ifcopenshell.geom
+from OCC.Core.BRepClass3d import BRepClass3d_SolidClassifier
+from OCC.Core.gp import gp_Pnt
+from OCC.Core.TopAbs import TopAbs_IN, TopAbs_ON
+
+from bim2sim.utilities.common_functions import filter_elements
 
 class DesignExaustLCA(ITask):
     """Design of the LCA
@@ -46,6 +52,7 @@ class DesignExaustLCA(ITask):
 
     def run(self, elements, graph_ventilation_duct_length_supply_air, dict_steiner_tree_with_duct_cross_section):
 
+        self.elements = elements
         self.supply_graph = graph_ventilation_duct_length_supply_air
         self.dict_supply_graph_cross_section = dict_steiner_tree_with_duct_cross_section
 
@@ -59,7 +66,7 @@ class DesignExaustLCA(ITask):
         # siehe https://www.ctb.de/_wiki/swb/Massbezuege.php
 
         self.logger.info("Start design LCA")
-        thermal_zones = filter_elements(elements, 'ThermalZone')
+        thermal_zones = filter_elements(self.elements, 'ThermalZone')
         thermal_zones = [tz for tz in thermal_zones if tz.ventilation_system == True]
 
         self.logger.info("Start calculating points of the ventilation outlet at the ceiling")
@@ -1167,28 +1174,129 @@ class DesignExaustLCA(ITask):
 
         return colinear_edges, crossing_edges, crossing_points
 
+    def check_if_graph_in_building_boundaries(self, graph, z_value):
+
+        def is_point_inside_shape(shape, point):
+            """
+            Check if a point is inside or on the boundary of a TopoDS_Compound shape.
+            Args:
+                shape (TopoDS_Shape): The shape to check.
+                point (tuple): The coordinates of the point as a tuple (x, y, z).
+            Returns:
+                bool: True if the point is inside the shape or on its boundary, False otherwise.
+            """
+            classifier = BRepClass3d_SolidClassifier(shape)
+            classifier.Perform(gp_Pnt(*point), 1e-6)
+            return classifier.State() in (TopAbs_IN, TopAbs_ON)
+
+        def is_edge_inside_shape(shape, point1, point2, iteration=0.1):
+            """
+            Check if an edge is inside or on the boundary of a TopoDS_Compound shape.
+
+            Args:
+                shape (TopoDS_Shape): The shape to check.
+                point1 (tuple): The coordinates of the first point of the edge as a tuple (x, y, z).
+                point2 (tuple): The coordinates of the second point of the edge as a tuple (x, y, z).
+                num_points (int): The number of points to check along the edge.
+
+            Returns:
+                bool: True if the entire edge is inside the shape or on its boundary, False otherwise.
+            """
+            edge_length = euclidean_distance(point1, point2)
+            num_points = int(edge_length / iteration)
+            x1, y1, z1 = point1
+            x2, y2, z2 = point2
+            for i in range(num_points):
+                t = i / (num_points - 1)
+                x = x1 * (1 - t) + x2 * t
+                y = y1 * (1 - t) + y2 * t
+                z = z1 * (1 - t) + z2 * t
+                classifier = BRepClass3d_SolidClassifier(shape)
+                classifier.Perform(gp_Pnt(x, y, z), 1e-6)
+                if classifier.State() not in (TopAbs_IN, TopAbs_ON):
+                    return False
+            return True
+
+        def euclidean_distance(point1, point2):
+            """
+            Calculating the distance between point1 and point2
+            :param point1:
+            :param point2:
+            :return: Distance between point1 and point2
+            """
+            return round(
+                math.sqrt((point2[0] - point1[0]) ** 2 + (point2[1] - point1[1]) ** 2 + (point2[2] - point1[2]) ** 2),
+                2)
+
+        # Check if nodes and edges are inside the building geometry and not running through staircases, etc.
+
+        settings_products = ifcopenshell.geom.main.settings()
+        settings_products.set(settings_products.USE_PYTHON_OPENCASCADE, True)
+        stories = filter_elements(self.elements, 'Storey')
+
+        storey_z_values = []
+        for storey in stories:
+            storey_z_values.append(storey.position[2])
+        closest_z_value = min(storey_z_values, key=lambda x:abs(x-z_value))
+
+        storey = stories[storey_z_values.index(closest_z_value)]
+
+        slabs = filter_elements(storey.elements, 'InnerFloor')
+        groundfloors = filter_elements(storey.elements, 'GroundFloor')
+        slabs_and_baseslabs = slabs + groundfloors
+        storey_floor_shapes = []
+        for bottom_ele in slabs_and_baseslabs:
+            if hasattr(bottom_ele.ifc, 'Representation'):
+                shape = ifcopenshell.geom.create_shape(
+                    settings_products, bottom_ele.ifc).geometry
+                storey_floor_shapes.append(shape)
+
+        nodes_floor = [node for node in graph.nodes]
+        for node in nodes_floor: # Assuming the nodes have 'x' and 'y' attributes
+            if not any(is_point_inside_shape(shape, node) for shape in storey_floor_shapes):
+                print(f"Node {node} is not inside the building boundaries")
+                if any(type in graph.nodes[node]["type"] for type in ["radiator_forward",
+                                                                      "radiator_backward"]):
+                    assert KeyError(f"Delivery node {node} not in building boundaries")
+                graph.remove_node(node)
+
+        edges_floor = [edge for edge in graph.edges()]
+        for edge in edges_floor:
+            if not any(is_edge_inside_shape(shape, edge[0], edge[1]) for shape in storey_floor_shapes):
+                print(f"Edge {edge} does not intersect boundaries")
+                graph.remove_edge(edge[0], edge[1])
+        return graph
+
     def minimize_collisions_with_supply_graph(self, supply_graph, exhaust_graph, terminal_nodes):
 
-        def check_terminal_node_connection(exhaust_graph, terminal_nodes):
+        def check_terminal_node_connection(exhaust_graph, terminal_nodes, shaft_node):
             connected_components = list(nx.connected_components(exhaust_graph))
             for components in connected_components:
-                if all(element in components for element in terminal_nodes):
-                    return True
+                if shaft_node in components:
+                    if all(element in components for element in terminal_nodes):
+                        return True
             return False
 
 
         colinear_edges, crossing_edges, crossing_points = self.find_collisions(supply_graph, exhaust_graph)
         exhaust_crossing_edges = [edge[1] for edge in crossing_edges]
 
+        for node, data in exhaust_graph.nodes(data=True):
+            if data['color'] == 'green':
+                shaft_node = node
+
         exhaust_graph.remove_edges_from(colinear_edges)
         exhaust_graph.remove_edges_from(exhaust_crossing_edges)
 
-        if not check_terminal_node_connection(exhaust_graph, terminal_nodes):
+        if not check_terminal_node_connection(exhaust_graph, terminal_nodes, shaft_node):
 
             not_connected_terminal_nodes = []
-            for terminal_node in terminal_nodes:
-                if not exhaust_graph.edges(terminal_node):
-                    not_connected_terminal_nodes.append(terminal_node)
+            connected_components = list(nx.connected_components(exhaust_graph))
+            for components in connected_components:
+                if shaft_node not in components:
+                    for terminal_node in terminal_nodes:
+                        if terminal_node in components and terminal_node not in not_connected_terminal_nodes:
+                            not_connected_terminal_nodes.append(terminal_node)
 
             new_nodes = []
             for terminal_node in not_connected_terminal_nodes:
@@ -1199,7 +1307,7 @@ class DesignExaustLCA(ITask):
                         if node != terminal_node:
                             new_nodes.append(node)
 
-        if not check_terminal_node_connection(exhaust_graph, terminal_nodes):
+        if not check_terminal_node_connection(exhaust_graph, terminal_nodes, shaft_node):
 
             trigger = True
             i = 0
@@ -1216,7 +1324,7 @@ class DesignExaustLCA(ITask):
                                 new_new_nodes.append(new_node)
                 new_nodes = new_new_nodes
 
-                if check_terminal_node_connection(exhaust_graph, terminal_nodes):
+                if check_terminal_node_connection(exhaust_graph, terminal_nodes, shaft_node):
                     trigger = False
 
                 if i == 200:
@@ -1415,7 +1523,7 @@ class DesignExaustLCA(ITask):
                     gewicht_kante_x = self.euclidean_distance(nodes_on_same_axis[i], nodes_on_same_axis[i + 1])
                     G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], length=gewicht_kante_x)
 
-
+            """
             #### TESTING OF COLLISION ALGORITHM
 
             # TEST SUPPLY GRAPH
@@ -1499,10 +1607,11 @@ class DesignExaustLCA(ITask):
 
 
             #test1 = self.minimize_collisions_with_supply_graph(test_supply, test_exhaust, terminals)
+            """
 
-
-
-            ######################
+            print("Check if nodes and edges of forward graph are inside the boundaries of the building")
+            G = self.check_if_graph_in_building_boundaries(G, z_value)
+            print("Check done")
 
             # Checke Kollisionen mit Zuluftgraph und lösche entsprechende Kanten im Abluftgraph
             G = self.minimize_collisions_with_supply_graph(self.supply_graph, G, terminals)

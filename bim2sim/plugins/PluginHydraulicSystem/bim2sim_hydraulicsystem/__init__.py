@@ -8,7 +8,7 @@ from bim2sim.plugins.PluginHydraulicSystem.bim2sim_hydraulicsystem.task import (
                                                                                 InterfaceToPluginTeaser,
                                                                                 CalculateHydraulicSystem)
 from bim2sim.tasks import common, bps
-from bim2sim.sim_settings import HydraulicSystemSimSettings
+from bim2sim.plugins.PluginHydraulicSystem.bim2sim_hydraulicsystem.sim_settings import HydraulicSystemSimSettings
 
 
 class PluginHydraulicSystem(Plugin):
@@ -16,7 +16,13 @@ class PluginHydraulicSystem(Plugin):
     sim_settings = HydraulicSystemSimSettings
     default_tasks = [
         common.LoadIFC,
-        common.DeserializeElements,
+        #common.DeserializeElements,
+        common.CreateElementsOnIfcTypes,
+        bps.CreateSpaceBoundaries,
+        bps.AddSpaceBoundaries2B,
+        bps.CorrectSpaceBoundaries,
+        common.CreateRelations,
+        bps.DisaggregationCreationAndTypeCheck,
         InterfaceToPluginTeaser,
         GetIFCBuildingGeometry,
         CreateBuildingAndHeatingGraph,

@@ -84,9 +84,10 @@ class CalcAirFlow(ITask):
         """
 
         for tz in thermal_zones:
-            persons_per_square_meter = tz.persons * ureg.person  # persons/m² (data source is din 18599)
+            persons_per_square_meter = tz.persons * ureg.person # persons/m² (data source is din 18599)
             area = tz.net_area  # Area of the room
-            persons_per_room = math.ceil(persons_per_square_meter * area)  # number of people per room, rounded up!
+            persons_per_room = math.ceil(persons_per_square_meter * area.magnitude)  # number of people per room,
+            # rounded up!
 
             if tz.usage == "WC and sanitary rooms in non-residential buildings":
                 tz.area_air_flow_factor = 11 * (ureg.meter**3)/(ureg.hour * ureg.meter**2)  # ASR A4.1 Page 5; 5.1. Allgemeines
@@ -134,7 +135,7 @@ class CalcAirFlow(ITask):
             "Type of use": [tz.usage for tz in thermal_zones],
             "Clear height of the room": [tz.height for tz in thermal_zones],
             "Room volume": [tz.net_volume for tz in thermal_zones],
-            "Number of persons": [math.ceil(tz.persons * tz.net_area) for tz in thermal_zones],
+            "Number of persons": [math.ceil(tz.persons * tz.net_area.magnitude) for tz in thermal_zones],
             "Air volume factor person": [tz.persons_air_flow_factor for tz in thermal_zones],
             "Floor area of the room": [tz.net_area for tz in thermal_zones],
             "Air volume factor Area": [tz.area_air_flow_factor for tz in thermal_zones],
