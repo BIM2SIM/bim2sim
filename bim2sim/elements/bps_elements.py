@@ -1851,17 +1851,20 @@ class Building(BPSProduct):
     with_ahu = attribute.Attribute(
         functions=[_check_tz_ahu]
     )
-    # TODO Due to #722 the following values needs to be set via sim_setting,
-    #  because we don't allow boolean attributes for now.
     ahu_heating = attribute.Attribute(
+        attr_type=bool
     )
     ahu_cooling = attribute.Attribute(
+        attr_type=bool
     )
     ahu_dehumidification = attribute.Attribute(
+        attr_type=bool
     )
     ahu_humidification = attribute.Attribute(
+        attr_type=bool
     )
     ahu_heat_recovery = attribute.Attribute(
+        attr_type=bool
     )
     ahu_heat_recovery_efficiency = attribute.Attribute(
     )
