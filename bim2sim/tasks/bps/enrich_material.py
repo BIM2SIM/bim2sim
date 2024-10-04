@@ -10,6 +10,7 @@ from bim2sim.elements.bps_elements import Layer, LayerSet, Building
 from bim2sim.utilities.types import LOD, AttributeDataSource
 from bim2sim.tasks.base import Playground
 
+
 class EnrichMaterial(ITask):
     """Enriches material properties that were recognized as invalid
     LOD.layers = Medium & Full"""
