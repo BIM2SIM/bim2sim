@@ -101,7 +101,7 @@ class CorrectSpaceBoundaries(ITask):
                 non-convex boundaries
         """
         if add_shadings:
-            spatials: list = []
+            spatials = []
             ext_spatial_elems = filter_elements(elements,
                                                 ExternalSpatialElement)
             for elem in ext_spatial_elems:
@@ -135,7 +135,7 @@ class CorrectSpaceBoundaries(ITask):
                         Extrema_ExtFlag_MIN).Value()
                     if distance < 0.001:
                         continue
-                    prod_vec: list = []
+                    prod_vec = []
                     for i in opening_obj.bound_normal.Coord():
                         prod_vec.append(distance * i)
 
@@ -156,7 +156,7 @@ class CorrectSpaceBoundaries(ITask):
                         opening_obj.parent_bound.bound_shape,
                         Extrema_ExtFlag_MIN).Value()
                     if new_distance > 1e-3:
-                        prod_vec: list = []
+                        prod_vec = []
                         op_normal = opening_obj.bound_normal.Reversed()
                         for i in op_normal.Coord():
                             prod_vec.append(new_distance * i)
@@ -184,7 +184,7 @@ class CorrectSpaceBoundaries(ITask):
         logger.info("Fix surface orientation")
         spaces = get_spaces_with_bounds(elements)
         for space in spaces:
-            face_list: list = []
+            face_list = []
             for bound in space.space_boundaries:
                 # get all bounds within a space except openings
                 if bound.parent_bound:
@@ -216,7 +216,7 @@ class CorrectSpaceBoundaries(ITask):
                 fixed_shape.Complement()
             # disaggregate the fixed_shape to a list of fixed_faces
             f_exp = TopExp_Explorer(fixed_shape, TopAbs_FACE)
-            fixed_faces: list = []
+            fixed_faces = []
             while f_exp.More():
                 fixed_faces.append(topods_Face(f_exp.Current()))
                 f_exp.Next()
@@ -289,8 +289,8 @@ class CorrectSpaceBoundaries(ITask):
             bounds = filter_elements(elements, SpaceBoundary2B)
         # filter for boundaries, that are not opening boundaries
         bounds_except_openings = [b for b in bounds if not b.parent_bound]
-        conv: list = []  # list of new convex shapes (for debugging)
-        non_conv: list = []  # list of old non-convex shapes (for debugging
+        conv = []  # list of new convex shapes (for debugging)
+        non_conv = []  # list of old non-convex shapes (for debugging
         for bound in bounds_except_openings:
             try:
                 # check if bound has already been processed
@@ -399,8 +399,8 @@ class CorrectSpaceBoundaries(ITask):
         """
         # keep the original guid as non_convex_guid
         bound.non_convex_guid = bound.guid
-        new_space_boundaries: list = []
-        openings: list = []
+        new_space_boundaries = []
+        openings = []
         if bound.opening_bounds:
             openings.extend(bound.opening_bounds)
         for shape in convex_shapes:
@@ -412,7 +412,7 @@ class CorrectSpaceBoundaries(ITask):
             new_bound.bound_shape = shape
             new_bound.bound_area = SpaceBoundary.get_bound_area(new_bound)
             if openings:
-                new_bound.opening_bounds: list = []
+                new_bound.opening_bounds = []
                 for opening in openings:
                     # map the openings to the new parent surface
                     distance = BRepExtrema_DistShapeShape(

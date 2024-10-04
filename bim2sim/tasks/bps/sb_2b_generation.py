@@ -25,7 +25,7 @@ class AddSpaceBoundaries2B(ITask):
     reads = ('elements',)
     touches = ('elements',)
 
-    def run(self, elements: dict) -> dict:
+    def run(self, elements: dict) -> tuple[dict]:
         """Create 2b space boundaries to fill gaps in spaces.
 
         This task generates space boundaries of type 2b to fill gaps in the
@@ -135,7 +135,7 @@ class AddSpaceBoundaries2B(ITask):
         settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
         settings.set(settings.INCLUDE_CURVES, True)
         inst_2b = dict()
-        bound_obj: list = []
+        bound_obj = []
 
         # generate a list of IFCBased elements (e.g. Wall) that are the
         # space surrounding elements. Initialize a shape (geometry) for these

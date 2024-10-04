@@ -176,13 +176,13 @@ class EnrichUseConditions(ITask):
 
         """
         # selected_usage = {}
-        final_usages: dict = {}
+        final_usages = {}
         for tz in list(thermal_zones.values()):
             orig_usage = str(tz.usage)
             if orig_usage in pattern_usage:
                 final_usages[tz] = orig_usage
             else:
-                matches: list = []
+                matches = []
                 list_org = tz.usage.replace(' (', ' ').replace(')', ' '). \
                     replace(' -', ' ').replace(', ', ' ').split()
                 for usage in pattern_usage.keys():

@@ -44,8 +44,8 @@ class DisaggregationCreationAndTypeCheck(ITask):
         Args:
             elements (dict): Dictionary of building elements to process.
          """
-        elements_overwrite: dict = {}
-        elements_to_aggregate: dict = {}  # dict(new_element, old_element)
+        elements_overwrite = {}
+        elements_to_aggregate = {}  # dict(new_element, old_element)
         for ele in elements.values():
             # only handle BPSProductWithLayers
             if not any([isinstance(ele, bps_product_layer_ele) for
@@ -56,7 +56,7 @@ class DisaggregationCreationAndTypeCheck(ITask):
             if len(ele.space_boundaries) < 2:
                 self.logger.info(f'No disggregation needed for {ele}')
                 continue
-            disaggregations: list = []
+            disaggregations = []
             for sb in ele.space_boundaries:
                 disaggr = None
                 # the space_boundaries may contain those space boundaries,

@@ -62,8 +62,8 @@ class Weather(ITask):
                 "More than one IfcSite in the provided IFC file(s). We are"
                 "using the location of the first IfcSite found for weather "
                 "file definition.")
-        latitude: float = site[0].location_latitude
-        longitude: float = site[0].location_longitude
+        latitude = site[0].location_latitude
+        longitude = site[0].location_longitude
         return latitude, longitude
 
     def get_weatherfile_from_dwd(self, lat: tuple, long: tuple):
@@ -101,7 +101,7 @@ class Weather(ITask):
         # Check if the request was successful
         if response.status_code == 200:
             data = response.json()
-            location_name: str = data.get("display_name", "Location not found")
+            location_name = data.get("display_name", "Location not found")
 
         else:
             self.logger.warning(

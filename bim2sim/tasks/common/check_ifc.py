@@ -21,6 +21,7 @@ from bim2sim.tasks.base import ITask, Playground
 from bim2sim.utilities.common_functions import all_subclasses
 from bim2sim.utilities.types import IFCDomain
 
+
 class CheckIfc(ITask):
     """
     Check an IFC file, for a number of conditions (missing information,
@@ -152,7 +153,7 @@ class CheckIfc(ITask):
                           inspect.getmembers(plugin, inspect.isclass) if
                           inspect.getmro(plugin_class[1])[1].__name__.endswith(
                               'Product')]
-        cls_summary: dict = {}
+        cls_summary = {}
 
         for plugin_class in plugin_classes:
             # class itself
@@ -178,7 +179,7 @@ class CheckIfc(ITask):
             ps_summary: dictionary containing all the ifc_types on the
             plugin with the corresponding property sets
         """
-        ps_summary: dict = {}
+        ps_summary = {}
         cls_summary = cls._get_ifc_type_classes(plugin)
         for ifc_type, plugin_class in cls_summary.items():
             attributes = inspect.getmembers(
@@ -202,7 +203,7 @@ class CheckIfc(ITask):
 
         """
         relevant_ifc_types = list(self.ps_summary.keys())
-        ifc_elements: list = []
+        ifc_elements = []
         for ifc_type in relevant_ifc_types:
             ifc_elements.extend(ifc.by_type(ifc_type))
         return ifc_elements
@@ -222,7 +223,7 @@ class CheckIfc(ITask):
                 GUID + the ifc_type
 
         """
-        summary: dict = {}
+        summary = {}
         for inst in elements:
             error = validation_function(inst)
             if len(error) > 0:
@@ -289,7 +290,7 @@ class CheckIfc(ITask):
             categorized_dict: dictionary containing all errors categorized
 
         """
-        categorized_dict: dict = {'per_error': {}, 'per_type': {}}
+        categorized_dict = {'per_error': {}, 'per_type': {}}
         for instance, errors in error_dict.items():
             if ' ' in instance:
                 guid, ifc_type = instance.split(' ')
@@ -297,7 +298,7 @@ class CheckIfc(ITask):
                 guid = '-'
                 ifc_type = instance
             if ifc_type not in categorized_dict['per_type']:
-                categorized_dict['per_type'][ifc_type]: dict = {}
+                categorized_dict['per_type'][ifc_type] = {}
             categorized_dict['per_type'][ifc_type][guid] = errors
             for error in errors:
                 error_com = error.split(' - ')
@@ -366,7 +367,7 @@ class CheckIfc(ITask):
         """
         inst_prop2check = self.ps_summary.get(inst.is_a(), {})
         inst_prop = get_property_sets(inst, self.ifc_units)
-        inst_prop_errors: list = []
+        inst_prop_errors = []
         for prop2check, ps2check in inst_prop2check.items():
             ps = inst_prop.get(ps2check[0], None)
             if ps:
@@ -406,7 +407,7 @@ class CheckIfc(ITask):
         Returns:
             templates: dictionary containing all error html templates
         """
-        templates: dict = {}
+        templates = {}
         path_templates = os.path.join(
             self.paths.assets, "templates", "check_ifc")
         lookup = TemplateLookup(directories=[path_templates])
@@ -489,7 +490,7 @@ class CheckIfcHVAC(CheckIfc):
             error: list of errors found in the IFC port
 
         """
-        error: list = []
+        error = []
         self.apply_validation_function(self._check_unique(port, self.id_list),
                                        'GlobalId - '
                                        'The space boundary GlobalID is not '
@@ -520,7 +521,7 @@ class CheckIfcHVAC(CheckIfc):
             error: list of elements error
 
         """
-        error: list = []
+        error = []
         self.apply_validation_function(self._check_unique(inst, self.id_list),
                                        'GlobalId - '
                                        'The instance GlobalID is not unique', error)
@@ -720,7 +721,7 @@ class CheckIfcBPS(CheckIfc):
         Returns:
             error: list of errors found in the ifc space boundaries
         """
-        error: list = []
+        error = []
         self.apply_validation_function(self._check_unique(bound, self.id_list),
                                        'GlobalId - '
                                        'The space boundary GlobalID is not '
@@ -859,7 +860,7 @@ class CheckIfcBPS(CheckIfc):
             error: list of elements error
 
         """
-        error: list = []
+        error = []
         self.apply_validation_function(self._check_unique(inst, self.id_list),
                                        'GlobalId - '
                                        'The instance GlobalID is not unique'
@@ -1350,7 +1351,7 @@ class CheckIfcBPS(CheckIfc):
         else:
             if len(inst.ProvidesBoundaries) > 0:
                 return True
-            decompose: list = []
+            decompose = []
             if hasattr(inst, 'Decomposes') and len(inst.Decomposes):
                 decompose = [decomp.RelatingObject for decomp in
                              inst.Decomposes]

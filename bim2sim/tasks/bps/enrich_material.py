@@ -29,8 +29,8 @@ class EnrichMaterial(ITask):
 
     def __init__(self, playground: Playground):
         super().__init__(playground)
-        self.layer_sets_added: list = []
-        self.template_materials: dict = {}
+        self.layer_sets_added = []
+        self.template_materials = {}
 
     def run(self, elements: dict):
         """Enriches materials and layer sets of building elements.
@@ -82,7 +82,7 @@ class EnrichMaterial(ITask):
                 element_template[template_name], material_template)
             ele_enrichment_data = self.enrich_element_data_from_template(
                 element_template[template_name])
-            elements_to_enrich: list = []
+            elements_to_enrich = []
             for ele_type in ele_types:
                 elements_to_enrich.extend(filter_elements(elements, ele_type))
             for element in elements_to_enrich:
@@ -174,7 +174,7 @@ class EnrichMaterial(ITask):
         """get dict with the material templates and its respective
         attributes"""
         material_templates = get_material_templates()
-        resumed: dict = {}
+        resumed = {}
         for k in material_templates:
             resumed[material_templates[k]['name']]: dict = {}
             if attrs is not None:
@@ -209,7 +209,7 @@ class EnrichMaterial(ITask):
                 construction_type,
                 windows_construction_type):
             element_templates = get_type_building_elements()
-            bldg_template: dict = {}
+            bldg_template = {}
             for element_type, years_dict in element_templates.items():
                 if len(years_dict) == 1:
                     template_options = years_dict[list(years_dict.keys())[0]]
@@ -249,7 +249,7 @@ class EnrichMaterial(ITask):
                             template_options[construction_type]
             return bldg_template
 
-        templates: dict = {}
+        templates = {}
         construction_type = sim_settings.construction_class_walls
         windows_construction_type = sim_settings.construction_class_windows
         if not buildings:
