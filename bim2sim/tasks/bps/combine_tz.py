@@ -120,11 +120,11 @@ class CombineThermalZones(ITask):
     @classmethod
     def group_by_usage(cls, thermal_zones: list) -> dict:
         """groups together the thermal zones based on usage criterion"""
-        grouped_tz: dict = {}
+        grouped_tz = {}
         for tz in thermal_zones:
             value = getattr(tz, 'usage')
             if value not in grouped_tz:
-                grouped_tz[value]: list = []
+                grouped_tz[value] = []
             grouped_tz[value].append(tz)
         cls.discard_1_element_groups(grouped_tz)
         return grouped_tz
@@ -159,12 +159,12 @@ class CombineThermalZones(ITask):
     def group_by_external_orientation(cls, thermal_zones: list) -> dict:
         """groups together the thermal zones based on external_orientation
         criterion"""
-        grouped_tz: dict = {}
+        grouped_tz = {}
         for tz in thermal_zones:
             value = cls.external_orientation_group(
                 getattr(tz, 'external_orientation'))
             if value not in grouped_tz:
-                grouped_tz[value]: list = []
+                grouped_tz[value] = []
             grouped_tz[value].append(tz)
         cls.discard_1_element_groups(grouped_tz)
         return grouped_tz
@@ -177,7 +177,7 @@ class CombineThermalZones(ITask):
         for tz in thermal_zones:
             value = cls.glass_percentage_group(getattr(tz, 'glass_percentage'))
             if value not in grouped_tz:
-                grouped_tz[value]: list = []
+                grouped_tz[value] = []
             grouped_tz[value].append(tz)
         cls.discard_1_element_groups(grouped_tz)
         return grouped_tz
@@ -210,7 +210,7 @@ class CombineThermalZones(ITask):
             dict:
         """groups together thermal zones, that were already grouped in previous
          steps"""
-        grouped_tz: dict = {}
+        grouped_tz = {}
         external_functions = [cls.group_by_external_orientation,
                               cls.group_by_glass_percentage]
         for group, items in grouped_thermal_zones.items():
@@ -228,7 +228,7 @@ class CombineThermalZones(ITask):
         """groups together thermal zones, that are not already grouped in
         previous steps based on Norm DIN_V_18599_1"""
         # list of all thermal elements grouped:
-        grouped_thermal_elements: list = []
+        grouped_thermal_elements = []
         for criteria in grouped_thermal_zones:
             grouped_thermal_elements += grouped_thermal_zones[criteria]
         # check not grouped elements for fourth criterion
