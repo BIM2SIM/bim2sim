@@ -216,7 +216,9 @@ class CreateBuildingAndHeatingGraph(ITask):
         radiator_dict = self.read_radiator_material_excel(
                 filename=self.playground.sim_settings.hydraulic_components_data_file_path,
                 sheet_name=self.playground.sim_settings.hydraulic_components_data_file_radiator_sheet)
-        Q_radiator_max = max(values['Normwärmeleistung'].magnitude for key, values in radiator_dict.items()
+        max_radiator_length = 3 #Meter
+        Q_radiator_max = max_radiator_length * max(values['Normwärmeleistung'].magnitude for key, values in
+                                                 radiator_dict.items()
                                                                         if values)/1000
 
 
