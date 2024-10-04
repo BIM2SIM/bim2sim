@@ -212,7 +212,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         return door_dict_new
 
     def get_radiator_nodes(self, graph, windows):
-
+        # Get maximal possible radiator power
         radiator_dict = self.read_radiator_material_excel(
                 filename=self.playground.sim_settings.hydraulic_components_data_file_path,
                 sheet_name=self.playground.sim_settings.hydraulic_components_data_file_radiator_sheet)
@@ -225,7 +225,7 @@ class CreateBuildingAndHeatingGraph(ITask):
 
         for floor in self.floor_dict.values():
             for room_id, room in floor['rooms'].items():
-
+                # Calculate necessary heating power per room and calculate necessary number of radiators accordingly
                 Q_flow_operation, norm_indoor_temperature = self.read_bim2sim_data([room_id])
 
                 log_mean_temperature_operation = round(
@@ -246,6 +246,7 @@ class CreateBuildingAndHeatingGraph(ITask):
 
                 room_dict[room_id] = {}
 
+                # Get wall elements per room
                 x_room = [x[0] for x in room['global_corners']]
                 y_room = [y[1] for y in room['global_corners']]
                 for wall_id, wall in room["room_elements"].items():
@@ -267,6 +268,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                         room_dict[room_id][wall_id]['window_centres'] = []
 
         for window_id, window_nodes in windows.items():
+            # Get centre coordinates of window
             room_id = graph.nodes(data=True)[window_nodes[0]]["belongs_to"][0]
             x_windows = [x[0] for x in window_nodes]
             y_windows = [y[1] for y in window_nodes]
@@ -287,6 +289,8 @@ class CreateBuildingAndHeatingGraph(ITask):
 
         window_dict = {}
         for room_id, room in room_dict.items():
+            # Add one radiator under one window per wall, if the wall has windows
+            # Radiator is placed under the window, which is closest to the wall centre
             room_radiators = []
             for wall in room.values():
                 if wall['window_centres']:
@@ -302,16 +306,20 @@ class CreateBuildingAndHeatingGraph(ITask):
                             window_dict[window_id] = window_nodes
                             room_radiators.append(window_id)
 
-            if needed_windows_dict[room_id] < len(room_radiators):
-                further_needed_windows = len(room_radiators) - needed_windows_dict[room_id]
+            # Add further radiators, if needed to reach the necessary heating power per room
+            if needed_windows_dict[room_id] > len(room_radiators):
+                further_needed_windows = needed_windows_dict[room_id] - len(room_radiators)
                 i = 0
                 for wall in room.values():
                     for window_id, window_nodes in wall['windows'].items():
                         if window_id not in room_radiators:
                             window_dict[window_id] = window_nodes
+                            room_radiators.append(window_id)
                             i += 1
                         if i == further_needed_windows:
                             break
+                    if i == further_needed_windows:
+                        break
             if needed_windows_dict[room_id] < len(room_radiators):
                 assert KeyError(f"Not enough windows for radiators in room {room_id}")
         return window_dict
@@ -474,7 +482,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                    and graph.nodes[edge[1]]["floor_belongs_to"] == floor]
                     for edge in edges_floor:
                         if not any(is_edge_inside_shape(shape, edge[0], edge[1]) for shape in storey_floor_shapes):
-                            print(f"Edge {edge} does not intersect boundaries")
+                            print(f"Edge {edge} not inside building boundaries")
                             graph.remove_edge(edge[0], edge[1])
         return graph
 
@@ -711,13 +719,17 @@ class CreateBuildingAndHeatingGraph(ITask):
                 Erstelle Endpunkte
 
                 """
+        # Relabel nodes
         node_mapping = {node: tuple(data["pos"]) for node, data in graph.nodes(data=True)}
         graph = nx.relabel_nodes(graph, node_mapping)
 
+        # Get delivery nodes
         delivery_forward_nodes, delivery_backward_nodes, forward_backward_edge = self.get_delivery_nodes(graph=graph,
                                                                                                          type_delivery=type_delivery)
 
         forward_graph = graph.subgraph(delivery_forward_nodes)
+
+        # Get source/shaft nodes
         forward_graph, source_forward_list = self.get_source_nodes(graph=forward_graph,
                                                                    points=self.heating_graph_start_point,
                                                                    type="Verteiler",
@@ -747,9 +759,8 @@ class CreateBuildingAndHeatingGraph(ITask):
 
                 forward_graph = nx.relabel_nodes(forward_graph, mapping)
 
-            # Pro Delivery Point pro Etage
+            # Create list of delivery and source nodes
             element_nodes_forward = []
-            element_nodes_backward = []
             for delivery_node in delivery_forward_nodes:
                 if forward_graph.nodes[delivery_node]["floor_belongs_to"] == floor:
                     element_nodes_forward.append(delivery_node)
@@ -790,7 +801,6 @@ class CreateBuildingAndHeatingGraph(ITask):
                             element_nodes_forward.append((x, y, z))
 
             # Create rectangular grid between all points
-
             positions = nx.get_node_attributes(forward_graph, 'pos')
             for node, pos in positions.items():
                 positions[node] = tuple(pos)
@@ -813,6 +823,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                            length=abs(
                                                positions[sorted_nodes[i]][0] - positions[sorted_nodes[i + 1]][0]))
 
+        # Add vertical edges between shaft/source nodes
         for i in range(len(source_forward_list) - 1):
             forward_graph.add_edge(source_forward_list[i], source_forward_list[i + 1], color='red', direction='z',
                                    length=abs(

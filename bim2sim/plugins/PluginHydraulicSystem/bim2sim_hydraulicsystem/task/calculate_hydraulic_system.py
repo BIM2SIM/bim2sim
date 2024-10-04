@@ -2141,27 +2141,27 @@ class CalculateHydraulicSystem(ITask):
 
     def count_space(self, graph):
         """
-
+        Count radiators per room
         Args:
             graph ():
 
         Returns:
 
         """
-        print("Count elements in space.")
-        window_count = {}
+        print("Count radiators in space.")
+        radiator_count = {}
         for node, data in graph.nodes(data=True):
             if "radiator_forward" in data["type"]:
                 room_id = data["belongs_to"][0]
-                if room_id in window_count:
-                    window_count[room_id] += 1
+                if room_id in radiator_count:
+                    radiator_count[room_id] += 1
                 else:
-                    window_count[room_id] = 1
+                    radiator_count[room_id] = 1
         for node, data in graph.nodes(data=True):
             if "radiator_forward" or "radiator_backward" in data["type"]:
-                for window in window_count:
-                    if window == data["belongs_to"][0]:
-                        data["window_count"] = window_count[window]
+                for radiator in radiator_count:
+                    if radiator == data["belongs_to"][0]:
+                        data["radiator_count"] = radiator_count[radiator]
         return graph
 
     def define_standard_indoor_temperature(self, usage):
@@ -2219,7 +2219,7 @@ class CalculateHydraulicSystem(ITask):
                 velocity = 0.4 * (ureg.meter / ureg.seconds)
                 coefficient_resistance = 4.0
                 if self.playground.sim_settings.heat_delivery_type == "Radiator":
-                    Q_H = (PHeater_max / data["window_count"]) * ureg.kilowatt
+                    Q_H = (PHeater_max / data["radiator_count"]) * ureg.kilowatt
                 else:
                     Q_H = PHeater_max * ureg.kilowatt
                 design_operation_m_flow = self.calculate_m_dot(Q_H=Q_H)
@@ -2229,7 +2229,7 @@ class CalculateHydraulicSystem(ITask):
                 velocity = 0.4 * ureg.meter / ureg.seconds
                 coefficient_resistance = 4.0
                 if self.playground.sim_settings.heat_delivery_type == "Radiator":
-                    Q_H = (PHeater_max / data["window_count"]) * ureg.kilowatt
+                    Q_H = (PHeater_max / data["radiator_count"]) * ureg.kilowatt
                 else:
                     Q_H = PHeater_max * ureg.kilowatt
                 design_operation_m_flow = self.calculate_m_dot(Q_H=Q_H)
