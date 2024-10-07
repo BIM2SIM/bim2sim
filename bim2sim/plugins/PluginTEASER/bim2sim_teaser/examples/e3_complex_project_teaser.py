@@ -21,7 +21,7 @@ def run_example_complex_building_teaser():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    project_path = r"D:\dja-jho\Testing\Teaser1"
+    project_path = r"D:\dja-jho\Testing\Teaser2"
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -40,8 +40,8 @@ def run_example_complex_building_teaser():
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
     # combine spaces to thermal zones based on their usage
-    project.sim_settings.zoning_setup = LOD.full
-    project.sim_settings.zoning_criteria = ZoningCriteria.usage
+    project.sim_settings.zoning_setup = LOD.medium
+    project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
     # use cooling
     project.sim_settings.cooling = True
     project.sim_settings.setpoints_from_template = True
@@ -69,6 +69,7 @@ def run_example_complex_building_teaser():
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
     # Run a simulation directly with dymola after model creation
     project.sim_settings.dymola_simulation = True
+    project.sim_settings.edit_mat_result_file_flag = True
     # Make sure that AixLib modelica library exist on machine by cloning it and
     #  setting the path of it as a sim_setting
     repo_url = "https://github.com/RWTH-EBC/AixLib.git"
@@ -92,7 +93,9 @@ def run_example_complex_building_teaser():
         "cool_set_rooms"
     ]
     """
-    project.sim_settings.prj_use_conditions = r"D:\dja-jho\Git\BIM2SIM\bim2sim\assets\enrichment\usage\UseConditions.json"
+    project.sim_settings.prj_use_conditions = (Path(
+        bim2sim.__file__).parent.parent /
+            "bim2sim/assets/enrichment/usage/UseConditions.json")
     project.sim_settings.prj_custom_usages = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"

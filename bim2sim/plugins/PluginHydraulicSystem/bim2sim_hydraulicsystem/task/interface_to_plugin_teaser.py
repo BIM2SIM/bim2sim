@@ -1,8 +1,10 @@
 from bim2sim.tasks.base import ITask
 from bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df import CreateResultDF
+from bim2sim.tasks import common
 
 from ebcpy import TimeSeriesData
 import json
+import pickle
 
 from bim2sim.utilities.common_functions import filter_elements
 
@@ -19,15 +21,61 @@ class InterfaceToPluginTeaser(ITask):
 
     def run(self, elements):
         self.logger.info("Load thermal zone data")
-        zone_dict = CreateResultDF.map_zonal_results(
-            bim2sim_teaser_mapping, elements)
-        tzs = filter_elements(elements, 'ThermalZone')
+
+
+        if self.playground.sim_settings.disaggregate_heat_demand_thermal_zones:
+            pickle_path = self.paths.export / "serialized_elements.pickle"
+            with open(pickle_path, 'rb') as file:
+                deserialized_elements = pickle.load(file)
+
+            zone_dict = CreateResultDF.map_zonal_results(
+                bim2sim_teaser_mapping, deserialized_elements)
+            tzs = filter_elements(deserialized_elements, 'ThermalZone')
+            agg_tzs = filter_elements(deserialized_elements, 'AggregatedThermalZone')
+            for agg_tz in agg_tzs:
+                tzs.append(agg_tz)
+        else:
+            zone_dict = CreateResultDF.map_zonal_results(
+                bim2sim_teaser_mapping, elements)
+            tzs = filter_elements(elements, 'ThermalZone')
+
         self.logger.info("Load heat demand data")
         plugin_teaser_dict = self.read_heat_demand_mat_file()
         heat_demand_dict = self.merge_dicts(plugin_teaser_dict=plugin_teaser_dict, zone_dict=zone_dict, tzs=tzs)
 
+        if self.playground.sim_settings.disaggregate_heat_demand_thermal_zones:
+            heat_demand_dict = self.disaggregate_thermal_zone_heat_demand(tzs, heat_demand_dict, elements)
+
         return heat_demand_dict,
 
+
+    def disaggregate_thermal_zone_heat_demand(self, tzs, heat_demand_dict, elements):
+        heat_demand_dict_new = {}
+        k = 1
+        for i, tz in enumerate(tzs):
+            i += 1
+            if tz.element_type == "ThermalZone":
+                heat_demand_dict_new[k] = heat_demand_dict[i]
+                k += 1
+            else:
+                tz_in_agg_tz_dict = {}
+                max_heat_demand_agg_tz = heat_demand_dict[i]['PHeater']
+                area_agg_tz = 0
+                for guid in tz.elements:
+                    tz_in_agg_tz_dict[guid] = {}
+                    room_area = elements[guid].net_area.magnitude
+                    tz_in_agg_tz_dict[guid]['area'] = room_area
+                    area_agg_tz += room_area
+                    tz_in_agg_tz_dict[guid]['usage'] = elements[guid].usage
+
+                for guid, values in tz_in_agg_tz_dict.items():
+                    max_heat_demand_tz = max_heat_demand_agg_tz * values['area'] / area_agg_tz
+                    heat_demand_dict_new[k] = {'PHeater': max_heat_demand_tz,
+                                               'space_guids': [guid],
+                                               'usage': values['usage']}
+                    k += 1
+
+        return heat_demand_dict_new
 
     def read_thermal_zone_mapping_json(self):
         filepath = self.playground.sim_settings.thermal_zone_mapping_file_path

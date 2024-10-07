@@ -155,16 +155,8 @@ class SimulateModelEBCPy(ITask):
         """
         #TODO Make generic with input simsettings.var_names
 
-        var_names = [
-            "multizone.PHeater",
-            "multizone.PCooler",
-            "multizone.QIntGains_flow",
-            "multizonePostProcessing.PCooler",
-            "multizonePostProcessing.PHeater",
-            "multizonePostProcessing.WHeaterSum",
-            "multizonePostProcessing.WCoolerSum",
-            "multizonePostProcessing.QIntGains_flow"
-        ]
+        var_names = self.playground.sim_settings.post_mat_script_vars
+
 
         for building in teaser_prj.buildings:
             if bldg_name == building.name:
@@ -188,13 +180,16 @@ class SimulateModelEBCPy(ITask):
             script += f'"{var_names[4]}[{i}]",\n'
         script += f'"{var_names[5]}",\n'
         script += f'"{var_names[6]}",\n'
+        script += f'"{var_names[7]}",\n'
+        script += f'"{var_names[8]}",\n'
+        script += f'"{var_names[9]}",\n'
         for i in range(1, n):
-            script += f'"{var_names[7]}[{i}, 1]",\n'
-            script += f'"{var_names[7]}[{i}, 2]",\n'
-            script += f'"{var_names[7]}[{i}, 3]",\n'
-        script += f'"{var_names[7]}[{n}, 1]",\n'
-        script += f'"{var_names[7]}[{n}, 2]",\n'
-        script += f'"{var_names[7]}[{n}, 3]"'
+            script += f'"{var_names[10]}[{i}, 1]",\n'
+            script += f'"{var_names[10]}[{i}, 2]",\n'
+            script += f'"{var_names[10]}[{i}, 3]",\n'
+        script += f'"{var_names[10]}[{n}, 1]",\n'
+        script += f'"{var_names[10]}[{n}, 2]",\n'
+        script += f'"{var_names[10]}[{n}, 3]"'
         script += '};\n\n'
         script += f'n = readTrajectorySize(resultFile);\n'
         script += f'writeTrajectory(outName, varNames, transpose(readTrajectory(resultFile, varNames, n)));'

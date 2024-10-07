@@ -28,7 +28,7 @@ def run_example_project_hydraulic_system():
         # Create a temp directory for the project, feel free to use a "normal"
         # directory
         project_path = Path(
-            "D:\dja-jho\Testing\Ventilation+Hydraulic")
+            "D:\dja-jho\Testing\Teaser2")
 
     # TODO reset config.toml backend
 
@@ -49,6 +49,8 @@ def run_example_project_hydraulic_system():
     project.sim_settings.generate_new_heating_graph = True
     project.sim_settings.generate_new_building_graph_with_source_nodes = True
 
+    project.sim_settings.disaggregate_heat_demand_thermal_zones = True
+
     project.sim_settings.startpoint_heating_graph_x_axis = 41
     project.sim_settings.startpoint_heating_graph_y_axis = 2.8
     project.sim_settings.startpoint_heating_graph_z_axis = -3
@@ -58,7 +60,8 @@ def run_example_project_hydraulic_system():
     #but loading in mos script, customizing it, saving it again and then using it probably wont work,
     #since python uses the original mos script when the python script was started
 
-    project.sim_settings.heat_demand_mat_file_path = r"D:\dja-jho\Testing\Ventilation+Hydraulic\export\TEASER\SimResults\AC20InstituteVar2\Buerogebaeude\teaser_results_edited.mat"
+    project.sim_settings.heat_demand_mat_file_path = \
+        r"D:\dja-jho\Testing\Teaser2\export\TEASER\SimResults\AC20InstituteVar2\Buerogebaeude\teaser_results_edited.mat"
     project.sim_settings.heat_delivery_type = "Radiator" # UFH or Radiator
     project.sim_settings.hydraulic_components_data_file_radiator_sheet = "Profilierte Flachheizkörper"
     project.sim_settings.hydraulic_components_data_file_pipe_sheet = "Stahlrohre"

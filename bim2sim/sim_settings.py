@@ -889,6 +889,46 @@ class BuildingSimSettings(BaseSimSettings):
         },
         multiple_choice=True,
     )
+    post_mat_script_vars = ChoiceSetting(
+        default= [
+            "multizone.PHeater",
+            "multizone.PCooler",
+            "multizone.QIntGains_flow",
+            "multizonePostProcessing.PCooler",
+            "multizonePostProcessing.PHeater",
+            "multizonePostProcessing.WHeaterSum",
+            "multizonePostProcessing.WCoolerSum",
+            "multizonePostProcessing.PelAHU",
+            "multizonePostProcessing.PHeatAHU",
+            "multizonePostProcessing.PCoolAHU",
+            "multizonePostProcessing.QIntGains_flow"
+        ],
+        choices={
+            "multizone.PHeater":
+                "heating demand per zone",
+            "multizone.PCooler":
+                "heating demand per zone",
+            "multizone.QIntGains_flow":
+                "internal gains per zone",
+            "multizonePostProcessing.PCooler":
+                "total cooling demand",
+            "multizonePostProcessing.PHeater":
+                "total heating demand",
+            "multizonePostProcessing.WHeaterSum":
+                "sum of total heating demand",
+            "multizonePostProcessing.WCoolerSum":
+                "sum of total cooling demand",
+            "multizonePostProcessing.PelAHU":
+                "total electrical demand for ahu",
+            "multizonePostProcessing.PHeatAHU":
+                "total heating demand for ahu",
+            "multizonePostProcessing.PCoolAHU":
+                "total cooling demand for ahu",
+            "multizonePostProcessing.QIntGains_flow":
+                "total internal gains",
+        },
+        multiple_choice=True,
+    )
     add_space_boundaries = BooleanSetting(
         default=True,
         description='Add space boundaries. Only required for building '

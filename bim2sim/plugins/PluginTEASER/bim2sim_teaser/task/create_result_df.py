@@ -188,13 +188,14 @@ class CreateResultDF(ITask):
         bim2sim_teaser_mapping = {}
         space_guid_list = []
         agg_tzs = filter_elements(elements, 'AggregatedThermalZone')
+        tzs = filter_elements(elements, 'ThermalZone')
+        if tzs:
+            for tz in tzs:
+                space_guid_list.append(tz.guid)
         if agg_tzs:
             for agg_tz in agg_tzs:
                 space_guid_list.append(agg_tz.guid)
-        else:
-            tzs = filter_elements(elements, 'ThermalZone')
-            for tz in tzs:
-                space_guid_list.append(tz.guid)
+
         for key, value in bim2sim_teaser_mapping_selected.items():
             # add entry for each room/zone
             if "numZones" in key:

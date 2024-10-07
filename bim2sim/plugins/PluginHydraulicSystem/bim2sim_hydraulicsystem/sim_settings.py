@@ -31,6 +31,11 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
                     "True: Generate new building graph with source nodes out of building graph"
                     "Else: Load existing building graph with source nodes out of json file"
     )
+    disaggregate_heat_demand_thermal_zones = BooleanSetting(
+    default=False,
+        description="Disaggregates heat demand for thermal zones based on thermal zone floor area"
+                    "Needs to consistent with PluginTeaser Simulation"
+    )
     startpoint_heating_graph_x_axis = NumberSetting(
         default=None,
         min_value=-200,
@@ -59,6 +64,7 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
         for_frontend=True,
         mandatory=True
     )
+
     # TODO convert xlsx into json and translate to english
     hydraulic_components_data_file_path = PathSetting(
         default=Path(__file__).parent /
