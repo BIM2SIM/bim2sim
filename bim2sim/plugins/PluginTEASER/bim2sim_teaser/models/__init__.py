@@ -47,7 +47,8 @@ class Building(TEASER, Building_Teaser):
         self.used_library_calc = "AixLib"
         self.add_thermal_zones_to_building()
         if bim2sim_element.with_ahu:
-            self.central_ahu = BuildingAHU(element=bim2sim_element, parent=self)
+            self.central_ahu = BuildingAHU(
+                element=bim2sim_element, parent=self)
 
     def add_thermal_zones_to_building(self):
         for tz in self.element.thermal_zones:
@@ -66,7 +67,9 @@ class Building(TEASER, Building_Teaser):
                            self.check_numeric(
                                min_value=1 * ureg.meter),
                            "height_of_floors")
-        self.request_param("with_ahu")
+        # todo workaround until setter method is changed in TEASER, see TEASER
+        #  issue #772
+        self.request_param("with_ahu", export_name="_with_ahu")
 
 
 class ThermalZone(TEASER, ThermalZone_Teaser):
