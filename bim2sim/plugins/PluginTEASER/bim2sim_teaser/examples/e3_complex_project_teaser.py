@@ -79,6 +79,7 @@ def run_example_complex_building_teaser():
     download_library(repo_url, branch_name, path_aixlib)
     project.sim_settings.path_aixlib = path_aixlib / repo_name / 'package.mo'
     # Select results to output:
+    """
     project.sim_settings.sim_results = [
         "heat_demand_total", "cool_demand_total",
         "heat_demand_rooms", "cool_demand_rooms",
@@ -90,6 +91,7 @@ def run_example_complex_building_teaser():
         "heat_set_rooms",
         "cool_set_rooms"
     ]
+    """
     project.sim_settings.prj_use_conditions = r"D:\dja-jho\Git\BIM2SIM\bim2sim\assets\enrichment\usage\UseConditions.json"
     project.sim_settings.prj_custom_usages = (Path(
         bim2sim.__file__).parent.parent /
