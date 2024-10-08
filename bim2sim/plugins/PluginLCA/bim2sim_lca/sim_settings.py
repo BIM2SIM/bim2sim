@@ -41,7 +41,6 @@ class LCAExportSettings(BuildingSimSettings):
             'Radiator': 'Radiator',
             'UFH': 'UFH',
             'UFH+Radiator': 'UFH+Radiator',
-            'UFH+Air': 'UFH+Air',
         },
         description='Type of heat delivery'
                     'Should be the same as used in Plugin HydraulicSystem',

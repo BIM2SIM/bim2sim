@@ -136,6 +136,12 @@ class CalculateHydraulicSystem(ITask):
                                       viewpoint="design",
                                       nodes=["radiator_forward", "radiator_backward"],
                                       delivery_type=self.playground.sim_settings.heat_delivery_type)
+
+
+        if further_heat_delivery:
+            graph = self.add_extra_radiators(graph=graph,
+                                             further_heat_delivery = further_heat_delivery)
+
         # 2. Berechne Massenstrom/ Volumenstrom an den Endpunkten
         # graph = self.update_radiator_mass_flow_nodes(graph=graph, nodes=["radiator_forward", "radiator_backward"])
         # graph = self.update_radiator_volume_flow_nodes(graph=graph, nodes=["radiator_forward", "radiator_backward"])
@@ -1989,7 +1995,7 @@ class CalculateHydraulicSystem(ITask):
         delivery_nodes = [n for n, attr in graph.nodes(data=True) if
                               any(t in attr.get("type", []) for t in nodes)]
 
-        further_heat_delivery = []
+        further_heat_delivery = {}
 
         for node in delivery_nodes:
             norm_indoor_temperature = graph.nodes[node]['norm_indoor_temperature']
@@ -2029,7 +2035,7 @@ class CalculateHydraulicSystem(ITask):
                 graph.nodes[node]['length'] = l1
                 graph.nodes[node]['heat_flow_per_length'] = norm_heat_flow_per_length
 
-            if delivery_type in ["UFH", "UFH+Radiator", "UFH+Air"]:
+            if delivery_type in ["UFH", "UFH+Radiator"]:
                 room_id = graph.nodes[node]["belongs_to"][0]
                 room_area = self.elements[room_id].net_area
 
@@ -2037,13 +2043,15 @@ class CalculateHydraulicSystem(ITask):
 
 
                 if heat_flow_per_area.magnitude > self.playground.sim_settings.ufh_max_heat_flow_per_area:
-                    if delivery_type in ["UFH+Radiator", "UFH+Air"]:
+                    further_heat_delivery[room_id] = {}
+                    if delivery_type == "UFH+Radiator":
                         further_heat_flow = (heat_flow_per_area.magnitude -
                                 self.playground.sim_settings.ufh_max_heat_flow_per_area) * room_area * ureg.W
                         heat_flow_per_area = self.playground.sim_settings.ufh_max_heat_flow_per_area
                         Q_flow_design = heat_flow_per_area * room_area
 
-                        further_heat_delivery.append({room_id: further_heat_flow})
+                        further_heat_delivery[room_id]['further_heat_flow'] = further_heat_flow
+                        further_heat_delivery[room_id]['norm_indoor_temperature'] = norm_indoor_temperature
                     else:
                         assert RuntimeWarning(
                             f"Max heat flow for under floor heating in room {graph.nodes[node]['belongs_to'][0]} has "
@@ -2090,6 +2098,52 @@ class CalculateHydraulicSystem(ITask):
                                                                              heating_exponent)
         return Q_heat_design
 
+    def add_extra_radiators(self, graph, further_heat_delivery):
+
+        radiator_dict = self.read_radiator_material_excel(
+            filename=self.playground.sim_settings.hydraulic_components_data_file_path,
+            sheet_name=self.playground.sim_settings.hydraulic_components_data_file_radiator_sheet)
+
+        extra_delivery_nodes = [n for n, attr in graph.nodes(data=True) if
+                              any(t in attr.get("type", []) for t in ['radiator_forward_extra', 'radiator_backward_extra'])]
+
+        for room_id in further_heat_delivery.keys():
+            further_heat_delivery[room_id]['nodes'] = []
+            for node in extra_delivery_nodes:
+                if graph.nodes[node]['belongs_to'][0] == room_id:
+                    further_heat_delivery[room_id]['nodes'].append(node)
+
+        for room_id, data in further_heat_delivery.items():
+            Q_flow_operation = data['further_heat_flow'] * 2 / len(data['nodes'])
+            norm_indoor_temperature = data['norm_indoor_temperature']
+            for node in data['nodes']:
+
+                log_mean_temperature_operation = round(
+                    self.logarithmic_mean_temperature(forward_temperature=self.temperature_forward,
+                                                      backward_temperature=self.temperature_backward,
+                                                      room_temperature=norm_indoor_temperature), 2)
+
+
+                log_mean_temperature_norm = round(self.logarithmic_mean_temperature(forward_temperature=75,
+                                                                                    backward_temperature=65,
+                                                                                    room_temperature=20), 2)
+                Q_flow_design = self.heat_flow_design_radiator(
+                    log_mean_temperature_operation=log_mean_temperature_operation,
+                    heating_exponent=1.3,
+                    log_mean_temperature_norm=log_mean_temperature_norm,
+                    Q_heat_operation=Q_flow_operation)
+
+                selected_model, min_mass, material, l1, norm_heat_flow_per_length = self.select_heating_model(
+                    model_dict=radiator_dict,
+                    calculated_heat_flow=Q_flow_design)
+
+                graph.nodes[node]['material_mass'] = min_mass
+                graph.nodes[node]['material'] = material
+                graph.nodes[node]['model'] = selected_model
+                graph.nodes[node]['length'] = l1
+                graph.nodes[node]['heat_flow_per_length'] = norm_heat_flow_per_length
+
+        return graph
 
     def iterate_backward_nodes_mass_volume_flow(self, graph, viewpoint: str):
         """

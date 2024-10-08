@@ -62,7 +62,7 @@ def run_example_project_hydraulic_system():
 
     project.sim_settings.heat_demand_mat_file_path = \
         r"D:\dja-jho\Testing\Teaser2\export\TEASER\SimResults\AC20InstituteVar2\Buerogebaeude\teaser_results_edited.mat"
-    project.sim_settings.heat_delivery_type = "Radiator" # UFH or Radiator
+    project.sim_settings.heat_delivery_type = "UFH" # UFH or Radiator
     project.sim_settings.hydraulic_components_data_file_radiator_sheet = "Profilierte Flachheizkörper"
     project.sim_settings.hydraulic_components_data_file_pipe_sheet = "Stahlrohre"
 

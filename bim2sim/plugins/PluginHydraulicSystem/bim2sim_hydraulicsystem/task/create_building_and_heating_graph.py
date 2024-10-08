@@ -157,7 +157,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         else:
             return False
 
-    def get_UFH_nodes(self, graph, doors):
+    def get_UFH_nodes(self, graph, doors, heat_delivery_dict):
 
         door_dict = {}
         door_dict_lower_z_value = {}
@@ -205,13 +205,24 @@ class CreateBuildingAndHeatingGraph(ITask):
                     if room['usage'] != 'Traffic area' and room_id not in door_dict_new.keys():
                         door_dict_new[room_id] = room["door nodes"]
 
-        for room_id, room in to_be_checked.items():
+        for room_id, door_nodes in to_be_checked.items():
             if room_id not in door_dict_new.keys():
-                door_dict_new[room_id] = room
+                door_dict_new[room_id] = door_nodes
 
-        return door_dict_new
+        # Check if max heat flow per room area is reached in rooms -> extra radiator in respective rooms
+        heat_delivery_extra_radiators = {}
+        for room_id, door_nodes in door_dict_new.items():
+            heat_flow_per_area = (heat_delivery_dict[room_id]['Q_flow_operation'] * 1000 /
+                                  heat_delivery_dict[room_id]['room_area'])
+            if heat_flow_per_area > self.playground.sim_settings.ufh_max_heat_flow_per_area:
+                heat_delivery_extra_radiators[room_id] = {}
+                heat_delivery_extra_radiators[room_id]['Q_flow_operation'] = heat_flow_per_area - self.playground.sim_settings.ufh_max_heat_flow_per_area
+                heat_delivery_extra_radiators[room_id]['norm_indoor_temperature'] = heat_delivery_dict[room_id]['norm_indoor_temperature']
+                heat_delivery_extra_radiators[room_id]['z_value'] = min([node[2] for node in door_nodes])
 
-    def get_radiator_nodes(self, graph, windows):
+        return door_dict_new, heat_delivery_extra_radiators
+
+    def get_radiator_nodes(self, graph, windows, heat_delivery_dict):
         # Get maximal possible radiator power
         radiator_dict = self.read_radiator_material_excel(
                 filename=self.playground.sim_settings.hydraulic_components_data_file_path,
@@ -227,67 +238,69 @@ class CreateBuildingAndHeatingGraph(ITask):
 
         for floor in self.floor_dict.values():
             for room_id, room in floor['rooms'].items():
-                # Calculate necessary heating power per room and calculate necessary number of radiators accordingly
-                Q_flow_operation, norm_indoor_temperature = self.read_bim2sim_data([room_id])
+                if room_id in heat_delivery_dict.keys():
 
-                log_mean_temperature_operation = round(
-                    self.logarithmic_mean_temperature(forward_temperature=self.temperature_forward,
-                                                      backward_temperature=self.temperature_backward,
-                                                      room_temperature=norm_indoor_temperature), 2)
+                    log_mean_temperature_operation = round(
+                        self.logarithmic_mean_temperature(forward_temperature=self.temperature_forward,
+                                                          backward_temperature=self.temperature_backward,
+                                                          room_temperature=heat_delivery_dict[room_id][
+                                                              "norm_indoor_temperature"]), 2)
 
-                log_mean_temperature_norm = round(self.logarithmic_mean_temperature(forward_temperature=75,
-                                                                                    backward_temperature=65,
-                                                                                    room_temperature=20), 2)
-                Q_flow_design = self.heat_flow_design_radiator(
-                    log_mean_temperature_operation=log_mean_temperature_operation,
-                    heating_exponent=1.3,
-                    log_mean_temperature_norm=log_mean_temperature_norm,
-                    Q_heat_operation=Q_flow_operation)
+                    log_mean_temperature_norm = round(self.logarithmic_mean_temperature(forward_temperature=75,
+                                                                                        backward_temperature=65,
+                                                                                        room_temperature=20), 2)
+                    Q_flow_design = self.heat_flow_design_radiator(
+                        log_mean_temperature_operation=log_mean_temperature_operation,
+                        heating_exponent=1.3,
+                        log_mean_temperature_norm=log_mean_temperature_norm,
+                        Q_heat_operation=heat_delivery_dict[room_id]["Q_flow_operation"])
 
-                needed_windows_dict[room_id] = math.ceil(Q_flow_design / Q_radiator_max)
+                    needed_windows_dict[room_id] = math.ceil(Q_flow_design / Q_radiator_max)
 
-                room_dict[room_id] = {}
+                    room_dict[room_id] = {}
 
-                # Get wall elements per room
-                x_room = [x[0] for x in room['global_corners']]
-                y_room = [y[1] for y in room['global_corners']]
-                for wall_id, wall in room["room_elements"].items():
-                    if wall['type'] == 'wall':
-                        room_dict[room_id][wall_id] = {}
-                        x_wall = [x[0] for x in wall['global_corners']]
-                        y_wall = [y[1] for y in wall['global_corners']]
-                        if max(x_wall)-min(x_wall) > max(y_wall)-min(y_wall):
-                            wall_centre = (max(x_room)+min(x_room))/2
-                            direction = 0
-                        else:
-                            wall_centre = (max(y_room) + min(y_room)) / 2
-                            direction = 1
-                        room_dict[room_id][wall_id]['x_wall'] = (min(x_wall), max(x_wall))
-                        room_dict[room_id][wall_id]['y_wall'] = (min(y_wall), max(y_wall))
-                        room_dict[room_id][wall_id]['direction'] = direction
-                        room_dict[room_id][wall_id]['wall_centre'] = wall_centre
-                        room_dict[room_id][wall_id]['windows'] = {}
-                        room_dict[room_id][wall_id]['window_centres'] = []
+                    # Get wall elements per room
+                    x_room = [x[0] for x in room['global_corners']]
+                    y_room = [y[1] for y in room['global_corners']]
+                    for wall_id, wall in room["room_elements"].items():
+                        if wall['type'] == 'wall':
+                            room_dict[room_id][wall_id] = {}
+                            x_wall = [x[0] for x in wall['global_corners']]
+                            y_wall = [y[1] for y in wall['global_corners']]
+                            if max(x_wall)-min(x_wall) > max(y_wall)-min(y_wall):
+                                wall_centre = (max(x_room)+min(x_room))/2
+                                direction = 0
+                            else:
+                                wall_centre = (max(y_room) + min(y_room)) / 2
+                                direction = 1
+                            room_dict[room_id][wall_id]['x_wall'] = (min(x_wall), max(x_wall))
+                            room_dict[room_id][wall_id]['y_wall'] = (min(y_wall), max(y_wall))
+                            room_dict[room_id][wall_id]['direction'] = direction
+                            room_dict[room_id][wall_id]['wall_centre'] = wall_centre
+                            room_dict[room_id][wall_id]['windows'] = {}
+                            room_dict[room_id][wall_id]['window_centres'] = []
 
         for window_id, window_nodes in windows.items():
             # Get centre coordinates of window
             room_id = graph.nodes(data=True)[window_nodes[0]]["belongs_to"][0]
-            x_windows = [x[0] for x in window_nodes]
-            y_windows = [y[1] for y in window_nodes]
-            window_centre_x = (max(x_windows) + min(x_windows)) / 2
-            window_centre_y = (max(y_windows) + min(y_windows)) / 2
 
-            if max(x_windows) - min(x_windows) > max(y_windows) - min(y_windows):
-                window_centre = window_centre_x
-            else:
-                window_centre = window_centre_y
+            if room_id in heat_delivery_dict.keys():
+                x_windows = [x[0] for x in window_nodes]
+                y_windows = [y[1] for y in window_nodes]
+                window_centre_x = (max(x_windows) + min(x_windows)) / 2
+                window_centre_y = (max(y_windows) + min(y_windows)) / 2
 
-            for wall_id, wall in room_dict[room_id].items():
-                if wall['x_wall'][0] <= window_centre_x <= wall['x_wall'][1] and \
-                 wall['y_wall'][0] <= window_centre_y <= wall['y_wall'][1] and \
-                 self.elements[room_id].usage != "Traffic area":
-                    room_dict[room_id][wall_id]['windows'][window_id] = window_nodes
-                    room_dict[room_id][wall_id]['window_centres'].append(window_centre)
+                if max(x_windows) - min(x_windows) > max(y_windows) - min(y_windows):
+                    window_centre = window_centre_x
+                else:
+                    window_centre = window_centre_y
+
+                for wall_id, wall in room_dict[room_id].items():
+                    if wall['x_wall'][0] <= window_centre_x <= wall['x_wall'][1] and \
+                     wall['y_wall'][0] <= window_centre_y <= wall['y_wall'][1] and \
+                     self.elements[room_id].usage != "Traffic area":
+                        room_dict[room_id][wall_id]['windows'][window_id] = window_nodes
+                        room_dict[room_id][wall_id]['window_centres'].append(window_centre)
 
         window_dict = {}
         for room_id, room in room_dict.items():
@@ -493,13 +506,32 @@ class CreateBuildingAndHeatingGraph(ITask):
                            type_delivery: list = ["window"]):
         delivery_forward_points = []
         delivery_backward_points = []
-        delivery_dict = self.get_type_node(graph=graph,
+        possible_delivery_nodes_dict = self.get_type_node(graph=graph,
                                            type_node=type_delivery)
 
+        heat_delivery_dict = {}
+        tzs = filter_elements(self.elements, "ThermalZone")
+        for tz in tzs:
+            heat_delivery_dict[tz.guid] = {}
+            Q_flow_operation, norm_indoor_temperature = self.read_bim2sim_data([tz.guid])
+
+            heat_delivery_dict[tz.guid]["Q_flow_operation"] = Q_flow_operation
+            heat_delivery_dict[tz.guid]["norm_indoor_temperature"] = norm_indoor_temperature
+            heat_delivery_dict[tz.guid]["room_area"] = tz.net_area.magnitude
+
+
         if type_delivery == ["door"]:
-            delivery_dict = self.get_UFH_nodes(graph, delivery_dict)
+            delivery_dict, heat_delivery_extra_radiators = self.get_UFH_nodes(graph, possible_delivery_nodes_dict, heat_delivery_dict)
+            heat_delivery_extra_radiators['0UiHARbFzF1RT4g_GKem_B'] = heat_delivery_dict[
+                '0UiHARbFzF1RT4g_GKem_B'].copy()
+            if heat_delivery_extra_radiators:
+                possible_delivery_nodes_dict = self.get_type_node(graph=graph,
+                                                                  type_node=["window"])
+                delivery_dict_extra_radiators = self.get_radiator_nodes(graph, possible_delivery_nodes_dict, heat_delivery_extra_radiators)
         if type_delivery == ["window"]:
-            delivery_dict = self.get_radiator_nodes(graph, delivery_dict)
+            delivery_dict = self.get_radiator_nodes(graph, possible_delivery_nodes_dict, heat_delivery_dict)
+
+
 
 
         edge_list = []
@@ -513,6 +545,18 @@ class CreateBuildingAndHeatingGraph(ITask):
             nx.set_node_attributes(graph, {forward_node: {'color': 'orange'}})
             nx.set_node_attributes(graph, {backward_node: {'type': ['radiator_backward']}})
             nx.set_node_attributes(graph, {backward_node: {'color': 'orange'}})
+
+        if delivery_dict_extra_radiators:
+            for element in delivery_dict_extra_radiators:
+                forward_node, backward_node = self.get_bottom_left_node(graph=graph, nodes=delivery_dict_extra_radiators[element])
+                delivery_forward_points.append(forward_node)
+                delivery_backward_points.append(backward_node)
+                edge_list.append((forward_node, backward_node))
+                nx.set_node_attributes(graph, {forward_node: {'type': ['radiator_forward_extra']}})
+                nx.set_node_attributes(graph, {forward_node: {'color': 'orange'}})
+                nx.set_node_attributes(graph, {backward_node: {'type': ['radiator_backward_extra']}})
+                nx.set_node_attributes(graph, {backward_node: {'color': 'orange'}})
+
         return delivery_forward_points, delivery_backward_points, edge_list
 
     def check_neighbour_nodes_collision(self,
@@ -761,6 +805,21 @@ class CreateBuildingAndHeatingGraph(ITask):
 
                 forward_graph = nx.relabel_nodes(forward_graph, mapping)
 
+            if type_delivery == ["door"]:
+                mapping = {}
+                for node in forward_graph.nodes(data=True):
+                    if node[1]['type'] in [['radiator_forward_extra'], ['radiator_backward_extra']] \
+                            and node[1]['floor_belongs_to'] == floor:
+                        mapping[node[0]] = (node[0][0], node[0][1], z_value)
+                        node[1]['pos'][2] = z_value
+                        delivery_forward_nodes.remove(node[0])
+                        delivery_forward_nodes.append(mapping[node[0]])
+                        window_node_mapping[node[0]] = ((node[0][0], node[0][1], z_value), node[1].copy())
+
+                if mapping:
+                    forward_graph = nx.relabel_nodes(forward_graph, mapping)
+
+
             # Create list of delivery and source nodes
             element_nodes_forward = []
             for delivery_node in delivery_forward_nodes:
@@ -843,8 +902,9 @@ class CreateBuildingAndHeatingGraph(ITask):
             floor_graph = forward_graph.subgraph(nodes_floor)
 
             z_value_floor = floor_graph.nodes[source_forward_list[i]]["pos"][2]
-            delivery_nodes_floor = [tuple(data["pos"]) for node, data in floor_graph.nodes(data=True)
-                                    if "radiator_forward" in data["type"]]
+            delivery_nodes_floor = ([tuple(data["pos"]) for node, data in floor_graph.nodes(data=True)
+                                    if data["type"] in [['radiator_forward'], ['radiator_backward'],
+                                                        ['radiator_forward_extra'], ['radiator_backward_extra']]])
             intersection_nodes_floor = [tuple(data["pos"]) for node, data in floor_graph.nodes(data=True)
                                         if "intersection_point" in data["type"]]
             shaft_node_floor = source_forward_list[i]
@@ -883,7 +943,8 @@ class CreateBuildingAndHeatingGraph(ITask):
                                      z_value=z_value_floor,
                                      node_coordinates=[tuple(data["pos"]) for node, data in floor_graph.nodes(data=True)],
                                      delivery_nodes_coordinates=[tuple(data["pos"]) for node, data in f_st.nodes(data=True)
-                                                                    if "radiator_forward" in data["type"]],
+                                                                    if data["type"] in [['radiator_forward'],
+                                                                                        ['radiator_forward_extra']]],
                                      intersection_nodes_coordinates=[tuple(data["pos"]) for node, data in f_st.nodes(data=True)
                                                                     if "intersection_point" in data["type"]],
                                      name=f"Vorlauf nach Optimierung und Reduzierung",
@@ -912,6 +973,28 @@ class CreateBuildingAndHeatingGraph(ITask):
 
                             f_st.add_edge(ground_node[0], window_node, color="grey", direction="z",
                                           length=window_node[2] - ground_node[0][2])
+
+                if type_delivery == ["door"]:
+                    for node, data in f_st.nodes(data=True):
+                        if data['type'] in [['radiator_forward_extra'], ['radiator_backward_extra']]:
+                            data['type'] = [f"{data['type'][0]}_ground"]
+
+                    for window_node, ground_node in window_node_mapping.items():
+                        if ground_node[1]['floor_belongs_to'] == floor:
+                            f_st.add_node(window_node,
+                                          pos=list(window_node),
+                                          color=ground_node[1]['color'],
+                                          type=ground_node[1]['type'],
+                                          grid_type=ground_node[1]['grid_type'],
+                                          element=ground_node[1]['element'],
+                                          belongs_to=ground_node[1]['belongs_to'],
+                                          direction=ground_node[1]['direction'],
+                                          floor_belongs_to=ground_node[1]['floor_belongs_to'],
+                                          strang=ground_node[1]['strang'])
+
+                            f_st.add_edge(ground_node[0], window_node, color="grey", direction="z",
+                                          length=window_node[2] - ground_node[0][2])
+
 
                 self.write_json_graph(graph=f_st,
                                       filename=f"heating_circle_floor_Z_{shaft_node_floor[2]}.json")

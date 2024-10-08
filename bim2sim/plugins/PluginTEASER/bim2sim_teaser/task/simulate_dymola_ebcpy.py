@@ -155,7 +155,19 @@ class SimulateModelEBCPy(ITask):
         """
         #TODO Make generic with input simsettings.var_names
 
-        var_names = self.playground.sim_settings.post_mat_script_vars
+        var_names = [
+            "multizone.PHeater",
+            "multizone.PCooler",
+            "multizone.QIntGains_flow",
+            "multizonePostProcessing.PCooler",
+            "multizonePostProcessing.PHeater",
+            "multizonePostProcessing.WHeaterSum",
+            "multizonePostProcessing.WCoolerSum",
+            "multizonePostProcessing.PelAHU",
+            "multizonePostProcessing.PHeatAHU",
+            "multizonePostProcessing.PCoolAHU",
+            "multizonePostProcessing.QIntGains_flow"
+        ]
 
 
         for building in teaser_prj.buildings:

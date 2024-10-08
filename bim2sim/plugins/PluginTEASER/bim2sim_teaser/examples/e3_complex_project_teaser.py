@@ -21,7 +21,7 @@ def run_example_complex_building_teaser():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    project_path = r"D:\dja-jho\Testing\Teaser2"
+    project_path = r"D:\dja-jho\Testing\Teaser3"
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources

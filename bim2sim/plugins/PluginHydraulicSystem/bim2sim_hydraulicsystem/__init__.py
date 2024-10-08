@@ -23,6 +23,7 @@ class PluginHydraulicSystem(Plugin):
         bps.CorrectSpaceBoundaries,
         common.CreateRelations,
         bps.DisaggregationCreationAndTypeCheck,
+        bps.EnrichUseConditions,
         InterfaceToPluginTeaser,
         GetIFCBuildingGeometry,
         CreateBuildingAndHeatingGraph,

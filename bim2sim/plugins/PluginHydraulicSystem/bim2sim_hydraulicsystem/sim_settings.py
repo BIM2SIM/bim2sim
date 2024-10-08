@@ -96,7 +96,6 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
             'Radiator': 'Radiator',
             'UFH': 'UFH',
             'UFH+Radiator': 'UFH+Radiator',
-            'UFH+Air': 'UFH+Air',
         },
         description='Choose type of heat delivery',
         multiple_choice=True,
