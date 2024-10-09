@@ -1,24 +1,42 @@
 import json
 
-from bim2sim.task.base import ITask
+from bim2sim.tasks.base import ITask
 
 
 class IfcValidation(ITask):
     """
     Validate IFC file, focussing on energy modeling (use of space boundaries).
+
+    See run method for further details.
     """
 
-    reads = ('ifc', )
+    reads = ('ifc_files', )
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, playground):
+        super().__init__(playground)
         self.error_summary = {}
         self.bounds = []
         self.id_list = []
 
-    def run(self, workflow, ifc):
-        self.bounds = ifc.by_type('IfcRelSpaceBoundary')
-        self.id_list = [e.GlobalId for e in ifc.by_type("IfcRoot")]
+    def run(self, ifc_files):
+        """
+        IFC file validation for EnergyPlus. No longer maintained.
+
+        This function holds an IFC file validation for EnergyPlus, but is no
+        longer used. This task is replaced by the CheckIFC class in the
+        common task section. For building performance simulation workflows
+        like EnergyPlus, the common CheckIfc class executes the BEPS specific
+        CheckIfcBPS methods.
+
+        Args:
+            ifc_files: input ifc files.
+        """
+        self.bounds = []
+        self.id_list = []
+        for ifc in ifc_files:
+
+            self.bounds.extend(ifc.by_type('IfcRelSpaceBoundary'))
+            self.id_list.extend([e.GlobalId for e in ifc.by_type("IfcRoot")])
 
         self._check_space_boundaries()
         self._write_errors_to_json()

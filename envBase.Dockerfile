@@ -44,38 +44,28 @@ RUN apt-get -y install g++
 # Copy files
 COPY ./requirements.txt .
 
-RUN 	conda create -n env python=3.9
+# Turn off SSL as it leads to errors in current runner systems
+RUN 	conda config --set ssl_verify False
+
+RUN 	conda create -n env python=3.10
 RUN		conda update -n base -c defaults conda
 RUN 	echo "source activate env" > ~/.bashrc
 ENV 	PATH /opt/conda/envs/env/bin:$PATH
 SHELL 	["conda", "run", "-n", "env", "/bin/bash", "-c"]
 
 # install needed packages
+## install pythonocc via conda
+RUN /opt/conda/bin/conda install --yes --freeze-installed \
+	    -c conda-forge pythonocc-core=7.7.0 \
+	    nomkl \
+	&& /opt/conda/bin/conda clean -afy \
+	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
+	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \
+	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
+
 
 RUN pip install --default-timeout=100 -r ./requirements.txt
 
-# install needed packages
-
-## install pythonocc via conda
-RUN /opt/conda/bin/conda install --yes --freeze-installed \
-	    -c conda-forge pythonocc-core=7.5.1 \
-	    nomkl \
-	&& /opt/conda/bin/conda clean -afy \
-	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
-	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \
-	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
-
-# install ifcopenshell via conda
-RUN /opt/conda/bin/conda install --yes --freeze-installed \
-	    -c conda-forge ifcopenshell \
-	    nomkl \
-	&& /opt/conda/bin/conda clean -afy \
-	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
-	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \
-	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
-
-## install occ utils via existing file 
-RUN pip install https://github.com/tpaviot/pythonocc-utils/archive/refs/heads/master.zip
 
 
 # Set Pythonpath

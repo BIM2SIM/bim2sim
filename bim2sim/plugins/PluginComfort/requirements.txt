@@ -1,0 +1,7 @@
+git+https://github.com/BIM2SIM/eppy
+git+https://github.com/BIM2SIM/geomeppy@fix_dependencies
+pyqt5
+shapely
+numpy-stl
+energyplus-regressions
+
