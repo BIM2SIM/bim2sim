@@ -1023,95 +1023,103 @@ bim2sim/tasks/base.py:152:33: C0209: Formatting a regular string which could be 
 bim2sim/tasks/base.py:96:4: R0912: Too many branches (16/12) (too-many-branches)
 bim2sim/tasks/base.py:111:8: W0612: Unused variable 'ex' (unused-variable)
 ************* Module bim2sim.tasks.common.check_ifc
-bim2sim/tasks/common/check_ifc.py:86:0: C0301: Line too long (81/80) (line-too-long)
-bim2sim/tasks/common/check_ifc.py:472:0: C0301: Line too long (117/80) (line-too-long)
-bim2sim/tasks/common/check_ifc.py:499:0: C0301: Line too long (83/80) (line-too-long)
-bim2sim/tasks/common/check_ifc.py:502:0: C0301: Line too long (81/80) (line-too-long)
-bim2sim/tasks/common/check_ifc.py:514:0: C0301: Line too long (92/80) (line-too-long)
-bim2sim/tasks/common/check_ifc.py:526:0: C0301: Line too long (84/80) (line-too-long)
-bim2sim/tasks/common/check_ifc.py:544:0: C0301: Line too long (85/80) (line-too-long)
-bim2sim/tasks/common/check_ifc.py:879:0: C0301: Line too long (85/80) (line-too-long)
-bim2sim/tasks/common/check_ifc.py:1382:0: C0325: Unnecessary parens after 'not' keyword (superfluous-parens)
-bim2sim/tasks/common/check_ifc.py:1403:0: C0325: Unnecessary parens after 'not' keyword (superfluous-parens)
-bim2sim/tasks/common/check_ifc.py:1426:0: C0325: Unnecessary parens after 'not' keyword (superfluous-parens)
-bim2sim/tasks/common/check_ifc.py:1:0: C0302: Too many lines in module (1428/1000) (too-many-lines)
-bim2sim/tasks/common/check_ifc.py:62:64: W0511: todo (fixme)
-bim2sim/tasks/common/check_ifc.py:67:63: W0511: todo (fixme)
+bim2sim/tasks/common/check_ifc.py:87:0: C0301: Line too long (81/80) (line-too-long)
+bim2sim/tasks/common/check_ifc.py:473:0: C0301: Line too long (117/80) (line-too-long)
+bim2sim/tasks/common/check_ifc.py:500:0: C0301: Line too long (83/80) (line-too-long)
+bim2sim/tasks/common/check_ifc.py:503:0: C0301: Line too long (81/80) (line-too-long)
+bim2sim/tasks/common/check_ifc.py:515:0: C0301: Line too long (92/80) (line-too-long)
+bim2sim/tasks/common/check_ifc.py:527:0: C0301: Line too long (84/80) (line-too-long)
+bim2sim/tasks/common/check_ifc.py:545:0: C0301: Line too long (85/80) (line-too-long)
+bim2sim/tasks/common/check_ifc.py:880:0: C0301: Line too long (85/80) (line-too-long)
+bim2sim/tasks/common/check_ifc.py:1383:0: C0325: Unnecessary parens after 'not' keyword (superfluous-parens)
+bim2sim/tasks/common/check_ifc.py:1404:0: C0325: Unnecessary parens after 'not' keyword (superfluous-parens)
+bim2sim/tasks/common/check_ifc.py:1427:0: C0325: Unnecessary parens after 'not' keyword (superfluous-parens)
+bim2sim/tasks/common/check_ifc.py:1:0: C0302: Too many lines in module (1429/1000) (too-many-lines)
+bim2sim/tasks/common/check_ifc.py:63:64: W0511: todo (fixme)
+bim2sim/tasks/common/check_ifc.py:68:63: W0511: todo (fixme)
 bim2sim/tasks/common/check_ifc.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-bim2sim/tasks/common/check_ifc.py:24:0: R0902: Too many instance attributes (12/7) (too-many-instance-attributes)
-bim2sim/tasks/common/check_ifc.py:44:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'CheckIfc.run' method (arguments-differ)
-bim2sim/tasks/common/check_ifc.py:44:4: W0221: Variadics removed in overriding 'CheckIfc.run' method (arguments-differ)
-bim2sim/tasks/common/check_ifc.py:62:33: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
-bim2sim/tasks/common/check_ifc.py:67:33: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
-bim2sim/tasks/common/check_ifc.py:95:12: W1201: Use lazy % formatting in logging functions (logging-not-lazy)
-bim2sim/tasks/common/check_ifc.py:96:16: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/tasks/common/check_ifc.py:100:12: W1201: Use lazy % formatting in logging functions (logging-not-lazy)
-bim2sim/tasks/common/check_ifc.py:101:16: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/tasks/common/check_ifc.py:236:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/tasks/common/check_ifc.py:239:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/tasks/common/check_ifc.py:266:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
-bim2sim/tasks/common/check_ifc.py:268:18: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
-bim2sim/tasks/common/check_ifc.py:269:27: C0103: Variable name "fp" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/common/check_ifc.py:271:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
-bim2sim/tasks/common/check_ifc.py:273:18: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
-bim2sim/tasks/common/check_ifc.py:274:27: C0103: Variable name "fp" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/common/check_ifc.py:345:16: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
-bim2sim/tasks/common/check_ifc.py:371:12: C0103: Variable name "ps" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/common/check_ifc.py:396:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/tasks/common/check_ifc.py:439:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
-bim2sim/tasks/common/check_ifc.py:449:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
-bim2sim/tasks/common/check_ifc.py:457:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
-bim2sim/tasks/common/check_ifc.py:481:4: W0237: Parameter 'sub_inst' has been renamed to 'port' in overriding 'CheckIfcHVAC.validate_sub_inst' method (arguments-renamed)
-bim2sim/tasks/common/check_ifc.py:619:8: R1703: The if statement can be replaced with 'return bool(test)' (simplifiable-if-statement)
-bim2sim/tasks/common/check_ifc.py:619:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/tasks/common/check_ifc.py:636:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/tasks/common/check_ifc.py:682:16: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
-bim2sim/tasks/common/check_ifc.py:706:16: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
-bim2sim/tasks/common/check_ifc.py:712:4: W0237: Parameter 'sub_inst' has been renamed to 'bound' in overriding 'CheckIfcBPS.validate_sub_inst' method (arguments-renamed)
-bim2sim/tasks/common/check_ifc.py:935:4: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/tasks/common/check_ifc.py:1346:8: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
-bim2sim/tasks/common/check_ifc.py:1405:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/tasks/common/check_ifc.py:25:0: R0902: Too many instance attributes (12/7) (too-many-instance-attributes)
+bim2sim/tasks/common/check_ifc.py:45:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'CheckIfc.run' method (arguments-differ)
+bim2sim/tasks/common/check_ifc.py:45:4: W0221: Variadics removed in overriding 'CheckIfc.run' method (arguments-differ)
+bim2sim/tasks/common/check_ifc.py:63:33: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
+bim2sim/tasks/common/check_ifc.py:68:33: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
+bim2sim/tasks/common/check_ifc.py:96:12: W1201: Use lazy % formatting in logging functions (logging-not-lazy)
+bim2sim/tasks/common/check_ifc.py:97:16: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/tasks/common/check_ifc.py:101:12: W1201: Use lazy % formatting in logging functions (logging-not-lazy)
+bim2sim/tasks/common/check_ifc.py:102:16: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/tasks/common/check_ifc.py:237:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/tasks/common/check_ifc.py:240:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/tasks/common/check_ifc.py:267:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
+bim2sim/tasks/common/check_ifc.py:269:18: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
+bim2sim/tasks/common/check_ifc.py:270:27: C0103: Variable name "fp" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/common/check_ifc.py:272:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
+bim2sim/tasks/common/check_ifc.py:274:18: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
+bim2sim/tasks/common/check_ifc.py:275:27: C0103: Variable name "fp" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/common/check_ifc.py:346:16: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
+bim2sim/tasks/common/check_ifc.py:372:12: C0103: Variable name "ps" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/common/check_ifc.py:397:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/tasks/common/check_ifc.py:440:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
+bim2sim/tasks/common/check_ifc.py:450:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
+bim2sim/tasks/common/check_ifc.py:458:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
+bim2sim/tasks/common/check_ifc.py:482:4: W0237: Parameter 'sub_inst' has been renamed to 'port' in overriding 'CheckIfcHVAC.validate_sub_inst' method (arguments-renamed)
+bim2sim/tasks/common/check_ifc.py:620:8: R1703: The if statement can be replaced with 'return bool(test)' (simplifiable-if-statement)
+bim2sim/tasks/common/check_ifc.py:620:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/tasks/common/check_ifc.py:637:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/tasks/common/check_ifc.py:683:16: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
+bim2sim/tasks/common/check_ifc.py:707:16: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
+bim2sim/tasks/common/check_ifc.py:713:4: W0237: Parameter 'sub_inst' has been renamed to 'bound' in overriding 'CheckIfcBPS.validate_sub_inst' method (arguments-renamed)
+bim2sim/tasks/common/check_ifc.py:936:4: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/tasks/common/check_ifc.py:1347:8: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+bim2sim/tasks/common/check_ifc.py:1406:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
 ************* Module bim2sim.tasks.common.serialize_elements
-bim2sim/tasks/common/serialize_elements.py:41:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
+bim2sim/tasks/common/serialize_elements.py:42:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
 bim2sim/tasks/common/serialize_elements.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-bim2sim/tasks/common/serialize_elements.py:14:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'SerializeElements.run' method (arguments-differ)
-bim2sim/tasks/common/serialize_elements.py:14:4: W0221: Variadics removed in overriding 'SerializeElements.run' method (arguments-differ)
-bim2sim/tasks/common/serialize_elements.py:35:12: C0103: Variable name "se" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/common/serialize_elements.py:15:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'SerializeElements.run' method (arguments-differ)
+bim2sim/tasks/common/serialize_elements.py:15:4: W0221: Variadics removed in overriding 'SerializeElements.run' method (arguments-differ)
+bim2sim/tasks/common/serialize_elements.py:36:12: C0103: Variable name "se" doesn't conform to snake_case naming style (invalid-name)
 ************* Module bim2sim.tasks.common.create_elements
-bim2sim/tasks/common/create_elements.py:70:0: C0301: Line too long (83/80) (line-too-long)
-bim2sim/tasks/common/create_elements.py:89:0: C0301: Line too long (81/80) (line-too-long)
-bim2sim/tasks/common/create_elements.py:106:0: C0301: Line too long (84/80) (line-too-long)
-bim2sim/tasks/common/create_elements.py:200:0: C0301: Line too long (90/80) (line-too-long)
-bim2sim/tasks/common/create_elements.py:500:0: C0301: Line too long (84/80) (line-too-long)
-bim2sim/tasks/common/create_elements.py:56:9: W0511: Todo maybe move this into IfcFileClass instead simulation settings (fixme)
-bim2sim/tasks/common/create_elements.py:92:13: W0511: TODO why do we run this two times, once without and once with (fixme)
-bim2sim/tasks/common/create_elements.py:194:13: W0511: TODO #676 (fixme)
-bim2sim/tasks/common/create_elements.py:271:21: W0511: TODO maybe use in future (fixme)
-bim2sim/tasks/common/create_elements.py:338:13: W0511: todo if every element of the constituent has a geometric (fixme)
-bim2sim/tasks/common/create_elements.py:380:21: W0511: TODO: filter_for_text_fragments() (fixme)
-bim2sim/tasks/common/create_elements.py:577:21: W0511: todo check (fixme)
+bim2sim/tasks/common/create_elements.py:8:0: C0301: Line too long (83/80) (line-too-long)
+bim2sim/tasks/common/create_elements.py:73:0: C0301: Line too long (83/80) (line-too-long)
+bim2sim/tasks/common/create_elements.py:92:0: C0301: Line too long (81/80) (line-too-long)
+bim2sim/tasks/common/create_elements.py:109:0: C0301: Line too long (84/80) (line-too-long)
+bim2sim/tasks/common/create_elements.py:143:0: C0301: Line too long (86/80) (line-too-long)
+bim2sim/tasks/common/create_elements.py:203:0: C0301: Line too long (90/80) (line-too-long)
+bim2sim/tasks/common/create_elements.py:286:0: C0301: Line too long (87/80) (line-too-long)
+bim2sim/tasks/common/create_elements.py:323:0: C0301: Line too long (159/80) (line-too-long)
+bim2sim/tasks/common/create_elements.py:368:0: C0301: Line too long (103/80) (line-too-long)
+bim2sim/tasks/common/create_elements.py:503:0: C0301: Line too long (84/80) (line-too-long)
+bim2sim/tasks/common/create_elements.py:597:0: C0304: Final newline missing (missing-final-newline)
+bim2sim/tasks/common/create_elements.py:59:9: W0511: Todo maybe move this into IfcFileClass instead simulation settings (fixme)
+bim2sim/tasks/common/create_elements.py:95:13: W0511: TODO why do we run this two times, once without and once with (fixme)
+bim2sim/tasks/common/create_elements.py:197:13: W0511: TODO #676 (fixme)
+bim2sim/tasks/common/create_elements.py:274:21: W0511: TODO maybe use in future (fixme)
+bim2sim/tasks/common/create_elements.py:341:13: W0511: todo if every element of the constituent has a geometric (fixme)
+bim2sim/tasks/common/create_elements.py:383:21: W0511: TODO: filter_for_text_fragments() (fixme)
+bim2sim/tasks/common/create_elements.py:580:21: W0511: todo check (fixme)
 bim2sim/tasks/common/create_elements.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-bim2sim/tasks/common/create_elements.py:34:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'CreateElementsOnIfcTypes.run' method (arguments-differ)
-bim2sim/tasks/common/create_elements.py:34:4: W0221: Variadics removed in overriding 'CreateElementsOnIfcTypes.run' method (arguments-differ)
-bim2sim/tasks/common/create_elements.py:34:4: R0914: Too many local variables (22/15) (too-many-locals)
-bim2sim/tasks/common/create_elements.py:117:27: W0718: Catching too general exception Exception (broad-exception-caught)
-bim2sim/tasks/common/create_elements.py:117:20: W0612: Unused variable 'ex' (unused-variable)
-bim2sim/tasks/common/create_elements.py:201:20: W0101: Unreachable code (unreachable)
-bim2sim/tasks/common/create_elements.py:140:4: R0912: Too many branches (14/12) (too-many-branches)
-bim2sim/tasks/common/create_elements.py:346:16: C0103: Variable name "n" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/common/create_elements.py:365:4: R0914: Too many local variables (18/15) (too-many-locals)
-bim2sim/tasks/common/create_elements.py:382:28: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
-bim2sim/tasks/common/create_elements.py:396:31: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/tasks/common/create_elements.py:406:24: W0612: Unused variable 'element_classes' (unused-variable)
-bim2sim/tasks/common/create_elements.py:416:4: R0914: Too many local variables (32/15) (too-many-locals)
-bim2sim/tasks/common/create_elements.py:492:28: W0622: Redefining built-in 'repr' (redefined-builtin)
-bim2sim/tasks/common/create_elements.py:436:8: R0912: Too many branches (13/12) (too-many-branches)
-bim2sim/tasks/common/create_elements.py:544:24: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/tasks/common/create_elements.py:550:29: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/tasks/common/create_elements.py:552:39: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/tasks/common/create_elements.py:561:31: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/tasks/common/create_elements.py:416:4: R0915: Too many statements (57/50) (too-many-statements)
-bim2sim/tasks/common/create_elements.py:524:28: W0612: Unused variable 'represented' (unused-variable)
+bim2sim/tasks/common/create_elements.py:36:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'CreateElementsOnIfcTypes.run' method (arguments-differ)
+bim2sim/tasks/common/create_elements.py:36:4: W0221: Variadics removed in overriding 'CreateElementsOnIfcTypes.run' method (arguments-differ)
+bim2sim/tasks/common/create_elements.py:36:4: R0914: Too many local variables (22/15) (too-many-locals)
+bim2sim/tasks/common/create_elements.py:120:27: W0718: Catching too general exception Exception (broad-exception-caught)
+bim2sim/tasks/common/create_elements.py:120:20: W0612: Unused variable 'ex' (unused-variable)
+bim2sim/tasks/common/create_elements.py:204:20: W0101: Unreachable code (unreachable)
+bim2sim/tasks/common/create_elements.py:143:4: R0912: Too many branches (14/12) (too-many-branches)
+bim2sim/tasks/common/create_elements.py:349:16: C0103: Variable name "n" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/common/create_elements.py:368:4: R0914: Too many local variables (18/15) (too-many-locals)
+bim2sim/tasks/common/create_elements.py:385:28: W1309: Using an f-string that does not have any interpolated variables (f-string-without-interpolation)
+bim2sim/tasks/common/create_elements.py:399:31: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/tasks/common/create_elements.py:409:24: W0612: Unused variable 'element_classes' (unused-variable)
+bim2sim/tasks/common/create_elements.py:419:4: R0914: Too many local variables (32/15) (too-many-locals)
+bim2sim/tasks/common/create_elements.py:495:28: W0622: Redefining built-in 'repr' (redefined-builtin)
+bim2sim/tasks/common/create_elements.py:439:8: R0912: Too many branches (13/12) (too-many-branches)
+bim2sim/tasks/common/create_elements.py:547:24: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/tasks/common/create_elements.py:553:29: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/tasks/common/create_elements.py:555:39: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/tasks/common/create_elements.py:564:31: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/tasks/common/create_elements.py:419:4: R0915: Too many statements (57/50) (too-many-statements)
+bim2sim/tasks/common/create_elements.py:527:28: W0612: Unused variable 'represented' (unused-variable)
+bim2sim/tasks/common/create_elements.py:19:0: C0411: third party import "from ifcopenshell import file, entity_instance" should be placed before "from bim2sim.elements import bps_elements as bps" (wrong-import-order)
+bim2sim/tasks/common/create_elements.py:19:0: W0611: Unused file imported from ifcopenshell (unused-import)
 ************* Module bim2sim.tasks.common.create_relations
 bim2sim/tasks/common/create_relations.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 bim2sim/tasks/common/create_relations.py:12:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'CreateRelations.run' method (arguments-differ)
@@ -1120,16 +1128,22 @@ bim2sim/tasks/common/create_relations.py:12:4: R0912: Too many branches (17/12) 
 ************* Module bim2sim.tasks.common
 bim2sim/tasks/common/__init__.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 ************* Module bim2sim.tasks.common.weather
-bim2sim/tasks/common/weather.py:69:9: W0511: TODO implement scraper, if DWD allows it (fixme)
-bim2sim/tasks/common/weather.py:83:9: W0511: TODO: this might be obsolete, because if we use DWD method, we don't (fixme)
-bim2sim/tasks/common/weather.py:26:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
+bim2sim/tasks/common/weather.py:70:9: W0511: TODO implement scraper, if DWD allows it (fixme)
+bim2sim/tasks/common/weather.py:84:9: W0511: TODO: this might be obsolete, because if we use DWD method, we don't (fixme)
+bim2sim/tasks/common/weather.py:27:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
 bim2sim/tasks/common/weather.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-bim2sim/tasks/common/weather.py:10:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'Weather.run' method (arguments-differ)
-bim2sim/tasks/common/weather.py:10:4: W0221: Variadics removed in overriding 'Weather.run' method (arguments-differ)
-bim2sim/tasks/common/weather.py:10:18: W0613: Unused argument 'elements' (unused-argument)
-bim2sim/tasks/common/weather.py:68:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/tasks/common/weather.py:86:8: C0415: Import outside toplevel (requests) (import-outside-toplevel)
-bim2sim/tasks/common/weather.py:98:19: W3101: Missing timeout argument for method 'requests.get' can cause your program to hang indefinitely (missing-timeout)
+bim2sim/tasks/common/weather.py:11:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'Weather.run' method (arguments-differ)
+bim2sim/tasks/common/weather.py:11:4: W0221: Variadics removed in overriding 'Weather.run' method (arguments-differ)
+bim2sim/tasks/common/weather.py:11:18: W0613: Unused argument 'elements' (unused-argument)
+bim2sim/tasks/common/weather.py:69:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/tasks/common/weather.py:87:8: C0415: Import outside toplevel (requests) (import-outside-toplevel)
+bim2sim/tasks/common/weather.py:99:19: W3101: Missing timeout argument for method 'requests.get' can cause your program to hang indefinitely (missing-timeout)
+bim2sim/tasks/common/weather.py:3:0: C0411: standard import "from typing import Any" should be placed before "from bim2sim.tasks.base import ITask" (wrong-import-order)
+bim2sim/tasks/common/weather.py:4:0: C0411: standard import "from pathlib import WindowsPath, Path" should be placed before "from bim2sim.tasks.base import ITask" (wrong-import-order)
+bim2sim/tasks/common/weather.py:5:0: C0411: standard import "from typing import Optional" should be placed before "from bim2sim.tasks.base import ITask" (wrong-import-order)
+bim2sim/tasks/common/weather.py:5:0: C0412: Imports from package typing are not grouped (ungrouped-imports)
+bim2sim/tasks/common/weather.py:3:0: W0611: Unused Any imported from typing (unused-import)
+bim2sim/tasks/common/weather.py:4:0: W0611: Unused Path imported from pathlib (unused-import)
 ************* Module bim2sim.tasks.common.inner_loop_remover
 bim2sim/tasks/common/inner_loop_remover.py:248:0: C0301: Line too long (96/80) (line-too-long)
 bim2sim/tasks/common/inner_loop_remover.py:44:24: R1735: Consider using '{}' instead of a call to 'dict'. (use-dict-literal)
@@ -1372,105 +1386,109 @@ bim2sim/tasks/hvac/expansiontanks.py:13:4: W0221: Number of parameters was 2 in 
 bim2sim/tasks/hvac/expansiontanks.py:13:4: W0221: Variadics removed in overriding 'ExpansionTanks.run' method (arguments-differ)
 bim2sim/tasks/hvac/expansiontanks.py:106:31: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
 ************* Module bim2sim.tasks.bps.sb_creation
-bim2sim/tasks/bps/sb_creation.py:345:0: C0301: Line too long (83/80) (line-too-long)
+bim2sim/tasks/bps/sb_creation.py:343:0: C0301: Line too long (83/80) (line-too-long)
 bim2sim/tasks/bps/sb_creation.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 bim2sim/tasks/bps/sb_creation.py:32:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 3 in overriding 'CreateSpaceBoundaries.run' method (arguments-differ)
 bim2sim/tasks/bps/sb_creation.py:32:4: W0221: Variadics removed in overriding 'CreateSpaceBoundaries.run' method (arguments-differ)
-bim2sim/tasks/bps/sb_creation.py:54:4: E0102: method already defined line 32 (function-redefined)
-bim2sim/tasks/bps/sb_creation.py:54:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 3 in overriding 'CreateSpaceBoundaries.run' method (arguments-differ)
-bim2sim/tasks/bps/sb_creation.py:54:4: W0221: Variadics removed in overriding 'CreateSpaceBoundaries.run' method (arguments-differ)
-bim2sim/tasks/bps/sb_creation.py:69:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/tasks/bps/sb_creation.py:72:8: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/tasks/bps/sb_creation.py:61:30: W0612: Unused variable 'unknown_entities' (unused-variable)
-bim2sim/tasks/bps/sb_creation.py:86:19: R1729: Use a generator instead 'any(isinstance(ele, bps_product_layer_ele) for bps_product_layer_ele in all_subclasses(BPSProductWithLayers))' (use-a-generator)
-bim2sim/tasks/bps/sb_creation.py:118:16: R1724: Unnecessary "else" after "continue", remove the "else" and de-indent the code inside it (no-else-continue)
-bim2sim/tasks/bps/sb_creation.py:127:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/tasks/bps/sb_creation.py:130:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/tasks/bps/sb_creation.py:273:4: R0913: Too many arguments (6/5) (too-many-arguments)
-bim2sim/tasks/bps/sb_creation.py:316:8: C0103: Variable name "ib" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/sb_creation.py:323:16: C0103: Variable name "b" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/sb_creation.py:337:16: R1724: Unnecessary "else" after "continue", remove the "else" and de-indent the code inside it (no-else-continue)
-bim2sim/tasks/bps/sb_creation.py:346:16: C0103: Variable name "b" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/sb_creation.py:354:23: W0718: Catching too general exception Exception (broad-exception-caught)
-bim2sim/tasks/bps/sb_creation.py:355:20: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/tasks/bps/sb_creation.py:367:16: R1724: Unnecessary "else" after "continue", remove the "else" and de-indent the code inside it (no-else-continue)
-bim2sim/tasks/bps/sb_creation.py:373:4: R0913: Too many arguments (6/5) (too-many-arguments)
+bim2sim/tasks/bps/sb_creation.py:67:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/tasks/bps/sb_creation.py:70:8: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/tasks/bps/sb_creation.py:59:30: W0612: Unused variable 'unknown_entities' (unused-variable)
+bim2sim/tasks/bps/sb_creation.py:84:19: R1729: Use a generator instead 'any(isinstance(ele, bps_product_layer_ele) for bps_product_layer_ele in all_subclasses(BPSProductWithLayers))' (use-a-generator)
+bim2sim/tasks/bps/sb_creation.py:116:16: R1724: Unnecessary "else" after "continue", remove the "else" and de-indent the code inside it (no-else-continue)
+bim2sim/tasks/bps/sb_creation.py:125:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/tasks/bps/sb_creation.py:128:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/tasks/bps/sb_creation.py:271:4: R0913: Too many arguments (6/5) (too-many-arguments)
+bim2sim/tasks/bps/sb_creation.py:314:8: C0103: Variable name "ib" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/sb_creation.py:321:16: C0103: Variable name "b" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/sb_creation.py:335:16: R1724: Unnecessary "else" after "continue", remove the "else" and de-indent the code inside it (no-else-continue)
+bim2sim/tasks/bps/sb_creation.py:344:16: C0103: Variable name "b" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/sb_creation.py:352:23: W0718: Catching too general exception Exception (broad-exception-caught)
+bim2sim/tasks/bps/sb_creation.py:353:20: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/tasks/bps/sb_creation.py:365:16: R1724: Unnecessary "else" after "continue", remove the "else" and de-indent the code inside it (no-else-continue)
+bim2sim/tasks/bps/sb_creation.py:371:4: R0913: Too many arguments (6/5) (too-many-arguments)
 bim2sim/tasks/bps/sb_creation.py:3:0: W0611: Unused Tuple imported from typing (unused-import)
 bim2sim/tasks/bps/sb_creation.py:3:0: W0611: Unused Dict imported from typing (unused-import)
 ************* Module bim2sim.tasks.bps.enrich_use_cond
-bim2sim/tasks/bps/enrich_use_cond.py:36:0: C0301: Line too long (82/80) (line-too-long)
+bim2sim/tasks/bps/enrich_use_cond.py:38:0: C0301: Line too long (82/80) (line-too-long)
+bim2sim/tasks/bps/enrich_use_cond.py:86:0: C0301: Line too long (82/80) (line-too-long)
 bim2sim/tasks/bps/enrich_use_cond.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-bim2sim/tasks/bps/enrich_use_cond.py:22:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'EnrichUseConditions.run' method (arguments-differ)
-bim2sim/tasks/bps/enrich_use_cond.py:22:4: W0221: Variadics removed in overriding 'EnrichUseConditions.run' method (arguments-differ)
-bim2sim/tasks/bps/enrich_use_cond.py:46:16: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/enrich_use_cond.py:87:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/enrich_use_cond.py:94:28: C0103: Argument name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/enrich_use_cond.py:103:38: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/tasks/bps/enrich_use_cond.py:108:49: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/tasks/bps/enrich_use_cond.py:115:21: C0103: Argument name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/enrich_use_cond.py:143:12: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
-bim2sim/tasks/bps/enrich_use_cond.py:154:4: R0914: Too many local variables (19/15) (too-many-locals)
-bim2sim/tasks/bps/enrich_use_cond.py:178:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/enrich_use_cond.py:178:8: R1702: Too many nested blocks (7/5) (too-many-nested-blocks)
-bim2sim/tasks/bps/enrich_use_cond.py:178:8: R1702: Too many nested blocks (8/5) (too-many-nested-blocks)
-bim2sim/tasks/bps/enrich_use_cond.py:223:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/enrich_use_cond.py:154:4: R0912: Too many branches (24/12) (too-many-branches)
-bim2sim/tasks/bps/enrich_use_cond.py:254:25: C0103: Argument name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/enrich_use_cond.py:270:4: C0112: Empty method docstring (empty-docstring)
-bim2sim/tasks/bps/enrich_use_cond.py:272:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/tasks/bps/enrich_use_cond.py:24:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'EnrichUseConditions.run' method (arguments-differ)
+bim2sim/tasks/bps/enrich_use_cond.py:24:4: W0221: Variadics removed in overriding 'EnrichUseConditions.run' method (arguments-differ)
+bim2sim/tasks/bps/enrich_use_cond.py:48:16: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/enrich_use_cond.py:89:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/enrich_use_cond.py:96:28: C0103: Argument name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/enrich_use_cond.py:105:38: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/tasks/bps/enrich_use_cond.py:110:49: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/tasks/bps/enrich_use_cond.py:117:21: C0103: Argument name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/enrich_use_cond.py:145:12: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+bim2sim/tasks/bps/enrich_use_cond.py:156:4: R0914: Too many local variables (19/15) (too-many-locals)
+bim2sim/tasks/bps/enrich_use_cond.py:180:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/enrich_use_cond.py:180:8: R1702: Too many nested blocks (7/5) (too-many-nested-blocks)
+bim2sim/tasks/bps/enrich_use_cond.py:180:8: R1702: Too many nested blocks (8/5) (too-many-nested-blocks)
+bim2sim/tasks/bps/enrich_use_cond.py:225:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/enrich_use_cond.py:156:4: R0912: Too many branches (24/12) (too-many-branches)
+bim2sim/tasks/bps/enrich_use_cond.py:256:25: C0103: Argument name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/enrich_use_cond.py:272:4: C0112: Empty method docstring (empty-docstring)
+bim2sim/tasks/bps/enrich_use_cond.py:274:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
 ************* Module bim2sim.tasks.bps.disaggr_creation
-bim2sim/tasks/bps/disaggr_creation.py:74:21: W0511: todo (fixme)
+bim2sim/tasks/bps/disaggr_creation.py:185:0: C0301: Line too long (101/80) (line-too-long)
+bim2sim/tasks/bps/disaggr_creation.py:259:0: C0301: Line too long (101/80) (line-too-long)
+bim2sim/tasks/bps/disaggr_creation.py:289:0: C0301: Line too long (81/80) (line-too-long)
+bim2sim/tasks/bps/disaggr_creation.py:319:0: C0301: Line too long (81/80) (line-too-long)
+bim2sim/tasks/bps/disaggr_creation.py:73:21: W0511: todo (fixme)
 bim2sim/tasks/bps/disaggr_creation.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-bim2sim/tasks/bps/disaggr_creation.py:25:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'DisaggregationCreationAndTypeCheck.run' method (arguments-differ)
-bim2sim/tasks/bps/disaggr_creation.py:25:4: W0221: Variadics removed in overriding 'DisaggregationCreationAndTypeCheck.run' method (arguments-differ)
-bim2sim/tasks/bps/disaggr_creation.py:52:19: R1729: Use a generator instead 'any(isinstance(ele, bps_product_layer_ele) for bps_product_layer_ele in all_subclasses(BPSProductWithLayers))' (use-a-generator)
-bim2sim/tasks/bps/disaggr_creation.py:61:16: C0103: Variable name "sb" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/disaggr_creation.py:25:4: R0912: Too many branches (24/12) (too-many-branches)
-bim2sim/tasks/bps/disaggr_creation.py:144:12: W0612: Unused variable 'key' (unused-variable)
-bim2sim/tasks/bps/disaggr_creation.py:185:4: R0912: Too many branches (17/12) (too-many-branches)
-bim2sim/tasks/bps/disaggr_creation.py:185:4: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
-bim2sim/tasks/bps/disaggr_creation.py:272:11: R1729: Use a generator instead 'any(isinstance(element, door_class) for door_class in all_subclasses(Door))' (use-a-generator)
-bim2sim/tasks/bps/disaggr_creation.py:275:12: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
-bim2sim/tasks/bps/disaggr_creation.py:279:16: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/tasks/bps/disaggr_creation.py:285:23: E1102: self.logger is not callable (not-callable)
-bim2sim/tasks/bps/disaggr_creation.py:302:11: R1729: Use a generator instead 'any(isinstance(element, wall_class) for wall_class in all_subclasses(Wall))' (use-a-generator)
-bim2sim/tasks/bps/disaggr_creation.py:305:12: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
-bim2sim/tasks/bps/disaggr_creation.py:309:16: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/tasks/bps/disaggr_creation.py:315:23: E1102: self.logger is not callable (not-callable)
-bim2sim/tasks/bps/disaggr_creation.py:332:11: R1729: Use a generator instead 'any(isinstance(element, slab_class) for slab_class in all_subclasses(Slab))' (use-a-generator)
-bim2sim/tasks/bps/disaggr_creation.py:335:12: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
-bim2sim/tasks/bps/disaggr_creation.py:339:16: C0103: Variable name "sb" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/disaggr_creation.py:341:20: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
-bim2sim/tasks/bps/disaggr_creation.py:319:4: R0911: Too many return statements (8/6) (too-many-return-statements)
-bim2sim/tasks/bps/disaggr_creation.py:319:4: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/tasks/bps/disaggr_creation.py:24:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'DisaggregationCreationAndTypeCheck.run' method (arguments-differ)
+bim2sim/tasks/bps/disaggr_creation.py:24:4: W0221: Variadics removed in overriding 'DisaggregationCreationAndTypeCheck.run' method (arguments-differ)
+bim2sim/tasks/bps/disaggr_creation.py:51:19: R1729: Use a generator instead 'any(isinstance(ele, bps_product_layer_ele) for bps_product_layer_ele in all_subclasses(BPSProductWithLayers))' (use-a-generator)
+bim2sim/tasks/bps/disaggr_creation.py:60:16: C0103: Variable name "sb" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/disaggr_creation.py:24:4: R0912: Too many branches (24/12) (too-many-branches)
+bim2sim/tasks/bps/disaggr_creation.py:143:12: W0612: Unused variable 'key' (unused-variable)
+bim2sim/tasks/bps/disaggr_creation.py:184:4: R0912: Too many branches (17/12) (too-many-branches)
+bim2sim/tasks/bps/disaggr_creation.py:184:4: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
+bim2sim/tasks/bps/disaggr_creation.py:271:11: R1729: Use a generator instead 'any(isinstance(element, door_class) for door_class in all_subclasses(Door))' (use-a-generator)
+bim2sim/tasks/bps/disaggr_creation.py:274:12: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+bim2sim/tasks/bps/disaggr_creation.py:278:16: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/tasks/bps/disaggr_creation.py:284:23: E1102: self.logger is not callable (not-callable)
+bim2sim/tasks/bps/disaggr_creation.py:301:11: R1729: Use a generator instead 'any(isinstance(element, wall_class) for wall_class in all_subclasses(Wall))' (use-a-generator)
+bim2sim/tasks/bps/disaggr_creation.py:304:12: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+bim2sim/tasks/bps/disaggr_creation.py:308:16: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/tasks/bps/disaggr_creation.py:314:23: E1102: self.logger is not callable (not-callable)
+bim2sim/tasks/bps/disaggr_creation.py:331:11: R1729: Use a generator instead 'any(isinstance(element, slab_class) for slab_class in all_subclasses(Slab))' (use-a-generator)
+bim2sim/tasks/bps/disaggr_creation.py:334:12: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+bim2sim/tasks/bps/disaggr_creation.py:338:16: C0103: Variable name "sb" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/disaggr_creation.py:340:20: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+bim2sim/tasks/bps/disaggr_creation.py:318:4: R0911: Too many return statements (8/6) (too-many-return-statements)
+bim2sim/tasks/bps/disaggr_creation.py:318:4: R1710: Either all return statements in a function should return an expression, or none of them should. (inconsistent-return-statements)
 bim2sim/tasks/bps/disaggr_creation.py:3:0: W0611: Unused Union imported from typing (unused-import)
 bim2sim/tasks/bps/disaggr_creation.py:3:0: W0611: Unused Any imported from typing (unused-import)
 ************* Module bim2sim.tasks.bps.enrich_material
-bim2sim/tasks/bps/enrich_material.py:44:9: W0511: TODO change data_source when existing for all overwritten information (fixme)
-bim2sim/tasks/bps/enrich_material.py:52:13: W0511: TODO #676 (fixme)
-bim2sim/tasks/bps/enrich_material.py:74:9: W0511: TODO multi building support would require to have relations (fixme)
-bim2sim/tasks/bps/enrich_material.py:91:17: W0511: TODO set layer_set also to not disaggregated parent, t.b.d. (fixme)
-bim2sim/tasks/bps/enrich_material.py:168:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
+bim2sim/tasks/bps/enrich_material.py:45:9: W0511: TODO change data_source when existing for all overwritten information (fixme)
+bim2sim/tasks/bps/enrich_material.py:53:13: W0511: TODO #676 (fixme)
+bim2sim/tasks/bps/enrich_material.py:75:9: W0511: TODO multi building support would require to have relations (fixme)
+bim2sim/tasks/bps/enrich_material.py:92:17: W0511: TODO set layer_set also to not disaggregated parent, t.b.d. (fixme)
+bim2sim/tasks/bps/enrich_material.py:169:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
 bim2sim/tasks/bps/enrich_material.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-bim2sim/tasks/bps/enrich_material.py:35:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'EnrichMaterial.run' method (arguments-differ)
-bim2sim/tasks/bps/enrich_material.py:35:4: W0221: Variadics removed in overriding 'EnrichMaterial.run' method (arguments-differ)
-bim2sim/tasks/bps/enrich_material.py:218:27: W0612: Unused variable 'template' (unused-variable)
+bim2sim/tasks/bps/enrich_material.py:36:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'EnrichMaterial.run' method (arguments-differ)
+bim2sim/tasks/bps/enrich_material.py:36:4: W0221: Variadics removed in overriding 'EnrichMaterial.run' method (arguments-differ)
+bim2sim/tasks/bps/enrich_material.py:219:27: W0612: Unused variable 'template' (unused-variable)
 ************* Module bim2sim.tasks.bps
 bim2sim/tasks/bps/__init__.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 ************* Module bim2sim.tasks.bps.combine_tz
-bim2sim/tasks/bps/combine_tz.py:46:0: C0301: Line too long (81/80) (line-too-long)
+bim2sim/tasks/bps/combine_tz.py:47:0: C0301: Line too long (81/80) (line-too-long)
+bim2sim/tasks/bps/combine_tz.py:209:0: C0301: Line too long (89/80) (line-too-long)
 bim2sim/tasks/bps/combine_tz.py:1:0: C0114: Missing module docstring (missing-module-docstring)
-bim2sim/tasks/bps/combine_tz.py:22:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'CombineThermalZones.run' method (arguments-differ)
-bim2sim/tasks/bps/combine_tz.py:22:4: W0221: Variadics removed in overriding 'CombineThermalZones.run' method (arguments-differ)
-bim2sim/tasks/bps/combine_tz.py:43:8: W0612: Unused variable 'new_aggregations' (unused-variable)
-bim2sim/tasks/bps/combine_tz.py:65:8: W0612: Unused variable 'new_aggregations' (unused-variable)
-bim2sim/tasks/bps/combine_tz.py:111:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/combine_tz.py:123:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/combine_tz.py:162:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/combine_tz.py:176:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/combine_tz.py:188:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/combine_tz.py:221:35: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
-bim2sim/tasks/bps/combine_tz.py:235:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/combine_tz.py:23:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'CombineThermalZones.run' method (arguments-differ)
+bim2sim/tasks/bps/combine_tz.py:23:4: W0221: Variadics removed in overriding 'CombineThermalZones.run' method (arguments-differ)
+bim2sim/tasks/bps/combine_tz.py:44:8: W0612: Unused variable 'new_aggregations' (unused-variable)
+bim2sim/tasks/bps/combine_tz.py:66:8: W0612: Unused variable 'new_aggregations' (unused-variable)
+bim2sim/tasks/bps/combine_tz.py:112:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/combine_tz.py:124:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/combine_tz.py:163:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/combine_tz.py:177:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/combine_tz.py:189:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/combine_tz.py:222:35: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/tasks/bps/combine_tz.py:236:12: C0103: Variable name "tz" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/combine_tz.py:5:0: C0411: standard import "from typing import Callable" should be placed before "from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone" (wrong-import-order)
 ************* Module bim2sim.tasks.bps.sb_2b_generation
 bim2sim/tasks/bps/sb_2b_generation.py:112:0: C0301: Line too long (81/80) (line-too-long)
 bim2sim/tasks/bps/sb_2b_generation.py:44:0: R1707: Disallow trailing comma tuple (trailing-comma-tuple)
@@ -1488,108 +1506,108 @@ bim2sim/tasks/bps/sb_2b_generation.py:159:19: R1701: Consider merging these isin
 bim2sim/tasks/bps/sb_2b_generation.py:150:12: W0612: Unused variable 'i' (unused-variable)
 ************* Module bim2sim.tasks.bps.plot_results
 bim2sim/tasks/bps/plot_results.py:29:0: C0301: Line too long (103/80) (line-too-long)
-bim2sim/tasks/bps/plot_results.py:113:0: C0301: Line too long (86/80) (line-too-long)
-bim2sim/tasks/bps/plot_results.py:119:0: C0301: Line too long (95/80) (line-too-long)
-bim2sim/tasks/bps/plot_results.py:120:0: C0301: Line too long (99/80) (line-too-long)
-bim2sim/tasks/bps/plot_results.py:122:0: C0301: Line too long (81/80) (line-too-long)
-bim2sim/tasks/bps/plot_results.py:150:0: C0301: Line too long (85/80) (line-too-long)
-bim2sim/tasks/bps/plot_results.py:171:0: C0301: Line too long (152/80) (line-too-long)
-bim2sim/tasks/bps/plot_results.py:576:0: C0301: Line too long (81/80) (line-too-long)
-bim2sim/tasks/bps/plot_results.py:802:0: C0301: Line too long (84/80) (line-too-long)
-bim2sim/tasks/bps/plot_results.py:803:0: C0304: Final newline missing (missing-final-newline)
-bim2sim/tasks/bps/plot_results.py:337:25: W0511: TODO use all storeys for aggregated zones (fixme)
-bim2sim/tasks/bps/plot_results.py:417:9: W0511: TODO merge the create color_mapping.svg into each of the created (fixme)
-bim2sim/tasks/bps/plot_results.py:421:9: W0511: TODO cleanup temp files of color mapping and so on (fixme)
-bim2sim/tasks/bps/plot_results.py:775:9: W0511: TODO (fixme)
-bim2sim/tasks/bps/plot_results.py:780:5: W0511: # TODO: this is not completed yet (fixme)
-bim2sim/tasks/bps/plot_results.py:785:5: W0511: # todo get rid of PIL package (fixme)
-bim2sim/tasks/bps/plot_results.py:789:5: W0511: # TOdo resizing is not well done yet, this is an option but not (fixme)
+bim2sim/tasks/bps/plot_results.py:112:0: C0301: Line too long (86/80) (line-too-long)
+bim2sim/tasks/bps/plot_results.py:118:0: C0301: Line too long (95/80) (line-too-long)
+bim2sim/tasks/bps/plot_results.py:119:0: C0301: Line too long (99/80) (line-too-long)
+bim2sim/tasks/bps/plot_results.py:121:0: C0301: Line too long (81/80) (line-too-long)
+bim2sim/tasks/bps/plot_results.py:149:0: C0301: Line too long (85/80) (line-too-long)
+bim2sim/tasks/bps/plot_results.py:170:0: C0301: Line too long (152/80) (line-too-long)
+bim2sim/tasks/bps/plot_results.py:575:0: C0301: Line too long (81/80) (line-too-long)
+bim2sim/tasks/bps/plot_results.py:801:0: C0301: Line too long (84/80) (line-too-long)
+bim2sim/tasks/bps/plot_results.py:802:0: C0304: Final newline missing (missing-final-newline)
+bim2sim/tasks/bps/plot_results.py:336:25: W0511: TODO use all storeys for aggregated zones (fixme)
+bim2sim/tasks/bps/plot_results.py:416:9: W0511: TODO merge the create color_mapping.svg into each of the created (fixme)
+bim2sim/tasks/bps/plot_results.py:420:9: W0511: TODO cleanup temp files of color mapping and so on (fixme)
+bim2sim/tasks/bps/plot_results.py:774:9: W0511: TODO (fixme)
+bim2sim/tasks/bps/plot_results.py:779:5: W0511: # TODO: this is not completed yet (fixme)
+bim2sim/tasks/bps/plot_results.py:784:5: W0511: # todo get rid of PIL package (fixme)
+bim2sim/tasks/bps/plot_results.py:788:5: W0511: # TOdo resizing is not well done yet, this is an option but not (fixme)
 bim2sim/tasks/bps/plot_results.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 bim2sim/tasks/bps/plot_results.py:50:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 5 in overriding 'PlotBEPSResults.run' method (arguments-differ)
 bim2sim/tasks/bps/plot_results.py:50:4: W0221: Variadics removed in overriding 'PlotBEPSResults.run' method (arguments-differ)
 bim2sim/tasks/bps/plot_results.py:75:23: C0103: Variable name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:90:18: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:108:33: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:108:4: R0913: Too many arguments (9/5) (too-many-arguments)
-bim2sim/tasks/bps/plot_results.py:108:4: R0914: Too many local variables (24/15) (too-many-locals)
-bim2sim/tasks/bps/plot_results.py:128:13: C0103: Variable name "ax" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:133:12: C0103: Variable name "dt" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:171:0: C0206: Consider iterating with .items() (consider-using-dict-items)
-bim2sim/tasks/bps/plot_results.py:128:8: W0612: Unused variable 'fig' (unused-variable)
-bim2sim/tasks/bps/plot_results.py:191:25: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:191:4: R0913: Too many arguments (7/5) (too-many-arguments)
-bim2sim/tasks/bps/plot_results.py:191:4: R0914: Too many local variables (18/15) (too-many-locals)
-bim2sim/tasks/bps/plot_results.py:230:13: C0103: Variable name "ax" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:256:12: E1101: Class 'PlotBEPSResults' has no 'add_logo' member (no-member)
-bim2sim/tasks/bps/plot_results.py:193:44: W0613: Unused argument 'total_label' (unused-argument)
-bim2sim/tasks/bps/plot_results.py:230:8: W0612: Unused variable 'fig' (unused-variable)
-bim2sim/tasks/bps/plot_results.py:262:26: W0622: Redefining built-in 'format' (redefined-builtin)
-bim2sim/tasks/bps/plot_results.py:279:18: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:278:4: R0913: Too many arguments (8/5) (too-many-arguments)
-bim2sim/tasks/bps/plot_results.py:278:4: R0914: Too many local variables (27/15) (too-many-locals)
-bim2sim/tasks/bps/plot_results.py:278:4: R0912: Too many branches (20/12) (too-many-branches)
-bim2sim/tasks/bps/plot_results.py:278:4: R0915: Too many statements (54/50) (too-many-statements)
-bim2sim/tasks/bps/plot_results.py:453:8: C0103: Variable name "sm" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:457:13: C0103: Variable name "ax" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:501:26: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:501:4: R0913: Too many arguments (7/5) (too-many-arguments)
-bim2sim/tasks/bps/plot_results.py:560:12: W0101: Unreachable code (unreachable)
-bim2sim/tasks/bps/plot_results.py:562:12: E1101: Class 'PlotBEPSResults' has no 'add_logo' member (no-member)
-bim2sim/tasks/bps/plot_results.py:504:21: W0613: Unused argument 'window' (unused-argument)
-bim2sim/tasks/bps/plot_results.py:517:8: W0612: Unused variable 'fig' (unused-variable)
-bim2sim/tasks/bps/plot_results.py:569:12: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:568:4: R0913: Too many arguments (6/5) (too-many-arguments)
-bim2sim/tasks/bps/plot_results.py:568:4: R0914: Too many local variables (21/15) (too-many-locals)
-bim2sim/tasks/bps/plot_results.py:601:32: R1733: Unnecessary dictionary index lookup, use 'value' instead (unnecessary-dict-index-lookup)
-bim2sim/tasks/bps/plot_results.py:569:64: W0613: Unused argument 'logo' (unused-argument)
-bim2sim/tasks/bps/plot_results.py:570:18: W0613: Unused argument 'window' (unused-argument)
-bim2sim/tasks/bps/plot_results.py:600:17: W0612: Unused variable 'value' (unused-variable)
-bim2sim/tasks/bps/plot_results.py:601:22: W0612: Unused variable 'value2' (unused-variable)
-bim2sim/tasks/bps/plot_results.py:625:8: W0612: Unused variable 'fig' (unused-variable)
-bim2sim/tasks/bps/plot_results.py:630:12: W0612: Unused variable 'i' (unused-variable)
-bim2sim/tasks/bps/plot_results.py:675:23: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/plot_results.py:675:4: W0102: Dangerous default value {} as argument (dangerous-default-value)
-bim2sim/tasks/bps/plot_results.py:675:4: R0913: Too many arguments (13/5) (too-many-arguments)
-bim2sim/tasks/bps/plot_results.py:675:4: R0914: Too many local variables (27/15) (too-many-locals)
-bim2sim/tasks/bps/plot_results.py:680:23: W0613: Unused argument 'logo' (unused-argument)
-bim2sim/tasks/bps/plot_results.py:680:42: W0613: Unused argument 'window' (unused-argument)
-bim2sim/tasks/bps/plot_results.py:701:17: W0612: Unused variable 'value' (unused-variable)
-bim2sim/tasks/bps/plot_results.py:702:22: W0612: Unused variable 'value2' (unused-variable)
-bim2sim/tasks/bps/plot_results.py:726:8: W0612: Unused variable 'fig' (unused-variable)
-bim2sim/tasks/bps/plot_results.py:730:12: W0612: Unused variable 'i' (unused-variable)
-bim2sim/tasks/bps/plot_results.py:774:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/tasks/bps/plot_results.py:89:18: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:107:33: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:107:4: R0913: Too many arguments (9/5) (too-many-arguments)
+bim2sim/tasks/bps/plot_results.py:107:4: R0914: Too many local variables (24/15) (too-many-locals)
+bim2sim/tasks/bps/plot_results.py:127:13: C0103: Variable name "ax" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:132:12: C0103: Variable name "dt" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:170:0: C0206: Consider iterating with .items() (consider-using-dict-items)
+bim2sim/tasks/bps/plot_results.py:127:8: W0612: Unused variable 'fig' (unused-variable)
+bim2sim/tasks/bps/plot_results.py:190:25: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:190:4: R0913: Too many arguments (7/5) (too-many-arguments)
+bim2sim/tasks/bps/plot_results.py:190:4: R0914: Too many local variables (18/15) (too-many-locals)
+bim2sim/tasks/bps/plot_results.py:229:13: C0103: Variable name "ax" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:255:12: E1101: Class 'PlotBEPSResults' has no 'add_logo' member (no-member)
+bim2sim/tasks/bps/plot_results.py:192:44: W0613: Unused argument 'total_label' (unused-argument)
+bim2sim/tasks/bps/plot_results.py:229:8: W0612: Unused variable 'fig' (unused-variable)
+bim2sim/tasks/bps/plot_results.py:261:26: W0622: Redefining built-in 'format' (redefined-builtin)
+bim2sim/tasks/bps/plot_results.py:278:18: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:277:4: R0913: Too many arguments (8/5) (too-many-arguments)
+bim2sim/tasks/bps/plot_results.py:277:4: R0914: Too many local variables (27/15) (too-many-locals)
+bim2sim/tasks/bps/plot_results.py:277:4: R0912: Too many branches (20/12) (too-many-branches)
+bim2sim/tasks/bps/plot_results.py:277:4: R0915: Too many statements (54/50) (too-many-statements)
+bim2sim/tasks/bps/plot_results.py:452:8: C0103: Variable name "sm" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:456:13: C0103: Variable name "ax" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:500:26: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:500:4: R0913: Too many arguments (7/5) (too-many-arguments)
+bim2sim/tasks/bps/plot_results.py:559:12: W0101: Unreachable code (unreachable)
+bim2sim/tasks/bps/plot_results.py:561:12: E1101: Class 'PlotBEPSResults' has no 'add_logo' member (no-member)
+bim2sim/tasks/bps/plot_results.py:503:21: W0613: Unused argument 'window' (unused-argument)
+bim2sim/tasks/bps/plot_results.py:516:8: W0612: Unused variable 'fig' (unused-variable)
+bim2sim/tasks/bps/plot_results.py:568:12: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:567:4: R0913: Too many arguments (6/5) (too-many-arguments)
+bim2sim/tasks/bps/plot_results.py:567:4: R0914: Too many local variables (21/15) (too-many-locals)
+bim2sim/tasks/bps/plot_results.py:600:32: R1733: Unnecessary dictionary index lookup, use 'value' instead (unnecessary-dict-index-lookup)
+bim2sim/tasks/bps/plot_results.py:568:64: W0613: Unused argument 'logo' (unused-argument)
+bim2sim/tasks/bps/plot_results.py:569:18: W0613: Unused argument 'window' (unused-argument)
+bim2sim/tasks/bps/plot_results.py:599:17: W0612: Unused variable 'value' (unused-variable)
+bim2sim/tasks/bps/plot_results.py:600:22: W0612: Unused variable 'value2' (unused-variable)
+bim2sim/tasks/bps/plot_results.py:624:8: W0612: Unused variable 'fig' (unused-variable)
+bim2sim/tasks/bps/plot_results.py:629:12: W0612: Unused variable 'i' (unused-variable)
+bim2sim/tasks/bps/plot_results.py:674:23: C0103: Argument name "df" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/plot_results.py:674:4: W0102: Dangerous default value {} as argument (dangerous-default-value)
+bim2sim/tasks/bps/plot_results.py:674:4: R0913: Too many arguments (13/5) (too-many-arguments)
+bim2sim/tasks/bps/plot_results.py:674:4: R0914: Too many local variables (27/15) (too-many-locals)
+bim2sim/tasks/bps/plot_results.py:679:23: W0613: Unused argument 'logo' (unused-argument)
+bim2sim/tasks/bps/plot_results.py:679:42: W0613: Unused argument 'window' (unused-argument)
+bim2sim/tasks/bps/plot_results.py:700:17: W0612: Unused variable 'value' (unused-variable)
+bim2sim/tasks/bps/plot_results.py:701:22: W0612: Unused variable 'value2' (unused-variable)
+bim2sim/tasks/bps/plot_results.py:725:8: W0612: Unused variable 'fig' (unused-variable)
+bim2sim/tasks/bps/plot_results.py:729:12: W0612: Unused variable 'i' (unused-variable)
+bim2sim/tasks/bps/plot_results.py:773:4: C0116: Missing function or method docstring (missing-function-docstring)
 bim2sim/tasks/bps/plot_results.py:6:0: C0411: standard import "from pathlib import Path" should be placed before "import matplotlib as mpl" (wrong-import-order)
 bim2sim/tasks/bps/plot_results.py:12:0: C0412: Imports from package matplotlib are not grouped (ungrouped-imports)
 bim2sim/tasks/bps/plot_results.py:7:0: W0611: Unused Image imported from PIL (unused-import)
 bim2sim/tasks/bps/plot_results.py:11:0: W0611: Unused import scienceplots (unused-import)
 ************* Module bim2sim.tasks.bps.sb_correction
 bim2sim/tasks/bps/sb_correction.py:27:0: C0301: Line too long (82/80) (line-too-long)
-bim2sim/tasks/bps/sb_correction.py:55:0: C0301: Line too long (85/80) (line-too-long)
-bim2sim/tasks/bps/sb_correction.py:57:0: C0301: Line too long (83/80) (line-too-long)
-bim2sim/tasks/bps/sb_correction.py:352:0: C0301: Line too long (83/80) (line-too-long)
+bim2sim/tasks/bps/sb_correction.py:56:0: C0301: Line too long (85/80) (line-too-long)
+bim2sim/tasks/bps/sb_correction.py:58:0: C0301: Line too long (83/80) (line-too-long)
 bim2sim/tasks/bps/sb_correction.py:353:0: C0301: Line too long (83/80) (line-too-long)
-bim2sim/tasks/bps/sb_correction.py:76:9: W0511: todo: refactor elements to initial_elements. (fixme)
-bim2sim/tasks/bps/sb_correction.py:77:9: W0511: todo: space_boundaries should be already included in elements (fixme)
-bim2sim/tasks/bps/sb_correction.py:49:4: W0246: Useless parent or super() delegation in method '__init__' (useless-parent-delegation)
-bim2sim/tasks/bps/sb_correction.py:52:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'CorrectSpaceBoundaries.run' method (arguments-differ)
-bim2sim/tasks/bps/sb_correction.py:52:4: W0221: Variadics removed in overriding 'CorrectSpaceBoundaries.run' method (arguments-differ)
-bim2sim/tasks/bps/sb_correction.py:107:20: C0103: Variable name "sb" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/sb_correction.py:173:4: R0914: Too many local variables (18/15) (too-many-locals)
-bim2sim/tasks/bps/sb_correction.py:204:16: C0103: Variable name "fc" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/sb_correction.py:211:12: C0103: Variable name "p" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/sb_correction.py:222:16: C0103: Variable name "fc" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/sb_correction.py:227:16: C0103: Variable name "p" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/sb_correction.py:252:32: C0103: Variable name "op" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/sb_correction.py:185:8: R1702: Too many nested blocks (6/5) (too-many-nested-blocks)
-bim2sim/tasks/bps/sb_correction.py:173:4: R0912: Too many branches (22/12) (too-many-branches)
-bim2sim/tasks/bps/sb_correction.py:173:4: R0915: Too many statements (53/50) (too-many-statements)
-bim2sim/tasks/bps/sb_correction.py:355:19: W0718: Catching too general exception Exception (broad-exception-caught)
-bim2sim/tasks/bps/sb_correction.py:356:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/tasks/bps/sb_correction.py:268:4: R0912: Too many branches (14/12) (too-many-branches)
-bim2sim/tasks/bps/sb_correction.py:424:19: R1729: Use a generator instead 'all(abs(i) < 0.001 for i in (new_bound.bound_normal - bound.bound_normal).Coord())' (use-a-generator)
-bim2sim/tasks/bps/sb_correction.py:460:24: C0103: Variable name "op" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/tasks/bps/sb_correction.py:488:19: W0718: Catching too general exception Exception (broad-exception-caught)
-bim2sim/tasks/bps/sb_correction.py:489:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/tasks/bps/sb_correction.py:354:0: C0301: Line too long (83/80) (line-too-long)
+bim2sim/tasks/bps/sb_correction.py:77:9: W0511: todo: refactor elements to initial_elements. (fixme)
+bim2sim/tasks/bps/sb_correction.py:78:9: W0511: todo: space_boundaries should be already included in elements (fixme)
+bim2sim/tasks/bps/sb_correction.py:50:4: W0246: Useless parent or super() delegation in method '__init__' (useless-parent-delegation)
+bim2sim/tasks/bps/sb_correction.py:53:4: W0221: Number of parameters was 2 in 'ITask.run' and is now 2 in overriding 'CorrectSpaceBoundaries.run' method (arguments-differ)
+bim2sim/tasks/bps/sb_correction.py:53:4: W0221: Variadics removed in overriding 'CorrectSpaceBoundaries.run' method (arguments-differ)
+bim2sim/tasks/bps/sb_correction.py:108:20: C0103: Variable name "sb" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/sb_correction.py:174:4: R0914: Too many local variables (18/15) (too-many-locals)
+bim2sim/tasks/bps/sb_correction.py:205:16: C0103: Variable name "fc" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/sb_correction.py:212:12: C0103: Variable name "p" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/sb_correction.py:223:16: C0103: Variable name "fc" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/sb_correction.py:228:16: C0103: Variable name "p" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/sb_correction.py:253:32: C0103: Variable name "op" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/sb_correction.py:186:8: R1702: Too many nested blocks (6/5) (too-many-nested-blocks)
+bim2sim/tasks/bps/sb_correction.py:174:4: R0912: Too many branches (22/12) (too-many-branches)
+bim2sim/tasks/bps/sb_correction.py:174:4: R0915: Too many statements (53/50) (too-many-statements)
+bim2sim/tasks/bps/sb_correction.py:356:19: W0718: Catching too general exception Exception (broad-exception-caught)
+bim2sim/tasks/bps/sb_correction.py:357:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/tasks/bps/sb_correction.py:269:4: R0912: Too many branches (14/12) (too-many-branches)
+bim2sim/tasks/bps/sb_correction.py:425:19: R1729: Use a generator instead 'all(abs(i) < 0.001 for i in (new_bound.bound_normal - bound.bound_normal).Coord())' (use-a-generator)
+bim2sim/tasks/bps/sb_correction.py:461:24: C0103: Variable name "op" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/tasks/bps/sb_correction.py:489:19: W0718: Catching too general exception Exception (broad-exception-caught)
+bim2sim/tasks/bps/sb_correction.py:490:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
 ************* Module bim2sim.utilities.pyocc_tools
 bim2sim/utilities/pyocc_tools.py:357:0: C0325: Unnecessary parens after '=' keyword (superfluous-parens)
 bim2sim/utilities/pyocc_tools.py:387:0: C0301: Line too long (82/80) (line-too-long)
@@ -1680,11 +1698,11 @@ bim2sim/utilities/svg_utils.py:336:16: W1203: Use lazy % formatting in logging f
 bim2sim/utilities/svg_utils.py:339:12: C0103: Variable name "e" doesn't conform to snake_case naming style (invalid-name)
 bim2sim/utilities/svg_utils.py:340:16: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
 ************* Module bim2sim.utilities.common_functions
-bim2sim/utilities/common_functions.py:593:0: C0301: Line too long (134/80) (line-too-long)
+bim2sim/utilities/common_functions.py:594:0: C0301: Line too long (134/80) (line-too-long)
 bim2sim/utilities/common_functions.py:250:5: W0511: todo: still needed? (fixme)
-bim2sim/utilities/common_functions.py:420:5: W0511: TODO #539: include hvac regression results here when implemented (fixme)
-bim2sim/utilities/common_functions.py:461:9: W0511: TODO #1: remove these lines when implemented mixed regression (fixme)
-bim2sim/utilities/common_functions.py:549:5: W0511: todo 497 (fixme)
+bim2sim/utilities/common_functions.py:421:5: W0511: TODO #539: include hvac regression results here when implemented (fixme)
+bim2sim/utilities/common_functions.py:462:9: W0511: TODO #1: remove these lines when implemented mixed regression (fixme)
+bim2sim/utilities/common_functions.py:550:5: W0511: todo 497 (fixme)
 bim2sim/utilities/common_functions.py:1:0: C0114: Missing module docstring (missing-module-docstring)
 bim2sim/utilities/common_functions.py:21:0: C0116: Missing function or method docstring (missing-function-docstring)
 bim2sim/utilities/common_functions.py:32:4: C0103: Variable name "x" doesn't conform to snake_case naming style (invalid-name)
@@ -1706,31 +1724,31 @@ bim2sim/utilities/common_functions.py:241:13: W1514: Using open without explicit
 bim2sim/utilities/common_functions.py:241:52: C0103: Variable name "f" doesn't conform to snake_case naming style (invalid-name)
 bim2sim/utilities/common_functions.py:249:0: C0116: Missing function or method docstring (missing-function-docstring)
 bim2sim/utilities/common_functions.py:254:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
-bim2sim/utilities/common_functions.py:275:4: C0415: Import outside toplevel (bim2sim.elements.base_elements.SerializedElement) (import-outside-toplevel)
-bim2sim/utilities/common_functions.py:277:41: C0123: Use isinstance() rather than type() for a typecheck. (unidiomatic-typecheck)
-bim2sim/utilities/common_functions.py:294:4: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/utilities/common_functions.py:306:4: C0103: Variable name "u" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/utilities/common_functions.py:307:4: C0103: Variable name "U" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/utilities/common_functions.py:308:4: C0103: Variable name "a" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/utilities/common_functions.py:309:4: C0103: Variable name "A" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/utilities/common_functions.py:310:4: C0103: Variable name "o" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/utilities/common_functions.py:311:4: C0103: Variable name "O" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/utilities/common_functions.py:312:4: C0103: Variable name "ss" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/utilities/common_functions.py:336:4: W0702: No exception type(s) specified (bare-except)
-bim2sim/utilities/common_functions.py:332:8: C0415: Import outside toplevel (deep_translator.GoogleTranslator) (import-outside-toplevel)
-bim2sim/utilities/common_functions.py:425:12: W0707: Consider explicitly re-raising using 'except ValueError as exc' and 'raise ValueError(f'{domain} is not one of {[domain.name for domain in IFCDomain]}, please specify a valid download domain') from exc' (raise-missing-from)
-bim2sim/utilities/common_functions.py:463:8: R1720: Unnecessary "else" after "raise", remove the "else" and de-indent the code inside it (no-else-raise)
-bim2sim/utilities/common_functions.py:508:16: W0719: Raising too general exception: Exception (broad-exception-raised)
-bim2sim/utilities/common_functions.py:521:12: W0707: Consider explicitly re-raising using 'except Exception as exc' and 'raise Exception(f'Directory {clone_dir} exists but is not a Git repository.') from exc' (raise-missing-from)
-bim2sim/utilities/common_functions.py:521:12: W0719: Raising too general exception: Exception (broad-exception-raised)
-bim2sim/utilities/common_functions.py:547:0: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/utilities/common_functions.py:547:33: W0613: Unused argument 'self' (unused-argument)
-bim2sim/utilities/common_functions.py:568:4: C0415: Import outside toplevel (collections.defaultdict) (import-outside-toplevel)
-bim2sim/utilities/common_functions.py:570:20: C0103: Argument name "s1" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/utilities/common_functions.py:570:24: C0103: Argument name "s2" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/utilities/common_functions.py:571:8: C0103: Variable name "m" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/utilities/common_functions.py:571:11: C0103: Variable name "n" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/utilities/common_functions.py:572:8: C0103: Variable name "dp" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/utilities/common_functions.py:276:4: C0415: Import outside toplevel (bim2sim.elements.base_elements.SerializedElement) (import-outside-toplevel)
+bim2sim/utilities/common_functions.py:278:41: C0123: Use isinstance() rather than type() for a typecheck. (unidiomatic-typecheck)
+bim2sim/utilities/common_functions.py:295:4: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
+bim2sim/utilities/common_functions.py:307:4: C0103: Variable name "u" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/utilities/common_functions.py:308:4: C0103: Variable name "U" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/utilities/common_functions.py:309:4: C0103: Variable name "a" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/utilities/common_functions.py:310:4: C0103: Variable name "A" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/utilities/common_functions.py:311:4: C0103: Variable name "o" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/utilities/common_functions.py:312:4: C0103: Variable name "O" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/utilities/common_functions.py:313:4: C0103: Variable name "ss" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/utilities/common_functions.py:337:4: W0702: No exception type(s) specified (bare-except)
+bim2sim/utilities/common_functions.py:333:8: C0415: Import outside toplevel (deep_translator.GoogleTranslator) (import-outside-toplevel)
+bim2sim/utilities/common_functions.py:426:12: W0707: Consider explicitly re-raising using 'except ValueError as exc' and 'raise ValueError(f'{domain} is not one of {[domain.name for domain in IFCDomain]}, please specify a valid download domain') from exc' (raise-missing-from)
+bim2sim/utilities/common_functions.py:464:8: R1720: Unnecessary "else" after "raise", remove the "else" and de-indent the code inside it (no-else-raise)
+bim2sim/utilities/common_functions.py:509:16: W0719: Raising too general exception: Exception (broad-exception-raised)
+bim2sim/utilities/common_functions.py:522:12: W0707: Consider explicitly re-raising using 'except Exception as exc' and 'raise Exception(f'Directory {clone_dir} exists but is not a Git repository.') from exc' (raise-missing-from)
+bim2sim/utilities/common_functions.py:522:12: W0719: Raising too general exception: Exception (broad-exception-raised)
+bim2sim/utilities/common_functions.py:548:0: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/utilities/common_functions.py:548:33: W0613: Unused argument 'self' (unused-argument)
+bim2sim/utilities/common_functions.py:569:4: C0415: Import outside toplevel (collections.defaultdict) (import-outside-toplevel)
+bim2sim/utilities/common_functions.py:571:20: C0103: Argument name "s1" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/utilities/common_functions.py:571:24: C0103: Argument name "s2" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/utilities/common_functions.py:572:8: C0103: Variable name "m" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/utilities/common_functions.py:572:11: C0103: Variable name "n" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/utilities/common_functions.py:573:8: C0103: Variable name "dp" doesn't conform to snake_case naming style (invalid-name)
 bim2sim/utilities/common_functions.py:6:0: W0611: Unused import shutil (unused-import)
 ************* Module bim2sim.utilities.types
 bim2sim/utilities/types.py:1:0: C0114: Missing module docstring (missing-module-docstring)
@@ -3063,7 +3081,6 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = False
         project.sim_settings.run_full_simulation = False
-        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         answers = (space_boundary_genenerator,
                    *handle_proxies,
                    construction_year,
@@ -3413,25 +3430,29 @@ plt.rcParams.update({
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.__init__:[669:692]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__:[279:298]
-        if not isinstance(min_value, (pint.Quantity, type(None))):
-            raise AssertionError("min_value is no pint quantity with unit")
-        if not isinstance(max_value, (pint.Quantity, type(None))):
-            raise AssertionError("max_value is no pint quantity with unit")
+    if not isinstance(min_value, (pint.Quantity, type(None))):
+        raise AssertionError("min_value is no pint quantity with unit")
+    if not isinstance(max_value, (pint.Quantity, type(None))):
+        raise AssertionError("max_value is no pint quantity with unit")
 
-        def inner_check(value):
-            if not isinstance(value, pint.Quantity):
-                return False
-            if min_value is None and max_value is None:
-                return True
-            if min_value is not None and max_value is None:
-                return min_value <= value
-            if max_value is not None:
-                return value <= max_value
-            return min_value <= value <= max_value
+    def inner_check(value):
+        if not isinstance(value, pint.Quantity):
+            return False
+        if min_value is None and max_value is None:
+            return True
+        if min_value is not None and max_value is None:
+            return min_value <= value
+        if max_value is not None:
+            return value <= max_value
+        return min_value <= value <= max_value
 
-        return inner_check
+    return inner_check
 
-    def __repr__(self): (duplicate-code)
+
+def check_none():
+    """ Generates a function to check if a given value is not None."""
+
+    def inner_check(value): (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib:[45:79]
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim:[44:76]
@@ -3456,14 +3477,16 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
     # missing attributes are written below
     run_project(project, ConsoleDecisionHandler())
 
-# Answers to questions:
 # IfcBuildingElementProxy: skip
-# Rücklaufverschraubung: 15 'HVAC-PipeFitting'
-# Apparate (M_606) 6 'HVAC-Distributor',
-# 3-Wege-Regelventil PN16: 19 'HVAC-ThreeWayValve',
-# Dead end: True * 6
+# Rücklaufverschraubung: 'HVAC-PipeFitting',
+# Apparate (M_606) 'HVAC-Distributor',
+# 3-Wege-Regelventil PN16: 'HVAC-ThreeWayValve',
+# True * 6
 # efficiency: 0.95
+# flow_temperature: 70
 # nominal_power_consumption: 200
+# return_temperature: 50
+# heat_capacity: 10 * 7
 
 
 if __name__ == '__main__': (duplicate-code)
@@ -3546,9 +3569,8 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    @unittest.skip("Skipped due to performance for CI")
-    def test_base_14_EDC_SB_full_run(self):
-        """Test KIT KHH 3 storey IFC with generated Space Boundaries""" (duplicate-code)
+
+ (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[197:210]
 ==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[209:223]
@@ -3570,30 +3592,24 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_complex_project_teaser:[19:44]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e4_visualize_zone_binding:[23:42]
     default_logging_setup()
-
-    # Create a temp directory for the project, feel free to use a "normal"
-    # directory
     project_path = Path(
         tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
-
-    # download additional test resources for arch domain, you might want to set
-    # force_new to True to update your test resources
     download_test_resources(IFCDomain.arch, force_new=False)
-    # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
             'test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc',
     }
-
-    # Create a project including the folder structure for the project with
-    # teaser as backend and no specified workflow (default workflow is taken)
     project = Project.create(project_path, ifc_paths, 'teaser')
 
-    # specify simulation settings (please have a look at the documentation of
-    # all under concepts/sim_settings
-    # combine spaces to thermal zones based on their usage
-    project.sim_settings.zoning_setup = LOD.medium (duplicate-code)
+    # specify simulation settings (especially for zoning)
+
+    # we use LOD.medium that means that zones are merged based on
+    # zoning_criteria sim_setting
+    project.sim_settings.zoning_setup = LOD.medium
+
+    # We don't need a full bim2sim run with simulation to demonstrate this, so
+    # we will just run the needed tasks: (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.ep_comfort_settings:[419:445]
 ==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_create_idf:[626:654]
@@ -3609,21 +3625,19 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
                              End_Month_1=12,
                              End_Day_1=31)
 
-    def set_equipment(self, sim_settings: EnergyPlusSimSettings, idf: IDF,
-                      name: str, zone_name: str,
-                      space: ThermalZone):
-        """Set internal loads from equipment.
+    @staticmethod
+    def remove_empty_zones(idf: IDF):
+        """Remove empty zones and zonegroups from idf.
 
-        This function sets schedules and internal loads from equipment based
-        on the BIM2SIM Preprocessing, i.e. based on IFC data if available or on
-        templates.
+        Depending on the quality of the input ifc and their space
+        boundaries, empty thermal zones may be created (or be left after
+        corrections) in the resulting idf. This raises errors in thermal
+        comfort simulation. This method evaluates if a thermal zone has
+        surfaces in idf, and removes the zone from zonelists and zonegroups.
 
         Args:
-            sim_settings: BIM2SIM simulation settings
-            idf: idf file object
-            name: name of the new people idf object
-            zone_name: name of zone or zone_list
-            space: ThermalZone instance
+            idf: eppy idf
+
         """ (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.examples.e3_load_comfort_simulation_results:[47:62]
@@ -3701,9 +3715,9 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    @unittest.skip("Skipped due to performance for CI")
-    def test_base_09_DH_design_day(self):
-        """Test DigitalHub IFC""" (duplicate-code)
+    # @unittest.skip("Skipped due to performance for CI")
+    def test_base_13_EDC_SB_design_day(self):
+        """Test KIT KHH 3 storey IFC with generated Space Boundaries""" (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[119:138]
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[123:142]
@@ -3731,7 +3745,6 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[170:186]
         project.sim_settings.create_external_elements = True
         # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
-
         project.sim_settings.prj_custom_usages = Path(
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
@@ -3883,7 +3896,10 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         aggregated = Counter((type(item) for item in graph.element_graph.nodes))
         self.assertIn(ConsumerHeatingDistributorModule, aggregated)
         self.assertEqual(0, handler.return_value,
-                         "Project did not finish successfully.") (duplicate-code)
+                         "Project did not finish successfully.")
+
+    def test_run_b03_heating_with_all_aggregations(self):
+        """Run project with 2022_11_21_update_B03_Heating_ownCells""" (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.test.integration.test_aixlib:[124:133]
 ==bim2sim.plugins.PluginHKESim.test.integration.test_hkesim:[91:102]
@@ -3947,6 +3963,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         project.sim_settings.create_external_elements = True
         answers = (2015,)
         # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -3964,14 +3981,16 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
             "customUsagesAC20-FZK-Haus_with_SB55.json"
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         answers = ('Other',)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    # @unittest.skip("")
-    def test_base_05_KIT_Inst_design_day(self):
-        """Test Original IFC File from Institute (KIT)""" (duplicate-code)
+    @unittest.skip("")
+    def test_base_04_FZK_SB_full_run(self):
+        """Test IFC File from FZK-Haus (KIT) with generated Space Boundaries"""
+        # ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus_with_SB44.ifc'} (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[103:117]
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[129:141]
@@ -3979,14 +3998,16 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
             "customUsagesAC20-FZK-Haus_with_SB55.json"
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         answers = ('Other',)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    # @unittest.skip("")
-    def test_base_05_KIT_Inst_design_day(self):
-        """Test Original IFC File from Institute (KIT)""" (duplicate-code)
+    @unittest.skip("")
+    def test_base_04_FZK_SB_full_run(self):
+        """Test IFC File from FZK-Haus (KIT) with generated Space Boundaries"""
+        # ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus_with_SB44.ifc'} (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[195:207]
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[164:175]
@@ -4164,7 +4185,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    # @unittest.skip("Skipped due to performance for CI")
+    @unittest.skip("Skipped due to performance for CI")
     def test_base_07_KIT_Inst_SB_design_day(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries"""
         ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2_with_SB-1-0.ifc'} (duplicate-code)
@@ -4182,14 +4203,16 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[140:152]
 ==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[22:32]
         answers = (2015,)
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
 
-    def test_run_kitoffice_spaces_low_layers_low(self):
-        """Run project with AC20-Institute-Var-2.ifc"""
+    @unittest.skip("")
+    def test_base_06_KIT_Inst_full_run(self):
+        """Test Original IFC File from Institute (KIT)"""
         ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2.ifc'} (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[170:180]
@@ -4202,8 +4225,8 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
                          "EnergyPlus Regression test did not finish "
                          "successfully or created deviations.")
 
-    def test_regression_DigitalHub_SB89(self):
-        """Test DigitalHub IFC, includes regression test.""" (duplicate-code)
+    def test_regression_AC20_FZK_Haus(self):
+        """Run EnergyPlus regression test with AC20-FZK-Haus.ifc.""" (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[139:148]
 ==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[121:130]
@@ -4241,11 +4264,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 
         if layers_r > 0:
             return 1 / layers_r
-        return None
-
-    def get_thickness_by_layers(self, name):
-        """calculate the total thickness of the product based on the thickness
-        of each layer.""" (duplicate-code)
+        return None (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.elements.aggregation.hvac_aggregations:[891:905]
 ==bim2sim.elements.hvac_elements:[957:971]
@@ -4315,7 +4334,11 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
-                         "Project export did not finish successfully.") (duplicate-code)
+                         "Project export did not finish successfully.")
+
+    @unittest.skip('skip layers_full test until new answers are created')
+    def test_ERC_Full(self):
+        """Test ERC Main Building""" (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e2_complex_project_bps_energyplus:[54:63]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_complex_project_teaser:[55:64]
@@ -4355,12 +4378,15 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
                             attributes=['rated_power'])
 
     def get_port_name(self, port):
+        # TODO heat pumps might have 4 ports (if source is modeld in BIM)
         if port.verbose_flow_direction == 'SINK':
             return 'port_a'
         if port.verbose_flow_direction == 'SOURCE':
             return 'port_b'
         else:
-            return super().get_port_name(port) (duplicate-code)
+            return super().get_port_name(port)
+
+ (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[467:480]
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.__init__:[322:334]
@@ -4470,12 +4496,12 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim:[49:55]
 ==bim2sim.plugins.PluginHKESim.test.integration.test_hkesim:[63:69]
-        project.sim_settings.aggregations = [
-            'UnderfloorHeating',
-            'Consumer',
-            'PipeStrand',
-            'ParallelPump',
-            'ConsumerHeatingDistributorModule', (duplicate-code)
+    project.sim_settings.aggregations = [
+        'UnderfloorHeating',
+        'Consumer',
+        'PipeStrand',
+        'ParallelPump',
+        'ConsumerHeatingDistributorModule', (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[181:196]
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[187:202]
@@ -4518,10 +4544,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         reg_test_res = self.run_regression_test()
         self.assertEqual(True, reg_test_res,
                          "EnergyPlus Regression test did not finish "
-                         "successfully or created deviations.")
-
-    def test_regression_AC20_FZK_Haus(self):
-        """Run EnergyPlus regression test with AC20-FZK-Haus.ifc.""" (duplicate-code)
+                         "successfully or created deviations.") (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[58:65]
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[58:65]
@@ -4560,9 +4583,10 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
             Path(bim2sim.__file__).parent.parent /
             'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
     }
-
-    # Create a project including the folder structure for the project with
-    # teaser as backend and no specified workflow (default workflow is taken) (duplicate-code)
+    # With open_conf the default created config file will be opened and can be
+    # adjusted by the user and saved afterwards.
+    # todo open_conf is currently only tested under windows
+ (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.examples.e1_template_plugin:[38:63]
 ==bim2sim.examples.e2_interactive_project:[35:45]
@@ -4571,24 +4595,9 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
             Path(bim2sim.__file__).parent.parent /
             'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
     }
-
-    # Create a new project, based on the created temporary directory, the
-    # defined ifc_paths and the template plugin. The template plugin is just
-    # for explanation and holds some basic tasks to convert IFC data into
-    # bim2sim elements structure without creating any simulation models.
-    # By looking into the plugin definition we can find the following:
-    # default_tasks = [
-    #     common.LoadIFC,
-    #     common.CheckIfc,
-    #     common.CreateElements,
-    #     bps.CreateSpaceBoundaries,
-    #     common.BindStoreys,
-    #     common.Weather,
-    # ]
-    # This means that these 7 tasks are performed when not using interactive
-    # mode (see e2_interactive_project.py for more information about
-    # interactive mode). For detailed information about the different tasks
-    # please have a look at their documentation.
+    # With open_conf the default created config file will be opened and can be
+    # adjusted by the user and saved afterwards.
+    # todo open_conf is currently only tested under windows
 
     project = Project.create( (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
@@ -4621,15 +4630,18 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         vol = self.calc_volume_from_ifc_shape()
         return vol
 
- (duplicate-code)
+    def get_ports(self) -> list:
+        """Returns a list of ports of this product.""" (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e2_complex_project_bps_energyplus:[93:100]
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[197:202]
-        answers = (space_boundary_genenerator,
-                   *handle_proxies,
-                   construction_year)
-        handler = DebugDecisionHandler(answers)
-        handler.handle(project.run()) (duplicate-code)
+    answers = (space_boundary_genenerator,
+               *handle_proxies,
+               construction_year)
+    handler = DebugDecisionHandler(answers)
+    handler.handle(project.run())
+
+ (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e2_complex_project_bps_energyplus:[67:72]
 ==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e3_load_energyplus_simulation_results:[45:50]
@@ -4668,8 +4680,9 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
 
-    def test_DH_spaces_medium_material_low(self):
-        """Test DigitalHub IFC""" (duplicate-code)
+    @unittest.skip("")
+    def test_base_06_KIT_Inst_full_run(self):
+        """Test Original IFC File from Institute (KIT)""" (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.test.integration.test_aixlib:[52:60]
 ==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[23:31]
@@ -4886,7 +4899,9 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         project.sim_settings.split_bounds = True
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
-        project.sim_settings.run_full_simulation = False (duplicate-code)
+        project.sim_settings.run_full_simulation = False
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+ (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[70:75]
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[72:79]
@@ -4906,9 +4921,8 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
 
-    @unittest.skip("")
-    def test_base_06_KIT_Inst_full_run(self):
-        """Test Original IFC File from Institute (KIT)""" (duplicate-code)
+    def test_run_ERC_lca(self):
+        """Run project with AC20-FZK-Haus.ifc""" (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.integration.test_useage:[11:18]
 ==bim2sim.plugins.PluginLCA.test.integration.test_useage:[11:18]
@@ -4930,11 +4944,14 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[230:235]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_complex_project_teaser:[103:111]
-        answers = (space_boundary_genenerator,
-                   *handle_proxies,
-                   construction_year)
-        handler = DebugDecisionHandler(answers)
-        handler.handle(project.run()) (duplicate-code)
+    answers = (space_boundary_genenerator,
+               *handle_proxies,
+               construction_year)
+    # handler = ConsoleDecisionHandler()
+    handler = DebugDecisionHandler(answers)
+    handler.handle(project.run())
+
+    # Have a look at the elements/elements that were created (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.create_result_df:[89:95]
 ==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.create_result_df:[174:183]
@@ -4943,10 +4960,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
                 if key in column:
                     df_final[column] = PintArray(df_final[column], unit)
 
-        return df_final
-
-    def select_wanted_results(self):
-        """Selected only the wanted outputs based on sim_setting sim_results""" (duplicate-code)
+        return df_final (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.examples.e3_load_comfort_simulation_results:[47:52]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_complex_project_teaser:[77:82]
@@ -4964,8 +4978,8 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries, (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.tasks.bps.disaggr_creation:[49:56]
-==bim2sim.tasks.bps.sb_creation:[84:89]
+==bim2sim.tasks.bps.disaggr_creation:[48:55]
+==bim2sim.tasks.bps.sb_creation:[82:87]
         for ele in elements.values():
             # only handle BPSProductWithLayers
             if not any([isinstance(ele, bps_product_layer_ele) for
@@ -4980,24 +4994,23 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
                         playground.update_graph(graph)
                 else:
                     raise NotImplementedError()
-                    # TODO: handle consumers
-                    # dead end identification with guid decision
-                    #  (see issue97 add_gui_decision)
-                    # build clusters with position for the rest of open ports
-                    # decision to to group these open ports to consumers
-                    # delete the rest of open ports afterwards
+                    # TODO: handle real storages
+                    # maybe add ports to the storage and select the related
+                    # dead end, with which the new storage port should be
+                    # connected
         return graph, n_removed (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.elements.bps_elements:[911:919]
 ==bim2sim.utilities.visualize_spaces:[67:76]
-        settings = ifcopenshell.geom.settings()
-        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
-        settings.set(settings.USE_WORLD_COORDS, True)
-        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-        settings.set(settings.INCLUDE_CURVES, True)
+    settings = ifcopenshell.geom.settings()
+    settings.set(settings.USE_PYTHON_OPENCASCADE, True)
+    settings.set(settings.USE_WORLD_COORDS, True)
+    settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+    settings.set(settings.INCLUDE_CURVES, True)
 
-        # check if the space boundary shapes need a unit conversion (i.e.,
-        # an additional transformation to the correct size and position) (duplicate-code)
+    # Call init_display
+    # TODO this messes with the logger, but method like below doesn't work
+    #  with open(os.devnull, 'w') as devnull: (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.elements.bps_elements:[242:247]
 ==bim2sim.tasks.bps.sb_2b_generation:[131:136]
@@ -5017,40 +5030,37 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 
     @classmethod
     def pre_validate(cls, ifc) -> bool: (duplicate-code)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.combine_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_2b_generation) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_correction -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_creation -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.combine_tz -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_correction -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_correction -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_creation -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.serialize_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_relations -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.weather -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.combine_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_creation -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.disaggr_creation -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_creation -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_relations -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_2b_generation -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.serialize_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_relations -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.weather -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_creation -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_creation -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.disaggr_creation -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_2b_generation -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_correction -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.utilities.svg_utils -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
 bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task -> bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.create_result_df) (cyclic-import)
 bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim.plugins.PluginTEASER.bim2sim_teaser.export -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.models) (cyclic-import)
 
 -----------------------------------
-Your code has been rated at 7.81/10
+Your code has been rated at 7.80/10
 
