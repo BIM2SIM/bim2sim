@@ -1,4 +1,5 @@
 import pickle
+from typing import Tuple, Dict
 
 from bim2sim.elements.base_elements import SerializedElement
 from bim2sim.tasks.base import ITask
@@ -11,7 +12,7 @@ class SerializeElements(ITask):
     touches = ('serialized_elements',)
     single_use = True
 
-    def run(self, elements):
+    def run(self, elements: dict) -> Tuple[Dict]:
         """Make the element structure serializable.
 
         As due to swigPy objects coming from IfcOpenShell we can't

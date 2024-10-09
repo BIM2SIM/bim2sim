@@ -5,6 +5,8 @@ from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import get_use_conditions_dict, \
     get_pattern_usage, wildcard_match, filter_elements
+from bim2sim.tasks.base import Playground
+from bim2sim.sim_settings import BuildingSimSettings
 from bim2sim.utilities.types import AttributeDataSource
 
 
@@ -14,10 +16,10 @@ class EnrichUseConditions(ITask):
 
     reads = ('elements',)
 
-    def __init__(self, playground):
+    def __init__(self, playground: Playground):
         super().__init__(playground)
-        self.enriched_tz = []
-        self.use_conditions = {}
+        self.enriched_tz: list = []
+        self.use_conditions: dict = {}
 
     def run(self, elements: dict):
         """Enriches Use Conditions of thermal zones and central AHU settings.
@@ -81,7 +83,7 @@ class EnrichUseConditions(ITask):
                     AttributeDataSource.enrichment)
 
     @staticmethod
-    def set_heating_cooling(tz_elements:dict , sim_settings):
+    def set_heating_cooling(tz_elements: dict, sim_settings: BuildingSimSettings):
         """set cooling and heating values based on simulation settings"""
 
         for tz in tz_elements.values():
@@ -267,7 +269,7 @@ class EnrichUseConditions(ITask):
                 setattr(tz, attr, value)
 
     @staticmethod
-    def value_processing(value):
+    def value_processing(value: float):
         """"""
         if isinstance(value, dict):
             values = next(iter(value.values()))
