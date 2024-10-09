@@ -903,8 +903,7 @@ class CreateBuildingAndHeatingGraph(ITask):
 
             z_value_floor = floor_graph.nodes[source_forward_list[i]]["pos"][2]
             delivery_nodes_floor = ([tuple(data["pos"]) for node, data in floor_graph.nodes(data=True)
-                                    if data["type"] in [['radiator_forward'], ['radiator_backward'],
-                                                        ['radiator_forward_extra'], ['radiator_backward_extra']]])
+                                    if data["type"] in [['radiator_forward'], ['radiator_forward_extra']]])
             intersection_nodes_floor = [tuple(data["pos"]) for node, data in floor_graph.nodes(data=True)
                                         if "intersection_point" in data["type"]]
             shaft_node_floor = source_forward_list[i]
@@ -976,7 +975,7 @@ class CreateBuildingAndHeatingGraph(ITask):
 
                 if type_delivery == ["door"]:
                     for node, data in f_st.nodes(data=True):
-                        if data['type'] in [['radiator_forward_extra'], ['radiator_backward_extra']]:
+                        if 'radiator_forward_extra' in data['type']:
                             data['type'] = [f"{data['type'][0]}_ground"]
 
                     for window_node, ground_node in window_node_mapping.items():
@@ -1025,7 +1024,8 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                        color="orange",
                                                        edge_type="radiator",
                                                        grid_type="connection",
-                                                       type_delivery=["radiator_forward", "radiator_backward"])
+                                                       type_delivery=["radiator_forward", "radiator_backward",
+                                                                      "radiator_forward_extra","radiator_backward_extra"])
         composed_graph = self.add_component_nodes(graph=composed_graph, one_pump_flag=one_pump_flag, type_delivery=type_delivery)
         self.write_json_graph(graph=composed_graph, filename="heating_circle.json")
 
@@ -2286,7 +2286,8 @@ class CreateBuildingAndHeatingGraph(ITask):
             # Update Knoten
             if graph.degree[node] == 2:
                 if len(list(graph.successors(node))) == 1 and len(list(graph.predecessors(node))) == 1:
-                    radiator_list = ["radiator_backward", "radiator_forward"]
+                    radiator_list = ["radiator_backward", "radiator_forward",
+                                     "radiator_forward_extra", "radiator_backward_extra"]
                     if not set(radiator_list) & set(graph.nodes[node]["type"]):
                         in_edge = list(graph.successors(node))[0]
                         out_edges = list(graph.predecessors(node))[0]
@@ -2318,7 +2319,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                             graph.nodes[node]["type"] = ["Vereinigung"]
                         else:
                             graph.nodes[node]["type"].append("Vereinigung")
-            if "radiator_backward" in data['type']:
+            if "radiator_backward" in data['type'] and type_delivery == ["window"]:
                 if "Entlüfter" not in graph.nodes[node]["type"]:
                     graph.nodes[node]["type"].append("Entlüfter")
             # Erweitere Knoten L-System
@@ -2374,6 +2375,22 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                  neighbors=out_edge,
                                                  grid_type=grid_type,
                                                  strang=strang)
+            if "radiator_forward_extra" in data['type'] and type_delivery == ["door"]:
+                l_rules = "Thermostatventil"
+                str_chain = l_rules.split("-")
+                in_edge = list(graph.successors(node))
+                out_edge = list(graph.predecessors(node))
+                graph = self.add_components_on_graph(graph=graph,
+                                                 node=node,
+                                                 edge_type=edge_type,
+                                                 str_chain=str_chain,
+                                                 color=color,
+                                                 z_direction=True,
+                                                 x_direction=False,
+                                                 y_direction=False,
+                                                 neighbors=out_edge,
+                                                 grid_type=grid_type,
+                                                 strang=strang)
             if "radiator_forward" in data['type'] and type_delivery == ["door"]:
                 l_rules = "Magnetventil"
                 str_chain = l_rules.split("-")
@@ -2409,7 +2426,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                  neighbors=out_edge,
                                                  grid_type=grid_type,
                                                  strang=strang)
-            if "radiator_backward" in data['type']:
+            if "radiator_backward" in data['type'] or "radiator_backward_extra" in data['type']:
                 l_rules = "Rücklaufabsperrung"
                 str_chain = l_rules.split("-")
                 in_edge = list(graph.successors(node))
@@ -4897,6 +4914,10 @@ class CreateBuildingAndHeatingGraph(ITask):
                 graph_reversed.nodes[node]['type'] = ["radiator_backward"]
             if "radiator_forward_ground" in data["type"]:
                 graph_reversed.nodes[node]['type'] = ["radiator_backward_ground"]
+            if "radiator_forward_extra" in data["type"]:
+                graph_reversed.nodes[node]['type'] = ["radiator_backward_extra"]
+            if "radiator_forward_extra_ground" in data["type"]:
+                graph_reversed.nodes[node]['type'] = ["radiator_backward_extra_ground"]
             if "start_node" in data["type"]:
                 # graph_reversed.nodes[node]['type'].append("end_node")
                 graph_reversed.nodes[node]['type'] = ["end_node", "Vereinigung"]

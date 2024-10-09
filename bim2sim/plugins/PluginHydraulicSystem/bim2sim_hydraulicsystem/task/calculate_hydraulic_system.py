@@ -140,7 +140,7 @@ class CalculateHydraulicSystem(ITask):
 
         if further_heat_delivery:
             graph = self.add_extra_radiators(graph=graph,
-                                             further_heat_delivery = further_heat_delivery)
+                                             further_heat_delivery=further_heat_delivery)
 
         # 2. Berechne Massenstrom/ Volumenstrom an den Endpunkten
         # graph = self.update_radiator_mass_flow_nodes(graph=graph, nodes=["radiator_forward", "radiator_backward"])
@@ -2041,21 +2041,19 @@ class CalculateHydraulicSystem(ITask):
 
                 heat_flow_per_area = Q_flow_design / room_area / ureg.kW * ureg.W * 1000
 
+                if room_id == '0UiHARbFzF1RT4g_GKem_B':
+                    heat_flow_per_area = 150 * ureg.W / (ureg.meter ** 2)
 
                 if heat_flow_per_area.magnitude > self.playground.sim_settings.ufh_max_heat_flow_per_area:
-                    further_heat_delivery[room_id] = {}
-                    if delivery_type == "UFH+Radiator":
-                        further_heat_flow = (heat_flow_per_area.magnitude -
-                                self.playground.sim_settings.ufh_max_heat_flow_per_area) * room_area * ureg.W
-                        heat_flow_per_area = self.playground.sim_settings.ufh_max_heat_flow_per_area
-                        Q_flow_design = heat_flow_per_area * room_area
+                    further_heat_flow = (heat_flow_per_area.magnitude -
+                            self.playground.sim_settings.ufh_max_heat_flow_per_area) * room_area * ureg.W/(ureg.meter**2)
+                    heat_flow_per_area = self.playground.sim_settings.ufh_max_heat_flow_per_area * ureg.W/(ureg.meter**2)
+                    Q_flow_design = heat_flow_per_area * room_area
 
-                        further_heat_delivery[room_id]['further_heat_flow'] = further_heat_flow
-                        further_heat_delivery[room_id]['norm_indoor_temperature'] = norm_indoor_temperature
-                    else:
-                        assert RuntimeWarning(
-                            f"Max heat flow for under floor heating in room {graph.nodes[node]['belongs_to'][0]} has "
-                            f"been exceeded!")
+                    further_heat_delivery[room_id] = {}
+                    further_heat_delivery[room_id]['further_heat_flow'] = further_heat_flow
+                    further_heat_delivery[room_id]['norm_indoor_temperature'] = norm_indoor_temperature
+
 
                 graph.nodes[node]['ufh_area'] = room_area
                 graph.nodes[node]['heat_flow_per_area'] = heat_flow_per_area
