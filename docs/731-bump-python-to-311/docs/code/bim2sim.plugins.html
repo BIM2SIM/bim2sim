@@ -1,0 +1,364 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bim2sim.plugins package &mdash; bim2sim  0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bim2sim.plugins.PluginAixLib package" href="bim2sim.plugins.PluginAixLib.html" />
+    <link rel="prev" title="bim2sim.kernel.decision package" href="bim2sim.kernel.decision.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/b2s_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide.html">User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced-user-guide.html">Advanced User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer-guide.html">Developer-Guide</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">bim2sim</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="bim2sim.html">bim2sim package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#bim2sim.run_project"><code class="docutils literal notranslate"><span class="pre">run_project()</span></code></a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="bim2sim.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html">bim2sim.elements package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.examples.html">bim2sim.examples package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.export.html">bim2sim.export package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.kernel.html">bim2sim.kernel package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">bim2sim.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.html">bim2sim.tasks package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.utilities.html">bim2sim.utilities package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#module-bim2sim.project">bim2sim.project module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#module-bim2sim.sim_settings">bim2sim.sim_settings module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">bim2sim </a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">bim2sim</a></li>
+          <li class="breadcrumb-item"><a href="bim2sim.html">bim2sim package</a></li>
+      <li class="breadcrumb-item active">bim2sim.plugins package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/code/bim2sim.plugins.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-bim2sim.plugins">
+<span id="bim2sim-plugins-package"></span><h1>bim2sim.plugins package<a class="headerlink" href="#module-bim2sim.plugins" title="Link to this heading"></a></h1>
+<p>BIM2SIM Plugins</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.Plugin">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.</span></span><span class="sig-name descname"><span class="pre">Plugin</span></span><a class="headerlink" href="#bim2sim.plugins.Plugin" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class for bim2sim Plugins.</p>
+<dl class="simple">
+<dt>Notes:</dt><dd><p>This class is used as a namespace. Instantiation is not necessary.</p>
+</dd>
+<dt>Attributes:</dt><dd><p>name: Name of the Plugin
+sim_settings: simulation settings to use in Projects using this Plugin
+tasks: Set of tasks made available by this Plugin
+default_tasks: List of tasks, which should be executed
+elements: Additional Elements made available by this Plugin</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.Plugin.default_tasks">
+<span class="sig-name descname"><span class="pre">default_tasks</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><span class="pre">ITask</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#bim2sim.plugins.Plugin.default_tasks" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.Plugin.elements">
+<span class="sig-name descname"><span class="pre">elements</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">set</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#bim2sim.plugins.Plugin.elements" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.Plugin.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bim2sim.plugins.Plugin.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.Plugin.sim_settings">
+<span class="sig-name descname"><span class="pre">sim_settings</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.html#bim2sim.sim_settings.BaseSimSettings" title="bim2sim.sim_settings.BaseSimSettings"><span class="pre">BaseSimSettings</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bim2sim.plugins.Plugin.sim_settings" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.Plugin.tasks">
+<span class="sig-name descname"><span class="pre">tasks</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><span class="pre">ITask</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#bim2sim.plugins.Plugin.tasks" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginBPSBase">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.</span></span><span class="sig-name descname"><span class="pre">PluginBPSBase</span></span><a class="headerlink" href="#bim2sim.plugins.PluginBPSBase" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.Plugin" title="bim2sim.plugins.Plugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plugin</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginBPSBase.default_tasks">
+<span class="sig-name descname"><span class="pre">default_tasks</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><span class="pre">ITask</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.tasks.common.load_ifc.LoadIFC'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.common.check_ifc.CheckIfc'&gt;,</span> <span class="pre">&lt;module</span> <span class="pre">'bim2sim.tasks.common.create_elements'</span> <span class="pre">from</span> <span class="pre">'/builds/EBC/EBC_all/github_ci/bim2sim/bim2sim/tasks/common/create_elements.py'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.bps.combine_tz.CombineThermalZones'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginBPSBase.default_tasks" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginBPSBase.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'BPSBase'</span></em><a class="headerlink" href="#bim2sim.plugins.PluginBPSBase.name" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginBPSBase.sim_settings">
+<span class="sig-name descname"><span class="pre">sim_settings</span></span><a class="headerlink" href="#bim2sim.plugins.PluginBPSBase.sim_settings" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="bim2sim.html#bim2sim.sim_settings.BuildingSimSettings" title="bim2sim.sim_settings.BuildingSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuildingSimSettings</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.plugins.add_plugins_to_path">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.</span></span><span class="sig-name descname"><span class="pre">add_plugins_to_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.add_plugins_to_path" title="Link to this definition"></a></dt>
+<dd><p>Add all directories under root to path.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.plugins.available_plugins">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.</span></span><span class="sig-name descname"><span class="pre">available_plugins</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.plugins.available_plugins" title="Link to this definition"></a></dt>
+<dd><p>List all available plugins.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.plugins.get_plugin">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.</span></span><span class="sig-name descname"><span class="pre">get_plugin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">module</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bim2sim.plugins.Plugin" title="bim2sim.plugins.Plugin"><span class="pre">Plugin</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.plugins.get_plugin" title="Link to this definition"></a></dt>
+<dd><p>Get Plugin class from module.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.plugins.load_plugin">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.</span></span><span class="sig-name descname"><span class="pre">load_plugin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bim2sim.plugins.Plugin" title="bim2sim.plugins.Plugin"><span class="pre">Plugin</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.plugins.load_plugin" title="Link to this definition"></a></dt>
+<dd><p>Load Plugin from module.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>name: name of plugin module. Prefix ‘<a href="#id1"><span class="problematic" id="id2">bim2sim_</span></a>’ may be omitted.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading"></a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.PluginAixLib.html">bim2sim.plugins.PluginAixLib package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginAixLib.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.html">bim2sim.plugins.PluginAixLib.bim2sim_aixlib package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.html#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.LoadLibrariesAixLib"><code class="docutils literal notranslate"><span class="pre">LoadLibrariesAixLib</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.html#bim2sim.plugins.PluginAixLib.bim2sim_aixlib.PluginAixLib"><code class="docutils literal notranslate"><span class="pre">PluginAixLib</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginAixLib.bim2sim_aixlib.html#module-bim2sim.plugins.PluginAixLib.bim2sim_aixlib.sim_settings">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.sim_settings module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginAixLib.test.html">bim2sim.plugins.PluginAixLib.test package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginAixLib.test.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.PluginCFD.html">bim2sim.plugins.PluginCFD package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginCFD.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginCFD.bim2sim_cfd.html">bim2sim.plugins.PluginCFD.bim2sim_cfd package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginCFD.bim2sim_cfd.html#bim2sim.plugins.PluginCFD.bim2sim_cfd.PluginCFD"><code class="docutils literal notranslate"><span class="pre">PluginCFD</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginCFD.bim2sim_cfd.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginCFD.test.html">bim2sim.plugins.PluginCFD.test package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginCFD.test.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.PluginComfort.html">bim2sim.plugins.PluginComfort package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginComfort.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginComfort.bim2sim_comfort.html">bim2sim.plugins.PluginComfort.bim2sim_comfort package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginComfort.bim2sim_comfort.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginComfort.bim2sim_comfort.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginComfort.bim2sim_comfort.html#bim2sim-plugins-plugincomfort-bim2sim-comfort-sim-settings-module">bim2sim.plugins.PluginComfort.bim2sim_comfort.sim_settings module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginComfort.test.html">bim2sim.plugins.PluginComfort.test package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginComfort.test.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.PluginEnergyPlus.html">bim2sim.plugins.PluginEnergyPlus package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginEnergyPlus.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.html">bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.html#module-bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.sim_settings">bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.sim_settings module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginEnergyPlus.test.html">bim2sim.plugins.PluginEnergyPlus.test package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginEnergyPlus.test.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginEnergyPlus.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginEnergyPlus.html#bim2sim-plugins-pluginenergyplus-setup-module">bim2sim.plugins.PluginEnergyPlus.setup module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.PluginHKESim.html">bim2sim.plugins.PluginHKESim package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginHKESim.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginHKESim.bim2sim_hkesim.html">bim2sim.plugins.PluginHKESim.bim2sim_hkesim package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginHKESim.bim2sim_hkesim.html#bim2sim.plugins.PluginHKESim.bim2sim_hkesim.LoadLibrariesHKESim"><code class="docutils literal notranslate"><span class="pre">LoadLibrariesHKESim</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginHKESim.bim2sim_hkesim.html#bim2sim.plugins.PluginHKESim.bim2sim_hkesim.PluginHKESim"><code class="docutils literal notranslate"><span class="pre">PluginHKESim</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginHKESim.bim2sim_hkesim.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginHKESim.test.html">bim2sim.plugins.PluginHKESim.test package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginHKESim.test.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.PluginLCA.html">bim2sim.plugins.PluginLCA package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginLCA.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginLCA.bim2sim_lca.html">bim2sim.plugins.PluginLCA.bim2sim_lca package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginLCA.bim2sim_lca.html#bim2sim.plugins.PluginLCA.bim2sim_lca.PluginLCA"><code class="docutils literal notranslate"><span class="pre">PluginLCA</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginLCA.bim2sim_lca.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginLCA.bim2sim_lca.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginLCA.bim2sim_lca.html#module-bim2sim.plugins.PluginLCA.bim2sim_lca.sim_settings">bim2sim.plugins.PluginLCA.bim2sim_lca.sim_settings module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginLCA.test.html">bim2sim.plugins.PluginLCA.test package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginLCA.test.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.html">bim2sim.plugins.PluginTEASER package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.html">bim2sim.plugins.PluginTEASER.bim2sim_teaser package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.html#subpackages">Subpackages</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.html#bim2sim-plugins-pluginteaser-bim2sim-teaser-sim-settings-module">bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.test.html">bim2sim.plugins.PluginTEASER.test package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.test.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.PluginTemplate.html">bim2sim.plugins.PluginTemplate package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTemplate.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTemplate.bim2sim_template.html">bim2sim.plugins.PluginTemplate.bim2sim_template package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTemplate.bim2sim_template.html#bim2sim.plugins.PluginTemplate.bim2sim_template.PluginTemplate"><code class="docutils literal notranslate"><span class="pre">PluginTemplate</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTemplate.bim2sim_template.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="bim2sim.kernel.decision.html" class="btn btn-neutral float-left" title="bim2sim.kernel.decision package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bim2sim.plugins.PluginAixLib.html" class="btn btn-neutral float-right" title="bim2sim.plugins.PluginAixLib package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, RWTH Aachen University, EBC &amp; E3D; ROM Technik GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
