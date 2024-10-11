@@ -29,8 +29,7 @@ class CreateSpaceBoundaries(ITask):
 
     reads = ('ifc_files', 'elements')
 
-    def run(self, ifc_files: list, elements: dict) \
-            -> tuple[dict[str, SpaceBoundary]]:
+    def run(self, ifc_files: list, elements: dict):
         """Create space boundaries for elements from IfcRelSpaceBoundary.
 
         This module contains all functions for setting up bim2sim elements of
@@ -51,7 +50,6 @@ class CreateSpaceBoundaries(ITask):
                 SpaceBoundary], dictionary of IFC-based space boundary elements.
         """
 
-    def run(self, ifc_files, elements):
         if not self.playground.sim_settings.add_space_boundaries:
             return
         logger.info("Creates elements for IfcRelSpaceBoundarys")
@@ -76,7 +74,7 @@ class CreateSpaceBoundaries(ITask):
         self.remove_elements_without_sbs(elements)
 
     @staticmethod
-    def remove_elements_without_sbs(elements):
+    def remove_elements_without_sbs(elements: dict):
         """Remove elements that hold no Space Boundaries.
 
         Those elements are usual not relevant for the simulation.
@@ -247,7 +245,7 @@ class CreateSpaceBoundaries(ITask):
         Returns:
             opening_boundary: Union[SpaceBoundary, None]
         """
-        opening_boundary = None
+        opening_boundary: Union[SpaceBoundary, None] = None
         distances = {}
         for op_bound in opening_elem.space_boundaries:
             if not op_bound.ifc.RelatingSpace == this_space:
@@ -312,7 +310,7 @@ class CreateSpaceBoundaries(ITask):
                 therefore should be dropped
         """
         rel_bound = None
-        drop_list[this_boundary.guid] = this_boundary
+        drop_list[this_boundary.guid]: dict[str, SpaceBoundary] = this_boundary
         ib = [b for b in bound_element.space_boundaries if
               b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries
               if
