@@ -2,7 +2,7 @@ import tempfile
 from pathlib import Path
 
 import bim2sim
-from bim2sim import Project, ConsoleDecisionHandler
+from bim2sim import Project
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
@@ -97,21 +97,15 @@ def run_example_complex_building_teaser():
     # create plots based on the results after simulation
     project.sim_settings.create_plots = True
 
-    # Run the project with pre configured answers for decisions
+    # Run the project with pre-configured answers for decisions
     space_boundary_genenerator = 'Other'
     handle_proxies = (*(None,) * 12,)
     construction_year = 2015
     answers = (space_boundary_genenerator,
                *handle_proxies,
                construction_year)
-    # handler = ConsoleDecisionHandler()
     handler = DebugDecisionHandler(answers)
     handler.handle(project.run())
-
-    # Have a look at the elements/elements that were created
-    elements = project.playground.state['elements']
-    # filter the elements only for outer walls
-    df_finals = project.playground.state['df_finals']
 
 
 if __name__ == '__main__':

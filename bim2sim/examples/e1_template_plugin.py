@@ -30,7 +30,7 @@ def run_simple_project():
 
     # Download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
-    download_test_resources(IFCDomain.arch, force_new=True)
+    # download_test_resources(IFCDomain.arch, force_new=True)
 
     # Set the ifc path to use and define which domain the IFC belongs to.
     # This is done via a dictionary, where the key is the domain and the value

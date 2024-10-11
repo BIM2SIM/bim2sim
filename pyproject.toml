@@ -23,7 +23,7 @@ authors = [
 ]
 description = "bim2sim is a framework to create simulation models for different purposes based on BIM models in IFC format."
 readme = "README.md"
-requires-python = ">=3.10, <=3.10.14"
+requires-python = ">=3.10, <=3.11.10"
 classifiers = [
     "Development Status :: XXX", # see https://en.wikipedia.org/wiki/Software_release_life_cycle
     "License :: XXX",
@@ -33,7 +33,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
 ]
 dependencies = [
-    "ifcopenshell>=0.7.0",
+    "ifcopenshell==0.7.0.240627",
     "docopt==0.6.2",
     "numpy==1.26.0",
     "pandas==2.1.3",
@@ -47,6 +47,9 @@ dependencies = [
     "rwthcolors==0.2.4",
     "SciencePlots==2.1.0",
     "pillow==10.1.0",
+    "gitpython==3.1.40",
+    "svglib==1.5.1",
+    "reportlab==4.2.2",
     "scipy==1.11.3", # is a dependency from networkx, should installed automatically
 ]
 
@@ -63,7 +66,7 @@ PluginTEASER = [
     "RWTHColors",
     "scienceplots",
     "ebcpy",
-    "TEASER@git+https://github.com/RWTH-EBC/TEASER#egg=development",
+    "TEASER@git+https://github.com/RWTH-EBC/TEASER@development#egg=TEASER[report]",
     "BuildingsPy@git+https://github.com/DaJansenGit/BuildingsPy.git",
 ]
 PluginEnergyPlus = [
