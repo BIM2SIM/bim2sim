@@ -74,7 +74,7 @@ PluginEnergyPlus = [
     "numpy-stl",
     "energyplus-regressions",
     "eppy@git+https://github.com/BIM2SIM/eppy",
-    "geomeppy@git+https://github.com/BIM2SIM/geomeppy#egg=fix_dependencies",
+    "geomeppy@git+https://github.com/BIM2SIM/geomeppy@fix_dependencies#egg=geomeppy",
     "OCCUtils@git+https://github.com/tpaviot/pythonocc-utils",  # from base requiremts.txt
 ]
 PluginAixLib = [
