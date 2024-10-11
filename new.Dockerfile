@@ -7,7 +7,7 @@ ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
 # Install necessary packages
 USER root
 RUN apt-get update && \
-    apt-get install -y libgl1-mesa-dev gcc g++ && \
+    apt-get install -y libgl1-mesa-dev gcc g++ git && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 USER mambauser
