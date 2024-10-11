@@ -2,12 +2,11 @@ import tempfile
 from pathlib import Path
 
 import bim2sim
-from bim2sim import Project, ConsoleDecisionHandler
+from bim2sim import Project
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
-from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
-from bim2sim.utilities.common_functions import download_test_resources, \
-    download_library
+from bim2sim.utilities.types import IFCDomain, LOD
+from bim2sim.utilities.common_functions import download_test_resources
 
 
 def run_example_complex_building_teaser():
@@ -43,7 +42,7 @@ def run_example_complex_building_teaser():
 
     # Set the install path to your EnergyPlus installation according to your
     # system requirements
-    project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+    # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
 
     # combine spaces to thermal zones based on their usage
     # use cooling
