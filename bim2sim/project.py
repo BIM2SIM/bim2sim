@@ -319,7 +319,9 @@ class Project:
         self._setup_logger()  # setup project specific handlers
 
     def _get_plugin(self, plugin):
-        if plugin:
+        if plugin and isinstance(plugin, str):
+            return load_plugin(plugin)
+        elif plugin and isinstance(plugin, Plugin):
             return plugin
         else:
             plugin_name = self.config['Backend']['use']
@@ -341,16 +343,15 @@ class Project:
             open_conf: flag to open the config file in default application
             updated from config
         """
-        # create folder first
-        if isinstance(plugin, str):
+        # create folder first and use given plugin
+        if plugin and (isinstance(plugin, str) or isinstance(plugin, Plugin)):
             FolderStructure.create(project_folder, ifc_paths, plugin, open_conf)
-            project = cls(project_folder)
+            project = cls(project_folder, plugin=plugin)
         else:
-            # an explicit plugin can't be recreated from config.
-            # Thou we don't save it
+            # recreate plugin out of config, since no plugin was given
             FolderStructure.create(
                 project_folder, ifc_paths, open_conf=open_conf)
-            project = cls(project_folder, plugin=plugin)
+            project = cls(project_folder)
 
         return project
 
