@@ -42,12 +42,12 @@ RUN apt-get -y install gcc
 RUN apt-get -y install g++
 
 # Copy files
-COPY ./requirements.txt .
+COPY . .
 
 # Turn off SSL as it leads to errors in current runner systems
 RUN 	conda config --set ssl_verify False
 
-RUN 	conda create -n env python=3.10
+RUN 	conda create -n env python=3.11
 RUN		conda update -n base -c defaults conda
 RUN 	echo "source activate env" > ~/.bashrc
 ENV 	PATH /opt/conda/envs/env/bin:$PATH
@@ -64,17 +64,17 @@ RUN /opt/conda/bin/conda install --yes --freeze-installed \
 	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
 
 
-RUN pip install --default-timeout=100 -r ./requirements.txt
+RUN pip install --no-cache-dir -e '.'
 
 
 
 # Set Pythonpath
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginEnergyPlus"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginCFD"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginAixLib"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginHKESim"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginTEASER"
-ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginLCA"
+#ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim"
+#ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginEnergyPlus"
+#ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginCFD"
+#ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginAixLib"
+#ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginHKESim"
+#ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginTEASER"
+#ENV PYTHONPATH "${PYTHONPATH}:/bim2sim-coding/bim2sim/plugins/PluginLCA"
 
 ########################################################
