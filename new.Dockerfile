@@ -39,6 +39,11 @@ RUN micromamba run -n env pip install --no-cache-dir -e '.'
 # Clean up
 RUN micromamba clean --all --yes
 
-# Set the default command to run your application in the 'env' environment
-ENTRYPOINT ["micromamba", "run", "-n", "env"]
-CMD ["python", "-c", "import bim2sim; print('bim2sim version:', bim2sim.VERSION)"]
+# Set up the shell to use micromamba activate
+SHELL ["/bin/bash", "-c"]
+RUN echo "source /opt/conda/etc/profile.d/micromamba.sh" >> ~/.bashrc && \
+    echo "micromamba activate env" >> ~/.bashrc
+
+# Set the entrypoint to use bash, which will source .bashrc and activate the environment
+ENTRYPOINT ["/bin/bash", "-c"]
+CMD ["python -c \"import bim2sim; print('bim2sim version:', bim2sim.VERSION)\""]

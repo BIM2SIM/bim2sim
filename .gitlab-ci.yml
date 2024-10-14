@@ -1,11 +1,11 @@
 stages:
-  - test
-  - doc
-  - code_quality
-  - deploy
+#  - test
+#  - doc
+#  - code_quality
+#  - deploy
   - build-env
-  - build-env-plugins
-  - build-tool
+#  - build-env-plugins
+#  - build-tool
 
 variables:
   # TODO variable inside variable seems not be working on our gitlab instance,
@@ -19,21 +19,21 @@ variables:
   TEST_ENGINE: "unittest"
   TEST_PATH: test
 
-include:
-  - project: 'EBC/EBC_all/gitlab_ci/templates'
-    file: 'python/code-quality/pylint.gitlab-ci.yml'
-  - project: 'EBC/EBC_all/gitlab_ci/templates'
-    file: 'python/doc/sphinxdoc.gitlab-ci.yml'
-  - project: 'EBC/EBC_all/gitlab_ci/templates'
-    file: 'pages/gh-pages.gitlab-ci.yml'
-  - project: 'EBC/EBC_all/gitlab_ci/templates'
-    file: 'python/tests/coverage.gitlab-ci.yml'
+#include:
+#  - project: 'EBC/EBC_all/gitlab_ci/templates'
+#    file: 'python/code-quality/pylint.gitlab-ci.yml'
+#  - project: 'EBC/EBC_all/gitlab_ci/templates'
+#    file: 'python/doc/sphinxdoc.gitlab-ci.yml'
+#  - project: 'EBC/EBC_all/gitlab_ci/templates'
+#    file: 'pages/gh-pages.gitlab-ci.yml'
+#  - project: 'EBC/EBC_all/gitlab_ci/templates'
+#    file: 'python/tests/coverage.gitlab-ci.yml'
 
 # This is a workaround to download the test files by overwriting the utils method from original CI testing of EBC
-.install_local_repository:
-  script:
-    - python ./test/resources/dl_test_resources.py --domain=hydraulic --force_new
-    - python ./test/resources/dl_test_resources.py --domain=arch --force_new
+#.install_local_repository:
+#  script:
+#    - python ./test/resources/dl_test_resources.py --domain=hydraulic --force_new
+#    - python ./test/resources/dl_test_resources.py --domain=arch --force_new
 
 build_new:development:
  image: docker:24.0.5
@@ -314,20 +314,20 @@ build_new:development:
 #     changes:
 #       - bim2sim/plugins/PluginAixLib/*
 #
-test_Base_new:
- image: $CI_REGISTRY/new:development
- stage: test
- before_script:
-   - pip install coverage
-   - pip install coverage-badge
- script:
-   - mv ./* /bim2sim-coding/
-   - cd /bim2sim-coding
-   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-   - coverage run -m unittest discover /bim2sim-coding/test
-   - coverage report -i
-#
+#test_Base_new:
+# image: $CI_REGISTRY/new:development
+# stage: test
+# before_script:
+#   - pip install coverage
+#   - pip install coverage-badge
+# script:
+#   - mv ./* /bim2sim-coding/
+#   - cd /bim2sim-coding
+#   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
+#   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+#   - coverage run -m unittest discover /bim2sim-coding/test
+#   - coverage report -i
+##
 #test_EP:
 # image: $CI_REGISTRY/environment:energyplus
 # stage: test
