@@ -47,7 +47,7 @@ COPY . .
 # Turn off SSL as it leads to errors in current runner systems
 RUN 	conda config --set ssl_verify False
 
-RUN 	conda create -n env python=3.11
+RUN 	conda create -n env python=3.11.10
 RUN		conda update -n base -c defaults conda
 RUN 	echo "source activate env" > ~/.bashrc
 ENV 	PATH /opt/conda/envs/env/bin:$PATH
