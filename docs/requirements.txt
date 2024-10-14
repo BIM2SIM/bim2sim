@@ -1,4 +1,4 @@
-sphinx
+sphinx<=8.0.2
 sphinx-rtd-theme
 livereload
 myst-parser
