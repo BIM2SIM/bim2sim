@@ -140,7 +140,8 @@ class CalculateHydraulicSystem(ITask):
 
         if further_heat_delivery:
             graph = self.add_extra_radiators(graph=graph,
-                                             further_heat_delivery=further_heat_delivery)
+                                             further_heat_delivery=further_heat_delivery,
+                                             viewpoint="design")
 
         # 2. Berechne Massenstrom/ Volumenstrom an den Endpunkten
         # graph = self.update_radiator_mass_flow_nodes(graph=graph, nodes=["radiator_forward", "radiator_backward"])
@@ -278,10 +279,10 @@ class CalculateHydraulicSystem(ITask):
                 mass_per_length = model_dict[model]['Masse']
                 norm_heat_flow_per_length = model_dict[model]['Normwärmeleistung']
                 material = model_dict[model]['Material']
-                l1 = (calculated_heat_flow / norm_heat_flow_per_length).to_base_units()
+                l1 = (calculated_heat_flow / norm_heat_flow_per_length).to_base_units() # W / (W/m)
 
                 # if length_minimum <= l1 <= length_max:
-                if l1 <= length_max:
+                if l1 <= length_max: # m<=mm
                     mass = l1 * mass_per_length
                     if mass < min_mass:
                         min_mass = mass
@@ -2023,7 +2024,7 @@ class CalculateHydraulicSystem(ITask):
                     Q_heat_operation=Q_flow_operation)
 
 
-           # Set specifications of heat delivery
+            # Set specifications of heat delivery
             if delivery_type == "Radiator":
                 selected_model, min_mass, material, l1, norm_heat_flow_per_length = self.select_heating_model(
                     model_dict=radiator_dict,
@@ -2041,12 +2042,10 @@ class CalculateHydraulicSystem(ITask):
 
                 heat_flow_per_area = Q_flow_design / room_area / ureg.kW * ureg.W * 1000
 
-                if room_id == '0UiHARbFzF1RT4g_GKem_B':
-                    heat_flow_per_area = 150 * ureg.W / (ureg.meter ** 2)
-
                 if heat_flow_per_area.magnitude > self.playground.sim_settings.ufh_max_heat_flow_per_area:
-                    further_heat_flow = (heat_flow_per_area.magnitude -
-                            self.playground.sim_settings.ufh_max_heat_flow_per_area) * room_area * ureg.W/(ureg.meter**2)
+                    further_heat_flow = ((heat_flow_per_area.magnitude -
+                                          self.playground.sim_settings.ufh_max_heat_flow_per_area)
+                                          * room_area * ureg.kW / (ureg.meter ** 2) / 1000)
                     heat_flow_per_area = self.playground.sim_settings.ufh_max_heat_flow_per_area * ureg.W/(ureg.meter**2)
                     Q_flow_design = heat_flow_per_area * room_area
 
@@ -2096,7 +2095,7 @@ class CalculateHydraulicSystem(ITask):
                                                                              heating_exponent)
         return Q_heat_design
 
-    def add_extra_radiators(self, graph, further_heat_delivery):
+    def add_extra_radiators(self, graph, further_heat_delivery, viewpoint):
 
         radiator_dict = self.read_radiator_material_excel(
             filename=self.playground.sim_settings.hydraulic_components_data_file_path,
@@ -2140,6 +2139,17 @@ class CalculateHydraulicSystem(ITask):
                 graph.nodes[node]['model'] = selected_model
                 graph.nodes[node]['length'] = l1
                 graph.nodes[node]['heat_flow_per_length'] = norm_heat_flow_per_length
+
+                # Set node attributes based on design heat flow
+                m_flow_design = self.calculate_m_dot(Q_H=Q_flow_design)
+                V_flow_design = self.calculate_volume_flow(m_flow=m_flow_design)
+                graph.nodes[node]['heat_flow'][viewpoint] = Q_flow_design
+                graph.nodes[node]['m_flow'][viewpoint] = m_flow_design
+                graph.nodes[node]['V_flow'][viewpoint] = V_flow_design
+
+                graph.nodes[node]['heat_flow']["design_delivery_point"] = Q_flow_design
+                graph.nodes[node]['m_flow']["design_delivery_point"] = m_flow_design
+                graph.nodes[node]['V_flow']["design_delivery_point"] = V_flow_design
 
         return graph
 

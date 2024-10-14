@@ -520,10 +520,9 @@ class CreateBuildingAndHeatingGraph(ITask):
             heat_delivery_dict[tz.guid]["room_area"] = tz.net_area.magnitude
 
 
+        delivery_dict_extra_radiators = {}
         if type_delivery == ["door"]:
             delivery_dict, heat_delivery_extra_radiators = self.get_UFH_nodes(graph, possible_delivery_nodes_dict, heat_delivery_dict)
-            heat_delivery_extra_radiators['0UiHARbFzF1RT4g_GKem_B'] = heat_delivery_dict[
-                '0UiHARbFzF1RT4g_GKem_B'].copy()
             if heat_delivery_extra_radiators:
                 possible_delivery_nodes_dict = self.get_type_node(graph=graph,
                                                                   type_node=["window"])

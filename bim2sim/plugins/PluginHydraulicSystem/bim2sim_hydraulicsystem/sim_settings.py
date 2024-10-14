@@ -102,7 +102,7 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
         for_frontend=True
     )
     ufh_heat_flow_laying_distance_changeover = NumberSetting(
-        default=70,
+        default=20,
         min_value=0,
         max_value=150,
         description="Heat flow per area of under floor heating at which"
@@ -110,7 +110,7 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
         for_frontend=True
     )
     ufh_max_heat_flow_per_area = NumberSetting(
-        default=100,
+        default=40,
         min_value=0,
         max_value=150,
         description="Max heat flow per area of under floor heating"
