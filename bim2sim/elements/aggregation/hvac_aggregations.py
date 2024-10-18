@@ -659,7 +659,7 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
     def _calc_rated_power(self, name) -> ureg.Quantity:
         """Calculate the rated power adding the rated power of the pump-like
         elements"""
-        value = all(ele.rated_power for ele in self.pump_elements)
+        value = sum(ele.rated_power for ele in self.pump_elements)
         if value:
             return value
 
