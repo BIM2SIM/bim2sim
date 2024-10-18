@@ -35,18 +35,18 @@ variables:
 #    - python ./test/resources/dl_test_resources.py --domain=hydraulic --force_new
 #    - python ./test/resources/dl_test_resources.py --domain=arch --force_new
 
-build_new:development:
- image: docker:24.0.5
- stage: build-env
- services:
-   - name: docker:24.0.5-dind
-     variables:
-       HEALTHCHECK_TCP_PORT: "2376"
- before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
- script:
-   - docker build -t $CI_REGISTRY/base:development -f micromamba.Dockerfile .
-   - docker push $CI_REGISTRY/base:development
+#build_new:development:
+# image: docker:24.0.5
+# stage: build-env
+# services:
+#   - name: docker:24.0.5-dind
+#     variables:
+#       HEALTHCHECK_TCP_PORT: "2376"
+# before_script:
+#   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+# script:
+#   - docker build -t $CI_REGISTRY/base:development -f micromamba.Dockerfile .
+#   - docker push $CI_REGISTRY/base:development
 # rules:
 #   - if: '$CI_COMMIT_REF_NAME == "development"'
 #     changes:
@@ -333,20 +333,20 @@ build_new:development:
 #     changes:
 #       - bim2sim/plugins/PluginAixLib/*
 #
-#test_Base_new:
-# image: $CI_REGISTRY/new:development
-# stage: test
-# before_script:
-#   - micromamba activate env
-#   - pip install coverage
-#   - pip install coverage-badge
-# script:
-#   - mv ./* /bim2sim-coding/
-#   - cd /bim2sim-coding
-#   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-#   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-#   - coverage run -m unittest discover /bim2sim-coding/test
-#   - coverage report -i
+test_Base_new:
+ image: $CI_REGISTRY/base:development
+ stage: test
+ before_script:
+   - micromamba activate env
+   - pip install coverage
+   - pip install coverage-badge
+ script:
+   - mv ./* /bim2sim-coding/
+   - cd /bim2sim-coding
+   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
+   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+   - coverage run -m unittest discover /bim2sim-coding/test
+   - coverage report -i
 ##
 #test_EP:
 # image: $CI_REGISTRY/environment:energyplus
