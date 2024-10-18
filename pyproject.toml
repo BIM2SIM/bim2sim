@@ -60,6 +60,9 @@ where = ["."]  # Look for packages in the root directory
 include = ["bim2sim*"]  # Include all packages starting with bim2sim
 namespaces = false
 
+[tool.setuptools.package-data]
+"*" = ["assets/**/*"]
+
 [project.scripts]
 bim2sim = "bim2sim.__main__:commandline_interface"
 
