@@ -4,11 +4,11 @@ from pathlib import Path
 import bim2sim
 from bim2sim.kernel.decision.console import ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.utilities.test import IntegrationBase
+from bim2sim.utilities.test import IntegrationWeatherBase
 from bim2sim.utilities.types import LOD, IFCDomain, ZoningCriteria
 
 
-class IntegrationBaseTEASER(IntegrationBase):
+class IntegrationBaseTEASER(IntegrationWeatherBase):
     def model_domain_path(self) -> str:
         return 'arch'
 

@@ -6,11 +6,11 @@ from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.export.modelica import ModelicaElement
 from bim2sim.elements.aggregation.hvac_aggregations import \
     ConsumerHeatingDistributorModule
-from bim2sim.utilities.test import IntegrationBase
+from bim2sim.utilities.test import IntegrationWeatherBase
 from bim2sim.utilities.types import IFCDomain
 
 
-class IntegrationBaseAixLib(IntegrationBase):
+class IntegrationBaseAixLib(IntegrationWeatherBase):
     def tearDown(self):
         ModelicaElement.lookup = {}
         super().tearDown()

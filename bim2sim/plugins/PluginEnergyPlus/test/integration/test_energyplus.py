@@ -1,16 +1,12 @@
+import os
 import sys
 import unittest
-from shutil import copyfile, copytree, rmtree
 from pathlib import Path
-
-import os
-
-from energyplus_regressions.diffs import math_diff, table_diff
-from energyplus_regressions.diffs.thresh_dict import ThreshDict
+from shutil import copyfile, copytree, rmtree
 
 import bim2sim
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.utilities.test import IntegrationBase
+from bim2sim.utilities.test import IntegrationWeatherBase
 from bim2sim.utilities.types import IFCDomain
 
 # raise unittest.SkipTest("Integration tests not reliable for automated use")
@@ -18,7 +14,7 @@ sample_root = Path(__file__).parent.parent.parent / 'test/resources/arch/ifc'
 DEBUG_ENERGYPLUS = False
 
 
-class IntegrationBaseEP(IntegrationBase):
+class IntegrationBaseEP(IntegrationWeatherBase):
     # HACK: We have to remember stderr because eppy resets it currently.
     def setUp(self):
         self.old_stderr = sys.stderr

@@ -14,9 +14,6 @@ class IntegrationBaseCFD(IntegrationBase):
     def model_domain_path(self) -> str:
         return 'arch'
 
-    def set_test_weather_file(self):
-        return None
-
 
 class TestIntegrationCFD(IntegrationBaseCFD, unittest.TestCase):
 
