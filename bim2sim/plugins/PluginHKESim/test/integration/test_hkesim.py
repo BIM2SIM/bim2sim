@@ -36,8 +36,8 @@ class TestIntegrationHKESIM(IntegrationBaseHKESIM, unittest.TestCase):
         project = self.create_project(ifc_names, 'hkesim')
         answers = ('HVAC-HeatPump', 'HVAC-Storage', 'HVAC-Storage',
                    '2lU4kSSzH16v7KPrwcL7KZ', '0t2j$jKmf74PQpOI0ZmPCc',
-                   # 1x expansion tank and 17x dead end
-                   *(True,) * 18,
+                   # 1x expansion tank and 20x dead end
+                   *(True,) * 21,
                    # boiler efficiency
                    0.9,
                    # boiler power,
@@ -113,12 +113,17 @@ class TestIntegrationHKESIM(IntegrationBaseHKESIM, unittest.TestCase):
                    'HVAC-ThreeWayValve',
                    # 6x dead ends
                    *(True,) * 6,
+                   # flow temperature consumer
+                   70,
                    # boiler: nominal flow temperature
                    70,
-                   # boiler: rated power consumption
+                   # boiler: rated power
                    150,
                    # boiler: nominal return temperature
                    50)
+        # from bim2sim import ConsoleDecisionHandler, run_project
+        # handler = ConsoleDecisionHandler()
+        # run_project(project, handler)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
