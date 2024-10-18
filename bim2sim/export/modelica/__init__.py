@@ -58,7 +58,7 @@ def help_package(path: Path, name: str, uses: str = None, within: str = None):
     """
 
     template_path_package = Path(bim2sim.__file__).parent / \
-                            "assets/templates/modelica/package"
+                            "assets/templates/modelica/package.txt"
     package_template = Template(filename=str(template_path_package))
     with open(path / 'package.mo', 'w') as out_file:
         out_file.write(package_template.render_unicode(
@@ -88,7 +88,7 @@ def help_package_order(path: Path, package_list: List[str], addition=None,
     """
 
     template_package_order_path = Path(bim2sim.__file__).parent / \
-                                  "assets/templates/modelica/package_order"
+                                  "assets/templates/modelica/package_order.txt"
     package_order_template = Template(filename=str(
         template_package_order_path))
     with open(path / 'package.order', 'w') as out_file:
