@@ -56,9 +56,12 @@ dependencies = [
 
 # root folder of the python/django not found automatically
 [tool.setuptools.packages.find]
-where = ["bim2sim"]
-#include = ["pkg*"]  # alternatively: `exclude = ["additional*"]`
+where = ["."]  # Look for packages in the root directory
+include = ["bim2sim*"]  # Include all packages starting with bim2sim
 namespaces = false
+
+[project.scripts]
+bim2sim = "bim2sim.__main__:commandline_interface"
 
 [project.optional-dependencies]
 PluginTEASER = [
