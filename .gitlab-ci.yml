@@ -1,9 +1,9 @@
 stages:
+  - build-env
   - test
 #  - doc
 #  - code_quality
 #  - deploy
-  - build-env
 #  - build-env-plugins
 #  - build-tool
 
@@ -339,12 +339,12 @@ test_Base_new:
  before_script:
    - eval "$(micromamba shell hook --shell bash)"
    - micromamba activate base
-   - pip install coverage
-   - pip install coverage-badge
  script:
    - mkdir -p ~/bim2sim-coding/
    - mv ./* ~/bim2sim-coding/
    - cd ~/bim2sim-coding
+   - pip uninstall -y bim2sim
+   - pip install -e .[test]
    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
    - coverage run -m unittest discover ~/bim2sim-coding/test
