@@ -76,7 +76,7 @@ class CreateResultDF(ITask):
         defined by the sim_settings, are exported to the dataframe.
 
         Args:
-            teaser_mat_result_paths: path to simulation result file
+            sim_results_path: path to simulation result file
             bldg_names (list): list of all buildings
             elements: bim2sim elements created based on ifc data
         Returns:

@@ -22,7 +22,9 @@ class PluginWeatherDummyTEASER(Plugin):
     ]
 
 
-test_rsrc_path = Path(__file__).parent.parent.parent.parent / 'resources'
+test_rsrc_path = (Path(
+    __file__).parent.parent.parent.parent.parent.parent.parent /
+                  'test/resources')
 
 
 class TestWeather(unittest.TestCase):
@@ -39,14 +41,15 @@ class TestWeather(unittest.TestCase):
             IFCDomain.arch: test_rsrc_path / 'arch/ifc/AC20-FZK-Haus.ifc'}
         self.project = Project.create(self.test_dir.name, ifc_paths,
                                       plugin=PluginWeatherDummyTEASER)
-        self.project.sim_settings.weather_file_path = (
+        self.project.sim_settings.weather_file_path_modelica = (
                 test_rsrc_path / 'weather_files/DEU_NW_Aachen.105010_TMYx.mos')
         handler = DebugDecisionHandler([])
         handler.handle(self.project.run(cleanup=False))
         try:
-            weather_file = self.project.playground.state['weather_file']
+            weather_file = self.project.playground.state[
+                'weather_file_modelica']
         except Exception:
             raise ValueError(f"No weather file set through Weather task. An"
                              f"error occurred.")
         self.assertEquals(weather_file,
-                          self.project.sim_settings.weather_file_path)
+                          self.project.sim_settings.weather_file_path_modelica)

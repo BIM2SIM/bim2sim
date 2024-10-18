@@ -49,12 +49,13 @@ class IntegrationBaseComfort(IntegrationBase):
         sys.stderr = self.old_stderr
         super().tearDown()
 
-
     def model_domain_path(self) -> str:
         return 'arch'
 
-    def weather_file_path(self) -> Path:
-        return (self.test_resources_path() /
+    def set_test_weather_file(self):
+        """Set the weather file path."""
+        self.project.sim_settings.weather_file_path_ep = (
+                self.test_resources_path() /
                 'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
 
 

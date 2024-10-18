@@ -20,9 +20,9 @@ class IntegrationBaseHKESIM(IntegrationBase):
 
     def set_test_weather_file(self):
         """Set the weather file path."""
-        self.project.sim_settings.weather_file_path_ep = (
+        self.project.sim_settings.weather_file_path_modelica = (
                 self.test_resources_path() /
-                'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
+                'weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 
 
 class TestIntegrationHKESIM(IntegrationBaseHKESIM, unittest.TestCase):

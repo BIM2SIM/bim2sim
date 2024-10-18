@@ -40,7 +40,7 @@ def run_example_load_existing_project():
     # TODO those 2 are not used but are needed currently as otherwise the
     #  plotting tasks will be executed and weather file is mandatory
     # set weather file data
-    project.sim_settings.weather_file_path = (
+    project.sim_settings.weather_file_path_modelica = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
     # Run a simulation directly with dymola after model creation

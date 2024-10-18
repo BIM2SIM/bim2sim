@@ -28,7 +28,7 @@ class CreateTEASER(ITask):
             libraries: previous loaded libraries. In the case this is the
                 TEASER library
             elements: dict[guid: element] with `bim2sim` elements
-            weather_file: path to weather file
+            weather_file_modelica: path to weather file
 
         Returns:
             teaser_prj: teaser project instance
