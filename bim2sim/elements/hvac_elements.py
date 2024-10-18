@@ -40,6 +40,7 @@ class HVACPort(Port):
                             re.IGNORECASE)  # TODO: extend pattern
     rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
 
+    # TODO #733 Clean port flow side setup
     def __init__(
             self, *args, groups: Set = None,
             flow_direction: int = 0, **kwargs):

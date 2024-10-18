@@ -102,6 +102,7 @@ class Reduce(ITask):
             DecisionBunch: A collection of decisions may be yielded during the
                 task.
         """
+        # TODO #733
         # TODO: needs testing!
         # TODO: at least one master element required
         accepted = []

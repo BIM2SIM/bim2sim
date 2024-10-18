@@ -576,3 +576,21 @@ class Storage(AixLib):
                             value={'hTank': self.parameters['hTank'],
                               "dTank": self.parameters['dTank']})
 
+    # def get_port_name(self, port):
+        # TODO #733
+        # TODO function to determine ports. One Idea would be to use the
+        #  geometric positions of ports to determine input and output.
+        # Top port with input: fluidportTop1
+        # Bottom port with input: fluidportBottom1
+        # Top port with output: fluidportTop2
+        # Bottom port with input: fluidportBottom2
+
+        #  Additionally,  the number of ports can be used to determine if its a
+        #  direct loaded or indirect loaded storage:
+        #  4 ports -> direct,
+        #  6 or any other even number > 4 -> indirect load
+        #       with n=n_ports /2 -4 -> number of heating coils
+        # Then again used height of port to determine port name
+        # top port of first heating coil: portHC1In
+        # bottom port of first heating coil: portHC1Out
+        # etc.

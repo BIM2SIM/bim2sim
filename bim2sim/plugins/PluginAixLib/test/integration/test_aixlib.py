@@ -35,8 +35,9 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
         project = self.create_project(ifc_names, 'aixlib')
         answers = ('HVAC-HeatPump', 'HVAC-Storage', 'HVAC-Storage',
                    '2lU4kSSzH16v7KPrwcL7KZ', '0t2j$jKmf74PQpOI0ZmPCc',
-                   # 1x expansion tank and 17x dead end
-                   *(True,) * 18,
+                   # TODO #733
+                   # 1x expansion tank and 20x dead end
+                   *(True,) * 21,
                    # boiler efficiency
                    0.9,
                    # boiler flow temperature
