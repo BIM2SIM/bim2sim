@@ -45,7 +45,7 @@ build_new:development:
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
-   - docker build -t $CI_REGISTRY/base:development -f Base.Dockerfile .
+   - docker build -t $CI_REGISTRY/base:development -f micromamba.Dockerfile .
    - docker push $CI_REGISTRY/base:development
 # rules:
 #   - if: '$CI_COMMIT_REF_NAME == "development"'
