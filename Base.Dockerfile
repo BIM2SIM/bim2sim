@@ -65,10 +65,10 @@ SHELL 	["conda", "run", "-n", "env", "/bin/bash", "-c"]
 
 # install needed packages
 ## install pythonocc via conda
-RUN /opt/conda/bin/conda install --yes --freeze-installed \
+RUN conda install --yes --freeze-installed \
 	    -c conda-forge pythonocc-core=7.7.0 \
 	    nomkl \
-	&& /opt/conda/bin/conda clean -afy \
+	&& conda clean -afy \
 	&& find /opt/conda/ -follow -type f -name '*.a' -delete \
 	&& find /opt/conda/ -follow -type f -name '*.pyc' -delete \
 	&& find /opt/conda/ -follow -type f -name '*.js.map' -delete
