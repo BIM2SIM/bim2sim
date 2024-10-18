@@ -337,7 +337,6 @@ test_Base_new:
  image: $CI_REGISTRY/base:development
  stage: test
  before_script:
-   - micromamba activate env
    - pip install coverage
    - pip install coverage-badge
  script:
