@@ -1,9 +1,8 @@
 import os
 
-from bim2sim.decision import ListDecision, DecisionBunch, RealDecision
-from bim2sim.kernel.units import ureg
-from bim2sim.task.base import ITask
-from bim2sim.task.common import LoadIFC
+from bim2sim.kernel.decision import ListDecision, DecisionBunch, RealDecision
+from bim2sim.elements.mapping.units import ureg
+from bim2sim.tasks.base import ITask
 
 
 class RunIFC2CFD(ITask):
@@ -12,9 +11,9 @@ class RunIFC2CFD(ITask):
     '''
     final = True
 
-    def run(self, workflow):
+    def run(self):
         if os.name != 'posix':
-            raise OSError("CFD task is only available for Linux systems")
+            raise OSError("CFD tasks is only available for Linux systems")
         self.logger.info("Running IFC2CFD")
 
         process_options = [
@@ -24,7 +23,7 @@ class RunIFC2CFD(ITask):
         process_decision = ListDecision("Which process do you want to use?",
                                         choices=process_options,
                                         key='process_decision',
-                                        global_key='process_decision',
+                                        global_key=f"{str(self.__class__.__name__)}_process_decision",
                                         allow_skip=False)
 
         def is_int(val):
@@ -42,7 +41,7 @@ class RunIFC2CFD(ITask):
 
         core_decision = RealDecision(
             "How many cores do you want to use?",
-            global_key="core_decision",
+            global_key=f"{str(self.__class__.__name__)}_core_decision",
             allow_skip=True,
             validate_func=is_int
         )
@@ -55,7 +54,7 @@ class RunIFC2CFD(ITask):
         if process_decision.value == "":
             translen_decision = RealDecision(
                 "What is the maximum transmission length (2a vs. 2b)?",
-                global_key="translen_decision",
+                global_key=f"{str(self.__class__.__name__)}_translen_decision",
                 unit=ureg.meter,
                 allow_skip=False)
 
@@ -63,8 +62,7 @@ class RunIFC2CFD(ITask):
 
             args += " -e" + str(translen_decision.value.m)
 
-        reader = LoadIFC()
-        input_file = reader.get_ifc(self.paths.ifc)
+        input_file = self.prj_name + '.ifc'
 
         if process_decision.value == '--cfd':
             file_ending = '.stl'

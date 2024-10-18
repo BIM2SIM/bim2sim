@@ -1,10 +1,11 @@
-"""Package for Python representations of HKESim models"""
-from bim2sim_teaser import export
+"""Package for Python representations of TEASER models"""
 from teaser.logic.buildingobjects.building import Building as Building_Teaser
 from teaser.logic.buildingobjects.buildingphysics.door \
     import Door as Door_Teaser
 from teaser.logic.buildingobjects.buildingphysics.floor \
     import Floor as Floor_Teaser
+from teaser.logic.buildingobjects.buildingphysics.ceiling \
+    import Ceiling as Ceiling_Teaser
 from teaser.logic.buildingobjects.buildingphysics.groundfloor \
     import GroundFloor as GroundFloor_Teaser
 from teaser.logic.buildingobjects.buildingphysics.innerwall \
@@ -23,13 +24,17 @@ from teaser.logic.buildingobjects.thermalzone import \
     ThermalZone as ThermalZone_Teaser
 from teaser.logic.buildingobjects.useconditions import \
     UseConditions as UseConditions_Teaser
+from teaser.logic.buildingobjects.buildingsystems.buildingahu import \
+    BuildingAHU as BuildingAHU_Teaser
 
-import bim2sim.kernel.aggregation as aggregation
-from bim2sim.kernel.elements import bps
-from bim2sim.kernel.units import ureg
+from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone
+from bim2sim.elements import bps_elements as bps
+from bim2sim.elements.aggregation import bps_aggregations as bps_aggr
+from bim2sim.elements.mapping.units import ureg
+from bim2sim.plugins.PluginTEASER.bim2sim_teaser import export
 
 
-class TEASER(export.Instance):
+class TEASER(export.TEASERExportInstance):
     library = "TEASER"
 
 
@@ -41,6 +46,9 @@ class Building(TEASER, Building_Teaser):
         TEASER.__init__(self, bim2sim_element)
         self.used_library_calc = "AixLib"
         self.add_thermal_zones_to_building()
+        if bim2sim_element.with_ahu:
+            self.central_ahu = BuildingAHU(
+                element=bim2sim_element, parent=self)
 
     def add_thermal_zones_to_building(self):
         for tz in self.element.thermal_zones:
@@ -55,10 +63,17 @@ class Building(TEASER, Building_Teaser):
                            self.check_numeric(
                                min_value=1 * ureg.dimensionless),
                            "number_of_floors")
+        self.request_param("avg_storey_height",
+                           self.check_numeric(
+                               min_value=1 * ureg.meter),
+                           "height_of_floors")
+        # todo workaround until setter method is changed in TEASER, see TEASER
+        #  issue #772
+        self.request_param("with_ahu", export_name="_with_ahu")
 
 
 class ThermalZone(TEASER, ThermalZone_Teaser):
-    represents = [bps.ThermalZone, aggregation.AggregatedThermalZone]
+    represents = [bps.ThermalZone, AggregatedThermalZone]
 
     def __init__(self, element, parent):
         ThermalZone_Teaser.__init__(self, parent=parent)
@@ -68,11 +83,14 @@ class ThermalZone(TEASER, ThermalZone_Teaser):
         self.add_elements_to_thermal_zone()
 
     def add_elements_to_thermal_zone(self):
-        for bound_instance in self.element.bound_elements:
-            export.Instance.factory(bound_instance, parent=self)
+        for bound_element in self.element.bound_elements:
+            export.TEASERExportInstance.factory(bound_element, parent=self)
 
     def request_params(self):
-        self.request_param("name", None)
+        if self.element.guid:
+            self.name = self.element.guid
+        else:
+            self.request_param("name", None)
         self.request_param("net_area",
                            self.check_numeric(
                                min_value=0 * ureg.meter ** 2),
@@ -83,12 +101,105 @@ class ThermalZone(TEASER, ThermalZone_Teaser):
                            "volume")
 
 
+class BuildingAHU(TEASER, BuildingAHU_Teaser):
+    represents = []
+
+    def __init__(self, element, parent):
+        BuildingAHU_Teaser.__init__(self, parent=parent)
+        self.overwrite_teaser_defaults()
+        TEASER.__init__(self, element)
+
+    def overwrite_teaser_defaults(self):
+        """Overwrites default BuildingAHU values from TEASER
+
+        This is required as TEASER sets defaults for e.g. the AHU setup and in
+        enrichment we only enrich not-existing values. Without setting the
+        defaults back to None would lead to errors.
+        """
+        self.heating = None
+        self.cooling = None
+        self.dehumidification = None
+        self.humidification = None
+        self.heat_recovery = None
+        self.efficiency_recovery = None
+
+    def request_params(self):
+        self.request_param("ahu_heating", export_name="heating")
+        self.request_param("ahu_cooling", export_name="cooling")
+        self.request_param("ahu_dehumidification",
+                           export_name="dehumidification")
+        self.request_param("ahu_humidification", export_name="humidification")
+        self.request_param("ahu_heat_recovery", export_name="heat_recovery")
+        self.request_param("ahu_heat_recovery_efficiency",
+                           export_name="efficiency_recovery")
+
+
 class UseConditions(TEASER, UseConditions_Teaser):
     represents = []
 
     def __init__(self, element, parent):
         UseConditions_Teaser.__init__(self, parent=parent)
+        self.overwrite_teaser_defaults()
         TEASER.__init__(self, element)
+
+    def overwrite_teaser_defaults(self):
+        """Overwrites default use conditions values from TEASER
+
+        This is required as TEASER sets defaults for e.g. the usage and in
+        enrichment we only enrich not-existing values. Without setting the
+        defaults back to None would lead to errors.
+        """
+        self.usage = None
+
+        self.typical_length = None
+        self.typical_width = None
+
+        self.with_heating = True
+        self.with_cooling = False
+        self.T_threshold_heating = None
+        self.T_threshold_cooling = None
+
+        self.fixed_heat_flow_rate_persons = None
+        self.activity_degree_persons = None
+        self._persons = None
+        self.internal_gains_moisture_no_people = None
+        self.ratio_conv_rad_persons = None
+
+        self.machines = None
+        self.ratio_conv_rad_machines = None
+
+        self.lighting_power = None
+        self.ratio_conv_rad_lighting = None
+
+        self.use_constant_infiltration = None
+        self.infiltration_rate = None
+        self.max_user_infiltration = None
+        self.max_overheating_infiltration = []
+        self.max_summer_infiltration = []
+        self.winter_reduction_infiltration = []
+
+        self.min_ahu = None
+        self.max_ahu = None
+        self.with_ahu = None
+
+        self._first_saturday_of_year = 1
+        self.profiles_weekend_factor = None
+
+        self._set_back_times = None
+        self.heating_set_back = -2
+        self.cooling_set_back = 2
+
+        self._adjusted_opening_times = None
+
+        self._with_ideal_thresholds = False
+
+        self._heating_profile = []
+        self._cooling_profile = []
+        self._persons_profile = []
+        self._machines_profile = []
+        self._lighting_profile = []
+
+        self._schedules = None
 
     def request_params(self):
         self.request_param("name", None)
@@ -123,6 +234,7 @@ class UseConditions(TEASER, UseConditions_Teaser):
         self.request_param("persons_profile", None)
         self.request_param("machines_profile", None)
         self.request_param("lighting_profile", None)
+        self.request_param("usage", None)
 
 
 class ElementWithLayers(TEASER):
@@ -142,7 +254,11 @@ class ElementWithLayers(TEASER):
 
 
 class InnerWall(ElementWithLayers, InnerWall_Teaser):
-    represents = [bps.InnerDoor, bps.InnerWall]
+    represents = [
+        bps.InnerDoor,
+        bps.InnerWall,
+        bps_aggr.InnerWallDisaggregated
+    ]
 
     def __init__(self, element, parent):
         InnerWall_Teaser.__init__(self, parent=parent)
@@ -155,12 +271,13 @@ class InnerWall(ElementWithLayers, InnerWall_Teaser):
                            "area")
         self.request_param("inner_convection",
                            self.check_numeric(
-                               min_value=0 * ureg.W / ureg.K / ureg.meter ** 2),
+                               min_value=0 * ureg.W / ureg.K / ureg.meter **
+                                         2),
                            "inner_convection")
 
 
 class OuterWall(ElementWithLayers, OuterWall_Teaser):
-    represents = [bps.OuterWall]
+    represents = [bps.OuterWall, bps_aggr.OuterWallDisaggregated]
 
     def __init__(self, element, parent):
         OuterWall_Teaser.__init__(self, parent=parent)
@@ -175,49 +292,59 @@ class OuterWall(ElementWithLayers, OuterWall_Teaser):
 
 
 class Rooftop(ElementWithLayers, Rooftop_Teaser):
-    represents = [bps.Roof]
+    represents = [bps.Roof, bps_aggr.RoofDisaggregated]
 
     def __init__(self, element, parent):
         Rooftop_Teaser.__init__(self, parent=parent)
         ElementWithLayers.__init__(self, element)
 
     def request_params(self):
-        self.orientation = self.element.orientation
         self.request_param("net_area",
                            self.check_numeric(min_value=0 * ureg.m ** 2),
                            "area")
 
 
 class Floor(ElementWithLayers, Floor_Teaser):
-    represents = [bps.Floor]
+    represents = [bps.InnerFloor, bps_aggr.InnerFloorDisaggregated]
 
     def __init__(self, element, parent):
         Floor_Teaser.__init__(self, parent=parent)
         ElementWithLayers.__init__(self, element)
 
     def request_params(self):
-        self.orientation = self.element.orientation
+        self.request_param("net_area",
+                           self.check_numeric(min_value=0 * ureg.m ** 2),
+                           "area")
+
+
+class Ceiling(ElementWithLayers, Ceiling_Teaser):
+    represents = [bps.InnerFloor, bps_aggr.InnerFloorDisaggregated]
+
+    def __init__(self, element, parent):
+        Ceiling_Teaser.__init__(self, parent=parent)
+        ElementWithLayers.__init__(self, element)
+
+    def request_params(self):
         self.request_param("net_area",
                            self.check_numeric(min_value=0 * ureg.m ** 2),
                            "area")
 
 
 class GroundFloor(ElementWithLayers, GroundFloor_Teaser):
-    represents = [bps.GroundFloor]
+    represents = [bps.GroundFloor, bps_aggr.GroundFloorDisaggregated]
 
     def __init__(self, element, parent):
         GroundFloor_Teaser.__init__(self, parent=parent)
         ElementWithLayers.__init__(self, element)
 
     def request_params(self):
-        self.orientation = self.element.orientation
         self.request_param("net_area",
                            self.check_numeric(min_value=0 * ureg.m ** 2),
                            "area")
 
 
 class Window(ElementWithLayers, Window_Teaser):
-    represents = [bps.Window]
+    represents = [bps.Window, bps_aggr.WindowDisaggregated]
 
     def __init__(self, element, parent):
         Window_Teaser.__init__(self, parent=parent)
@@ -239,7 +366,11 @@ class Window(ElementWithLayers, Window_Teaser):
 
 
 class Door(ElementWithLayers, Door_Teaser):
-    represents = [bps.OuterDoor]
+    represents = [
+        bps.OuterDoor,
+        bps.Door,
+        bps_aggr.OuterDoorDisaggregated
+    ]
 
     def __init__(self, element, parent):
         Door_Teaser.__init__(self, parent=parent)

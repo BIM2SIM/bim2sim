@@ -3093,38 +3093,6 @@
             }
         }
     },
-    "Slab_[0, 2015]_typical": {
-        "building_age_group": [
-            0,
-            2015
-        ],
-        "construction_type": "typical",
-        "inner_radiation": 5.0,
-        "inner_convection": 1.7000000000000002,
-        "layer": {
-            "0": {
-                "thickness": 0.04,
-                "material": {
-                    "name": "cement_floating_screed_2_bottom",
-                    "material_id": "6755e6e6-3a43-11e7-adad-2cd444b2e704"
-                }
-            },
-            "1": {
-                "thickness": 0.06,
-                "material": {
-                    "name": "EPS_040_15",
-                    "material_id": "25d281da-3a43-11e7-8191-2cd444b2e704"
-                }
-            },
-            "2": {
-                "thickness": 0.16,
-                "material": {
-                    "name": "concrete_CEM_II_BS325R_wz05",
-                    "material_id": "253f8030-3a43-11e7-8735-2cd444b2e704"
-                }
-            }
-        }
-    },
     "OuterDoor_[0, 2015]_Typical": {
         "building_age_group": [
             0,
