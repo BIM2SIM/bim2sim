@@ -64,7 +64,7 @@ def visualize_zoning_of_complex_building():
             "customUsagesFM_ARC_DigitalHub_with_SB89.json")
 
     # set weather file data
-    project.sim_settings.weather_file_path = (
+    project.sim_settings.weather_file_path_modelica = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
     # Run a simulation directly with dymola after model creation

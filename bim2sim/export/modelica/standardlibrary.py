@@ -55,6 +55,8 @@ class StaticPipe(StandardLibrary):
             return 'port_a'
         if port.verbose_flow_direction == 'SOURCE':
             return 'port_b'
+        # TODO #733 find port if sourceandsink or sinkdansource
+        # if port.flow_direction == 0.  # SOURCEANDSINK and SINKANDSOURCE
         else:
             return super().get_port_name(port)
 

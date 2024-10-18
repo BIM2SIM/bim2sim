@@ -6,17 +6,23 @@ from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.export.modelica import ModelicaElement
 from bim2sim.elements.aggregation.hvac_aggregations import \
     ConsumerHeatingDistributorModule
-from bim2sim.utilities.test import IntegrationBase
+from bim2sim.utilities.test import IntegrationWeatherBase
 from bim2sim.utilities.types import IFCDomain
 
 
-class IntegrationBaseAixLib(IntegrationBase):
+class IntegrationBaseAixLib(IntegrationWeatherBase):
     def tearDown(self):
         ModelicaElement.lookup = {}
         super().tearDown()
 
     def model_domain_path(self) -> str:
         return 'hydraulic'
+
+    def set_test_weather_file(self):
+        """Set the weather file path."""
+        self.project.sim_settings.weather_file_path_modelica = (
+                self.test_resources_path() /
+                'weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 
 
 class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
@@ -29,8 +35,9 @@ class TestIntegrationAixLib(IntegrationBaseAixLib, unittest.TestCase):
         project = self.create_project(ifc_names, 'aixlib')
         answers = ('HVAC-HeatPump', 'HVAC-Storage', 'HVAC-Storage',
                    '2lU4kSSzH16v7KPrwcL7KZ', '0t2j$jKmf74PQpOI0ZmPCc',
-                   # 1x expansion tank and 17x dead end
-                   *(True,) * 18,
+                   # TODO #733
+                   # 1x expansion tank and 20x dead end
+                   *(True,) * 21,
                    # boiler efficiency
                    0.9,
                    # boiler flow temperature

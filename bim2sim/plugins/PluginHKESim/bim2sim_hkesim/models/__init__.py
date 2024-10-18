@@ -149,7 +149,7 @@ class ConsumerHeatingDistributorModule(HKESim):
                             required=False,
                             function=lambda flow_temperature,
                                             return_temperature:
-                            (flow_temperature[0], return_temperature[0]))
+                            (flow_temperature, return_temperature))
         self._set_parameter(name='useHydraulicSeparator',
                             unit=None,
                             required=False,

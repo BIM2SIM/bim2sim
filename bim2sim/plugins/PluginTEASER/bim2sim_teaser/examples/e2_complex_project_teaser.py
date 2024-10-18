@@ -60,7 +60,7 @@ def run_example_complex_building_teaser():
         'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
 
     # set weather file data
-    project.sim_settings.weather_file_path = (
+    project.sim_settings.weather_file_path_modelica = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
     # Run a simulation directly with dymola after model creation
