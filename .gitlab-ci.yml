@@ -1,9 +1,9 @@
 stages:
-#  - test
+  - test
 #  - doc
 #  - code_quality
 #  - deploy
-  - build-env
+#  - build-env
 #  - build-env-plugins
 #  - build-tool
 
