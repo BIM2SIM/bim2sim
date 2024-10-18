@@ -5,7 +5,7 @@ from typing import Tuple, Iterable, Callable, Any, Union
 import pint
 
 from bim2sim.kernel.decision import RealDecision, Decision, \
-    DecisionBunch
+    DecisionBunch, BoolDecision, StringDecision
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.utilities.types import AttributeDataSource
 
@@ -57,7 +57,10 @@ class Attribute:
                  ifc_postprocessing: Callable[[Any], Any] = None,
                  functions: Iterable[Callable[[object, str], Any]] = None,
                  default=None,
-                 dependant_elements: str = None):
+                 dependant_elements: str = None,
+                 attr_type: Union[
+                     type(bool), type(str), type(int), type(float)] = float
+                 ):
         """
 
         Args:
@@ -80,6 +83,8 @@ class Attribute:
                 defaults.
             dependant_elements: list of additional elements necessary to
                 calculate the attribute
+            attr_type: data type of attribute, used to determine decision type
+                if decision is needed, float is default
         """
         self.name = None  # auto set by AutoAttributeNameMeta
         self.description = description
@@ -95,6 +100,7 @@ class Attribute:
         # data_source stores where the information was obtained from throughout
         # the bim2sim process
         self.data_source = None
+        self.attr_type = attr_type
 
         if ifc_postprocessing is not None:
             self.ifc_post_processing = ifc_postprocessing
@@ -265,17 +271,43 @@ class Attribute:
         # TODO: set state in output dict -> attributemanager
         conditions = [lambda x: True] if not bind.conditions else \
             Attribute.get_conditions(bind, self.name)
-        decision = RealDecision(
-            question="Enter value for %s of %s" % (self.name, bind),
-            console_identifier="Name: %s, GUID: %s"
-                               % (bind.name, bind.guid),
-            # output=bind.attributes,
-            key=self.name,
-            global_key="%s_%s.%s" % (bind.ifc_type, bind.guid, self.name),
-            allow_skip=False,
-            validate_func=conditions,
-            unit=self.unit,
-        )
+
+        console_identifier = "Name: %s, GUID: %s" % (bind.name, bind.guid)
+        related = bind.guid
+        key = self.name
+        global_key = "%s_%s.%s" % (bind.ifc_type, bind.guid, self.name)
+        if self.attr_type == bool:
+            question = f"Is the attribute {self.name} of {bind} True/Active?"
+            decision = BoolDecision(
+                question=question,
+                console_identifier=console_identifier,
+                key=key,
+                global_key=global_key,
+                allow_skip=False,
+                related=related
+            )
+        elif self.attr_type == str:
+            question = "Enter value for %s of %s" % (self.name, bind)
+            decision = StringDecision(
+                question=question,
+                console_identifier=console_identifier,
+                key=key,
+                global_key=global_key,
+                allow_skip=False,
+                related=related
+            )
+        else:
+            question = "Enter value for %s of %s" % (self.name, bind)
+            decision = RealDecision(
+                question=question,
+                console_identifier=console_identifier,
+                key=key,
+                global_key=global_key,
+                allow_skip=False,
+                validate_func=conditions,
+                unit=self.unit,
+                related=related
+            )
         return decision
 
     @staticmethod

@@ -13,8 +13,6 @@ from bim2sim.elements.base_elements import Port, ProductBased
 from bim2sim.elements.hvac_elements import HeatExchanger, Pipe
 from bim2sim.plugins import Plugin
 from bim2sim.project import Project
-from bim2sim.tasks import common
-from bim2sim.tasks import hvac
 from bim2sim.tasks.hvac import ConnectElements
 from bim2sim.sim_settings import PlantSimSettings
 from bim2sim.utilities.types import IFCDomain

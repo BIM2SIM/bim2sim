@@ -724,8 +724,6 @@ class HvacGraph(nx.Graph):
                     side, _, _ = self.recurse_set_unknown_sides(
                         neigh, visited, masters)
                 neighbour_sides[neigh] = side
-            # else:
-            #     print(neigh, neigh.flow_side)
 
         sides = set(neighbour_sides.values())
         if not sides:

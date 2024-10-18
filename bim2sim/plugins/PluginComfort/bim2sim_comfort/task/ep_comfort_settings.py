@@ -12,6 +12,8 @@ from pathlib import Path
 
 import bim2sim
 from bim2sim.elements.bps_elements import ThermalZone
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task import \
+    IdfPostprocessing
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
 from geomeppy import IDF
@@ -26,20 +28,21 @@ class ComfortSettings(ITask):
     Task to create Comfort Settings for an EnergyPlus Input file.
     """
 
-    reads = ('elements', 'idf')
+    reads = ('elements', 'idf', 'sim_results_path')
     touches = ('idf',)
 
     def __init__(self, playground):
         super().__init__(playground)
         self.idf = None
 
-    def run(self, elements, idf):
+    def run(self, elements: dict, idf: IDF, sim_results_path: Path):
         """Execute all methods to export comfort parameters to idf.
 
         Execute all methods to export comfort parameters to idf.
         Args:
             elements: bim2sim elements
             idf: eppy idf
+            sim_results_path (Path): path to simulation results.
         """
         logger.info("IDF extension in PluginComfort started ...")
         self.add_comfort_to_people_enrichment(
@@ -48,37 +51,13 @@ class ComfortSettings(ITask):
         # self.remove_empty_zones(idf)
         self.remove_duplicate_names(idf)
         self.remove_empty_zones(idf)
-        self.write_zone_names(idf, elements,
-                              self.playground.project.paths.export)
-
+        zone_dict_path = sim_results_path / self.prj_name / 'zone_dict.json'
+        if not zone_dict_path.exists():
+            IdfPostprocessing.write_zone_names(idf, elements, sim_results_path /
+                                               self.prj_name)
         idf.save(idf.idfname)
 
         return idf,
-
-    @staticmethod
-    def write_zone_names(idf, elements, exportpath: Path):
-        """Write a dictionary of the bim2sim ThermalZone names and usages.
-
-        This method creates a dict and exports it to a json file (
-        zone_dict.json) to the path defined in exportpath. This dict
-        includes the zone name and the selected usage within bim2sim. All
-        zones are considered that are created within the bim2sim elements.
-
-        Args:
-            idf: eppy idf
-            elements: bim2sim elements
-            exportpath: base path to place the resulting zone_dict.json
-
-        """
-        zones = idf.idfobjects['ZONE']
-        zone_dict = {}
-        ifc_zones = filter_elements(elements, ThermalZone)
-        for zone in zones:
-            usage = [z.usage for z in ifc_zones if z.guid == zone.Name]
-            zone_dict.update({zone.Name: usage[0]})
-
-        with open(exportpath / 'zone_dict.json', 'w') as file:
-            json.dump(zone_dict, file, indent=4)
 
     @staticmethod
     def define_comfort_usage_dict():

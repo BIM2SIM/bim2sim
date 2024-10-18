@@ -25,7 +25,7 @@ class AddSpaceBoundaries2B(ITask):
     reads = ('elements',)
     touches = ('elements',)
 
-    def run(self, elements: dict) -> dict:
+    def run(self, elements: dict) -> tuple[dict]:
         """Create 2b space boundaries to fill gaps in spaces.
 
         This task generates space boundaries of type 2b to fill gaps in the

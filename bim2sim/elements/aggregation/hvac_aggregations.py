@@ -1406,7 +1406,6 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
             allow_load=True,
             related=[element.guid for element in self.elements], )
         has_bypass = decision.decide()
-        print(has_bypass)
         return dict(has_bypass=has_bypass)
 
     @classmethod
