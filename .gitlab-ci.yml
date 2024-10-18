@@ -3,7 +3,7 @@ stages:
 #  - doc
 #  - code_quality
 #  - deploy
-#  - build-env
+  - build-env
 #  - build-env-plugins
 #  - build-tool
 
@@ -35,24 +35,24 @@ variables:
 #    - python ./test/resources/dl_test_resources.py --domain=hydraulic --force_new
 #    - python ./test/resources/dl_test_resources.py --domain=arch --force_new
 
-#build_new:development:
-# image: docker:24.0.5
-# stage: build-env
-# services:
-#   - name: docker:24.0.5-dind
-#     variables:
-#       HEALTHCHECK_TCP_PORT: "2376"
-# before_script:
-#   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-# script:
-#   - docker build -t $CI_REGISTRY/base:development -f micromamba.Dockerfile .
-#   - docker push $CI_REGISTRY/base:development
-# rules:
-#   - if: '$CI_COMMIT_REF_NAME == "development"'
-#     changes:
-#       - envBase.Dockerfile
-#       - requirements.txt
-#       - .gitlab-ci.yml
+build_new:development:
+ image: docker:24.0.5
+ stage: build-env
+ services:
+   - name: docker:24.0.5-dind
+     variables:
+       HEALTHCHECK_TCP_PORT: "2376"
+ before_script:
+   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+ script:
+   - docker build -t $CI_REGISTRY/base:development -f micromamba.Dockerfile .
+   - docker push $CI_REGISTRY/base:development
+ rules:
+   - if: '$CI_COMMIT_REF_NAME == "development"'
+     changes:
+       - envBase.Dockerfile
+       - requirements.txt
+       - .gitlab-ci.yml
 
 #build_new:development:
 # image: docker:24.0.5
@@ -342,7 +342,7 @@ test_Base_new:
    - pip install coverage
    - pip install coverage-badge
  script:
-   - sudo mkdir -p ~/bim2sim-coding/
+   - mkdir -p ~/bim2sim-coding/
    - mv ./* ~/bim2sim-coding/
    - cd ~/bim2sim-coding
    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
