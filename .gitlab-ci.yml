@@ -342,6 +342,7 @@ test_Base_new:
    - pip install coverage
    - pip install coverage-badge
  script:
+   - mkdir -p /bim2sim-coding/
    - mv ./* /bim2sim-coding/
    - cd /bim2sim-coding
    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
