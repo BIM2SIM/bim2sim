@@ -26,7 +26,7 @@ class CalcAirFlow(ITask):
 
     def run(self, elements):
 
-        export = self.playground.sim_settings.ventilation_lca_airflow
+        export = self.playground.sim_settings.ventilation_lca_export_airflow
 
         thermal_zones = filter_elements(elements, 'ThermalZone')
 

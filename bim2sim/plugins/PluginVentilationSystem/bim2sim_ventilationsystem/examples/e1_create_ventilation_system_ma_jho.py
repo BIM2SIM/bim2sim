@@ -9,7 +9,7 @@ from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 
 
-def run_example_project_ventilation_system():
+def run_example_project_ventilation_system(project_path):
     """
     """
 
@@ -19,7 +19,7 @@ def run_example_project_ventilation_system():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    project_path = Path(r"D:\dja-jho\Testing\Ventilation+Hydraulic")
+    #project_path = Path(r"D:\dja-jho\Testing\SystemTest")
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -49,16 +49,11 @@ def run_example_project_ventilation_system():
     project.sim_settings.ventilation_lca_export_exhaust = True
     project.sim_settings.ventilation_lca_export_system = True
 
-    #project.sim_settings.heating = True
-    #project.sim_settings.cooling = True
-    #project.sim_settings.deactivate_ahu = False
-
-    project.sim_settings.prj_use_conditions = (
-        r"D:\dja-jho\Git\BIM2SIM\bim2sim\assets\enrichment\usage\UseConditions.json")
-    project.sim_settings.prj_custom_usages = (Path(
-        bim2sim.__file__).parent.parent /
-                                              "test/resources/arch/custom_usages/"
-                                              "customUsagesFM_ARC_DigitalHub_with_SB89.json")
+    project.sim_settings.prj_use_conditions = (Path(bim2sim.__file__).parent.parent /
+                                               "bim2sim/assets/enrichment/usage/UseConditions.json")
+    project.sim_settings.prj_custom_usages = (Path(bim2sim.__file__).parent.parent /
+                                                  "test/resources/arch/custom_usages/"
+                                                  "customUsagesFM_ARC_DigitalHub_with_SB89.json")
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     construction_year = 2015
     answers = (construction_year,)

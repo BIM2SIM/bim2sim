@@ -85,9 +85,8 @@ class CreateBuildingAndHeatingGraph(ITask):
         return building_graph, heating_graph
 
 
-
     def load_json_graph(self, filename: str):
-        filepath = self.hydraulic_system_directory / filename
+        filepath = Path(self.paths.root).parent / filename
         self.logger.info(f"Read {filename} Graph from file {filepath}")
         with open(filepath, "r") as file:
             json_data = json.load(file)

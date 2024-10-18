@@ -1,5 +1,8 @@
 import re
 from pathlib import Path
+import subprocess
+import time
+import psutil
 
 from ebcpy import DymolaAPI
 
@@ -88,40 +91,21 @@ class SimulateModelEBCPy(ITask):
                 bldg_result_dir = sim_results_path / bldg_name
                 bldg_result_dir.mkdir(parents=True, exist_ok=True)
 
-                if self.playground.sim_settings.edit_mat_result_file_flag:
-                    mos_script_post_path = self.edit_mat_result_file(teaser_prj, bldg_name, bldg_result_dir)
-                    try:
-                        dym_api = DymolaAPI(
-                            model_name=sim_model,
-                            working_directory=bldg_result_dir,
-                            packages=packages,
-                            show_window=True,
-                            n_restart=-1,
-                            equidistant_output=True,
-                            debug=True,
-                            mos_script_post=mos_script_post_path
-                            )
-                    except Exception:
-                        raise Exception(
-                            "Dymola API could not be initialized, there"
-                            "are several possible reasons."
-                            " One could be a missing Dymola license.")
-                else:
-                    try:
-                        dym_api = DymolaAPI(
-                            model_name=sim_model,
-                            working_directory=bldg_result_dir,
-                            packages=packages,
-                            show_window=True,
-                            n_restart=-1,
-                            equidistant_output=True,
-                            debug=True
-                            )
-                    except Exception:
-                        raise Exception(
-                            "Dymola API could not be initialized, there"
-                            "are several possible reasons."
-                            " One could be a missing Dymola license.")
+                try:
+                    dym_api = DymolaAPI(
+                        model_name=sim_model,
+                        working_directory=bldg_result_dir,
+                        packages=packages,
+                        show_window=True,
+                        n_restart=-1,
+                        equidistant_output=True,
+                        debug=True
+                        )
+                except Exception:
+                    raise Exception(
+                        "Dymola API could not be initialized, there"
+                        "are several possible reasons."
+                        " One could be a missing Dymola license.")
 
                 dym_api.set_sim_setup(sim_setup=simulation_setup)
                 # activate spare solver as TEASER models are mostly sparse
@@ -140,6 +124,10 @@ class SimulateModelEBCPy(ITask):
                              f" Simulations.")
             self.logger.info(f"You can find the results under "
                              f"{str(sim_results_path)}")
+
+            if self.playground.sim_settings.edit_mat_result_file_flag:
+                self.edit_mat_result_file(teaser_prj, bldg_name, bldg_result_dir)
+
             return sim_results_path,
 
 
@@ -155,19 +143,30 @@ class SimulateModelEBCPy(ITask):
         """
         #TODO Make generic with input simsettings.var_names
 
-        var_names = [
-            "multizone.PHeater",
-            "multizone.PCooler",
-            "multizone.QIntGains_flow",
-            "multizonePostProcessing.PCooler",
+        var_names_heating = [
             "multizonePostProcessing.PHeater",
-            "multizonePostProcessing.WHeaterSum",
-            "multizonePostProcessing.WCoolerSum",
+            "multizonePostProcessing.WHeaterSum"
+        ]
+        var_names_cooling = [
+            "multizonePostProcessing.PCooler",
+            "multizonePostProcessing.WCoolerSum"
+        ]
+        var_names_ahu = [
             "multizonePostProcessing.PelAHU",
             "multizonePostProcessing.PHeatAHU",
-            "multizonePostProcessing.PCoolAHU",
-            "multizonePostProcessing.QIntGains_flow"
+            "multizonePostProcessing.PCoolAHU"
         ]
+
+        zone_var = [
+            "multizonePostProcessing.PHeater",
+            "multizonePostProcessing.PCooler"
+        ]
+
+        var_names = var_names_heating
+        if self.playground.sim_settings.cooling:
+            var_names += var_names_cooling
+        if self.playground.sim_settings.overwrite_ahu_by_settings:
+            var_names += var_names_ahu
 
 
         for building in teaser_prj.buildings:
@@ -178,36 +177,37 @@ class SimulateModelEBCPy(ITask):
         script += f'resultFile = "teaser_results.mat";\n'
         script += f'outName = "teaser_results_edited.mat";\n\n'
         script += 'varNames = {"Time",\n'
+
+        # Internal gains
         for i in range(1, n + 1):
-            script += f'"{var_names[0]}[{i}]",\n'
-        for i in range(1, n + 1):
-            script += f'"{var_names[1]}[{i}]",\n'
-        for i in range(1, n + 1):
-            script += f'"{var_names[2]}[{i}, 1]",\n'
-            script += f'"{var_names[2]}[{i}, 2]",\n'
-            script += f'"{var_names[2]}[{i}, 3]",\n'
-        for i in range(1, n + 1):
-            script += f'"{var_names[3]}[{i}]",\n'
-        for i in range(1, n + 1):
-            script += f'"{var_names[4]}[{i}]",\n'
-        script += f'"{var_names[5]}",\n'
-        script += f'"{var_names[6]}",\n'
-        script += f'"{var_names[7]}",\n'
-        script += f'"{var_names[8]}",\n'
-        script += f'"{var_names[9]}",\n'
-        for i in range(1, n):
-            script += f'"{var_names[10]}[{i}, 1]",\n'
-            script += f'"{var_names[10]}[{i}, 2]",\n'
-            script += f'"{var_names[10]}[{i}, 3]",\n'
-        script += f'"{var_names[10]}[{n}, 1]",\n'
-        script += f'"{var_names[10]}[{n}, 2]",\n'
-        script += f'"{var_names[10]}[{n}, 3]"'
+            script += f'"multizonePostProcessing.QIntGains_flow[{i}, 1]",\n'
+            script += f'"multizonePostProcessing.QIntGains_flow[{i}, 2]",\n'
+            script += f'"multizonePostProcessing.QIntGains_flow[{i}, 3]",\n'
+        for var in var_names:
+            if var in zone_var:
+                for i in range(1, n + 1):
+                    script += f'"{var}[{i}]",\n'
+            else:
+                if var != var_names[-1]:
+                    script += f'"{var}",\n'
+                else:
+                    script += f'"{var}"\n'
+
         script += '};\n\n'
         script += f'n = readTrajectorySize(resultFile);\n'
         script += f'writeTrajectory(outName, varNames, transpose(readTrajectory(resultFile, varNames, n)));'
 
-        mos_script_post_path = bldg_result_dir / "edit_result_file.mos"
-        with open(mos_script_post_path, 'w') as file:
+        mos_file_path = bldg_result_dir / "edit_result_file.mos"
+        with open(mos_file_path, 'w') as file:
             file.write(script)
 
-        return mos_script_post_path
+        dymola_executable = r"C:\Program Files\Dymola 2023\bin64\dymola.exe"
+        subprocess.Popen([dymola_executable, mos_file_path], shell=True)
+        time.sleep(10)
+        for proc in psutil.process_iter(['pid', 'name']):
+            try:
+                if proc.info['name'] == 'Dymola.exe':
+                    psutil.Process(proc.info['pid']).terminate()
+                    print('Dymola.exe wurde beendet')
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass

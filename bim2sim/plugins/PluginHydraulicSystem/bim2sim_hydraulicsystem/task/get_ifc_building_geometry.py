@@ -43,7 +43,7 @@ class GetIFCBuildingGeometry(ITask):
             json.dump(data, f, indent=4)
 
     def load_json(self, filename):
-        import_path = self.hydraulic_system_directory / filename
+        import_path = Path(self.paths.root).parent / filename
 
         with open(import_path, "r") as f:
             file = json.load(f)

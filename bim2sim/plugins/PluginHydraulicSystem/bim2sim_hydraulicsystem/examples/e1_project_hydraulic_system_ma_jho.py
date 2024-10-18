@@ -11,7 +11,7 @@ from bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_medium_project_teas
     (run_medium_building_teaser)
 
 
-def run_example_project_hydraulic_system():
+def run_example_project_hydraulic_system(project_path, heat_delivery_type, t_forward, t_backward):
     """
     """
 
@@ -27,10 +27,8 @@ def run_example_project_hydraulic_system():
     else:
         # Create a temp directory for the project, feel free to use a "normal"
         # directory
-        project_path = Path(
-            "D:\dja-jho\Testing\Teaser3")
-
-    # TODO reset config.toml backend
+        #project_path = Path("D:\dja-jho\Testing\SystemTest")
+        pass
 
     # Create a project including the folder structure for the project
     project = Project.create(project_path, plugin='HydraulicSystem')
@@ -54,14 +52,9 @@ def run_example_project_hydraulic_system():
     project.sim_settings.startpoint_heating_graph_y_axis = 2.8
     project.sim_settings.startpoint_heating_graph_z_axis = -3
 
-    #TODO integrate the process of .mat stripping this into the plugin as well
-    #Dont know if thats possible since mos script needs to be customized regarding number of thermal zones and paths,
-    #but loading in mos script, customizing it, saving it again and then using it probably wont work,
-    #since python uses the original mos script when the python script was started
+    project.sim_settings.heat_demand_mat_file_path = fr"{project_path}\export\TEASER\SimResults\AC20InstituteVar2\Buerogebaeude\teaser_results_edited.mat"
 
-    project.sim_settings.heat_demand_mat_file_path = \
-        r"D:\dja-jho\Testing\Teaser3\export\TEASER\SimResults\AC20InstituteVar2\Buerogebaeude\teaser_results_edited.mat"
-    project.sim_settings.heat_delivery_type = "UFH" # UFH or Radiator
+    project.sim_settings.heat_delivery_type = heat_delivery_type # UFH or Radiator
     project.sim_settings.hydraulic_components_data_file_radiator_sheet = "Profilierte Flachheizkörper"
     project.sim_settings.hydraulic_components_data_file_pipe_sheet = "Stahlrohre"
 
@@ -75,8 +68,8 @@ def run_example_project_hydraulic_system():
     project.sim_settings.p_max = 10
     project.sim_settings.f = 0.02
 
-    project.sim_settings.t_forward = 40
-    project.sim_settings.t_backward = 30
+    project.sim_settings.t_forward = t_forward
+    project.sim_settings.t_backward = t_backward
     project.sim_settings.t_room = 21
 
     answers = (2015,)

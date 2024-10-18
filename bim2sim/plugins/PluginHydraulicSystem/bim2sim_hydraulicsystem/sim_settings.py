@@ -25,12 +25,6 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
         description="True: Generate new heating graph out of ifc file"
                     "Else: Load existing heating graph out of json file"
     )
-    generate_new_building_graph_with_source_nodes = BooleanSetting(
-        default=False,
-        description="Only for development purposes"
-                    "True: Generate new building graph with source nodes out of building graph"
-                    "Else: Load existing building graph with source nodes out of json file"
-    )
     disaggregate_heat_demand_thermal_zones = BooleanSetting(
     default=False,
         description="Disaggregates heat demand for thermal zones based on thermal zone floor area"
@@ -102,7 +96,7 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
         for_frontend=True
     )
     ufh_heat_flow_laying_distance_changeover = NumberSetting(
-        default=20,
+        default=70,
         min_value=0,
         max_value=150,
         description="Heat flow per area of under floor heating at which"
@@ -110,7 +104,7 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
         for_frontend=True
     )
     ufh_max_heat_flow_per_area = NumberSetting(
-        default=40,
+        default=100,
         min_value=0,
         max_value=150,
         description="Max heat flow per area of under floor heating"

@@ -11,7 +11,7 @@ class VentilationSystemSimSettings(BuildingSimSettings):
         self.relevant_elements = {*bps_elements.items,
                                       Material}
 
-    ventilation_lca_airflow = BooleanSetting(
+    ventilation_lca_export_airflow = BooleanSetting(
         default=True,
         description="Export the figures, plans and .csv data from for"
                     " ventilation supply generation"
@@ -26,7 +26,7 @@ class VentilationSystemSimSettings(BuildingSimSettings):
         description="Export the figures, plans and .csv data from for"
                     " ventilation exhaust generation"
     )
-    ventilation_lca_system = BooleanSetting(
+    ventilation_lca_export_system = BooleanSetting(
         default=True,
         description="Export the figures, plans and .csv data from for"
                     " ventilation supply generation"

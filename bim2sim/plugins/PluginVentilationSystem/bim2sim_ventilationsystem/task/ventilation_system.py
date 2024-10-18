@@ -55,7 +55,7 @@ class DesignVentilationSystem(ITask):
             z_coordinate_list
             ):
 
-        export = self.playground.sim_settings.ventilation_lca_system
+        export = self.playground.sim_settings.ventilation_lca_export_system
         air_flow_building = air_flow_building.to('m**3 / hour')
 
         self.logger.info("Plot 3D Graph")

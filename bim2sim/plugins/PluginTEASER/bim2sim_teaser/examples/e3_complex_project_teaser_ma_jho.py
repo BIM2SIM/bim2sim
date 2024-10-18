@@ -10,13 +10,12 @@ from bim2sim.utilities.common_functions import download_test_resources, \
     download_library
 
 
-def run_example_complex_building_teaser():
+def run_example_complex_building_teaser(project_path, heating_bool, cooling_bool, ahu_bool, building_standard,
+                                        window_standard):
     """Run a building performance simulation with the TEASER backend.
     
     ...
     """
-    cooling_bool = True
-    ahu_bool = True
 
     # Create the default logging to for quality log and bim2sim main log
     # (see logging documentation for more information)
@@ -24,7 +23,7 @@ def run_example_complex_building_teaser():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    project_path = r"D:\dja-jho\Testing\Teaser4"
+    #project_path = r"D:\dja-jho\Testing\SystemTest"
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -47,7 +46,17 @@ def run_example_complex_building_teaser():
     project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
     project.sim_settings.setpoints_from_template = True
 
+    # overwrite existing layer structures and materials based on templates
+    project.sim_settings.layers_and_materials = LOD.low
 
+    # specify templates for the layer and material overwrite
+    project.sim_settings.construction_class_walls = building_standard
+    project.sim_settings.construction_class_windows = window_standard
+    project.sim_settings.construction_class_doors = building_standard
+
+
+    # Activate Cooling and AHU
+    project.sim_settings.heating = heating_bool
     project.sim_settings.cooling = cooling_bool
 
     project.sim_settings.overwrite_ahu_by_settings = ahu_bool
@@ -58,14 +67,6 @@ def run_example_complex_building_teaser():
     project.sim_settings.ahu_heat_recovery = ahu_bool
     project.sim_settings.ahu_heat_recovery_efficiency = 0.8
 
-
-
-    # overwrite existing layer structures and materials based on templates
-    project.sim_settings.layers_and_materials = LOD.low
-    # specify templates for the layer and material overwrite
-    project.sim_settings.construction_class_walls = 'kfw_40'
-    project.sim_settings.construction_class_windows = 'Waermeschutzverglasung, dreifach'
-    project.sim_settings.construction_class_doors = 'kfw_40'
 
     # set weather file data
     project.sim_settings.weather_file_path = (
@@ -92,19 +93,13 @@ def run_example_complex_building_teaser():
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
             "customUsagesAC20-Institute-Var-2_with_SB-1-0.json")
-    # create plots based on the results after simulation
-    project.sim_settings.create_plots = True
 
 
     answers = (2015,)
     handler = DebugDecisionHandler(answers)
     handler.handle(project.run())
 
-    # Have a look at the elements/elements that were created
     elements = project.playground.state['elements']
-    # filter the elements only for outer walls
-    df_finals = project.playground.state['df_finals']
-
 
 if __name__ == '__main__':
-    run_example_complex_building_teaser()
+    run_example_complex_building_teaser(True, True, 'kfw_40', 'Waermeschutzverglasung, dreifach')
