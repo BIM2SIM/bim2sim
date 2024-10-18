@@ -47,12 +47,12 @@ build_new:development:
  script:
    - docker build -t $CI_REGISTRY/base:development -f micromamba.Dockerfile .
    - docker push $CI_REGISTRY/base:development
- rules:
-   - if: '$CI_COMMIT_REF_NAME == "development"'
-     changes:
-       - envBase.Dockerfile
-       - requirements.txt
-       - .gitlab-ci.yml
+# rules:
+#   - if: '$CI_COMMIT_REF_NAME == "development"'
+#     changes:
+#       - envBase.Dockerfile
+#       - requirements.txt
+#       - .gitlab-ci.yml
 
 #build_new:development:
 # image: docker:24.0.5
