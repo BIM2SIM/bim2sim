@@ -6,9 +6,10 @@ import re
 import zipfile
 from pathlib import Path
 from time import sleep
-import git
 from typing import TYPE_CHECKING, Type, Union
 from urllib.request import urlopen
+
+import git
 
 import bim2sim
 from bim2sim.utilities.types import IFCDomain
