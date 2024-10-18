@@ -1,7 +1,5 @@
 FROM mambaorg/micromamba:2.0.2
 
-RUN  micromamba install -y -n base -c conda-forge gcc git
-
 COPY --chown=$MAMBA_USER:$MAMBA_USER env.yaml /tmp/env.yaml
 RUN micromamba install -y -n base -f /tmp/env.yaml && \
     micromamba clean --all --yes
@@ -11,5 +9,7 @@ RUN micromamba install -y -n base -f /tmp/env.yaml && \
 COPY --chown=$MAMBA_USER:$MAMBA_USER . .
 
 ARG MAMBA_DOCKERFILE_ACTIVATE=1
+
+ENV PIP_DEFAULT_TIMEOUT=100
 
 RUN pip install --no-cache-dir -e '.'
