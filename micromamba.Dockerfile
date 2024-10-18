@@ -10,6 +10,8 @@ COPY --chown=$MAMBA_USER:$MAMBA_USER . .
 
 ARG MAMBA_DOCKERFILE_ACTIVATE=1
 
-ENV PIP_DEFAULT_TIMEOUT=100
+ENV PIP_DEFAULT_TIMEOUT=500
 
-RUN pip install --no-cache-dir -e '.'
+RUN pip install --no-cache-dir -e '.' -i https://pypi.tuna.tsinghua.edu.cn/simple || \
+    pip install --no-cache-dir -e '.' -i https://pypi.tuna.tsinghua.edu.cn/simple || \
+    pip install --no-cache-dir -e '.' -i https://pypi.tuna.tsinghua.edu.cn/simple
