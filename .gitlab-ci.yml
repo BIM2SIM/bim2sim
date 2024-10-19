@@ -1,6 +1,6 @@
 stages:
-  - test
   - build-env
+  - test
 #  - doc
 #  - code_quality
 #  - deploy
@@ -18,8 +18,6 @@ variables:
   GH_PAGES_URL: "https://bim2sim.github.io/${CI_PROJECT_NAME}/"
   TEST_ENGINE: "unittest"
   TEST_PATH: test
-  PLUGINS: "PluginTEASER PluginEnergyPlus PluginAixLib PluginCFD PluginHKESim PluginLCA"
-  PYTHON_VERSIONS: "3.9 3.10 3.11"
 
 
 #include:
@@ -50,65 +48,8 @@ variables:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
-    - docker build -t $CI_REGISTRY/bim2sim:$TAG -f micromamba.Dockerfile --build-arg PYTHON_VERSION=${PYTHON_VERSION} .
+    - docker build -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} --build-arg PYTHON_VERSION=${PYTHON_VERSION} .
     - docker push $CI_REGISTRY/bim2sim:$TAG
-#
-#
-#.test_template: &test_template
-#  stage: test
-#  before_script:
-#    - eval "$(micromamba shell hook --shell bash)"
-#    - micromamba activate base
-#  script:
-#    - mkdir -p ~/bim2sim-coding/
-#    - mv ./* ~/bim2sim-coding/
-#    - cd ~/bim2sim-coding
-#    - pip uninstall -y bim2sim
-#    - pip install -e .[test,$PLUGIN]
-#    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-#    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-#    - coverage run -m unittest discover ~/bim2sim-coding/test/plugins/${PLUGIN,,}
-#    - coverage report -i
-#    - coverage xml
-#  artifacts:
-#    reports:
-#      coverage_report:
-#        coverage_format: cobertura
-#        path: coverage.xml
-#
-#.base_test_template: &base_test_template
-#  <<: *test_template
-#  script:
-#    - mkdir -p ~/bim2sim-coding/
-#    - mv ./* ~/bim2sim-coding/
-#    - cd ~/bim2sim-coding
-#    - pip uninstall -y bim2sim
-#    - pip install -e .[test]
-#    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-#    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-#    - coverage run -m unittest discover ~/bim2sim-coding/test
-#    - coverage report -i
-#    - coverage xml
-#
-#test_base:
-#  parallel:
-#    matrix:
-#      - PYTHON_VERSION: ["3.9", "3.10", "3.11"]
-#  <<: *base_test_template
-#  image: $CI_REGISTRY/bim2sim:${CI_COMMIT_REF_SLUG}-py${PYTHON_VERSION}
-#
-#.plugin_test:
-#  parallel:
-#    matrix:
-#      - PYTHON_VERSION: ["3.9", "3.10", "3.11"]
-#        PLUGIN: [PluginTEASER, PluginEnergyPlus, PluginAixLib, PluginCFD, PluginHKESim, PluginLCA]
-#  <<: *test_template
-#  image: $CI_REGISTRY/bim2sim:${CI_COMMIT_REF_SLUG}-py${PYTHON_VERSION}
-#
-#test_plugins:
-#  extends: .plugin_test
-
-
 
 # Development branch builds
 build:dev:py3.9:
@@ -116,6 +57,7 @@ build:dev:py3.9:
   variables:
     PYTHON_VERSION: "3.9"
     TAG: dev-py3.9
+    DOCKERFILE: micromamba.Dockerfile
   rules:
     - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
       changes:
@@ -128,6 +70,7 @@ build:dev:py3.10:
   variables:
     PYTHON_VERSION: "3.10"
     TAG: dev-py3.10
+    DOCKERFILE: micromamba.Dockerfile
   rules:
     - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
       changes:
@@ -140,6 +83,46 @@ build:dev:py3.11:
   variables:
     PYTHON_VERSION: "3.11"
     TAG: dev-py3.11
+    DOCKERFILE: micromamba.Dockerfile
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
+      changes:
+        - micromamba.Dockerfile
+        - pyproject.toml
+        - .gitlab-ci.yml
+
+build:dev-dymola:py3.9:
+  <<: *build_template
+  variables:
+    PYTHON_VERSION: "3.9"
+    TAG: dev-dymola-py3.9
+    DOCKERFILE: micromambaDymola.Dockerfile
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
+      changes:
+        - micromamba.Dockerfile
+        - pyproject.toml
+        - .gitlab-ci.yml
+
+build:dev-dymola:py3.10:
+  <<: *build_template
+  variables:
+    PYTHON_VERSION: "3.10"
+    TAG: dev-dymola-py3.10
+    DOCKERFILE: micromambaDymola.Dockerfile
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
+      changes:
+        - micromamba.Dockerfile
+        - pyproject.toml
+        - .gitlab-ci.yml
+
+build:dev-dymola:py3.11:
+  <<: *build_template
+  variables:
+    PYTHON_VERSION: "3.11"
+    TAG: dev-dymola-py3.11
+    DOCKERFILE: micromambaDymola.Dockerfile
   rules:
     - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
       changes:
@@ -153,6 +136,7 @@ build:main:py3.9:
   variables:
     PYTHON_VERSION: "3.9"
     TAG: main-py3.9
+    DOCKERFILE: micromamba.Dockerfile
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -165,6 +149,7 @@ build:main:py3.10:
   variables:
     PYTHON_VERSION: "3.10"
     TAG: main-py3.10
+    DOCKERFILE: micromamba.Dockerfile
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -177,6 +162,7 @@ build:main:py3.11:
   variables:
     PYTHON_VERSION: "3.11"
     TAG: main-py3.11
+    DOCKERFILE: micromamba.Dockerfile
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
