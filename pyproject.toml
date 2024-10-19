@@ -74,7 +74,7 @@ PluginTEASER = [
     "RWTHColors",
     "scienceplots",
     "ebcpy",
-    "TEASER@git+https://github.com/RWTH-EBC/TEASER@development#egg=TEASER[report]",
+    "TEASER[report] @ git+https://github.com/RWTH-EBC/TEASER@development",
     "BuildingsPy@git+https://github.com/DaJansenGit/BuildingsPy.git",
 ]
 PluginEnergyPlus = [
