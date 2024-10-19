@@ -1,6 +1,6 @@
 stages:
   - build-env
-#  - test
+  - test
 #  - doc
 #  - code_quality
 #  - deploy
@@ -11,13 +11,15 @@ variables:
   # TODO variable inside variable seems not be working on our gitlab instance,
   # see post below, therefore use hardcoded image here for sphinx job
   # https://stackoverflow.com/questions/67005507/variable-inside-variable-gitlab-ci
-  PYTHON_VERSION: "registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/environment:development"
+#  PYTHON_VERSION: "registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/environment:development"
 #  PYTHON_VERSION: "${CI_REGISTRY}/environment:development"
   GIT_SUBMODULE_STRATEGY: recursive
   GH_REPO_URL: "git@github.com:BIM2SIM/bim2sim.git"
   GH_PAGES_URL: "https://bim2sim.github.io/${CI_PROJECT_NAME}/"
   TEST_ENGINE: "unittest"
   TEST_PATH: test
+  PLUGINS: "PluginTEASER PluginEnergyPlus PluginAixLib PluginCFD PluginHKESim PluginLCA"
+
 
 #include:
 #  - project: 'EBC/EBC_all/gitlab_ci/templates'
@@ -50,28 +52,35 @@ variables:
     - docker build -t $CI_REGISTRY/bim2sim:$TAG -f micromamba.Dockerfile --build-arg PYTHON_VERSION=${PYTHON_VERSION} .
     - docker push $CI_REGISTRY/bim2sim:$TAG
 
-#.test_template: &test_template
-#  stage: test
-#  before_script:
-#    - eval "$(micromamba shell hook --shell bash)"
-#    - micromamba activate base
-#  script:
-#    - mkdir -p ~/bim2sim-coding/
-#    - mv ./* ~/bim2sim-coding/
-#    - cd ~/bim2sim-coding
-#    - pip uninstall -y bim2sim
-#    - pip install -e .[test]
-#    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-#    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-#    - coverage run -m unittest discover ~/bim2sim-coding/test
-#    - coverage report -i
-#  artifacts:
-#    reports:
-#      coverage_report:
-#        coverage_format: cobertura
-#        path: coverage.xml
+.test_template: &test_template
+  stage: test
+  before_script:
+    - eval "$(micromamba shell hook --shell bash)"
+    - micromamba activate base
+  script:
+    - mkdir -p ~/bim2sim-coding/
+    - mv ./* ~/bim2sim-coding/
+    - cd ~/bim2sim-coding
+    - pip uninstall -y bim2sim
+    - pip install -e .[test]
+    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
+    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+    - coverage run -m unittest discover ~/bim2sim-coding/test
+    - |
+      for plugin in $PLUGINS; do
+        echo "Testing $plugin"
+        pip install -e .[$plugin]
+        coverage run -m unittest discover ~/bim2sim-coding/test/plugins/${plugin,,}
+      done
+    - coverage report -i
+    - coverage xml
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
 
-# development builds
+# Development branch builds
 build:dev:py3.9:
   <<: *build_template
   variables:
@@ -145,23 +154,24 @@ build:main:py3.11:
         - pyproject.toml
         - .gitlab-ci.yml
 
-#test_base:py3.9:
-#  <<: *test_template
-#  image: $CI_REGISTRY/bim2sim:${CI_COMMIT_REF_SLUG}-py3.9-${CI_PIPELINE_IID}
-#  variables:
-#    PYTHON_VERSION: "3.9"
-#
-#test_base:py3.10:
-#  <<: *test_template
-#  image: $CI_REGISTRY/bim2sim:${CI_COMMIT_REF_SLUG}-py3.10-${CI_PIPELINE_IID}
-#  variables:
-#    PYTHON_VERSION: "3.10"
-#
-#test_base:py3.11:
-#  <<: *test_template
-#  image: $CI_REGISTRY/bim2sim:${CI_COMMIT_REF_SLUG}-py3.11-${CI_PIPELINE_IID}
-#  variables:
-#    PYTHON_VERSION: "3.11"
+# Tests
+test:py3.9:
+  <<: *test_template
+  image: $CI_REGISTRY/bim2sim:${CI_COMMIT_REF_SLUG}-py3.9-${CI_PIPELINE_IID}
+  variables:
+    PYTHON_VERSION: "3.9"
+
+test:py3.10:
+  <<: *test_template
+  image: $CI_REGISTRY/bim2sim:${CI_COMMIT_REF_SLUG}-py3.10-${CI_PIPELINE_IID}
+  variables:
+    PYTHON_VERSION: "3.10"
+
+test:py3.11:
+  <<: *test_template
+  image: $CI_REGISTRY/bim2sim:${CI_COMMIT_REF_SLUG}-py3.11-${CI_PIPELINE_IID}
+  variables:
+    PYTHON_VERSION: "3.11"
 
 #
 #test_Base_new:
