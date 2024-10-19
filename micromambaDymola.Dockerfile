@@ -53,16 +53,24 @@ RUN sed -i "s/python=.*/python=${PYTHON_VERSION}/" /tmp/env.yaml && \
     micromamba install -y -n base -f /tmp/env.yaml && \
     micromamba clean --all --yes
 
-# Copy files
-COPY . /app
+# Create a directory for the app and set it as the working directory
+RUN mkdir /app && chown $MAMBA_USER:$MAMBA_USER /app
 WORKDIR /app
 
-# Set permissions for the app directory
-RUN chown -R $MAMBA_USER:$MAMBA_USER /app
+USER $MAMBA_USER
+
+SHELL ["/usr/local/bin/_dockerfile_shell.sh"]
+
+ENTRYPOINT ["/usr/local/bin/_entrypoint.sh"]
+
+CMD ["/bin/bash"]
 
 ARG MAMBA_DOCKERFILE_ACTIVATE=1
 
 ENV PIP_DEFAULT_TIMEOUT=500
 
+# Copy files as the MAMBA_USER
+COPY --chown=$MAMBA_USER:$MAMBA_USER . .
+
 # Install the package
-RUN pip install --no-cache-dir '.' -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip install --no-cache-dir -e . -i https://pypi.tuna.tsinghua.edu.cn/simple
