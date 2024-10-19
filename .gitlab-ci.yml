@@ -258,18 +258,18 @@ variables:
       test_exit_code=$?
       set -e
     - ls -la ./
-    - ls -la /builds/EBC/EBC_all/github_ci/bim2sim
-    - ls -la /builds/EBC/EBC_all/github_ci/bim2sim/logs || true
     - mkdir -p /builds/EBC/EBC_all/github_ci/bim2sim/logs/
     - cp *.log /builds/EBC/EBC_all/github_ci/bim2sim/logs/ || true
     - ls -la /builds/EBC/EBC_all/github_ci/bim2sim
     - ls -la /builds/EBC/EBC_all/github_ci/bim2sim/logs
     - exit $test_exit_code
   artifacts:
+    when: always
     paths:
+      - bim2sim/logs/*
   #    - logs/*
   #    - logs/failed-simulator-dymola.log
-      - /builds/EBC/EBC_all/github_ci/bim2sim/logs/*
+#      - /builds/EBC/EBC_all/github_ci/bim2sim/logs/*
   #    - bim2sim-coding/simulator-dymola.log
   #    - bim2sim-coding/comparison-dymola.log
   #    - bim2sim-coding/unitTests-dymola.log
