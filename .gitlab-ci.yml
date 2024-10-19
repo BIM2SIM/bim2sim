@@ -52,66 +52,61 @@ variables:
   script:
     - docker build -t $CI_REGISTRY/bim2sim:$TAG -f micromamba.Dockerfile --build-arg PYTHON_VERSION=${PYTHON_VERSION} .
     - docker push $CI_REGISTRY/bim2sim:$TAG
-
-.test_template: &test_template
-  stage: test
-  before_script:
-    - eval "$(micromamba shell hook --shell bash)"
-    - micromamba activate base
-  script:
-    - mkdir -p ~/bim2sim-coding/
-    - mv ./* ~/bim2sim-coding/
-    - cd ~/bim2sim-coding
-    - pip uninstall -y bim2sim
-    - pip install -e .[test,$PLUGIN]
-    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover ~/bim2sim-coding/test/plugins/${PLUGIN,,}
-    - coverage report -i
-    - coverage xml
-  artifacts:
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage.xml
-
-.base_test_template: &base_test_template
-  <<: *test_template
-  script:
-    - mkdir -p ~/bim2sim-coding/
-    - mv ./* ~/bim2sim-coding/
-    - cd ~/bim2sim-coding
-    - pip uninstall -y bim2sim
-    - pip install -e .[test]
-    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover ~/bim2sim-coding/test
-    - coverage report -i
-    - coverage xml
-
-test_base:
-  parallel:
-    matrix:
-      - PYTHON_VERSION: [3.9, 3.10, 3.11]
-  <<: *base_test_template
-  image: $CI_REGISTRY/bim2sim:${CI_COMMIT_REF_SLUG}-py${PYTHON_VERSION}-${CI_PIPELINE_IID}
-
-.plugin_test:
-  parallel:
-    matrix:
-      - PYTHON_VERSION: [3.9, 3.10, 3.11]
-      - PLUGIN:
-        - PluginTEASER
-        - PluginEnergyPlus
-        - PluginAixLib
-        - PluginCFD
-        - PluginHKESim
-        - PluginLCA
-  <<: *test_template
-  image: $CI_REGISTRY/bim2sim:${CI_COMMIT_REF_SLUG}-py${PYTHON_VERSION}-${CI_PIPELINE_IID}
-
-test_plugins:
-  extends: .plugin_test
+#
+#
+#.test_template: &test_template
+#  stage: test
+#  before_script:
+#    - eval "$(micromamba shell hook --shell bash)"
+#    - micromamba activate base
+#  script:
+#    - mkdir -p ~/bim2sim-coding/
+#    - mv ./* ~/bim2sim-coding/
+#    - cd ~/bim2sim-coding
+#    - pip uninstall -y bim2sim
+#    - pip install -e .[test,$PLUGIN]
+#    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
+#    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+#    - coverage run -m unittest discover ~/bim2sim-coding/test/plugins/${PLUGIN,,}
+#    - coverage report -i
+#    - coverage xml
+#  artifacts:
+#    reports:
+#      coverage_report:
+#        coverage_format: cobertura
+#        path: coverage.xml
+#
+#.base_test_template: &base_test_template
+#  <<: *test_template
+#  script:
+#    - mkdir -p ~/bim2sim-coding/
+#    - mv ./* ~/bim2sim-coding/
+#    - cd ~/bim2sim-coding
+#    - pip uninstall -y bim2sim
+#    - pip install -e .[test]
+#    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
+#    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+#    - coverage run -m unittest discover ~/bim2sim-coding/test
+#    - coverage report -i
+#    - coverage xml
+#
+#test_base:
+#  parallel:
+#    matrix:
+#      - PYTHON_VERSION: ["3.9", "3.10", "3.11"]
+#  <<: *base_test_template
+#  image: $CI_REGISTRY/bim2sim:${CI_COMMIT_REF_SLUG}-py${PYTHON_VERSION}
+#
+#.plugin_test:
+#  parallel:
+#    matrix:
+#      - PYTHON_VERSION: ["3.9", "3.10", "3.11"]
+#        PLUGIN: [PluginTEASER, PluginEnergyPlus, PluginAixLib, PluginCFD, PluginHKESim, PluginLCA]
+#  <<: *test_template
+#  image: $CI_REGISTRY/bim2sim:${CI_COMMIT_REF_SLUG}-py${PYTHON_VERSION}
+#
+#test_plugins:
+#  extends: .plugin_test
 
 
 
@@ -189,7 +184,37 @@ build:main:py3.11:
         - pyproject.toml
         - .gitlab-ci.yml
 
+
+
 # Tests
+.test_template: &test_template
+  stage: test
+  before_script:
+    - eval "$(micromamba shell hook --shell bash)"
+    - micromamba activate base
+  script:
+    - mkdir -p ~/bim2sim-coding/
+    - mv ./* ~/bim2sim-coding/
+    - cd ~/bim2sim-coding
+    - pip uninstall -y bim2sim
+    - pip install -e .[test]
+    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
+    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+    - coverage run -m unittest discover ~/bim2sim-coding/test
+    - |
+      for plugin in $PLUGINS; do
+        echo "Testing $plugin"
+        pip install -e .[$plugin]
+        coverage run -m unittest discover ~/bim2sim-coding/test/plugins/${plugin,,}
+      done
+    - coverage report -i
+    - coverage xml
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+
 test:py3.9:
   <<: *test_template
 #  image: $CI_REGISTRY/bim2sim:${CI_COMMIT_REF_SLUG}-py3.9-${CI_PIPELINE_IID}
