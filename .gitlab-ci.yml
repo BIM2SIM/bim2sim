@@ -114,7 +114,7 @@ build:dev-dymola:py3.9:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
       changes:
-        - micromamba.Dockerfile
+        - micromambaDymola.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
 
@@ -127,7 +127,7 @@ build:dev-dymola:py3.10:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
       changes:
-        - micromamba.Dockerfile
+        - micromambaDymola.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
 
@@ -140,7 +140,7 @@ build:dev-dymola:py3.11:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
       changes:
-        - micromamba.Dockerfile
+        - micromambaDymola.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
 
