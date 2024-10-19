@@ -66,48 +66,47 @@ variables:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
     - docker push $CI_REGISTRY/bim2sim:$TAG
 
-#
-#
-## Development branch builds
-#build:dev:py3.9:
-#  <<: *build_template
-#  variables:
-#    PYTHON_VERSION: "3.9"
-#    TAG: dev-py3.9
-#    DOCKERFILE: micromamba.Dockerfile
-#  rules:
-#    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
-#      changes:
-#        - micromamba.Dockerfile
-#        - pyproject.toml
-#        - .gitlab-ci.yml
-#
-#build:dev:py3.10:
-#  <<: *build_template
-#  variables:
-#    PYTHON_VERSION: "3.10"
-#    TAG: dev-py3.10
-#    DOCKERFILE: micromamba.Dockerfile
-#  rules:
-#    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
-#      changes:
-#        - micromamba.Dockerfile
-#        - pyproject.toml
-#        - .gitlab-ci.yml
-#
-#build:dev:py3.11:
-#  <<: *build_template
-#  variables:
-#    PYTHON_VERSION: "3.11"
-#    TAG: dev-py3.11
-#    DOCKERFILE: micromamba.Dockerfile
-#  rules:
-#    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
-#      changes:
-#        - micromamba.Dockerfile
-#        - pyproject.toml
-#        - .gitlab-ci.yml
-#
+# Development branch builds
+build:dev:py3.9:
+  <<: *build_template
+  variables:
+    PYTHON_VERSION: "3.9"
+    TAG: dev-py3.9
+    DOCKERFILE: micromamba.Dockerfile
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
+      changes:
+        - micromamba.Dockerfile
+        - pyproject.toml
+        - .gitlab-ci.yml
+
+build:dev:py3.10:
+  <<: *build_template
+  variables:
+    PYTHON_VERSION: "3.10"
+    TAG: dev-py3.10
+    DOCKERFILE: micromamba.Dockerfile
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
+      changes:
+        - micromamba.Dockerfile
+        - pyproject.toml
+        - .gitlab-ci.yml
+
+build:dev:py3.11:
+  <<: *build_template
+  variables:
+    PYTHON_VERSION: "3.11"
+    TAG: dev-py3.11
+    DOCKERFILE: micromamba.Dockerfile
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
+      changes:
+        - micromamba.Dockerfile
+        - pyproject.toml
+        - .gitlab-ci.yml
+
+# Build dymola images
 build:dev-dymola:py3.9:
   <<: *build_template_dymola
   variables:
@@ -147,6 +146,7 @@ build:dev-dymola:py3.11:
         - pyproject.toml
         - .gitlab-ci.yml
 
+# Build EnergyPlus images
 build:dev-energyplus:py3.9:
   <<: *build_template
   variables:
