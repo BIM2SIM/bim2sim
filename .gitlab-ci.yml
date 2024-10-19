@@ -15,7 +15,7 @@ variables:
   # https://stackoverflow.com/questions/67005507/variable-inside-variable-gitlab-ci
   PYTHON_VERSION: "registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:dev-py3.11"
 #  PYTHON_VERSION: "${CI_REGISTRY}/environment:development"
-  GIT_SUBMODULE_STRATEGY: recursive
+#  GIT_SUBMODULE_STRATEGY: recursive
   GH_REPO_URL: "git@github.com:BIM2SIM/bim2sim.git"
   GH_PAGES_URL: "https://bim2sim.github.io/${CI_PROJECT_NAME}/"
   TEST_ENGINE: "unittest"
