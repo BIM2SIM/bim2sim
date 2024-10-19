@@ -1,21 +1,21 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../">
+<html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PluginComfort &mdash; bim2sim  0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
 
   
-      <script src="../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../_static/doctools.js?v=9a2dae69"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -121,7 +121,7 @@
            <div itemprop="articleBody">
              
   <section id="plugincomfort">
-<h1>PluginComfort<a class="headerlink" href="#plugincomfort" title="Link to this heading"></a></h1>
+<h1>PluginComfort<a class="headerlink" href="#plugincomfort" title="Permalink to this heading"></a></h1>
 <p>The PluginComfort builds upon the <a class="reference internal" href="PluginEnergyPlus.html"><span class="doc std std-doc">PluginEnergyPlus</span></a> and
 adds data sets for clothing and activity degrees, as well as the implementation
 of ISO 7730 / Fanger, EN 15251 (outdated), EN 16798-1, and ASHRAE 55
@@ -132,22 +132,22 @@ provides details on the derivation of parameters for clothing and activity
 degrees which are included in the bim2sim_comfort/data/UseConditionsComfort.
 json template.</p>
 <section id="how-to-install">
-<h2>How to install?<a class="headerlink" href="#how-to-install" title="Link to this heading"></a></h2>
+<h2>How to install?<a class="headerlink" href="#how-to-install" title="Permalink to this heading"></a></h2>
 <p>Please follow the installation instructions of the <a class="reference internal" href="PluginEnergyPlus.html"><span class="doc std std-doc">PluginEnergyPlus
 </span></a>.</p>
 <section id="step-by-step">
-<h3>Step by step<a class="headerlink" href="#step-by-step" title="Link to this heading"></a></h3>
+<h3>Step by step<a class="headerlink" href="#step-by-step" title="Permalink to this heading"></a></h3>
 </section>
 <section id="trouble-shooting">
-<h3>Trouble Shooting<a class="headerlink" href="#trouble-shooting" title="Link to this heading"></a></h3>
+<h3>Trouble Shooting<a class="headerlink" href="#trouble-shooting" title="Permalink to this heading"></a></h3>
 <p>For python &gt; 3.9: make sure that the correct geomeppy is installed (using requirements.txt in the plugin): in this fork of geomeppy, we fixed the imports working from python &gt;= 3.10: https://github.com/BIM2SIM/geomeppy/tree/fix_dependencies</p>
 </section>
 <section id="test-install">
-<h3>Test install<a class="headerlink" href="#test-install" title="Link to this heading"></a></h3>
+<h3>Test install<a class="headerlink" href="#test-install" title="Permalink to this heading"></a></h3>
 </section>
 </section>
 <section id="structure-of-the-plugin">
-<h2>Structure of the plugin<a class="headerlink" href="#structure-of-the-plugin" title="Link to this heading"></a></h2>
+<h2>Structure of the plugin<a class="headerlink" href="#structure-of-the-plugin" title="Permalink to this heading"></a></h2>
 <p>The structure of the plugin extends the structure of the <a class="reference internal" href="PluginEnergyPlus.html"><span class="doc std std-doc">PluginEnergyPlus
 </span></a>. After the general bim2sim BPS preprocessing, the
 general EnergyPlus setup (IDF setup) is followed by the <a class="reference internal" href="#comf-comfort-settings"><span class="std std-ref">ComfortSettings
@@ -163,9 +163,9 @@ follows, as well of the plotting of the results ([PlotComfortResults]
 </ul>
 </section>
 <section id="comfort-specific-tasks">
-<span id="id1"></span><h2>Comfort specific tasks<a class="headerlink" href="#comfort-specific-tasks" title="Link to this heading"></a></h2>
+<span id="id1"></span><h2>Comfort specific tasks<a class="headerlink" href="#comfort-specific-tasks" title="Permalink to this heading"></a></h2>
 <section id="add-comfort-settings">
-<h3>Add Comfort Settings<a class="headerlink" href="#add-comfort-settings" title="Link to this heading"></a></h3>
+<h3>Add Comfort Settings<a class="headerlink" href="#add-comfort-settings" title="Permalink to this heading"></a></h3>
 <p id="comf-comfort-settings"><a class="reference internal" href="#ComfortSettings"><span class="xref myst">Go to ComfortSettings</span></a></p>
 <p>As this plugin for thermal comfort application bases on the <a class="reference internal" href="PluginEnergyPlus.html"><span class="doc std std-doc">PluginEnergyPlus
 </span></a>, the comfort settings extend and update the already
@@ -188,13 +188,13 @@ EnergyPlus input file (IDF) is cleaned from possible duplicate names and zone
 references, which increases the robustness of the EnergyPlus simulation.</p>
 </section>
 <section id="create-result-dataframe-for-comfort-analysis">
-<h3>Create result dataframe for comfort analysis<a class="headerlink" href="#create-result-dataframe-for-comfort-analysis" title="Link to this heading"></a></h3>
+<h3>Create result dataframe for comfort analysis<a class="headerlink" href="#create-result-dataframe-for-comfort-analysis" title="Permalink to this heading"></a></h3>
 <p id="comf-result-df"><a class="reference internal" href="#CreateResultDF"><span class="xref myst">Go to CreateResultDF</span></a>
 This task creates a result dataframe in the same structure as the other
 plugins.</p>
 </section>
 <section id="plot-comfort-results">
-<h3>Plot comfort results<a class="headerlink" href="#plot-comfort-results" title="Link to this heading"></a></h3>
+<h3>Plot comfort results<a class="headerlink" href="#plot-comfort-results" title="Permalink to this heading"></a></h3>
 <p id="comf-plot-results"><a class="reference internal" href="#PlotComfortResults"><span class="xref myst">Go to PlotComfortResults</span></a>
 This task provides methods to visualize the thermal comfort results. The
 following plots are available:</p>
@@ -209,39 +209,39 @@ generated from the EnergyPlus output csv file, using the tool of your choice
 </section>
 </section>
 <section id="how-to-create-a-project">
-<h2>How to create a project?<a class="headerlink" href="#how-to-create-a-project" title="Link to this heading"></a></h2>
+<h2>How to create a project?<a class="headerlink" href="#how-to-create-a-project" title="Permalink to this heading"></a></h2>
 </section>
 <section id="how-to-load-an-ifc-file">
-<h2>How to load an IFC file?<a class="headerlink" href="#how-to-load-an-ifc-file" title="Link to this heading"></a></h2>
+<h2>How to load an IFC file?<a class="headerlink" href="#how-to-load-an-ifc-file" title="Permalink to this heading"></a></h2>
 </section>
 <section id="how-to-configure-my-project">
-<h2>How to configure my project?<a class="headerlink" href="#how-to-configure-my-project" title="Link to this heading"></a></h2>
+<h2>How to configure my project?<a class="headerlink" href="#how-to-configure-my-project" title="Permalink to this heading"></a></h2>
 <section id="simulation-settings">
-<h3>Simulation settings<a class="headerlink" href="#simulation-settings" title="Link to this heading"></a></h3>
+<h3>Simulation settings<a class="headerlink" href="#simulation-settings" title="Permalink to this heading"></a></h3>
 </section>
 <section id="configuration-file">
-<h3>Configuration file<a class="headerlink" href="#configuration-file" title="Link to this heading"></a></h3>
+<h3>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this heading"></a></h3>
 </section>
 <section id="default-tasks">
-<h3>Default tasks<a class="headerlink" href="#default-tasks" title="Link to this heading"></a></h3>
+<h3>Default tasks<a class="headerlink" href="#default-tasks" title="Permalink to this heading"></a></h3>
 </section>
 <section id="additional-templates">
-<h3>Additional templates<a class="headerlink" href="#additional-templates" title="Link to this heading"></a></h3>
+<h3>Additional templates<a class="headerlink" href="#additional-templates" title="Permalink to this heading"></a></h3>
 </section>
 </section>
 <section id="how-to-run-the-project">
-<h2>How to run the project?<a class="headerlink" href="#how-to-run-the-project" title="Link to this heading"></a></h2>
+<h2>How to run the project?<a class="headerlink" href="#how-to-run-the-project" title="Permalink to this heading"></a></h2>
 </section>
 <section id="how-to-run-the-simulation">
-<h2>How to run the simulation?<a class="headerlink" href="#how-to-run-the-simulation" title="Link to this heading"></a></h2>
+<h2>How to run the simulation?<a class="headerlink" href="#how-to-run-the-simulation" title="Permalink to this heading"></a></h2>
 </section>
 <section id="how-to-analyze-the-project">
-<h2>How to analyze the project?<a class="headerlink" href="#how-to-analyze-the-project" title="Link to this heading"></a></h2>
+<h2>How to analyze the project?<a class="headerlink" href="#how-to-analyze-the-project" title="Permalink to this heading"></a></h2>
 <section id="what-kind-of-results-exist">
-<h3>What kind of results exist?<a class="headerlink" href="#what-kind-of-results-exist" title="Link to this heading"></a></h3>
+<h3>What kind of results exist?<a class="headerlink" href="#what-kind-of-results-exist" title="Permalink to this heading"></a></h3>
 </section>
 <section id="what-programs-tools-to-use-for-further-analysis">
-<h3>What programs/tools to use for further analysis?<a class="headerlink" href="#what-programs-tools-to-use-for-further-analysis" title="Link to this heading"></a></h3>
+<h3>What programs/tools to use for further analysis?<a class="headerlink" href="#what-programs-tools-to-use-for-further-analysis" title="Permalink to this heading"></a></h3>
 </section>
 </section>
 </section>

@@ -1,21 +1,21 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../">
+<html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Testing &mdash; bim2sim  0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
 
   
-      <script src="../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../_static/doctools.js?v=9a2dae69"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -93,16 +93,16 @@
            <div itemprop="articleBody">
              
   <section id="testing">
-<h1>Testing<a class="headerlink" href="#testing" title="Link to this heading"></a></h1>
+<h1>Testing<a class="headerlink" href="#testing" title="Permalink to this heading"></a></h1>
 <p>The ´bim2sim´ repository includes a multi-stage testing setup to ensure
 its functionality.</p>
 <section id="unit-testing">
-<h2>Unit Testing<a class="headerlink" href="#unit-testing" title="Link to this heading"></a></h2>
+<h2>Unit Testing<a class="headerlink" href="#unit-testing" title="Permalink to this heading"></a></h2>
 <p>Unit tests are used for testing individual functions. These tests can be
 executed very quickly and are not computationally intensive.</p>
 </section>
 <section id="integration-testing">
-<h2>Integration Testing<a class="headerlink" href="#integration-testing" title="Link to this heading"></a></h2>
+<h2>Integration Testing<a class="headerlink" href="#integration-testing" title="Permalink to this heading"></a></h2>
 <p>Integration tests are used within the individual plugins for testing the
 functionality of the package with different IFC models. These tests deal with
 large IFC models and are therefore take some time for computation, so you may
@@ -114,7 +114,7 @@ produced any changes in the results (use Regression Testing for this), but
 you can test if full simulation run works at all.</p>
 </section>
 <section id="regression-testing">
-<h2>Regression Testing<a class="headerlink" href="#regression-testing" title="Link to this heading"></a></h2>
+<h2>Regression Testing<a class="headerlink" href="#regression-testing" title="Permalink to this heading"></a></h2>
 <p>Regression tests are used for quality assurance when developing new features.
 Here, the simulation results of selected IFC models are compared to previous
 simulation results. If the simulated results do not match with the regression
@@ -123,7 +123,7 @@ changes in the results, such that the developer has to decide whether to update
 the new implementation or the regression results.</p>
 </section>
 <section id="run-tests-local">
-<h2>Run Tests Local<a class="headerlink" href="#run-tests-local" title="Link to this heading"></a></h2>
+<h2>Run Tests Local<a class="headerlink" href="#run-tests-local" title="Permalink to this heading"></a></h2>
 <p>To test mapping between IFC and our meta structure
 <a class="reference internal" href="../advanced-user-guide/concepts/elements.html#elements-structure"><span class="std std-ref">elements</span></a> as well as for Integration Testing
 we need to load IFC files into our tool. These IFC files can be quite big. To
@@ -168,7 +168,7 @@ path of dymola executable to the PATH environment variable (requirement of
 BuildingsPy)</p>
 </section>
 <section id="ci-cd">
-<h2>CI/CD<a class="headerlink" href="#ci-cd" title="Link to this heading"></a></h2>
+<h2>CI/CD<a class="headerlink" href="#ci-cd" title="Permalink to this heading"></a></h2>
 </section>
 </section>
 
