@@ -15,12 +15,17 @@ USER root
 
 # Install necessary packages and EnergyPlus
 RUN apt-get update && apt-get install -y ca-certificates curl libx11-6 libexpat1 \
-    && rm -rf /var/lib/apt/lists/* \
-    && curl -SLO $ENERGYPLUS_DOWNLOAD_URL \
-    && chmod +x $ENERGYPLUS_DOWNLOAD_FILENAME \
-    && echo "y\r" | ./$ENERGYPLUS_DOWNLOAD_FILENAME \
-    && rm $ENERGYPLUS_DOWNLOAD_FILENAME \
-    && cd /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -SLO $ENERGYPLUS_DOWNLOAD_URL
+
+RUN chmod +x $ENERGYPLUS_DOWNLOAD_FILENAME
+
+RUN echo "y\r" | ./$ENERGYPLUS_DOWNLOAD_FILENAME
+
+RUN rm $ENERGYPLUS_DOWNLOAD_FILENAME
+
+RUN cd /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION \
     && rm -rf DataSets Documentation ExampleFiles WeatherData MacroDataSets PostProcess/convertESOMTRpgm \
        PostProcess/EP-Compare PreProcess/FMUParser PreProcess/ParametricPreProcessor PreProcess/IDFVersionUpdater
 
