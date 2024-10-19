@@ -158,21 +158,21 @@ build:main:py3.11:
 test:py3.9:
   <<: *test_template
 #  image: $CI_REGISTRY/bim2sim:${CI_COMMIT_REF_SLUG}-py3.9-${CI_PIPELINE_IID}
-  image: $CI_REGISTRY/bim2sim:dev-py3.9-${CI_PIPELINE_IID}
+  image: $CI_REGISTRY/bim2sim:dev-py3.9
   variables:
     PYTHON_VERSION: "3.9"
 
 test:py3.10:
   <<: *test_template
 #  image: $CI_REGISTRY/bim2sim:${CI_COMMIT_REF_SLUG}-py3.10-${CI_PIPELINE_IID}
-  image: $CI_REGISTRY/bim2sim:dev-py3.10-${CI_PIPELINE_IID}
+  image: $CI_REGISTRY/bim2sim:dev-py3.10
   variables:
     PYTHON_VERSION: "3.10"
 
 test:py3.11:
   <<: *test_template
 #  image: $CI_REGISTRY/bim2sim:${CI_COMMIT_REF_SLUG}-py3.11-${CI_PIPELINE_IID}
-  image: $CI_REGISTRY/bim2sim:dev-py3.11-${CI_PIPELINE_IID}
+  image: $CI_REGISTRY/bim2sim:dev-py3.11
   variables:
     PYTHON_VERSION: "3.11"
 
