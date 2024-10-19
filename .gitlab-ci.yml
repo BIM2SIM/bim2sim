@@ -1,6 +1,8 @@
 stages:
-  - build-env
-  - test
+#  - build-env
+#  - test_base
+#  - test_integration
+  - test_regression
 #  - doc
 #  - code_quality
 #  - deploy
@@ -186,7 +188,7 @@ build:main:py3.11:
 
 # Tests
 .test_template_base: &test_template_base
-  stage: test
+  stage: test_base
   before_script:
     - eval "$(micromamba shell hook --shell bash)"
     - micromamba activate base
@@ -209,7 +211,7 @@ build:main:py3.11:
 #        path: coverage.xml
 
 .test_template_plugin_integration: &test_template_plugin_integration
-  stage: test
+  stage: test_integration
   before_script:
     - eval "$(micromamba shell hook --shell bash)"
     - micromamba activate base
@@ -224,6 +226,23 @@ build:main:py3.11:
     - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
     - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
     - coverage run -m unittest discover ~/bim2sim-coding/bim2sim/plugins/${plugin}/test/integration
+
+.test_template_plugin_regression: &test_template_plugin_regression
+  stage: test_regression
+  before_script:
+    - eval "$(micromamba shell hook --shell bash)"
+    - micromamba activate base
+  script:
+    - mkdir -p ~/bim2sim-coding/
+    - mv ./* ~/bim2sim-coding/
+    - cd ~/bim2sim-coding
+    - pip uninstall -y bim2sim
+    - pip install -e .[test]
+    - pip install -e .[$plugin]
+    - export BIM2SIM_LOG_LEVEL=ERROR
+    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
+    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+    - coverage run -m unittest discover ~/bim2sim-coding/bim2sim/plugins/${plugin}/test/regression
 #    - coverage report -i
 #    - coverage xml
 #  artifacts:
@@ -333,6 +352,27 @@ test_PluginLCA_integration:py3.11:
   image: $CI_REGISTRY/bim2sim:dev-py3.11
   variables:
     plugin: "PluginLCA"
+
+
+test_PluginTEASER_regression:py3.9:
+  <<: *test_template_plugin_regression
+  image: $CI_REGISTRY/bim2sim:dev-dymola-py3.9
+  variables:
+    plugin: "PluginTEASER"
+
+test_PluginTEASER_regression:py3.10:
+  <<: *test_template_plugin_regression
+  image: $CI_REGISTRY/bim2sim:dev-dymola-py3.10
+  variables:
+    plugin: "PluginTEASER"
+
+test_PluginTEASER_regression:py3.11:
+  <<: *test_template_plugin_regression
+  image: $CI_REGISTRY/bim2sim:dev-dymola-py3.11
+  variables:
+    plugin: "PluginTEASER"
+
+
 #
 #test_Base_new:
 # image: $CI_REGISTRY/base:development
