@@ -241,8 +241,10 @@ variables:
     - pip install -e .[$plugin]
     - export BIM2SIM_LOG_LEVEL=ERROR
     # TODO select files to download based on plugin
-    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new --with_regression
-    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new --with_regression
+#    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new --with_regression
+#    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new --with_regression
+#     TODO run this only for TEASER
+    - python ~/bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression/prepare_regression_tests.py
     # TODO for EP image install .idf file (see previous pipeline)
     # use  xvfb-run -n 77  command if dymola image is used
     - |
