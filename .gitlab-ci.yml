@@ -1,6 +1,6 @@
 stages:
-  - test_regression
   - build-env
+  - test_regression
 #  - test_base
 #  - test_integration
 #  - doc
@@ -65,6 +65,7 @@ variables:
     - docker build -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} --build-arg PYTHON_VERSION=${PYTHON_VERSION} .
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
     - docker push $CI_REGISTRY/bim2sim:$TAG
+
 #
 #
 ## Development branch builds
@@ -145,6 +146,48 @@ build:dev-dymola:py3.11:
         - micromambaDymola.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
+
+build:dev-energyplus:py3.9:
+  <<: *build_template
+  variables:
+    PYTHON_VERSION: "3.9"
+    TAG: dev-energyplus-py3.9
+    DOCKERFILE: micromambaEnergyPlus.Dockerfile
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
+      changes:
+        - micromambaEnergyPlus.Dockerfile
+        - pyproject.toml
+        - .gitlab-ci.yml
+
+build:dev-energyplus:py3.10:
+  <<: *build_template
+  variables:
+    PYTHON_VERSION: "3.10"
+    TAG: dev-energyplus-py3.10
+    DOCKERFILE: micromambaEnergyPlus.Dockerfile
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
+      changes:
+        - micromambaEnergyPlus.Dockerfile
+        - pyproject.toml
+        - .gitlab-ci.yml
+
+build:dev-energyplus:py3.11:
+  <<: *build_template
+  variables:
+    PYTHON_VERSION: "3.11"
+    TAG: dev-energyplus-py3.11
+    DOCKERFILE: micromambaEnergyPlus.Dockerfile
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
+      changes:
+        - micromambaEnergyPlus.Dockerfile
+        - pyproject.toml
+        - .gitlab-ci.yml
+
+
+
 #
 ## Main branch builds
 #build:main:py3.9:
@@ -247,7 +290,11 @@ build:dev-dymola:py3.11:
       else
         echo "Skipping regression test preparation for ${plugin}: File not found"
       fi
-    # TODO for EP image install .idf file (see previous pipeline)
+    # for EP image  create Minimal.idf file
+    - |
+      if [[ "$CI_JOB_IMAGE" == *"energyplus"* ]]; then
+        cat ~/bim2sim-coding/bim2sim/plugins/PluginEnergyPlus/data/Minimal.idf
+      fi
     # use  xvfb-run -n 77  command if dymola image is used
     # use set +e to make sure the pipeline does not stop when the job returns exit code 1
     - |
