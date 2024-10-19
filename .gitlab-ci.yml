@@ -78,7 +78,7 @@ build:dev:py3.9:
     PYTHON_VERSION: "3.9"
     TAG: dev-py3.9-$CI_PIPELINE_IID
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
       changes:
         - micromamba.Dockerfile
         - pyproject.toml
@@ -90,7 +90,7 @@ build:dev:py3.10:
     PYTHON_VERSION: "3.10"
     TAG: dev-py3.10-$CI_PIPELINE_IID
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
       changes:
         - micromamba.Dockerfile
         - pyproject.toml
@@ -102,7 +102,7 @@ build:dev:py3.11:
     PYTHON_VERSION: "3.11"
     TAG: dev-py3.11-$CI_PIPELINE_IID
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
       changes:
         - micromamba.Dockerfile
         - pyproject.toml
