@@ -196,16 +196,17 @@ build:main:py3.11:
     - cd ~/bim2sim-coding
     - pip uninstall -y bim2sim
     - pip install -e .[test]
+    - export BIM2SIM_LOG_LEVEL=ERROR
     - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
     - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
     - coverage run -m unittest discover ~/bim2sim-coding/test
 #    - coverage report -i
 #    - coverage xml
-  artifacts:
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage.xml
+#  artifacts:
+#    reports:
+#      coverage_report:
+#        coverage_format: cobertura
+#        path: coverage.xml
 
 .test_template_plugin_integration: &test_template_plugin_integration
   stage: test
@@ -219,16 +220,17 @@ build:main:py3.11:
     - pip uninstall -y bim2sim
     - pip install -e .[test]
     - pip install -e .[$plugin]
+    - export BIM2SIM_LOG_LEVEL=ERROR
     - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
     - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
     - coverage run -m unittest discover ~/bim2sim-coding/bim2sim/plugins/${plugin}/test/integration
 #    - coverage report -i
 #    - coverage xml
-  artifacts:
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: coverage.xml
+#  artifacts:
+#    reports:
+#      coverage_report:
+#        coverage_format: cobertura
+#        path: coverage.xml
 
 test_base:py3.9:
   <<: *test_template_base
@@ -278,6 +280,59 @@ test_PluginAixLib_integration:py3.11:
   variables:
     plugin: "PluginAixLib"
 
+test_PluginEnergyPlus_integration:py3.9:
+  <<: *test_template_plugin_integration
+  image: $CI_REGISTRY/bim2sim:dev-py3.9
+  variables:
+    plugin: "PluginEnergyPlus"
+
+test_PluginEnergyPlus_integration:py3.10:
+  <<: *test_template_plugin_integration
+  image: $CI_REGISTRY/bim2sim:dev-py3.10
+  variables:
+    plugin: "PluginEnergyPlus"
+
+test_PluginEnergyPlus_integration:py3.11:
+  <<: *test_template_plugin_integration
+  image: $CI_REGISTRY/bim2sim:dev-py3.11
+  variables:
+    plugin: "PluginEnergyPlus"
+
+test_PluginHKESim_integration:py3.9:
+  <<: *test_template_plugin_integration
+  image: $CI_REGISTRY/bim2sim:dev-py3.9
+  variables:
+    plugin: "PluginHKESim"
+
+test_PluginHKESim_integration:py3.10:
+  <<: *test_template_plugin_integration
+  image: $CI_REGISTRY/bim2sim:dev-py3.10
+  variables:
+    plugin: "PluginHKESim"
+
+test_PluginHKESim_integration:py3.11:
+  <<: *test_template_plugin_integration
+  image: $CI_REGISTRY/bim2sim:dev-py3.11
+  variables:
+    plugin: "PluginHKESim"
+
+test_PluginLCA_integration:py3.9:
+  <<: *test_template_plugin_integration
+  image: $CI_REGISTRY/bim2sim:dev-py3.9
+  variables:
+    plugin: "PluginLCA"
+
+test_PluginLCA_integration:py3.10:
+  <<: *test_template_plugin_integration
+  image: $CI_REGISTRY/bim2sim:dev-py3.10
+  variables:
+    plugin: "PluginLCA"
+
+test_PluginLCA_integration:py3.11:
+  <<: *test_template_plugin_integration
+  image: $CI_REGISTRY/bim2sim:dev-py3.11
+  variables:
+    plugin: "PluginLCA"
 #
 #test_Base_new:
 # image: $CI_REGISTRY/base:development
