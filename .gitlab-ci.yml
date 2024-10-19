@@ -22,8 +22,7 @@ variables:
   PYTHON_VERSIONS: "3.9 3.10 3.11"
 
 
-include:
-    - generated-config.yml
+#include:
 #  - project: 'EBC/EBC_all/gitlab_ci/templates'
 #    file: 'python/code-quality/pylint.gitlab-ci.yml'
 #  - project: 'EBC/EBC_all/gitlab_ci/templates'
@@ -76,75 +75,45 @@ include:
         coverage_format: cobertura
         path: coverage.xml
 
-.generate_jobs:
-  stage: .pre
+.base_test_template: &base_test_template
+  <<: *test_template
   script:
-    - |
-      echo "test_base_py3.9:
-        <<: *test_template
-        image: \$CI_REGISTRY/bim2sim:\${CI_COMMIT_REF_SLUG}-py3.9-\${CI_PIPELINE_IID}
-        variables:
-          PYTHON_VERSION: \"3.9\"
-        script:
-          - mkdir -p ~/bim2sim-coding/
-          - mv ./* ~/bim2sim-coding/
-          - cd ~/bim2sim-coding
-          - pip uninstall -y bim2sim
-          - pip install -e .[test]
-          - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-          - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-          - coverage run -m unittest discover ~/bim2sim-coding/test
-          - coverage report -i
-          - coverage xml
+    - mkdir -p ~/bim2sim-coding/
+    - mv ./* ~/bim2sim-coding/
+    - cd ~/bim2sim-coding
+    - pip uninstall -y bim2sim
+    - pip install -e .[test]
+    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
+    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+    - coverage run -m unittest discover ~/bim2sim-coding/test
+    - coverage report -i
+    - coverage xml
 
-      test_base_py3.10:
-        <<: *test_template
-        image: \$CI_REGISTRY/bim2sim:\${CI_COMMIT_REF_SLUG}-py3.10-\${CI_PIPELINE_IID}
-        variables:
-          PYTHON_VERSION: \"3.10\"
-        script:
-          - mkdir -p ~/bim2sim-coding/
-          - mv ./* ~/bim2sim-coding/
-          - cd ~/bim2sim-coding
-          - pip uninstall -y bim2sim
-          - pip install -e .[test]
-          - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-          - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-          - coverage run -m unittest discover ~/bim2sim-coding/test
-          - coverage report -i
-          - coverage xml
+test_base:
+  parallel:
+    matrix:
+      - PYTHON_VERSION: [3.9, 3.10, 3.11]
+  <<: *base_test_template
+  image: $CI_REGISTRY/bim2sim:${CI_COMMIT_REF_SLUG}-py${PYTHON_VERSION}-${CI_PIPELINE_IID}
 
-      test_base_py3.11:
-        <<: *test_template
-        image: \$CI_REGISTRY/bim2sim:\${CI_COMMIT_REF_SLUG}-py3.11-\${CI_PIPELINE_IID}
-        variables:
-          PYTHON_VERSION: \"3.11\"
-        script:
-          - mkdir -p ~/bim2sim-coding/
-          - mv ./* ~/bim2sim-coding/
-          - cd ~/bim2sim-coding
-          - pip uninstall -y bim2sim
-          - pip install -e .[test]
-          - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-          - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-          - coverage run -m unittest discover ~/bim2sim-coding/test
-          - coverage report -i
-          - coverage xml" > generated-config.yml
-    - |
-      for plugin in $PLUGINS; do
-        for version in $PYTHON_VERSIONS; do
-          echo "
-      test_${plugin,,}_py${version/./}:
-        <<: *test_template
-        image: \$CI_REGISTRY/bim2sim:\${CI_COMMIT_REF_SLUG}-py${version}-\${CI_PIPELINE_IID}
-        variables:
-          PYTHON_VERSION: \"${version}\"
-          PLUGIN: \"${plugin}\"" >> generated-config.yml
-        done
-      done
-  artifacts:
-    paths:
-      - generated-config.yml
+.plugin_test:
+  parallel:
+    matrix:
+      - PYTHON_VERSION: [3.9, 3.10, 3.11]
+      - PLUGIN:
+        - PluginTEASER
+        - PluginEnergyPlus
+        - PluginAixLib
+        - PluginCFD
+        - PluginHKESim
+        - PluginLCA
+  <<: *test_template
+  image: $CI_REGISTRY/bim2sim:${CI_COMMIT_REF_SLUG}-py${PYTHON_VERSION}-${CI_PIPELINE_IID}
+
+test_plugins:
+  extends: .plugin_test
+
+
 
 # Development branch builds
 build:dev:py3.9:
