@@ -37,7 +37,6 @@ variables:
 #    - python ./test/resources/dl_test_resources.py --domain=arch --force_new
 
 
-
 .build_template: &build_template
   image: docker:24.0.5
   stage: build-env
@@ -50,6 +49,21 @@ variables:
   script:
     - docker build -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} --build-arg PYTHON_VERSION=${PYTHON_VERSION} .
     - docker push $CI_REGISTRY/bim2sim:$TAG
+
+.build_template_dymola: &build_template_dymola
+  image: docker:24.0.5
+  stage: build-env
+  services:
+    - name: docker:24.0.5-dind
+      variables:
+        HEALTHCHECK_TCP_PORT: "2376"
+  before_script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA   # login dymola docker reg
+  script:
+    - docker build -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} --build-arg PYTHON_VERSION=${PYTHON_VERSION} .
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
+    - docker push $CI_REGISTRY/bim2sim:$TAG
+
 
 # Development branch builds
 build:dev:py3.9:
@@ -92,7 +106,7 @@ build:dev:py3.11:
         - .gitlab-ci.yml
 
 build:dev-dymola:py3.9:
-  <<: *build_template
+  <<: *build_template_dymola
   variables:
     PYTHON_VERSION: "3.9"
     TAG: dev-dymola-py3.9
@@ -105,7 +119,7 @@ build:dev-dymola:py3.9:
         - .gitlab-ci.yml
 
 build:dev-dymola:py3.10:
-  <<: *build_template
+  <<: *build_template_dymola
   variables:
     PYTHON_VERSION: "3.10"
     TAG: dev-dymola-py3.10
@@ -118,7 +132,7 @@ build:dev-dymola:py3.10:
         - .gitlab-ci.yml
 
 build:dev-dymola:py3.11:
-  <<: *build_template
+  <<: *build_template_dymola
   variables:
     PYTHON_VERSION: "3.11"
     TAG: dev-dymola-py3.11
