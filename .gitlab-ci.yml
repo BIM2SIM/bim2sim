@@ -240,8 +240,8 @@ variables:
     - pip install -e .[test]
     - pip install -e .[$plugin]
     - export BIM2SIM_LOG_LEVEL=ERROR
-    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new --with_regression
+    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new --with_regression
     # use  xvfb-run -n 77  command if dymola image is used
     - |
       if [[ "$CI_JOB_IMAGE" == *"dymola"* ]]; then
