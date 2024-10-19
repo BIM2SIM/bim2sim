@@ -242,7 +242,13 @@ variables:
     - export BIM2SIM_LOG_LEVEL=ERROR
     - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
     - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover ~/bim2sim-coding/bim2sim/plugins/${plugin}/test/regression
+    # use  xvfb-run -n 77  command if dymola image is used
+    - |
+      if [[ "$CI_JOB_IMAGE" == *"dymola"* ]]; then
+        xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/${plugin}/test/regression
+      else
+        coverage run -m unittest discover ~/bim2sim-coding/bim2sim/plugins/${plugin}/test/regression
+      fi
 ##    - coverage report -i
 ##    - coverage xml
 ##  artifacts:
