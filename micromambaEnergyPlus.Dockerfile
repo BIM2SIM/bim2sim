@@ -1,8 +1,6 @@
 ARG PYTHON_VERSION=3.9
 FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:dev-py${PYTHON_VERSION}
 
-RUN pip install --no-cache-dir '.[PluginEnergyPlus]' -i https://pypi.tuna.tsinghua.edu.cn/simple
-
 # EnergyPlus part
 ENV ENERGYPLUS_VERSION=9.4.0
 ENV ENERGYPLUS_TAG=v9.4.0
