@@ -52,181 +52,181 @@ variables:
     - docker build -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} --build-arg PYTHON_VERSION=${PYTHON_VERSION} .
     - docker push $CI_REGISTRY/bim2sim:$TAG
 
-.build_template_dymola: &build_template_dymola
-  image: docker:24.0.5
-  stage: build-env
-  services:
-    - name: docker:24.0.5-dind
-      variables:
-        HEALTHCHECK_TCP_PORT: "2376"
-  before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA   # login dymola docker reg
-  script:
-    - docker build -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} --build-arg PYTHON_VERSION=${PYTHON_VERSION} .
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
-    - docker push $CI_REGISTRY/bim2sim:$TAG
-
-
-# Development branch builds
-build:dev:py3.9:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.9"
-    TAG: dev-py3.9
-    DOCKERFILE: micromamba.Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
-      changes:
-        - micromamba.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dev:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: dev-py3.10
-    DOCKERFILE: micromamba.Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
-      changes:
-        - micromamba.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dev:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: dev-py3.11
-    DOCKERFILE: micromamba.Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
-      changes:
-        - micromamba.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dev-dymola:py3.9:
-  <<: *build_template_dymola
-  variables:
-    PYTHON_VERSION: "3.9"
-    TAG: dev-dymola-py3.9
-    DOCKERFILE: micromambaDymola.Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
-      changes:
-        - micromambaDymola.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dev-dymola:py3.10:
-  <<: *build_template_dymola
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: dev-dymola-py3.10
-    DOCKERFILE: micromambaDymola.Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
-      changes:
-        - micromambaDymola.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dev-dymola:py3.11:
-  <<: *build_template_dymola
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: dev-dymola-py3.11
-    DOCKERFILE: micromambaDymola.Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
-      changes:
-        - micromambaDymola.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-# Main branch builds
-build:main:py3.9:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.9"
-    TAG: main-py3.9
-    DOCKERFILE: micromamba.Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - micromamba.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:main:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: main-py3.10
-    DOCKERFILE: micromamba.Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - micromamba.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:main:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: main-py3.11
-    DOCKERFILE: micromamba.Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - micromamba.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-# Tests
-.test_template_base: &test_template_base
-  stage: test_base
-  before_script:
-    - eval "$(micromamba shell hook --shell bash)"
-    - micromamba activate base
-  script:
-    - mkdir -p ~/bim2sim-coding/
-    - mv ./* ~/bim2sim-coding/
-    - cd ~/bim2sim-coding
-    - pip uninstall -y bim2sim
-    - pip install -e .[test]
-    - export BIM2SIM_LOG_LEVEL=ERROR
-    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover ~/bim2sim-coding/test
-#    - coverage report -i
-#    - coverage xml
-#  artifacts:
-#    reports:
-#      coverage_report:
-#        coverage_format: cobertura
-#        path: coverage.xml
-
-.test_template_plugin_integration: &test_template_plugin_integration
-  stage: test_integration
-  before_script:
-    - eval "$(micromamba shell hook --shell bash)"
-    - micromamba activate base
-  script:
-    - mkdir -p ~/bim2sim-coding/
-    - mv ./* ~/bim2sim-coding/
-    - cd ~/bim2sim-coding
-    - pip uninstall -y bim2sim
-    - pip install -e .[test]
-    - pip install -e .[$plugin]
-    - export BIM2SIM_LOG_LEVEL=ERROR
-    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run -m unittest discover ~/bim2sim-coding/bim2sim/plugins/${plugin}/test/integration
-
+#.build_template_dymola: &build_template_dymola
+#  image: docker:24.0.5
+#  stage: build-env
+#  services:
+#    - name: docker:24.0.5-dind
+#      variables:
+#        HEALTHCHECK_TCP_PORT: "2376"
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA   # login dymola docker reg
+#  script:
+#    - docker build -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} --build-arg PYTHON_VERSION=${PYTHON_VERSION} .
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
+#    - docker push $CI_REGISTRY/bim2sim:$TAG
+#
+#
+## Development branch builds
+#build:dev:py3.9:
+#  <<: *build_template
+#  variables:
+#    PYTHON_VERSION: "3.9"
+#    TAG: dev-py3.9
+#    DOCKERFILE: micromamba.Dockerfile
+#  rules:
+#    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
+#      changes:
+#        - micromamba.Dockerfile
+#        - pyproject.toml
+#        - .gitlab-ci.yml
+#
+#build:dev:py3.10:
+#  <<: *build_template
+#  variables:
+#    PYTHON_VERSION: "3.10"
+#    TAG: dev-py3.10
+#    DOCKERFILE: micromamba.Dockerfile
+#  rules:
+#    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
+#      changes:
+#        - micromamba.Dockerfile
+#        - pyproject.toml
+#        - .gitlab-ci.yml
+#
+#build:dev:py3.11:
+#  <<: *build_template
+#  variables:
+#    PYTHON_VERSION: "3.11"
+#    TAG: dev-py3.11
+#    DOCKERFILE: micromamba.Dockerfile
+#  rules:
+#    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
+#      changes:
+#        - micromamba.Dockerfile
+#        - pyproject.toml
+#        - .gitlab-ci.yml
+#
+#build:dev-dymola:py3.9:
+#  <<: *build_template_dymola
+#  variables:
+#    PYTHON_VERSION: "3.9"
+#    TAG: dev-dymola-py3.9
+#    DOCKERFILE: micromambaDymola.Dockerfile
+#  rules:
+#    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
+#      changes:
+#        - micromambaDymola.Dockerfile
+#        - pyproject.toml
+#        - .gitlab-ci.yml
+#
+#build:dev-dymola:py3.10:
+#  <<: *build_template_dymola
+#  variables:
+#    PYTHON_VERSION: "3.10"
+#    TAG: dev-dymola-py3.10
+#    DOCKERFILE: micromambaDymola.Dockerfile
+#  rules:
+#    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
+#      changes:
+#        - micromambaDymola.Dockerfile
+#        - pyproject.toml
+#        - .gitlab-ci.yml
+#
+#build:dev-dymola:py3.11:
+#  <<: *build_template_dymola
+#  variables:
+#    PYTHON_VERSION: "3.11"
+#    TAG: dev-dymola-py3.11
+#    DOCKERFILE: micromambaDymola.Dockerfile
+#  rules:
+#    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
+#      changes:
+#        - micromambaDymola.Dockerfile
+#        - pyproject.toml
+#        - .gitlab-ci.yml
+#
+## Main branch builds
+#build:main:py3.9:
+#  <<: *build_template
+#  variables:
+#    PYTHON_VERSION: "3.9"
+#    TAG: main-py3.9
+#    DOCKERFILE: micromamba.Dockerfile
+#  rules:
+#    - if: '$CI_COMMIT_REF_NAME == "main"'
+#      changes:
+#        - micromamba.Dockerfile
+#        - pyproject.toml
+#        - .gitlab-ci.yml
+#
+#build:main:py3.10:
+#  <<: *build_template
+#  variables:
+#    PYTHON_VERSION: "3.10"
+#    TAG: main-py3.10
+#    DOCKERFILE: micromamba.Dockerfile
+#  rules:
+#    - if: '$CI_COMMIT_REF_NAME == "main"'
+#      changes:
+#        - micromamba.Dockerfile
+#        - pyproject.toml
+#        - .gitlab-ci.yml
+#
+#build:main:py3.11:
+#  <<: *build_template
+#  variables:
+#    PYTHON_VERSION: "3.11"
+#    TAG: main-py3.11
+#    DOCKERFILE: micromamba.Dockerfile
+#  rules:
+#    - if: '$CI_COMMIT_REF_NAME == "main"'
+#      changes:
+#        - micromamba.Dockerfile
+#        - pyproject.toml
+#        - .gitlab-ci.yml
+#
+## Tests
+#.test_template_base: &test_template_base
+#  stage: test_base
+#  before_script:
+#    - eval "$(micromamba shell hook --shell bash)"
+#    - micromamba activate base
+#  script:
+#    - mkdir -p ~/bim2sim-coding/
+#    - mv ./* ~/bim2sim-coding/
+#    - cd ~/bim2sim-coding
+#    - pip uninstall -y bim2sim
+#    - pip install -e .[test]
+#    - export BIM2SIM_LOG_LEVEL=ERROR
+#    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
+#    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+#    - coverage run -m unittest discover ~/bim2sim-coding/test
+##    - coverage report -i
+##    - coverage xml
+##  artifacts:
+##    reports:
+##      coverage_report:
+##        coverage_format: cobertura
+##        path: coverage.xml
+#
+#.test_template_plugin_integration: &test_template_plugin_integration
+#  stage: test_integration
+#  before_script:
+#    - eval "$(micromamba shell hook --shell bash)"
+#    - micromamba activate base
+#  script:
+#    - mkdir -p ~/bim2sim-coding/
+#    - mv ./* ~/bim2sim-coding/
+#    - cd ~/bim2sim-coding
+#    - pip uninstall -y bim2sim
+#    - pip install -e .[test]
+#    - pip install -e .[$plugin]
+#    - export BIM2SIM_LOG_LEVEL=ERROR
+#    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
+#    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
+#    - coverage run -m unittest discover ~/bim2sim-coding/bim2sim/plugins/${plugin}/test/integration
+#
 .test_template_plugin_regression: &test_template_plugin_regression
   stage: test_regression
   before_script:
@@ -243,115 +243,115 @@ build:main:py3.11:
     - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
     - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
     - coverage run -m unittest discover ~/bim2sim-coding/bim2sim/plugins/${plugin}/test/regression
-#    - coverage report -i
-#    - coverage xml
-#  artifacts:
-#    reports:
-#      coverage_report:
-#        coverage_format: cobertura
-#        path: coverage.xml
-
-test_base:py3.9:
-  <<: *test_template_base
-  image: $CI_REGISTRY/bim2sim:dev-py3.9
-
-test_base:py3.10:
-  <<: *test_template_base
-  image: $CI_REGISTRY/bim2sim:dev-py3.10
-
-test_base:py3.11:
-  <<: *test_template_base
-  image: $CI_REGISTRY/bim2sim:dev-py3.11
-
-test_PluginTEASER_integration:py3.9:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.9
-  variables:
-    plugin: "PluginTEASER"
-
-test_PluginTEASER_integration:py3.10:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.10
-  variables:
-    plugin: "PluginTEASER"
-
-test_PluginTEASER_integration:py3.11:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.11
-  variables:
-    plugin: "PluginTEASER"
-
-test_PluginAixLib_integration:py3.9:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.9
-  variables:
-    plugin: "PluginAixLib"
-
-test_PluginAixLib_integration:py3.10:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.10
-  variables:
-    plugin: "PluginAixLib"
-
-test_PluginAixLib_integration:py3.11:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.11
-  variables:
-    plugin: "PluginAixLib"
-
-test_PluginEnergyPlus_integration:py3.9:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.9
-  variables:
-    plugin: "PluginEnergyPlus"
-
-test_PluginEnergyPlus_integration:py3.10:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.10
-  variables:
-    plugin: "PluginEnergyPlus"
-
-test_PluginEnergyPlus_integration:py3.11:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.11
-  variables:
-    plugin: "PluginEnergyPlus"
-
-test_PluginHKESim_integration:py3.9:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.9
-  variables:
-    plugin: "PluginHKESim"
-
-test_PluginHKESim_integration:py3.10:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.10
-  variables:
-    plugin: "PluginHKESim"
-
-test_PluginHKESim_integration:py3.11:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.11
-  variables:
-    plugin: "PluginHKESim"
-
-test_PluginLCA_integration:py3.9:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.9
-  variables:
-    plugin: "PluginLCA"
-
-test_PluginLCA_integration:py3.10:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.10
-  variables:
-    plugin: "PluginLCA"
-
-test_PluginLCA_integration:py3.11:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.11
-  variables:
-    plugin: "PluginLCA"
+##    - coverage report -i
+##    - coverage xml
+##  artifacts:
+##    reports:
+##      coverage_report:
+##        coverage_format: cobertura
+##        path: coverage.xml
+#
+#test_base:py3.9:
+#  <<: *test_template_base
+#  image: $CI_REGISTRY/bim2sim:dev-py3.9
+#
+#test_base:py3.10:
+#  <<: *test_template_base
+#  image: $CI_REGISTRY/bim2sim:dev-py3.10
+#
+#test_base:py3.11:
+#  <<: *test_template_base
+#  image: $CI_REGISTRY/bim2sim:dev-py3.11
+#
+#test_PluginTEASER_integration:py3.9:
+#  <<: *test_template_plugin_integration
+#  image: $CI_REGISTRY/bim2sim:dev-py3.9
+#  variables:
+#    plugin: "PluginTEASER"
+#
+#test_PluginTEASER_integration:py3.10:
+#  <<: *test_template_plugin_integration
+#  image: $CI_REGISTRY/bim2sim:dev-py3.10
+#  variables:
+#    plugin: "PluginTEASER"
+#
+#test_PluginTEASER_integration:py3.11:
+#  <<: *test_template_plugin_integration
+#  image: $CI_REGISTRY/bim2sim:dev-py3.11
+#  variables:
+#    plugin: "PluginTEASER"
+#
+#test_PluginAixLib_integration:py3.9:
+#  <<: *test_template_plugin_integration
+#  image: $CI_REGISTRY/bim2sim:dev-py3.9
+#  variables:
+#    plugin: "PluginAixLib"
+#
+#test_PluginAixLib_integration:py3.10:
+#  <<: *test_template_plugin_integration
+#  image: $CI_REGISTRY/bim2sim:dev-py3.10
+#  variables:
+#    plugin: "PluginAixLib"
+#
+#test_PluginAixLib_integration:py3.11:
+#  <<: *test_template_plugin_integration
+#  image: $CI_REGISTRY/bim2sim:dev-py3.11
+#  variables:
+#    plugin: "PluginAixLib"
+#
+#test_PluginEnergyPlus_integration:py3.9:
+#  <<: *test_template_plugin_integration
+#  image: $CI_REGISTRY/bim2sim:dev-py3.9
+#  variables:
+#    plugin: "PluginEnergyPlus"
+#
+#test_PluginEnergyPlus_integration:py3.10:
+#  <<: *test_template_plugin_integration
+#  image: $CI_REGISTRY/bim2sim:dev-py3.10
+#  variables:
+#    plugin: "PluginEnergyPlus"
+#
+#test_PluginEnergyPlus_integration:py3.11:
+#  <<: *test_template_plugin_integration
+#  image: $CI_REGISTRY/bim2sim:dev-py3.11
+#  variables:
+#    plugin: "PluginEnergyPlus"
+#
+#test_PluginHKESim_integration:py3.9:
+#  <<: *test_template_plugin_integration
+#  image: $CI_REGISTRY/bim2sim:dev-py3.9
+#  variables:
+#    plugin: "PluginHKESim"
+#
+#test_PluginHKESim_integration:py3.10:
+#  <<: *test_template_plugin_integration
+#  image: $CI_REGISTRY/bim2sim:dev-py3.10
+#  variables:
+#    plugin: "PluginHKESim"
+#
+#test_PluginHKESim_integration:py3.11:
+#  <<: *test_template_plugin_integration
+#  image: $CI_REGISTRY/bim2sim:dev-py3.11
+#  variables:
+#    plugin: "PluginHKESim"
+#
+#test_PluginLCA_integration:py3.9:
+#  <<: *test_template_plugin_integration
+#  image: $CI_REGISTRY/bim2sim:dev-py3.9
+#  variables:
+#    plugin: "PluginLCA"
+#
+#test_PluginLCA_integration:py3.10:
+#  <<: *test_template_plugin_integration
+#  image: $CI_REGISTRY/bim2sim:dev-py3.10
+#  variables:
+#    plugin: "PluginLCA"
+#
+#test_PluginLCA_integration:py3.11:
+#  <<: *test_template_plugin_integration
+#  image: $CI_REGISTRY/bim2sim:dev-py3.11
+#  variables:
+#    plugin: "PluginLCA"
 
 
 test_PluginTEASER_regression:py3.9:
