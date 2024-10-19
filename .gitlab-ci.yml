@@ -33,6 +33,14 @@ include:
 #    file: 'python/tests/coverage.gitlab-ci.yml'
 
 # This is a workaround to download the test files by overwriting the utils method from original CI testing of EBC
+.install_local_repository:
+  script:
+    # TODO make this conditional
+    # if stage is doc, we need to install documentation specific dependencies
+    - pip install -e .[docu]
+#    - python ./test/resources/dl_test_resources.py --domain=hydraulic --force_new
+#    - python ./test/resources/dl_test_resources.py --domain=arch --force_new
+
 #.install_local_repository:
 #  script:
 #    - python ./test/resources/dl_test_resources.py --domain=hydraulic --force_new
