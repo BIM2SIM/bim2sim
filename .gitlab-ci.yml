@@ -1,8 +1,8 @@
 stages:
+  - test_regression
   - build-env
 #  - test_base
 #  - test_integration
-  - test_regression
 #  - doc
 #  - code_quality
 #  - deploy
@@ -230,12 +230,7 @@ build:dev-dymola:py3.11:
 .test_template_plugin_regression: &test_template_plugin_regression
   stage: test_regression
   before_script:
-    - sudo mkdir -p /home/mambauser/.dassaultsystemes/dymola/
-    - sudo cp /root/.dassaultsystemes/dymola/dymola.lic /home/mambauser/.dassaultsystemes/dymola/
-    - sudo cp /root/.dassaultsystemes/dymola/setup.dymx /home/mambauser/.dassaultsystemes/dymola/
-    - sudo chown -R mambauser:mambauser /home/mambauser/.dassaultsystemes
-    - export DYMOLA_RUNTIME_LICENSE=/home/mambauser/.dassaultsystemes/dymola/dymola.lic
-    - export DYNASIM_LICENSE_FILE=/home/mambauser/.dassaultsystemes/dymola/setup.dymx
+    - export DYMOLA_RUNTIME_LICENSE="ANY 50064@license2.rz.rwth-aachen.de"
     - eval "$(micromamba shell hook --shell bash)"
     - micromamba activate base
   script:
