@@ -1,11 +1,11 @@
 stages:
+  - doc
+  - deploy
+  - code_quality
   - test_regression
   - build-env
 #  - test_base
 #  - test_integration
-#  - doc
-#  - code_quality
-#  - deploy
 #  - build-env-plugins
 #  - build-tool
 
@@ -13,7 +13,7 @@ variables:
   # TODO variable inside variable seems not be working on our gitlab instance,
   # see post below, therefore use hardcoded image here for sphinx job
   # https://stackoverflow.com/questions/67005507/variable-inside-variable-gitlab-ci
-#  PYTHON_VERSION: "registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/environment:development"
+  PYTHON_VERSION: "registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:dev-py3.11"
 #  PYTHON_VERSION: "${CI_REGISTRY}/environment:development"
   GIT_SUBMODULE_STRATEGY: recursive
   GH_REPO_URL: "git@github.com:BIM2SIM/bim2sim.git"
@@ -22,13 +22,13 @@ variables:
   TEST_PATH: test
 
 
-#include:
-#  - project: 'EBC/EBC_all/gitlab_ci/templates'
-#    file: 'python/code-quality/pylint.gitlab-ci.yml'
-#  - project: 'EBC/EBC_all/gitlab_ci/templates'
-#    file: 'python/doc/sphinxdoc.gitlab-ci.yml'
-#  - project: 'EBC/EBC_all/gitlab_ci/templates'
-#    file: 'pages/gh-pages.gitlab-ci.yml'
+include:
+  - project: 'EBC/EBC_all/gitlab_ci/templates'
+    file: 'python/code-quality/pylint.gitlab-ci.yml'
+  - project: 'EBC/EBC_all/gitlab_ci/templates'
+    file: 'python/doc/sphinxdoc.gitlab-ci.yml'
+  - project: 'EBC/EBC_all/gitlab_ci/templates'
+    file: 'pages/gh-pages.gitlab-ci.yml'
 #  - project: 'EBC/EBC_all/gitlab_ci/templates'
 #    file: 'python/tests/coverage.gitlab-ci.yml'
 
@@ -65,6 +65,20 @@ variables:
     - docker build -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} --build-arg PYTHON_VERSION=${PYTHON_VERSION} .
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
     - docker push $CI_REGISTRY/bim2sim:$TAG
+
+# docu branch builds (image to build documentation needs extra requirements)
+#build:dev-docu:py3.11:
+#  <<: *build_template
+#  variables:
+#    PYTHON_VERSION: "3.11"
+#    TAG: dev-docu-py3.11
+#    DOCKERFILE: micromamba.Dockerfile
+#  rules:
+#    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
+#      changes:
+#        - micromamba.Dockerfile
+#        - pyproject.toml
+#        - .gitlab-ci.yml
 
 # Development branch builds
 build:dev:py3.9:
@@ -185,8 +199,6 @@ build:dev-energyplus:py3.11:
         - micromambaEnergyPlus.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
-
-
 
 #
 ## Main branch builds
