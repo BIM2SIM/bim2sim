@@ -23,10 +23,10 @@ ENV MAMBA_EXE="/bin/micromamba"
 # copy license from dymola docker
 RUN mkdir -p /home/$MAMBA_USER/.dassaultsystemes/dymola/
 COPY /root/.dassaultsystemes/dymola/dymola.lic /home/$MAMBA_USER/.dassaultsystemes/dymola/dymola.lic
-COPY /root/.dassaultsystemes/dymola/setup.dymx /home/$MAMBA_USER/.dassaultsystemes/dymola/setup.dymx
+#COPY /root/.dassaultsystemes/dymola/setup.dymx /home/$MAMBA_USER/.dassaultsystemes/dymola/setup.dymx
 RUN chown -R $MAMBA_USER:$MAMBA_USER /home/$MAMBA_USER/.dassaultsystemes
 ENV DYMOLA_RUNTIME_LICENSE=/home/$MAMBA_USER/.dassaultsystemes/dymola/dymola.lic
-ENV DYNASIM_LICENSE_FILE=/home/$MAMBA_USER/.dassaultsystemes/dymola/setup.dymx
+#ENV DYNASIM_LICENSE_FILE=/home/$MAMBA_USER/.dassaultsystemes/dymola/setup.dymx
 
 COPY --from=micromamba "$MAMBA_EXE" "$MAMBA_EXE"
 COPY --from=micromamba /usr/local/bin/_activate_current_env.sh /usr/local/bin/_activate_current_env.sh
