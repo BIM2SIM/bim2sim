@@ -37,6 +37,8 @@ include:
   script:
     # TODO make this conditional
     # if stage is doc, we need to install documentation specific dependencies
+    - eval "$(micromamba shell hook --shell bash)"
+    - micromamba activate base
     - pip install -e .[docu]
 #    - python ./test/resources/dl_test_resources.py --domain=hydraulic --force_new
 #    - python ./test/resources/dl_test_resources.py --domain=arch --force_new
