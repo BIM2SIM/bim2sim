@@ -230,7 +230,6 @@ build:dev-dymola:py3.11:
 .test_template_plugin_regression: &test_template_plugin_regression
   stage: test_regression
   before_script:
-    - export DYMOLA_RUNTIME_LICENSE="ANY 50064@license2.rz.rwth-aachen.de"
     - eval "$(micromamba shell hook --shell bash)"
     - micromamba activate base
   script:
@@ -241,11 +240,13 @@ build:dev-dymola:py3.11:
     - pip install -e .[test]
     - pip install -e .[$plugin]
     - export BIM2SIM_LOG_LEVEL=ERROR
-    # TODO select files to download based on plugin
-#    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new --with_regression
-#    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new --with_regression
-#     TODO run this only for TEASER
-    - python ~/bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression/prepare_regression_tests.py
+    # perform prepare_regression_tests if it exists
+    - |
+      if [ -f ~/bim2sim-coding/bim2sim/plugins/${plugin}/test/regression/prepare_regression_tests.py ]; then
+        python ~/bim2sim-coding/bim2sim/plugins/${plugin}/test/regression/prepare_regression_tests.py
+      else
+        echo "Skipping regression test preparation for ${plugin}: File not found"
+      fi
     # TODO for EP image install .idf file (see previous pipeline)
     # use  xvfb-run -n 77  command if dymola image is used
     # use set +e to make sure the pipeline does not stop when the job returns exit code 1
@@ -258,23 +259,13 @@ build:dev-dymola:py3.11:
       fi
       test_exit_code=$?
       set -e
-    - ls -la ./
     - mkdir -p /builds/EBC/EBC_all/github_ci/bim2sim/logs/
     - cp *.log /builds/EBC/EBC_all/github_ci/bim2sim/logs/ || true
-    - ls -la /builds/EBC/EBC_all/github_ci/bim2sim
-    - ls -la /builds/EBC/EBC_all/github_ci/bim2sim/logs
     - exit $test_exit_code
   artifacts:
     when: always
     paths:
-      - bim2sim/logs/*
       - logs/*
-  #    - logs/*
-  #    - logs/failed-simulator-dymola.log
-      - /builds/EBC/EBC_all/github_ci/bim2sim/logs/*
-  #    - bim2sim-coding/simulator-dymola.log
-  #    - bim2sim-coding/comparison-dymola.log
-  #    - bim2sim-coding/unitTests-dymola.log
 ##    - coverage report -i
 ##    - coverage xml
 ##  artifacts:
