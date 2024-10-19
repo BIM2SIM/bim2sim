@@ -1,6 +1,6 @@
 stages:
-  - test
   - build-env
+  - test
 #  - doc
 #  - code_quality
 #  - deploy
