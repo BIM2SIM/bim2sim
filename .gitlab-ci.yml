@@ -199,8 +199,8 @@ build:main:py3.11:
     - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
     - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
     - coverage run -m unittest discover ~/bim2sim-coding/test
-    - coverage report -i
-    - coverage xml
+#    - coverage report -i
+#    - coverage xml
   artifacts:
     reports:
       coverage_report:
@@ -222,8 +222,8 @@ build:main:py3.11:
     - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
     - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
     - coverage run -m unittest discover ~/bim2sim-coding/bim2sim/plugins/${plugin}/test/integration
-    - coverage report -i
-    - coverage xml
+#    - coverage report -i
+#    - coverage xml
   artifacts:
     reports:
       coverage_report:
