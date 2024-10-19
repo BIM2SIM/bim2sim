@@ -1,6 +1,6 @@
 stages:
-  - build-env
   - test_regression
+  - build-env
 #  - test_base
 #  - test_integration
 #  - doc
@@ -442,6 +442,23 @@ test_PluginTEASER_regression:py3.11:
   variables:
     plugin: "PluginTEASER"
 
+test_PluginEnergyPlus_regression:py3.9:
+  <<: *test_template_plugin_regression
+  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.9
+  variables:
+    plugin: "PluginEnergyPlus"
+
+test_PluginEnergyPlus_regression:py3.10:
+  <<: *test_template_plugin_regression
+  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.10
+  variables:
+    plugin: "PluginEnergyPlus"
+
+test_PluginEnergyPlus_regression:py3.11:
+  <<: *test_template_plugin_regression
+  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.11
+  variables:
+    plugin: "PluginEnergyPlus"
 
 #
 #test_Base_new:
