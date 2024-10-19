@@ -240,8 +240,10 @@ variables:
     - pip install -e .[test]
     - pip install -e .[$plugin]
     - export BIM2SIM_LOG_LEVEL=ERROR
+    # TODO select files to download based on plugin
     - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new --with_regression
     - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new --with_regression
+    # TODO for EP image install .idf file (see previous pipeline)
     # use  xvfb-run -n 77  command if dymola image is used
     - |
       if [[ "$CI_JOB_IMAGE" == *"dymola"* ]]; then
@@ -249,10 +251,13 @@ variables:
       else
         coverage run -m unittest discover ~/bim2sim-coding/bim2sim/plugins/${plugin}/test/regression
       fi
-     - mkdir /builds/EBC/EBC_all/github_ci/bim2sim/logs/
-     - cp *.log /builds/EBC/EBC_all/github_ci/bim2sim/logs/
-     - ls -la /builds/EBC/EBC_all/github_ci/bim2sim
-     - ls -la /builds/EBC/EBC_all/github_ci/bim2sim/logs
+    - |
+      if [[ "$CI_JOB_IMAGE" == *"dymola"* ]]; then
+        mkdir -p /builds/EBC/EBC_all/github_ci/bim2sim/logs/
+        cp *.log /builds/EBC/EBC_all/github_ci/bim2sim/logs/
+        ls -la /builds/EBC/EBC_all/github_ci/bim2sim
+        ls -la /builds/EBC/EBC_all/github_ci/bim2sim/logs
+      fi
   artifacts:
     paths:
   #    - logs/*
