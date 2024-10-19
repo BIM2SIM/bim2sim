@@ -54,7 +54,11 @@ RUN sed -i "s/python=.*/python=${PYTHON_VERSION}/" /tmp/env.yaml && \
     micromamba clean --all --yes
 
 # Copy files
-COPY --chown=$MAMBA_USER:$MAMBA_USER . .
+COPY . /app
+WORKDIR /app
+
+# Set permissions for the app directory
+RUN chown -R $MAMBA_USER:$MAMBA_USER /app
 
 ARG MAMBA_DOCKERFILE_ACTIVATE=1
 
