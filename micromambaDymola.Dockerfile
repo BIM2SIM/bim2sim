@@ -7,6 +7,9 @@ FROM registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola_2022
 
 USER root
 
+# Install CA certificates
+RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
+
 # if your image defaults to a non-root user, then you may want to make the
 # next 3 ARG commands match the values in your image. You can get the values
 # by running: docker run --rm -it my/image id -a
