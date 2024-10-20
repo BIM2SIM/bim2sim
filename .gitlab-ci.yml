@@ -1,11 +1,11 @@
 stages:
+  - build
   - Test Base
   - Test Plugin
   - Test Regression
   - doc
   - code_quality
   - deploy
-  - build
 
 
 variables:
@@ -40,13 +40,6 @@ include:
     - micromamba activate base
     - pip install -e .[docu]
 
-
-#.install_local_repository:
-#  script:
-#    - python ./test/resources/dl_test_resources.py --domain=hydraulic --force_new
-#    - python ./test/resources/dl_test_resources.py --domain=arch --force_new
-
-
 .build_template: &build_template
   image: docker:24.0.5
   stage: build
@@ -74,19 +67,6 @@ include:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
     - docker push $CI_REGISTRY/bim2sim:$TAG
 
-# docu branch builds (image to build documentation needs extra requirements)
-#build:dev-docu:py3.11:
-#  <<: *build_template
-#  variables:
-#    PYTHON_VERSION: "3.11"
-#    TAG: dev-docu-py3.11
-#    DOCKERFILE: micromamba.Dockerfile
-#  rules:
-#    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
-#      changes:
-#        - micromamba.Dockerfile
-#        - pyproject.toml
-#        - .gitlab-ci.yml
 
 # Development branch builds
 build:dev:py3.9:
