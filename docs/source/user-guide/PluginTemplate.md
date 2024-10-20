@@ -56,11 +56,13 @@ pip install -e '.'
 ```
 
 Now the base library installation is done. First check is to call the help
-method of bim2sim. When an overview of arguments are returned, the bim2sim base
-libraray is functional.
+method of bim2sim. When the version of bim2sim is returned, the bim2sim base
+libraray is functional. You can either run of these commands:
 
 ```shell
-python -m bim2sim -h
+python -m bim2sim -v
+
+bim2sim -v
 ```
 
 To use one of the bim2sim plugins, please follow their additional install steps.
