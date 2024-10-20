@@ -50,6 +50,8 @@ include:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
+    - echo "Building image with python version:"
+    - echo ${PYTHON_VERSION}
     - docker build -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} --build-arg PYTHON_VERSION=${PYTHON_VERSION} .
     - docker push $CI_REGISTRY/bim2sim:$TAG
 
@@ -63,6 +65,7 @@ include:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA   # login dymola docker reg
   script:
+    - echo "Building with Python version: ${PYTHON_VERSION}"
     - docker build -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} --build-arg PYTHON_VERSION=${PYTHON_VERSION} .
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
     - docker push $CI_REGISTRY/bim2sim:$TAG

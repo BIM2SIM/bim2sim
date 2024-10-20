@@ -7,6 +7,8 @@ ENV PYTHON_VERSION=${PYTHON_VERSION}
 # Copy the environment file
 COPY --chown=$MAMBA_USER:$MAMBA_USER env.yaml /tmp/env.yaml
 
+RUN echo "Python version argument: ${PYTHON_VERSION}"
+
 # Modify the env.yaml file to include the specified Python version
 RUN micromamba install -y -n base -c conda-forge -f /tmp/env.yaml python=${PYTHON_VERSION} --retry-clean-cache && \
     micromamba clean --all --yes
