@@ -363,7 +363,7 @@ combine-coverage:
     name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:python_3.11
   script:
     - pip install coverage
-    - coverage combine combined_coverage.dat coverage-data/
+    - coverage combine coverage-data/
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
     - coverage html -d $CI_COMMIT_REF_NAME/coverage
     - coverage-badge -o $CI_COMMIT_REF_NAME/coverage/badge.svg
