@@ -362,7 +362,11 @@ combine-coverage:
     name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:python_3.11
   script:
     - pip install coverage
-    - coverage combine reports/coverage-*.xml
+    - mkdir combined_coverage
+    - for file in reports/coverage-*.xml; do
+        coverage xml -o combined_coverage/$(basename $file) --data-file=$file;
+      done
+    - coverage combine combined_coverage/.coverage*
     - coverage xml -o coverage.xml
     - coverage report
   artifacts:
