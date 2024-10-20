@@ -4,6 +4,8 @@ As we implemented different plugins for each simulation we provide different
 docker images for. To simplify development we split images into `env.`
 and normal images, while `.env` only holds the needed requirements and the
 normal images holds the code as well. The structure is explained below:
+
+# TODO REWORK WITH NEW MICROMAMBA STRUCTURE
 ```{mermaid}
 graph TD;
 
