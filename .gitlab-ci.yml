@@ -73,19 +73,6 @@ include:
 
 
 # Development branch builds
-build:dev:py3.9:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.9"
-    TAG: dev-py3.9
-    DOCKERFILE: micromamba.Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
-      changes:
-        - micromamba.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
 build:dev:py3.10:
   <<: *build_template
   variables:
@@ -113,19 +100,6 @@ build:dev:py3.11:
         - .gitlab-ci.yml
 
 # Build dymola images
-build:dev-dymola:py3.9:
-  <<: *build_template_dymola
-  variables:
-    PYTHON_VERSION: "3.9"
-    TAG: dev-dymola-py3.9
-    DOCKERFILE: micromambaDymola.Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
-      changes:
-        - micromambaDymola.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
 build:dev-dymola:py3.10:
   <<: *build_template_dymola
   variables:
@@ -153,22 +127,6 @@ build:dev-dymola:py3.11:
         - .gitlab-ci.yml
 
 # Build EnergyPlus images
-build:dev-energyplus:py3.9:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.9"
-    TAG: dev-energyplus-py3.9
-    DOCKERFILE: micromambaEnergyPlus.Dockerfile
-  needs:
-    - build:dev:py3.9
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
-      changes:
-        - micromamba.Dockerfile
-        - micromambaEnergyPlus.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
 build:dev-energyplus:py3.10:
   <<: *build_template
   variables:
@@ -203,19 +161,6 @@ build:dev-energyplus:py3.11:
 
 
 # Main branch builds
-build:main:py3.9:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.9"
-    TAG: main-py3.9
-    DOCKERFILE: micromamba.Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - micromamba.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
 build:main:py3.10:
   <<: *build_template
   variables:
@@ -344,13 +289,6 @@ build:main:py3.11:
 
 # All tests are done with the dev image, as the code in fresh installed anyway, so only the micromamba environment and the occ version can change between dev and main
 # Unit tests for base
-py3.9:
-  <<: *test_template_base
-  image: $CI_REGISTRY/bim2sim:dev-py3.9
-  variables:
-    PYTHON_VERSION: "3.9"
-    COVERAGE: "false"
-
 py3.10:
   <<: *test_template_base
   image: $CI_REGISTRY/bim2sim:dev-py3.10
@@ -366,12 +304,6 @@ py3.11:
     COVERAGE: "true"
 
 # Integration tests
-PluginTEASER:py3.9:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.9
-  variables:
-    plugin: "PluginTEASER"
-
 PluginTEASER:py3.10:
   <<: *test_template_plugin_integration
   image: $CI_REGISTRY/bim2sim:dev-py3.10
@@ -383,12 +315,6 @@ PluginTEASER:py3.11:
   image: $CI_REGISTRY/bim2sim:dev-py3.11
   variables:
     plugin: "PluginTEASER"
-
-PluginAixLib:py3.9:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.9
-  variables:
-    plugin: "PluginAixLib"
 
 PluginAixLib:py3.10:
   <<: *test_template_plugin_integration
@@ -402,12 +328,6 @@ PluginAixLib:py3.11:
   variables:
     plugin: "PluginAixLib"
 
-PluginEnergyPlus:py3.9:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.9
-  variables:
-    plugin: "PluginEnergyPlus"
-
 PluginEnergyPlus:py3.10:
   <<: *test_template_plugin_integration
   image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.10
@@ -419,12 +339,6 @@ PluginEnergyPlus:py3.11:
   image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.11
   variables:
     plugin: "PluginEnergyPlus"
-
-PluginHKESim:py3.9:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.9
-  variables:
-    plugin: "PluginHKESim"
 
 PluginHKESim:py3.10:
   <<: *test_template_plugin_integration
@@ -438,12 +352,6 @@ PluginHKESim:py3.11:
   variables:
     plugin: "PluginHKESim"
 
-PluginLCA:py3.9:
-  <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.9
-  variables:
-    plugin: "PluginLCA"
-
 PluginLCA:py3.10:
   <<: *test_template_plugin_integration
   image: $CI_REGISTRY/bim2sim:dev-py3.10
@@ -456,13 +364,19 @@ PluginLCA:py3.11:
   variables:
     plugin: "PluginLCA"
 
-# Regression tests
-PluginTEASER_reg:py3.9:
-  <<: *test_template_plugin_regression
-  image: $CI_REGISTRY/bim2sim:dev-dymola-py3.9
+PluginComfort:py3.10:
+  <<: *test_template_plugin_integration
+  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.10
   variables:
-    plugin: "PluginTEASER"
+    plugin: "PluginComfort"
 
+PluginComfort:py3.11:
+  <<: *test_template_plugin_integration
+  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.11
+  variables:
+    plugin: "PluginComfort"
+
+# Regression tests
 PluginTEASER_reg:py3.10:
   <<: *test_template_plugin_regression
   image: $CI_REGISTRY/bim2sim:dev-dymola-py3.10
@@ -475,12 +389,6 @@ PluginTEASER_reg:py3.11:
   variables:
     plugin: "PluginTEASER"
 
-PluginEnergyPlus_reg:py3.9:
-  <<: *test_template_plugin_regression
-  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.9
-  variables:
-    plugin: "PluginEnergyPlus"
-
 PluginEnergyPlus_reg:py3.10:
   <<: *test_template_plugin_regression
   image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.10
@@ -492,3 +400,15 @@ PluginEnergyPlus_reg:py3.11:
   image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.11
   variables:
     plugin: "PluginEnergyPlus"
+
+PluginComfort_reg:py3.10:
+  <<: *test_template_plugin_regression
+  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.10
+  variables:
+    plugin: "PluginComfort"
+
+PluginComfort_reg:py3.11:
+  <<: *test_template_plugin_regression
+  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.11
+  variables:
+    plugin: "PluginComfort"
