@@ -364,6 +364,8 @@ combine-coverage:
   script:
     - pip install coverage
     - coverage combine coverage-data/
+    - ls -la
+    - ls -la coverage-data/
     - mkdir -p $CI_COMMIT_REF_NAME/coverage
     - coverage html -d $CI_COMMIT_REF_NAME/coverage
     - coverage-badge -o $CI_COMMIT_REF_NAME/coverage/badge.svg
