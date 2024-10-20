@@ -72,7 +72,7 @@ ENV PIP_DEFAULT_TIMEOUT=500
 COPY --chown=$MAMBA_USER:$MAMBA_USER . .
 
 # Install the package
-RUN pip install --no-cache-dir --user -e . -i https://pypi.tuna.tsinghua.edu.cn/simple
+RUN pip install --no-cache-dir --user -e .
 
 # Add .local/bin to PATH
 ENV PATH=/home/$MAMBA_USER/.local/bin:$PATH
