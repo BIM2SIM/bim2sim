@@ -132,7 +132,7 @@ build:dev-PluginEnergyPlus:py3.10:
     TAG: dev-PluginEnergyPlus-py3.10
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
   needs:
-    - build:dev-energyplus:py3.10
+    - build:dev:py3.10
   rules:
     - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
       changes:
@@ -148,7 +148,7 @@ build:dev-PluginEnergyPlus:py3.11:
     TAG: dev-PluginEnergyPlus-py3.11
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
   needs:
-    - build:dev-energyplus:py3.11
+    - build:dev:py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
       changes:
