@@ -403,19 +403,19 @@ PluginAixLib_int:py3.11:
 
 PluginEnergyPlus_int:py3.9:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.9
+  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.9
   variables:
     plugin: "PluginEnergyPlus"
 
 PluginEnergyPlus_int:py3.10:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.10
+  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.10
   variables:
     plugin: "PluginEnergyPlus"
 
 PluginEnergyPlus_int:py3.11:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.11
+  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.11
   variables:
     plugin: "PluginEnergyPlus"
 
