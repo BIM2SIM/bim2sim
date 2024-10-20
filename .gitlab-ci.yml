@@ -269,9 +269,13 @@ build:dev-energyplus:py3.11:
     - |
       if [ "$COVERAGE" = "true" ]; then
         coverage run -m unittest discover ~/bim2sim-coding/test
-        mkdir -p $CI_COMMIT_REF_NAME/coverage
-        coverage html -d $CI_COMMIT_REF_NAME/coverage
-        coverage-badge -o $CI_COMMIT_REF_NAME/coverage/badge.svg
+        mkdir -p /builds/EBC/EBC_all/github_ci/bim2sim/$CI_COMMIT_REF_NAME/coverage
+        coverage html -d /builds/EBC/EBC_all/github_ci/bim2sim/$CI_COMMIT_REF_NAME/coverage
+        coverage-badge -o /builds/EBC/EBC_all/github_ci/bim2sim/$CI_COMMIT_REF_NAME/coverage/badge.svg
+        ls -la /builds/EBC/EBC_all/github_ci/bim2sim/$CI_COMMIT_REF_NAME/
+        ls -la /builds/EBC/EBC_all/github_ci/bim2sim/$CI_COMMIT_REF_NAME/coverage
+        ls -la $CI_COMMIT_REF_NAME/
+        ls -la $CI_COMMIT_REF_NAME/coverage
       else
         python -m unittest discover ~/bim2sim-coding/test
       fi
