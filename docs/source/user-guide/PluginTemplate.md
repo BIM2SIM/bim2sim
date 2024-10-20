@@ -96,11 +96,18 @@ For more plugin-specific trouble shooting please have a look at the individual i
 
 
 ### Docker
-We already create docker images for each the base `bim2sim` tool as for every
-Plugin, but currently these are only available through our own registry. You can
-still build the images yourself based on the existing Dockerfiles. As our
-current structure is a bit complicated, please have a look at the explanation of
-the [Docker Structure](docker_structure).
+Docker images for `bim2sim` are currently available through our private registry.
+However, you can build these images yourself using the provided Dockerfiles. 
+We offer images for multiple Python versions, each based on micromamba to 
+install PythonOCC, a required package not available through PyPI.
+
+For each Python version, we provide two types of images:
+* A base image with essential dependencies
+* An extended image that includes pre-installed EnergyPlus for running EP simulations
+
+Regarding Dymola, we can't publicly distribute an image due to licensing 
+restrictions. However, you're welcome to build your own using our Dockerfile 
+as a starting point.
 
 We will release the images on DockerHub soon to make them accessible for
 everyone (see [issuue 452](https://github.com/BIM2SIM/bim2sim/issues/452)). 
