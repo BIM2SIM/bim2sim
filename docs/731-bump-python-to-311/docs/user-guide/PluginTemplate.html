@@ -216,11 +216,18 @@ bim2sim<span class="w"> </span>-v
 </section>
 <section id="docker">
 <h3>Docker<a class="headerlink" href="#docker" title="Permalink to this heading"></a></h3>
-<p>We already create docker images for each the base <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> tool as for every
-Plugin, but currently these are only available through our own registry. You can
-still build the images yourself based on the existing Dockerfiles. As our
-current structure is a bit complicated, please have a look at the explanation of
-the <a class="reference internal" href="../developer-guide/docker-structure.html#docker-structure"><span class="std std-ref">Docker Structure</span></a>.</p>
+<p>Docker images for <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> are currently available through our private registry.
+However, you can build these images yourself using the provided Dockerfiles.
+We offer images for multiple Python versions, each based on micromamba to
+install PythonOCC, a required package not available through PyPI.</p>
+<p>For each Python version, we provide two types of images:</p>
+<ul class="simple">
+<li><p>A base image with essential dependencies</p></li>
+<li><p>An extended image that includes pre-installed EnergyPlus for running EP simulations</p></li>
+</ul>
+<p>Regarding Dymola, we can’t publicly distribute an image due to licensing
+restrictions. However, you’re welcome to build your own using our Dockerfile
+as a starting point.</p>
 <p>We will release the images on DockerHub soon to make them accessible for
 everyone (see <a class="reference external" href="https://github.com/BIM2SIM/bim2sim/issues/452">issuue 452</a>).</p>
 </section>
