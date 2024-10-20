@@ -163,8 +163,8 @@ version of <a class="reference external" href="https://github.com/mamba-org/mamb
 <li><p>install bim2sim and its dependencies</p></li>
 </ol>
 <p>We will guide you through the process now.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># create fresh python environment with conda </span>
-micromamba<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>bim2sim<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.10<span class="w"> </span>-c<span class="w"> </span>conda-forge
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># create fresh python environment with conda (python 3.9 to 3.11 are supported currently)</span>
+micromamba<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>bim2sim<span class="w"> </span><span class="nv">python</span><span class="o">=</span><span class="m">3</span>.11<span class="w"> </span>-c<span class="w"> </span>conda-forge
 <span class="c1"># activate your environment</span>
 micromamba<span class="w"> </span>activate<span class="w"> </span>bim2sim
 
@@ -183,9 +183,11 @@ pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </s
 </pre></div>
 </div>
 <p>Now the base library installation is done. First check is to call the help
-method of bim2sim. When an overview of arguments are returned, the bim2sim base
-libraray is functional.</p>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>bim2sim<span class="w"> </span>-h
+method of bim2sim. When the version of bim2sim is returned, the bim2sim base
+libraray is functional. You can either run of these commands:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>bim2sim<span class="w"> </span>-v
+
+bim2sim<span class="w"> </span>-v
 </pre></div>
 </div>
 <p>To use one of the bim2sim plugins, please follow their additional install steps.</p>

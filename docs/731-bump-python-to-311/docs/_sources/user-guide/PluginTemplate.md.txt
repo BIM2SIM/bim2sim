@@ -35,8 +35,8 @@ version of [mamba](https://github.com/mamba-org/mamba)) is used.
 
 We will guide you through the process now.
 ```shell
-# create fresh python environment with conda 
-micromamba create -n bim2sim python=3.10 -c conda-forge
+# create fresh python environment with conda (python 3.9 to 3.11 are supported currently)
+micromamba create -n bim2sim python=3.11 -c conda-forge
 # activate your environment
 micromamba activate bim2sim
 
@@ -56,11 +56,13 @@ pip install -e '.'
 ```
 
 Now the base library installation is done. First check is to call the help
-method of bim2sim. When an overview of arguments are returned, the bim2sim base
-libraray is functional.
+method of bim2sim. When the version of bim2sim is returned, the bim2sim base
+libraray is functional. You can either run of these commands:
 
 ```shell
-python -m bim2sim -h
+python -m bim2sim -v
+
+bim2sim -v
 ```
 
 To use one of the bim2sim plugins, please follow their additional install steps.
