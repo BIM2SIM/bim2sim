@@ -1,9 +1,8 @@
 stages:
 #  - doc
 #  - code_quality
-#  - deploy
   - test_base
-  - report
+  - deploy
   - build-env
   - test_regression
 #  - test_integration
@@ -28,8 +27,8 @@ include:
 #    file: 'python/code-quality/pylint.gitlab-ci.yml'
 #  - project: 'EBC/EBC_all/gitlab_ci/templates'
 #    file: 'python/doc/sphinxdoc.gitlab-ci.yml'
-#  - project: 'EBC/EBC_all/gitlab_ci/templates'
-#    file: 'pages/gh-pages.gitlab-ci.yml'
+  - project: 'EBC/EBC_all/gitlab_ci/templates'
+    file: 'pages/gh-pages.gitlab-ci.yml'
 #  - project: 'EBC/EBC_all/gitlab_ci/templates'
 #    file: 'python/tests/coverage.gitlab-ci.yml'
 
@@ -267,15 +266,21 @@ build:dev-energyplus:py3.11:
     - export BIM2SIM_LOG_LEVEL=ERROR
     - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
     - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
-    - coverage run --data-file=.coverage.$PYTHON_VERSION -m unittest discover ~/bim2sim-coding/test
+    - |
+      if [ "$COVERAGE" = "true" ]; then
+        coverage run -m unittest discover ~/bim2sim-coding/test
+        mkdir -p $CI_COMMIT_REF_NAME/coverage
+        coverage html -d $CI_COMMIT_REF_NAME/coverage
+        coverage-badge -o $CI_COMMIT_REF_NAME/coverage/badge.svg
+      else
+        python -m unittest discover ~/bim2sim-coding/test
+      fi
     - ls -la
-#    - coverage report -i
-#    - coverage -o .coverage.$PYTHON_VERSION
-    - mkdir -p /builds/EBC/EBC_all/github_ci/bim2sim/coverage-data/
-    - cp .coverage.$PYTHON_VERSION /builds/EBC/EBC_all/github_ci/bim2sim/coverage-data/ || true
   artifacts:
     paths:
-      - coverage-data/.coverage.$PYTHON_VERSION
+      - $CI_COMMIT_REF_NAME/coverage
+    expire_in: 2 hrs
+
 #
 #.test_template_plugin_integration: &test_template_plugin_integration
 #  stage: test_integration
@@ -344,40 +349,43 @@ test_base:py3.9:
   image: $CI_REGISTRY/bim2sim:dev-py3.9
   variables:
     PYTHON_VERSION: "3.9"
+    COVERAGE: "false"
 
 test_base:py3.10:
   <<: *test_template_base
   image: $CI_REGISTRY/bim2sim:dev-py3.10
   variables:
     PYTHON_VERSION: "3.10"
+    COVERAGE: "false"
 
 test_base:py3.11:
   <<: *test_template_base
   image: $CI_REGISTRY/bim2sim:dev-py3.11
   variables:
     PYTHON_VERSION: "3.11"
+    COVERAGE: "true"
 
-combine-coverage:
-  stage: report
-  image:
-    name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:python_3.11
-  script:
-    - pip install coverage
-    - coverage combine coverage-data/
-    - ls -la
-    - ls -la coverage-data/
-    - mkdir -p $CI_COMMIT_REF_NAME/coverage
-    - coverage html -d $CI_COMMIT_REF_NAME/coverage
-    - coverage-badge -o $CI_COMMIT_REF_NAME/coverage/badge.svg
-  artifacts:
-    paths:
-      - $CI_COMMIT_REF_NAME/coverage
-    expire_in: 2 hrs
-
-  needs:
-    - test_base:py3.9
-    - test_base:py3.10
-    - test_base:py3.11
+#combine-coverage:
+#  stage: report
+#  image:
+#    name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:python_3.11
+#  script:
+#    - pip install coverage
+#    - coverage combine coverage-data/
+#    - ls -la
+#    - ls -la coverage-data/
+#    - mkdir -p $CI_COMMIT_REF_NAME/coverage
+#    - coverage html -d $CI_COMMIT_REF_NAME/coverage
+#    - coverage-badge -o $CI_COMMIT_REF_NAME/coverage/badge.svg
+#  artifacts:
+#    paths:
+#      - $CI_COMMIT_REF_NAME/coverage
+#    expire_in: 2 hrs
+#
+#  needs:
+#    - test_base:py3.9
+#    - test_base:py3.10
+#    - test_base:py3.11
 
 #test_PluginTEASER_integration:py3.9:
 #  <<: *test_template_plugin_integration
