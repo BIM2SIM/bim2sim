@@ -362,7 +362,7 @@ combine-coverage:
     name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:python_3.11
   script:
     - pip install coverage
-    - coverage combine coverage-*.xml
+    - coverage combine reports/coverage-*.xml
     - coverage xml -o coverage.xml
     - coverage report
   artifacts:
