@@ -159,9 +159,12 @@ build:dev-energyplus:py3.9:
     PYTHON_VERSION: "3.9"
     TAG: dev-energyplus-py3.9
     DOCKERFILE: micromambaEnergyPlus.Dockerfile
+  needs:
+    - build:dev:py3.9
   rules:
     - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
       changes:
+        - micromamba.Dockerfile
         - micromambaEnergyPlus.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -172,9 +175,12 @@ build:dev-energyplus:py3.10:
     PYTHON_VERSION: "3.10"
     TAG: dev-energyplus-py3.10
     DOCKERFILE: micromambaEnergyPlus.Dockerfile
+  needs:
+    - build:dev:py3.10
   rules:
     - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
       changes:
+        - micromamba.Dockerfile
         - micromambaEnergyPlus.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -185,9 +191,12 @@ build:dev-energyplus:py3.11:
     PYTHON_VERSION: "3.11"
     TAG: dev-energyplus-py3.11
     DOCKERFILE: micromambaEnergyPlus.Dockerfile
+  needs:
+    - build:dev:py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
       changes:
+        - micromamba.Dockerfile
         - micromambaEnergyPlus.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
