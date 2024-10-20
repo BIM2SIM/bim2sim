@@ -33,7 +33,6 @@ include:
 # This is a workaround to download the test files by overwriting the utils method from original CI testing of EBC
 .install_local_repository:
   script:
-    # TODO make this conditional
     # if stage is doc, we need to install documentation specific dependencies
     - eval "$(micromamba shell hook --shell bash)"
     - micromamba activate base
@@ -98,10 +97,26 @@ build:dev-PluginAixLib:py3.10:
   <<: *build_template
   variables:
     PYTHON_VERSION: "3.10"
-    TAG: dev-PluginAixLib:py3.10
+    TAG: dev-PluginAixLib-py3.10
     DOCKERFILE: bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
   needs:
     - build:dev:py3.10
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
+      changes:
+        - Dockerfile
+        - bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
+        - pyproject.toml
+        - .gitlab-ci.yml
+
+build:dev-PluginAixLib:py3.11:
+  <<: *build_template
+  variables:
+    PYTHON_VERSION: "3.11"
+    TAG: dev-PluginAixLib-py3.11
+    DOCKERFILE: bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
+  needs:
+    - build:dev:py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "731-bump-python-to-311"'
       changes:
