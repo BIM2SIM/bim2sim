@@ -5,6 +5,9 @@ FROM mambaorg/micromamba:2.0.2 as micromamba
 # This is the image we are going add micromaba to:
 FROM registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola_2022
 
+# Redeclare the ARG after FROM
+ARG PYTHON_VERSION
+
 USER root
 
 # Install CA certificates
