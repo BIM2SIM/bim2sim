@@ -5,9 +5,8 @@ stages:
   - doc
   - code_quality
   - deploy
-  - build-env
-  - build-env-plugins
-  - build-tool
+  - build
+
 
 variables:
   # TODO variable inside variable seems not be working on our gitlab instance,
@@ -50,7 +49,7 @@ include:
 
 .build_template: &build_template
   image: docker:24.0.5
-  stage: build-env
+  stage: build
   services:
     - name: docker:24.0.5-dind
       variables:
@@ -63,7 +62,7 @@ include:
 
 .build_template_dymola: &build_template_dymola
   image: docker:24.0.5
-  stage: build-env
+  stage: build
   services:
     - name: docker:24.0.5-dind
       variables:
