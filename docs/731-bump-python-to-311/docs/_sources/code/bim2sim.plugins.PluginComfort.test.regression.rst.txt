@@ -9,6 +9,14 @@ bim2sim.plugins.PluginComfort.test.regression package
 Submodules
 ----------
 
+bim2sim.plugins.PluginComfort.test.regression.prepare\_regression\_tests module
+-------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginComfort.test.regression.prepare_regression_tests
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bim2sim.plugins.PluginComfort.test.regression.test\_comfort module
 ------------------------------------------------------------------
 
