@@ -24,4 +24,4 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 ENV PIP_DEFAULT_TIMEOUT=500
 
 # Install the package
-RUN pip install --no-cache-dir '.'
+RUN pip install --no-cache-dir '.' -i https://pypi.tuna.tsinghua.edu.cn/simple
