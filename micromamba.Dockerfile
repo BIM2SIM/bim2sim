@@ -1,4 +1,4 @@
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION
 FROM mambaorg/micromamba:2.0.2
 
 # Set the Python version as an environment variable

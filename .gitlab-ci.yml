@@ -52,7 +52,7 @@ include:
   script:
     - echo "Building image with python version:"
     - echo ${PYTHON_VERSION}
-    - docker build -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} --build-arg PYTHON_VERSION=${PYTHON_VERSION} .
+    - docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} .
     - docker push $CI_REGISTRY/bim2sim:$TAG
 
 .build_template_dymola: &build_template_dymola
@@ -67,7 +67,7 @@ include:
   script:
     - echo "Building dymola image with python version:"
     - echo ${PYTHON_VERSION}
-    - docker build -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} --build-arg PYTHON_VERSION=${PYTHON_VERSION} .
+    - docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} .
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
     - docker push $CI_REGISTRY/bim2sim:$TAG
 
