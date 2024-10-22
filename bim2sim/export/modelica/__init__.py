@@ -57,15 +57,20 @@ def help_package(path: Path, name: str, uses: str = None, within: str = None):
         path of Modelica package containing this package
     """
 
-    template_path_package = Path(bim2sim.__file__).parent / \
-                            "assets/templates/modelica/package"
+    # Create the directory if it doesn't exist
+    path.mkdir(parents=True, exist_ok=True)
+
+    # Define the path to the template and render the package.mo
+    template_path_package = (Path(bim2sim.__file__).parent /
+                             "assets/templates/modelica/package")
     package_template = Template(filename=str(template_path_package))
+    # Write the rendered template to 'package.mo' in the specified path
     with open(path / 'package.mo', 'w') as out_file:
         out_file.write(package_template.render_unicode(
             name=name,
             within=within,
             uses=uses))
-        out_file.close()
+        # out_file.close()
 
 
 def help_package_order(path: Path, package_list: List[str], addition=None,
@@ -224,11 +229,7 @@ class ModelicaModel:
         pkg_name = pkg_path.stem
         help_package(path=pkg_path, name=pkg_name,
                      within=pkg_path.parent.stem)
-        help_package_order(path=pkg_path, package_list=[
-            pkg_name,
-            # 'building_model',
-            # 'hvac_model'
-        ])
+        help_package_order(path=pkg_path, package_list=[pkg_name])
         self.save(pkg_path / pkg_name)
 
 

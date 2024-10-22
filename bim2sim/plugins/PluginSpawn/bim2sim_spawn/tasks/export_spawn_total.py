@@ -1,7 +1,5 @@
 import codecs
-import os
 from collections import defaultdict
-from datetime import datetime
 from pathlib import Path
 from threading import Lock
 from typing import List, Tuple, Optional, Dict
@@ -11,11 +9,11 @@ from mako.template import Template
 import bim2sim
 from bim2sim.elements.base_elements import ProductBased
 from bim2sim.elements.hvac_elements import HVACProduct
-from bim2sim.export import modelica
 from bim2sim.export.modelica import help_package, help_package_order, \
     ModelicaElement
 from bim2sim.plugins.PluginSpawn.bim2sim_spawn.models import to_modelica_spawn
 from bim2sim.tasks.base import ITask
+from bim2sim.tasks.hvac.export import save_modelica_model
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
@@ -32,7 +30,8 @@ class ExportSpawnTotal(ITask):
     reads = (
         'elements', 'weather_file_modelica', 'weather_file_ep',
         'zone_names', 'model_name_building', 'export_elements',
-        'connections', 'cons_heat_ports_conv', 'cons_heat_ports_rad'
+        'connections', 'cons_heat_ports_conv', 'cons_heat_ports_rad',
+        'package_path'
     )
     final = True
 
@@ -45,7 +44,8 @@ class ExportSpawnTotal(ITask):
             export_elements: Dict[HVACProduct, ModelicaElement],
             connections: List[Tuple[str, str]],
             cons_heat_ports_conv: List[Tuple[str, str]],
-            cons_heat_ports_rad: List[Tuple[str, str]]):
+            cons_heat_ports_rad: List[Tuple[str, str]],
+            package_path: Path):
         """Run the export process to generate the Modelica code.
 
         Args:
@@ -58,18 +58,25 @@ class ExportSpawnTotal(ITask):
             connections: Connections data.
             cons_heat_ports_conv: List of convective heat port connections.
             cons_heat_ports_rad: List of radiative heat port connections.
+            package_path: The package path of the modelica model.
         """
-        self.logger.info("Export total Spawn model to Modelica code")
 
-        package_path = self.paths.export / 'bim2sim_spawn'
-        self._prepare_package_path(package_path)
+
+        # package_path = self.paths.export / 'bim2sim_spawn'
+
+        # Exports the hydraulic model
+        self.logger.info("Export HVAC Spawn model to Modelica code")
         model_name_hydraulic = 'HVACModel'
-        model_name_total = 'TotalModel'
+        save_modelica_model(model_name=model_name_hydraulic,
+                            package_path=package_path,
+                            export_elements=list(export_elements.values()),
+                            connections=connections,
+                            cons_heat_ports_conv=cons_heat_ports_conv,
+                            cons_heat_ports_rad=cons_heat_ports_rad)
 
-        self._create_modelica_help_package(
-            package_path, model_name_total, model_name_building,
-            model_name_hydraulic
-        )
+        # Exports the total model
+        self.logger.info("Export total Spawn model to Modelica code")
+        model_name_total = 'TotalModel'
 
         weather_path_mos = weather_file_modelica
         tz_elements = filter_elements(elements, 'ThermalZone')
@@ -88,11 +95,6 @@ class ExportSpawnTotal(ITask):
             model_name_hydraulic, zone_to_heaters
         )
 
-        self._save_modelica_model(
-            export_elements, connections, cons_heat_ports_conv,
-            cons_heat_ports_rad, model_name_hydraulic, package_path
-        )
-
         self._save_total_modelica_model(
             model_name_total, model_name_building, model_name_hydraulic,
             cons_heat_ports_conv_building_hvac,
@@ -100,14 +102,11 @@ class ExportSpawnTotal(ITask):
             weather_path_mos, package_path
         )
 
-    @staticmethod
-    def _prepare_package_path(package_path: Path):
-        """Prepare the package directory for saving files.
-
-        Args:
-            package_path (Path): The path to the package directory.
-        """
-        os.makedirs(package_path, exist_ok=True)
+        # Creates the package files
+        self._create_modelica_help_package(
+            package_path, model_name_total, model_name_building,
+            model_name_hydraulic
+        )
 
     @staticmethod
     def _create_modelica_help_package(
@@ -146,31 +145,6 @@ class ExportSpawnTotal(ITask):
                         obj1=tz.space_shape, obj2=space_heater.shape):
                     zone_to_heaters[tz.guid].append(space_heater.guid)
         return zone_to_heaters
-
-    @staticmethod
-    def _save_modelica_model(
-            export_elements, connections, cons_heat_ports_conv,
-            cons_heat_ports_rad, model_name_hydraulic: str, package_path: Path):
-        """Save the Modelica model file.
-
-        Args:
-            export_elements: Elements to export.
-            connections: Connections data.
-            cons_heat_ports_conv: List of convective heat port connections.
-            cons_heat_ports_rad: List of radiative heat port connections.
-            model_name_hydraulic (str): The name of the hydraulic model.
-            package_path (Path): The path to the package directory.
-        """
-        modelica_model = modelica.ModelicaModel(
-            name=model_name_hydraulic,
-            comment=f"Autogenerated by BIM2SIM on "
-                    f"{datetime.now():%Y-%m-%d %H:%M:%S%z}",
-            modelica_elements=list(export_elements.values()),
-            connections=connections,
-            connections_heat_ports_conv=cons_heat_ports_conv,
-            connections_heat_ports_rad=cons_heat_ports_rad
-        )
-        modelica_model.save(package_path / f"{model_name_hydraulic}.mo")
 
     def _save_total_modelica_model(
             self, model_name_total: str, model_name_building: str,
