@@ -24,7 +24,7 @@ For questions like why we don't use pip and if we support docker we refer to the
 
 
 ## Related Publications
-* [Final Report of BIM2SIM project](https://doi.org/10.2314/KXP:1819319997)
+* [Final Report of BIM2SIM project](https://www.tib.eu/en/search/id/TIBKAT:1819319997)
 * [Jansen et al., BIM2SIM - Development of semi-automated methods for the generation of simulation models using Building Information Modeling, Proceedings of Building Simulation 2021: 17th Conference of IBPSA in Bruges](https://doi.org/10.26868/25222708.2021.30228)
 * [Jansen et al., Examination of Reduced Order Building Models with Different Zoning Strategies to Simulate Larger Non-Residential Buildings Based on BIM as Single Source of Truth, Proceedings of 14th Modelica Conference 2021, Linköping, Sweden](https://doi.org/10.3384/ecp21181665)
 * [Richter et al., Validation of IFC-based Geometric Input for Building Energy Performance Simulation, 2022 Building Performance Analysis Conference and SimBuild co-organized by ASHRAE and IBPSA-USA](https://doi.org/10.26868/25746308.2022.C033)

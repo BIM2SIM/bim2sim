@@ -1,15 +1,16 @@
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
-
-
+from typing import Any
+from pathlib import WindowsPath, Path
+from typing import Optional
 class Weather(ITask):
     """Task to get the weather file for later simulation"""
     reads = ('elements',)
     touches = ('weather_file',)
 
-    def run(self, elements):
+    def run(self, elements: dict):
         self.logger.info("Setting weather file.")
-        weather_file = None
+        weather_file: Optional[WindowsPath] = None
         # try to get weather file from settings
         if self.playground.sim_settings.weather_file_path:
             weather_file = self.playground.sim_settings.weather_file_path
@@ -25,7 +26,7 @@ class Weather(ITask):
                              "can't continue model generation.")
         return weather_file,
 
-    def check_file_ending(self, weather_file):
+    def check_file_ending(self, weather_file: WindowsPath):
         """Check if the file ending fits the simulation model type."""
         plugin_name = self.playground.project.plugin_cls.name
         if plugin_name in ['EnergyPlus', 'Comfort', 'openfoam']:
@@ -65,7 +66,7 @@ class Weather(ITask):
         longitude = site[0].location_longitude
         return latitude, longitude
 
-    def get_weatherfile_from_dwd(self, lat, long):
+    def get_weatherfile_from_dwd(self, lat: tuple, long: tuple):
         # TODO implement scraper, if DWD allows it
         raise NotImplementedError("Waiting for response from DWD if we can"
                                   "implement this")

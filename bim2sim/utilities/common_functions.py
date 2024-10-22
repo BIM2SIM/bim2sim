@@ -259,7 +259,8 @@ def get_type_building_elements_hvac():
     return type_building_elements
 
 
-def filter_elements(elements: Union[dict, list], type_name, create_dict=False)\
+def filter_elements(
+        elements: Union[dict, list], type_name, create_dict=False)\
         -> Union[list, dict]:
     """Filters the inspected elements by type name (e.g. Wall) and
     returns them as list or dict if wanted
