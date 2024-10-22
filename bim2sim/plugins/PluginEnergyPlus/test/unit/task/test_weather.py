@@ -22,7 +22,9 @@ class PluginWeatherDummyEP(Plugin):
     ]
 
 
-test_rsrc_path = Path(__file__).parent.parent.parent.parent / 'resources'
+test_rsrc_path = (Path(
+    __file__).parent.parent.parent.parent.parent.parent.parent /
+                  'test/resources')
 
 
 class TestWeather(unittest.TestCase):

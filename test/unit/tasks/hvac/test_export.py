@@ -10,7 +10,8 @@ from bim2sim.elements.mapping.units import ureg
 
 from bim2sim.export.modelica import ModelicaElement, parse_to_modelica
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.tasks.hvac import Export, LoadLibrariesStandardLibrary
+from bim2sim.tasks.hvac import Export, LoadLibrariesStandardLibrary, \
+    CreateModelicaModel
 from test.unit.elements.helper import SetupHelperHVAC
 
 
@@ -33,6 +34,11 @@ class TestStandardLibraryExports(unittest.TestCase):
         lib_msl = LoadLibrariesStandardLibrary(cls.playground)
         cls.loaded_libs = lib_msl.run()[0]
 
+        # Instantiate modelica create task and set required values via mocks
+        cls.create_modelica_model_task = CreateModelicaModel(cls.playground)
+        cls.create_modelica_model_task.prj_name = 'TestStandardLibrary'
+        cls.create_modelica_model_task.paths = paths
+
         # Instantiate export task and set required values via mocks
         cls.export_task = Export(cls.playground)
         cls.export_task.prj_name = 'TestStandardLibrary'
@@ -43,10 +49,19 @@ class TestStandardLibraryExports(unittest.TestCase):
     def setUp(self) -> None:
         # Set export path to temporary path
         self.export_path = tempfile.TemporaryDirectory(prefix='bim2sim')
+
         self.export_task.paths.export = self.export_path.name
 
     def tearDown(self) -> None:
         self.helper.reset()
+
+    def run_export(self, graph, answers=()):
+        (export_elements, connections, cons_heat_ports_conv,
+         cons_heat_ports_rad) = DebugDecisionHandler(answers).handle(
+            self.create_modelica_model_task.run(self.loaded_libs, graph))
+        return self.export_task.run(
+            export_elements, connections, cons_heat_ports_conv,
+            cons_heat_ports_rad)
 
     def run_parameter_test(self, graph: HvacGraph, modelica_model: list,
                            parameters: List[Tuple[str, str]],
@@ -129,8 +144,7 @@ class TestStandardLibraryExports(unittest.TestCase):
         graph, pipe = self.helper.get_simple_pipe()
         answers = ()
         with self.assertRaises(AssertionError):
-            DebugDecisionHandler(answers).handle(
-                self.export_task.run(self.loaded_libs, graph))
+            modelica_model = self.run_export(graph, answers)
 
     def test_check_function(self):
         """ Test if the check function for a parameter works. The exported
@@ -140,18 +154,24 @@ class TestStandardLibraryExports(unittest.TestCase):
         graph, pipe = self.helper.get_simple_pipe()
         pipe.diameter = -1 * ureg.meter
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        (export_elements, connections, cons_heat_ports_conv,
+         cons_heat_ports_rad) = DebugDecisionHandler(
+            answers).handle(
+            self.create_modelica_model_task.run(self.loaded_libs, graph))
+        modelica_model = self.export_task.run(
+            export_elements, connections, cons_heat_ports_conv,
+            cons_heat_ports_rad)
         self.assertIsNone(
-            modelica_model[0].modelica_elements[0].parameters['diameter'].value)
+            modelica_model[0].modelica_elements[0].parameters[
+                'diameter'].value)
         self.assertIsNotNone(
             modelica_model[0].modelica_elements[0].parameters['length'].value)
 
     def test_pipe_export(self):
         graph, pipe = self.helper.get_simple_pipe()
         pipe.diameter = 0.2 * ureg.meter
-        modelica_model = DebugDecisionHandler(answers=()).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        modelica_model = self.run_export(graph)
+
         # Test for expected and exported parameters
         parameters = [('diameter', 'diameter'), ('length', 'length')]
         expected_units = [ureg.m, ureg.m]
@@ -161,8 +181,8 @@ class TestStandardLibraryExports(unittest.TestCase):
     def test_valve_export(self):
         graph = self.helper.get_simple_valve()
         answers = (1 * ureg.kg / ureg.h,)
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        modelica_model = self.run_export(graph, answers)
+
         parameters = [('nominal_pressure_difference', 'dp_nominal'),
                       ('nominal_mass_flow_rate', 'm_flow_nominal')]
         expected_units = [ureg.bar, ureg.kg / ureg.s]
@@ -172,8 +192,7 @@ class TestStandardLibraryExports(unittest.TestCase):
     def test_junction_export(self):
         graph = self.helper.get_simple_junction()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        modelica_model = self.run_export(graph, answers)
         # Test for expected and exported parameters
         parameters = [('volume', 'V')]
         expected_units = [ureg.m ** 3]
@@ -183,8 +202,7 @@ class TestStandardLibraryExports(unittest.TestCase):
     def test_storage_export(self):
         graph = self.helper.get_simple_storage()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        modelica_model = self.run_export(graph, answers)
         # Test for expected and exported parameters
         parameters = [('volume', 'V')]
         expected_units = [ureg.m ** 3]

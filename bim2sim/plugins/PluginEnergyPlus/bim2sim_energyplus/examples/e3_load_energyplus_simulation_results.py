@@ -4,47 +4,44 @@ import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.tasks import bps, common
-import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
-from e1_simple_project_bps_teaser import run_example_simple_building_teaser
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
+    task as ep_tasks
+from e1_simple_project_bps_energyplus import run_example_1
 
 
 def run_example_load_existing_project():
-    """Run a building performance simulation with the TEASER backend.
+    """Run a building performance simulation with the EnergyPlus backend.
 
-    This example runs a BPS with the TEASER backend. Specifies project
+    This example runs a BPS with the EnergyPlus backend. Specifies project
     directory and location of the IFC file. Then, it creates a bim2sim
-    project with the TEASER backend. Workflow settings are specified (here,
-    the zoning setup is specified to be with a medium level of detail),
+    project with the EnergyPlus backend. Workflow settings are specified,
     before the project is executed with the previously specified settings.
     """
     # Create the default logging to for quality log and bim2sim main log
     # (see logging documentation for more information)
     default_logging_setup()
 
-    # First run the previous example e1: run_example_simple_building_teaser
-    project = run_example_simple_building_teaser()
+    # First run the previous example e1: run_example_1
+    project = run_example_1()
 
     # If we already ran a simulation and just want to use bim2sim
     # postprocessing, we don't need to run it again. Therefore we get the
     # project path from the previous run
     #
-    print(project)
     project_path_existing = project.paths.root
+    # project_path_existing = Path(to/your/own/file)
 
     # Set the project path to the previous executed project
     project_path = project_path_existing
 
     # Instantiate a fresh project based on the existing project folder
-    project = Project.create(project_path, plugin='teaser')
+    project = Project.create(project_path, plugin='energyplus')
 
-    # TODO those 2 are not used but are needed currently as otherwise the
-    #  plotting tasks will be executed and weather file is mandatory
     # set weather file data
-    project.sim_settings.weather_file_path_modelica = (
+    project.sim_settings.weather_file_path_ep = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
     # Run a simulation directly with dymola after model creation
-    project.sim_settings.dymola_simulation = True
     # Select results to output:
     project.sim_settings.sim_results = [
         "heat_demand_total", "cool_demand_total",
@@ -54,13 +51,15 @@ def run_example_load_existing_project():
         "operative_temp_rooms", "air_temp_rooms", "air_temp_out"
     ]
     project.sim_settings.create_plots = True
+    # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+
     # Just select the tasks that are needed to load the previous simulation
     # results and create the result plots
     project.plugin_cls.default_tasks = [
         common.LoadIFC,
         common.DeserializeElements,
-        teaser_task.LoadModelicaResults,
-        teaser_task.CreateResultDF,
+        ep_tasks.LoadEnergyPlusResults,
+        ep_tasks.CreateResultDF,
         bps.PlotBEPSResults,
     ]
     # Run the project with the ConsoleDecisionHandler. This allows interactive

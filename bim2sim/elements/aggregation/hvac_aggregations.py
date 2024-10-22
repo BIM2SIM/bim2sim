@@ -659,7 +659,7 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
     def _calc_rated_power(self, name) -> ureg.Quantity:
         """Calculate the rated power adding the rated power of the pump-like
         elements"""
-        value = all(ele.rated_power for ele in self.pump_elements)
+        value = sum(ele.rated_power for ele in self.pump_elements)
         if value:
             return value
 
@@ -876,9 +876,17 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         """ Calculate the flow temperature, using the flow temperature of the
             whitelist_classes elements.
         """
-        value= (sum(ele.flow_temperature.to_base_units() for ele
-                   in self.whitelist_elements if ele.flow_temperature)
-                / len(self.whitelist_elements))
+        # TODO the following would work, but only if we want a medium
+        #  temperature for the consumer. If we want a list, this needs to look
+        #  different
+        value = (sum(ele.flow_temperature.to_base_units() for ele
+                     in self.whitelist_elements if
+                     ele.flow_temperature is not None)
+                 / len([ele for ele in self.whitelist_elements if
+                        ele.flow_temperature is not None]))
+        # value = (sum(ele.flow_temperature.to_base_units() for ele
+        #            in self.whitelist_elements if ele.flow_temperature)
+        #         / len(self.whitelist_elements))
         if value:
             return value
 
@@ -893,8 +901,11 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         """ Calculate the return temperature, using the return temperature of
             the whitelist_classes elements.
         """
-        value = sum(ele.return_temperature.to_base_units() for ele
-                   in self.whitelist_elements) / len(self.whitelist_elements)
+        value = (sum(ele.return_temperature.to_base_units() for ele
+                     in self.whitelist_elements if
+                     ele.return_temperature is not None)
+                 / len([ele for ele in self.whitelist_elements if
+                        ele.return_temperature is not None]))
         if value:
             return value
 
@@ -1148,16 +1159,10 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
         functions=[_calc_has_pump]
     )
 
-    def _calc_return_temperature(self, name) -> list:
-        """Calculate the return temperature, using the return temperature of the
-        whitelist_classes elements"""
-        return [ele.return_temperature.to_base_units() for ele
-                in self.whitelist_elements]
-
     return_temperature = attribute.Attribute(
         description="temperature outlet",
         unit=ureg.kelvin,
-        functions=[_calc_return_temperature],
+        functions=[Consumer._calc_return_temperature],
         dependant_elements='whitelist_elements'
     )
 
@@ -1406,7 +1411,6 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
             allow_load=True,
             related=[element.guid for element in self.elements], )
         has_bypass = decision.decide()
-        print(has_bypass)
         return dict(has_bypass=has_bypass)
 
     @classmethod

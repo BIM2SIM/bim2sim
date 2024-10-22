@@ -8,7 +8,6 @@ import buildingspy.development.regressiontest as u
 
 import bim2sim
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.test import RegressionTestBase
 from bim2sim.utilities.types import IFCDomain
 
@@ -38,10 +37,18 @@ class RegressionTestTEASER(RegressionTestBase):
                 'unitTests-dymola.log'
             ]
             for log_file in log_files:
-                file = reg_dir / log_file
-                file.unlink(missing_ok=True)
+                source = reg_dir / log_file
+                if not self.is_ci:
+                    destination = self.project.paths.log / log_file
+                    source.replace(destination)
 
         super().tearDown()
+
+    def set_test_weather_file(self):
+        """Set the weather file path."""
+        self.project.sim_settings.weather_file_path_modelica = (
+                self.test_resources_path() /
+                'weather_files/DEU_NW_Aachen.105010_TMYx.modelica')
 
     def create_regression_setup(
             self,
@@ -76,8 +83,10 @@ class RegressionTestTEASER(RegressionTestBase):
         self.tester.batchMode(batch_mode)
         self.tester.setLibraryRoot(
             self.project.paths.export / 'TEASER' / 'Model' / model_export_name)
-        path_aixlib = self.project.paths.b2sroot / 'bim2sim' / 'plugins' / \
-                      'AixLib' / 'AixLib' / 'package.mo'
+        path_aixlib = (
+                Path(bim2sim.__file__).parent / 'plugins' /
+                f'PluginTEASER' / 'test' / 'regression' / 'library' /
+                'library_AixLib' / 'AixLib' / 'package.mo')
         self.tester.setAdditionalLibResource(str(path_aixlib))
         if list(self.ref_results_src_path.rglob("*.txt")):
             shutil.copytree(self.ref_results_src_path,

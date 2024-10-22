@@ -64,7 +64,7 @@ class IdfPostprocessing(ITask):
             usage = [z.usage for z in ifc_zones if z.guid == zone.Name]
             zone_dict.update({zone.Name: usage[0]})
 
-        with open(exportpath / 'zone_dict.json', 'w') as file:
+        with open(exportpath / 'zone_dict.json', 'w+') as file:
             json.dump(zone_dict, file, indent=4)
 
     def _export_surface_areas(self, elements, idf):

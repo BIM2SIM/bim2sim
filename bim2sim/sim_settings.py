@@ -827,3 +827,55 @@ class BuildingSimSettings(BaseSimSettings):
                     "set_run_period==True for activation.",
         for_frontend=True
     )
+    plot_singe_zone_guid = ChoiceSetting(
+        default='',
+        choices={'': "Skip"},
+        description="Choose the GlobalId of the IfcSpace for which results "
+                    "should be plotted.",
+        any_string=True
+    )
+    # Due to issue #722 this is currently the only way to set AHU values.
+    overwrite_ahu_by_settings = BooleanSetting(
+        default=True,
+        description='Overwrite central AHU settings with the following '
+                    'settings.',
+    )
+    ahu_heating = BooleanSetting(
+        default=False,
+        description="Choose if the central AHU should provide heating. "
+                    "Set overwrite_ahu_by_settings to True, "
+                    "otherwise this has no effect. "
+    )
+    ahu_cooling = BooleanSetting(
+        default=False,
+        description="Choose if the central AHU should provide cooling."
+                    "Set overwrite_ahu_by_settings to True, "
+                    "otherwise this has no effect. "
+    )
+    ahu_dehumidification = BooleanSetting(
+        default=False,
+        description="Choose if the central AHU should provide "
+                    "dehumidification."
+                    "Set overwrite_ahu_by_settings to True, "
+                    "otherwise this has no effect. "
+    )
+    ahu_humidification = BooleanSetting(
+        default=False,
+        description="Choose if the central AHU should provide humidification."
+                    "Set overwrite_ahu_by_settings to True, "
+                    "otherwise this has no effect. "
+    )
+    ahu_heat_recovery = BooleanSetting(
+        default=False,
+        description="Choose if the central AHU should zuse heat recovery."
+                    "Set overwrite_ahu_by_settings to True, "
+                    "otherwise this has no effect. "
+    )
+    ahu_heat_recovery_efficiency = NumberSetting(
+        default=0.65,
+        min_value= 0.5,
+        max_value=0.99,
+        description="Choose the heat recovery efficiency of the central AHU."
+                    "Set overwrite_ahu_by_settings to True, "
+                    "otherwise this has no effect. "
+    )

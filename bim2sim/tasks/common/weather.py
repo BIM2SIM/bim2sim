@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from bim2sim.tasks.base import ITask
-from bim2sim.utilities.common_functions import filter_elements
 
 
 class Weather(ITask):
@@ -9,7 +8,7 @@ class Weather(ITask):
     reads = ('elements',)
     touches = ('weather_file_modelica', 'weather_file_ep')
 
-    def run(self, elements):
+    def run(self, elements: dict):
         self.logger.info("Setting weather file.")
         weather_file_modelica = None
         weather_file_ep = None
@@ -17,6 +16,16 @@ class Weather(ITask):
         if self.playground.sim_settings.weather_file_path_modelica:
             weather_file_modelica = (
                 self.playground.sim_settings.weather_file_path_modelica)
+        if self.playground.sim_settings.weather_file_path_ep:
+            weather_file_ep = self.playground.sim_settings.weather_file_path_ep
+
+        # try to get TRY weather file for location of IFC
+        if not weather_file_ep and not weather_file_modelica:
+            raise NotImplementedError("Waiting for response from DWD if we can"
+                                      "implement this")
+            # lat, long = self.get_location_lat_long_from_ifc(elements)
+            # weather_file = self.get_weatherfile_from_dwd(lat, long)
+        self.check_weather_file(weather_file_modelica, weather_file_ep)
         if self.playground.sim_settings.weather_file_path_ep:
             weather_file_ep = self.playground.sim_settings.weather_file_path_ep
 
@@ -73,36 +82,6 @@ class Weather(ITask):
                 raise ValueError(
                     f"{plugin_name} requires a weather file with '.mos'"
                     f" extension.")
-
-    def get_location_lat_long_from_ifc(self, elements: dict) -> [float]:
-        """
-        Returns the location in form of latitude and longitude based on IfcSite.
-
-        The location of the site and therefore the building are taken from the
-        IfcSite in form of latitude and longitude. Latitude and Longitude each
-        are a tuple of (degrees, minutes, seconds) and, optionally,
-        millionths of seconds. See IfcSite Documentation for further
-        information.
-        Args:
-            elements: dict with bim2sim elements
-
-        Returns:
-            latitude, longitude: two float values for latitude and longitude
-        """
-        site = filter_elements(elements, 'Site')
-        if len(site) > 1:
-            self.logger.warning(
-                "More than one IfcSite in the provided IFC file(s). We are"
-                "using the location of the first IfcSite found for weather "
-                "file definition.")
-        latitude = site[0].location_latitude
-        longitude = site[0].location_longitude
-        return latitude, longitude
-
-    def get_weatherfile_from_dwd(self, lat, long):
-        # TODO implement scraper, if DWD allows it
-        raise NotImplementedError("Waiting for response from DWD if we can"
-                                  "implement this")
 
     def get_location_name(self, latitude: tuple, longitude: tuple) -> str:
         """Returns the name of the location based on latitude and longitude.

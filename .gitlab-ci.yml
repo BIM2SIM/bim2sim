@@ -401,15 +401,28 @@ test_TEASER_regression:
    - pip install coverage
    - pip install coverage-badge
    # reinstall requirements to test current branch status
+   - pip install -r requirements.txt
    - pip install -r bim2sim/plugins/PluginTEASER/requirements.txt
    # TODO temp workaround as CI does not seem to take current image
    - pip install scipy==1.11.3
  script:
    - mv ./* /bim2sim-coding/
    - cd /bim2sim-coding
-   - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new --with_regression
+   - python /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression/prepare_regression_tests.py
    - xvfb-run -n 77 coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginTEASER/test/regression
    - coverage report -i
+   - mkdir /builds/EBC/EBC_all/github_ci/bim2sim/logs/
+   - cp *.log /builds/EBC/EBC_all/github_ci/bim2sim/logs/
+   - ls -la /builds/EBC/EBC_all/github_ci/bim2sim
+   - ls -la /builds/EBC/EBC_all/github_ci/bim2sim/logs
+ artifacts:
+  paths:
+#    - logs/*
+#    - logs/failed-simulator-dymola.log
+    - /builds/EBC/EBC_all/github_ci/bim2sim/logs/*
+#    - bim2sim-coding/simulator-dymola.log
+#    - bim2sim-coding/comparison-dymola.log
+#    - bim2sim-coding/unitTests-dymola.log
 
 test_CFD:
  image: $CI_REGISTRY/environment:cfd
@@ -451,7 +464,7 @@ test_HKESim:
    - mv ./* /bim2sim-coding/
    - cd /bim2sim-coding
    - python /bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-   - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginHKESim/test/integration
+   - coverage run -m unittest discover /bim2sim-coding/bim2sim/plugins/PluginHKESim/test
    - coverage report -i
 
 test_LCA:

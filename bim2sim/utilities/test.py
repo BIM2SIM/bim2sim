@@ -1,3 +1,4 @@
+import os
 import tempfile
 from pathlib import Path
 from typing import Union
@@ -10,6 +11,10 @@ class IntegrationBase:
 
     def setUp(self) -> None:
         self.project = None
+        self.is_ci = any(var in os.environ for var in (
+            'GITLAB_CI', 'TRAVIS', 'CIRCLECI', 'GITHUB_ACTIONS'
+        ))
+        print(f"Current Infrastructure is CI: {self.is_ci}")
 
     def tearDown(self):
         if self.project:
@@ -53,12 +58,15 @@ class IntegrationBase:
     def model_domain_path(self) -> Union[str, None]:
         return None
 
+
+class IntegrationWeatherBase(IntegrationBase):
+    """Base class for integration tests that need weather files."""
     def set_test_weather_file(self):
         """Set the weather file path."""
         raise NotImplementedError("")
 
 
-class RegressionTestBase(IntegrationBase):
+class RegressionTestBase(IntegrationWeatherBase):
     """Base class for regression tests."""
     def setUp(self):
         self.results_src_dir = None

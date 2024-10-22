@@ -33,8 +33,10 @@ class RegressionTestComfort(RegressionTestBase):
         sys.stderr = self.old_stderr
         super().tearDown()
 
-    def weather_file_path(self) -> Path:
-        return (self.test_resources_path() /
+    def set_test_weather_file(self):
+        """Set the weather file path."""
+        self.project.sim_settings.weather_file_path_ep = (
+                self.test_resources_path() /
                 'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
 
     def create_regression_setup(self):
@@ -158,7 +160,7 @@ class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
         project.sim_settings.setpoints_from_template = True
         project.sim_settings.add_window_shading = 'Exterior'
         project.sim_settings.cooling = False
-        project.sim_settings.rename_result_keys = True
+        project.sim_settings.rename_plot_keys = True
         project.sim_settings.add_natural_ventilation = True
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
@@ -184,7 +186,7 @@ class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
         project.sim_settings.setpoints_from_template = True
         project.sim_settings.add_window_shading = 'Exterior'
         project.sim_settings.cooling = False
-        project.sim_settings.rename_result_keys = True
+        project.sim_settings.rename_plot_keys = True
         project.sim_settings.add_natural_ventilation = True
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
@@ -226,7 +228,7 @@ class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
         project.sim_settings.setpoints_from_template = True
         project.sim_settings.add_window_shading = 'Exterior'
         project.sim_settings.cooling = False
-        project.sim_settings.rename_result_keys = True
+        project.sim_settings.rename_plot_keys = True
 
         answers = (space_boundary_genenerator,
                    *handle_proxies,

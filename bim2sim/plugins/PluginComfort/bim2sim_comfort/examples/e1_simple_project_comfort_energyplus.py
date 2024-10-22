@@ -39,7 +39,7 @@ def run_example_1():
     project = Project.create(project_path, ifc_paths, 'comfort')
 
     # set weather file data
-    project.sim_settings.weather_file_path = (
+    project.sim_settings.weather_file_path_ep = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
 
@@ -53,7 +53,7 @@ def run_example_1():
     project.sim_settings.setpoints_from_template = True
     project.sim_settings.add_window_shading = 'Exterior'
     project.sim_settings.cooling = False
-    project.sim_settings.rename_result_keys = True
+    project.sim_settings.rename_plot_keys = True
     project.sim_settings.create_plots = True
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive

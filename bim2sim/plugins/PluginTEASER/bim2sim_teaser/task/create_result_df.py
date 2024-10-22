@@ -20,11 +20,11 @@ bim2sim_teaser_mapping_base = {
         "operative_temp_rooms",
     "multizonePostProcessing.TAir[numZones]": "air_temp_rooms",
     # TODO check if the array indexing works correctly
-    "multizonePostProcessing.QIntGains_flow[numZones, 1]":
+    "multizonePostProcessing.QIntGains_flow[numZones,1]":
         "internal_gains_lights_rooms",
-    "multizonePostProcessing.QIntGains_flow[numZones, 2]":
+    "multizonePostProcessing.QIntGains_flow[numZones,2]":
         "internal_gains_machines_rooms",
-    "multizonePostProcessing.QIntGains_flow[numZones, 3]":
+    "multizonePostProcessing.QIntGains_flow[numZones,3]":
         "internal_gains_persons_rooms",
     # TODO calculate by specificPersons*roomArea
     # "multizone.zone[numZones].humanSenHeaDependent.specificPersons *"
@@ -76,7 +76,7 @@ class CreateResultDF(ITask):
         defined by the sim_settings, are exported to the dataframe.
 
         Args:
-            teaser_mat_result_paths: path to simulation result file
+            sim_results_path: path to simulation result file
             bldg_names (list): list of all buildings
             elements: bim2sim elements created based on ifc data
         Returns:
