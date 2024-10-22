@@ -44,7 +44,7 @@ def run_example_1():
     # set weather file data
     project.sim_settings.weather_file_path = (
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
+            'diss/assets/weather/DEU_NW_Koln.Bonn.AP.105130_TMYx.2007-2021.epw')
 
     project.sim_settings.prj_custom_usages = (
         Path(bim2sim.__file__).parent.parent / 'diss/assets/usages/'
@@ -61,12 +61,13 @@ def run_example_1():
     project.sim_settings.construction_class_walls = 'heavy'
     project.sim_settings.construction_class_windows = \
         'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
-        # 'Waermeschutzverglasung, dreifach'
 
     project.sim_settings.setpoints_from_template = True
     project.sim_settings.year_of_construction_overwrite = 1998
     project.sim_settings.run_full_simulation = True
     project.sim_settings.create_plots = True
+    project.sim_settings.add_natural_ventilation = True
+    project.sim_settings.cooling = False
 
     # Set other simulation settings, otherwise all settings are set to default
 
