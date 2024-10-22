@@ -178,8 +178,8 @@ class CreateIdf(ITask):
             self.set_heating_and_cooling(idf, zone_name=zone.Name, space=space)
             self.set_infiltration(idf, name=zone.Name, zone_name=zone.Name,
                                   space=space)
-            if (not self.playground.sim_settings.cooling and
-                    self.playground.sim_settings.add_natural_ventilation):
+            # if (not self.playground.sim_settings.cooling and
+            if self.playground.sim_settings.add_natural_ventilation:
                 self.set_natural_ventilation(idf, name=zone.Name,
                                              zone_name=zone.Name, space=space)
             self.set_people(sim_settings, idf, name=zone.Name, zone_name=zone.Name,
@@ -808,7 +808,8 @@ class CreateIdf(ITask):
             # compared to the corresponding TEASER implementation which
             # dynamically computes thresholds for overheating infiltration
             # based on the zone temperature and additional factors.
-            Air_Changes_per_Hour=space.max_overheating_infiltration[0],
+            Air_Changes_per_Hour=space.max_overheating_infiltration[0] /
+                                 space.max_overheating_infiltration[1],
             Minimum_Outdoor_Temperature
             =space.max_summer_infiltration[2] - 273.15,
         )
