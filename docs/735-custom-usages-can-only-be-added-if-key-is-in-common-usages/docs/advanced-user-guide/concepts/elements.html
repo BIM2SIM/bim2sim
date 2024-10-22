@@ -1,0 +1,212 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elements &mdash; bim2sim  0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Attributes" href="attribute.html" />
+    <link rel="prev" title="Tasks" href="tasks.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/b2s_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../big-picture.html">Big Picture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user-guide.html">User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simulation-guide.html">Simulation-Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../advanced-user-guide.html">Advanced User-Guide</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../concepts.html">Concepts</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="project.html">Project</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sim_settings.html">Simulation settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="domains.html">Domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="playground.html">Playground</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugins.html">Plugins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tasks.html">Tasks</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Elements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#functionality">Functionality</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mapping">Mapping</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#element-types">Element Types</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="attribute.html">Attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="finder.html">Finder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="aggregations.html">Aggregations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="decisions.html">Decisions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="decisions.html#yielding">Yielding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="logging.html">Logging</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../project-file-structure.html">Project File Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../writing-your-own-plugin.html">Writing your own bim2sim Plugin</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../developer-guide.html">Developer-Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../code/modules.html">bim2sim</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">bim2sim </a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../advanced-user-guide.html">Advanced User-Guide</a></li>
+          <li class="breadcrumb-item"><a href="../concepts.html">Concepts</a></li>
+      <li class="breadcrumb-item active">Elements</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/advanced-user-guide/concepts/elements.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="elements">
+<span id="elements-structure"></span><h1>Elements<a class="headerlink" href="#elements" title="Link to this heading"></a></h1>
+<section id="functionality">
+<h2>Functionality<a class="headerlink" href="#functionality" title="Link to this heading"></a></h2>
+<p>As we want to provide the generation of models for multiple simulation tools and
+domains, we don’t go with a direct 1:1 mapping of IFC to simulation models.
+Instead, we created the <code class="docutils literal notranslate"><span class="pre">elements</span></code> structure that allows us to gather relevant
+information from different sources in the IFC and store them in a structure that
+is created with the specific goal to parametrize simulation models.</p>
+</section>
+<section id="mapping">
+<h2>Mapping<a class="headerlink" href="#mapping" title="Link to this heading"></a></h2>
+<p>The general steps of mapping IFC entity to element class are divided as follows.</p>
+<ol class="arabic simple">
+<li><p>selecting the element class according to <code class="docutils literal notranslate"><span class="pre">IfcType</span></code> or <code class="docutils literal notranslate"><span class="pre">PredefinedType</span></code> of the
+IFC
+entity.</p></li>
+<li><p>validation of the properties of the Ifc entity according to the requirements
+of the element class (final, if validation successful)</p></li>
+<li><p>validation of properties like name and description of the Ifc entity based on
+regular expressions, whether other element class is applicable</p></li>
+<li><p>determine the element class via <a class="reference internal" href="decisions.html"><span class="doc std std-doc">decision</span></a> system, if no or
+several classes come into question.</p></li>
+<li><p>possibly specify the class later based on additional information</p></li>
+</ol>
+<p>When mapping IFC to a simulation orientated structure three types of mapping
+occur:</p>
+<ul class="simple">
+<li><p>1:many (1 IFC type is mapped to multiple <code class="docutils literal notranslate"><span class="pre">elements</span></code>)</p></li>
+<li><p>many:1 (multiple IFC types are mapped to 1 <code class="docutils literal notranslate"><span class="pre">element</span></code>)</p></li>
+<li><p>1:1 mapping (1 IFC type is mapped to 1 <code class="docutils literal notranslate"><span class="pre">element</span></code>)</p></li>
+</ul>
+<p>The more complicated first two cases are described with an example below.</p>
+<section id="many-mapping">
+<h3>1:many Mapping<a class="headerlink" href="#many-mapping" title="Link to this heading"></a></h3>
+<p>For simple explanation lets use the <code class="docutils literal notranslate"><span class="pre">IfcWall</span></code>. In simulation environments for
+BPS we need to differ between inner walls and outer walls. In IFC this is done
+by a property which might be found <code class="docutils literal notranslate"><span class="pre">isExternal</span></code> in the corresponding
+PropertySet <code class="docutils literal notranslate"><span class="pre">Pset_WallCommon</span></code> as it’s optional. We can also use relating
+SpaceBoundary to find if the wall is external or internal. But in any way we
+need to map it into two different <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> classes: <code class="docutils literal notranslate"><span class="pre">InnerWall</span></code>
+and <code class="docutils literal notranslate"><span class="pre">OuterWall</span></code>.
+This would be a 1:many mapping. Another example would be ‘IfcSlab’ which can be
+a <code class="docutils literal notranslate"><span class="pre">Roof</span></code>, <code class="docutils literal notranslate"><span class="pre">Floor</span></code> or <code class="docutils literal notranslate"><span class="pre">GroundFloor</span></code> in the simulation world depending on their
+<code class="docutils literal notranslate"><span class="pre">PredefinedType</span></code> in IFC.</p>
+</section>
+<section id="many-1-mapping">
+<h3>many:1 Mapping<a class="headerlink" href="#many-1-mapping" title="Link to this heading"></a></h3>
+<p>A good example for many:1 is the <code class="docutils literal notranslate"><span class="pre">Roof</span></code> class of <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code>. Depending on it’s
+predefined type either the <code class="docutils literal notranslate"><span class="pre">IfcSlab</span></code> or <code class="docutils literal notranslate"><span class="pre">IfcRoof</span></code> can be a <code class="docutils literal notranslate"><span class="pre">Roof</span></code> instance for
+simulation.</p>
+</section>
+</section>
+<section id="element-types">
+<h2>Element Types<a class="headerlink" href="#element-types" title="Link to this heading"></a></h2>
+<p>We created different element types for different purposes. The most relevant
+base classes are:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../../code/bim2sim.elements.html#bim2sim.elements.base_elements.IFCBased" title="bim2sim.elements.base_elements.IFCBased"><span class="xref myst py py-class">IFCBased</span></a></p></li>
+<li><p><a class="reference internal" href="../../code/bim2sim.elements.html#bim2sim.elements.base_elements.RelationBased" title="bim2sim.elements.base_elements.RelationBased"><span class="xref myst py py-class">RelationBased</span></a></p></li>
+<li><p><a class="reference internal" href="../../code/bim2sim.elements.html#bim2sim.elements.base_elements.ProductBased" title="bim2sim.elements.base_elements.ProductBased"><span class="xref myst py py-class">ProductBased</span></a></p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">IfcBased</span></code> is the base class that defines how to handle the mapping between IFC
+and <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code>.
+<code class="docutils literal notranslate"><span class="pre">RelationBased</span></code> covers non <code class="docutils literal notranslate"><span class="pre">IfcProduct</span></code> types like <code class="docutils literal notranslate"><span class="pre">IfcRelSpaceBoundary</span></code>
+or <code class="docutils literal notranslate"><span class="pre">IfcDistributionPort</span></code>, while <code class="docutils literal notranslate"><span class="pre">IfcProductBased</span></code> covers all IFC entities that
+inherit <code class="docutils literal notranslate"><span class="pre">IfcProduct</span></code>.
+For detailed information please have a look at the code documentation
+of <a class="reference internal" href="#element"><span class="xref myst">elements</span></a>. The way we gather the information in a uniform way is
+described in <a class="reference internal" href="attribute.html#attributes"><span class="std std-ref">attributes</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tasks.html" class="btn btn-neutral float-left" title="Tasks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="attribute.html" class="btn btn-neutral float-right" title="Attributes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, RWTH Aachen University, EBC &amp; E3D; ROM Technik GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
