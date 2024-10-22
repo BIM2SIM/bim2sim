@@ -16,6 +16,7 @@ class PluginSpawnOfEP(Plugin):
         common.LoadIFC,
         common.CheckIfc,
         common.CreateElementsOnIfcTypes,
+
         bps.CreateSpaceBoundaries,
         bps.AddSpaceBoundaries2B,
         bps.CorrectSpaceBoundaries,
@@ -33,6 +34,7 @@ class PluginSpawnOfEP(Plugin):
         hvac.DeadEnds,
         LoadLibrariesAixLib,
         hvac.CreateModelicaModel,
+        hvac.Export,
 
         spawn_tasks.ExportSpawnBuilding,
         spawn_tasks.ExportSpawnTotal,

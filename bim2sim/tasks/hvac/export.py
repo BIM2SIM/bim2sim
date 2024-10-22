@@ -3,8 +3,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Tuple, List, Dict
 
-from mako.template import Template
-
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.base_elements import ProductBased
 from bim2sim.elements.graphs.hvac_graph import HvacGraph
@@ -12,8 +10,8 @@ from bim2sim.elements.hvac_elements import HVACProduct
 from bim2sim.export import modelica
 from bim2sim.export.modelica import HeatTransferType, ModelicaParameter, \
     ModelicaElement
-from bim2sim.tasks.base import ITask
 from bim2sim.export.modelica import help_package, help_package_order
+from bim2sim.tasks.base import ITask
 
 
 class CreateModelicaModel(ITask):
@@ -214,62 +212,90 @@ class Export(ITask):
 
     reads = ('export_elements', 'connections', 'cons_heat_ports_conv',
              'cons_heat_ports_rad')
-    touches = ('modelica_model',)
-    final = True
+    touches = ('modelica_model', 'package_name', 'model_name_hydraulic')
 
     def run(self, export_elements: dict, connections: list,
             cons_heat_ports_conv: list, cons_heat_ports_rad: list):
-        """Export modelica elements and connections to Modelica code.
+        """Export Modelica elements and connections to Modelica code.
 
-        This method performs the following steps:
-        1. Creates a Modelica model with the exported elements and connections.
-        2. Saves the Modelica model to the specified export path.
+        This method creates a Modelica model, organizes the package structure,
+        and saves the model to the specified path.
 
         Args:
-            export_elements:
-            connections:
-            cons_heat_ports_conv:
-            cons_heat_ports_rad:
+            export_elements: Dictionary containing elements to export.
+            connections: List of fluid port connections.
+            cons_heat_ports_conv: List of convective heat port connections.
+            cons_heat_ports_rad: List of radiative heat port connections.
 
         Returns:
-            modelica_model:
+            modelica_model: The modelica model as string.
+            package_name: The name of the package (i.e. the folder where the
+                modelica model is stored.)
+            model_name_hydraulic: The name of the model.
         """
         self.logger.info("Creating Modelica model with %d model elements and %d"
                          " connections.", len(export_elements),
                          len(connections))
+        model_name_hydraulic = 'Hydraulic'
+        package_name = self._get_package_name()
 
-        model_name = 'Hydraulic'
-        regex = re.compile("[^a-zA-z0-9]")
-        package_name = regex.sub("", 'HVAC_' + self.prj_name)
+        # Setup package directory structure
+        export_package_path = self._setup_package_structure(
+            package_name, model_name_hydraulic
+        )
 
-        # Create base package structure
-        export_pkg_path = self.paths.export / Path(package_name)
-        # Path.mkdir(export_pkg_path, exist_ok=True)
-        help_package(path=export_pkg_path, name=export_pkg_path.stem, within="")
-        help_package_order(path=export_pkg_path, package_list=[model_name])
-        # Path.mkdir(export_pkg_path / model_name, exist_ok=True)
-
+        # Save the Modelica model
         modelica_model = save_modelica_model(
-            model_name=model_name,
-            package_path=export_pkg_path,
+            model_name=model_name_hydraulic,
+            package_path=export_package_path,
             export_elements=list(export_elements.values()),
             connections=connections,
             cons_heat_ports_conv=cons_heat_ports_conv,
             cons_heat_ports_rad=cons_heat_ports_rad
         )
-        return modelica_model
+        return modelica_model, package_name, model_name_hydraulic
+
+    def _get_package_name(self) -> str:
+        """Generate a valid package name based on the project name.
+
+        Returns:
+            str: The valid package name.
+        """
+        regex = re.compile("[^a-zA-z0-9]")
+        return regex.sub("", self.prj_name)
+
+    def _setup_package_structure(self, package_name: str,
+                                 model_name_hydraulic: str) -> Path:
+        """Set up the package directory structure for exporting Modelica models.
+
+        Args:
+            package_name: The name of the package.
+            model_name_hydraulic: The name of the hydraulic model.
+
+        Returns:
+            Path: The path to the export package directory.
+        """
+        export_package_path = self.paths.export / Path(package_name)
+
+        # Helper functions to structure the Modelica package
+        help_package(path=export_package_path, name=export_package_path.stem,
+                     within="")
+        help_package_order(path=export_package_path,
+                           package_list=[model_name_hydraulic])
+
+        return export_package_path
 
 
 def save_modelica_model(model_name: str, package_path: Path,
                         export_elements, connections, cons_heat_ports_conv,
                         cons_heat_ports_rad):
-    """Save the Modelica model file.
+    """Saves the Modelica model file.
 
     Args:
-        model_name (str): The name of the model.
-        package_path (Path): The path to the package directory.
-        export_elements: Elements to export.
-        connections: Connections data.
+        model_name: The name of the model.
+        package_path: The directory/package path where the model will be saved.
+        export_elements: List of elements to export.
+        connections: List of connections data.
         cons_heat_ports_conv: List of convective heat port connections.
         cons_heat_ports_rad: List of radiative heat port connections.
     """
@@ -282,5 +308,5 @@ def save_modelica_model(model_name: str, package_path: Path,
         connections_heat_ports_conv=cons_heat_ports_conv,
         connections_heat_ports_rad=cons_heat_ports_rad
     )
-    modelica_model.save(Path(package_path / model_name).with_suffix('.mo'))
+    modelica_model.save(package_path / f"{model_name}.mo")
     return modelica_model
