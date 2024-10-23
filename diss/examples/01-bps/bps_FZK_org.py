@@ -6,6 +6,10 @@ from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain
+from bim2sim.tasks import bps, common
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
+    task as ep_tasks
+from diss import utils as diss_utils
 
 
 def run_example_1():
@@ -41,6 +45,29 @@ def run_example_1():
     # energyplus as backend
     project = Project.create(project_path, ifc_paths, 'energyplus')
 
+    project.plugin_cls.default_tasks = [
+        common.LoadIFC,
+        common.CheckIfc,
+        common.CreateElementsOnIfcTypes,
+        bps.CreateSpaceBoundaries,
+        bps.AddSpaceBoundaries2B,
+        bps.CorrectSpaceBoundaries,
+        common.CreateRelations,
+        bps.DisaggregationCreationAndTypeCheck,
+        bps.EnrichMaterial,
+        bps.EnrichUseConditions,
+        common.Weather,
+        ep_tasks.CreateIdf,
+        ep_tasks.IdfPostprocessing,
+        ep_tasks.ExportIdfForCfd,
+        common.SerializeElements,
+        ep_tasks.RunEnergyPlusSimulation,
+        ep_tasks.CreateResultDF,
+        # ep_tasks.VisualizeResults,
+        diss_utils.PlotBPSDissResults,
+        diss_utils.CreateResultDF,
+    ]
+
     # set weather file data
     project.sim_settings.weather_file_path = (
             Path(bim2sim.__file__).parent.parent /
@@ -68,6 +95,8 @@ def run_example_1():
     project.sim_settings.create_plots = True
     project.sim_settings.add_natural_ventilation = True
     project.sim_settings.cooling = False
+    project.sim_settings.cfd_export = True
+    project.sim_settings.plot_singe_zone_guid = '0e_hbkIQ5DMQlIJ$2V3j_m'
 
     # Set other simulation settings, otherwise all settings are set to default
 
