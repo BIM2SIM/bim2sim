@@ -58,6 +58,10 @@ unit_mapping = {
     "infiltration": ureg.hour ** (-1),
     "mech_ventilation": (ureg.meter ** 3) / ureg.second,
 }
+final_units = {
+    "heat_energy": ureg.watthour,
+    "cool_energy": ureg.watthour,
+}
 
 
 class CreateResultDF(ITask):
@@ -184,6 +188,9 @@ class CreateResultDF(ITask):
             for key, unit in unit_mapping.items():
                 if key in column:
                     df_final[column] = PintArray(df_final[column], unit)
+            for key, unit in final_units.items():
+                if key in column:
+                    df_final[column] = df_final[column].pint.to(unit)
 
         return df_final
 
