@@ -1,5 +1,6 @@
 import json
-from typing import Optional, Tuple, List
+import statistics
+from typing import Optional, Tuple, List, Literal
 
 import matplotlib as mpl
 from matplotlib import pyplot as plt
@@ -78,8 +79,9 @@ class PlotBPSDissResults(ITask):
             plot_path.mkdir(exist_ok=True)
             for ifc_file in ifc_files:
                 self.plot_floor_plan_with_results(
-                    df, elements, 'heat_demand_rooms',
-                    ifc_file, plot_path, area_specific=True)
+                    df, elements, 'heat_energy_rooms',
+                    ifc_file, plot_path, area_specific=False,
+                    result_processing='sum')
             self.plot_total_consumption(df, plot_path)
             if (any(df.filter(like='surf_inside_temp')) and
                     self.playground.sim_settings.plot_singe_zone_guid):
@@ -289,7 +291,8 @@ class PlotBPSDissResults(ITask):
             ifc_file: IfcFileClass,
             plot_path: Path,
             min_space_area: float = 2,
-            area_specific: bool = True
+            area_specific: bool = True,
+            result_processing: Literal['max', 'sum', 'mean'] = 'max'
     ):
         """Plot a floor plan colorized based on specific heat demand.
 
@@ -307,6 +310,10 @@ class PlotBPSDissResults(ITask):
              be taken into account for the result calculation in the plot.
             area_specific (bool): True if result_str values should be divided
              by area to get valuer per square meter.
+            result_processing (str): choose processing of the result
+             dataframe for plotting. Select either max, sum, or mean. Default
+             is set to max.
+
 
         TODO: this is currently not working for aggregated zones.
         Combined zones, how to proceed:
@@ -346,7 +353,7 @@ class PlotBPSDissResults(ITask):
                             storey_guid = ele.storeys[0]
                         else:
                             storey_guid = ele.storeys[0].guid
-                        space_area = ele.net_area
+                        space_area = ele.gross_area
 
                 if not storey_guid or not space_area:
                     self.logger.warning(
@@ -365,10 +372,18 @@ class PlotBPSDissResults(ITask):
 
                 svg_adjust_dict.setdefault(storey_guid, {}).setdefault(
                     "space_data", {})
-                if area_specific:
-                    val = col_data.max() / space_area
+                if result_processing == 'max':
+                    col_data_processed = col_data.max()
+                elif result_processing == 'mean':
+                    col_data_processed = col_data.mean()
+                elif result_processing == 'sum':
+                    col_data_processed = col_data.sum()
                 else:
-                    val = col_data.max()
+                    raise NotImplementedError
+                if area_specific:
+                    val = col_data_processed / space_area
+                else:
+                    val = col_data_processed
                 # update minimal and maximal value to get a useful color scale
                 svg_adjust_dict[storey_guid]["storey_min_value"] = min(
                     val,  svg_adjust_dict[storey_guid]["storey_min_value"]) \
@@ -382,25 +397,35 @@ class PlotBPSDissResults(ITask):
                     'text': val}
         # create the color mapping, this needs to be done after the value
         # extraction to have all values for all spaces
+        storey_mins = []
+        storey_maxs = []
         for storey_guid, storey_data in svg_adjust_dict.items():
-            storey_min = storey_data["storey_min_value"]
-            storey_max = storey_data["storey_max_value"]
-
-            # set common human-readable units
-            common_unit = storey_min.to_compact().u
-            storey_min = storey_min.to(common_unit)
-            storey_max = storey_max.to(common_unit)
-            storey_med = round((storey_min + storey_max) / 2, 1).to(common_unit)
-            if storey_min == storey_max:
-                storey_min -= 1 * storey_min.u
-                storey_max += 1 * storey_max.u
-
+            storey_mins.append(storey_data["storey_min_value"])
+            storey_maxs.append(storey_data["storey_max_value"])
+        storey_min = min(storey_mins)
+        storey_max = max(storey_maxs)
+        storey_med = (storey_min + storey_max) / 2
+        all_data = []
+        for storey_guid, storey_data in svg_adjust_dict.items():
+            for space_guid, value in storey_data["space_data"].items():
+                all_data.append(value['text'])
+        space_median = statistics.median(all_data)
+        # set common human-readable units
+        common_unit = space_median.to_compact().u
+        storey_min = storey_min.to(common_unit)
+        storey_max = storey_max.to(common_unit)
+        storey_med = round(storey_med, 1).to(common_unit)
+        if storey_min == storey_max:
+            storey_min -= 1 * storey_min.u
+            storey_max += 1 * storey_max.u
+        for storey_guid, storey_data in svg_adjust_dict.items():
             cmap = self.create_color_mapping(
                 storey_min,
                 storey_max,
                 storey_med,
                 plot_path,
                 storey_guid,
+                common_unit
             )
             for space_guid, space_data in storey_data["space_data"].items():
                 value = space_data["text"].to(common_unit)
@@ -427,12 +452,12 @@ class PlotBPSDissResults(ITask):
         #     json.dump(svg_adjust_dict, file)
         # TODO cleanup temp files of color mapping and so on
         create_svg_floor_plan_plot(ifc_file, plot_path, svg_adjust_dict,
-                                   result_str)
+                                   result_str, result_processing)
 
     @staticmethod
     def create_color_mapping(
             min_val: float, max_val: float, med_val: float,
-            sim_results_path: Path, storey_guid: str):
+            sim_results_path: Path, storey_guid: str, common_unit: ureg):
         """Create a colormap from blue to red and save it as an SVG file.
 
         Args:
@@ -441,6 +466,7 @@ class PlotBPSDissResults(ITask):
           med_val (float): medium value for the colormap range.
           sim_results_path (Path): Path to the simulation results file.
           storey_guid (str): GUID of storey to create color mapping for.
+          common_unit (ureg): common unit for scaling of legend.
 
         Returns:
           LinearSegmentedColormap: Created colormap object.
@@ -469,9 +495,9 @@ class PlotBPSDissResults(ITask):
         cbar.set_ticks([min_val.m, med_val.m, max_val.m])
         cbar.set_ticklabels(
             [
-                f"${min_val.to_compact():.4~L}$",
-                f"${med_val.to_compact():.4~L}$",
-                f"${max_val.to_compact():.4~L}$",
+                f"${min_val.to(common_unit):.2~fL}$",
+                f"${med_val.to(common_unit):.2~fL}$",
+                f"${max_val.to(common_unit):.2~fL}$",
              ])
         # convert all values to common_unit
 
@@ -627,7 +653,11 @@ class PlotBPSDissResults(ITask):
             df = df[columns_to_rename.values()]
         df = df.resample("D").mean()
         save_path_demand = (
-                save_path / "surface_temperatures.svg") if save_path else \
+                save_path /
+                f"surface_temperatures_"
+                f"{list(rename_surfs_in_space.keys())[0].replace('$', '___')}.pdf") if (
+            save_path) \
+            else \
             None
         label_pad = 5
 
@@ -678,7 +708,8 @@ class PlotBPSDissResults(ITask):
         #     PlotBEPSResults.add_logo(dpi, fig_size, logo_pos)
 
         # Save the plot if a path is provided
-        PlotBPSDissResults.save_or_show_plot(save_path_demand, dpi, format='svg')
+        PlotBPSDissResults.save_or_show_plot(save_path_demand, dpi,
+                                             format='pdf')
 
 
     @staticmethod
