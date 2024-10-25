@@ -62,10 +62,10 @@ def run_example_1():
         ep_tasks.ExportIdfForCfd,
         common.SerializeElements,
         ep_tasks.RunEnergyPlusSimulation,
-        ep_tasks.CreateResultDF,
+        # ep_tasks.CreateResultDF,
         # ep_tasks.VisualizeResults,
-        diss_utils.PlotBPSDissResults,
         diss_utils.CreateResultDF,
+        diss_utils.PlotBPSDissResults,
     ]
 
     # set weather file data
