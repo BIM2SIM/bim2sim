@@ -16,7 +16,8 @@ def create_svg_floor_plan_plot(
         ifc_file_class_inst: IfcFileClass,
         target_path: Path,
         svg_adjust_dict: dict,
-        result_str: str):
+        result_str: str,
+        result_processing: str):
     """Creates an SVG floor plan plot for every storey and adjust its design.
 
     This function first creates an SVG floor plan for the provided IFC file
@@ -33,6 +34,7 @@ def create_svg_floor_plan_plot(
         ifc_file_class_inst: bim2sim IfcFileClass instance
         target_path: Path to store the SVG files
         result_str (str): name of the results plotted (used for file naming)
+        result_processing (str): result postprocessing choice (mean, max, sum)
 
     Example:
         # create nested dict, where "2eyxpyOx95m90jmsXLOuR0" is the storey guid
@@ -66,7 +68,8 @@ def create_svg_floor_plan_plot(
     split_svg_by_storeys(svg_path)
     modify_svg_elements(svg_adjust_dict, target_path)
     combine_svgs_complete(
-        target_path, list(svg_adjust_dict.keys()), result_str)
+        target_path, list(svg_adjust_dict.keys()), result_str,
+        result_processing)
 
 
 def convert_ifc_to_svg(ifc_file_instance: IfcFileClass,
@@ -242,7 +245,7 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
                         else:
                             style = "fill:#FFFFFF"
                         style += ";font-weight:bold"
-                        style += ";font-size:22px"
+                        style += ";font-size:14px"
                         tspan_element.set('style', style)
                         tspan_element.text = text
                         text_element.attrib = att
@@ -260,7 +263,7 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
                 else:
                     style = "fill:#FFFFFF"
                 style += ";font-weight:bold"
-                style += ";font-size:22px"
+                style += ";font-size:14px"
                 tspan_element.set('style', style)
                 tspan_element.text = "-"
                 text_element.attrib = att
@@ -319,13 +322,15 @@ def combine_two_svgs(
 
 
 def combine_svgs_complete(
-        file_path: Path, storey_guids: list, result_str: str) -> None:
+        file_path: Path, storey_guids: list, result_str: str, flag: str='') \
+        -> None:
     """Add color mapping svg to floor plan svg."""
     for guid in storey_guids:
         original_svg = file_path / f"{guid}.svg"
         svg_file = file_path / f"{guid}_modified.svg"
         color_mapping_file = file_path / f"color_mapping_{guid}.svg"
-        output_svg_file = file_path / f"Floor_plan_{result_str}_{guid}.svg"
+        output_svg_file = file_path / (f"Floor_plan_{result_str}_{flag}"
+                                       f"_{guid}.svg")
         combine_two_svgs(svg_file, color_mapping_file, output_svg_file)
 
         # cleanup
