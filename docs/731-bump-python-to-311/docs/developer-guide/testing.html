@@ -56,7 +56,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#integration-testing">Integration Testing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#regression-testing">Regression Testing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#run-tests-local">Run Tests Local</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ci-cd">CI/CD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#update-test-resources">Update test resources</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="doc-utilities.html">Utilities for documentation</a></li>
@@ -134,8 +134,34 @@ sure that you have those resources in your local repository, run:</p>
 </pre></div>
 </div>
 </section>
-<section id="ci-cd">
-<h2>CI/CD<a class="headerlink" href="#ci-cd" title="Permalink to this heading"></a></h2>
+<section id="update-test-resources">
+<h2>Update test resources<a class="headerlink" href="#update-test-resources" title="Permalink to this heading"></a></h2>
+<p>If test resources needs to be updated, please follow the following procedure:</p>
+<ol class="arabic simple">
+<li><p>Create a branch in the <a class="reference external" href="https://github.com/BIM2SIM/bim2sim-test-resources">test resources repository</a></p></li>
+<li><p>In this branch change the test resources as required</p></li>
+<li><p>Push the changes to the remote repository</p></li>
+<li><p>Create a Pull Request into the main branch for the created branch</p></li>
+<li><p>In the <a class="reference external" href="https://github.com/BIM2SIM/bim2sim">main bim2sim repository</a>, create a branch called ‘upgrade_test_resources’</p></li>
+<li><p>Checkout this branch on your local device and perform the following commands in the root path:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">test/resources</span></code> (Go into the submodule directory)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span> <span class="pre">origin</span> <span class="pre">&lt;name</span> <span class="pre">of</span> <span class="pre">branch</span> <span class="pre">you</span> <span class="pre">created</span> <span class="pre">in</span> <span class="pre">test</span> <span class="pre">resources</span> <span class="pre">repo&gt;</span></code> (Pull the latest changes)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">../..</span></code> (Go back to parent repo)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">add</span> <span class="pre">test/resources</span></code> (add the changes)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&quot;Update</span> <span class="pre">submodule</span> <span class="pre">of</span> <span class="pre">test</span> <span class="pre">resources&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span></code></p></li>
+</ol>
+</li>
+<li><p>Then wait for the pipeline to run through on your branch</p></li>
+<li><p>If the pipeline with all tests passes, perform the following steps, otherwise fix the issues before you continue</p></li>
+<li><p>Link the succeeded pipeline in the pull request in the test resources repository and assign a reviewer</p></li>
+<li><p>When review finished, merge the PR</p></li>
+<li><p>Now go back to the main repository and perform the same steps as under step 6, but this time in step 6.ii you <code class="docutils literal notranslate"><span class="pre">main</span></code> as branch name</p></li>
+<li><p>again wait for the pipeline to succeed</p></li>
+<li><p>Create a pull request for the branch in the main bim2sim repository and assign a reviewer</p></li>
+<li><p>If pipeline has passed (what it should) merge and you are done</p></li>
+</ol>
 </section>
 </section>
 
