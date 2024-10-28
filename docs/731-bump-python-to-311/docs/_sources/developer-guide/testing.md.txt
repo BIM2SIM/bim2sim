@@ -27,33 +27,18 @@ changes in the results, such that the developer has to decide whether to update
 the new implementation or the regression results.
 
 ## Run Tests Local
-
 To test mapping between IFC and our meta structure
 [elements](elements_structure) as well as for Integration Testing
 we need to load IFC files into our tool. These IFC files can be quite big. To
-keep the size of this repository as slim as possible we only integrate very few
-examples into the repository itself. The majority of the IFC files is stored 
-external and is downloaded for [CI/CD](CI/CD) processes during the test run. If
-you want to run the tests local, please download the files to your local 
-repository. You can use our download script for this, by running the following 
-commands while you are the repository root directory:
+keep the size of this repository as slim as possible we put the test resources
+into an additional repository, which is included here as a submodule. To make 
+sure that you have those resources in your local repository, run:
 
-```python 
-python ./test/resources/download_test_resources.py --domain=<domain_name>
+
+``` 
+git submodule update --init --recursive
 ```
-You can use the following arguments:
 
-| **args**          | **values**  | **description**                                   |
-|-------------------|-------------|---------------------------------------------------|
-| `domain`          | `arch`      | Download arch domain test resources               |
-|                   | `hydraulic` | Download hydraulic domain test resources          |
-| `with_regression` | `bool`      | Include regression reults in download             | m
-| `force_new`       | `bool`      | Force overwrite of potential existing resrouces   | m
-
-
-If you want to run the TEASER regression tests under Windows, you need to add
-path of dymola executable to the PATH environment variable (requirement of
-BuildingsPy) 
 ## CI/CD
 
 

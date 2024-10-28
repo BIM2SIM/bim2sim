@@ -127,45 +127,12 @@ the new implementation or the regression results.</p>
 <p>To test mapping between IFC and our meta structure
 <a class="reference internal" href="../advanced-user-guide/concepts/elements.html#elements-structure"><span class="std std-ref">elements</span></a> as well as for Integration Testing
 we need to load IFC files into our tool. These IFC files can be quite big. To
-keep the size of this repository as slim as possible we only integrate very few
-examples into the repository itself. The majority of the IFC files is stored
-external and is downloaded for <a class="reference internal" href="#CI/CD"><span class="xref myst">CI/CD</span></a> processes during the test run. If
-you want to run the tests local, please download the files to your local
-repository. You can use our download script for this, by running the following
-commands while you are the repository root directory:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">./</span><span class="n">test</span><span class="o">/</span><span class="n">resources</span><span class="o">/</span><span class="n">download_test_resources</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">domain</span><span class="o">=&lt;</span><span class="n">domain_name</span><span class="o">&gt;</span>
+keep the size of this repository as slim as possible we put the test resources
+into an additional repository, which is included here as a submodule. To make
+sure that you have those resources in your local repository, run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">submodule</span> <span class="n">update</span> <span class="o">--</span><span class="n">init</span> <span class="o">--</span><span class="n">recursive</span>
 </pre></div>
 </div>
-<p>You can use the following arguments:</p>
-<table class="docutils align-default">
-<thead>
-<tr class="row-odd"><th class="head"><p><strong>args</strong></p></th>
-<th class="head"><p><strong>values</strong></p></th>
-<th class="head"><p><strong>description</strong></p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">domain</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">arch</span></code></p></td>
-<td><p>Download arch domain test resources</p></td>
-</tr>
-<tr class="row-odd"><td><p></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">hydraulic</span></code></p></td>
-<td><p>Download hydraulic domain test resources</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">with_regression</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
-<td><p>Include regression reults in download</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">force_new</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">bool</span></code></p></td>
-<td><p>Force overwrite of potential existing resrouces</p></td>
-</tr>
-</tbody>
-</table>
-<p>If you want to run the TEASER regression tests under Windows, you need to add
-path of dymola executable to the PATH environment variable (requirement of
-BuildingsPy)</p>
 </section>
 <section id="ci-cd">
 <h2>CI/CD<a class="headerlink" href="#ci-cd" title="Permalink to this heading"></a></h2>

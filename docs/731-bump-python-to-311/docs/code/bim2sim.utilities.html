@@ -138,18 +138,6 @@ include_self: boolean, if True include evaluated class to subclasses.</p>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bim2sim.utilities.common_functions.download_file">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.common_functions.</span></span><span class="sig-name descname"><span class="pre">download_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.common_functions.download_file" title="Permalink to this definition"></a></dt>
-<dd><p>Download the file from url and put into target path.</p>
-<p>Unzips the downloaded content if it is a zip.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>url: str that holds url
-target: pathlib path to target</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.utilities.common_functions.download_library">
 <span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.common_functions.</span></span><span class="sig-name descname"><span class="pre">download_library</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">repo_url</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branch_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">clone_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.common_functions.download_library" title="Permalink to this definition"></a></dt>
 <dd><p>Clones a Git repository and checks out a specific branch, or updates
@@ -175,19 +163,6 @@ clone_dir (Path): The directory where the repository should be cloned</p>
 <p>Exception: If the directory exists but is not a Git repository.</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="bim2sim.utilities.common_functions.download_test_resources">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.common_functions.</span></span><span class="sig-name descname"><span class="pre">download_test_resources</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">domain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#bim2sim.utilities.types.IFCDomain" title="bim2sim.utilities.types.IFCDomain"><span class="pre">IFCDomain</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_regression</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_new</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.common_functions.download_test_resources" title="Permalink to this definition"></a></dt>
-<dd><p>Download test resources from Sciebo cloud.</p>
-<p>This downloads additional resources in form of IFC files, regression results
-and custom usages for BPS simulations for tests that should not be stored in
-repository for size reasons.</p>
-<p>domain: IFCDomain for that the content is wanted
-with_regression: boolean that determines if regression results should be
-downloaded as well.
-force_new: bool to force update of resources even if folders already exist</p>
 </dd></dl>
 
 <dl class="py function">
