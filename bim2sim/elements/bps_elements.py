@@ -529,12 +529,23 @@ class ThermalZone(BPSProduct):
         default_ps=("Pset_SpaceThermalLoad", "EquipmentSensible"),
         unit=ureg.watt,
     )
+
+    def _calc_lighting_power(self, name) -> float:
+        if self.use_maintained_illuminance:
+            return self.maintained_illuminance / self.lighting_efficiency_lumen
+        else:
+            return self.fixed_lighting_power
+
     lighting_power = attribute.Attribute(
         default_ps=("Pset_SpaceThermalLoad", "Lighting"),
+        functions=[_calc_lighting_power],
         unit=ureg.W,
     )
-    use_constant_infiltration = attribute.Attribute(
-    )
+    fixed_lighting_power = attribute.Attribute()
+    maintained_illuminance = attribute.Attribute()
+    use_maintained_illuminance = attribute.Attribute()
+    lighting_efficiency_lumen = attribute.Attribute()
+    use_constant_infiltration = attribute.Attribute()
     infiltration_rate = attribute.Attribute(
     )
     max_user_infiltration = attribute.Attribute(
