@@ -639,8 +639,6 @@ build:main-energyplus:py3.11:
     - pip uninstall -y bim2sim
     - pip install -e .[test]
     - export BIM2SIM_LOG_LEVEL=ERROR
-    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
     - |
       if [ "$COVERAGE" = "true" ]; then
         coverage run -m unittest discover ~/bim2sim-coding/test
@@ -670,8 +668,6 @@ build:main-energyplus:py3.11:
     - pip install -e .[test]
     - pip install -e .[$plugin]
     - export BIM2SIM_LOG_LEVEL=ERROR
-    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=hydraulic --force_new
-    - python ~/bim2sim-coding/test/resources/dl_test_resources.py --domain=arch --force_new
     # run coverage for unit and integration tests if they exist
     - |
       plugin_test_dir=~/bim2sim-coding/bim2sim/plugins/${plugin}/test
