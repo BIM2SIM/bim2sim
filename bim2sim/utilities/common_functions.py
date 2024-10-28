@@ -161,6 +161,9 @@ def combine_usages(common_usages, custom_usages) -> dict:
                     raise TypeError("custom usages must be a list")
             if key in usages.keys():
                 usages[key]["custom"] = value
+            else:
+                usages[key]["custom"] = value
+                usages[key]["common"] = []
     return usages
 
 
