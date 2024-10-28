@@ -33,7 +33,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
 ]
 dependencies = [
-    "ifcopenshell>=0.7.0",
+    "ifcopenshell==0.7.0.240627",
     "docopt==0.6.2",
     "numpy==1.26.0",
     "pandas==2.1.3",

@@ -24,7 +24,7 @@ class Enrich(ITask):
         # general question -> year of construction, all elements
         decision = RealDecision("Enter value for the construction year",
                                 validate_func=lambda x: isinstance(x, float),
-                                global_key="Construction year",
+                                global_key=f"{str(self.__class__.__name__)}_Construction year",
                                 allow_skip=False)
         yield DecisionBunch([decision])
         delta = float("inf")

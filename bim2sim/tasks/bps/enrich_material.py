@@ -8,6 +8,7 @@ from bim2sim.utilities.common_functions import filter_elements, \
     get_type_building_elements, get_material_templates
 from bim2sim.elements.bps_elements import Layer, LayerSet, Building
 from bim2sim.utilities.types import LOD, AttributeDataSource
+from bim2sim.tasks.base import Playground
 
 
 class EnrichMaterial(ITask):
@@ -27,12 +28,20 @@ class EnrichMaterial(ITask):
         "InnerDoor": ["InnerDoor", "InnerDoorDisaggregated"],
     }
 
-    def __init__(self, playground):
+    def __init__(self, playground: Playground):
         super().__init__(playground)
         self.layer_sets_added = []
         self.template_materials = {}
 
     def run(self, elements: dict):
+        """Enriches materials and layer sets of building elements.
+
+        Enrichment data in the files MaterialTemplates.json and
+        TypeBuildingElements.json is taken from TEASER. The underlying data
+        comes from IWU data. For more detailed information please review TEASER
+        code documentation:
+        https://rwth-ebc.github.io/TEASER//master/docs/index.html
+        """
         # TODO change data_source when existing for all overwritten information
         [element_templates, material_template] = \
             yield from self.get_templates(elements)
@@ -168,7 +177,7 @@ class EnrichMaterial(ITask):
         material_templates = get_material_templates()
         resumed = {}
         for k in material_templates:
-            resumed[material_templates[k]['name']] = {}
+            resumed[material_templates[k]['name']]: dict = {}
             if attrs is not None:
                 for attr in attrs:
                     if attr == 'thickness':

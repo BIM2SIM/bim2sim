@@ -1,7 +1,8 @@
 import logging
+import pickle
 import re
 from json import JSONEncoder
-from typing import Union, Iterable, Dict, List, Tuple, Type, Optional
+from typing import Union, Iterable, Dict, List, Tuple, Type, Optional, Any
 
 import numpy as np
 import ifcopenshell.geom
@@ -132,112 +133,14 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         all attributes functions are used to calculate the remaining attributes
         """
 
-        decisions = DecisionBunch()
-        dependant = {}
+        all_attr_decisions = DecisionBunch()
         for inst in elements:
             bunch = inst.attributes.get_decisions()
-            _decisions, _dependant = cls.extract_bunch_components(bunch, inst)
-            decisions.extend(_decisions)
-            dependant.update(_dependant)
+            all_attr_decisions.extend(bunch)
 
         # sort decisions to preserve order
-        decisions.sort(key=lambda d: d.global_key)
-        yield decisions
-        cls.calc_function_attributes(dependant)
-
-    @classmethod
-    def calc_function_attributes(cls, dependant_dict):
-        """Calculate attributes based on functions stored in dependant_dict"""
-        for inst, dependant in dependant_dict.items():
-            for attr in dependant:
-                cls.calc_dependant_attr(inst, attr, dependant)
-
-    @classmethod
-    def calc_dependant_attr(cls, d_inst, attr, d_dependant):
-        """
-        Calculate attribute based on functions stored in d_dependant.
-
-        This function calculates first the attributes that have no dependency,
-        and after this are calculated, calculates the dependant attribute.
-        """
-        (dependency, functions) = d_dependant[attr]
-        if dependency is not None:
-            for s_dependency in dependency:
-                if s_dependency in d_dependant:
-                    cls.calc_dependant_attr(d_inst, s_dependency, d_dependant)
-        cls.calc_function_list(d_inst, attr, functions)
-
-    @staticmethod
-    def calc_function_list(inst, attr, functions):
-        """
-        Calculate attribute based on functions stored in functions.
-
-        Parameters
-        ----------
-        inst: attribute instance
-        attr: attribute name
-        functions: list of functions
-        """
-        for i, func in enumerate(functions):
-            try:
-                value = func(inst, attr)
-            except Exception as ex:
-                logger.error("Function %d of %s.%s raised %s", i, inst, attr,
-                             ex)
-            else:
-                if value is not None:
-                    setattr(inst, attr, value)
-                    break
-
-    @classmethod
-    def extract_bunch_components(cls, bunch, instance) -> [list, dict]:
-        """
-        Extract separately all decisions and dependencies from bunch.
-        Parameters
-        ----------
-        bunch: list containing decisions and/or functions of attributes
-        instance: instance that was requested
-        """
-        decisions = []
-        dependant = {}
-
-        for decision_group in bunch:
-            if isinstance(decision_group, dict):
-                cls.extract_decisions_functions(
-                    instance, decision_group, decisions, dependant)
-            else:
-                decisions.append(decision_group)
-        dependant = dict(reversed(list(dependant.items())))
-
-        return decisions, dependant
-
-    @classmethod
-    def extract_decisions_functions(
-            cls, instance, decisions_group, decisions, dependant):
-        """
-        Extract separately all decisions and dependencies from decisions_group.
-
-        Parameters
-        ----------
-        instance: instance  that was requested
-        decisions_group: dict containing decisions and/or functions of
-            attributes
-        decisions: list containing decisions
-        dependant: dict containing dependencies
-        """
-        if instance not in dependant:
-            dependant[instance] = {}
-        for key, value in decisions_group.items():
-            if isinstance(key, str):
-                if isinstance(value, tuple):
-                    dependant[instance].update({key: value})
-                else:
-                    decisions.append(value)
-            elif isinstance(value, dict):
-                cls.extract_decisions_functions(
-                    key, value, decisions, dependant)
-            else:
-                decisions.append(value)
+        all_attr_decisions.sort(key=lambda d: d.global_key)
+        yield all_attr_decisions
 
     @classmethod
     def full_reset(cls):
@@ -993,14 +896,40 @@ class SerializedElement:
         self.element_type = element.__class__.__name__
         for attr_name, attr_val in element.attributes.items():
             # assign value directly to attribute without status
-            setattr(self, attr_name, attr_val[0])
-        # self.attributes = {}
-        # for attr_name, attr_val in element.attributes.items():
-        #     self.attributes[attr_name] = attr_val
+            # make sure to get the value
+            value = getattr(element, attr_name)
+            if self.is_picklable(value):
+                setattr(self, attr_name, value)
+            else:
+                logger.info(
+                    f"Attribute {attr_name} will not be serialized, as it's "
+                    f"not pickleable")
+        if hasattr(element, "space_boundaries"):
+            self.space_boundaries = [bound.guid for bound in
+                                     element.space_boundaries]
         if hasattr(element, "storeys"):
             self.storeys = [storey.guid for storey in element.storeys]
         if issubclass(element.__class__, AggregationMixin):
             self.elements = [ele.guid for ele in element.elements]
+
+    @staticmethod
+    def is_picklable(value: Any) -> bool:
+        """Determines if a given value is picklable.
+
+        This method attempts to serialize the provided value using the `pickle` module.
+        If the value can be successfully serialized, it is considered picklable.
+
+        Args:
+            value (Any): The value to be tested for picklability.
+
+        Returns:
+            bool: True if the value is picklable, False otherwise.
+        """
+        try:
+            pickle.dumps(value)
+            return True
+        except (pickle.PicklingError, TypeError):
+            return False
 
     def __repr__(self):
         return "<serialized %s (guid: '%s')>" % (
