@@ -7,7 +7,9 @@ from bim2sim.sim_settings import BooleanSetting, ChoiceSetting, NumberSetting
 class OpenFOAMSimSettings(ComfortSimSettings):
     def __init__(self):
         super().__init__()
-        self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
+        self.relevant_elements = {*bps_elements.items,
+                                  hvac_elements.AirTerminal,
+                                  hvac_elements.SpaceHeater,
                                   Material}
 
     add_heating = BooleanSetting(

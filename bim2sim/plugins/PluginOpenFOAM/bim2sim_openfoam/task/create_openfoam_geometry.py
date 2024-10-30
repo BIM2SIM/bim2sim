@@ -119,7 +119,15 @@ class CreateOpenFOAMGeometry(ITask):
             # identify space heater in current zone (maybe flag is already
             # set from preprocessing in bim2sim
             # get TopoDS_Shape for further preprocessing of the shape.
-            for b2s_heater in bim2sim_heaters:
+            if not hasattr(openfoam_case.current_zone, 'heaters'):
+                openfoam_case.current_zone.heaters = []
+            for space_heater in bim2sim_heaters:
+                if PyOCCTools.obj2_in_obj1(
+                        obj1=openfoam_case.current_zone.space_shape,
+                        obj2=space_heater.shape):
+                    openfoam_case.current_zone.heaters.append(space_heater)
+        if openfoam_case.current_zone.heaters:
+            for b2s_heater in openfoam_case.current_zone.heaters:
                 # visualization to check if heaters are inside of current
                 # space boundaries
                 # VisualizationUtils.display_occ_shapes(
@@ -329,10 +337,21 @@ class CreateOpenFOAMGeometry(ITask):
             print('multiple ceilings/roofs detected. Not implemented. '
                   'Merge shapes before proceeding to avoid errors. ')
             air_terminal_surface = ceiling_roof[0]
-        if 'AirTerminal' in [name.__class__.__name__ for name in
-                             list(elements.values())]:
-            air_terminals = [a for a in list(elements.values()) if
-                     (a.__class__.__name__ == 'AirTerminal')]
+        bim2sim_airterminals = filter_elements(elements, 'AirTerminal')
+        if bim2sim_airterminals:
+            if not hasattr(openfoam_case.current_zone, 'airterminals'):
+                openfoam_case.current_zone.airterminals = []
+            for airterminal in bim2sim_airterminals:
+                if PyOCCTools.obj2_in_obj1(
+                        obj1=openfoam_case.current_zone.space_shape,
+                        obj2=airterminal.shape):
+                    openfoam_case.current_zone.airterminals.append(airterminal)
+        if openfoam_case.current_zone.airterminals:
+            air_terminals = openfoam_case.current_zone.airterminals
+        # if 'AirTerminal' in [name.__class__.__name__ for name in
+        #                      list(elements.values())]:
+        #     air_terminals = [a for a in list(elements.values()) if
+        #              (a.__class__.__name__ == 'AirTerminal')]
             # todo: get product shape of air terminals
             # identify air terminals in current zone (maybe flag is already
             # set from preprocessing in bim2sim
@@ -411,7 +430,7 @@ class CreateOpenFOAMGeometry(ITask):
                                                airt_center[1],
                                                airt_center[2]).Coord()
                 # new compounds
-                if airt.name == 'Zuluft':
+                if 'zuluft' in airt.name.lower():
                     trsf_inlet = gp_Trsf()
                     trsf_inlet.SetTranslation(compound_center_lower,
                                               gp_Pnt(*airt_center_lower))
@@ -447,7 +466,7 @@ class CreateOpenFOAMGeometry(ITask):
                                         inlet_type)
                     inlet.solid = inlet_solid
                     inlets.append(inlet)
-                if airt.name == 'Abluft':
+                if 'abluft' in airt.name.lower():
                     trsf_outlet = gp_Trsf()
                     trsf_outlet.SetTranslation(compound_center_lower,
                                                gp_Pnt(*airt_center_lower))
