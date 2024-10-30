@@ -1,21 +1,22 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../../">
+<html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Elements &mdash; bim2sim  0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
 
   
-      <script src="../../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+      <script src="../../_static/jquery.js"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+      <script src="../../_static/doctools.js"></script>
+      <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -106,9 +107,9 @@
            <div itemprop="articleBody">
              
   <section id="elements">
-<span id="elements-structure"></span><h1>Elements<a class="headerlink" href="#elements" title="Link to this heading"></a></h1>
+<span id="elements-structure"></span><h1>Elements<a class="headerlink" href="#elements" title="Permalink to this heading"></a></h1>
 <section id="functionality">
-<h2>Functionality<a class="headerlink" href="#functionality" title="Link to this heading"></a></h2>
+<h2>Functionality<a class="headerlink" href="#functionality" title="Permalink to this heading"></a></h2>
 <p>As we want to provide the generation of models for multiple simulation tools and
 domains, we don’t go with a direct 1:1 mapping of IFC to simulation models.
 Instead, we created the <code class="docutils literal notranslate"><span class="pre">elements</span></code> structure that allows us to gather relevant
@@ -116,7 +117,7 @@ information from different sources in the IFC and store them in a structure that
 is created with the specific goal to parametrize simulation models.</p>
 </section>
 <section id="mapping">
-<h2>Mapping<a class="headerlink" href="#mapping" title="Link to this heading"></a></h2>
+<h2>Mapping<a class="headerlink" href="#mapping" title="Permalink to this heading"></a></h2>
 <p>The general steps of mapping IFC entity to element class are divided as follows.</p>
 <ol class="arabic simple">
 <li><p>selecting the element class according to <code class="docutils literal notranslate"><span class="pre">IfcType</span></code> or <code class="docutils literal notranslate"><span class="pre">PredefinedType</span></code> of the
@@ -139,7 +140,7 @@ occur:</p>
 </ul>
 <p>The more complicated first two cases are described with an example below.</p>
 <section id="many-mapping">
-<h3>1:many Mapping<a class="headerlink" href="#many-mapping" title="Link to this heading"></a></h3>
+<h3>1:many Mapping<a class="headerlink" href="#many-mapping" title="Permalink to this heading"></a></h3>
 <p>For simple explanation lets use the <code class="docutils literal notranslate"><span class="pre">IfcWall</span></code>. In simulation environments for
 BPS we need to differ between inner walls and outer walls. In IFC this is done
 by a property which might be found <code class="docutils literal notranslate"><span class="pre">isExternal</span></code> in the corresponding
@@ -152,14 +153,14 @@ a <code class="docutils literal notranslate"><span class="pre">Roof</span></code
 <code class="docutils literal notranslate"><span class="pre">PredefinedType</span></code> in IFC.</p>
 </section>
 <section id="many-1-mapping">
-<h3>many:1 Mapping<a class="headerlink" href="#many-1-mapping" title="Link to this heading"></a></h3>
+<h3>many:1 Mapping<a class="headerlink" href="#many-1-mapping" title="Permalink to this heading"></a></h3>
 <p>A good example for many:1 is the <code class="docutils literal notranslate"><span class="pre">Roof</span></code> class of <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code>. Depending on it’s
 predefined type either the <code class="docutils literal notranslate"><span class="pre">IfcSlab</span></code> or <code class="docutils literal notranslate"><span class="pre">IfcRoof</span></code> can be a <code class="docutils literal notranslate"><span class="pre">Roof</span></code> instance for
 simulation.</p>
 </section>
 </section>
 <section id="element-types">
-<h2>Element Types<a class="headerlink" href="#element-types" title="Link to this heading"></a></h2>
+<h2>Element Types<a class="headerlink" href="#element-types" title="Permalink to this heading"></a></h2>
 <p>We created different element types for different purposes. The most relevant
 base classes are:</p>
 <ul class="simple">

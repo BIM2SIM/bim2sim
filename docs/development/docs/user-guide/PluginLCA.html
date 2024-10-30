@@ -1,21 +1,22 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../">
+<html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PluginLCA &mdash; bim2sim  0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
 
   
-      <script src="../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
       <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
       <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
       <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
@@ -27,7 +28,7 @@ window.addEventListener("load", () => mermaid.run());
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="PluginCFD" href="PluginCFD.html" />
+    <link rel="next" title="Simulation-Guide" href="../simulation-guide.html" />
     <link rel="prev" title="PluginHKESim" href="PluginHKESim.html" /> 
 </head>
 
@@ -85,7 +86,6 @@ window.addEventListener("load", () => mermaid.run());
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="PluginCFD.html">PluginCFD</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
@@ -122,15 +122,15 @@ window.addEventListener("load", () => mermaid.run());
            <div itemprop="articleBody">
              
   <section id="pluginlca">
-<h1>PluginLCA<a class="headerlink" href="#pluginlca" title="Link to this heading"></a></h1>
+<h1>PluginLCA<a class="headerlink" href="#pluginlca" title="Permalink to this heading"></a></h1>
 <p>The PluginLCA is used to export the material quantities and their cost groups according to DIN276. Its the most basic
 Plugin currently. The result are two .csv file that hold information about the used materials quantities in volume and
 mass and lie the foundation for a later analysis with LCA databases. We are planning to automate this link so a complete
 automated LCA can be carried out based on the IFC data.</p>
 <section id="how-to-install">
-<span id="howtoinstalllca"></span><h2>How to install?<a class="headerlink" href="#how-to-install" title="Link to this heading"></a></h2>
+<span id="howtoinstalllca"></span><h2>How to install?<a class="headerlink" href="#how-to-install" title="Permalink to this heading"></a></h2>
 <section id="step-by-step">
-<h3>Step by step<a class="headerlink" href="#step-by-step" title="Link to this heading"></a></h3>
+<h3>Step by step<a class="headerlink" href="#step-by-step" title="Permalink to this heading"></a></h3>
 <p>To install <code class="docutils literal notranslate"><span class="pre">PluginLCA</span></code>: you need to do the following
 (in the root directory of the repo, here is the pyproject.toml file)</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;.[PluginLCA]&#39;</span>
@@ -139,11 +139,11 @@ automated LCA can be carried out based on the IFC data.</p>
 <p>The <a class="reference internal" href="PluginTemplate.html#coreinstalltion"><span class="std std-ref">bim2sim core installation</span></a> needs to be done before.</p>
 </section>
 <section id="test-install">
-<h3>Test install<a class="headerlink" href="#test-install" title="Link to this heading"></a></h3>
+<h3>Test install<a class="headerlink" href="#test-install" title="Permalink to this heading"></a></h3>
 </section>
 </section>
 <section id="structure-of-the-plugin">
-<h2>Structure of the plugin<a class="headerlink" href="#structure-of-the-plugin" title="Link to this heading"></a></h2>
+<h2>Structure of the plugin<a class="headerlink" href="#structure-of-the-plugin" title="Permalink to this heading"></a></h2>
 <p>The following figure shows the structure of the LCA plugin. Here you see which tasks are used and how they are combined.</p>
 <!--- 
 the following code is pasted from the a file from /bim2sim/docs/source/img/dynamic/plugindiagram
@@ -265,39 +265,39 @@ taskEnrichMaterial --&gt; taskExportLCA
     </pre><p>This figure is generated by the script template_mermaid.py (see <a class="reference internal" href="../developer-guide/doc-utilities/gen_plugin_visu.html#genvisplugins"><span class="std std-ref">Visualization of bim2sim plugin structure</span></a>).</p>
 </section>
 <section id="how-to-create-a-project">
-<h2>How to create a project?<a class="headerlink" href="#how-to-create-a-project" title="Link to this heading"></a></h2>
+<h2>How to create a project?<a class="headerlink" href="#how-to-create-a-project" title="Permalink to this heading"></a></h2>
 </section>
 <section id="how-to-load-an-ifc-file">
-<h2>How to load an IFC file?<a class="headerlink" href="#how-to-load-an-ifc-file" title="Link to this heading"></a></h2>
+<h2>How to load an IFC file?<a class="headerlink" href="#how-to-load-an-ifc-file" title="Permalink to this heading"></a></h2>
 </section>
 <section id="how-to-configure-my-project">
-<h2>How to configure my project?<a class="headerlink" href="#how-to-configure-my-project" title="Link to this heading"></a></h2>
+<h2>How to configure my project?<a class="headerlink" href="#how-to-configure-my-project" title="Permalink to this heading"></a></h2>
 <section id="simulation-settings">
-<h3>Simulation settings<a class="headerlink" href="#simulation-settings" title="Link to this heading"></a></h3>
+<h3>Simulation settings<a class="headerlink" href="#simulation-settings" title="Permalink to this heading"></a></h3>
 </section>
 <section id="configuration-file">
-<h3>Configuration file<a class="headerlink" href="#configuration-file" title="Link to this heading"></a></h3>
+<h3>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this heading"></a></h3>
 </section>
 <section id="default-tasks">
-<h3>Default tasks<a class="headerlink" href="#default-tasks" title="Link to this heading"></a></h3>
+<h3>Default tasks<a class="headerlink" href="#default-tasks" title="Permalink to this heading"></a></h3>
 </section>
 <section id="additional-templates">
-<h3>Additional templates<a class="headerlink" href="#additional-templates" title="Link to this heading"></a></h3>
+<h3>Additional templates<a class="headerlink" href="#additional-templates" title="Permalink to this heading"></a></h3>
 </section>
 </section>
 <section id="how-to-run-the-project">
-<h2>How to run the project?<a class="headerlink" href="#how-to-run-the-project" title="Link to this heading"></a></h2>
+<h2>How to run the project?<a class="headerlink" href="#how-to-run-the-project" title="Permalink to this heading"></a></h2>
 </section>
 <section id="how-to-run-the-simulation">
-<h2>How to run the simulation?<a class="headerlink" href="#how-to-run-the-simulation" title="Link to this heading"></a></h2>
+<h2>How to run the simulation?<a class="headerlink" href="#how-to-run-the-simulation" title="Permalink to this heading"></a></h2>
 </section>
 <section id="how-to-analyze-the-project">
-<h2>How to analyze the project?<a class="headerlink" href="#how-to-analyze-the-project" title="Link to this heading"></a></h2>
+<h2>How to analyze the project?<a class="headerlink" href="#how-to-analyze-the-project" title="Permalink to this heading"></a></h2>
 <section id="what-kind-of-results-exist">
-<h3>What kind of results exist?<a class="headerlink" href="#what-kind-of-results-exist" title="Link to this heading"></a></h3>
+<h3>What kind of results exist?<a class="headerlink" href="#what-kind-of-results-exist" title="Permalink to this heading"></a></h3>
 </section>
 <section id="what-programs-tools-to-use-for-further-analysis">
-<h3>What programs/tools to use for further analysis?<a class="headerlink" href="#what-programs-tools-to-use-for-further-analysis" title="Link to this heading"></a></h3>
+<h3>What programs/tools to use for further analysis?<a class="headerlink" href="#what-programs-tools-to-use-for-further-analysis" title="Permalink to this heading"></a></h3>
 </section>
 </section>
 </section>
@@ -307,7 +307,7 @@ taskEnrichMaterial --&gt; taskExportLCA
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="PluginHKESim.html" class="btn btn-neutral float-left" title="PluginHKESim" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="PluginCFD.html" class="btn btn-neutral float-right" title="PluginCFD" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../simulation-guide.html" class="btn btn-neutral float-right" title="Simulation-Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -1,21 +1,22 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../">
+<html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Writing your own bim2sim Plugin &mdash; bim2sim  0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
 
   
-      <script src="../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -93,10 +94,10 @@
            <div itemprop="articleBody">
              
   <section id="writing-your-own-bim2sim-plugin">
-<h1>Writing your own bim2sim Plugin<a class="headerlink" href="#writing-your-own-bim2sim-plugin" title="Link to this heading"></a></h1>
+<h1>Writing your own bim2sim Plugin<a class="headerlink" href="#writing-your-own-bim2sim-plugin" title="Permalink to this heading"></a></h1>
 <p>A <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> <a class="reference internal" href="../code/bim2sim.plugins.html#bim2sim.plugins.Plugin" title="bim2sim.plugins.Plugin"><span class="xref myst py py-class">Plugin</span></a> extends the base functionality of the library to solve specific problems.</p>
 <section id="basics">
-<h2>Basics<a class="headerlink" href="#basics" title="Link to this heading"></a></h2>
+<h2>Basics<a class="headerlink" href="#basics" title="Permalink to this heading"></a></h2>
 <p>A Plugin is little more than a collection of <code class="docutils literal notranslate"><span class="pre">Task</span></code>s. Let’s have a look:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bim2sim.plugins</span> <span class="kn">import</span> <span class="n">Plugin</span>
 <span class="kn">from</span> <span class="nn">bim2sim.task.base</span> <span class="kn">import</span> <span class="n">ITask</span>
@@ -133,10 +134,10 @@ the <code class="docutils literal notranslate"><span class="pre">Plugin</span></
 great things” to it.</p>
 </section>
 <section id="use-a-custom-plugin">
-<h2>Use a custom Plugin<a class="headerlink" href="#use-a-custom-plugin" title="Link to this heading"></a></h2>
+<h2>Use a custom Plugin<a class="headerlink" href="#use-a-custom-plugin" title="Permalink to this heading"></a></h2>
 <p>Now that we have a <code class="docutils literal notranslate"><span class="pre">Plugin</span></code>, how can we actually use it?</p>
 <section id="let-bim2sim-find-your-plugin">
-<h3>Let <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> find your Plugin<a class="headerlink" href="#let-bim2sim-find-your-plugin" title="Link to this heading"></a></h3>
+<h3>Let <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> find your Plugin<a class="headerlink" href="#let-bim2sim-find-your-plugin" title="Permalink to this heading"></a></h3>
 <p>The preferred way is to set up your plugin in way it can be auto-detected
 by <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code>.</p>
 <ol class="arabic">
@@ -157,7 +158,7 @@ adding it to <code class="docutils literal notranslate"><span class="pre">PYTHON
 Plugin.</p>
 </section>
 <section id="use-in-script">
-<h3>Use in script<a class="headerlink" href="#use-in-script" title="Link to this heading"></a></h3>
+<h3>Use in script<a class="headerlink" href="#use-in-script" title="Permalink to this heading"></a></h3>
 <p>Alternatively you can use your <code class="docutils literal notranslate"><span class="pre">Plugin</span></code> directly from within your script.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bim2sim</span> <span class="kn">import</span> <span class="n">Project</span><span class="p">,</span> <span class="n">run_project</span><span class="p">,</span> <span class="n">ConsoleDecisionHandler</span>
 

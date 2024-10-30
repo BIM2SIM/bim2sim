@@ -1,21 +1,22 @@
 
 
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" data-content_root="../../">
+<html class="writer-html5" lang="en">
 <head>
-  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Finder &mdash; bim2sim  0.1.0 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
 
   
-      <script src="../../_static/jquery.js?v=5d32c60e"></script>
-      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+      <script src="../../_static/jquery.js"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+      <script src="../../_static/doctools.js"></script>
+      <script src="../../_static/sphinx_highlight.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -105,9 +106,9 @@
            <div itemprop="articleBody">
              
   <section id="finder">
-<h1>Finder<a class="headerlink" href="#finder" title="Link to this heading"></a></h1>
+<h1>Finder<a class="headerlink" href="#finder" title="Permalink to this heading"></a></h1>
 <section id="what-does-the-finder">
-<h2>What does the finder?<a class="headerlink" href="#what-does-the-finder" title="Link to this heading"></a></h2>
+<h2>What does the finder?<a class="headerlink" href="#what-does-the-finder" title="Permalink to this heading"></a></h2>
 <p>The abstract <code class="docutils literal notranslate"><span class="pre">finder</span></code> class has currently only one implementation, the
 <a class="reference internal" href="../../code/bim2sim.elements.mapping.html#bim2sim.elements.mapping.finder.TemplateFinder" title="bim2sim.elements.mapping.finder.TemplateFinder"><span class="xref myst py py-class">TemplateFinder</span></a>. The TemplateFinder is used to find attributes
 in the IFC which are not placed in an IFC schema specified way, but in a known
@@ -124,26 +125,27 @@ Currently we support templates for:</p>
 </ul>
 </section>
 <section id="i-have-my-own-tool-or-i-m-aware-of-more-typical-storage-points-what-to-do">
-<h2>I have my own tool, or I’m aware of more typical storage points, what to do?<a class="headerlink" href="#i-have-my-own-tool-or-i-m-aware-of-more-typical-storage-points-what-to-do" title="Link to this heading"></a></h2>
+<h2>I have my own tool, or I’m aware of more typical storage points, what to do?<a class="headerlink" href="#i-have-my-own-tool-or-i-m-aware-of-more-typical-storage-points-what-to-do" title="Permalink to this heading"></a></h2>
 <p>Please feel free to enrich the existing templates. They are stored under
 <code class="docutils literal notranslate"><span class="pre">bim2sim/assets/finder</span></code>. Please take the following guidelines into account:</p>
 <ul class="simple">
 <li><p>every .json file needs to be named with “template_<name of tool>”</p></li>
 <li><p>every .json file should be structured the following way:</p></li>
 </ul>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;Identification&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;tool_names&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">&lt;lis</span><span class="kc">t</span><span class="w"> </span><span class="err">o</span><span class="kc">f</span><span class="w"> </span><span class="err">possible</span><span class="w"> </span><span class="kc">na</span><span class="err">mes&gt;</span><span class="p">],</span>
-<span class="w">    </span><span class="nt">&quot;languages&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">&lt;lis</span><span class="kc">t</span><span class="w"> </span><span class="err">o</span><span class="kc">f</span><span class="w"> </span><span class="err">la</span><span class="kc">n</span><span class="err">guages&gt;</span><span class="p">]</span>
-<span class="w">    </span>
-<span class="w">  </span><span class="p">},</span>
-<span class="w">  </span><span class="nt">&quot;&lt;name of bim2sim instance&gt;&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">	</span><span class="nt">&quot;default_ps&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;&lt;name bim2sim attribute&gt; 1&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;&lt;tool Pset name&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;&lt;tool attribute name&gt;&quot;</span><span class="p">],</span>
-<span class="w">      </span><span class="nt">&quot;&lt;name bim2sim attribute&gt; 2&quot;</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;&lt;tool Pset name&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;&lt;tool attribute name&gt;&quot;</span><span class="p">]</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">}</span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span>{
+  &quot;Identification&quot;: {
+    &quot;tool_names&quot;: [&lt;list of possible names&gt;],
+    &quot;languages&quot;: [&lt;list of languages&gt;]
+    
+  },
+  &quot;&lt;name of bim2sim instance&gt;&quot;: {
+	&quot;default_ps&quot;: {
+      &quot;&lt;name bim2sim attribute&gt; 1&quot; : [&quot;&lt;tool Pset name&gt;&quot;, &quot;&lt;tool attribute name&gt;&quot;],
+      &quot;&lt;name bim2sim attribute&gt; 2&quot; : [&quot;&lt;tool Pset name&gt;&quot;, &quot;&lt;tool attribute name&gt;&quot;]
+    }
+  }
+}
+
 </pre></div>
 </div>
 <p>Explanation of the example:</p>
