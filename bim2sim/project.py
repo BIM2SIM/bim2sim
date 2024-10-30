@@ -231,7 +231,7 @@ class FolderStructure:
                             f"file does not exist. You are trying to run a "
                             f"test on your local machine,"
                             f" but it seems like you have not downloaded the"
-                            f" needed test. "
+                            f" needed test resources. "
                             f"Run 'git submodule update --init --recursive' "
                             f"to make sure to include the test resources."
                         )
