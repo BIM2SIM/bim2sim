@@ -85,7 +85,6 @@ class PlotBEPSResults(ITask):
                 self.plot_multiple_temperatures(df.filter(
                     like='surf_inside_temp'), plot_path,logo=False)
 
-
     def plot_total_consumption(
             self, df: pd.DataFrame, plot_path: Path) -> None:
         """
