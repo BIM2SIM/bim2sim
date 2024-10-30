@@ -1,11 +1,9 @@
 from pathlib import Path
 
-from bim2sim.utilities.common_functions import download_test_resources, \
-    download_library
+from bim2sim.utilities.common_functions import download_library
 
 
 def prepare_regression_tests():
-    download_test_resources('arch', True, force_new=True)
     repo_url = "https://github.com/RWTH-EBC/AixLib.git"
     branch_name = "main"
     repo_name = "AixLib"
