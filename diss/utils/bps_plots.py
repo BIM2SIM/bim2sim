@@ -79,8 +79,20 @@ class PlotBPSDissResults(ITask):
             plot_path.mkdir(exist_ok=True)
             for ifc_file in ifc_files:
                 self.plot_floor_plan_with_results(
-                    df, elements, 'heat_energy_rooms',
+                    df, elements, 'heat_set_rooms',
                     ifc_file, plot_path, area_specific=False,
+                    result_processing='max')
+                self.plot_floor_plan_with_results(
+                    df, elements, 'heat_set_rooms',
+                    ifc_file, plot_path, area_specific=False,
+                    result_processing='min')
+                self.plot_floor_plan_with_results(
+                    df, elements, 'heat_demand_rooms',
+                    ifc_file, plot_path, area_specific=True,
+                    result_processing='max')
+                self.plot_floor_plan_with_results(
+                    df, elements, 'heat_energy_rooms',
+                    ifc_file, plot_path, area_specific=True,
                     result_processing='sum')
             self.plot_total_consumption(df, plot_path)
             if (any(df.filter(like='surf_inside_temp')) and
@@ -105,7 +117,7 @@ class PlotBPSDissResults(ITask):
             plot_path (Path): Path to save the plots.
         """
         self.plot_demands_time_series(df, ["Heating"], plot_path, logo=False,
-                                      title=None)
+                                      title=None, plot_daily_max=True)
         # self.plot_demands_time_series(df, ["Cooling"], plot_path, logo=False,
         #                               title=None)
         # self.plot_demands_time_series(df, ["Heating", "Cooling"], plot_path,
@@ -119,7 +131,8 @@ class PlotBPSDissResults(ITask):
                                  logo: bool = True, total_label: bool = True,
                                  window: int = 12,
                                  fig_size: Tuple[int, int] = (10, 6),
-                                 dpi: int = 300, title: Optional[str] = None) -> None:
+                                 dpi: int = 300, title: Optional[str] = None,
+                                 plot_daily_max: bool = False) -> None:
         """
         Plot time series of energy demands.
 
@@ -133,6 +146,7 @@ class PlotBPSDissResults(ITask):
             fig_size (Tuple[int, int]): Figure size in inches.
             dpi (int): Dots per inch for the figure.
             title (Optional[str]): Title of the plot.
+            plot_daily_max (bool): resample for daily maximum. defaults to false
         """
         fig, ax = plt.subplots(figsize=fig_size, dpi=dpi)
 
@@ -141,11 +155,17 @@ class PlotBPSDissResults(ITask):
 
         for dt in demand_type:
             if dt.lower() == "heating":
-                y_values = df["heat_demand_total"]
+                if plot_daily_max:
+                    y_values = df["heat_demand_total"].resample("D").max()
+                else:
+                    y_values = df["heat_demand_total"]
                 total_energy_col = "heat_energy_total"
                 label = "Heating"
             elif dt.lower() == "cooling":
-                y_values = df["cool_demand_total"]
+                if plot_daily_max:
+                    y_values = df["cool_demand_total"].resample("D").max()
+                else:
+                    y_values = df["cool_demand_total"]
                 total_energy_col = "cool_energy_total"
                 label = "Cooling"
             else:
@@ -292,7 +312,7 @@ class PlotBPSDissResults(ITask):
             plot_path: Path,
             min_space_area: float = 2,
             area_specific: bool = True,
-            result_processing: Literal['max', 'sum', 'mean'] = 'max'
+            result_processing: Literal['min', 'max', 'sum', 'mean'] = 'max'
     ):
         """Plot a floor plan colorized based on specific heat demand.
 
@@ -311,8 +331,8 @@ class PlotBPSDissResults(ITask):
             area_specific (bool): True if result_str values should be divided
              by area to get valuer per square meter.
             result_processing (str): choose processing of the result
-             dataframe for plotting. Select either max, sum, or mean. Default
-             is set to max.
+             dataframe for plotting. Select either min, max, sum, or mean.
+             Default is set to max.
 
 
         TODO: this is currently not working for aggregated zones.
@@ -374,6 +394,8 @@ class PlotBPSDissResults(ITask):
                     "space_data", {})
                 if result_processing == 'max':
                     col_data_processed = col_data.max()
+                elif result_processing == 'min':
+                    col_data_processed = col_data.min()
                 elif result_processing == 'mean':
                     col_data_processed = col_data.mean()
                 elif result_processing == 'sum':
@@ -404,7 +426,15 @@ class PlotBPSDissResults(ITask):
             storey_maxs.append(storey_data["storey_max_value"])
         storey_min = min(storey_mins)
         storey_max = max(storey_maxs)
-        storey_med = (storey_min + storey_max) / 2
+        try:
+            storey_med = (storey_min + storey_max) / 2
+        except:
+            if storey_min.u == storey_max.u:
+                storey_med = (storey_min.m + storey_max.m) / 2 * storey_min.u
+            else:
+                storey_max = storey_max.to(storey_min.u)
+                storey_med = (storey_min.m + storey_max.m) / 2 * storey_min.u
+
         all_data = []
         for storey_guid, storey_data in svg_adjust_dict.items():
             for space_guid, value in storey_data["space_data"].items():
