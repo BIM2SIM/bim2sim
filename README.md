@@ -1,4 +1,4 @@
-# <img src='docs/source/img/static/b2s_logo.png' width='200'> BIM2SIM 
+# <img src='docs/source/img/static/b2s_logo.png' width='200'> bim2sim 
 [![pylint](https://bim2sim.github.io/bim2sim/development/pylint/pylint.svg)](https://bim2sim.github.io/bim2sim/development/pylint/pylint.html)
 [![documentation](https://bim2sim.github.io/bim2sim/development/docs/doc.svg)](https://bim2sim.github.io/bim2sim/development/docs/index.html)
 [![coverage (W/O Plugins)](https://bim2sim.github.io/bim2sim/development/coverage/badge.svg)](https://bim2sim.github.io/bim2sim/development/coverage)
@@ -8,7 +8,6 @@ bim2sim is a library to create simulation models for different purposes based on
 
 * Building Performance Simulation (BPS)
 * Heating, Ventilation, Air Conditioning (HVAC)
-* Computational Fluid Dynamics (CFD)
 * Life Cycle Assessment (LCA) 
 
 The focus of the currently released tool is on BPS and HVAC but we already provide basic methods for CFD and LCA as well. The base structure is shown below: 

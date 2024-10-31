@@ -4,7 +4,6 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
-from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain
 
 
@@ -27,9 +26,6 @@ def run_example_simple_hvac_aixlib():
         tempfile.TemporaryDirectory(
             prefix='bim2sim_example_simple_aixlib').name)
 
-    # download additional test resources for arch domain, you might want to set
-    # force_new to True to update your test resources
-    download_test_resources(IFCDomain.hydraulic, force_new=False)
 
     # Set path of ifc for hydraulic domain with the fresh downloaded test models
     ifc_paths = {

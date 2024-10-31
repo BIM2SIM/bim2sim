@@ -228,10 +228,12 @@ class FolderStructure:
                             and "resources" in file_path.parts:
                         raise ValueError(
                             f"Provided path to ifc is: {file_path}, but this "
-                            f"file does not exist. You are trying to run a test on your local machine,"
+                            f"file does not exist. You are trying to run a "
+                            f"test on your local machine,"
                             f" but it seems like you have not downloaded the"
-                            f" needed test resources. Run dl_test_resources.py "
-                            f"in test folder first."
+                            f" needed test resources. "
+                            f"Run 'git submodule update --init --recursive' "
+                            f"to make sure to include the test resources."
                         )
                     else:
                         raise ValueError(
