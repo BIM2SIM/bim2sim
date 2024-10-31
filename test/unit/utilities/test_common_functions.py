@@ -158,49 +158,4 @@ class TestCommonFunctions(unittest.TestCase):
         self.assertIsInstance(all_subclasses, set)
         self.assertEqual(len(all_subclasses), 29)
 
-    def test_download_test_files_arch(self):
-        testmodels_path = Path(__file__).parent.parent.parent / \
-                          'resources/arch'
-        # delete if already exists
-        if testmodels_path.exists():
-            cf.rm_tree(testmodels_path)
-        cf.download_test_resources('arch', with_regression=True)
-        ifc_path = testmodels_path / 'ifc'
-        usages_path = testmodels_path / 'custom_usages'
-        regression_path = testmodels_path / 'regression_results'
-        for path in [ifc_path, usages_path, regression_path]:
-            if not path.exists():
-                raise AssertionError(
-                    f"Path does not exist: {path}, download of "
-                    f"architecture IFC files didn't work.")
 
-    def test_download_test_files_hydraulic(self):
-        testmodels_path = Path(__file__).parent.parent.parent / \
-                          'resources/hydraulic'
-        # delete if already exists
-        if testmodels_path.exists():
-            cf.rm_tree(testmodels_path)
-        cf.download_test_resources('hydraulic', with_regression=True)
-        ifc_path = testmodels_path / 'ifc'
-        regression_path = testmodels_path / 'regression_results'
-        for path in [ifc_path, regression_path]:
-            if not path.exists():
-                raise AssertionError(
-                    f"Path does not exist: {path}, download of "
-                    f"hydraulic IFC files didn't work.")
-
-    def test_download_test_files_mixed(self):
-        testmodels_path = Path(__file__).parent.parent.parent / \
-                          'resources/mixed'
-        # delete if already exists
-        if testmodels_path.exists():
-            cf.rm_tree(testmodels_path)
-        cf.download_test_resources('mixed', with_regression=False)
-        ifc_path = testmodels_path / 'ifc'
-        # TODO #1 include regression results for mixed  when they exist
-        regression_path = testmodels_path / 'regression_results'
-        for path in [ifc_path]:
-            if not path.exists():
-                raise AssertionError(
-                    f"Path does not exist: {path}, download of "
-                    f"mixed IFC files didn't work.")

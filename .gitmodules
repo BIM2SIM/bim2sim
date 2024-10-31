@@ -1,4 +1,3 @@
-[submodule "bim2sim/plugins/AixLib"]
-	path = bim2sim/plugins/AixLib
-	url = https://github.com/RWTH-EBC/AixLib.git
-	branch = main
+[submodule "test/resources"]
+	path = test/resources
+	url = https://github.com/BIM2SIM/bim2sim-test-resources.git
