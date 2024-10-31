@@ -1,17 +1,21 @@
 import collections
 import json
+import logging
 import math
 import re
+import shutil
 import zipfile
 from urllib.request import urlopen
 from pathlib import Path
 from typing import Union
 from time import sleep
+import git
 
 import bim2sim
 from bim2sim.utilities.types import IFCDomain
 
 assets = Path(bim2sim.__file__).parent / 'assets'
+logger = logging.getLogger(__name__)
 
 
 def angle_equivalent(angle):
@@ -158,6 +162,9 @@ def combine_usages(common_usages, custom_usages) -> dict:
                     raise TypeError("custom usages must be a list")
             if key in usages.keys():
                 usages[key]["custom"] = value
+            else:
+                usages[key]["custom"] = value
+                usages[key]["common"] = []
     return usages
 
 
@@ -255,7 +262,8 @@ def get_type_building_elements_hvac():
     return type_building_elements
 
 
-def filter_elements(elements: Union[dict, list], type_name, create_dict=False)\
+def filter_elements(
+        elements: Union[dict, list], type_name, create_dict=False)\
         -> Union[list, dict]:
     """Filters the inspected elements by type name (e.g. Wall) and
     returns them as list or dict if wanted
@@ -373,100 +381,64 @@ def get_spaces_with_bounds(elements: dict):
     return spaces_with_bounds
 
 
-def download_file(url:str, target: Path):
-    """Download the file from url and put into target path.
+def download_library(
+        repo_url: str,
+        branch_name: str,
+        clone_dir: Path,
+):
+    """Clones a Git repository and checks out a specific branch, or updates
+    the repository if it already exists.
 
-    Unzips the downloaded content if it is a zip.
+    This function clones the specified Git repository into the given directory
+    and checks out the specified branch. If the directory already exists and
+    is a Git repository, it will perform a 'git pull' to update the repository
+    instead of cloning.
 
     Args:
-        url: str that holds url
-        target: pathlib path to target
+        repo_url (str): The URL of the Git repository to clone or update.
+        branch_name (str): The name of the branch to check out.
+        clone_dir (Path): The directory where the repository should be cloned
+                          or updated.
+
+    Returns:
+        None
+
+    Raises:
+        git.GitCommandError: If there is an error during the cloning, checkout,
+                             or pull process.
+        Exception: If the directory exists but is not a Git repository.
     """
-    with urlopen(url) as sciebo_website:
-        # Download from URL
-        content = sciebo_website.read()
-        # Save to file
-        with open(target, 'wb') as download:
-            download.write(content)
-        if str(target).lower().endswith('zip'):
-            # unzip files
-            with zipfile.ZipFile(target, 'r') as zip_ref:
-                zip_ref.extractall(target.parent)
-            # wait a second to prevent problems with deleting the file
-            sleep(1)
-            # remove zip file
-            Path.unlink(target)
-
-
-def download_test_resources(
-        domain: Union[str, IFCDomain],
-        with_regression: bool = False,
-        force_new: bool = False):
-    """Download test resources from Sciebo cloud.
-
-    This downloads additional resources in form of IFC files, regression results
-    and custom usages for BPS simulations for tests that should not be stored in
-    repository for size reasons.
-
-    domain: IFCDomain for that the content is wanted
-    with_regression: boolean that determines if regression results should be
-    downloaded as well.
-    force_new: bool to force update of resources even if folders already exist
-    """
-    # TODO #539: include hvac regression results here when implemented
-    if not isinstance(domain, IFCDomain):
+    if clone_dir.exists():
+        # If the directory exists, check if it's a Git repository
         try:
-            domain = IFCDomain[domain]
-        except ValueError:
-            raise ValueError(f"{domain} is not one of "
-                             f"{[domain.name for domain in IFCDomain]}, "
-                             f"please specify a valid download domain")
-    domain_name = domain.name
+            repo = git.Repo(clone_dir)
+            if repo.bare:
+                raise Exception(
+                    f"Directory {clone_dir} is not a valid Git repository.")
 
-    # check if already exists
-    test_rsrc_base_path = Path(__file__).parent.parent.parent / 'test/resources'
-    if Path.exists(test_rsrc_base_path / domain_name) and not force_new:
-        return
-    print(f"Downloading test resources for Domain {domain_name}")
-    if not Path.exists(test_rsrc_base_path / domain_name):
-        Path.mkdir(test_rsrc_base_path / domain_name)
+            # If it's a valid Git repository, perform a pull to update it
+            print(
+                f"Directory {clone_dir} already exists. Pulling latest "
+                f"changes...")
+            repo.git.checkout(
+                branch_name)  # Ensure we're on the correct branch
+            repo.remotes.origin.pull()
+            print(f"Repository in {clone_dir} updated successfully.")
 
-    sciebo_urls = {
-        'arch_ifc':
-            'https://rwth-aachen.sciebo.de/s/Imfggxwv8AKZ8T7/download',
-        'arch_regression_results':
-            'https://rwth-aachen.sciebo.de/s/ria5Zi9WdcjFr37/download',
-        'arch_custom_usages':
-            'https://rwth-aachen.sciebo.de/s/nzrGDLPAmHDQkBo/download',
-        'hydraulic_ifc':
-            'https://rwth-aachen.sciebo.de/s/fgMCUmFFEZSI9zU/download',
-        'hydraulic_regression_results':
-            'https://rwth-aachen.sciebo.de/s/IIBSoUseywtn66x/download',
-        'mixed_ifc':
-            'https://rwth-aachen.sciebo.de/s/SVldBrvVwWVz7db/download'
-    }
+        except git.exc.InvalidGitRepositoryError:
+            raise Exception(
+                f"Directory {clone_dir} exists but is not a Git repository.")
 
-    download_file(
-        url=sciebo_urls[domain_name+'_ifc'],
-        target=test_rsrc_base_path / domain_name / 'ifc.zip')
-    if domain == IFCDomain.arch:
-        download_file(
-            url=sciebo_urls[domain_name+'_custom_usages'],
-            target=test_rsrc_base_path / domain_name / 'custom_usages.zip')
-    if with_regression:
-        # TODO #1: remove these lines when implemented mixed regression
-        #  tests
-        if domain == IFCDomain.mixed:
-            raise NotImplementedError("Currently there are no regression"
-                                      " results for mixed simulations")
-        else:
-            download_file(
-                url=sciebo_urls[domain_name + '_regression_results'],
-                target=test_rsrc_base_path / domain_name /
-                       'regression_results.zip')
-    if domain not in [IFCDomain.arch, IFCDomain.hydraulic, IFCDomain.mixed]:
-        raise ValueError(f"For the domain {domain.name} currently no test "
-                         f"files exist.")
+    else:
+        # If the directory doesn't exist, clone the repository
+        print(f"Cloning repository {repo_url} into {clone_dir}...")
+        repo = git.Repo.clone_from(
+            repo_url, clone_dir, branch=branch_name, recursive=True)
+
+        # Checkout the specified branch
+        print(f"Checking out branch {branch_name}...")
+        repo.git.checkout(branch_name)
+        print(f"Checked out branch {branch_name}.")
 
 
 def rm_tree(pth):
@@ -478,6 +450,7 @@ def rm_tree(pth):
         else:
             rm_tree(child)
     pth.rmdir()
+
 
 def create_plotly_graphs_from_df(self):
     # save plotly graphs to export folder

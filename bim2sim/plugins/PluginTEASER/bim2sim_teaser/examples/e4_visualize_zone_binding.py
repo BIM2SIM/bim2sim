@@ -8,8 +8,7 @@ from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.tasks import common, bps
-from bim2sim.utilities.common_functions import download_test_resources, \
-    filter_elements
+from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 from bim2sim.utilities.visualize_spaces import visualize_zones
 
@@ -24,7 +23,6 @@ def visualize_zoning_of_complex_building():
     default_logging_setup()
     project_path = Path(
         tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
-    download_test_resources(IFCDomain.arch, force_new=False)
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /

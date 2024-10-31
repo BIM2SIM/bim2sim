@@ -25,6 +25,9 @@ class TestElement(ProductBased):
     attr5 = Attribute(
         functions=[_func1]
     )
+    attr6 = Attribute(attr_type=str)
+    attr7 = Attribute(attr_type=bool)
+
 
 
 class TestElementInherited(TestElement):
@@ -71,9 +74,9 @@ class TestAttribute(unittest.TestCase):
         """Test attribute manager"""
         self.assertIsNone(self.subject.attr1)
 
-        self.assertEqual(5, len(self.subject.attributes), "All Attributes should be registered in AttributeManager")
+        self.assertEqual(7, len(self.subject.attributes), "All Attributes should be registered in AttributeManager")
 
-        self.assertEqual(5, len(list(self.subject.attributes.names)))
+        self.assertEqual(7, len(list(self.subject.attributes.names)))
 
         self.assertIn('attr1', self.subject.attributes)
 
@@ -95,7 +98,8 @@ class TestAttribute(unittest.TestCase):
     def test_attribute_manager_names(self):
         """test names of manager"""
 
-        target = {'attr1', 'attr2', 'attr3', 'attr4', 'attr5'}
+        target = {'attr1', 'attr2', 'attr3', 'attr4', 'attr5', 'attr6', 'attr7'
+                  }
         found = set(self.subject.attributes.names)
         self.assertEqual(target, found)
 
@@ -169,6 +173,16 @@ class TestAttributeDecisions(unittest.TestCase):
         self.assertEqual(42 * ureg.meter, ele2.attr1)
         self.assertEqual(3, ele1.attr3)
         self.assertEqual(42, ele2.attr3)
+
+    def test_request_decision_bool(self):
+        """Test acceptance of input formats for different attr_types"""
+        ele = TestElement()
+        decision1 = ele.request('attr1')
+        decision2 = ele.request('attr6')
+        decision3 = ele.request('attr7')
+        decision1.value = 5.0
+        decision2.value = 'test'
+        decision3.value = True
 
     def test_external_decision(self):
         """Test to set attribute by external decision."""

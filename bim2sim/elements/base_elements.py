@@ -895,15 +895,17 @@ class SerializedElement:
         self.element_type = element.__class__.__name__
         for attr_name, attr_val in element.attributes.items():
             # assign value directly to attribute without status
-            if self.is_picklable(attr_val[0]):
-                setattr(self, attr_name, attr_val[0])
+            # make sure to get the value
+            value = getattr(element, attr_name)
+            if self.is_picklable(value):
+                setattr(self, attr_name, value)
             else:
                 logger.info(
                     f"Attribute {attr_name} will not be serialized, as it's "
                     f"not pickleable")
-        # self.attributes = {}
-        # for attr_name, attr_val in element.attributes.items():
-        #     self.attributes[attr_name] = attr_val
+        if hasattr(element, "space_boundaries"):
+            self.space_boundaries = [bound.guid for bound in
+                                     element.space_boundaries]
         if hasattr(element, "storeys"):
             self.storeys = [storey.guid for storey in element.storeys]
         if issubclass(element.__class__, AggregationMixin):

@@ -1,8 +1,14 @@
+import logging
+import os
 import tempfile
 from pathlib import Path
 from typing import Union
 
 from bim2sim.project import Project
+
+# Set up logging at the module level
+log_level = os.environ.get('BIM2SIM_LOG_LEVEL', 'ERROR')
+logging.getLogger('bim2sim.QualityReport').setLevel(getattr(logging, log_level))
 
 
 class IntegrationBase:
@@ -10,6 +16,10 @@ class IntegrationBase:
 
     def setUp(self) -> None:
         self.project = None
+        self.is_ci = any(var in os.environ for var in (
+            'GITLAB_CI', 'TRAVIS', 'CIRCLECI', 'GITHUB_ACTIONS'
+        ))
+        print(f"Current Infrastructure is CI: {self.is_ci}")
 
     def tearDown(self):
         if self.project:

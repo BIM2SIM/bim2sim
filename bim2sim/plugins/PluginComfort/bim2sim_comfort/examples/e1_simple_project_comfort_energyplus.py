@@ -44,7 +44,7 @@ def run_example_1():
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
 
     # specified settings for workflows can be changed later as well
-    project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+    # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
     project.sim_settings.layers_and_materials = LOD.low
     project.sim_settings.construction_class_walls = 'heavy'
     project.sim_settings.construction_class_windows = \
@@ -53,7 +53,7 @@ def run_example_1():
     project.sim_settings.setpoints_from_template = True
     project.sim_settings.add_window_shading = 'Exterior'
     project.sim_settings.cooling = False
-    project.sim_settings.rename_result_keys = True
+    project.sim_settings.rename_plot_keys = True
     project.sim_settings.create_plots = True
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
