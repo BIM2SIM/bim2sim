@@ -169,7 +169,7 @@ micromamba<span class="w"> </span>activate<span class="w"> </span>bim2sim
 
 <span class="c1"># clone bim2sim repository (you can also use SSH if you prefer)</span>
 <span class="c1"># the option &quot;--recurse-submodules&quot; is needed to load submodules </span>
-git<span class="w"> </span>clone<span class="w"> </span>-b<span class="w"> </span>development<span class="w"> </span>https://github.com/BIM2SIM/bim2sim.git
+git<span class="w"> </span>clone<span class="w"> </span>--recurse-submodules<span class="w"> </span>-b<span class="w"> </span>development<span class="w"> </span>https://github.com/BIM2SIM/bim2sim.git
 
 <span class="c1"># install conda-forge packages (OCC not available via PyPi)</span>
 micromamba<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>pythonocc-core<span class="o">=</span><span class="m">7</span>.7.0
