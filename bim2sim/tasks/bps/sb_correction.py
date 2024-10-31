@@ -167,10 +167,10 @@ class CorrectSpaceBoundaries(ITask):
                         opening_obj.bound_shape = BRepBuilderAPI_Transform(
                             opening_obj.bound_shape, trsf).Shape()
                     # update bound center attribute for new shape location
-                    opening_obj.bound_center = SpaceBoundary.get_bound_center(
-                        opening_obj)
+                    # opening_obj.bound_center = SpaceBoundary.get_bound_center(
+                    #     opening_obj)
                     # TODO #639
-                    # opening_obj.bound_center = opening_obj.bound_center
+                    opening_obj.reset('bound_center')
 
     @staticmethod
     def fix_surface_orientation(elements: dict):
@@ -265,7 +265,7 @@ class CorrectSpaceBoundaries(ITask):
                             gp_Pnt(face_center)) < 1e-6:
                         bound.bound_shape = fc
                         if hasattr(bound, 'bound_normal'):
-                            del bound.__dict__['bound_normal']
+                            bound.reset('bound_normal')
                         break
 
     def split_non_convex_bounds(self, elements: dict, split_bounds: bool):
@@ -321,7 +321,7 @@ class CorrectSpaceBoundaries(ITask):
                     convex_shapes = convex_decomposition(bound.bound_shape)
                 non_conv.append(bound)
                 if hasattr(bound, 'bound_normal'):
-                    del bound.__dict__['bound_normal']
+                    bound.reset('bound_normal')
                 # create new space boundaries from list of convex shapes,
                 # for both the bound itself and its corresponding bound (if it
                 # has
@@ -377,9 +377,9 @@ class CorrectSpaceBoundaries(ITask):
         new_bound.guid = guid.new()
         if hasattr(new_bound, 'bound_center'):
             # TODO #639. "__dict__" needs to be replaced by "attributes"
-            del new_bound.__dict__['bound_center']
+            new_bound.reset("bound_center")
         if hasattr(new_bound, 'bound_normal'):
-            del new_bound.__dict__['bound_normal']
+            new_bound.reset("bound_normal")
         return new_bound
 
     def create_new_convex_bounds(self, convex_shapes: list[TopoDS_Shape],

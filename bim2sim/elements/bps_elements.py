@@ -681,29 +681,31 @@ class SpaceBoundary(RelationBased):
             return True
         return False
 
-    def get_bound_area(self):
+    # def get_bound_area(self):
+    #     """compute area of a space boundary"""
+    #     bound_prop = GProp_GProps()
+    #     brepgprop_SurfaceProperties(self.bound_shape, bound_prop)
+    #     area = bound_prop.Mass()
+    #     return area * ureg.meter ** 2
+
+    # @cached_property
+    # def bound_area(self) -> ureg.Quantity:
+    #     return self.get_bound_area()
+
+    # TODO #639
+    def get_bound_area(self, name) -> ureg.Quantity:
         """compute area of a space boundary"""
         bound_prop = GProp_GProps()
         brepgprop_SurfaceProperties(self.bound_shape, bound_prop)
         area = bound_prop.Mass()
         return area * ureg.meter ** 2
 
-    @cached_property
-    def bound_area(self) -> ureg.Quantity:
-        return self.get_bound_area()
+    bound_area = attribute.Attribute(
+        description="The area bound by the space boundary.",
+        unit=ureg.meter ** 2,
+        functions=[get_bound_area]
+    )
 
-    # TODO #639
-    # def _get_bound_area(self, name) -> ureg.Quantity:
-    #     """compute area of a space boundary"""
-    #     bound_prop = GProp_GProps()
-    #     brepgprop_SurfaceProperties(self.bound_shape, bound_prop)
-    #     area = bound_prop.Mass()
-    #     return area * ureg.meter ** 2
-    # bound_area = attribute.Attribute(
-    #     description="The area bound by the space boundary.",
-    #     unit=ureg.meter ** 2,
-    #     functions=[_get_bound_area]
-    # )
     def _get_top_bottom(self, name) -> str:
         """
         This function computes, if the center of a space boundary
@@ -759,19 +761,23 @@ class SpaceBoundary(RelationBased):
         return top_bottom
 
     # TODO #639 @Veronika
-    def get_bound_center(self):
+    # def get_bound_center(self):
+    #     """ compute center of the bounding box of a space boundary"""
+    #     p = GProp_GProps()
+    #     brepgprop_SurfaceProperties(self.bound_shape, p)
+    #     return p.CentreOfMass().XYZ()
+
+    # @cached_property
+    # def bound_center(self):
+    def _get_bound_center(self, name):
         """ compute center of the bounding box of a space boundary"""
         p = GProp_GProps()
         brepgprop_SurfaceProperties(self.bound_shape, p)
         return p.CentreOfMass().XYZ()
 
-    @cached_property
-    def bound_center(self):
-        return self.get_bound_center()
-
-    @cached_property
-    def related_bound(self):
-    # def _get_related_bound(self, name):
+    # @cached_property
+    # def related_bound(self):
+    def _get_related_bound(self, name):
         """
         Get corresponding space boundary in another space,
         ensuring that corresponding space boundaries have a matching number of
@@ -884,9 +890,9 @@ class SpaceBoundary(RelationBased):
         else:
             return None
 
-    @cached_property
-    def related_adb_bound(self):
-    # def _get_related_adb_bound(self, name):
+    # @cached_property
+    # def related_adb_bound(self):
+    def _get_related_adb_bound(self, name):
         adb_bound = None
         if self.bound_element is None:
             return None
@@ -911,10 +917,10 @@ class SpaceBoundary(RelationBased):
                     gp_Pnt(self.bound_center)) < 0.4:
                 adb_bound = bound
         return adb_bound
-    # related_adb_bound = attribute.Attribute(
-    #     description="Related adiabatic boundary.",
-    #     functions=[_get_related_adb_bound]
-    # )
+    related_adb_bound = attribute.Attribute(
+        description="Related adiabatic boundary.",
+        functions=[_get_related_adb_bound]
+    )
     def _get_is_physical(self, name) -> bool:
         """
         This function returns True if the spaceboundary is physical
@@ -1055,25 +1061,20 @@ class SpaceBoundary(RelationBased):
         description="Bound shape element of the SB.",
         functions=[_get_bound_shape]
     )
-
-
     top_bottom = attribute.Attribute(
         description="Info if the SB is top "
                     "(ceiling etc.) or bottom (floor etc.).",
         functions=[_get_top_bottom]
     )
 
-    # bound_center = attribute.Attribute(
-    #     description="The center of the space boundary.",
-    #     functions=[_get_bound_center]
-    # )
-
-    # related_bound = attribute.Attribute(
-    #     description="Related space boundary.",
-    #     functions=[_get_related_bound]
-    # )
-
-
+    bound_center = attribute.Attribute(
+        description="The center of the space boundary.",
+        functions=[_get_bound_center]
+    )
+    related_bound = attribute.Attribute(
+        description="Related space boundary.",
+        functions=[_get_related_bound]
+    )
     physical = attribute.Attribute(
         description="If the Space Boundary is physical or not.",
         functions=[_get_is_physical]
@@ -1087,17 +1088,23 @@ class SpaceBoundary(RelationBased):
         functions=[_get_net_bound_area]
     )
 
-    # bound_normal = attribute.Attribute(
-    #     description="Normal vector of the Space Boundary.",
-    #     functions=[_get_bound_normal]
-    # )
-    # TODO #639 @Veronika
-    @cached_property
-    def bound_normal(self):
+    def _get_bound_normal(self, name):
         """
         This function returns the normal vector of the spaceboundary
         """
         return PyOCCTools.simple_face_normal(self.bound_shape)
+
+    bound_normal = attribute.Attribute(
+        description="Normal vector of the Space Boundary.",
+        functions=[_get_bound_normal]
+    )
+    # TODO #639 @Veronika
+    # @cached_property
+    # def bound_normal(self):
+    #     """
+    #     This function returns the normal vector of the spaceboundary
+    #     """
+    #     return PyOCCTools.simple_face_normal(self.bound_shape)
 
     level_description = attribute.Attribute(
         functions=[get_level_description],
