@@ -78,6 +78,15 @@ class CorrectSpaceBoundaries(ITask):
         # todo: space_boundaries should be already included in elements
         self.move_children_to_parents(elements)
         self.fix_surface_orientation(elements)
+        # TODO #639
+        # sbs = filter_elements(elements, 'SpaceBoundary')
+        # for sb in sbs:
+        #     if sb.related_bound is not None:
+        #         rel_guid = sb.related_bound.related_bound.guid
+        #         if not rel_guid == sb.guid:
+        #             print("test")
+                # if sb.related_bound in related_bounds:
+            # related_bounds.append(sb.related_bound)
         self.split_non_convex_bounds(
             elements, self.playground.sim_settings.split_bounds)
         self.add_and_split_bounds_for_shadings(
@@ -292,7 +301,7 @@ class CorrectSpaceBoundaries(ITask):
         # filter for boundaries, that are not opening boundaries
         bounds_except_openings = [b for b in bounds if not b.parent_bound]
         conv = []  # list of new convex shapes (for debugging)
-        non_conv = []  # list of old non-convex shapes (for debugging
+        non_conv = []  # list of old non-convex shapes (for debugging)
         for bound in bounds_except_openings:
             try:
                 # check if bound has already been processed
@@ -341,13 +350,19 @@ class CorrectSpaceBoundaries(ITask):
                     non_conv.append(bound.related_bound)
                     # delete the related bound from elements
                     del elements[bound.related_bound.guid]
-                    bounds_except_openings.remove(bound.related_bound)
                     bound.related_bound.convex_processed = True
+                    bounds_except_openings.remove(bound.related_bound)
                 # delete the current bound from elements
                 del elements[bound.guid]
                 # add all new created convex bounds to elements
                 for new_bound in new_space_boundaries:
                     elements[new_bound.guid] = new_bound
+                    if hasattr(new_bound, 'bound_area'):
+                        new_bound.reset('bound_area')
+                    if hasattr(new_bound, 'bound_center'):
+                        new_bound.reset('bound_center')
+                    if hasattr(new_bound, 'bound_normal'):
+                        new_bound.reset('bound_normal')
                     if bound in new_bound.bound_element.space_boundaries:
                         new_bound.bound_element.space_boundaries.remove(bound)
                     new_bound.bound_element.space_boundaries.append(new_bound)
@@ -375,11 +390,11 @@ class CorrectSpaceBoundaries(ITask):
         """
         new_bound = copy.copy(bound)
         new_bound.guid = guid.new()
-        if hasattr(new_bound, 'bound_center'):
-            # TODO #639. "__dict__" needs to be replaced by "attributes"
-            new_bound.reset("bound_center")
-        if hasattr(new_bound, 'bound_normal'):
-            new_bound.reset("bound_normal")
+        # if hasattr(new_bound, 'bound_center'):
+        #     TODO #639. "__dict__" needs to be replaced by "attributes"
+            # new_bound.reset("bound_center")
+        # if hasattr(new_bound, 'bound_normal'):
+        #     new_bound.reset("bound_normal")
         return new_bound
 
     def create_new_convex_bounds(self, convex_shapes: list[TopoDS_Shape],
@@ -413,7 +428,13 @@ class CorrectSpaceBoundaries(ITask):
             # bound_shape and bound_area are modified to the new_convex shape.
             new_bound = self.create_copy_of_space_boundary(bound)
             new_bound.bound_shape = shape
-            new_bound.bound_area = SpaceBoundary.get_bound_area(new_bound)
+            if hasattr(new_bound, 'bound_area'):
+                new_bound.reset('bound_area')
+            if hasattr(new_bound, 'bound_center'):
+                new_bound.reset('bound_center')
+            if hasattr(new_bound, 'bound_normal'):
+                new_bound.reset('bound_normal')
+            # new_bound.bound_area = SpaceBoundary.get_bound_area(new_bound)
             # TODO #639
             # new_bound.bound_area = new_bound.bound_area
             if openings:
@@ -461,7 +482,8 @@ class CorrectSpaceBoundaries(ITask):
                     new_rel_bound.bound_shape)
                 new_rel_bound.bound_normal = PyOCCTools.simple_face_normal(
                     new_rel_bound.bound_shape)
-                new_rel_bound.bound_area = new_rel_bound.bound_area
+                new_rel_bound.reset('bound_area')
+                # new_rel_bound.bound_area = new_rel_bound.bound_area
                 # handle opening bounds of related bound
                 if new_bound.opening_bounds:
                     for op in new_bound.opening_bounds:
