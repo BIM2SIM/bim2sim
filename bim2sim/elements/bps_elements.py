@@ -539,12 +539,28 @@ class ThermalZone(BPSProduct):
     lighting_power = attribute.Attribute(
         default_ps=("Pset_SpaceThermalLoad", "Lighting"),
         functions=[_calc_lighting_power],
-        unit=ureg.W,
+        unit=ureg.W / (ureg.meter ** 2),
     )
-    fixed_lighting_power = attribute.Attribute()
-    maintained_illuminance = attribute.Attribute()
-    use_maintained_illuminance = attribute.Attribute()
-    lighting_efficiency_lumen = attribute.Attribute()
+    fixed_lighting_power = attribute.Attribute(
+        description="Specific fixed electrical power for lighting in Lx. This "
+                    "value is taken from SIA 2024.",
+        unit=ureg.W / (ureg.meter ** 2)
+    )
+    maintained_illuminance = attribute.Attribute(
+        description="Maintained illuminance value for lighting. This value is"
+                    " taken from SIA 2024.",
+        unit=ureg.Lumen / (ureg.meter ** 2)
+    )
+    use_maintained_illuminance = attribute.Attribute(
+        description="Decision variable to determine if lighting_power will"
+                    " be given by fixed_lighting_power or by calculation "
+                    "using the variables maintained_illuminance and "
+                    "lighting_efficiency_lumen."
+    )
+    lighting_efficiency_lumen = attribute.Attribute(
+        description="Lighting efficiency in lm/W_el, in german: Lichtausbeute.",
+        unit=ureg.Lumen / ureg.watt
+    )
     use_constant_infiltration = attribute.Attribute()
     infiltration_rate = attribute.Attribute(
     )
