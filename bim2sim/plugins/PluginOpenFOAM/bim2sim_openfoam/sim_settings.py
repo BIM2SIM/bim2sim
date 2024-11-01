@@ -35,6 +35,7 @@ class OpenFOAMSimSettings(ComfortSimSettings):
     inlet_type = ChoiceSetting(
         default='Plate',
         choices={
+            'Original': 'Simplified IFC shape for inlet',
             'Plate': 'Simplified plate for inlet',
             'StlDiffusor': 'Inlet diffusor from stl file',
             'SimpleStlDiffusor': 'Simplified inlet diffusor from stl file',
@@ -48,6 +49,7 @@ class OpenFOAMSimSettings(ComfortSimSettings):
     outlet_type = ChoiceSetting(
         default='Plate',
         choices={
+            'Original': 'Simplified IFC shape for outlet',
             'Plate': 'Simplified plate for outlet',
             'StlDiffusor': 'Outlet diffusor from stl file',
             'SimpleStlDiffusor': 'Simplified outlet diffusor from stl file',

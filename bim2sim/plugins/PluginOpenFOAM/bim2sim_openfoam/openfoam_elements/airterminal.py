@@ -20,6 +20,9 @@ class AirDiffuser(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
 
         if inlet_outlet_type == 'IfcDiffusor':
             raise NotImplementedError
+        elif inlet_outlet_type == 'Original':
+            self.tri_geom = PyOCCTools.triangulate_bound_shape(shape)
+            self.refinement_level = [4, 8]
         elif inlet_outlet_type == 'SimpleStlDiffusor':
             self.tri_geom = PyOCCTools.triangulate_bound_shape(
                 shape)

@@ -78,8 +78,8 @@ def run_example_17():
 
     # VR/AR lab: '2o3MylYZzAnR8q1ofuG3sg'
     # Cafeteria: '3GmoJyFk9FvAnea6mogixJ'
-    project.sim_settings.inlet_type = 'SimpleStlDiffusor'
-    project.sim_settings.outlet_type = 'SimpleStlDiffusor'
+    project.sim_settings.inlet_type = 'Original'
+    project.sim_settings.outlet_type = 'Original'
     project.sim_settings.add_heating = True
     project.sim_settings.add_people = False
     project.sim_settings.add_floorheating = False
