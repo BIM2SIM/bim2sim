@@ -371,7 +371,7 @@ class CreateOpenFOAMGeometry(ITask):
                         cut_left=False, cut_right=False, cut_back=False,
                         cut_front=False))
                 inlet_base_shape = removed[0]
-                source_shape = PyOCCTools.scale_shape(inlet_base_shape, 0.3,
+                source_shape = PyOCCTools.scale_shape(inlet_base_shape, 0.2,
                                      predefined_center=PyOCCTools.get_center_of_face(inlet_base_shape))
                 diffuser_shape = PyOCCTools.triangulate_bound_shape(
                     inlet_base_shape, [source_shape])
@@ -499,10 +499,22 @@ class CreateOpenFOAMGeometry(ITask):
                     outlet_shape = BRepBuilderAPI_Transform(air_terminal_compound,
                                                             trsf_outlet).Shape()
                     # Todo: remove hardcoded rotations
-                    outlet_shape = PyOCCTools.rotate_by_deg(outlet_shape,
-                                                            axis='z',
-                                                            rotation=90
-                                                            )
+                    apply_rotation = None
+                    box_diff = (abs(PyOCCTools.get_shape_volume(
+                            PyOCCTools.simple_bounding_box_shape([
+                        outlet_shape, airt.shape])) -
+                            PyOCCTools.get_shape_volume(
+                                outlet_shape))/
+                            PyOCCTools.get_shape_volume(
+                                outlet_shape))
+                    print(f'BBOX_Diff: {airt.name} {box_diff}')
+                    if box_diff > 0.4:
+                        apply_rotation = True
+                    if apply_rotation:
+                        outlet_shape = PyOCCTools.rotate_by_deg(outlet_shape,
+                                                                axis='z',
+                                                                rotation=90
+                                                                )
                     outlet_diffuser_shape = None
                     outlet_source_shape = None
                     outlet_box_shape = None
@@ -510,24 +522,27 @@ class CreateOpenFOAMGeometry(ITask):
                         outlet_diffuser_shape = BRepBuilderAPI_Transform(
                             diffuser_shape,
                             trsf_outlet).Shape()
-                        outlet_diffuser_shape = PyOCCTools.rotate_by_deg(outlet_diffuser_shape,
-                                                                axis='z',
-                                                                rotation=90)
+                        if apply_rotation:
+                            outlet_diffuser_shape = PyOCCTools.rotate_by_deg(outlet_diffuser_shape,
+                                                                    axis='z',
+                                                                    rotation=90)
                     if source_shape:
                         outlet_source_shape = BRepBuilderAPI_Transform(source_shape,
                                                                        trsf_outlet).Shape()
-                        outlet_source_shape = PyOCCTools.rotate_by_deg(outlet_source_shape,
-                                                                axis='z',
-                                                                rotation=90)
+                        if apply_rotation:
+                            outlet_source_shape = PyOCCTools.rotate_by_deg(outlet_source_shape,
+                                                                    axis='z',
+                                                                    rotation=90)
 
                     if air_terminal_box:
                         outlet_box_shape = BRepBuilderAPI_Transform(
                             air_terminal_box,
                             trsf_outlet).Shape()
-                        outlet_box_shape = PyOCCTools.rotate_by_deg(
-                            outlet_box_shape,
-                            axis='z',
-                            rotation=90)
+                        if apply_rotation:
+                            outlet_box_shape = PyOCCTools.rotate_by_deg(
+                                outlet_box_shape,
+                                axis='z',
+                                rotation=90)
                     outlet_shapes = [outlet_diffuser_shape, outlet_source_shape,
                                      outlet_box_shape]
                     outlet_min_max = PyOCCTools.simple_bounding_box(outlet_shape)
