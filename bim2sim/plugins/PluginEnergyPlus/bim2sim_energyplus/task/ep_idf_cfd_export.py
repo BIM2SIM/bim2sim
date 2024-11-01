@@ -5,17 +5,13 @@ import logging
 import os
 
 import pandas as pd
-from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
-from OCC.Core.BRepGProp import brepgprop_SurfaceProperties
-from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
-from OCC.Core.GProp import GProp_GProps
 from OCC.Core.StlAPI import StlAPI_Writer
-from OCC.Core.TopoDS import TopoDS_Face, TopoDS_Shape
+from OCC.Core.TopoDS import TopoDS_Shape
 from stl import mesh, stl
 
-from bim2sim.kernel.elements.bps import ThermalZone, SpaceBoundary
-from bim2sim.task.base import ITask
-from bim2sim.utilities.common_functions import filter_instances, \
+from bim2sim.elements.bps_elements import SpaceBoundary
+from bim2sim.tasks.base import ITask
+from bim2sim.utilities.common_functions import filter_elements, \
     get_spaces_with_bounds
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
@@ -23,13 +19,31 @@ logger = logging.getLogger(__name__)
 
 
 class ExportIdfForCfd(ITask):
-    """Export Idf shapes as .stl for use in CFD applications."""
+    """ Export Idf shapes as .stl for use in CFD applications.
 
-    reads = ('instances', 'idf', 'ifc',)
+        See detailed explanation in the run function below.
+    """
 
-    def run(self, workflow, instances, idf, ifc):
-        """Run CFD export depending on settings."""
-        if not workflow.cfd_export:
+    reads = ('elements', 'idf')
+
+    def run(self, elements, idf):
+        """Run CFD export depending on settings.
+
+        This task exports space boundaries as .stl for use as geometric input
+        files in CFD simulations. This task exports the space boundary
+        geometry in two different ways: (1) all space boundaries are exported as
+        stl files independent of their corresponding space and combined in a
+        single stl file, and (2) the space boundaries are and labelled within
+        the resulting and combined stl files for a more distinct usage in the
+        CFD application.
+
+        Args:
+            elements (dict): dictionary in the format dict[guid: element],
+                holds preprocessed elements including space boundaries.
+            idf (IDF): eppy idf, EnergyPlus input file.
+
+        """
+        if not self.playground.sim_settings.cfd_export:
             return
 
         logger.info("IDF Postprocessing for CFD started...")
@@ -39,24 +53,24 @@ class ExportIdfForCfd(ITask):
         base_stl_dir = str(self.paths.root) + "/export/STL/"
         os.makedirs(os.path.dirname(base_stl_dir), exist_ok=True)
 
-        self.export_bounds_to_stl(instances, stl_name, base_stl_dir)
-        self.export_bounds_per_space_to_stl(instances, stl_name, base_stl_dir)
-        self.export_2b_bounds_to_stl(instances, stl_name, base_stl_dir)
+        self.export_bounds_to_stl(elements, stl_name, base_stl_dir)
+        self.export_bounds_per_space_to_stl(elements, stl_name, base_stl_dir)
+        self.export_2b_bounds_to_stl(elements, stl_name, base_stl_dir)
         self.combine_stl_files(stl_name, self.paths)
-        self.export_space_bound_list(instances, self.paths)
+        self.export_space_bound_list(elements, self.paths)
         self.combined_space_stl(stl_name, self.paths)
         logger.info("IDF Postprocessing for CFD finished!")
 
-    def export_2b_bounds_to_stl(self, instances: dict, stl_name: str,
+    def export_2b_bounds_to_stl(self, elements: dict, stl_name: str,
                                 stl_dir: str):
         """Export generated 2b space boundaries to stl for CFD purposes.
 
         Args:
             stl_dir: directory of exported stl files
-            instances: dict[guid: element]
+            elements: dict[guid: element]
             stl_name: name of the stl file.
         """
-        spaces = get_spaces_with_bounds(instances)
+        spaces = get_spaces_with_bounds(elements)
         for space_obj in spaces:
             if not hasattr(space_obj, "b_bound_shape"):
                 continue
@@ -69,7 +83,7 @@ class ExportIdfForCfd(ITask):
                 # Export to STL
                 self.write_triang_face(triang_face, this_name)
 
-    def export_bounds_to_stl(self, instances: dict, stl_name: str,
+    def export_bounds_to_stl(self, elements: dict, stl_name: str,
                              stl_dir: str):
         """Export space boundaries to stl file.
 
@@ -82,11 +96,11 @@ class ExportIdfForCfd(ITask):
 
         Args:
             stl_dir: directory of exported stl files
-            instances: dict[guid: element]
+            elements: dict[guid: element]
             stl_name: name of the stl file.
         """
 
-        bounds = filter_instances(instances, SpaceBoundary)
+        bounds = filter_elements(elements, SpaceBoundary)
         for bound in bounds:
             if not bound.physical:
                 continue
@@ -124,16 +138,16 @@ class ExportIdfForCfd(ITask):
         stl_writer.SetASCIIMode(True)
         stl_writer.Write(shape, name)
 
-    def export_bounds_per_space_to_stl(self, instances: dict, stl_name: str,
+    def export_bounds_per_space_to_stl(self, elements: dict, stl_name: str,
                                        base_stl_dir: str):
         """Export stl bounds per space in individual directories.
 
         Args:
-            instances: dict[guid: element]
+            elements: dict[guid: element]
             stl_name: name of the stl file.
             base_stl_dir: directory of exported stl files
         """
-        spaces = get_spaces_with_bounds(instances)
+        spaces = get_spaces_with_bounds(elements)
         for space_obj in spaces:
             space_name = space_obj.guid
             stl_dir = base_stl_dir + space_name + "/"
@@ -171,16 +185,16 @@ class ExportIdfForCfd(ITask):
             new_file.write(output_data)
 
     @staticmethod
-    def export_space_bound_list(instances: dict, paths: str):
+    def export_space_bound_list(elements: dict, paths: str):
         """Exports a list of spaces and space boundaries.
 
         Args:
-            instances: dict[guid: element]
+            elements: dict[guid: element]
             paths: BIM2SIM paths
         """
         stl_dir = str(paths.export) + '/'
         space_bound_df = pd.DataFrame(columns=["space_id", "bound_ids"])
-        spaces = get_spaces_with_bounds(instances)
+        spaces = get_spaces_with_bounds(elements)
         for space in spaces:
             bound_names = []
             for bound in space.space_boundaries:

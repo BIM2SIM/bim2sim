@@ -26,13 +26,13 @@
     <tbody>
         <tr>
             <th colspan=2 class="tg-7btt">
-            <a href="${plugin_name}_error_summary_inst.html">Errors in IFC</a>
+            <a href="${base_name}_error_summary_inst.html">Errors in IFC</a>
             </th>
         </tr>
         <tr>
             <td class="tg-dvpl">Total IFCProduct with errors:</td>
             <td class="tg-dvpl">
-            ${len(task.error_summary_inst)}/${len(task.instances)}</th>
+            ${len(task.error_summary_inst)}/${len(task.elements)}</th>
         </tr>
         <tr>
             <td class="tg-dvpl">Total errors in IFCProducts:</td>
@@ -49,14 +49,14 @@
         </tr>
         <tr>
             <th  colspan=2 class="tg-7btt"><a href=
-                "${plugin_name}_error_summary_prop.html">Missing Attributes for
+                "${base_name}_error_summary_prop.html">Missing Attributes for
                 ${plugin_name}</a>
             </th>
         </tr>
         <tr>
             <td class="tg-dvpl">Total IFCProduct with missing properties:</td>
             <td class="tg-dvpl">
-            ${len(task.error_summary_prop)}/${len(task.instances)}</th>
+            ${len(task.error_summary_prop)}/${len(task.elements)}</th>
         </tr>
         <tr>
             <td class="tg-dvpl">Total missing properties in IFCProducts:</td>

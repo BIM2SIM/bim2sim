@@ -1,4 +1,8 @@
-﻿'''Module for loading ifc files
+﻿"""Kernel module of bim2sim
 
-Holds logic for target simulation independent file parsing, checking, and data enrichment
-'''
+Holds central target simulation independent logic.
+"""
+
+
+class IFCDomainError(Exception):
+    """Exception raised if IFCDomain of file and element do not fit."""

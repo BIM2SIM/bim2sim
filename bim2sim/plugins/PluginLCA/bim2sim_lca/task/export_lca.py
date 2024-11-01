@@ -1,12 +1,12 @@
 import csv
 from pathlib import Path
 
-from bim2sim.kernel.element import Material
-from bim2sim.kernel.elements.bps import LayerSet, Layer, Site, Building, \
+from bim2sim.elements.base_elements import Material
+from bim2sim.elements.bps_elements import LayerSet, Layer, Site, Building, \
     Storey, SpaceBoundary, ExtSpatialSpaceBoundary, SpaceBoundary2B
-from bim2sim.kernel.units import ureg
-from bim2sim.task.base import ITask
-from bim2sim.utilities.common_functions import filter_instances
+from bim2sim.elements.mapping.units import ureg
+from bim2sim.tasks.base import ITask
+from bim2sim.utilities.common_functions import filter_elements
 
 KG_names = {
     300: "Building Construction",
@@ -131,14 +131,14 @@ KG_names = {
 
 class ExportLCA(ITask):
     """Exports a CSV file with all relevant quantities of the BIM model"""
-    reads = ('ifc', 'instances')
+    reads = ('ifc_files', 'elements')
     final = True
 
-    def __init__(self):
-        super().__init__()
-        # some instances should not be exported or exported as relation to
+    def __init__(self, playground):
+        super().__init__(playground)
+        # some elements should not be exported or exported as relation to
         # others
-        self.blacklist_instances = (
+        self.blacklist_elements = (
             Site,
             Building,
             Storey,
@@ -150,20 +150,20 @@ class ExportLCA(ITask):
             Layer
         )
 
-    def run(self, workflow, ifc, instances):
+    def run(self, ifc_files, elements):
         self.logger.info("Exporting LCA quantities to CSV")
 
-        self.export_materials(instances)
-        self.export_overview(instances)
+        self.export_materials(elements)
+        self.export_overview(elements)
 
-    def export_materials(self, instances):
+    def export_materials(self, elements):
         """Exports only the materials and its total volume and mass if density
         is given in the IFC"""
         export_path = Path(
             self.paths.export) / ("Material_quantities_" + self.prj_name +
                                   ".csv")
         materials = {}
-        for mat in filter_instances(instances, Material):
+        for mat in filter_elements(elements, Material):
             materials[mat] = {
                 "name": mat.name,
                 "density": mat.density,
@@ -172,8 +172,8 @@ class ExportLCA(ITask):
             }
         # todo: if we have the volume of each layer we can do this more straight
         #  forward, until then this is a workaround
-        for inst in instances.values():
-            if not isinstance(inst, self.blacklist_instances):
+        for inst in elements.values():
+            if not isinstance(inst, self.blacklist_elements):
                 # uniform materials
                 if inst.material:
                     if inst.volume:
@@ -213,7 +213,7 @@ class ExportLCA(ITask):
                         ureg.kg) if materials[mat]["density"] else "-"
                 ])
 
-    def export_overview(self, instances):
+    def export_overview(self, elements):
         export_path = Path(
             self.paths.export) / \
                       ("Quantities_overview_" + self.prj_name + ".csv")
@@ -228,8 +228,8 @@ class ExportLCA(ITask):
                  'Material Thermal Conductivity [W/(m K)]',
                  'Area[m²]', 'Thickness[m] / Fraction [-]', 'Volume [m³]'
                  ])
-            for inst in instances.values():
-                if not isinstance(inst, self.blacklist_instances):
+            for inst in elements.values():
+                if not isinstance(inst, self.blacklist_elements):
                     # General information
                     inst_guid = inst.guid
                     storey_names = ", ".join(
@@ -274,7 +274,7 @@ class ExportLCA(ITask):
                         inst_width,
                         inst_vol
                     ])
-                    # export instances layers
+                    # export elements layers
                     if hasattr(inst, 'layerset'):
                         if inst.layerset:
                             for layer in inst.layerset.layers:
@@ -305,7 +305,7 @@ class ExportLCA(ITask):
                                     self.ureg_to_str(layer.thickness, ureg.m),
                                     self.ureg_to_str(layer.volume, ureg.m ** 3),
                                 ])
-                    # export instances constituent sets
+                    # export elements constituent sets
                     if hasattr(inst, 'material_set'):
                         if inst.material_set:
                             for fraction, material in inst.material_set.items():

@@ -1,0 +1,146 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = 'bim2sim'
+version = '0.1'
+authors = [
+    {name = "David Jansen"},
+    {name = "Veronika Richter"},
+    {name = "D-Cordoba"},
+    {name = "Christian Warnecke"},
+    {name = "e3dEF"},
+    {name = "sfreund1"},
+    {name = "AnBarz"},
+    {name = "hochbean"},
+    {name = "Dominik Schlütter"},
+    {name = "Falk Cudok"},
+    {name = "Marvin Kluge"},
+    {name = "sairabano-de"},
+    {name = "DAndres03"},
+
+]
+description = "bim2sim is a framework to create simulation models for different purposes based on BIM models in IFC format."
+readme = "README.md"
+requires-python = ">=3.10, <=3.11.10"
+classifiers = [
+    "Development Status :: XXX", # see https://en.wikipedia.org/wiki/Software_release_life_cycle
+    "License :: XXX",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+dependencies = [
+    "ifcopenshell==0.7.0.240627",
+    "docopt==0.6.2",
+    "numpy==1.26.0",
+    "pandas==2.1.3",
+    "matplotlib==3.9.0",
+    "networkx==3.3",
+    "python-dateutil==2.8.2",
+    "mako==1.3.0",
+    "pint==0.22",
+    "deep-translator==1.11.4",
+    "pint-pandas==0.5",
+    "rwthcolors==0.2.4",
+    "SciencePlots==2.1.0",
+    "pillow==10.1.0",
+    "Gitpython==3.1.40",
+    "svglib==1.5.1",
+    "reportlab==4.2.2",
+    "scipy==1.11.3", # is a dependency from networkx, should installed automatically
+]
+
+# root folder of the python/django not found automatically
+[tool.setuptools.packages.find]
+where = ["."]  # Look for packages in the root directory
+include = ["bim2sim*"]  # Include all packages starting with bim2sim
+namespaces = false
+
+
+[tool.setuptools.package-data]
+"*" = ["assets/**/*"]
+
+[project.scripts]
+bim2sim = "bim2sim.__main__:commandline_interface"
+
+[project.optional-dependencies]
+PluginTEASER = [
+    "pyqt5",
+    "pillow",
+    "RWTHColors",
+    "scienceplots",
+    "ebcpy",
+    "reportlab",
+    "svglib",
+    "TEASER[report] @ git+https://github.com/RWTH-EBC/TEASER@development",
+    "BuildingsPy@git+https://github.com/DaJansenGit/BuildingsPy.git",
+]
+PluginEnergyPlus = [
+    "shapely",
+    "numpy-stl",
+    "energyplus-regressions",
+    "eppy@git+https://github.com/BIM2SIM/eppy",
+    "geomeppy@git+https://github.com/BIM2SIM/geomeppy@fix_dependencies",
+    "OCCUtils@git+https://github.com/tpaviot/pythonocc-utils",  # from base requiremts.txt
+    "reportlab",
+    "svglib",
+]
+PluginAixLib = [
+    "pyvis@git+https://github.com/squidKid-deluxe/pyvis@fix-show#egg=pyvis",
+]
+PluginCFD = [ # prepared to add dependencies, same installtion routine like other plugins
+]
+PluginHKESim = [
+    "pyvis@git+https://github.com/squidKid-deluxe/pyvis@fix-show#egg=pyvis",
+]
+PluginLCA = [ # prepared to add dependencies, same installtion routine like other plugins
+]
+PluginComfort = [
+    "pyqt5",
+    "shapely",
+    "numpy-stl",
+    "energyplus-regressions",
+    "eppy@git+https://github.com/BIM2SIM/eppy",
+    "geomeppy@git+https://github.com/BIM2SIM/geomeppy@fix_dependencies",
+]
+docu = [
+    "sphinx==6.2.1",
+    "myst-parser",
+    "anybadge",
+    "m2r2",
+    "sphinx-material",
+    "autodoc_pydantic",
+    "sphinx-rtd-theme",
+    # "sphinx_autodoc_typehints",
+    "sphinxcontrib-mermaid",
+    "pylint",
+    "livereload",
+]
+test = [
+    "coverage", # [toml] not needed using micromanba, maybe also new python version
+    "coverage-badge",
+]
+
+[tool.coverage.run]
+source = ["."]
+command_line = "-m unittest discover test" # test for bim2sim kernel
+# command_line = "-m unittest discover bim2sim/plugins/PluginTEASER/test/" # test for TEASER plugin
+# command_line = "-m unittest discover bim2sim/plugins/PluginEnergyPlus/test/" # test for EngergPlus plugin
+# command_line = "-m unittest discover bim2sim/plugins/PluginAixLib/test/" # test for AixLib plugin
+# command_line = "-m unittest discover bim2sim/plugins/PluginCFD/test/" # test for CFD plugin
+# command_line = "-m unittest discover bim2sim/plugins/PluginHKESim/test/" # test for HKESim plugin
+# command_line = "-m unittest discover bim2sim/plugins/PluginLCA/test/" # test for LCA plugin
+
+[tool.pylint.format]
+max-line-length = 80
+
+[tool.black]
+line-length = 80
+
+[package.urls]
+homepage = "https://github.com/BIM2SIM/bim2sim"
+documentation = "https://bim2sim.github.io/bim2sim//development/docs/overview.html"

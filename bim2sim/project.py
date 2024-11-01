@@ -6,22 +6,19 @@ import subprocess
 import shutil
 import threading
 from distutils.dir_util import copy_tree
+from enum import Enum
 from pathlib import Path
-import importlib
-import pkgutil
-import re
 from typing import Dict, List, Type, Union
-
-import pkg_resources
 
 import configparser
 
-from bim2sim.decision import Decision, ListDecision, DecisionBunch, save, load
-from bim2sim import log
-from bim2sim.task.base import Playground
+from bim2sim.kernel.decision import ListDecision, DecisionBunch, save, load
+from bim2sim.kernel import log
+from bim2sim.tasks.base import Playground
 from bim2sim.plugins import Plugin, load_plugin
 from bim2sim.utilities.common_functions import all_subclasses
-from bim2sim.workflow import LOD, AutoSettingNameMeta, Workflow
+from bim2sim.sim_settings import BaseSimSettings
+from bim2sim.utilities.types import LOD
 
 logger = logging.getLogger(__name__)
 user_logger = log.get_user_logger(__name__)
@@ -43,18 +40,20 @@ def open_config(path):
     open_file.wait()
 
 
-def add_config_section(config: configparser.ConfigParser, workflow: Workflow,
-                       name: str) -> configparser.ConfigParser:
+def add_config_section(
+        config: configparser.ConfigParser,
+        sim_settings: BaseSimSettings,
+        name: str) -> configparser.ConfigParser:
     """Add a section to config with all attributes and default values."""
-    if not name in config._sections:
+    if name not in config._sections:
         config.add_section(name)
-    attributes = [attr for attr in list(workflow.__dict__.keys())
-                  if not callable(getattr(workflow, attr)) and not
+    attributes = [attr for attr in list(sim_settings.__dict__.keys())
+                  if not callable(getattr(sim_settings, attr)) and not
                   attr.startswith('__')]
     for attr in attributes:
-        default_value = getattr(workflow, attr).default
-        if isinstance(default_value, LOD):
-            default_value = default_value.value
+        default_value = getattr(sim_settings, attr).default
+        if isinstance(default_value, Enum):
+            default_value = str(default_value)
         if not attr in config[name]:
             config[name][attr] = str(default_value)
     return config
@@ -64,13 +63,14 @@ def config_base_setup(path, backend=None):
     """Initial setup for config file"""
     config = configparser.ConfigParser(allow_no_value=True)
     config.read(path)
+
     if not config.sections():
         # add all default attributes from base workflow
-        config = add_config_section(config, Workflow, "Generic Workflow "
-                                                     "Settings")
+        config = add_config_section(
+            config, BaseSimSettings, "Generic Simulation Settings")
         # add all default attributes from sub workflows
-        sub_workflows = all_subclasses(Workflow)
-        for flow in sub_workflows:
+        all_settings = all_subclasses(BaseSimSettings)
+        for flow in all_settings:
             config = add_config_section(config, flow, flow.__name__)
 
         # add general settings
@@ -79,7 +79,7 @@ def config_base_setup(path, backend=None):
         config.add_section("Frontend")
         config["Frontend"]["use"] = 'ConsoleFrontEnd'
         config.add_section("Modelica")
-        config["Modelica"]["Version"] = "3.2.2"
+        config["Modelica"]["Version"] = "4.0"
 
     with open(path, "w") as file:
         config.write(file)
@@ -90,12 +90,10 @@ class FolderStructure:
 
     CONFIG = "config.toml"
     DECISIONS = "decisions.json"
-    WORKFLOW = "task"
     FINDER = "finder"
-    IFC = "ifc"
+    IFC_BASE = "ifc"
     LOG = "log"
     EXPORT = "export"
-    RESOURCES = "resources"
 
     _src_path = Path(__file__).parent  # base path to bim2sim assets
 
@@ -136,24 +134,14 @@ class FolderStructure:
         return self._root_path / self.FINDER
 
     @property
-    def workflow(self):
-        """absolute path to task"""
-        return self._root_path / self.WORKFLOW
-
-    @property
     def log(self):
         """absolute path to log folder"""
         return self._root_path / self.LOG
 
     @property
-    def ifc(self):
+    def ifc_base(self):
         """absolute path to ifc folder"""
-        return self._root_path / self.IFC
-
-    @property
-    def resources(self):
-        """absolute path to resources folder"""
-        return self._root_path / self.RESOURCES
+        return self._root_path / self.IFC_BASE
 
     @property
     def export(self):
@@ -168,8 +156,7 @@ class FolderStructure:
     @property
     def sub_dirs(self):
         """list of paths to sub folders"""
-        return [self.log, self.ifc, self.resources, self.export, self.workflow,
-                self.finder]
+        return [self.log, self.ifc_base, self.export, self.finder]
 
     def copy_assets(self, path):
         """copy assets to project folder"""
@@ -204,8 +191,8 @@ class FolderStructure:
         self.copy_assets(self.root)
 
     @classmethod
-    def create(cls, rootpath: str, ifc_path: str = None, target: str = None,
-               open_conf: bool = False):
+    def create(cls, rootpath: str, ifc_paths: Dict = None,
+               target: str = None, open_conf: bool = False):
         """Create ProjectFolder and set it up.
 
         Create instance, set source path, create project folder
@@ -213,7 +200,8 @@ class FolderStructure:
 
         Args:
             rootpath: path of root folder
-            ifc_path: path to copy ifc file from
+            ifc_paths: dict with key: bim2sim domain and value: path
+                to corresponding ifc which gets copied into project folder
             target: the target simulation tool
             open_conf: flag to open the config file in default application
         """
@@ -228,9 +216,32 @@ class FolderStructure:
             self.create_project_folder()
             config_base_setup(self.config, target)
 
-        if ifc_path:
-            # copy ifc to project folder
-            shutil.copy2(ifc_path, self.ifc)
+        if ifc_paths:
+            if not isinstance(ifc_paths, Dict):
+                raise ValueError(
+                    "Please provide a Dictionary with key: Domain, value: Path "
+                    "to IFC ")
+            # copy all ifc files to domain specific project folders
+            for domain, file_path in ifc_paths.items():
+                if not file_path.exists():
+                    if "test" in file_path.parts \
+                            and "resources" in file_path.parts:
+                        raise ValueError(
+                            f"Provided path to ifc is: {file_path}, but this "
+                            f"file does not exist. You are trying to run a "
+                            f"test on your local machine,"
+                            f" but it seems like you have not downloaded the"
+                            f" needed test resources. "
+                            f"Run 'git submodule update --init --recursive' "
+                            f"to make sure to include the test resources."
+                        )
+                    else:
+                        raise ValueError(
+                            f"Provided path to ifc is: {file_path}, but this file "
+                            f"does not exist.")
+                Path.mkdir(self.ifc_base / domain.name, exist_ok=True)
+                shutil.copy2(
+                    file_path, self.ifc_base / domain.name / file_path.name)
 
         if open_conf:
             # open config for user interaction
@@ -270,7 +281,6 @@ class Project:
     Args:
         path: path to load project from
         plugin: Plugin to use. This overwrites plugin from config.
-        workflow: Workflow to use with this project
 
     Raises:
         AssertionError: on invalid path. E.g. if not existing
@@ -282,18 +292,13 @@ class Project:
             self,
             path: str = None,
             plugin: Type[Plugin] = None,
-            workflow: Workflow = None,
     ):
         """Load existing project"""
-
-
-        # TODO storage is never used. Delete?
-        self.storage = {}  # project related items
         self.paths = FolderStructure(path)
         # try to get name of project from ifc name
         try:
             self.name = list(
-                filter(Path.is_file, self.paths.ifc.glob('**/*')))[0].stem
+                filter(Path.is_file, self.paths.ifc_base.glob('**/*')))[0].stem
         except:
             logger.warning(
                 'Could not set correct project name, using "Project"!')
@@ -305,29 +310,15 @@ class Project:
         self._made_decisions = DecisionBunch()
         self.loaded_decisions = load(self.paths.decisions)
 
-        # TODO: Plugins provide Tasks and Elements. there are 'builtin' Plugins
-        #  which should be loaded anyway. In config additional Plugins can be specified.
-        #  'external' Plugins ca specify a meaningful workflow, builtins cant. How to get a generic workflow?
-        self.default_plugin = self._get_plugin(plugin)
-        # check if an instance of workflow is given or just the class
-        if isinstance(workflow, AutoSettingNameMeta):
-            logger.warning("No instance of workflow was provided but the class,"
-                           "creating an instance of the workflow now.")
-            workflow = workflow()
-        if not workflow:
-            workflow = self.default_plugin.default_workflow()
-        self.workflow = workflow
-        # todo maybe move this to workflow directly and not get from plugin
-        workflow.relevant_elements = self.default_plugin.elements
-        workflow.update_from_config(self.config)
-        self.playground = Playground(workflow, self.paths, self.name)
+        self.plugin_cls = self._get_plugin(plugin)
+        self.playground = Playground(self)
+        # link sim_settings to project to make set of settings easier
+        self.sim_settings = self.playground.sim_settings
 
         self._user_logger_set = False
         self._log_thread_filters: List[log.ThreadLogFilter] = []
         self._log_handlers = {}
         self._setup_logger()  # setup project specific handlers
-
-        self._log_handler = self._setup_logger()  # setup project specific handlers
 
     def _get_plugin(self, plugin):
         if plugin:
@@ -339,30 +330,29 @@ class Project:
             return load_plugin(plugin_name)
 
     @classmethod
-    def create(cls, project_folder, ifc_path=None, plugin: Union[
-        str, Type[Plugin]] = None, open_conf: bool = False,
-               workflow: Workflow = None):
+    def create(cls, project_folder, ifc_paths: Dict = None, plugin: Union[
+        str, Type[Plugin]] = None, open_conf: bool = False):
         """Create new project
 
         Args:
             project_folder: directory of project
-            ifc_path: path to in ifc which gets copied into project folder
+            ifc_paths: dict with key: IFCDomain and value: path
+                to corresponding ifc which gets copied into project folder
             plugin: Plugin to use with this project. If passed as string,
              make sure it is importable (see plugins.load_plugin)
             open_conf: flag to open the config file in default application
-            workflow: Workflow to use with this project
             updated from config
         """
         # create folder first
         if isinstance(plugin, str):
-            FolderStructure.create(project_folder, ifc_path, plugin, open_conf)
-            project = cls(project_folder, workflow=workflow)
+            FolderStructure.create(project_folder, ifc_paths, plugin, open_conf)
+            project = cls(project_folder)
         else:
             # an explicit plugin can't be recreated from config.
             # Thou we don't save it
             FolderStructure.create(
-                project_folder, ifc_path, open_conf=open_conf)
-            project = cls(project_folder, plugin=plugin, workflow=workflow)
+                project_folder, ifc_paths, open_conf=open_conf)
+            project = cls(project_folder, plugin=plugin)
 
         return project
 
@@ -393,7 +383,7 @@ class Project:
         # tear down existing handlers (just in case)
         self._teardown_logger()
 
-        thread_name = threading.Thread.getName(threading.current_thread())
+        thread_name = threading.current_thread().name
 
         # quality logger
         quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -419,7 +409,7 @@ class Project:
 
     def _update_logging_thread_filters(self):
         """Update thread filters to current thread."""
-        thread_name = threading.Thread.getName(threading.current_thread())
+        thread_name = threading.current_thread().name
         for thread_filter in self._log_thread_filters:
             thread_filter.thread_name = thread_name
 
@@ -432,7 +422,7 @@ class Project:
             set_formatter: if True, the user_handlers formatter is set
         """
         general_logger = logging.getLogger('bim2sim')
-        thread_name = threading.Thread.getName(threading.current_thread())
+        thread_name = threading.current_thread().name
 
         if self._user_logger_set:
             self._setup_logger()
@@ -467,15 +457,16 @@ class Project:
         return config
 
     def rewrite_config(self):
+        # TODO this might need changes due to handling of enums
         config = self.config
-        workflow_manager = self.workflow.manager
-        for setting in workflow_manager:
-            s = workflow_manager.get(setting)
+        settings_manager = self.sim_settings.manager
+        for setting in settings_manager:
+            s = settings_manager.get(setting)
             if isinstance(s.value, LOD):
                 val = s.value.value
             else:
                 val = s.value
-            config[type(self.workflow).__name__][s.name] = str(val)
+            config[type(self.sim_settings).__name__][s.name] = str(val)
 
         with open(self.paths.config, "w") as file:
             config.write(file)
@@ -501,7 +492,7 @@ class Project:
                         "with your own handler prior to "
                         "project.run() to change this.")
             self.set_user_logging_handler(logging.StreamHandler())
-
+        self.sim_settings.check_mandatory()
         success = False
         if interactive:
             run = self._run_interactive
@@ -535,10 +526,10 @@ class Project:
     def _run_default(self, plugin=None):
         """Execution of plugins default tasks"""
         # run plugin default
-        plugin_cls = plugin or self.default_plugin
+        plugin_cls = plugin or self.plugin_cls
         _plugin = plugin_cls()
         for task_cls in _plugin.default_tasks:
-            yield from self.playground.run_task(task_cls())
+            yield from self.playground.run_task(task_cls(self.playground))
 
     def _run_interactive(self):
         """Interactive execution of available ITasks"""
@@ -547,11 +538,13 @@ class Project:
                              self.playground.available_tasks()}
             choices = [(name, task.__doc__) for name, task in
                        tasks_classes.items()]
-            task_decision = ListDecision("What shall we do?", choices=choices)
+            task_decision = ListDecision("What shall we do?",
+                                         choices=choices,
+                                         global_key = "_task_%s_decision" % (self.__class__.__name__)) # add global key: or task.__name__
             yield DecisionBunch([task_decision])
             task_name = task_decision.value
             task_class = tasks_classes[task_name]
-            yield from self.playground.run_task(task_class())
+            yield from self.playground.run_task(task_class(self.playground))
             if task_class.final:
                 break
 
@@ -565,14 +558,17 @@ class Project:
             save(self._made_decisions, pth)
             user_logger.warning("Decisions are saved in '%s'. Rename file to "
                                 "'decisions.json' to reuse them.", pth)
+            user_logger.error(f'Project "{self.name}" '
+                                f'finished, but not successful')
+
         else:
             save(self._made_decisions, self.paths.decisions)
+            user_logger.info(f'Project Exports can be found under '
+                             f'{self.paths.export}')
+            user_logger.info(f'Project "{self.name}" finished successful')
 
         # clean up init relics
         #  clean logger
-        user_logger.info(f'Project Exports can be found under '
-                         f'{self.paths.export}')
-        user_logger.info(f'Project "{self.name}" finished')
         self._teardown_logger()
 
     def delete(self):
@@ -580,6 +576,13 @@ class Project:
         self.finalize(True)
         self.paths.delete(False)
         user_logger.info("Project deleted")
+
+    def reset(self):
+        """Reset the current project."""
+        user_logger.info("Project reset")
+        self.playground.state.clear()
+        self.playground.history.clear()
+        self._made_decisions.clear()
 
     def __repr__(self):
         return "<Project(%s)>" % self.paths.root

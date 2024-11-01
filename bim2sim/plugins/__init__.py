@@ -1,4 +1,6 @@
 """BIM2SIM Plugins"""
+from __future__ import annotations
+
 import importlib
 import logging
 import pkgutil
@@ -6,10 +8,14 @@ import sys
 from abc import ABCMeta
 from inspect import isclass
 from pathlib import Path
-from typing import Set, Type, List
+from typing import Set, Type, List, TYPE_CHECKING
 
-from bim2sim.task.base import ITask
-from bim2sim.workflow import Workflow
+from bim2sim.tasks import common, bps
+from bim2sim.tasks.base import ITask
+from bim2sim.sim_settings import BuildingSimSettings
+
+if TYPE_CHECKING:
+    from bim2sim.sim_settings import BaseSimSettings
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +39,7 @@ class Plugin:
 
     Attributes:
         name: Name of the Plugin
-        default_workflow: default workflow to use in Projects using this Plugin
+        sim_settings: simulation settings to use in Projects using this Plugin
         tasks: Set of tasks made available by this Plugin
         default_tasks: List of tasks, which should be executed
         elements: Additional Elements made available by this Plugin
@@ -41,14 +47,29 @@ class Plugin:
     __metaclass__ = ABCMeta
 
     name: str = None
-    default_workflow: Type[Workflow] = None
-    allowed_workflows = []
+    sim_settings: Type[BaseSimSettings] = None
     tasks: Set[Type[ITask]] = set()
     default_tasks: List[Type[ITask]] = []
     elements: set = set()
 
     def __repr__(self):
         return "<%s>" % self.__class__.__name__
+
+
+class PluginBPSBase(Plugin):
+    # TODO this plugin is currently not found as plugins need a
+    #  "bimsim_pluginname" folder. This needs to be correct in #548.
+    #  Maybe just use subclasses of plugin and extract dummys?
+    name = 'BPSBase'
+    sim_settings = BuildingSimSettings
+    default_tasks = [
+        common.load_ifc.LoadIFC,
+        common.CheckIfc,
+        common.create_elements,
+        bps.CreateSpaceBoundaries,
+        bps.DisaggregationCreationAndTypeCheck,
+        bps.CombineThermalZones
+    ]
 
 
 def available_plugins() -> List[str]:

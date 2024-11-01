@@ -1,9 +1,4 @@
 ## Python
-# Test files
-# Regression Results
-/bim2sim/assets/regression_results/*
-/test/TestModels/*
-
 # Dont add IFC to repo
 *.ifc
 
@@ -479,3 +474,15 @@ workspace/
 
 # BuildingsPy Regression test folders
 funnel_comp/
+
+# automatic generated figures of the plugin structure
+/docs/source/img/dynamic/plugindiagram/*.png
+
+# debugger setting (dap - debuger adapter protocol)
+.vscode/
+# test/debug stuff from Falk
+falk_stuff/
+
+# ignore download libraries
+**/test/regression/library/
+local/

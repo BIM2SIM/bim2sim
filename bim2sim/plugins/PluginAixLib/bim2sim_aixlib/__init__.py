@@ -2,32 +2,32 @@
 from ast import literal_eval
 
 from bim2sim.export.modelica import standardlibrary
-from bim2sim.kernel.element import Material
-from bim2sim.kernel.elements import hvac as hvac_elements
 from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models import AixLib
-from bim2sim.task import base, common, hvac
-from bim2sim.workflow import PlantSimulation
+from bim2sim.tasks import base, common, hvac
+from bim2sim.plugins.PluginAixLib.bim2sim_aixlib.sim_settings import \
+    AixLibSimSettings
 
 
 class LoadLibrariesAixLib(base.ITask):
     """Load AixLib library for export"""
-    touches = ('libraries', )
+    touches = ('libraries',)
 
-    def run(self, workflow, **kwargs):
+    def run(self, **kwargs):
         return (standardlibrary.StandardLibrary, AixLib),
+
+    def overwrite_standarlib_models(self):
+        pass
 
 
 class PluginAixLib(Plugin):
     name = 'AixLib'
-    default_workflow = PlantSimulation
-    allowed_workflows = [PlantSimulation]
+    sim_settings = AixLibSimSettings
     tasks = {LoadLibrariesAixLib}
-    elements = {*hvac_elements.items, Material}
     default_tasks = [
         common.LoadIFC,
-        hvac.CheckIfcHVAC,
-        common.CreateElements,
+        common.CheckIfc,
+        common.CreateElementsOnIfcTypes,
         hvac.ConnectElements,
         hvac.MakeGraph,
         hvac.ExpansionTanks,

@@ -1,4 +1,0 @@
-geomeppy>=0.11.8
-shapely
-numpy-stl
-https://github.com/NREL/EnergyPlusRegressionTool/archive/refs/tags/v1.9.6.zip

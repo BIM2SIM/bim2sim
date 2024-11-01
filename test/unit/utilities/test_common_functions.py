@@ -1,9 +1,11 @@
 """Test for common_functions.py"""
 import re
 import unittest
+from pathlib import Path
 
 import bim2sim.utilities.common_functions as cf
-from bim2sim.kernel.elements.bps import BPSProduct, Wall, Window, Door
+from bim2sim.elements.bps_elements import BPSProduct, Wall, Window, Door
+import bim2sim.elements.aggregation.bps_aggregations
 
 
 class TestCommonFunctions(unittest.TestCase):
@@ -28,10 +30,12 @@ class TestCommonFunctions(unittest.TestCase):
         self.assertEqual(expected_angles, output_angles,)
 
     def test_get_usage_dict(self):
-        """test get_usage_dict function (perform test for 4 samples)"""
-        prj_name = 'FM_ARC_DigitalHub_fixed002'
-        usage_dict = cf.get_usage_dict(prj_name)
-        self.assertIsInstance(usage_dict, dict)
+        """test get_use_conditions_dict function (perform test for 4 samples)"""
+        use_conditions_dh_path = Path(bim2sim.__file__).parent.parent / \
+                             'test/resources/arch/custom_usages/' \
+                             'UseConditionsFM_ARC_DigitalHub_fixed002.json'
+        use_conditions_dict = cf.get_use_conditions_dict(use_conditions_dh_path)
+        self.assertIsInstance(use_conditions_dict, dict)
         expected_heating_profile = [
             291.15, 291.15, 291.15, 291.15, 291.15, 294.15, 294.15, 294.15,
             294.15, 294.15, 294.15, 294.15, 294.15, 294.15, 294.15, 294.15,
@@ -41,11 +45,11 @@ class TestCommonFunctions(unittest.TestCase):
             299.15, 299.15, 299.15, 299.15, 299.15, 299.15, 299.15, 299.15,
             299.15, 299.15, 299.15, 299.15, 299.15, 309.15, 309.15, 309.15]
         self.assertEqual(
-            usage_dict[
+            use_conditions_dict[
                 'Group Office (between 2 and 6 employees)']['heating_profile'],
             expected_heating_profile)
         self.assertEqual(
-            usage_dict[
+            use_conditions_dict[
                 'Group Office (between 2 and 6 employees)']['cooling_profile'],
             expected_cooling_profile)
 
@@ -64,8 +68,10 @@ class TestCommonFunctions(unittest.TestCase):
     def test_get_custom_pattern_usage(self):
         """test get_custom_pattern_usage function (perform test for two
         samples)"""
-        prj_name = 'FM_ARC_DigitalHub_fixed002'
-        usage_dict = cf.get_custom_pattern_usage(prj_name)
+        usage_dict_dh_path = Path(bim2sim.__file__).parent.parent / \
+                             'test/resources/arch/custom_usages/' \
+                             'customUsagesFM_ARC_DigitalHub_fixed002.json'
+        usage_dict = cf.get_custom_pattern_usage(usage_dict_dh_path)
 
         self.assertIsInstance(usage_dict, dict)
         self.assertEqual(
@@ -78,8 +84,16 @@ class TestCommonFunctions(unittest.TestCase):
     def test_get_custom_pattern_usage_2(self):
         """test get_custom_pattern_usage function (perform test for two
          samples)"""
-        prj_name = 'FM_ARC_DigitalHub_fixed002'
-        pattern_usage = cf.get_pattern_usage(prj_name)
+        use_conditions_dh_path = Path(bim2sim.__file__).parent.parent / \
+                             'test/resources/arch/custom_usages/' \
+                             'UseConditionsFM_ARC_DigitalHub_fixed002.json'
+        use_conditions_dict = cf.get_use_conditions_dict(use_conditions_dh_path)
+        usage_dict_dh_path = Path(bim2sim.__file__).parent.parent / \
+                             'test/resources/arch/custom_usages/' \
+                             'customUsagesFM_ARC_DigitalHub_fixed002.json'
+
+        pattern_usage = cf.get_pattern_usage(
+            use_conditions_dict, usage_dict_dh_path)
         self.assertEqual(
             pattern_usage['Group Office (between 2 and 6 employees)']['common'],
             [re.compile('(.*?)Group(.*?)Office(.*?)', re.IGNORECASE),
@@ -107,19 +121,19 @@ class TestCommonFunctions(unittest.TestCase):
             material_templates[
                 '245ce424-3a43-11e7-8714-2cd444b2e704']['heat_capac'], 0.84)
 
-    def test_filter_instances(self):
-        """test filter_instances function"""
+    def test_filter_elements(self):
+        """test filter_elements function"""
         wall_1 = Wall()
         wall_2 = Wall()
         window_1 = Window()
         window_2 = Window()
         door_1 = Door()
         door_2 = Door()
-        instances = [wall_1, wall_2, window_1, window_2, door_1, door_2]
-        filtered_instances = cf.filter_instances(instances, 'Wall')
-        expected_instances = [wall_1, wall_2]
-        self.assertIsInstance(instances, list)
-        self.assertEqual(filtered_instances, expected_instances)
+        elements = [wall_1, wall_2, window_1, window_2, door_1, door_2]
+        filtered_elements = cf.filter_elements(elements, 'Wall')
+        expected_elements = [wall_1, wall_2]
+        self.assertIsInstance(elements, list)
+        self.assertEqual(filtered_elements, expected_elements)
 
     def test_remove_umlaut(self):
         """test remove_umlaut function"""
@@ -142,4 +156,6 @@ class TestCommonFunctions(unittest.TestCase):
         """test all_subclasses function"""
         all_subclasses = cf.all_subclasses(BPSProduct)
         self.assertIsInstance(all_subclasses, set)
-        self.assertEqual(len(all_subclasses), 24)
+        self.assertEqual(len(all_subclasses), 29)
+
+

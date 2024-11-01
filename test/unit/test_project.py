@@ -6,14 +6,20 @@ from pathlib import Path
 
 from bim2sim.plugins import Plugin
 from bim2sim.project import Project
-from bim2sim.workflow import PlantSimulation
+from bim2sim.sim_settings import PlantSimSettings
+from bim2sim.utilities.types import IFCDomain
 
-sample_root = Path(__file__).parent.parent.parent / 'test/TestModels/HVAC'
+sample_root = Path(__file__).parent.parent.parent / \
+              'test/resources/hydraulic/ifc'
+ifc_paths = {
+    IFCDomain.hydraulic:
+        sample_root /
+        'KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'}
 
 
 class PluginDummy(Plugin):
     name = "Dummy"
-    default_workflow = PlantSimulation
+    sim_settings = PlantSimSettings
     tasks = []
 
 
@@ -37,14 +43,13 @@ class TestProject(BaseTestProject):
 
         project = Project.create(
             self.path,
-            sample_root /
-            'KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc',
+            ifc_paths,
             PluginDummy
         )
 
         self.assertTrue(os.path.samefile(self.path, project.paths.root))
         self.assertTrue(os.path.exists(project.paths.config))
-        self.assertTrue(os.path.exists(project.paths.ifc))
+        self.assertTrue(os.path.exists(project.paths.ifc_base))
 
         project.delete()
 
@@ -55,20 +60,20 @@ class TestProject(BaseTestProject):
         """Test creating two projects in same dir"""
         project = Project.create(
             self.path,
-            sample_root /
-            'KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc',
+            ifc_paths,
             PluginDummy
         )
-        self.assertTrue(os.path.exists(project.paths.ifc))
+        self.assertTrue(os.path.exists(project.paths.ifc_base))
         project.finalize(True)
-        shutil.rmtree(project.paths.ifc)
-        self.assertFalse(os.path.exists(project.paths.ifc))
+
+        domain = list(ifc_paths.keys())[0].name
+        shutil.rmtree(project.paths.ifc_base / domain)
+        self.assertFalse(os.path.exists(project.paths.ifc_base / domain))
 
         project2 = Project.create(
             self.path,
-            sample_root /
-            'KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc',
+            ifc_paths,
             PluginDummy
         )
-        self.assertTrue(os.path.exists(project2.paths.ifc))
+        self.assertTrue(os.path.exists(project2.paths.ifc_base / domain))
         project2.finalize(True)
