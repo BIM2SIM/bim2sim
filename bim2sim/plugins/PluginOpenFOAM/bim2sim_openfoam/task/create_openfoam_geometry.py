@@ -376,9 +376,48 @@ class CreateOpenFOAMGeometry(ITask):
                         cut_left=False, cut_right=False, cut_back=False,
                         cut_front=False))
                 inlet_base_shape = removed[0]
-                source_shape = PyOCCTools.scale_shape(inlet_base_shape, 0.2,
-                                                      predefined_center=PyOCCTools.get_center_of_face(
-                                                          inlet_base_shape))
+                if 'schlitz' in at0.name.lower():
+                    base_min_max = PyOCCTools.get_minimal_bounding_box(
+                        inlet_base_shape)
+                    x_dist = abs(base_min_max[0][0] - base_min_max[1][0])
+                    y_dist = abs(base_min_max[0][1] - base_min_max[1][1])
+                    cut_each_side_percent = 0.45
+                    if x_dist < y_dist:
+                        source_shape = PyOCCTools.make_faces_from_pnts([
+                            gp_Pnt(base_min_max[0][0] +
+                                   cut_each_side_percent * x_dist,
+                                   base_min_max[0][1] + 0.01,
+                                   base_min_max[0][2]),
+                            gp_Pnt(base_min_max[1][0] -
+                                   cut_each_side_percent * x_dist,
+                                   base_min_max[0][1] + 0.01,
+                                   base_min_max[0][2]),
+                            gp_Pnt(base_min_max[1][
+                                       0] - cut_each_side_percent * x_dist,
+                                   base_min_max[1][1] - 0.01,
+                                   base_min_max[1][2]),
+                            gp_Pnt(base_min_max[0][0] +
+                                   cut_each_side_percent * x_dist,
+                                   base_min_max[1][1] - 0.01, base_min_max[1][
+                                       2])])
+                    else:
+                        source_shape = PyOCCTools.make_faces_from_pnts([
+                            gp_Pnt(base_min_max[0][0] + 0.01,
+                                   base_min_max[0][1] + cut_each_side_percent * y_dist,
+                                   base_min_max[0][2]),
+                            gp_Pnt(base_min_max[1][0] - 0.01,
+                                   base_min_max[0][1] + cut_each_side_percent * y_dist,
+                                   base_min_max[0][2]),
+                            gp_Pnt(base_min_max[1][0] - 0.01,
+                                   base_min_max[1][1] - cut_each_side_percent * y_dist,
+                                   base_min_max[1][2]),
+                            gp_Pnt(base_min_max[0][0] + 0.01,
+                                   base_min_max[1][1] - cut_each_side_percent * y_dist,
+                                   base_min_max[1][2])])
+                else:
+                    source_shape = PyOCCTools.scale_shape(inlet_base_shape, 0.2,
+                                                          predefined_center=PyOCCTools.get_center_of_face(
+                                                              inlet_base_shape))
                 diffuser_shape = PyOCCTools.triangulate_bound_shape(
                     inlet_base_shape, [source_shape])
             elif inlet_type == 'SimpleStlDiffusor':
@@ -934,7 +973,7 @@ class CreateOpenFOAMGeometry(ITask):
             openfoam_elements[furniture.solid_name] = furniture
 
     def create_furniture_shapes(self, openfoam_case, furniture_surface,
-                                x_gap=0.1, y_gap=0.1, side_gap=0.2):
+                                x_gap=0.8, y_gap=0.8, side_gap=0.8):
         meshes = []
         chair_shape = None
         desk_shape = None
