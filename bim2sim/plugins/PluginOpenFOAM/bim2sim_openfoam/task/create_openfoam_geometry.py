@@ -3,6 +3,7 @@ import pathlib
 import random
 import shutil
 import tempfile
+import logging
 from pathlib import Path
 import stl
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex, \
@@ -34,6 +35,8 @@ from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils \
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.pyocc_tools import PyOCCTools
+
+logger = logging.getLogger(__name__)
 
 
 class CreateOpenFOAMGeometry(ITask):
@@ -75,15 +78,25 @@ class CreateOpenFOAMGeometry(ITask):
         stl_bounds = filter_elements(openfoam_elements, 'StlBound')
         floor = []
         for bound in stl_bounds:
-            if bound.bound_element_type in ['Floor']:
+            if 'floor' in bound.bound_element_type.lower():
+                # and bound.bound.top_bottom == 'BOTTOM':
                 floor.append(bound)
         if len(floor) == 1:
             furniture_surface = floor[0]
         elif len(floor) > 1:
-            # raise NotImplementedError('multiple floors detected. Not '
-            #                           'implemented. Merge shapes before '
-            #                           'proceeding to avoid errors. ')
-            furniture_surface = floor[0]
+            logger.warning('more than 1 floor surface detected, using largest '
+                           'floor surface.')
+            fla = 0
+            for fl in floor:
+                if fl.bound_area > fla:
+                    furniture_surface = fl
+                    fla = fl.bound_area
+            logger.warning(f'Multiple floor surfaces ({len(floor)} detected, '
+                           f'using largest surface with area = {fla}. Merge '
+                           f'floor surfaces to prevent errors.')
+        else:
+            raise NotImplementedError('NO FLOOR SURFACE FOUND FOR FURNITURE '
+                                      'POSITION.')
         openfoam_case.furniture_surface = furniture_surface
 
     @staticmethod
@@ -138,14 +151,10 @@ class CreateOpenFOAMGeometry(ITask):
                 #        list(openfoam_case.current_bounds)[:-8]]])
                 heater_bbox_shape = PyOCCTools.simple_bounding_box(
                     b2s_heater.shape)
-                front_surface_min_max = (
-                heater_bbox_shape[0], (heater_bbox_shape[1][0],
-                                       heater_bbox_shape[0][1],
-                                       heater_bbox_shape[1][2]))
                 front_surface_min_max = (heater_bbox_shape[0],
                                          (heater_bbox_shape[1][0],
-                                       heater_bbox_shape[0][1],
-                                       heater_bbox_shape[1][2]))
+                                          heater_bbox_shape[0][1],
+                                          heater_bbox_shape[1][2]))
                 front_surface = PyOCCTools.make_faces_from_pnts([
                     gp_Pnt(*front_surface_min_max[0]),
                     gp_Pnt(front_surface_min_max[1][0],
@@ -156,8 +165,8 @@ class CreateOpenFOAMGeometry(ITask):
                            front_surface_min_max[0][1],
                            front_surface_min_max[1][2])])
                 back_surface_min_max = ((heater_bbox_shape[0][0],
-                                       heater_bbox_shape[1][1],
-                                       heater_bbox_shape[0][2]),
+                                         heater_bbox_shape[1][1],
+                                         heater_bbox_shape[0][2]),
                                         heater_bbox_shape[1])
                 back_surface = PyOCCTools.make_faces_from_pnts([
                     gp_Pnt(*back_surface_min_max[0]),
@@ -198,9 +207,6 @@ class CreateOpenFOAMGeometry(ITask):
                 for shape in shape_list:
                     builder.Add(heater_shape, shape)
                 heater_shapes.append(heater_shape)
-            #raise NotImplementedError(f"geometric preprocessing is not "
-            #                          f"implemented for IFC-based
-            #                          SpaceHeaters")
         else:
             openings = []
             stl_bounds = filter_elements(openfoam_elements, 'StlBound')
@@ -213,12 +219,13 @@ class CreateOpenFOAMGeometry(ITask):
                 if openfoam_case.current_zone.net_area.m < 35:
                     heater_window = openings[0]
                 else:
-                    print('more than one heater required, not implemented. '
-                          'Heater may be unreasonably large. ')
+                    logger.warning('more than one heater required, '
+                                   'not implemented. '
+                                   'Heater may be unreasonably large. ')
                     heater_window = openings[0]
 
             else:
-                print('No window found for positioning of heater.')
+                logger.warning('No window found for positioning of heater.')
                 return
             heater_shape = self.get_boundaries_of_heater(openfoam_case,
                                                          heater_window)
@@ -226,12 +233,10 @@ class CreateOpenFOAMGeometry(ITask):
 
         # heater_shape holds side surfaces of space heater.
         for i, shape in enumerate(heater_shapes):
-
             heater = Heater(f'heater{i}', shape,
                             openfoam_case.openfoam_triSurface_dir)
             # abs(openfoam_case.current_zone.zone_heat_conduction))
             openfoam_elements[heater.solid_name] = heater
-
 
     @staticmethod
     def get_boundaries_of_heater(openfoam_case, heater_window,
@@ -335,8 +340,8 @@ class CreateOpenFOAMGeometry(ITask):
         if len(ceiling_roof) == 1:
             air_terminal_surface = ceiling_roof[0]
         elif len(ceiling_roof) > 1:
-            print('multiple ceilings/roofs detected. Not implemented. '
-                  'Merge shapes before proceeding to avoid errors. ')
+            logger.warning('multiple ceilings/roofs detected. Not implemented. '
+                           'Merge shapes before proceeding to avoid errors. ')
             air_terminal_surface = ceiling_roof[0]
         bim2sim_airterminals = filter_elements(elements, 'AirTerminal')
         if bim2sim_airterminals:
@@ -349,10 +354,10 @@ class CreateOpenFOAMGeometry(ITask):
                     openfoam_case.current_zone.airterminals.append(airterminal)
         if openfoam_case.current_zone.airterminals:
             air_terminals = openfoam_case.current_zone.airterminals
-        # if 'AirTerminal' in [name.__class__.__name__ for name in
-        #                      list(elements.values())]:
-        #     air_terminals = [a for a in list(elements.values()) if
-        #              (a.__class__.__name__ == 'AirTerminal')]
+            # if 'AirTerminal' in [name.__class__.__name__ for name in
+            #                      list(elements.values())]:
+            #     air_terminals = [a for a in list(elements.values()) if
+            #              (a.__class__.__name__ == 'AirTerminal')]
             # todo: get product shape of air terminals
             # identify air terminals in current zone (maybe flag is already
             # set from preprocessing in bim2sim
@@ -372,7 +377,8 @@ class CreateOpenFOAMGeometry(ITask):
                         cut_front=False))
                 inlet_base_shape = removed[0]
                 source_shape = PyOCCTools.scale_shape(inlet_base_shape, 0.2,
-                                     predefined_center=PyOCCTools.get_center_of_face(inlet_base_shape))
+                                                      predefined_center=PyOCCTools.get_center_of_face(
+                                                          inlet_base_shape))
                 diffuser_shape = PyOCCTools.triangulate_bound_shape(
                     inlet_base_shape, [source_shape])
             elif inlet_type == 'SimpleStlDiffusor':
@@ -431,7 +437,7 @@ class CreateOpenFOAMGeometry(ITask):
             builder = TopoDS_Builder()
             builder.MakeCompound(air_terminal_compound)
             shapelist = [shp for shp in [diffuser_shape, source_shape,
-                                             air_terminal_box] if
+                                         air_terminal_box] if
                          shp is not None]
             for shp in shapelist:
                 builder.Add(air_terminal_compound, shp)
@@ -453,15 +459,16 @@ class CreateOpenFOAMGeometry(ITask):
                 airt_bbox = PyOCCTools.simple_bounding_box(
                     airt.shape)
                 airt_center_lower = gp_Pnt(airt_center[0],
-                                               airt_center[1],
-                                               airt_bbox[0][2]).Coord()
+                                           airt_center[1],
+                                           airt_bbox[0][2]).Coord()
                 # new compounds
                 if 'zuluft' in airt.name.lower():
                     trsf_inlet = gp_Trsf()
                     trsf_inlet.SetTranslation(compound_center_lower,
                                               gp_Pnt(*airt_center_lower))
-                    inlet_shape = BRepBuilderAPI_Transform(air_terminal_compound,
-                                                           trsf_inlet).Shape()
+                    inlet_shape = BRepBuilderAPI_Transform(
+                        air_terminal_compound,
+                        trsf_inlet).Shape()
                     inlet_diffuser_shape = None
                     inlet_source_shape = None
                     inlet_box_shape = None
@@ -470,11 +477,13 @@ class CreateOpenFOAMGeometry(ITask):
                             diffuser_shape,
                             trsf_inlet).Shape()
                     if source_shape:
-                        inlet_source_shape = BRepBuilderAPI_Transform(source_shape,
-                                                                      trsf_inlet).Shape()
+                        inlet_source_shape = BRepBuilderAPI_Transform(
+                            source_shape,
+                            trsf_inlet).Shape()
                     if air_terminal_box:
-                        inlet_box_shape = BRepBuilderAPI_Transform(air_terminal_box,
-                                                                   trsf_inlet).Shape()
+                        inlet_box_shape = BRepBuilderAPI_Transform(
+                            air_terminal_box,
+                            trsf_inlet).Shape()
                     inlet_shapes = [inlet_diffuser_shape, inlet_source_shape,
                                     inlet_box_shape]
                     inlet_min_max = PyOCCTools.simple_bounding_box(inlet_shape)
@@ -486,7 +495,8 @@ class CreateOpenFOAMGeometry(ITask):
                         inlet_min_max_box.Shape())
                     shell = PyOCCTools.make_shell_from_faces(faces)
                     inlet_solid = PyOCCTools.make_solid_from_shell(shell)
-                    inlet_shapes.extend([inlet_min_max_box.Shape(), inlet_min_max])
+                    inlet_shapes.extend(
+                        [inlet_min_max_box.Shape(), inlet_min_max])
                     inlet = AirTerminal(f'inlet_{len(inlets)}', inlet_shapes,
                                         openfoam_case.openfoam_triSurface_dir,
                                         inlet_type)
@@ -496,18 +506,18 @@ class CreateOpenFOAMGeometry(ITask):
                     trsf_outlet = gp_Trsf()
                     trsf_outlet.SetTranslation(compound_center_lower,
                                                gp_Pnt(*airt_center_lower))
-                    outlet_shape = BRepBuilderAPI_Transform(air_terminal_compound,
-                                                            trsf_outlet).Shape()
+                    outlet_shape = BRepBuilderAPI_Transform(
+                        air_terminal_compound,
+                        trsf_outlet).Shape()
                     # Todo: remove hardcoded rotations
                     apply_rotation = None
                     box_diff = (abs(PyOCCTools.get_shape_volume(
-                            PyOCCTools.simple_bounding_box_shape([
-                        outlet_shape, airt.shape])) -
-                            PyOCCTools.get_shape_volume(
-                                outlet_shape))/
-                            PyOCCTools.get_shape_volume(
-                                outlet_shape))
-                    print(f'BBOX_Diff: {airt.name} {box_diff}')
+                        PyOCCTools.simple_bounding_box_shape([
+                            outlet_shape, airt.shape])) -
+                                    PyOCCTools.get_shape_volume(
+                                        outlet_shape)) /
+                                PyOCCTools.get_shape_volume(
+                                    outlet_shape))
                     if box_diff > 0.4:
                         apply_rotation = True
                     if apply_rotation:
@@ -523,16 +533,19 @@ class CreateOpenFOAMGeometry(ITask):
                             diffuser_shape,
                             trsf_outlet).Shape()
                         if apply_rotation:
-                            outlet_diffuser_shape = PyOCCTools.rotate_by_deg(outlet_diffuser_shape,
-                                                                    axis='z',
-                                                                    rotation=90)
+                            outlet_diffuser_shape = PyOCCTools.rotate_by_deg(
+                                outlet_diffuser_shape,
+                                axis='z',
+                                rotation=90)
                     if source_shape:
-                        outlet_source_shape = BRepBuilderAPI_Transform(source_shape,
-                                                                       trsf_outlet).Shape()
+                        outlet_source_shape = BRepBuilderAPI_Transform(
+                            source_shape,
+                            trsf_outlet).Shape()
                         if apply_rotation:
-                            outlet_source_shape = PyOCCTools.rotate_by_deg(outlet_source_shape,
-                                                                    axis='z',
-                                                                    rotation=90)
+                            outlet_source_shape = PyOCCTools.rotate_by_deg(
+                                outlet_source_shape,
+                                axis='z',
+                                rotation=90)
 
                     if air_terminal_box:
                         outlet_box_shape = BRepBuilderAPI_Transform(
@@ -545,7 +558,8 @@ class CreateOpenFOAMGeometry(ITask):
                                 rotation=90)
                     outlet_shapes = [outlet_diffuser_shape, outlet_source_shape,
                                      outlet_box_shape]
-                    outlet_min_max = PyOCCTools.simple_bounding_box(outlet_shape)
+                    outlet_min_max = PyOCCTools.simple_bounding_box(
+                        outlet_shape)
                     outlet_min_max_box = BRepPrimAPI_MakeBox(
                         gp_Pnt(*outlet_min_max[0]),
                         gp_Pnt(
@@ -572,9 +586,80 @@ class CreateOpenFOAMGeometry(ITask):
                 # export stl geometry of surrounding surfaces again (including cut
                 # ceiling)
                 # create instances of air terminal class and return them?
+            if len(air_terminals) == 1:
+                # check for cases with overflow from other spaces
+                stl_bounds = filter_elements(openfoam_elements, 'StlBound')
+                door_sbs = [sb for sb in stl_bounds
+                            if 'door' in sb.bound_element_type.lower()]
+                door_outlet_height = 0.02
 
+                if 'zuluft' in air_terminals[0].name.lower():
+                    # define additional outlet below door
 
-                # export moved inlet and outlet shapes
+                    # case 1 (simplification):
+                    # all doors are used as outlets
+                    for dsb in door_sbs:
+                        dsb_shape = dsb.tri_geom
+                        dsb_min_max = PyOCCTools.get_minimal_bounding_box(
+                            dsb_shape)
+                        dsb_outlet_cut_shape = PyOCCTools.make_faces_from_pnts([
+                            gp_Pnt(*dsb_min_max[0]),
+                            gp_Pnt(dsb_min_max[1][0], dsb_min_max[1][1],
+                                   dsb_min_max[0][2]),
+                            gp_Pnt(dsb_min_max[1][0], dsb_min_max[1][1],
+                                   dsb_min_max[0][
+                                       2] + door_outlet_height),
+                            gp_Pnt(dsb_min_max[0][0], dsb_min_max[0][1],
+                                   dsb_min_max[0][
+                                       2] + door_outlet_height)])
+                        new_door_shape = PyOCCTools.triangulate_bound_shape(
+                            dsb_shape, [dsb_outlet_cut_shape])
+                        dsb.tri_geom = new_door_shape
+                        dsb.bound_area = PyOCCTools.get_shape_area(
+                            new_door_shape)
+                        outlet_shapes = [None, dsb_outlet_cut_shape, None,
+                                         PyOCCTools.simple_bounding_box_shape(
+                                             dsb_outlet_cut_shape),
+                                         PyOCCTools.get_minimal_bounding_box(
+                                             dsb_outlet_cut_shape)]
+                        outlet = AirTerminal(f'outlet_overflow_{len(door_sbs)}',
+                                             outlet_shapes,
+                                             openfoam_case.openfoam_triSurface_dir,
+                                             inlet_outlet_type='None')
+                        outlets.append(outlet)
+                        # todo: case 2 (only doors to rooms with outlets are
+                        # considered
+                        # for overflow)
+
+                if 'abluft' in air_terminals[0].name.lower():
+                    # define additional inlet at upper part of door
+                    for dsb in door_sbs:
+                        dsb_shape = dsb.tri_geom
+                        dsb_min_max = PyOCCTools.get_minimal_bounding_box(
+                            dsb_shape)
+                        dsb_inlet_cut_shape = PyOCCTools.make_faces_from_pnts([
+                            gp_Pnt(dsb_min_max[0][0], dsb_min_max[0][1],
+                                   dsb_min_max[1][2] - door_outlet_height),
+                            gp_Pnt(dsb_min_max[1][0], dsb_min_max[1][1],
+                                   dsb_min_max[1][2] - door_outlet_height),
+                            gp_Pnt(*dsb_min_max[1]),
+                            gp_Pnt(dsb_min_max[0][0], dsb_min_max[0][1],
+                                   dsb_min_max[1][2])])
+                        new_door_shape = PyOCCTools.triangulate_bound_shape(
+                            dsb_shape, [dsb_inlet_cut_shape])
+                        dsb.tri_geom = new_door_shape
+                        dsb.bound_area = PyOCCTools.get_shape_area(
+                            new_door_shape)
+                        inlet_shapes = [None, dsb_inlet_cut_shape, None,
+                                        PyOCCTools.simple_bounding_box_shape(
+                                            dsb_inlet_cut_shape),
+                                        PyOCCTools.get_minimal_bounding_box(
+                                            dsb_inlet_cut_shape)]
+                        inlet = AirTerminal(f'inlet_overflow_{len(door_sbs)}',
+                                            inlet_shapes,
+                                            openfoam_case.openfoam_triSurface_dir,
+                                            inlet_outlet_type='None')
+                        inlets.append(inlet)
         else:
             ceiling_roof = []
             for bound in stl_bounds:
@@ -586,14 +671,15 @@ class CreateOpenFOAMGeometry(ITask):
             if len(ceiling_roof) == 1:
                 air_terminal_surface = ceiling_roof[0]
             elif len(ceiling_roof) > 1:
-                print('multiple ceilings/roofs detected. Not implemented. '
-                      'Merge shapes before proceeding to avoid errors. ')
+                logger.warning(
+                    'multiple ceilings/roofs detected. Not implemented. '
+                    'Merge shapes before proceeding to avoid errors. ')
                 air_terminal_surface = ceiling_roof[0]
-        # todo: add simsettings for outlet choice!
+            # todo: add simsettings for outlet choice!
             inlet, outlet = self.create_airterminal_shapes(
                 openfoam_case,
-                                                           air_terminal_surface,
-                                                           inlet_type, outlet_type)
+                air_terminal_surface,
+                inlet_type, outlet_type)
             inlets.append(inlet)
             outlets.append(outlet)
         for inlet in inlets:
@@ -685,7 +771,6 @@ class CreateOpenFOAMGeometry(ITask):
         air_terminal_compound = BRepLib_FuseEdges(air_terminal_compound).Shape()
         air_terminal_compound = PyOCCTools.simple_bounding_box_shape(
             air_terminal_compound)
-
 
         compound_bbox = PyOCCTools.simple_bounding_box(air_terminal_compound)
         compound_center = PyOCCTools.get_center_of_shape(
@@ -1147,5 +1232,3 @@ def create_stl_from_shape_single_solid_name(triangulated_shape,
                      output_file,
                      mode=stl.Mode.ASCII)
     output_file.close()
-
-

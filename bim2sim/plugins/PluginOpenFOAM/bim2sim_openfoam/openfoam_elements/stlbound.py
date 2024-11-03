@@ -22,7 +22,8 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
             self.bound_element_type = 'Ceiling'
         # hotfix for incorrectly assigned floors and roofs in bim2sim elements
         # todo: test and remove?
-        if self.bound_element_type in ['Floor', 'GroundFloor', 'Roof']:
+        if self.bound_element_type in ['Floor', 'GroundFloor', 'Roof',
+                                       'InnerFloor']:
             self.bound_element_type = idf.getobject('BUILDINGSURFACE:DETAILED',
                                                     self.guid.upper()).Surface_Type
         self.solid_name = self.bound_element_type + '_' + bound.guid.replace(
