@@ -73,7 +73,7 @@ def run_example_17():
 
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
-    project.sim_settings.select_space_guid = '2o3MylYZzAnR8q1ofuG3sg'
+    project.sim_settings.select_space_guid = '3GmoJyFk9FvAnea6mogixJ'
     # project.sim_settings.select_space_guid = '3hiy47ppf5B8MyZqbpTfpc'
 
     # VR/AR lab: '2o3MylYZzAnR8q1ofuG3sg'
@@ -81,10 +81,17 @@ def run_example_17():
     project.sim_settings.inlet_type = 'Original'
     project.sim_settings.outlet_type = 'Original'
     project.sim_settings.add_heating = True
-    project.sim_settings.add_people = False
+    project.sim_settings.add_people = True
     project.sim_settings.add_floorheating = False
     project.sim_settings.add_airterminals = True
     project.sim_settings.add_comfort = True
+    project.sim_settings.add_furniture = True
+    project.sim_settings.add_people = True
+    project.sim_settings.add_comfort = True
+    project.sim_settings.furniture_setting = 'Office'
+    project.sim_settings.furniture_amount = 30
+    project.sim_settings.people_amount = 20
+    project.sim_settings.people_setting = 'Seated'
     project.sim_settings.output_keys = ['output_outdoor_conditions',
                                         'output_zone_temperature',
                                         'output_zone', 'output_infiltration',
