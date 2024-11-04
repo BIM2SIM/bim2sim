@@ -27,33 +27,41 @@ changes in the results, such that the developer has to decide whether to update
 the new implementation or the regression results.
 
 ## Run Tests Local
-
 To test mapping between IFC and our meta structure
 [elements](elements_structure) as well as for Integration Testing
 we need to load IFC files into our tool. These IFC files can be quite big. To
-keep the size of this repository as slim as possible we only integrate very few
-examples into the repository itself. The majority of the IFC files is stored 
-external and is downloaded for [CI/CD](CI/CD) processes during the test run. If
-you want to run the tests local, please download the files to your local 
-repository. You can use our download script for this, by running the following 
-commands while you are the repository root directory:
+keep the size of this repository as slim as possible we put the test resources
+into an additional repository, which is included here as a submodule. To make 
+sure that you have those resources in your local repository, run:
 
-```python 
-python ./test/resources/download_test_resources.py --domain=<domain_name>
+``` 
+git submodule update --init --recursive
 ```
-You can use the following arguments:
 
-| **args**          | **values**  | **description**                                   |
-|-------------------|-------------|---------------------------------------------------|
-| `domain`          | `arch`      | Download arch domain test resources               |
-|                   | `hydraulic` | Download hydraulic domain test resources          |
-| `with_regression` | `bool`      | Include regression reults in download             | m
-| `force_new`       | `bool`      | Force overwrite of potential existing resrouces   | m
+## Update test resources
+If test resources needs to be updated, please follow the following procedure:
 
-
-If you want to run the TEASER regression tests under Windows, you need to add
-path of dymola executable to the PATH environment variable (requirement of
-BuildingsPy) 
-## CI/CD
-
-
+#### [Test Resources Repository](https://github.com/BIM2SIM/bim2sim-test-resources)
+1. Create a branch `update_test_resources`
+2. In this branch update the test resources as required
+3. Push the branch with the changes to the remote repository
+#### [Main bim2sim Repository](https://github.com/BIM2SIM/bim2sim)
+4. Create a branch called `update_resources_submodule` from the current `development` branch
+5. Checkout this branch on your local device and perform the following commands in the root path:
+   1. `cd test/resources` (Go into the submodule directory)
+   2. `git pull origin update_test_resources` (Pull the latest changes of the test resources submodule)
+   3. `cd ../..` (Go back to parent repo)
+   4. `git add test/resources` (add the changes)
+   5. `git commit -m "Update submodule of test resources"`
+   6. `git push`
+6. Wait for the pipeline to run through on your branch, this makes sure that the code runs with the new test resources without issues
+7. If the pipeline with all tests passes, perform the following steps, otherwise fix the issues before you continue
+#### [Test Resources Repository](https://github.com/BIM2SIM/bim2sim-test-resources)
+8. Create a Pull Request (PR) from `update_test_resources` into the `main` branch 
+9. Link the succeeded pipeline in this PR and assign a reviewer
+10. When review finished, merge the PR
+#### [Main bim2sim Repository](https://github.com/BIM2SIM/bim2sim)
+11. Repeat the same steps as under step 6, but this time in step 6.ii use `main` instead `update_test_resources` as branch name
+12. again wait for the pipeline to succeed
+13. Create a PR to merge `update_resources_submodule` branch in the `main` branch and assign a reviewer
+14. If pipeline has passed (what it should) and review is approved merge the PR

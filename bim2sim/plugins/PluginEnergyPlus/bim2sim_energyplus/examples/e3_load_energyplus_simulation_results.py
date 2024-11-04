@@ -6,7 +6,7 @@ from bim2sim.kernel.log import default_logging_setup
 from bim2sim.tasks import bps, common
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
     task as ep_tasks
-from e1_simple_project_bps_energyplus import run_example_1
+from e1_simple_project_energyplus import run_example_1
 
 
 def run_example_load_existing_project():

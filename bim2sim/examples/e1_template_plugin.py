@@ -5,14 +5,13 @@ import bim2sim
 from bim2sim import Project, ConsoleDecisionHandler, run_project
 from bim2sim.elements import bps_elements
 from bim2sim.kernel.log import default_logging_setup
-from bim2sim.utilities.common_functions import download_test_resources, \
-    filter_elements
+from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.types import IFCDomain
 from bim2sim.elements.base_elements import Material
 
 
 def run_simple_project():
-    """Run the building simulation with teaser as backend in interactive mode.
+    """Run a bim2sim project with the TemplatePlugin.
     
     This example will show how to set up a project based on an IFC file,
     how to create bim2sim elements based on the existing IFC data with all
@@ -27,10 +26,6 @@ def run_simple_project():
     # directory
     project_path = Path(tempfile.TemporaryDirectory(
         prefix='bim2sim_example2').name)
-
-    # Download additional test resources for arch domain, you might want to set
-    # force_new to True to update your test resources
-    download_test_resources(IFCDomain.arch, force_new=True)
 
     # Set the ifc path to use and define which domain the IFC belongs to.
     # This is done via a dictionary, where the key is the domain and the value
@@ -76,19 +71,6 @@ def run_simple_project():
     project.sim_settings.weather_file_path_modelica = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
-
-    # Assign relevant elements
-    # TODO this is currently not true, as we need to use TEASERTemplate,
-    #  we need to solve #511 and #583 first
-    # The template plugin uses the BaseSimSettings which don't have any
-    # relevant elements defined. This means without overwriting the
-    # `relevant_elements` setting, no bim2sim elements will be created.
-    # Let's assign all `bps_elements` and the `Material` element. This way
-    # the IFC will be searched for all IFC entities that should be mapped into
-    # the classes defined in `bps_elements` and in the class `Material`.
-    # For further information about the elements structure and the mapping
-    # procedure please read the `elements` documentation
-    project.sim_settings.relevant_elements = {*bps_elements.items, Material}
 
     # Assign the enrichment for use conditions of thermal zones.
 

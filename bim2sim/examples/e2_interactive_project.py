@@ -5,7 +5,6 @@ import bim2sim
 from bim2sim import Project, ConsoleDecisionHandler
 from bim2sim.elements import bps_elements
 from bim2sim.kernel.log import default_logging_setup
-from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain
 from bim2sim.elements.base_elements import Material
 
@@ -29,9 +28,7 @@ def run_interactive_example():
     # directory
     project_path = Path(tempfile.TemporaryDirectory(
         prefix='bim2sim_example1').name)
-    # download additional test resources for arch domain, you might want to set
-    # force_new to True to update your test resources
-    download_test_resources(IFCDomain.arch, force_new=False)
+
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
         IFCDomain.arch:

@@ -4,7 +4,6 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
-from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain
 
 
@@ -30,10 +29,6 @@ def run_example_complex_building_lca():
     # directory
     project_path = Path(tempfile.TemporaryDirectory(
         prefix='bim2sim_example5').name)
-
-    # download additional test resources for arch domain, you might want to set
-    # force_new to True to update your test resources
-    download_test_resources(IFCDomain.arch, force_new=False)
 
     # Get path of the IFC Building model that is used for this example
     # In this case the mainbuilding of EBC at Aachen which has mostly correct
