@@ -10,8 +10,7 @@ import bim2sim
 from bim2sim.elements.base_elements import ProductBased
 from bim2sim.elements.hvac_elements import HVACProduct
 from bim2sim.export.modelica import help_package, help_package_order, \
-    ModelicaElement
-from bim2sim.plugins.PluginSpawn.bim2sim_spawn.models import to_modelica_spawn
+    ModelicaElement, parse_to_modelica
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.pyocc_tools import PyOCCTools
@@ -28,7 +27,7 @@ class ExportSpawnTotal(ITask):
 
     reads = (
         'elements', 'weather_file_modelica', 'weather_file_ep',
-        'zone_names', 'model_name_hydraulic', 'model_name_building',
+        'model_name_hydraulic', 'model_name_building',
         'export_elements', 'connections', 'cons_heat_ports_conv',
         'cons_heat_ports_rad', 'package_name'
     )
@@ -38,7 +37,6 @@ class ExportSpawnTotal(ITask):
             elements: Dict[str, ProductBased],
             weather_file_modelica: Path,
             weather_file_ep: Path,
-            zone_names: List[str],
             model_name_hydraulic: str,
             model_name_building: str,
             export_elements: Dict[HVACProduct, ModelicaElement],
@@ -52,7 +50,6 @@ class ExportSpawnTotal(ITask):
             elements: The elements' data.
             weather_file_modelica: Path to the Modelica weather file.
             weather_file_ep: Path to the EnergyPlus weather file.
-            zone_names: List of zone names.
             model_name_hydraulic: The name of the hydraulic model.
             model_name_building: The name of the building model.
             export_elements: HVAC elements to export.
@@ -162,7 +159,6 @@ class ExportSpawnTotal(ITask):
                 within=package_path.stem,
                 model_name=model_name_total,
                 model_comment='test2',
-                weather_path_mos=to_modelica_spawn(weather_path_mos),
                 model_name_building=model_name_building,
                 model_name_hydraulic=model_name_hydraulic,
                 cons_heat_ports_conv_building_hvac=

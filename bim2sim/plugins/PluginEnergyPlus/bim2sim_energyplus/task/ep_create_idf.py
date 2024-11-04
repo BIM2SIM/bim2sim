@@ -4,7 +4,7 @@ import logging
 import math
 import os
 from pathlib import Path, PosixPath
-from typing import Union, TYPE_CHECKING
+from typing import Union, TYPE_CHECKING, List
 
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace
@@ -52,7 +52,8 @@ class CreateIdf(ITask):
         super().__init__(playground)
         self.idf = None
 
-    def run(self, elements: dict, weather_file_ep: Path) -> tuple[IDF, Path]:
+    def run(self, elements: dict, weather_file_ep: Path) -> (
+            tuple)[IDF, Path, List]:
         """Execute all methods to export an IDF from BIM2SIM.
 
         This task includes all functions for exporting EnergyPlus Input files
@@ -77,6 +78,7 @@ class CreateIdf(ITask):
         Returns:
             idf (IDF): EnergyPlus input file
             sim_results_path (Path): path to the simulation results.
+            ep_zone_lists (List): List of thermal zone EP items
         """
         logger.info("IDF generation started ...")
         idf, sim_results_path = self.init_idf(

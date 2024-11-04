@@ -1943,34 +1943,6 @@ class SpaceBoundaryRepresentation(BPSProduct):
     ]
 
 
-class SpawnBuilding(Element):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.idfName: Path = Path("")
-        self.epwName: Path = Path("")
-        self.weaName: Path = Path("")
-        self.printUnits: bool = True
-
-    def calc_position(self) -> np.array:
-        return np.array([-80, 10, 5])
-
-
-class FreshAirSource(Element):
-    def calc_position(self) -> np.array:
-        return np.array([-40, 20, 8])
-
-
-class SpawnMultiZone(Element):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.Medium: str = ""
-        self.zone_names: list = []
-        self.use_c_flow: bool = False
-
-
-    def calc_position(self) -> np.array:
-        return np.array([+10, 20, 12])
-
 # collect all domain classes
 items: Set[BPSProduct] = set()
 for name, cls in inspect.getmembers(

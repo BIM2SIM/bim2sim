@@ -237,7 +237,7 @@ class Export(ITask):
                          " connections.", len(export_elements),
                          len(connections))
         model_name_hydraulic = 'Hydraulic'
-        package_name = self._get_package_name()
+        package_name = self.get_package_name(self.prj_name)
 
         # Setup package directory structure
         export_package_path = self._setup_package_structure(
@@ -255,14 +255,15 @@ class Export(ITask):
         )
         return modelica_model, package_name, model_name_hydraulic
 
-    def _get_package_name(self) -> str:
+    @staticmethod
+    def get_package_name(prj_name) -> str:
         """Generate a valid package name based on the project name.
 
         Returns:
             str: The valid package name.
         """
         regex = re.compile("[^a-zA-z0-9]")
-        return regex.sub("", self.prj_name)
+        return regex.sub("", prj_name)
 
     def _setup_package_structure(self, package_name: str,
                                  model_name_hydraulic: str) -> Path:

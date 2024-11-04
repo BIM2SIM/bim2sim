@@ -5,7 +5,6 @@ import bim2sim
 from bim2sim import Project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
-from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain
 
 
@@ -27,7 +26,6 @@ def run_example_spawn_1():
     project_path = Path(
         tempfile.TemporaryDirectory(prefix='bim2sim_example_spawn').name)
 
-    download_test_resources(IFCDomain.mixed, force_new=False)
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
         IFCDomain.mixed:
@@ -48,7 +46,6 @@ def run_example_spawn_1():
     project.sim_settings.weather_file_path_ep = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
-    # TODO make sure that a non existing sim_setting assignment raises an error
     project.sim_settings.weather_file_path_modelica = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')

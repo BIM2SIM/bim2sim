@@ -8,8 +8,15 @@ from bim2sim.tasks import common, hvac, bps
 from bim2sim_aixlib import LoadLibrariesAixLib
 
 
-# # TODO: this is just a concept and not working already
 class PluginSpawnOfEP(Plugin):
+    """Plugin for SpawnOfEnergyPlus.
+
+    This is the first plugin that uses tasks from different plugins together.
+    We first execute the EnergyPlus related tasks to create an IDF file.
+    Afterwards, we execute the HVAC tasks, using PluginAixLib (PluginHKESim
+    would also work) and then execute the PluginSpawn tasks to put
+    EnergyPlus IDF and Modelica model together.
+    """
     name = 'spawn'
     sim_settings = SpawnOfEnergyPlusSimSettings
     default_tasks = [
@@ -39,4 +46,3 @@ class PluginSpawnOfEP(Plugin):
         spawn_tasks.ExportSpawnBuilding,
         spawn_tasks.ExportSpawnTotal,
     ]
-    # TODO: we need a merge of tasks of AixLib and EnergyPlus
