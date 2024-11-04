@@ -25,8 +25,8 @@ description = "bim2sim is a framework to create simulation models for different 
 readme = "README.md"
 requires-python = ">=3.10, <=3.11.10"
 classifiers = [
-    "Development Status :: XXX", # see https://en.wikipedia.org/wiki/Software_release_life_cycle
-    "License :: XXX",
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
