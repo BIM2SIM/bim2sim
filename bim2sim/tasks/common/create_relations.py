@@ -63,14 +63,14 @@ class CreateRelations(ITask):
                 if isinstance(element, ThermalZone):
                     if not isinstance(element, ExternalSpatialElement):
                         if not hasattr(element_storey, 'thermal_zones'):
-                            logger.warning(f"{element_storey} has no "
+                            self.logger.warning(f"{element_storey} has no "
                                            f"thermal_zones.")
                             continue
                         if element not in element_storey.thermal_zones:
                             element_storey.thermal_zones.append(element)
                 else:
                     if not hasattr(element_storey, 'elements'):
-                        logger.warning(f"{element_storey} has no "
+                        self.logger.warning(f"{element_storey} has no "
                                        f"elements.")
                         continue
                     if element not in element_storey.elements:
