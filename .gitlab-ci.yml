@@ -672,8 +672,14 @@ build:main-energyplus:py3.11:
     - |
       plugin_test_dir=~/bim2sim-coding/bim2sim/plugins/${plugin}/test
       if [ -d "${plugin_test_dir}/unit" ] || [ -d "${plugin_test_dir}/integration" ]; then
-        coverage run --source=~/bim2sim-coding/bim2sim/plugins/${plugin} -m unittest discover -v ${plugin_test_dir}/unit 2>/dev/null || true
-        coverage run --append --source=~/bim2sim-coding/bim2sim/plugins/${plugin} -m unittest discover -v ${plugin_test_dir}/integration 2>/dev/null || true
+        if [ -d "${plugin_test_dir}/unit" ]; then
+          echo "Running unit tests..."
+          coverage run --source=~/bim2sim-coding/bim2sim/plugins/${plugin} -m unittest discover -v ${plugin_test_dir}/unit
+        fi
+        if [ -d "${plugin_test_dir}/integration" ]; then
+          echo "Running integration tests..."
+          coverage run --append --source=~/bim2sim-coding/bim2sim/plugins/${plugin} -m unittest discover -v ${plugin_test_dir}/integration
+        fi
       else
         echo "No unit or integration test directories found."
         exit 1
