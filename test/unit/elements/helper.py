@@ -136,6 +136,7 @@ class SetupHelperHVAC(SetupHelper):
         consumer = self.element_generator(
             hvac_aggregations.Consumer,
             rated_power=20 * ureg.kilowatt,
+            rated_volume_flow=1 * ureg.meter**3 / ureg.second,
             base_graph=nx.Graph(),
             match_graph=nx.Graph()
         )
@@ -349,9 +350,15 @@ class SetupHelperHVAC(SetupHelper):
 
     def get_two_radiators(self):
         radiator_1 = self.element_generator(
-            hvac.SpaceHeater, rated_power=1 * ureg.kilowatt)
+            hvac.SpaceHeater, rated_power=1 * ureg.kilowatt,
+            flow_temperature=70 * ureg.celsius,
+            return_temperature=50 * ureg.celsius
+        )
         radiator_2 = self.element_generator(
-            hvac.SpaceHeater, rated_power=1 * ureg.kilowatt)
+            hvac.SpaceHeater, rated_power=1 * ureg.kilowatt,
+            flow_temperature=70 * ureg.celsius,
+            return_temperature=50 * ureg.celsius
+        )
         return HvacGraph([radiator_1, radiator_2])
 
 class SetupHelperBPS(SetupHelper):

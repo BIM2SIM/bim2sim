@@ -34,20 +34,18 @@ class TestAixLibExport(TestStandardLibraryExports):
     def test_radiator_export(self):
         graph = self.helper.get_simple_radiator()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        modelica_model = self.run_export(graph, answers)
         parameters = [('rated_power', 'Q_flow_nominal'),
                       ('flow_temperature', 'T_a_nominal'),
                       ('return_temperature', 'T_b_nominal')]
-        expected_units = [ureg.watt, ureg.celsius, ureg.celsius]
+        expected_units = [ureg.watt, ureg.kelvin, ureg.kelvin]
         self.run_parameter_test(graph, modelica_model, parameters,
                                 expected_units)
 
     def test_pump_export(self):
         graph, _ = self.helper.get_simple_pump()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        modelica_model = self.run_export(graph, answers)
         element = graph.elements[0]
         V_flow = element.rated_volume_flow.to(ureg.m ** 3 / ureg.s).magnitude
         dp = element.rated_pressure_difference.to(ureg.pascal).magnitude
@@ -55,13 +53,12 @@ class TestAixLibExport(TestStandardLibraryExports):
                            f"V_flow={{{0 * V_flow},{1 * V_flow},{2 * V_flow}}},"
                            f"dp={{{2 * dp},{1 * dp},{0 * dp}}}"
                            f"))")
-        self.assertIn(expected_string, modelica_model[0].code())
+        self.assertIn(expected_string, modelica_model[0].render_modelica_code())
 
     def test_consumer_export(self):
         graph, _ = self.helper.get_simple_consumer()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        modelica_model = self.run_export(graph, answers)
         parameters = [('rated_power', 'Q_flow_fixed')]
         expected_units = [ureg.watt]
         self.run_parameter_test(graph, modelica_model, parameters,
@@ -82,8 +79,7 @@ class TestAixLibExport(TestStandardLibraryExports):
     def test_three_way_valve_export(self):
         graph = self.helper.get_simple_three_way_valve()
         answers = (1 * ureg.kg / ureg.s,)
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        modelica_model = self.run_export(graph, answers)
         parameters = [('nominal_pressure_difference', 'dpValve_nominal'),
                       ('nominal_mass_flow_rate', 'm_flow_nominal')]
         expected_units = [ureg.pascal, ureg.kg / ureg.s]
@@ -93,8 +89,7 @@ class TestAixLibExport(TestStandardLibraryExports):
     def test_heat_pump_export(self):
         graph = self.helper.get_simple_heat_pump()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        modelica_model = self.run_export(graph, answers)
         parameters = [('rated_power', 'Q_useNominal')]
         expected_units = [ureg.watt]
         self.run_parameter_test(graph, modelica_model, parameters,
@@ -103,8 +98,7 @@ class TestAixLibExport(TestStandardLibraryExports):
     def test_chiller_export(self):
         graph = self.helper.get_simple_chiller()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        modelica_model = self.run_export(graph, answers)
         parameters = [('rated_power', 'Q_useNominal')]
         expected_units = [ureg.watt]
         self.run_parameter_test(graph, modelica_model, parameters,
@@ -117,8 +111,7 @@ class TestAixLibExport(TestStandardLibraryExports):
     def test_storage_export(self):
         graph = self.helper.get_simple_storage()
         answers = ()
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        modelica_model = self.run_export(graph, answers)
         parameters = [('height', 'hTank'), ('diameter', 'dTank')]
         expected_units = [ureg.meter, ureg.meter]
         element = graph.elements[0]
@@ -128,7 +121,7 @@ class TestAixLibExport(TestStandardLibraryExports):
         param_value_pairs = [f"{param[1]}={value}" for param, value in
                              zip(parameters, expected_values)]
         expected_string = f"data({','.join(param_value_pairs)})"
-        self.assertIn(expected_string, modelica_model[0].code())
+        self.assertIn(expected_string, modelica_model[0].render_modelica_code())
 
     def test_radiator_export_with_heat_ports(self):
         """Test export of two radiators, focus on correct heat port export."""
@@ -138,8 +131,7 @@ class TestAixLibExport(TestStandardLibraryExports):
         # export outer heat ports
         self.export_task.playground.sim_settings.outer_heat_ports = True
 
-        modelica_model = DebugDecisionHandler(answers).handle(
-            self.export_task.run(self.loaded_libs, graph))
+        modelica_model = self.run_export(graph, answers)
         # ToDo: as elements are unsorted, testing with names is not robust
         # connections_heat_ports_conv_expected = [
         #     ('heatPortOuterCon[1]',
@@ -155,22 +147,22 @@ class TestAixLibExport(TestStandardLibraryExports):
 
         # check existence of heat ports
         self.assertEqual(
-            2, len(modelica_model[0].elements[0].heat_ports))
+            2, len(modelica_model[0].modelica_elements[0].heat_ports))
         self.assertEqual(
-            2, len(modelica_model[0].elements[1].heat_ports))
+            2, len(modelica_model[0].modelica_elements[1].heat_ports))
 
         # check types of heat ports
         self.assertEqual(
-            modelica_model[0].elements[0].heat_ports[0].heat_transfer_type,
+            modelica_model[0].modelica_elements[0].heat_ports[0].heat_transfer_type,
             HeatTransferType.CONVECTIVE)
         self.assertEqual(
-            modelica_model[0].elements[0].heat_ports[1].heat_transfer_type,
+            modelica_model[0].modelica_elements[0].heat_ports[1].heat_transfer_type,
             HeatTransferType.RADIATIVE)
         self.assertEqual(
-            modelica_model[0].elements[1].heat_ports[0].heat_transfer_type,
+            modelica_model[0].modelica_elements[1].heat_ports[0].heat_transfer_type,
             HeatTransferType.CONVECTIVE)
         self.assertEqual(
-            modelica_model[0].elements[1].heat_ports[1].heat_transfer_type,
+            modelica_model[0].modelica_elements[1].heat_ports[1].heat_transfer_type,
             HeatTransferType.RADIATIVE)
 
         # check number of heat port connections
