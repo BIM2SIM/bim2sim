@@ -641,7 +641,7 @@ build:main-energyplus:py3.11:
     - export BIM2SIM_LOG_LEVEL=ERROR
     - |
       if [ "$COVERAGE" = "true" ]; then
-        coverage run -m unittest discover ~/bim2sim-coding/test
+        coverage run --omit="*/*_txt*" -m unittest discover ~/bim2sim-coding/test
         mkdir -p /builds/EBC/EBC_all/github_ci/bim2sim/$CI_COMMIT_REF_NAME/coverage
         coverage html -d /builds/EBC/EBC_all/github_ci/bim2sim/$CI_COMMIT_REF_NAME/coverage
         coverage-badge -o /builds/EBC/EBC_all/github_ci/bim2sim/$CI_COMMIT_REF_NAME/coverage/badge.svg
@@ -673,7 +673,7 @@ build:main-energyplus:py3.11:
       plugin_test_dir=~/bim2sim-coding/bim2sim/plugins/${plugin}/test
       if [ -d "${plugin_test_dir}/unit" ] || [ -d "${plugin_test_dir}/integration" ]; then
         test_dirs=$(find ${plugin_test_dir} -maxdepth 1 -type d \( -name "unit" -o -name "integration" \) | tr '\n' ' ')
-        coverage run --source=~/bim2sim-coding/bim2sim/plugins/${plugin} -m unittest discover -v ${test_dirs}
+        coverage run --omit="*/*_txt*" --source=~/bim2sim-coding/bim2sim/plugins/${plugin} -m unittest discover -v ${test_dirs}
       else
         echo "No unit or integration test directories found."
         exit 1
@@ -708,9 +708,9 @@ build:main-energyplus:py3.11:
     - |
       set +e
       if [[ "$CI_JOB_IMAGE" == *"dymola"* ]]; then
-        xvfb-run -n 77 coverage run -m unittest discover ~/bim2sim-coding/bim2sim/plugins/${plugin}/test/regression
+        xvfb-run -n 77 coverage run --omit="*/*_txt*" -m unittest discover ~/bim2sim-coding/bim2sim/plugins/${plugin}/test/regression
       else
-        coverage run -m unittest discover ~/bim2sim-coding/bim2sim/plugins/${plugin}/test/regression
+        coverage run --omit="*/*_txt*" -m unittest discover ~/bim2sim-coding/bim2sim/plugins/${plugin}/test/regression
       fi
       test_exit_code=$?
       set -e
