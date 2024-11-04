@@ -17,9 +17,6 @@ Options:
     -i <source> --ifc <source>  Path to ifc file
     -o --open           Open config file
 """
-
-import os
-import sys
 from importlib.metadata import version
 
 import docopt

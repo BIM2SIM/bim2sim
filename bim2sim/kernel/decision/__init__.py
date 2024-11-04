@@ -7,6 +7,7 @@ This package contains:
     - functions save() and load() to save to file system
 """
 
+from importlib.metadata import version
 import enum
 import hashlib
 import json
@@ -17,7 +18,6 @@ from typing import Iterable, Callable, List, Dict, Any, Tuple, Union
 import pint
 
 from bim2sim.elements.mapping.units import ureg
-from bim2sim import __version__
 logger = logging.getLogger(__name__)
 
 
@@ -541,7 +541,7 @@ def save(bunch: DecisionBunch, path):
 
     decisions = bunch.to_serializable()
     data = {
-        'version': __version__,
+        'version': version("bim2sim"),
         'checksum_ifc': None,
         'decisions': decisions,
     }
@@ -560,11 +560,12 @@ def load(path) -> Dict[str, Any]:
         logger.info(f"Unable to load decisions. "
                     f"No Existing decisions found at {ex.filename}")
         return {}
-    version = data.get('version', '0')
-    if version != __version__:
+    cur_version = data.get('version', '0')
+    if cur_version != version("bim2sim"):
         try:
-            data = convert(version, __version__, data)
-            logger.info("Converted stored decisions from version '%s' to '%s'", version, __version__)
+            data = convert(cur_version, version("bim2sim"), data)
+            logger.info("Converted stored decisions from version '%s' to '%s'",
+                        cur_version, version("bim2sim"))
         except:
             logger.error("Decision conversion from %s to %s failed")
             return {}
