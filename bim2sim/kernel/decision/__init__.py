@@ -17,8 +17,6 @@ from typing import Iterable, Callable, List, Dict, Any, Tuple, Union
 import pint
 
 from bim2sim.elements.mapping.units import ureg
-# todo remove version? what is this used for?
-__VERSION__ = '0.1'
 logger = logging.getLogger(__name__)
 
 

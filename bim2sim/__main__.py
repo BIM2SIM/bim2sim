@@ -20,18 +20,27 @@ Options:
 
 import os
 import sys
+from importlib.metadata import version
 
 import docopt
 
-from bim2sim import VERSION, run_project
+from bim2sim import run_project
 from bim2sim.project import Project, FolderStructure
 from bim2sim.kernel.decision.console import ConsoleDecisionHandler
+
+
+def get_version():
+    """Get package version"""
+    try:
+        return version("bim2sim")
+    except Exception:
+        return "unknown"
 
 
 def commandline_interface():
     """user interface"""
 
-    args = docopt.docopt(__doc__, version=VERSION)
+    args = docopt.docopt(__doc__, version=get_version())
 
     # arguments
     project = args.get('project')
@@ -57,28 +66,5 @@ def commandline_interface():
         print("Invalid arguments")
         exit()
 
-
-def debug_params():
-    """Set debug console arguments"""
-
-    print("No parameters passed. Using debug parameters.")
-    path_base = os.path.abspath(os.path.join(os.path.dirname(__file__), "..\\.."))
-    rel_example = 'ExampleFiles/KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'
-    path_ifc = os.path.normcase(os.path.join(path_base, rel_example))
-
-    #sys.argv.append('project')
-    #sys.argv.append('create')
-    #sys.argv.append(r'C:\temp\bim2sim\testproject')
-    #sys.argv.extend(['-s', 'hkesim', '-i', path_ifc, '-o'])
-
-    sys.argv.append('project')
-    sys.argv.append('load')
-    sys.argv.append(r'C:\temp\bim2sim\testproject')
-
-    print("Debug parameters:\n%s"%("\n".join(sys.argv[1:])))
-
-
-if len(sys.argv) <= 1:
-    debug_params()
 
 commandline_interface()
