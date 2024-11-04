@@ -7,7 +7,9 @@ from bim2sim.sim_settings import BooleanSetting, ChoiceSetting, NumberSetting
 class OpenFOAMSimSettings(ComfortSimSettings):
     def __init__(self):
         super().__init__()
-        self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
+        self.relevant_elements = {*bps_elements.items,
+                                  hvac_elements.AirTerminal,
+                                  hvac_elements.SpaceHeater,
                                   Material}
 
     add_heating = BooleanSetting(
@@ -33,6 +35,7 @@ class OpenFOAMSimSettings(ComfortSimSettings):
     inlet_type = ChoiceSetting(
         default='Plate',
         choices={
+            'Original': 'Simplified IFC shape for inlet',
             'Plate': 'Simplified plate for inlet',
             'StlDiffusor': 'Inlet diffusor from stl file',
             'SimpleStlDiffusor': 'Simplified inlet diffusor from stl file',
@@ -46,6 +49,7 @@ class OpenFOAMSimSettings(ComfortSimSettings):
     outlet_type = ChoiceSetting(
         default='Plate',
         choices={
+            'Original': 'Simplified IFC shape for outlet',
             'Plate': 'Simplified plate for outlet',
             'StlDiffusor': 'Outlet diffusor from stl file',
             'SimpleStlDiffusor': 'Simplified outlet diffusor from stl file',
@@ -170,6 +174,11 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         min_value=0,
         max_value=300,
         for_frontend=True,
+    )
+    add_people = BooleanSetting(
+        default=False,
+        for_frontend=True,
+        description='Choose if people should be added.'
     )
     people_setting = ChoiceSetting(
         default='Seated',

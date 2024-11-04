@@ -20,6 +20,9 @@ class AirDiffuser(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
 
         if inlet_outlet_type == 'IfcDiffusor':
             raise NotImplementedError
+        elif inlet_outlet_type == 'Original':
+            self.tri_geom = PyOCCTools.triangulate_bound_shape(shape)
+            self.refinement_level = [4, 8]
         elif inlet_outlet_type == 'SimpleStlDiffusor':
             self.tri_geom = PyOCCTools.triangulate_bound_shape(
                 shape)
@@ -91,6 +94,7 @@ class AirTerminal:
                  volumetric_flow=90,
                  increase_small_refinement=0.10,
                  increase_large_refinement=0.20):
+        self.solid = None
         self.air_type = air_type
         self.solid_name = air_type + '_' + solid_name
         (diffuser_shape, source_sink_shape, box_shape, self.bbox_min_max_shape,
@@ -125,7 +129,7 @@ class AirTerminal:
             {'type': 'calculated', 'value': 'uniform 0'}
         self.source_sink.nut = {'type': 'calculated', 'value': 'uniform 0'
                                 }
-        if self.air_type.upper() == 'INLET':
+        if 'INLET' in self.air_type.upper():
             self.source_sink.aoa = \
                 {'type': 'fixedValue', 'value': 'uniform 0'
                  }

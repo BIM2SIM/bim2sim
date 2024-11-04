@@ -162,6 +162,9 @@ def combine_usages(common_usages, custom_usages) -> dict:
                     raise TypeError("custom usages must be a list")
             if key in usages.keys():
                 usages[key]["custom"] = value
+            else:
+                usages[key]["custom"] = value
+                usages[key]["common"] = []
     return usages
 
 
@@ -259,7 +262,8 @@ def get_type_building_elements_hvac():
     return type_building_elements
 
 
-def filter_elements(elements: Union[dict, list], type_name, create_dict=False)\
+def filter_elements(
+        elements: Union[dict, list], type_name, create_dict=False)\
         -> Union[list, dict]:
     """Filters the inspected elements by type name (e.g. Wall) and
     returns them as list or dict if wanted

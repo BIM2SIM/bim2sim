@@ -231,27 +231,28 @@ class CreateOpenFOAMMeshing(ITask):
             name='topoSetDict', cls='dictionary', location='system',
             default_values=OrderedDict()
         )
-        for heater in heaters:
+        openfoam_case.topoSetDict.values.update(
+            {'actions (': '//'})
+        for h in heaters:
             openfoam_case.topoSetDict.values.update(
-                {
-                    'actions (': {
-                        'name': heater.porous_media.solid_name,
-                        'action': 'new',
-                        'type': 'cellSet',
-                        'source': 'surfaceToCell',
-                        'sourceInfo':
-                            {
-                                'file': fr'"constant/triSurface/'
-                                        fr'{heater.porous_media.stl_name}"',
-                                'useSurfaceOrientation': 'true',
-                                'outsidePoints': '((0 0 0))',
-                                'includeCut': 'false',
-                                'includeInside': 'true',
-                                'includeOutside': 'false',
-                                'nearDistance': '-1',
-                                'curvature': '0',
-                            }
-                    },
+                {f'//{h.solid_name}': {
+                    'name': h.porous_media.solid_name,
+                    'action': 'new',
+                    'type': 'cellSet',
+                    'source': 'surfaceToCell',
+                    'sourceInfo':
+                        {
+                            'file': fr'"constant/triSurface/'
+                                    fr'{h.porous_media.stl_name}"',
+                            'useSurfaceOrientation': 'true',
+                            'outsidePoints': '((0 0 0))',
+                            'includeCut': 'false',
+                            'includeInside': 'true',
+                            'includeOutside': 'false',
+                            'nearDistance': '-1',
+                            'curvature': '0',
+                        }
+                },
                 }
             )
         openfoam_case.topoSetDict.values.update({');': '//'})  # required to
