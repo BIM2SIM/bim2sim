@@ -13,4 +13,5 @@ Subpackages
    :maxdepth: 4
 
    bim2sim.plugins.PluginAixLib.test.integration
+   bim2sim.plugins.PluginAixLib.test.regression
    bim2sim.plugins.PluginAixLib.test.unit
