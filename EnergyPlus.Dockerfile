@@ -17,7 +17,8 @@ USER root
 RUN apt-get update && apt-get install -y ca-certificates curl libx11-6 libexpat1 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl -SLO $ENERGYPLUS_DOWNLOAD_URL
+RUN curl -SLO --retry 5 --retry-delay 15 --retry-max-time 900 --connect-timeout 60 --max-time 3600 $ENERGYPLUS_DOWNLOAD_URL || \
+    (sleep 30 && curl -SLO --retry 5 --retry-delay 15 --retry-max-time 900 --connect-timeout 60 --max-time 3600 $ENERGYPLUS_DOWNLOAD_URL)
 
 RUN chmod +x $ENERGYPLUS_DOWNLOAD_FILENAME
 
