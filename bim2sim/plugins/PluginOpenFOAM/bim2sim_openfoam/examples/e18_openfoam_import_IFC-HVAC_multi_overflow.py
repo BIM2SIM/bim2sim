@@ -89,8 +89,8 @@ def run_example_18():
     project.sim_settings.add_people = True
     project.sim_settings.add_comfort = True
     project.sim_settings.furniture_setting = 'Office'
-    project.sim_settings.furniture_amount = 3
-    project.sim_settings.people_amount = 2
+    project.sim_settings.furniture_amount = 8
+    project.sim_settings.people_amount = 4
     project.sim_settings.people_setting = 'Seated'
     project.sim_settings.output_keys = ['output_outdoor_conditions',
                                         'output_zone_temperature',

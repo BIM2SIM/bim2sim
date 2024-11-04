@@ -33,7 +33,7 @@ def run_example_17():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_openfoam16_').name)
+        tempfile.TemporaryDirectory(prefix='bim2sim_openfoam17_').name)
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -73,7 +73,7 @@ def run_example_17():
 
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
-    project.sim_settings.select_space_guid = '3GmoJyFk9FvAnea6mogixJ'
+    project.sim_settings.select_space_guid = '2o3MylYZzAnR8q1ofuG3sg'
     # project.sim_settings.select_space_guid = '3hiy47ppf5B8MyZqbpTfpc'
 
     # VR/AR lab: '2o3MylYZzAnR8q1ofuG3sg'
@@ -89,8 +89,8 @@ def run_example_17():
     project.sim_settings.add_people = True
     project.sim_settings.add_comfort = True
     project.sim_settings.furniture_setting = 'Office'
-    project.sim_settings.furniture_amount = 30
-    project.sim_settings.people_amount = 20
+    project.sim_settings.furniture_amount = 12
+    project.sim_settings.people_amount = 7
     project.sim_settings.people_setting = 'Seated'
     project.sim_settings.output_keys = ['output_outdoor_conditions',
                                         'output_zone_temperature',
