@@ -1,0 +1,26 @@
+bim2sim.plugins.PluginEnergyPlus.test.regression package
+========================================================
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.test.regression
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+bim2sim.plugins.PluginEnergyPlus.test.regression.prepare\_regression\_tests module
+----------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.test.regression.prepare_regression_tests
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginEnergyPlus.test.regression.test\_energyplus module
+------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus
+   :members:
+   :undoc-members:
+   :show-inheritance:
