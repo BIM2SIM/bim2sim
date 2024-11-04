@@ -17,6 +17,7 @@ from typing import Iterable, Callable, List, Dict, Any, Tuple, Union
 import pint
 
 from bim2sim.elements.mapping.units import ureg
+from bim2sim import __version__
 logger = logging.getLogger(__name__)
 
 
@@ -540,7 +541,7 @@ def save(bunch: DecisionBunch, path):
 
     decisions = bunch.to_serializable()
     data = {
-        'version': __VERSION__,
+        'version': __version__,
         'checksum_ifc': None,
         'decisions': decisions,
     }
@@ -560,10 +561,10 @@ def load(path) -> Dict[str, Any]:
                     f"No Existing decisions found at {ex.filename}")
         return {}
     version = data.get('version', '0')
-    if version != __VERSION__:
+    if version != __version__:
         try:
-            data = convert(version, __VERSION__, data)
-            logger.info("Converted stored decisions from version '%s' to '%s'", version, __VERSION__)
+            data = convert(version, __version__, data)
+            logger.info("Converted stored decisions from version '%s' to '%s'", version, __version__)
         except:
             logger.error("Decision conversion from %s to %s failed")
             return {}
