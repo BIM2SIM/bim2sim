@@ -32,13 +32,14 @@ def run_example_18():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
+    tempfile.tempdir = '/mnt/sim/SimData/CFD-temp'
     project_path = Path(
         tempfile.TemporaryDirectory(prefix='bim2sim_openfoam18_').name)
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
     download_test_resources(IFCDomain.arch, force_new=False)
-    # download_test_resources(IFCDomain.hydraulic, force_new=False)
+    download_test_resources(IFCDomain.hydraulic, force_new=False)
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
         IFCDomain.arch:
@@ -69,7 +70,7 @@ def run_example_18():
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
     # Set the install path to your EnergyPlus installation according to your
     # system requirements
-    project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+    # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
 
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
@@ -92,6 +93,10 @@ def run_example_18():
     project.sim_settings.furniture_amount = 8
     project.sim_settings.people_amount = 4
     project.sim_settings.people_setting = 'Seated'
+    project.sim_settings.run_meshing = True
+    project.sim_settings.run_cfd_simulation = True
+    project.sim_settings.radiation_precondition_time = 4000
+    project.sim_settings.radiation_model = 'preconditioned_fvDOM'
     project.sim_settings.output_keys = ['output_outdoor_conditions',
                                         'output_zone_temperature',
                                         'output_zone', 'output_infiltration',
