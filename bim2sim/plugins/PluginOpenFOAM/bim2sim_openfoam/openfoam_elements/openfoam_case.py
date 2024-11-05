@@ -21,4 +21,5 @@ class OpenFOAMCase:
                                      # 'Right']
         if playground.sim_settings.simulation_type == 'transient':
             self.transient_simulation = True
+        self.radiation_model = playground.sim_settings.radiation_model
         self.internal_gains = None

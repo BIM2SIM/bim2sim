@@ -128,8 +128,14 @@ class InitializeOpenFOAMSetup(ITask):
     @staticmethod
     def create_radiationProperties(openfoam_case):
         # todo: create radiationProperties module?
-        thispath = (openfoam_case.default_templates_dir / 'constant' /
-                    'radiationProperties')
+        if openfoam_case.radiation_model == 'fvDOM':
+            thispath = (openfoam_case.default_templates_dir / 'constant' /
+                        'radiation' / 'fvDOM' /
+                        'radiationProperties')
+        else:  # P1 or preconditioned fvDOM
+            thispath = (openfoam_case.default_templates_dir / 'constant' /
+                        'radiation' / 'P1' /
+                        'radiationProperties')
         posixpath = thispath.as_posix()
 
         openfoam_case.radiationProperties = foamfile.FoamFile.from_file(

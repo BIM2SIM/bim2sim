@@ -195,3 +195,26 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         max_value=300,
         for_frontend=True,
     )
+    radiation_model = ChoiceSetting(
+        default='P1',
+        choices={
+            'P1': 'Use P1 Radiation Model',
+            'fvDOM': 'Use fvDOM Radiation Model',
+            'preconditioned_fvDOM': 'Use P1 to precondition fvDOM Radiation',
+        },
+        description='Choose the radiation model',
+        for_frontend=True
+    )
+    radiation_precondition_time = NumberSetting(
+        default=1000,
+        min_value=10,
+        max_value=5000,
+        description='Choose number of preconditioning iterations using P1 '
+                    'radiation for fvDOM radiation',
+        for_frontend=True
+    )
+    add_solar_radiation=BooleanSetting(
+        default=True,
+        description='Add solar radiation. Requires fvDOM as radiation model.',
+        for_frontend=True
+    )

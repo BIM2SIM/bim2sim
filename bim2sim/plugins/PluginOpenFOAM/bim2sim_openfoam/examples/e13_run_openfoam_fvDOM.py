@@ -9,11 +9,11 @@ from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain
 
 
-def run_example_18():
-    """
+def run_example_13():
+    """OpenFOAM simulation, run a preconditioned transient simulation.
+
     Prepare an OpenFOAM case with ventilation and a radiator including
     meshing and running the simulation on linux.
-
     This example runs a BPS with the EnergyPlus backend and a CFD simulation
     with the OpenFOAM backend. It specifies project
     directory and location of the IFC file. Then, it creates a bim2sim
@@ -34,35 +34,22 @@ def run_example_18():
     # directory
     tempfile.tempdir = '/mnt/sim/SimData/CFD-temp'
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_openfoam18_').name)
+        tempfile.TemporaryDirectory(prefix='bim2sim_openfoam12_').name)
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
     download_test_resources(IFCDomain.arch, force_new=False)
-    download_test_resources(IFCDomain.hydraulic, force_new=False)
+    # download_test_resources(IFCDomain.hydraulic, force_new=False)
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc',
-        IFCDomain.ventilation:
-            Path(bim2sim.__file__).parent.parent /
-            'test/resources/hydraulic/ifc/DigitalHub_Gebaeudetechnik'
-            '-LUEFTUNG_v2.ifc',
-        IFCDomain.hydraulic:
-            Path(bim2sim.__file__).parent.parent /
-            'test/resources/hydraulic/ifc/DigitalHub_Gebaeudetechnik-HEIZUNG_v2'
-            '.ifc',
+            'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
     }
 
     # Create a project including the folder structure for the project with
     # energyplus as backend
     project = Project.create(project_path, ifc_paths, 'openfoam')
-
-    project.sim_settings.prj_custom_usages = (Path(
-        bim2sim.__file__).parent.parent /
-            "test/resources/arch/custom_usages/"
-            "customUsagesFM_ARC_DigitalHub_with_SB89.json")
 
     # set weather file data
     project.sim_settings.weather_file_path = (
@@ -74,28 +61,23 @@ def run_example_18():
 
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
-    # project.sim_settings.select_space_guid = '3GmoJyFk9FvAnea6mogixJ'
-    project.sim_settings.select_space_guid = '3hiy47ppf5B8MyZqbpTfpc'
-
-    # VR/AR lab: '2o3MylYZzAnR8q1ofuG3sg'
-    # Cafeteria: '3GmoJyFk9FvAnea6mogixJ'
-    project.sim_settings.inlet_type = 'Original'
-    project.sim_settings.outlet_type = 'Original'
+    project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
     project.sim_settings.add_heating = True
-    project.sim_settings.add_people = True
     project.sim_settings.add_floorheating = False
     project.sim_settings.add_airterminals = True
-    project.sim_settings.add_comfort = True
-    project.sim_settings.add_furniture = True
-    project.sim_settings.add_people = True
-    project.sim_settings.add_comfort = True
-    project.sim_settings.furniture_setting = 'Office'
-    project.sim_settings.furniture_amount = 8
-    project.sim_settings.people_amount = 4
-    project.sim_settings.people_setting = 'Seated'
+    # project.sim_settings.simulation_type = 'combined'
+    project.sim_settings.steady_iterations = 7000
     project.sim_settings.run_meshing = True
     project.sim_settings.run_cfd_simulation = True
+    project.sim_settings.add_furniture = True
+    # project.sim_settings.add_people = True
+    # project.sim_settings.add_comfort = True
+    project.sim_settings.furniture_setting = 'Concert'
+    project.sim_settings.furniture_amount = 2
+    # project.sim_settings.people_amount = 3
+    # project.sim_settings.people_setting = 'Seated'
     project.sim_settings.radiation_precondition_time = 4000
+
     project.sim_settings.radiation_model = 'preconditioned_fvDOM'
     project.sim_settings.output_keys = ['output_outdoor_conditions',
                                         'output_zone_temperature',
@@ -103,15 +85,11 @@ def run_example_18():
                                         'output_meters',
                                         'output_internal_gains']
     # project.sim_settings.level_heat_balance = False
-
-    answers = ('Autodesk Revit','Autodesk Revit', *(None,)*13,
-               *('HVAC-AirTerminal',)*3,
-               *(None,)*2, 2015)
+    answers = ('ArchiCAD', 'ArchiCAD', *('Single office',)*4)
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
     run_project(project, DebugDecisionHandler(answers))
-    # run_project(project, ConsoleDecisionHandler())
 
 
 if __name__ == '__main__':
-    run_example_18()
+    run_example_13()

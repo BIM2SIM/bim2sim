@@ -7,6 +7,7 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 import math
 from stl import mesh
 import numpy as np
+import re
 
 
 class OpenFOAMUtils:
@@ -175,3 +176,34 @@ class OpenFOAMUtils:
             if v in vert_list:
                 vert_list.remove(v)
         return vert_list
+
+    @staticmethod
+    def string_to_dict(s):
+        # Extract the tuples from the string using regular expressions
+        matches = re.findall(r"\((\d+)\s([\d.]+)\)", s)
+        # Convert the matches to a dictionary
+        return {int(k): float(v) for k, v in matches}
+
+    @staticmethod
+    def dict_to_string(d):
+        # Format the dictionary back into the original string format
+        sorted_items = sorted(d.items())
+        tuples_str = " ".join(f"({k} {v})" for k, v in sorted_items)
+        return f"table ( {tuples_str} )"
+
+    @staticmethod
+    def duplicate_table_for_restart(dict_with_string_tables: dict,
+                                    add_number_to_keys: int) -> dict:
+        new_dict = {}
+        for key, eq_val in dict_with_string_tables.items():
+            d = OpenFOAMUtils.string_to_dict(eq_val)
+            if d:
+                d_updated = {}
+                for d_key, d_val in d.items():
+                    d_updated.update({d_key: d_val})
+                    d_updated.update({d_key + add_number_to_keys: d_val})
+                s_updated = OpenFOAMUtils.dict_to_string(d_updated)
+                new_dict.update({key: s_updated})
+            else:
+                new_dict.update({key: eq_val})
+        return new_dict
