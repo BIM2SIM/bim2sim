@@ -74,25 +74,35 @@ class LoadMaterialEmissionParameter(ITask):
         :param uuid: UUID nach Ökobaudat
         :return: Globales Erwärmungspotential nach ÖKOBAUDAT, ReferenceUnit: Einheit für Berechnung z.B. kg oder m³
         """
-        OKOBAU_URL = "https://oekobaudat.de/OEKOBAU.DAT/resource/datastocks/c391de0f-2cfd-47ea-8883-c661d294e2ba"
+        OKOBAU_URL = "https://oekobaudat.de/OEKOBAU.DAT/resource/datastocks/ca70a7e6-0ea4-4e90-a947-d44585783626"
 
         """Fetches the data of a specific EPD given its UUID"""
-        response = requests.get(f"{OKOBAU_URL}/processes/{uuid}?format=json&view=extended")
+        response = requests.get(f"{OKOBAU_URL}/processes/{uuid}?format=json&view=extended", verify=False)
 
         response.raise_for_status()
         data = response.json()
 
+        results = {}
         for entry in data['LCIAResults']['LCIAResult']:
-            if entry['referenceToLCIAMethodDataSet']['shortDescription'][0]['value'] == "Global Warming Potential - total (GWP-total)" or \
-                entry['referenceToLCIAMethodDataSet']['shortDescription'][0]['value'] == "Globales Erwärmungspotenzial - total (GWP-total)" or \
-                entry['referenceToLCIAMethodDataSet']['shortDescription'][0]['value'] == "Globales Erwärmungspotenzial total (GWP-total)" or \
-                entry['referenceToLCIAMethodDataSet']['shortDescription'][0]['value'] == "Global Warming Potential total (GWP-total)":
+            if entry['referenceToLCIAMethodDataSet']['shortDescription'][1]['value'] == (
+            "Global Warming Potential - total (GWP-total)") or \
+                    entry['referenceToLCIAMethodDataSet']['shortDescription'][1]['value'] == (
+            "Globales Erwärmungspotenzial - total (GWP-total)") or \
+                    entry['referenceToLCIAMethodDataSet']['shortDescription'][1]['value'] == (
+            "Globales Erwärmungspotenzial total (GWP-total)") or \
+                    entry['referenceToLCIAMethodDataSet']['shortDescription'][1]['value'] == (
+            "Global Warming Potential total (GWP-total)"):
 
+                # Initialisieren eines leeren Dictionaries für GWP-total
                 results = {}
+                # Loop durch alle 'other' Elemente
                 for sub_entry in entry['other']['anies']:
+                    # Prüfen, ob 'module' als Schlüssel in 'sub_entry' vorhanden ist
                     if 'module' in sub_entry and 'value' in sub_entry:
+                        # Hinzufügen des Wertes zum Dictionary
                         results[sub_entry['module']] = sub_entry['value']
                 break
+
 
         return results
 

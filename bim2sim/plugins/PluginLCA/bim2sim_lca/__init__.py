@@ -18,7 +18,7 @@ class PluginLCA(Plugin):
         common.CreateElementsOnIfcTypes,
         common.CreateRelations,
         bps.EnrichMaterial,
-        PlotHydraulicVentilationGraphs,
+        #PlotHydraulicVentilationGraphs,
         LoadMaterialEmissionParameter,
         CalculateEmissionBuilding,
         CalculateEmissionHydraulicSystem

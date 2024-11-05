@@ -364,7 +364,9 @@ class CalculateEmissionBuilding(ITask):
                     "XPS_3_core_layer": "XPS_3_core_layer",
                     "fibreboard": "fibreboard",
                     "footstep_sound_insulation": "footstep_sound_insulation",
-                    "wooden_beams_with_insulation" : "wooden_beams_with_insulation"
+                    "wooden_beams_with_insulation" : "wooden_beams_with_insulation",
+                    "oak_longitudinal": "oak_longitudinal",
+                    "wood_wool_board_magnesia_460": "wood_wool_board_magnesia_460"
                     }
         for key, values in building_material.items():
             if key in mapping:

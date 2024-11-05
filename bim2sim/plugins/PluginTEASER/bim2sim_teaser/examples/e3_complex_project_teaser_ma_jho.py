@@ -59,7 +59,7 @@ def run_example_complex_building_teaser(project_path, heating_bool, cooling_bool
     project.sim_settings.heating = heating_bool
     project.sim_settings.cooling = cooling_bool
 
-    project.sim_settings.overwrite_ahu_by_settings = ahu_bool
+    project.sim_settings.overwrite_ahu_by_settings = True
     project.sim_settings.ahu_heating = ahu_bool
     project.sim_settings.ahu_cooling = ahu_bool
     project.sim_settings.ahu_dehumidification = ahu_bool
