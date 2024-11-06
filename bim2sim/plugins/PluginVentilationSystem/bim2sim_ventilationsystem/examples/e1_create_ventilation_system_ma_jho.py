@@ -72,6 +72,11 @@ def run_example_project_ventilation_system(project_path):
     # Quantities_overview_ERC_Mainbuilding_Arch.csv will give you an overview
     # about all elements separately and their materials
 
+    total_gwp_supply_air = project.playground.state['total_gwp_supply_air']
+    total_gwp_exhaust_air = project.playground.state['total_gwp_exhaust_air']
+
+    return total_gwp_supply_air, total_gwp_exhaust_air
+
 
 if __name__ == '__main__':
     run_example_project_ventilation_system()

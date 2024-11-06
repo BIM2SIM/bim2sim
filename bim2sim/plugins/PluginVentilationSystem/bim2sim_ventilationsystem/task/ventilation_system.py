@@ -35,7 +35,7 @@ class DesignVentilationSystem(ITask):
              'dict_steiner_tree_with_air_volume_exhaust_air',
              'z_coordinate_list'
              )
-    touches = ()
+    touches = ('total_gwp_supply_air', 'total_gwp_exhaust_air')
 
     def run(self,
             corners_building,
@@ -81,15 +81,17 @@ class DesignVentilationSystem(ITask):
                                                                  export)
 
         self.logger.info("CO2-Calcualtion for the complete ventilation system")
-        self.co2_ventilation_system(air_flow_building,
-                                    dataframe_rooms_supply_air,
-                                    dataframe_rooms_exhaust_air,
-                                    dataframe_distribution_network_supply_air,
-                                    dataframe_distribution_network_exhaust_air,
-                                    dataframe_fire_dampers_supply_air,
-                                    dataframe_fire_dampers_exhaust_air,
-                                    export
-                                    )
+        total_gwp_supply_air, total_gwp_exhaust_air = self.co2_ventilation_system(air_flow_building,
+                                                                                    dataframe_rooms_supply_air,
+                                                                                    dataframe_rooms_exhaust_air,
+                                                                                    dataframe_distribution_network_supply_air,
+                                                                                    dataframe_distribution_network_exhaust_air,
+                                                                                    dataframe_fire_dampers_supply_air,
+                                                                                    dataframe_fire_dampers_exhaust_air,
+                                                                                    export
+                                                                                    )
+
+        return total_gwp_supply_air, total_gwp_exhaust_air
 
     def plot_3d_graphs(self, graph_ventilation_duct_length_supply_air, graph_ventilation_duct_length_exhaust_air,
                        export):
@@ -553,3 +555,5 @@ class DesignVentilationSystem(ITask):
             with pd.ExcelWriter(folder_path / 'CO2.xlsx', engine='openpyxl') as writer:
                 co2_result_distribution_by_type.to_excel(writer, sheet_name='CO2-distribution broken down', index=False)
                 co2_result_supply_exhaust_others.to_excel(writer, sheet_name='CO2-distribution', index=False)
+
+        return supply_sum, exhaust_sum

@@ -8,24 +8,26 @@ from bim2sim.elements.mapping.units import ureg
 class CalculateEmissionHydraulicSystem(ITask):
 
     reads = ('material_emission_dict',)
-    touches = ()
+    touches = ('total_gwp_hydraulic_pipe', 'total_gwp_hydraulic_component')
 
     def run(self, material_emission_dict):
         if self.playground.sim_settings.calculate_lca_hydraulic_system:
             pipe_dict = self.load_pipe_data()
 
             component_dict = self.load_component_data()
-            component_material_emission, pump_component, total_gwp_component = self.calulcate_emission_components(
+            component_material_emission, pump_component, total_gwp_hydraulic_component = self.calulcate_emission_components(
                     component_dict=component_dict, material_emission_dict=material_emission_dict)
 
-            pipe_dict, total_gwp_pipe, total_pipe_mass, total_isolation_mass = self.calulcate_emission_pipe(pipe_dict=pipe_dict, material_emission_dict=material_emission_dict)
+            pipe_dict, total_gwp_hydraulic_pipe, total_pipe_mass, total_isolation_mass = self.calulcate_emission_pipe(pipe_dict=pipe_dict, material_emission_dict=material_emission_dict)
             self.write_xlsx(pipe_dict=pipe_dict,
                             component_material_emission=component_material_emission,
                             pump_component=pump_component,
                             total_pipe_mass=total_pipe_mass,
                             total_isolation_mass=total_isolation_mass,
-                            total_gwp_pipe=total_gwp_pipe,
-                            total_gwp_component=total_gwp_component)
+                            total_gwp_pipe=total_gwp_hydraulic_pipe,
+                            total_gwp_component=total_gwp_hydraulic_component)
+
+        return total_gwp_hydraulic_pipe, total_gwp_hydraulic_component
 
     def load_pipe_data(self):
         df = pd.read_excel(self.playground.sim_settings.hydraulic_system_material_xlsx, sheet_name="Pipes")

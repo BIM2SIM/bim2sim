@@ -134,7 +134,7 @@ KG_names = {
 class CalculateEmissionBuilding(ITask):
     """Exports a CSV file with all relevant quantities of the BIM model"""
     reads = ('ifc_files', 'elements', 'material_emission_dict')
-    touches = ()
+    touches = ('total_gwp_building',)
 
     def __init__(self, playground):
         super().__init__(playground)
@@ -162,10 +162,11 @@ class CalculateEmissionBuilding(ITask):
             self.logger.info("Calculate building lca and export to csv")
             building_material_dict = self.calculate_building_emissions(material_emission=material_emission_dict,
                                                                        building_material=building_material_dict)
-            total_gwp = self.total_sum_emission(building_material=building_material_dict)
+            total_gwp_building = self.total_sum_emission(building_material=building_material_dict)
             self.export_material_data_and_lca(building_material=building_material_dict,
-                                              total_gwp=total_gwp)
+                                              total_gwp=total_gwp_building)
 
+        return total_gwp_building
 
     def export_materials(self, elements):
         """Exports only the materials and its total volume and mass if density

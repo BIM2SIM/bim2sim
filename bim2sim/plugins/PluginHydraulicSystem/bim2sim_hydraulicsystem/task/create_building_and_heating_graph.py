@@ -444,6 +444,8 @@ class CreateBuildingAndHeatingGraph(ITask):
         def is_edge_inside_shape(shape, point1, point2, iteration=0.1):
             edge_length = euclidean_distance(point1, point2)
             num_points = int(edge_length / iteration)
+            if num_points < 2:
+                num_points = 2
             x1, y1, z1 = point1
             x2, y2, z2 = point2
             for i in range(num_points):

@@ -330,7 +330,6 @@ class CalculateHydraulicSystem(ITask):
                              sheet_name,
                              calc_inner_diameter: float = 11.5):
         data = pd.read_excel(filename, sheet_name=sheet_name)
-        inner_diameter_list = []
         inner_diameter_list = {}
         material = None
         density = None
@@ -348,9 +347,15 @@ class CalculateHydraulicSystem(ITask):
                 inner_diameter_list[inner_diameter] = outer_diameter
                 pipe_mass = mass
 
+        if not inner_diameter_list:
+            pipe_mass = self.calculate_pipe_material(density, 1*ureg.meter, inner_diameter, outer_diameter).to(
+                ureg.kilogram) / ureg.meter
+            return inner_diameter, outer_diameter, material, density, pipe_mass
         inner_diameter = min(inner_diameter_list,
                              key=lambda x: abs(inner_diameter_list[x] - calc_inner_diameter))
         outer_diameter = inner_diameter_list[inner_diameter]
+        pipe_mass = self.calculate_pipe_material(density, 1 * ureg.meter, inner_diameter, outer_diameter).to(
+            ureg.kilogram) / ureg.meter
         return inner_diameter, outer_diameter, material, density, pipe_mass
 
     def calculate_isolation(self,
@@ -381,39 +386,6 @@ class CalculateHydraulicSystem(ITask):
         return isolation_diameter
 
 
-    def read_pipe_material_excel(self,
-                                 filename,
-                                 sheet_name,
-                                 calc_inner_diameter: float = 11.5):
-        """
-
-        Args:
-            filename ():
-            sheet_name ():
-            calc_inner_diameter ():
-
-        Returns:
-
-        """
-
-        data = pd.read_excel(filename, sheet_name=sheet_name)
-        inner_diameter_list = []
-        inner_diameter_list = {}
-        material = None
-        density = None
-        for index, row in data.iterrows():
-            data_wall = row['Abmessung Aussendurchmesser X Wanddicke (mm)'].split("x")
-            material = row['Material']
-            density = row['Dichte kg/m³'] * (ureg.kilograms / ureg.meter ** 3)
-            outer_diameter = float(data_wall[0].strip().replace(',', '.')) * ureg.millimeter
-            wall_thickness = float(data_wall[1].strip().replace(',', '.')) * ureg.millimeter
-            inner_diameter = outer_diameter - 2 * wall_thickness
-            if calc_inner_diameter <= inner_diameter:
-                inner_diameter_list[inner_diameter] = outer_diameter
-        inner_diameter = min(inner_diameter_list,
-                             key=lambda x: abs(inner_diameter_list[x] - calc_inner_diameter))
-        outer_diameter = inner_diameter_list[inner_diameter]
-        return inner_diameter, outer_diameter, material, density
 
     def calculate_pipe_material(self, density, length, inner_diameter, outer_diameter):
         """
