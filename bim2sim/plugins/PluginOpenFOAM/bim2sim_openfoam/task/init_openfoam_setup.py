@@ -3,6 +3,8 @@ import shutil
 
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_case import \
     OpenFOAMCase
+from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils import \
+    OpenFOAMUtils
 from bim2sim.tasks.base import ITask
 from butterfly.butterfly import fvSolution, fvSchemes, controlDict, \
     decomposeParDict, foamfile, turbulenceProperties, g
@@ -116,6 +118,20 @@ class InitializeOpenFOAMSetup(ITask):
                 openfoam_case.decomposeParDict.from_file(
                     openfoam_case.default_templates_dir / 'system' /
                     'steadyState' / 'decomposeParDict'))
+        prev_procs = openfoam_case.decomposeParDict.get_value_by_parameter(
+            'numberOfSubdomains')
+        if prev_procs != openfoam_case.n_procs:
+            hc1 = openfoam_case.decomposeParDict.get_value_by_parameter(
+                'hierarchicalCoeffs')
+            distrib = OpenFOAMUtils.split_into_three_factors(
+                openfoam_case.n_procs)
+            openfoam_case.decomposeParDict.set_value_by_parameter(
+                'numberOfSubdomains', str(openfoam_case.n_procs))
+            distrib = '(' + str(distrib[0]) + ' ' + str(distrib[1]) + ' ' + \
+                      str(distrib[2]) + ')'
+            hc1['n'] = distrib
+            openfoam_case.decomposeParDict.set_value_by_parameter(
+                'hierarchicalCoeffs', hc1)
         openfoam_case.decomposeParDict.save(openfoam_case.openfoam_dir)
 
     @staticmethod

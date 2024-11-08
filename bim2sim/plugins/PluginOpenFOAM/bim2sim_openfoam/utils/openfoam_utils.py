@@ -28,9 +28,9 @@ class OpenFOAMUtils:
         refined cell size and the blockMesh cell size.
         bM_size/2^X = min_dist
         """
-        ref_level = math.log(bM_size/dist)/math.log(2)
+        ref_level = math.log(bM_size / dist) / math.log(2)
         ref_level = math.ceil(ref_level)
-        return [ref_level, ref_level+2]
+        return [ref_level, ref_level + 2]
 
     @staticmethod
     def get_min_refdist_between_shapes(shape1: OCC.Core.TopoDS.TopoDS_Shape,
@@ -166,7 +166,7 @@ class OpenFOAMUtils:
         tol_dist = 1e-3
         remove_list = []
         for i, vert in enumerate(vert_list):
-            for vert2 in vert_list[i+1:]:
+            for vert2 in vert_list[i + 1:]:
                 v = np.array(vert.Coord())
                 v2 = np.array(vert2.Coord())
                 d_b = np.linalg.norm(v - v2)
@@ -207,3 +207,29 @@ class OpenFOAMUtils:
             else:
                 new_dict.update({key: eq_val})
         return new_dict
+
+    @staticmethod
+    def prime_factors(n):
+        factors = []
+        divisor = 2
+        while n > 1:
+            while n % divisor == 0:
+                factors.append(divisor)
+                n //= divisor
+            divisor += 1
+        return factors
+
+    @staticmethod
+    def split_into_three_factors(n):
+        factors = OpenFOAMUtils.prime_factors(n)
+        factors.sort()
+        groups = []
+        for i, factor in enumerate(factors):
+            groups.append(factor)
+        while len(groups) < 3:
+            groups.append(1)
+        res = len(groups) - 3
+        for i in range(res):
+            groups[i] = groups[i] * groups[-1]
+            groups.pop()
+        return groups

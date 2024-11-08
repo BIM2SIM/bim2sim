@@ -1,3 +1,5 @@
+from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils import \
+    OpenFOAMUtils
 from bim2sim.tasks.base import ITask
 import sys
 import os
@@ -48,7 +50,7 @@ class RunOpenFOAMMeshing(ITask):
         # Use half of the available processes
         procs = os.cpu_count()
         # procs = round(procs / 4) * 2
-        distrib = self.split_into_three_factors(procs)
+        distrib = OpenFOAMUtils.split_into_three_factors(procs)
 
         # Write updated distribution to decomposeParDict
         dPpath = of_path / 'system' / 'decomposeParDict'
@@ -79,27 +81,3 @@ class RunOpenFOAMMeshing(ITask):
         os.system('checkMesh')
         os.chdir(cwd)
 
-    @staticmethod
-    def prime_factors(n):
-        factors = []
-        divisor = 2
-        while n > 1:
-            while n % divisor == 0:
-                factors.append(divisor)
-                n //= divisor
-            divisor += 1
-        return factors
-
-    def split_into_three_factors(self, n):
-        factors = self.prime_factors(n)
-        factors.sort()
-        groups = []
-        for i, factor in enumerate(factors):
-            groups.append(factor)
-        while len(groups) < 3:
-            groups.append(1)
-        res = len(groups) - 3
-        for i in range(res):
-            groups[i] = groups[i] * groups[-1]
-            groups.pop()
-        return groups

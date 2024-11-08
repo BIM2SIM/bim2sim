@@ -126,6 +126,13 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         description='Select number of steady iterations for preconditioning '
                     'a transient simulation.',
     )
+    n_procs = NumberSetting(
+        default=12,
+        min_value=1,
+        description='Set the number of processors for decomposition and '
+                    'simulation.',
+        for_frontend=True
+    )
     run_meshing = BooleanSetting(
         default=False,
         description='Whether to run OpenFOAM meshing or not. Only available for linux systems.',
