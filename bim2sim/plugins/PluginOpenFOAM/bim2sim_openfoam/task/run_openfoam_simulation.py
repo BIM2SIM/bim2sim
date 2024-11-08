@@ -1,10 +1,14 @@
 import logging
 import shutil
 
+from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils import \
+    OpenFOAMUtils
 from bim2sim.tasks.base import ITask
 import sys
 import os
 import pathlib
+
+from butterfly.butterfly import foamfile
 
 logger = logging.getLogger(__name__)
 
@@ -38,14 +42,21 @@ class RunOpenFOAMSimulation(ITask):
         procs = os.cpu_count()
         # procs = round(procs / 4) * 2
         steady_iterations = self.playground.sim_settings.steady_iterations
-        if self.playground.sim_settings.simulation_type == 'combined':
+        radiation_precondition_time = self.playground.sim_settings.radiation_precondition_time
+        if (self.playground.sim_settings.simulation_type == 'combined' or
+                self.playground.sim_settings.radiation_model == 'preconditioned_fvDOM'):
+            new_end_time = 0
+            if self.playground.sim_settings.simulation_type == 'combined':
+                new_end_time = steady_iterations
+            elif self.playground.sim_settings.radiation_model == 'preconditioned_fvDOM':
+                new_end_time = radiation_precondition_time
             openfoam_case.controlDict.update_values({'startTime': 0})
             openfoam_case.controlDict.update_values({
-                'endTime': steady_iterations})
+                'endTime': new_end_time})
             write_interval = float(openfoam_case.controlDict.values['writeInterval'])
-            if write_interval > (steady_iterations/2):
+            if write_interval > (new_end_time/2):
                 openfoam_case.controlDict.update_values({'writeInterval':
-                                                        steady_iterations / 2})
+                                                        new_end_time / 2})
             openfoam_case.controlDict.save(of_path)
         # Execution
         cwd = os.getcwd()
@@ -56,6 +67,36 @@ class RunOpenFOAMSimulation(ITask):
             'Writing buoyantSimpleFoam output to file \'logSimulation\'.')
         os.system('mpiexec --oversubscribe -np ' + str(procs) + ' buoyantSimpleFoam '
                                                 '-parallel > logSimulation')
+        if self.playground.sim_settings.radiation_model == 'preconditioned_fvDOM':
+            os.system('reconstructPar -latestTime')
+            # add IDefault for transient simulation
+            shutil.copy2(openfoam_case.openfoam_0_dir / 'IDefault',
+                         openfoam_case.openfoam_dir / str(new_end_time) / 'IDefault')
+
+            openfoam_case.controlDict.update_values({
+                'startFrom': 'latestTime'})
+            openfoam_case.controlDict.update_values({
+                    'startTime': new_end_time})
+            openfoam_case.controlDict.update_values({'endTime':
+                                                         new_end_time + 5000})
+            openfoam_case.controlDict.save(of_path)
+            eq = openfoam_case.fvSolution.relaxationFactors.values['equations']
+            new_eq = OpenFOAMUtils.duplicate_table_for_restart(eq, new_end_time)
+            openfoam_case.fvSolution.relaxationFactors.values['equations'] = \
+                (new_eq)
+            openfoam_case.fvSolution.save(of_path)
+
+            thispath = (openfoam_case.default_templates_dir / 'constant' /
+                        'radiation' / 'fvDOM' /
+                        'radiationProperties')
+            posixpath = thispath.as_posix()
+            openfoam_case.radiationProperties = foamfile.FoamFile.from_file(posixpath)
+            openfoam_case.radiationProperties.save(openfoam_case.openfoam_dir)
+            os.system('decomposePar -fields')
+            logger.info(
+                'Writing buoyantSimpleFoam output to file \'logSimulationfvDOM\'.')
+            os.system('mpiexec --oversubscribe -np ' + str(procs) + ' buoyantSimpleFoam '
+                                                                    '-parallel > logSimulationfvDOM')
         if self.playground.sim_settings.simulation_type == 'combined':
             # update control dict for transient simulations
             openfoam_case.controlDict = openfoam_case.controlDict.from_file(

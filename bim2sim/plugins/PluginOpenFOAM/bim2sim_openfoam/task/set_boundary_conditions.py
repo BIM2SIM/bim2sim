@@ -115,8 +115,10 @@ class SetOpenFOAMBoundaryConditions(ITask):
             bound.set_boundary_conditions(
                 no_heatloss=self.playground.sim_settings.ignore_heatloss)
         for heater in heaters:
+            heating_power_each = (abs(openfoam_case.required_heating_power) /
+                                  len(heaters))
             heater.set_boundary_conditions(
-                abs(openfoam_case.required_heating_power),
+                heating_power_each,
                 self.playground.sim_settings.heater_radiation)
         for air_terminal in air_terminals:
             air_terminal.set_boundary_conditions(

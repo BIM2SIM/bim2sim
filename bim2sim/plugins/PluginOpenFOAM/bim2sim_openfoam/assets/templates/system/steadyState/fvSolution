@@ -231,6 +231,12 @@ SIMPLE
 
         h		1e-3;
 
+        G               1e-3;
+
+        "(k|epsilon|omega)" 1e-3;
+
+        "ILambda.*"     1e-3;
+
     }
 
     pRefCell		0;
@@ -265,13 +271,13 @@ relaxationFactors
 
         omega		0.3;
 
-        "ILambda.*"		0.3;
+        "ILambda.*"		0.7;
 
-        G		0.3;
+        G		table ( (0 0.01) (50 0.03) (150 0.2) (400 0.3) );
 
-        GFinal		0.3;
+        GFinal		table ( (0 0.01) (50 0.03) (150 0.2) (400 0.3) );
 
-        qr		0.3;
+        qr		table ( (0 0.01) (50 0.03) (150 0.2) (400 0.3) );
 
         AoA		0.8;
 

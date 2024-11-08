@@ -10,13 +10,14 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 
 class HeaterSurface(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
-    def __init__(self, heater_shape, triSurface_path, radiative_power):
+    def __init__(self, name_prefix, heater_shape, triSurface_path,
+                 radiative_power):
         super().__init__()
         self.tri_geom = PyOCCTools.triangulate_bound_shape(heater_shape)
         self.power = radiative_power
         self.bound_element_type = 'SpaceHeater'
         self.patch_info_type = 'wall'
-        self.solid_name = 'heater'
+        self.solid_name = name_prefix + '_surface'
         self.stl_name = self.solid_name + '.stl'
         self.temperature = 40.0
         self.stl_file_path_name = (triSurface_path.as_posix() + '/' +
@@ -26,9 +27,10 @@ class HeaterSurface(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
 
 
 class PorousMedia(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
-    def __init__(self, heater_shape, triSurface_path, convective_power):
+    def __init__(self, name_prefix, heater_shape, triSurface_path,
+                                 convective_power):
         super().__init__()
-        self.solid_name = 'porous_media'
+        self.solid_name = name_prefix + '_porous_media'
         self.stl_name = self.solid_name + '.stl'
         self.stl_file_path_name = (triSurface_path.as_posix() + '/' +
                                    self.stl_name)
@@ -71,9 +73,11 @@ class Heater:
         self.radiation_power = 0  # total_heating_power * 0.3
         self.convective_power = 0  # total_heating_power * 0.7
         self.bound_element_type = 'SpaceHeater'
-        self.heater_surface = HeaterSurface(heater_shape, triSurface_path,
+        self.heater_surface = HeaterSurface(self.solid_name, heater_shape,
+                                            triSurface_path,
                                             self.radiation_power)
-        self.porous_media = PorousMedia(heater_shape, triSurface_path,
+        self.porous_media = PorousMedia(self.solid_name, heater_shape,
+                                        triSurface_path,
                                         self.convective_power)
 
         self.refinement_level = [2, 3]

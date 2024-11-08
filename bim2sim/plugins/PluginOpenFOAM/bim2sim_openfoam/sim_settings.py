@@ -7,7 +7,9 @@ from bim2sim.sim_settings import BooleanSetting, ChoiceSetting, NumberSetting
 class OpenFOAMSimSettings(ComfortSimSettings):
     def __init__(self):
         super().__init__()
-        self.relevant_elements = {*bps_elements.items, *hvac_elements.items,
+        self.relevant_elements = {*bps_elements.items,
+                                  hvac_elements.AirTerminal,
+                                  hvac_elements.SpaceHeater,
                                   Material}
 
     add_heating = BooleanSetting(
@@ -33,6 +35,7 @@ class OpenFOAMSimSettings(ComfortSimSettings):
     inlet_type = ChoiceSetting(
         default='Plate',
         choices={
+            'Original': 'Simplified IFC shape for inlet',
             'Plate': 'Simplified plate for inlet',
             'StlDiffusor': 'Inlet diffusor from stl file',
             'SimpleStlDiffusor': 'Simplified inlet diffusor from stl file',
@@ -46,6 +49,7 @@ class OpenFOAMSimSettings(ComfortSimSettings):
     outlet_type = ChoiceSetting(
         default='Plate',
         choices={
+            'Original': 'Simplified IFC shape for outlet',
             'Plate': 'Simplified plate for outlet',
             'StlDiffusor': 'Outlet diffusor from stl file',
             'SimpleStlDiffusor': 'Simplified outlet diffusor from stl file',
@@ -171,6 +175,11 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         max_value=300,
         for_frontend=True,
     )
+    add_people = BooleanSetting(
+        default=False,
+        for_frontend=True,
+        description='Choose if people should be added.'
+    )
     people_setting = ChoiceSetting(
         default='Seated',
         choices={
@@ -185,4 +194,27 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         min_value=0,
         max_value=300,
         for_frontend=True,
+    )
+    radiation_model = ChoiceSetting(
+        default='P1',
+        choices={
+            'P1': 'Use P1 Radiation Model',
+            'fvDOM': 'Use fvDOM Radiation Model',
+            'preconditioned_fvDOM': 'Use P1 to precondition fvDOM Radiation',
+        },
+        description='Choose the radiation model',
+        for_frontend=True
+    )
+    radiation_precondition_time = NumberSetting(
+        default=1000,
+        min_value=10,
+        max_value=5000,
+        description='Choose number of preconditioning iterations using P1 '
+                    'radiation for fvDOM radiation',
+        for_frontend=True
+    )
+    add_solar_radiation=BooleanSetting(
+        default=True,
+        description='Add solar radiation. Requires fvDOM as radiation model.',
+        for_frontend=True
     )

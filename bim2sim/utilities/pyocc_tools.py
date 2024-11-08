@@ -1,6 +1,7 @@
 """
 Common tools for handling OCC Shapes within the bim2sim project.
 """
+import math
 from typing import List, Tuple, Union
 
 import numpy as np
@@ -26,8 +27,9 @@ from OCC.Core.ShapeFix import ShapeFix_Face, ShapeFix_Shape
 from OCC.Core.TopAbs import TopAbs_WIRE, TopAbs_FACE, TopAbs_OUT
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopoDS import topods_Wire, TopoDS_Face, TopoDS_Shape, \
-    topods_Face, TopoDS_Edge, TopoDS_Solid, TopoDS_Shell, TopoDS_Builder
-from OCC.Core.gp import gp_XYZ, gp_Pnt, gp_Trsf, gp_Vec
+    topods_Face, TopoDS_Edge, TopoDS_Solid, TopoDS_Shell, TopoDS_Builder, \
+    TopoDS_Compound
+from OCC.Core.gp import gp_XYZ, gp_Pnt, gp_Trsf, gp_Vec, gp_Ax1, gp_Dir
 
 
 class PyOCCTools:
@@ -609,3 +611,145 @@ class PyOCCTools:
                     unique_vertices.append(vertex)
         unique_vertices = [gp_Pnt(v[0], v[1], v[2]) for v in unique_vertices]
         return unique_vertices
+
+    @staticmethod
+    def remove_sides_of_bounding_box(shape, cut_top=False, cut_bottom=True,
+                                     cut_left=False, cut_right=False,
+                                     cut_back=False, cut_front=False):
+        shape_list = []
+        removed_list = []
+        bbox_shape = PyOCCTools.simple_bounding_box(shape)
+        top_surface_min_max =((bbox_shape[0][0],
+                               bbox_shape[0][1],
+                               bbox_shape[1][2]),
+                              (bbox_shape[1][0],
+                               bbox_shape[1][1],
+                               bbox_shape[1][2]))
+        top_surface = PyOCCTools.make_faces_from_pnts([
+            gp_Pnt(*top_surface_min_max[0]),
+            gp_Pnt(top_surface_min_max[1][0],
+                   top_surface_min_max[0][1],
+                   top_surface_min_max[0][2]),
+            gp_Pnt(*top_surface_min_max[1]),
+            gp_Pnt(top_surface_min_max[0][0],
+                   top_surface_min_max[1][1],
+                   top_surface_min_max[1][2])])
+        if not cut_top:
+            shape_list.append(top_surface)
+        else:
+            removed_list.append(top_surface)
+        bottom_surface_min_max =((bbox_shape[0][0],
+                               bbox_shape[0][1],
+                               bbox_shape[0][2]),
+                              (bbox_shape[1][0],
+                               bbox_shape[1][1],
+                               bbox_shape[0][2]))
+        bottom_surface = PyOCCTools.make_faces_from_pnts([
+            gp_Pnt(*bottom_surface_min_max[0]),
+            gp_Pnt(bottom_surface_min_max[1][0],
+                   bottom_surface_min_max[0][1],
+                   bottom_surface_min_max[0][2]),
+            gp_Pnt(*bottom_surface_min_max[1]),
+            gp_Pnt(bottom_surface_min_max[0][0],
+                   bottom_surface_min_max[1][1],
+                   bottom_surface_min_max[1][2])])
+        if not cut_bottom:
+            shape_list.append(bottom_surface)
+        else:
+            removed_list.append(bottom_surface)
+        front_surface_min_max = (
+                bbox_shape[0],
+                                 (bbox_shape[1][0],
+                                  bbox_shape[0][1],
+                                  bbox_shape[1][2]))
+        front_surface = PyOCCTools.make_faces_from_pnts([
+            gp_Pnt(*front_surface_min_max[0]),
+            gp_Pnt(front_surface_min_max[1][0],
+                   front_surface_min_max[0][1],
+                   front_surface_min_max[0][2]),
+            gp_Pnt(*front_surface_min_max[1]),
+            gp_Pnt(front_surface_min_max[0][0],
+                   front_surface_min_max[0][1],
+                   front_surface_min_max[1][2])])
+        if not cut_front:
+            shape_list.append(front_surface)
+        else:
+            removed_list.append(front_surface)
+        back_surface_min_max = ((bbox_shape[0][0],
+                                 bbox_shape[1][1],
+                                 bbox_shape[0][2]),
+                                bbox_shape[1])
+        back_surface = PyOCCTools.make_faces_from_pnts([
+            gp_Pnt(*back_surface_min_max[0]),
+            gp_Pnt(back_surface_min_max[1][0],
+                   back_surface_min_max[0][1],
+                   back_surface_min_max[0][2]),
+            gp_Pnt(*back_surface_min_max[1]),
+            gp_Pnt(back_surface_min_max[0][0],
+                   back_surface_min_max[0][1],
+                   back_surface_min_max[1][2])])
+
+        if not cut_back:
+            shape_list.append(back_surface)
+        else:
+            removed_list.append(back_surface)
+        side_surface_left = PyOCCTools.make_faces_from_pnts([
+            gp_Pnt(*back_surface_min_max[0]),
+            gp_Pnt(*front_surface_min_max[0]),
+            gp_Pnt(front_surface_min_max[0][0],
+                   front_surface_min_max[0][1],
+                   front_surface_min_max[1][2]),
+            gp_Pnt(back_surface_min_max[0][0],
+                   back_surface_min_max[0][1],
+                   back_surface_min_max[1][2])]
+        )
+        if not cut_left:
+            shape_list.append(side_surface_left)
+        else:
+            removed_list.append(side_surface_left)
+        side_surface_right = PyOCCTools.make_faces_from_pnts([
+            gp_Pnt(back_surface_min_max[1][0],
+                   back_surface_min_max[1][1],
+                   back_surface_min_max[0][2]),
+            gp_Pnt(front_surface_min_max[1][0],
+                   front_surface_min_max[1][1],
+                   front_surface_min_max[0][2]),
+            gp_Pnt(*front_surface_min_max[1]),
+            gp_Pnt(*back_surface_min_max[1])]
+        )
+        if not cut_right:
+            shape_list.append(side_surface_right)
+        else:
+            removed_list.append(side_surface_right)
+        compound = TopoDS_Compound()
+        builder = TopoDS_Builder()
+        builder.MakeCompound(compound)
+        for shp in shape_list:
+            builder.Add(compound, shp)
+        return compound, shape_list, removed_list
+
+    @staticmethod
+    def rotate_by_deg(shape, axis='z', rotation=90):
+        """
+
+        Args:
+            shape:
+            axis:
+            rotation:
+
+        Returns:
+
+        """
+        rot_center = PyOCCTools.get_center_of_face(shape)
+        rot_ax = None
+        if axis == 'x':
+            rot_ax = gp_Ax1(rot_center, gp_Dir(1,0,0))
+        if axis == 'y':
+            rot_ax = gp_Ax1(rot_center, gp_Dir(0,1,0))
+        if axis == 'z':
+            rot_ax = gp_Ax1(rot_center, gp_Dir(0,0,1))
+
+        trsf = gp_Trsf()
+        trsf.SetRotation(rot_ax, rotation * math.pi/180)
+        new_shape = BRepBuilderAPI_Transform(shape, trsf).Shape()
+        return new_shape

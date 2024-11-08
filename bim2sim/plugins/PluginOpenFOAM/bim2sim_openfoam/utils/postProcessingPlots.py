@@ -13,10 +13,14 @@ def convergencePlot(of_directory: str):
     Creates a plot of velocity (U) and temperature (T, directly proportional
     to h) residuals over the simulated iteration steps.
     """
-    Ux_Init = Ux_Final = []
-    Uy_Init = Uy_Final = []
-    Uz_Init = Uz_Final = []
-    h_Init = h_Final = []
+    Ux_Init = []
+    Ux_Final = []
+    Uy_Init = []
+    Uy_Final = []
+    Uz_Init = []
+    Uz_Final = []
+    h_Init = []
+    h_Final = []
     values = [Ux_Init, Ux_Final, Uy_Init, Uy_Final, Uz_Init, Uz_Final,
               h_Init, h_Final]
     # Collect directories from all simulation phases and sort them in
@@ -79,8 +83,10 @@ def MinMaxPlot(of_directory: str):
     Creates a plot of minimal and maximal values of the velocity's magnitude
     (U) and temperature (T) over the simulated iteration steps.
     """
-    T_min = T_max = []
-    U_mag_min = U_mag_max = []
+    T_min = []
+    T_max = []
+    U_mag_min = []
+    U_mag_max = []
     time_dirs = os.listdir(of_directory + 'postProcessing/MinMax/')
     time_dirs.sort()
     time_dirs.sort(key=len)  # yes, these are both necessary
@@ -101,8 +107,8 @@ def MinMaxPlot(of_directory: str):
                     U_mag_min.append(float(umin))
                     U_mag_max.append(float(umax))
 
-    plt.plot(T_min)
-    plt.plot(T_max)
+    plt.plot(T_min, linewidth=0.1)
+    plt.plot(T_max, linewidth=0.1)
     plt.ylabel('T')
     plt.xlabel('Iteration')
     plt.legend(['T_min', 'T_max'])
@@ -119,3 +125,7 @@ def MinMaxPlot(of_directory: str):
     plt.title('mag(U) min/max')
     plt.savefig(of_directory + 'minmax|U|.png')
     plt.show()
+
+if __name__ == '__main__':
+    convergencePlot('/mnt/sim/SimData/CFD-temp/bim2sim_openfoam18_ornm29qf/export/OpenFOAM/')
+    MinMaxPlot('/mnt/sim/SimData/CFD-temp/bim2sim_openfoam18_ornm29qf/export/OpenFOAM/')

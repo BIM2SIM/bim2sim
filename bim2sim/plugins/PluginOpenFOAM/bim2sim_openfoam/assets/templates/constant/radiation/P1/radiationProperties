@@ -16,22 +16,7 @@ FoamFile
 	object		radiationProperties;
 }
 
-fvDOMCoeffs
-{
-
-    nPhi		3;
-
-    nTheta		5;
-
-    tolerance		1e-3;
-
-    maxIter		5;
-
-    useSolarLoad		false;
-
-    useExternalBeam		false;
-
-}
+radiation           on;
 
 radiationModel		P1;
 
