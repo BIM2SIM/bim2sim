@@ -117,9 +117,12 @@ class SetOpenFOAMBoundaryConditions(ITask):
         for heater in heaters:
             heating_power_each = (abs(openfoam_case.required_heating_power) /
                                   len(heaters))
+            if openfoam_case.radiation_model == 'noRadiation':
+                heater_radiation = 0
+            else:
+                heater_radiation = self.playground.sim_settings.heater_radiation
             heater.set_boundary_conditions(
-                heating_power_each,
-                self.playground.sim_settings.heater_radiation)
+                heating_power_each, heater_radiation)
         for air_terminal in air_terminals:
             air_terminal.set_boundary_conditions(
                 openfoam_case.current_zone.air_temp)

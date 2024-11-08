@@ -135,17 +135,20 @@ class OpenFOAMSimSettings(ComfortSimSettings):
     )
     run_meshing = BooleanSetting(
         default=False,
-        description='Whether to run OpenFOAM meshing or not. Only available for linux systems.',
+        description='Whether to run OpenFOAM meshing or not. Only available for'
+                    ' linux systems.',
         for_frontend=True
     )
     run_cfd_simulation = BooleanSetting(
         default=False,
-        description='Whether to run the OpenFOAM CFD simulation or not. Only available for linux systems.',
+        description='Whether to run the OpenFOAM CFD simulation or not. Only '
+                    'available for linux systems.',
         for_frontend=True
     )
     heater_radiation = NumberSetting(
         default=0.3,
-        description='Select the radiative portion of the heating heat transfer. Choose between 0 and 1.',
+        description='Select the radiative portion of the heating heat transfer.'
+                    ' Choose between 0 and 1.',
         min_value=0,
         max_value=1,
         for_frontend=True,
@@ -205,6 +208,7 @@ class OpenFOAMSimSettings(ComfortSimSettings):
     radiation_model = ChoiceSetting(
         default='P1',
         choices={
+            'noRadiation': 'No radiation',
             'P1': 'Use P1 Radiation Model',
             'fvDOM': 'Use fvDOM Radiation Model',
             'preconditioned_fvDOM': 'Use P1 to precondition fvDOM Radiation',
