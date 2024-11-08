@@ -128,13 +128,13 @@ class CreateOpenFOAMGeometry(ITask):
         heater_window = None
         bim2sim_heaters = filter_elements(elements, 'SpaceHeater')
         heater_shapes = []
+        if not hasattr(openfoam_case.current_zone, 'heaters'):
+            openfoam_case.current_zone.heaters = []
         if bim2sim_heaters:
             # todo: get product shape of space heater
             # identify space heater in current zone (maybe flag is already
             # set from preprocessing in bim2sim
             # get TopoDS_Shape for further preprocessing of the shape.
-            if not hasattr(openfoam_case.current_zone, 'heaters'):
-                openfoam_case.current_zone.heaters = []
             for space_heater in bim2sim_heaters:
                 if PyOCCTools.obj2_in_obj1(
                         obj1=openfoam_case.current_zone.space_shape,
