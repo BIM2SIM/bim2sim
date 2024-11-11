@@ -95,6 +95,7 @@ def convergencePlot(of_directory: str):
     plt.yscale("log")
     plt.title('Residuals')
     plt.savefig(of_directory / 'Residuals.png')
+    plt.savefig(of_directory / 'Residuals.png')
     # plt.show()
 
 
@@ -463,6 +464,83 @@ def add_simulation_times(fig, of_directory, name='', number=0):
 
     #fig.show()
     return fig
+
+
+def analyze_execution_times(of_directory, target_iterations=[1000, 'final']):
+    """
+    Extracts execution times from an OpenFOAM log file, prints times for specific iterations,
+    and plots all execution times over the course of the iterations with target times annotated.
+
+    Parameters:
+    - of_directory (str or Path): Directory containing the OpenFOAM log file.
+    - target_iterations (list): List of iteration numbers to print and annotate (e.g., [1000, 'final']).
+    """
+    # Initialize lists to store all iterations and their execution times
+    all_iterations = []
+    all_execution_times = []
+
+    # Dictionary to store the target iteration times for printing
+    target_times = {}
+    last_time = None
+
+    # Regular expressions to match lines
+    iteration_re = re.compile(r"Time = (\d+)")
+    execution_re = re.compile(r"ExecutionTime = ([\d.]+)")
+
+    # Parse the log file
+    with open(of_directory / 'log3.compress', 'r') as file:
+        current_iteration = None
+        iteration_done = True
+        for line in file:
+            # Match iteration number
+            iteration_match = iteration_re.search(line)
+            if iteration_match and iteration_done:
+                current_iteration = int(iteration_match.group(1))
+                iteration_done = False
+
+            # Match execution time if we have an iteration
+            execution_match = execution_re.search(line)
+            if execution_match and current_iteration is not None:
+                execution_time = float(execution_match.group(1))
+                last_time = (current_iteration, execution_time)
+
+                # Store all iterations and execution times for plotting
+                all_iterations.append(current_iteration)
+                all_execution_times.append(execution_time)
+
+                # Store target times for specified iterations
+                if current_iteration in target_iterations:
+                    target_times[current_iteration] = execution_time
+                iteration_done = True
+
+    # Store the last recorded execution time if 'final' is specified in target_iterations
+    if 'final' in target_iterations and last_time:
+        target_times[last_time[0]] = last_time[1]  # Use the final iteration number as the key
+
+    # Print the execution times for the specified target iterations
+    print("Execution times for specified iterations:")
+    for iteration, exec_time in target_times.items():
+        print(f"Iteration {iteration}: {exec_time} seconds")
+
+    # Plot all execution times over the iterations
+    plt.figure(figsize=(10, 6))
+    plt.plot(all_iterations, all_execution_times, 'b-', label="Execution Time")
+    plt.xlabel("Iteration")
+    plt.ylabel("Execution Time (s)")
+    plt.title("Execution Time Over Iterations")
+    plt.legend()
+    plt.grid(True)
+
+    # Annotate target times on the plot
+    for iteration, exec_time in target_times.items():
+        plt.text(iteration, exec_time, f'{exec_time:.2f}s',
+                 ha='right', va='bottom', color='red', fontsize=10)
+
+    # Save the plot
+    plt.savefig(of_directory / 'iteration_time.png')
+
+    plt.show()
+
 
 if __name__ == '__main__':
     # this_path = Path(r'C:\Users\richter\sciebo\03-Paperdrafts\00-Promotion\05'
