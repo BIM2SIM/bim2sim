@@ -148,7 +148,7 @@ class InitializeOpenFOAMSetup(ITask):
             thispath = (openfoam_case.default_templates_dir / 'constant' /
                         'radiation' / 'fvDOM' /
                         'radiationProperties')
-        else:  # P1 or preconditioned fvDOM
+        else:  # P1 or preconditioned fvDOM or "noRadiation"
             thispath = (openfoam_case.default_templates_dir / 'constant' /
                         'radiation' / 'P1' /
                         'radiationProperties')
@@ -156,9 +156,9 @@ class InitializeOpenFOAMSetup(ITask):
 
         openfoam_case.radiationProperties = foamfile.FoamFile.from_file(
             posixpath)
-        if not openfoam_case.radiationProperties:
+        if openfoam_case.radiation_model == 'noRadiation':
             openfoam_case.radiationProperties.set_value_by_parameter(
-                'radiationModel', openfoam_case.radiation_model)
+                'radiationModel', 'noRadiation')
         openfoam_case.radiationProperties.save(openfoam_case.openfoam_dir)
 
     @staticmethod
