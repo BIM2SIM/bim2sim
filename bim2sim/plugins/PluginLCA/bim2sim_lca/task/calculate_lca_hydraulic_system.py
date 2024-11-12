@@ -46,15 +46,21 @@ class CalculateEmissionHydraulicSystem(ITask):
         component_dict = {}
         for index, row in df.iterrows():
             if self.playground.sim_settings.heat_delivery_type == "Radiator":
-                component_dict[index] = {"Type": row["Type"],
-                                    "Material": row["Material"],
-                                    "Mass [kg]": row["Mass [kg]"],
-                                    "Power [kW]": row["Power [kW]"]}
+                if ("radiator_forward" in row["Type"] or "Pumpe" in row["Type"]) and not "ground" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"],
+                                             "Material": row["Material"],
+                                             "Mass [kg]": row["Mass [kg]"],
+                                             "Power [kW]": row["Power [kW]"]}
             elif self.playground.sim_settings.heat_delivery_type == "UFH":
-                component_dict[index] = {"Type": row["Type"],
-                                    "UFH Area [m²]": row["UFH area [m²]"],
-                                    "UFH Laying Distance [mm]": row["UFH Laying Distance [mm]"],
-                                    "Power [kW]": row["Power [kW]"]}
+                if "radiator_forward" in row["Type"] and not "extra" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"],
+                                             "UFH Area [m²]": row["UFH area [m²]"],
+                                             "UFH Laying Distance [mm]": row["UFH Laying Distance [mm]"]}
+                elif ("radiator_forward_extra" in row["Type"] or "Pumpe" in row["Type"]) and not "ground" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"],
+                                             "Material": row["Material"],
+                                             "Mass [kg]": row["Mass [kg]"],
+                                             "Power [kW]": row["Power [kW]"]}
 
         return component_dict
 
@@ -95,7 +101,7 @@ class CalculateEmissionHydraulicSystem(ITask):
             mapping = {"radiator_forward": "Heizkoerper",}
         elif self.playground.sim_settings.heat_delivery_type == "UFH":
             ufh_pipe_type = self.playground.sim_settings.ufh_pipe_type
-            mapping = {'radiator_forward': ''}
+            mapping = {'radiator_forward': '', "radiator_forward_extra": "Heizkoerper"}
 
         component_material_emission = {}
         pump_component = {}
@@ -108,9 +114,13 @@ class CalculateEmissionHydraulicSystem(ITask):
                 if key in corresponding_material:
                     if "Mass [kg]" in material_value or "UFH Area [m²]" in material_value:
                         if self.playground.sim_settings.heat_delivery_type == "UFH":
-                            mapping[key] = (f"Fussbodenheizung_{ufh_pipe_type}_"
-                                            f"{int(material_value['UFH Laying Distance [mm]'])}mm_m2")
-                            material_amount = material_value["UFH Area [m²]"]
+                            if "extra" not in corresponding_material:
+                                mapping[key] = (f"Fussbodenheizung_{ufh_pipe_type}_"
+                                                f"{int(material_value['UFH Laying Distance [mm]'])}mm_m2")
+                                material_amount = material_value["UFH Area [m²]"]
+                            else:
+                                mapping[key] = "Heizkoerper"
+                                material_amount = material_value["Mass [kg]"]
                         elif self.playground.sim_settings.heat_delivery_type == "Radiator":
                             material_amount = material_value["Mass [kg]"]
                         gwp = material_emission_dict[mapping[key]]

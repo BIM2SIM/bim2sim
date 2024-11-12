@@ -47,7 +47,12 @@ class LoadMaterialEmissionParameter(ITask):
             gwp_data = {}
             for material, material_data in material_emission_parameter_dict.items():
                 print(f"Update material {material}")
-                gwp_data = self.load_gwp_from_oekobaudat(material_emission_parameter_dict[material]["oekobaudat_uuid"])
+                oekobaudat_uuid = material_emission_parameter_dict[material]["oekobaudat_uuid"]
+                oekobaudat_calculation_factor = material_emission_parameter_dict[material]["oekobaudat_calculation_factor"]
+                gwp_data = self.load_gwp_from_oekobaudat(oekobaudat_uuid)
+                material_emission_parameter_dict[material] = {}
+                material_emission_parameter_dict[material]["oekobaudat_uuid"] = oekobaudat_uuid
+                material_emission_parameter_dict[material]["oekobaudat_calculation_factor"] = oekobaudat_calculation_factor
                 for key, value in gwp_data.items():
                     mapped_key = mapping[key]
                     material_emission_parameter_dict[material][mapped_key] = float(value)

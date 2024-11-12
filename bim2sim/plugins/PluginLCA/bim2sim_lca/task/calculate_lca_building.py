@@ -166,7 +166,7 @@ class CalculateEmissionBuilding(ITask):
             self.export_material_data_and_lca(building_material=building_material_dict,
                                               total_gwp=total_gwp_building)
 
-        return total_gwp_building
+        return total_gwp_building,
 
     def export_materials(self, elements):
         """Exports only the materials and its total volume and mass if density
