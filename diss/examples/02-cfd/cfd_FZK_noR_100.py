@@ -57,7 +57,7 @@ def run_example_1():
     project.sim_settings.run_cfd_simulation = False
     project.sim_settings.add_heating = True
     project.sim_settings.radiation_model = 'noRadiation'
-    project.sim_settings.heater_radiation = 0.3
+    project.sim_settings.heater_radiation = 1
     project.sim_settings.add_floorheating = False
     project.sim_settings.add_airterminals = False
     answers = ('ArchiCAD', 'ArchiCAD', *('Single office',)*4)
