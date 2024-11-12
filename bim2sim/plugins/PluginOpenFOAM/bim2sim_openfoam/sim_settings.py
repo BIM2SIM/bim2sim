@@ -208,7 +208,7 @@ class OpenFOAMSimSettings(ComfortSimSettings):
     radiation_model = ChoiceSetting(
         default='P1',
         choices={
-            'noRadiation': 'No radiation',
+            'none': 'No radiation',
             'P1': 'Use P1 Radiation Model',
             'fvDOM': 'Use fvDOM Radiation Model',
             'preconditioned_fvDOM': 'Use P1 to precondition fvDOM Radiation',

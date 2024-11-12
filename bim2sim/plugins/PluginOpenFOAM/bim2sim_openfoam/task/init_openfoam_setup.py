@@ -156,9 +156,11 @@ class InitializeOpenFOAMSetup(ITask):
 
         openfoam_case.radiationProperties = foamfile.FoamFile.from_file(
             posixpath)
-        if openfoam_case.radiation_model == 'noRadiation':
+        if openfoam_case.radiation_model == 'none':
             openfoam_case.radiationProperties.set_value_by_parameter(
-                'radiationModel', 'noRadiation')
+                'radiationModel', 'none')
+            openfoam_case.radiationProperties.set_value_by_parameter(
+                'radiation', 'off')
         openfoam_case.radiationProperties.save(openfoam_case.openfoam_dir)
 
     @staticmethod
