@@ -353,7 +353,7 @@ if __name__ == '__main__':
     directory = Path(r'C:\Users\richter\sciebo\03-Paperdrafts\00-Promotion\05'
                      r'-SIM-Data\02-CFD')
     # Iterate through directories that start with 'diss_'
-    for diss_dir in directory.glob('diss_*'):
+    for diss_dir in directory.glob('diss_P1_*'):
         # Check if "OpenFOAM" subdirectory exists within the current directory
         openfoam_dir = diss_dir / 'OpenFOAM'
         if openfoam_dir.is_dir():
@@ -368,5 +368,6 @@ if __name__ == '__main__':
                 else:
                     analyze_execution_times(openfoam_dir,
                                             target_iterations=[1000, 'final'])
+                plt.close('all')
             except:
                 print(f"failed plot for {diss_dir}")
