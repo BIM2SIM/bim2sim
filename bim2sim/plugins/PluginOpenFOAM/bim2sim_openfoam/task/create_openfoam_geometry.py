@@ -111,7 +111,7 @@ class CreateOpenFOAMGeometry(ITask):
             # remove 2b
             openfoam_case.current_bounds += openfoam_case.current_zone.space_boundaries_2B
         for bound in openfoam_case.current_bounds:
-            new_stl_bound = StlBound(bound, idf)
+            new_stl_bound = StlBound(bound, idf, openfoam_case.radiation_model)
             openfoam_elements[new_stl_bound.solid_name] = new_stl_bound
             # openfoam_case.stl_bounds.append(new_stl_bound)
 
@@ -128,13 +128,13 @@ class CreateOpenFOAMGeometry(ITask):
         heater_window = None
         bim2sim_heaters = filter_elements(elements, 'SpaceHeater')
         heater_shapes = []
+        if not hasattr(openfoam_case.current_zone, 'heaters'):
+            openfoam_case.current_zone.heaters = []
         if bim2sim_heaters:
             # todo: get product shape of space heater
             # identify space heater in current zone (maybe flag is already
             # set from preprocessing in bim2sim
             # get TopoDS_Shape for further preprocessing of the shape.
-            if not hasattr(openfoam_case.current_zone, 'heaters'):
-                openfoam_case.current_zone.heaters = []
             for space_heater in bim2sim_heaters:
                 if PyOCCTools.obj2_in_obj1(
                         obj1=openfoam_case.current_zone.space_shape,
@@ -234,7 +234,8 @@ class CreateOpenFOAMGeometry(ITask):
         # heater_shape holds side surfaces of space heater.
         for i, shape in enumerate(heater_shapes):
             heater = Heater(f'heater{i}', shape,
-                            openfoam_case.openfoam_triSurface_dir)
+                            openfoam_case.openfoam_triSurface_dir,
+                            openfoam_case.radiation_model)
             # abs(openfoam_case.current_zone.zone_heat_conduction))
             openfoam_elements[heater.solid_name] = heater
 
@@ -1109,7 +1110,9 @@ class CreateOpenFOAMGeometry(ITask):
             new_person_shape = BRepBuilderAPI_Transform(person_shape,
                                                         trsf).Shape()
             person = People(new_person_shape, trsf, person_path,
-                            openfoam_case.openfoam_triSurface_dir, f'Person{i}',
+                            openfoam_case.openfoam_triSurface_dir, f'Person'
+                                                                   f'{i}',
+                            radiation_model=openfoam_case.radiation_model,
                             power=openfoam_case.current_zone.fixed_heat_flow_rate_persons.to(
                                 ureg.watt).m)
             people_items.append(person)

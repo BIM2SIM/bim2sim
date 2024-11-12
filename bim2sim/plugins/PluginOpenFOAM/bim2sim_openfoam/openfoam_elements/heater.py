@@ -66,10 +66,11 @@ class PorousMedia(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
 
 
 class Heater:
-    def __init__(self, name, heater_shape, triSurface_path,
+    def __init__(self, name, heater_shape, triSurface_path, radiation_model,
                  total_heating_power=0,
                  increase_small_refinement=0.05, increase_large_refinement=0.1):
         self.solid_name = name
+        self.radiation_model = radiation_model
         self.radiation_power = 0  # total_heating_power * 0.3
         self.convective_power = 0  # total_heating_power * 0.7
         self.bound_element_type = 'SpaceHeater'
@@ -97,6 +98,10 @@ class Heater:
              self.porous_media.bbox_min_max[1]])
 
     def set_boundary_conditions(self, total_heating_power, percent_radiation):
+        if self.radiation_model == 'none':
+            qr = 'none'
+        else:
+            qr = 'qr'
         self.radiation_power = total_heating_power * percent_radiation
         self.convective_power = total_heating_power * (1-percent_radiation)
 
@@ -104,11 +109,10 @@ class Heater:
         # radiation
         self.heater_surface.power = self.radiation_power
         self.heater_surface.heat_flux = self.radiation_power / (self.heater_surface.bound_area * 2)
-
         self.heater_surface.T = \
             {'type': 'externalWallHeatFluxTemperature',
              'mode': 'power',
-             'qr': 'qr',
+             'qr': f"{qr}",
              'Q': f'{self.heater_surface.power}',
              'qrRelaxation': 0.003,
              'relaxation': 1.0,

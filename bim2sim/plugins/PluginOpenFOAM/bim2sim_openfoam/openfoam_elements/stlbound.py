@@ -11,8 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
-    def __init__(self, bound, idf):
+    def __init__(self, bound, idf, radiation_model):
         super().__init__()
+        self.radiation_model = radiation_model
         self.bound = bound
         self.guid = bound.guid
         self.bound_element_type = (
@@ -101,12 +102,16 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                 'Rate [W](Hourly)')]
 
     def set_boundary_conditions(self, no_heatloss=False):
+        if self.radiation_model == 'none':
+            qr = 'none'
+        else:
+            qr = 'qr'
         if no_heatloss:
             pass
         else:
             self.T = {'type': 'externalWallHeatFluxTemperature',
                       'mode': 'flux',
-                      'qr': 'qr',
+                      'qr': f"{qr}",
                       'q': f'uniform {self.heat_flux}',
                       'qrRelaxation': 0.003,
                       'relaxation': 1.0,

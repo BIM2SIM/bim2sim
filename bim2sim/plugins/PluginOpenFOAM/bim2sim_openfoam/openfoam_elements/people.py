@@ -32,6 +32,7 @@ body_part_boundary_conditions = {
 class BodyPart(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
     def __init__(self, person, key, shape, bbox_min_max=None):
         super().__init__()
+        self.radiation_model = person.radiation_model
         self.key = key
         self.solid_name = person.solid_name + '_' + key
         self.stl_name = self.solid_name + '.stl'
@@ -48,10 +49,14 @@ class BodyPart(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.temperature = body_part_boundary_conditions[key]['T']
 
     def set_boundary_conditions(self):
+        if self.radiation_model == 'none':
+            qr = 'none'
+        else:
+            qr = 'qr'
         self.T = \
             {'type': 'externalWallHeatFluxTemperature',
              'mode': 'power',
-             'qr': 'qr',
+             'qr': f"{qr}",
              'Q': f'{self.power}',
              'qrRelaxation': 0.003,
              'relaxation': 1.0,
@@ -62,13 +67,14 @@ class BodyPart(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
 
 
 class People(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
-    def __init__(self, shape, trsf, person_path, triSurface_path, people_type,
+    def __init__(self, shape, trsf, person_path, triSurface_path,
+                 people_type, radiation_model,
                  bbox_min_max=None, solid_name='person', power=120, temperature=32,
                  increase_small_refinement=0.10,
                  increase_large_refinement=0.20):
 
         super().__init__()
-
+        self.radiation_model = radiation_model
         self.bbox_min_max = bbox_min_max
         self.solid_name = solid_name + '_' + people_type
         self.stl_name = self.solid_name + '.stl'
@@ -142,10 +148,14 @@ class People(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
     def set_boundary_conditions(self):
         # for body_part in self.body_parts_dict.values():
         #     body_part.set_boundary_conditions()
+        if self.radiation_model == 'none':
+            qr = 'none'
+        else:
+            qr = 'qr'
         self.T = \
             {'type': 'externalWallHeatFluxTemperature',
              'mode': 'power',
-             'qr': 'qr',
+             'qr': f"{qr}",
              'Q': f'{self.power}',
              'qrRelaxation': 0.003,
              'relaxation': 1.0,
