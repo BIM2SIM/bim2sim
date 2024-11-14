@@ -37,7 +37,13 @@ sure that you have those resources in your local repository, run:
 ``` 
 git submodule update --init --recursive
 ```
+When an error because of the already existing of the folder 'test/resources'
+occurs, please delete this folder. Be careful, don't delete anything else.
 
+```
+cd [pathToRepoBim2sim]
+rm -r test/resources
+```
 ## Update test resources
 If test resources needs to be updated, please follow the following procedure:
 
