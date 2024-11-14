@@ -135,8 +135,15 @@ the new implementation or the regression results.</p>
 we need to load IFC files into our tool. These IFC files can be quite big. To
 keep the size of this repository as slim as possible we put the test resources
 into an additional repository, which is included here as a submodule. To make
-sure that you have those resources in your local repository, run:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">submodule</span> <span class="n">update</span> <span class="o">--</span><span class="n">init</span> <span class="o">--</span><span class="n">recursive</span>
+sure that you have those resources in your local repository, run the following.</p>
+<p>But when an error because of the already existing of the folder ‘test/resources’
+occurs, please delete this folder. Be careful, don’t delete anything else.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">linux</span><span class="o">/</span><span class="n">macOS</span><span class="p">:</span> 
+<span class="n">rm</span> <span class="o">-</span><span class="n">r</span> <span class="p">[</span><span class="n">pathToRepoBim2sim</span><span class="p">]</span><span class="o">/</span><span class="n">test</span><span class="o">/</span><span class="n">resources</span>
+<span class="n">windows</span><span class="p">:</span>
+<span class="n">rd</span> <span class="o">/</span><span class="n">s</span> <span class="p">[</span><span class="n">pathToRepoBim2sim</span><span class="p">]</span>\<span class="n">test</span>\<span class="n">resources</span>
+
+<span class="n">git</span> <span class="n">submodule</span> <span class="n">update</span> <span class="o">--</span><span class="n">init</span> <span class="o">--</span><span class="n">recursive</span>
 </pre></div>
 </div>
 </section>

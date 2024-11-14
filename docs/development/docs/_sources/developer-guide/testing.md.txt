@@ -32,12 +32,20 @@ To test mapping between IFC and our meta structure
 we need to load IFC files into our tool. These IFC files can be quite big. To
 keep the size of this repository as slim as possible we put the test resources
 into an additional repository, which is included here as a submodule. To make 
-sure that you have those resources in your local repository, run:
+sure that you have those resources in your local repository, run the following.
 
-``` 
+But when an error because of the already existing of the folder 'test/resources'
+occurs, please delete this folder. Be careful, don't delete anything else.
+
+
+```
+linux/macOS: 
+rm -r [pathToRepoBim2sim]/test/resources
+windows:
+rd /s [pathToRepoBim2sim]\test\resources
+
 git submodule update --init --recursive
 ```
-
 ## Update test resources
 If test resources needs to be updated, please follow the following procedure:
 
