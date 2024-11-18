@@ -578,7 +578,7 @@ def add_simulation_times(fig, of_directory, name='', number=0):
 
     # Plot all execution times over the iterations
     if not fig:
-        fig, ax = plt.subplots(figsize=(10, 6))
+        fig, ax = plt.subplots(figsize=(9, 6))
         ax.set_xlabel("Iteration")
         ax.set_ylabel("Execution Time (s)")
         ax.set_title("Execution Time Over Iterations")
@@ -590,12 +590,14 @@ def add_simulation_times(fig, of_directory, name='', number=0):
             label=f"Execution Time {name}")
     # line = ax.lines[0]  # Access the first plotted line
     # line.set_label(f"Execution Time {name}")
-    ax.legend()
+    ax.legend(loc='upper right')
 
     # Annotate target times on the plot
     ax.text(all_iterations[-1], all_execution_times[-1], f'{all_execution_times[-1]:.2f}s',
-             ha='right', va='bottom', fontsize=10, color=color)
-
+             ha='right', va='bottom', fontsize=18, color=color)
+    for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] +
+                 ax.get_xticklabels() + ax.get_yticklabels() + ax.get_legend().get_texts()):
+        item.set_fontsize(14)
     # Save the plot
     fig.savefig(of_directory / f'iteration_time_V{number}.png')
 
