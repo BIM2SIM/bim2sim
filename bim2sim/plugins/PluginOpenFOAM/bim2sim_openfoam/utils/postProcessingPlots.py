@@ -95,7 +95,6 @@ def convergencePlot(of_directory: str):
     plt.yscale("log")
     plt.title('Residuals')
     plt.savefig(of_directory / 'Residuals.png')
-    plt.savefig(of_directory / 'Residuals.png')
     # plt.show()
 
 
@@ -539,7 +538,8 @@ def analyze_execution_times(of_directory, target_iterations=[1000, 'final']):
     # Save the plot
     plt.savefig(of_directory / 'iteration_time.png')
 
-    plt.show()
+    # plt.show()
+    plt.close()
     return plt
 
 def add_simulation_times(fig, of_directory, name='', number=0):
@@ -585,8 +585,8 @@ def add_simulation_times(fig, of_directory, name='', number=0):
         ax.grid(True)
     else:
         ax = fig.axes[0]
-    color = get_next_unused_color(ax)
-    ax.plot(all_iterations, all_execution_times, 'b-', color=color,
+    this_color = get_next_unused_color(ax)
+    ax.plot(all_iterations, all_execution_times, color=this_color,
             label=f"Execution Time {name}")
     # line = ax.lines[0]  # Access the first plotted line
     # line.set_label(f"Execution Time {name}")
@@ -594,7 +594,7 @@ def add_simulation_times(fig, of_directory, name='', number=0):
 
     # Annotate target times on the plot
     ax.text(all_iterations[-1], all_execution_times[-1], f'{all_execution_times[-1]:.2f}s',
-             ha='right', va='bottom', fontsize=18, color=color)
+             ha='right', va='bottom', fontsize=18, color=this_color)
     for item in ([ax.title, ax.xaxis.label, ax.yaxis.label] +
                  ax.get_xticklabels() + ax.get_yticklabels() + ax.get_legend().get_texts()):
         item.set_fontsize(14)
