@@ -540,7 +540,67 @@ def analyze_execution_times(of_directory, target_iterations=[1000, 'final']):
     plt.savefig(of_directory / 'iteration_time.png')
 
     plt.show()
+    return plt
 
+def add_simulation_times(fig, of_directory, name='', number=0):
+    all_iterations = []
+    all_execution_times = []
+
+    # Regular expressions to match lines
+    iteration_re = re.compile(r"Time = (\d+)")
+    execution_re = re.compile(r"ExecutionTime = ([\d.]+)")
+
+    # Parse the log file
+    with open(of_directory / 'log3.compress', 'r') as file:
+        current_iteration = None
+        iteration_done = True
+        for line in file:
+            # Match iteration number
+            iteration_match = iteration_re.search(line)
+            if iteration_match and iteration_done:
+                current_iteration = int(iteration_match.group(1))
+                iteration_done = False
+
+            # Match execution time if we have an iteration
+            execution_match = execution_re.search(line)
+            if execution_match and current_iteration is not None:
+                execution_time = float(execution_match.group(1))
+                last_time = (current_iteration, execution_time)
+
+                # Store all iterations and execution times for plotting
+                all_iterations.append(current_iteration)
+                all_execution_times.append(execution_time)
+
+                # Store target times for specified iterations
+                iteration_done = True
+
+    # Store the last recorded execution time if 'final' is specified in target_iterations
+
+    # Plot all execution times over the iterations
+    if not fig:
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.set_xlabel("Iteration")
+        ax.set_ylabel("Execution Time (s)")
+        ax.set_title("Execution Time Over Iterations")
+        ax.grid(True)
+    else:
+        ax = fig.axes[0]
+    color = get_next_unused_color(ax)
+    ax.plot(all_iterations, all_execution_times, 'b-', color=color,
+            label=f"Execution Time {name}")
+    # line = ax.lines[0]  # Access the first plotted line
+    # line.set_label(f"Execution Time {name}")
+    ax.legend()
+
+    # Annotate target times on the plot
+    ax.text(all_iterations[-1], all_execution_times[-1], f'{all_execution_times[-1]:.2f}s',
+             ha='right', va='bottom', fontsize=10, color=color)
+
+    # Save the plot
+    fig.savefig(of_directory / f'iteration_time_V{number}.png')
+
+    fig.show()
+    return fig
 
 if __name__ == '__main__':
     # this_path = Path(r'C:\Users\richter\sciebo\03-Paperdrafts\00-Promotion\05'
@@ -555,6 +615,10 @@ if __name__ == '__main__':
     directory = Path(r'C:\Users\richter\Documents\CFD-Data\PluginTests'
                      r'\grid_conv_1o1p\P1')
     # Iterate through directories that start with 'diss_'
+
+    fig_temp = None
+    counter=0
+    for diss_dir in directory.glob('diss_[!noR]*'):
 
     fig_temp = None
     counter=0
