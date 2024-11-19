@@ -239,11 +239,15 @@ def MinMaxPlot(of_directory: str):
     """
     T_min = []
     T_max = []
+    T_av = []
     U_mag_min = []
     U_mag_max = []
     time_dirs = os.listdir(of_directory / 'postProcessing/MinMax/')
+    mean_dirs = os.listdir(of_directory / 'postProcessing/volFieldValue')
     time_dirs.sort()
     time_dirs.sort(key=len)  # yes, these are both necessary
+    mean_dirs.sort()
+    mean_dirs.sort(key=len)
     for timestep in time_dirs:
         with open(of_directory / 'postProcessing/MinMax' /
                   timestep / 'fieldMinMax.dat', 'r') as f:
@@ -260,14 +264,24 @@ def MinMaxPlot(of_directory: str):
                     umax = line[5]
                     U_mag_min.append(float(umin))
                     U_mag_max.append(float(umax))
-
+    for timestep in mean_dirs:
+        with open(of_directory/ 'postProcessing/volFieldValue' /
+                  timestep / 'volFieldValue.dat', 'r') as f2:
+            lines = f2.readlines()
+            for i in range(4, len(lines)):
+                line = lines[i].split('\t')
+                avT = line[1]
+                T_av.append(float(avT))
     plt.plot(T_min, linewidth=0.1)
     plt.plot(T_max, linewidth=0.1)
+    plt.plot(T_av, linewidth=0.1)
+    plt.text(len(T_av), T_av[-1], f'T_mean_final: {T_av[-1]:.2f} K',
+             ha='right', va='bottom', fontsize=12)
     plt.ylabel('T')
     plt.xlabel('Iteration')
-    plt.legend(['T_min', 'T_max'])
-    plt.title('Temperature min/max')
-    plt.savefig(of_directory / 'minmaxT.png')
+    plt.legend(['T_min', 'T_max', 'T_av'])
+    plt.title('Temperature min/max/average')
+    plt.savefig(of_directory / 'minmaxavT.png')
     plt.show()
     plt.close()
 
