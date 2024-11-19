@@ -110,9 +110,9 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
             pass
         else:
             self.T = {'type': 'externalWallHeatFluxTemperature',
-                      'mode': 'flux',
+                      'mode': 'power',
                       'qr': f"{qr}",
-                      'q': f'uniform {self.heat_flux}',
+                      'Q': f'uniform {self.power}',
                       'qrRelaxation': 0.003,
                       'relaxation': 1.0,
                       'kappaMethod': 'fluidThermo',
