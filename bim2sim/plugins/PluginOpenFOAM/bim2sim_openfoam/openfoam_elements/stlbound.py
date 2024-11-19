@@ -108,6 +108,12 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
             qr = 'qr'
         if no_heatloss:
             pass
+        elif any(i for i in ["INNER", "FLOOR"] if i in self.solid_name.upper()):
+        # else: #
+            self.T = {
+                'type': 'fixedValue',
+                'value': f'uniform {self.temperature + 273.15}'
+            }
         else:
             self.T = {'type': 'externalWallHeatFluxTemperature',
                       'mode': 'power',
