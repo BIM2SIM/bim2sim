@@ -120,7 +120,10 @@ class SetOpenFOAMBoundaryConditions(ITask):
             # if openfoam_case.radiation_model == 'noRadiation':
             #     heater_radiation = 0
             # else:
-            heater_radiation = self.playground.sim_settings.heater_radiation
+            if self.playground.sim_settings.heater_radiation < 1e-4:
+                heater_radiation = 0
+            else:
+                heater_radiation = self.playground.sim_settings.heater_radiation
             heater.set_boundary_conditions(
                 heating_power_each, heater_radiation)
         for air_terminal in air_terminals:
@@ -579,7 +582,8 @@ class SetOpenFOAMBoundaryConditions(ITask):
             of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.T = T.T()
         openfoam_case.T.values['boundaryField'] = {}
-        openfoam_case.T.values['internalField'] = 'uniform 293.15'
+        openfoam_case.T.values['internalField'] \
+            = f'uniform {openfoam_case.current_zone.air_temp}'
 
         for bound in stl_bounds:
             openfoam_case.T.values['boundaryField'].update(
