@@ -126,9 +126,26 @@ class SetOpenFOAMBoundaryConditions(ITask):
                 heater_radiation = self.playground.sim_settings.heater_radiation
             heater.set_boundary_conditions(
                 heating_power_each, heater_radiation)
+        # calculate volumetric flow rate in l/s according to
+        # DIN EN 16798-1:2022-03, Table B.6/B.7 + Table NA.6/NA.7
+        # building with high emissions, air quality cat 1: 2 l/s/m2
+        # volumetric flow per person, air quality cat 2: 7 l/s/person
+        total_volumetric_flow_l_per_s = (openfoam_case.floor_area * 2.0 + 7 *
+                                         len(people))
+        num_inlets = len(
+            [i for i in air_terminals if i.air_type.upper() == 'INLET'])
+        vol_per_inlet = total_volumetric_flow_l_per_s / num_inlets
+        num_outlets = len(
+            [i for i in air_terminals if i.air_type.upper() == 'OUTLET'])
+        vol_per_outlet = total_volumetric_flow_l_per_s / num_outlets
         for air_terminal in air_terminals:
+            if air_terminal.air_type.upper() == 'INLET':
+                volumetric_flow_l_per_s = vol_per_inlet
+            else:
+                volumetric_flow_l_per_s = vol_per_outlet
             air_terminal.set_boundary_conditions(
-                openfoam_case.current_zone.air_temp)
+                openfoam_case.current_zone.air_temp,
+                volumetric_flow_l_per_s)
         for furn in furniture:
             furn.set_boundary_conditions()
         for person in people:

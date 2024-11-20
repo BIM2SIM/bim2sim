@@ -106,6 +106,7 @@ class CreateOpenFOAMGeometry(ITask):
         # guid '3$f2p7VyLB7eox67SA_zKE' Traffic area has 2B bounds
 
         openfoam_case.current_zone = elements[space_guid]
+        openfoam_case.floor_area = openfoam_case.current_zone.net_area.m
         openfoam_case.current_bounds = openfoam_case.current_zone.space_boundaries
         if hasattr(openfoam_case.current_zone, 'space_boundaries_2B'):  # todo
             # remove 2b
@@ -345,6 +346,7 @@ class CreateOpenFOAMGeometry(ITask):
                            'Merge shapes before proceeding to avoid errors. ')
             air_terminal_surface = ceiling_roof[0]
         bim2sim_airterminals = filter_elements(elements, 'AirTerminal')
+        openfoam_case.current_zone.airterminals = []
         if bim2sim_airterminals:
             if not hasattr(openfoam_case.current_zone, 'airterminals'):
                 openfoam_case.current_zone.airterminals = []
