@@ -277,6 +277,19 @@ def MinMaxPlot(of_directory: str):
     plt.plot(T_av, linewidth=0.1)
     plt.text(len(T_av), T_av[-1], f'T_mean_final: {T_av[-1]:.2f} K',
              ha='right', va='bottom', fontsize=12)
+    for timestep in mean_dirs:
+        with open(of_directory/ 'postProcessing/volFieldValue' /
+                  timestep / 'volFieldValue.dat', 'r') as f2:
+            lines = f2.readlines()
+            for i in range(4, len(lines)):
+                line = lines[i].split('\t')
+                avT = line[1]
+                T_av.append(float(avT))
+    plt.plot(T_min, linewidth=1)
+    plt.plot(T_max, linewidth=1)
+    plt.plot(T_av, linewidth=1)
+    plt.text(len(T_av), T_av[-1], f'T_mean_final: {T_av[-1]:.2f} K',
+             ha='right', va='bottom', fontsize=12)
     plt.ylabel('T')
     plt.xlabel('Iteration')
     plt.legend(['T_min', 'T_max', 'T_av'])
@@ -450,6 +463,45 @@ if __name__ == '__main__':
     fig_temp = None
     counter=0
     for diss_dir in directory.glob('diss_[!noR]*'):
+        # Check if "OpenFOAM" subdirectory exists within the current directory
+        openfoam_dir = diss_dir / 'OpenFOAM'
+        if openfoam_dir.is_dir():
+            print(openfoam_dir)
+            try:
+                global_conv_iter = convergencePlot2(openfoam_dir)
+                MinMaxPlot(openfoam_dir)
+                if global_conv_iter:
+                    analyze_execution_times(openfoam_dir,
+                                            target_iterations=[global_conv_iter,
+                                                               'final'])
+                else:
+                    analyze_execution_times(openfoam_dir,
+                                            target_iterations=[1000, 'final'])
+                fig_temp = add_simulation_times(fig_temp, openfoam_dir,
+                                                name=diss_dir.name.replace(
+                                                    'diss_', ''),
+                                            number=counter)
+                plt.close('all')
+                counter+=1
+            except:
+                print(f"failed plot for {diss_dir}")
+
+    # this_path = Path(r'C:\Users\richter\sciebo\03-Paperdrafts\00-Promotion\05'
+    #                  r'-SIM-Data\02-CFD\diss_fv_100\OpenFOAM')
+    # global_conv_iter = convergencePlot2(this_path)
+    # MinMaxPlot(this_path)
+    # if global_conv_iter:
+    #     analyze_execution_times(this_path, target_iterations=[global_conv_iter, 'final'])
+    # else:
+    #     analyze_execution_times(this_path, target_iterations=[1000, 'final'])
+    #
+    directory = Path(r'C:\Users\richter\Documents\CFD-Data\PluginTests')
+    # Iterate through directories that start with 'diss_'
+
+    fig_temp = None
+    counter=0
+    for diss_dir in directory.glob('diss_ov_*3_fif*'):
+    # for diss_dir in directory.glob('diss_[!noR]*'):
         # Check if "OpenFOAM" subdirectory exists within the current directory
         openfoam_dir = diss_dir / 'OpenFOAM'
         if openfoam_dir.is_dir():

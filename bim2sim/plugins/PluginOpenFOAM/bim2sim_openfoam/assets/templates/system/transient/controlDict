@@ -83,7 +83,20 @@ functions
         writeInterval		1;
 
     }
-
+    volFieldValue
+    {
+	type	volFieldValue;
+	libs	(fieldFunctionObjects);
+	fields	(T U);
+	operation	average;
+	regionType	all;
+	region		region0;
+	writeFields	false;
+	enabled		true;
+	log		true;
+	writeControl	timeStep;
+	writeInterval	1;
+    }
     wallHeatFlux
     {
 
