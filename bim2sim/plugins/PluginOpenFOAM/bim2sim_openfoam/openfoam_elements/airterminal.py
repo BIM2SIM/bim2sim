@@ -91,7 +91,7 @@ class AirTerminal:
     def __init__(self, air_type, inlet_shapes, triSurface_path,
                  inlet_outlet_type, solid_name='AirTerminal', air_temp=
                  293.15,
-                 volumetric_flow=90,
+                 volumetric_flow=0,
                  increase_small_refinement=0.10,
                  increase_large_refinement=0.20):
         self.solid = None
@@ -122,8 +122,9 @@ class AirTerminal:
         self.refinement_zone_level_large = [0,
                                             self.diffuser.refinement_level[0]-1]
 
-    def set_boundary_conditions(self, air_temp):
+    def set_boundary_conditions(self, air_temp, volumetric_flow):
         # set air temperature
+        self.source_sink.volumetric_flow = volumetric_flow / 1000  # l/s to m3/s
         self.source_sink.temperature = air_temp
         self.source_sink.alphat = \
             {'type': 'calculated', 'value': 'uniform 0'}

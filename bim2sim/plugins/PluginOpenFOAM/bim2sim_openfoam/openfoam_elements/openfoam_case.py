@@ -24,3 +24,4 @@ class OpenFOAMCase:
         self.radiation_model = playground.sim_settings.radiation_model
         self.internal_gains = None
         self.n_procs = playground.sim_settings.n_procs
+        self.floor_area = None
