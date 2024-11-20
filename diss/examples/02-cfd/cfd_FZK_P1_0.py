@@ -10,7 +10,7 @@ from bim2sim.utilities.types import IFCDomain
 
 
 def run_example_1():
-    """Simple Case: No ratiation on heater, only convection.
+    """Simple Case: P1, 30% radiation.
     """
     # Create the default logging to for quality log and bim2sim main log (
     # see logging documentation for more information
@@ -19,7 +19,7 @@ def run_example_1():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='diss_cfd_FZK_rad0_').name)
+        tempfile.TemporaryDirectory(prefix='diss_cfd_FZK_P10_').name)
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -55,7 +55,8 @@ def run_example_1():
     project.sim_settings.run_meshing = False
     project.sim_settings.run_cfd_simulation = False
     project.sim_settings.add_heating = True
-    project.sim_settings.radiation_model = 'noRadiation'
+    project.sim_settings.radiation_model = 'P1'
+    project.sim_settings.heater_radiation = 1e-8
     project.sim_settings.add_floorheating = False
     project.sim_settings.add_airterminals = False
     answers = ('ArchiCAD', 'ArchiCAD', *('Single office',)*4)
