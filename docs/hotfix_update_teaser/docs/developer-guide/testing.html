@@ -1,0 +1,230 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Testing &mdash; bim2sim  0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Utilities for documentation" href="doc-utilities.html" />
+    <link rel="prev" title="How to Contribute?" href="contribute.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/b2s_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide.html">User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced-user-guide.html">Advanced User-Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../developer-guide.html">Developer-Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="contribute.html">How to Contribute?</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#unit-testing">Unit Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#integration-testing">Integration Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#regression-testing">Regression Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-tests-local">Run Tests Local</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#update-test-resources">Update test resources</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#test-resources-repository">Test Resources Repository</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#main-bim2sim-repository">Main bim2sim Repository</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id1">Test Resources Repository</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">Main bim2sim Repository</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="doc-utilities.html">Utilities for documentation</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../code/modules.html">bim2sim</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">bim2sim </a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../developer-guide.html">Developer-Guide</a></li>
+      <li class="breadcrumb-item active">Testing</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/developer-guide/testing.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="testing">
+<h1>Testing<a class="headerlink" href="#testing" title="Permalink to this heading"></a></h1>
+<p>The ´bim2sim´ repository includes a multi-stage testing setup to ensure
+its functionality.</p>
+<section id="unit-testing">
+<h2>Unit Testing<a class="headerlink" href="#unit-testing" title="Permalink to this heading"></a></h2>
+<p>Unit tests are used for testing individual functions. These tests can be
+executed very quickly and are not computationally intensive.</p>
+</section>
+<section id="integration-testing">
+<h2>Integration Testing<a class="headerlink" href="#integration-testing" title="Permalink to this heading"></a></h2>
+<p>Integration tests are used within the individual plugins for testing the
+functionality of the package with different IFC models. These tests deal with
+large IFC models and are therefore take some time for computation, so you may
+need to wait a few minutes until these tests are done. These tests can be
+used to test different simulation setups on the indidual IFC models. Depending
+on your integration test setup, it may include a full year run of your
+simulation. Here, you cannot easily tell if the changes in your coding have
+produced any changes in the results (use Regression Testing for this), but
+you can test if full simulation run works at all.</p>
+</section>
+<section id="regression-testing">
+<h2>Regression Testing<a class="headerlink" href="#regression-testing" title="Permalink to this heading"></a></h2>
+<p>Regression tests are used for quality assurance when developing new features.
+Here, the simulation results of selected IFC models are compared to previous
+simulation results. If the simulated results do not match with the regression
+results, the test fails. This forces the developer to have a closer look at the
+changes in the results, such that the developer has to decide whether to update
+the new implementation or the regression results.</p>
+</section>
+<section id="run-tests-local">
+<h2>Run Tests Local<a class="headerlink" href="#run-tests-local" title="Permalink to this heading"></a></h2>
+<p>To test mapping between IFC and our meta structure
+<a class="reference internal" href="../advanced-user-guide/concepts/elements.html#elements-structure"><span class="std std-ref">elements</span></a> as well as for Integration Testing
+we need to load IFC files into our tool. These IFC files can be quite big. To
+keep the size of this repository as slim as possible we put the test resources
+into an additional repository, which is included here as a submodule. To make
+sure that you have those resources in your local repository, run the following.</p>
+<p>But when an error because of the already existing of the folder ‘test/resources’
+occurs, please delete this folder. Be careful, don’t delete anything else.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">linux</span><span class="o">/</span><span class="n">macOS</span><span class="p">:</span> 
+<span class="n">rm</span> <span class="o">-</span><span class="n">r</span> <span class="p">[</span><span class="n">pathToRepoBim2sim</span><span class="p">]</span><span class="o">/</span><span class="n">test</span><span class="o">/</span><span class="n">resources</span>
+<span class="n">windows</span><span class="p">:</span>
+<span class="n">rd</span> <span class="o">/</span><span class="n">s</span> <span class="p">[</span><span class="n">pathToRepoBim2sim</span><span class="p">]</span>\<span class="n">test</span>\<span class="n">resources</span>
+
+<span class="n">git</span> <span class="n">submodule</span> <span class="n">update</span> <span class="o">--</span><span class="n">init</span> <span class="o">--</span><span class="n">recursive</span>
+</pre></div>
+</div>
+</section>
+<section id="update-test-resources">
+<h2>Update test resources<a class="headerlink" href="#update-test-resources" title="Permalink to this heading"></a></h2>
+<p>If test resources needs to be updated, please follow the following procedure:</p>
+<section id="test-resources-repository">
+<h3><a class="reference external" href="https://github.com/BIM2SIM/bim2sim-test-resources">Test Resources Repository</a><a class="headerlink" href="#test-resources-repository" title="Permalink to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Create a branch <code class="docutils literal notranslate"><span class="pre">update_test_resources</span></code></p></li>
+<li><p>In this branch update the test resources as required</p></li>
+<li><p>Push the branch with the changes to the remote repository</p></li>
+</ol>
+</section>
+<section id="main-bim2sim-repository">
+<h3><a class="reference external" href="https://github.com/BIM2SIM/bim2sim">Main bim2sim Repository</a><a class="headerlink" href="#main-bim2sim-repository" title="Permalink to this heading"></a></h3>
+<ol class="arabic simple" start="4">
+<li><p>Create a branch called <code class="docutils literal notranslate"><span class="pre">update_resources_submodule</span></code> from the current <code class="docutils literal notranslate"><span class="pre">development</span></code> branch</p></li>
+<li><p>Checkout this branch on your local device and perform the following commands in the root path:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">test/resources</span></code> (Go into the submodule directory)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span> <span class="pre">origin</span> <span class="pre">update_test_resources</span></code> (Pull the latest changes of the test resources submodule)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">../..</span></code> (Go back to parent repo)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">add</span> <span class="pre">test/resources</span></code> (add the changes)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&quot;Update</span> <span class="pre">submodule</span> <span class="pre">of</span> <span class="pre">test</span> <span class="pre">resources&quot;</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span></code></p></li>
+</ol>
+</li>
+<li><p>Wait for the pipeline to run through on your branch, this makes sure that the code runs with the new test resources without issues</p></li>
+<li><p>If the pipeline with all tests passes, perform the following steps, otherwise fix the issues before you continue</p></li>
+</ol>
+</section>
+<section id="id1">
+<h3><a class="reference external" href="https://github.com/BIM2SIM/bim2sim-test-resources">Test Resources Repository</a><a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<ol class="arabic simple" start="8">
+<li><p>Create a Pull Request (PR) from <code class="docutils literal notranslate"><span class="pre">update_test_resources</span></code> into the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch</p></li>
+<li><p>Link the succeeded pipeline in this PR and assign a reviewer</p></li>
+<li><p>When review finished, merge the PR</p></li>
+</ol>
+</section>
+<section id="id2">
+<h3><a class="reference external" href="https://github.com/BIM2SIM/bim2sim">Main bim2sim Repository</a><a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<ol class="arabic simple" start="11">
+<li><p>Repeat the same steps as under step 6, but this time in step 6.ii use <code class="docutils literal notranslate"><span class="pre">main</span></code> instead <code class="docutils literal notranslate"><span class="pre">update_test_resources</span></code> as branch name</p></li>
+<li><p>again wait for the pipeline to succeed</p></li>
+<li><p>Create a PR to merge <code class="docutils literal notranslate"><span class="pre">update_resources_submodule</span></code> branch in the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch and assign a reviewer</p></li>
+<li><p>If pipeline has passed (what it should) and review is approved merge the PR</p></li>
+</ol>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="contribute.html" class="btn btn-neutral float-left" title="How to Contribute?" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="doc-utilities.html" class="btn btn-neutral float-right" title="Utilities for documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, RWTH Aachen University, EBC &amp; E3D; ROM Technik GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
