@@ -272,9 +272,9 @@ def MinMaxPlot(of_directory: str):
                 line = lines[i].split('\t')
                 avT = line[1]
                 T_av.append(float(avT))
-    plt.plot(T_min, linewidth=0.1)
-    plt.plot(T_max, linewidth=0.1)
-    plt.plot(T_av, linewidth=0.1)
+    plt.plot(T_min, linewidth=1)
+    plt.plot(T_max, linewidth=1)
+    plt.plot(T_av, linewidth=1)
     plt.text(len(T_av), T_av[-1], f'T_mean_final: {T_av[-1]:.2f} K',
              ha='right', va='bottom', fontsize=12)
     plt.ylabel('T')
@@ -449,7 +449,7 @@ if __name__ == '__main__':
 
     fig_temp = None
     counter=0
-    for diss_dir in directory.glob('diss_nR_100_fix*'):
+    for diss_dir in directory.glob('diss_ov_*3_fif*'):
     # for diss_dir in directory.glob('diss_[!noR]*'):
         # Check if "OpenFOAM" subdirectory exists within the current directory
         openfoam_dir = diss_dir / 'OpenFOAM'
