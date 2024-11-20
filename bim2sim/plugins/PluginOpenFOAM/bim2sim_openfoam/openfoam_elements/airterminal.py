@@ -172,8 +172,8 @@ class AirTerminal:
                                       }
             self.source_sink.T = \
                 {'type': 'inletOutlet',
-                 'inletValue': f'uniform {self.source_sink.temperature}',
-                 'value': f'uniform {self.source_sink.temperature}'}
+                 'inletValue': '$internalField',
+                 'value': '$internalField'}
             self.source_sink.U = \
                 {'type': 'inletOutlet',
                  'inletValue': 'uniform (0.000 0.000 0.000)',
