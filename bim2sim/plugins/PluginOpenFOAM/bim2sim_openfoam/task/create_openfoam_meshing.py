@@ -207,17 +207,17 @@ class CreateOpenFOAMMeshing(ITask):
                     heater.porous_media.solid_name:
                         {
                             'mode': 'inside',
-                            'levels': '((0 2))'
+                            'levels': '((0 4))'
                         },
                     heater.solid_name + '_refinement_small':
                         {
                             'mode': 'inside',
-                            'levels': '((0 2))'
+                            'levels': '((0 4))'
                         },
                     heater.solid_name + '_refinement_large':
                         {
                             'mode': 'inside',
-                            'levels': '((0 1))'
+                            'levels': '((0 3))'
                         }
 
                 }
@@ -381,6 +381,18 @@ class CreateOpenFOAMMeshing(ITask):
                 # 6000000}) works
                 'castellatedMeshControls'].update({'maxGlobalCells':
                     self.playground.sim_settings.mesh_max_global_cells})
+            openfoam_case.snappyHexMeshDict.values[
+                'meshQualityControls'].update({'maxBoundarySkewness': 20})
+            openfoam_case.snappyHexMeshDict.values[
+                'meshQualityControls'].update({'maxInternalSkewness': 3})
+            openfoam_case.snappyHexMeshDict.values[
+                'castellatedMeshControls'].update({'resolveFeatureAngle': 60})
+            openfoam_case.snappyHexMeshDict.values[
+                'castellatedMeshControls'].update({'minRefinementCells': 5})
+            openfoam_case.snappyHexMeshDict.values[
+                'snapControls'].update({'nSolveIter': 50})
+            openfoam_case.snappyHexMeshDict.values[
+                'snapControls'].update({'tolerance': 5})
         openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
 
     def update_snappyHexMesh_furniture(self, openfoam_case, openfoam_elements):
