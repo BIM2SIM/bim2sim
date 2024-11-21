@@ -61,6 +61,20 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         description='Choose air terminal outlet type.',
         for_frontend=True
     )
+    outflow_direction = ChoiceSetting(
+        default='down',
+        choices={
+            'down': 'Outflow facing downward. Only applicable for original '
+                    'shapes.',
+            'side': 'Outflow facing sideways. Only applicable for original '
+                    'shapes.',
+            'angle45down': 'Outflow facing downward with a 45 degrees angle. '
+                           'Only applicable for original shapes.'
+        },
+        description='Choose the outflow direction for original shapes from '
+                    'IFC that should be automatically processed. Defaults to '
+                    'downward facing flows.'
+    )
     select_space_guid = ChoiceSetting(
         default='',
         choices={
@@ -109,6 +123,14 @@ class OpenFOAMSimSettings(ComfortSimSettings):
                     'number between 0.001 and 0.2.',
         min_value=0.001,
         max_value=0.2,
+        for_frontend=True,
+    )
+    mesh_max_global_cells = NumberSetting(
+        default=3000000,
+        description='Set the maximum number of global cells for meshing in '
+                    'snappyHexMesh.',
+        min_value=2000000,
+        max_value=20000000,
         for_frontend=True,
     )
     adjust_refinements = BooleanSetting(

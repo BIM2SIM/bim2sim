@@ -423,6 +423,37 @@ class CreateOpenFOAMGeometry(ITask):
                                                               inlet_base_shape))
                 diffuser_shape = PyOCCTools.triangulate_bound_shape(
                     inlet_base_shape, [source_shape])
+                if self.playground.sim_settings.outflow_direction == 'side':
+                    blend_shape_pnts = PyOCCTools.get_points_of_face(
+                        inlet_base_shape)
+                    blend_shape_coords = [p.Coord() for p in blend_shape_pnts]
+                    new_blend_shape_pnts = [gp_Pnt(x, y, z - 0.01)
+                                            for x, y, z in blend_shape_coords]
+                    additional_face = PyOCCTools.make_faces_from_pnts(
+                        new_blend_shape_pnts)
+                    compound = TopoDS_Compound()
+                    builder = TopoDS_Builder()
+                    builder.MakeCompound(compound)
+                    for shp in [diffuser_shape, additional_face]:
+                        builder.Add(compound, shp)
+                    diffuser_shape = PyOCCTools.triangulate_bound_shape(
+                        compound)
+                elif (self.playground.sim_settings.outflow_direction ==
+                      'angle45down'):
+                    base_min_max = PyOCCTools.get_minimal_bounding_box(
+                        source_shape)
+                    x_dist = abs(base_min_max[0][0] - base_min_max[1][0])
+                    y_dist = abs(base_min_max[0][1] - base_min_max[1][1])
+                    if y_dist > x_dist:
+                        center_line_x1 = gp_Pnt(base_min_max[0][0] + x_dist/2,
+                                                base_min_max[0][1],
+                                                base_min_max[0][2])
+                        center_line_x2 = gp_Pnt(base_min_max[1][0] + x_dist/2,
+                                                base_min_max[1][1],
+                                                base_min_max[1][2])
+                        # todo: add lowered points (decreased z-coord) for
+                        #  new tilted face.
+
             elif inlet_type == 'SimpleStlDiffusor':
                 for m in mesh.Mesh.from_multi_file(
                         Path(
