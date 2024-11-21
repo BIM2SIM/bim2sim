@@ -372,6 +372,15 @@ class CreateOpenFOAMMeshing(ITask):
                      {'mode': 'inside', 'levels': f"(({air_terminal.refinement_zone_level_large[0]} "
                                                   f"{air_terminal.refinement_zone_level_large[1]}))"}}
             )
+            openfoam_case.snappyHexMeshDict.values[
+                # 'castellatedMeshControls'].update({'maxLocalCells':
+                # 2000000}) # works
+                'castellatedMeshControls'].update({'maxLocalCells': 1000000})
+            openfoam_case.snappyHexMeshDict.values[
+                # 'castellatedMeshControls'].update({'maxGlobalCells':
+                # 6000000}) works
+                'castellatedMeshControls'].update({'maxGlobalCells':
+                    self.playground.sim_settings.mesh_max_global_cells})
         openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
 
     def update_snappyHexMesh_furniture(self, openfoam_case, openfoam_elements):
