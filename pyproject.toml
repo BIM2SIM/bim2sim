@@ -76,7 +76,7 @@ PluginTEASER = [
     "ebcpy",
     "reportlab",
     "svglib",
-    "TEASER[report] @ git+https://github.com/RWTH-EBC/TEASER@development",
+    "TEASER[report]==1.0.1",
     "BuildingsPy@git+https://github.com/DaJansenGit/BuildingsPy.git",
 ]
 PluginEnergyPlus = [
