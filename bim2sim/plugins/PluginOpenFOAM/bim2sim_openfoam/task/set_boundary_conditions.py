@@ -126,6 +126,8 @@ class SetOpenFOAMBoundaryConditions(ITask):
                 heater_radiation = self.playground.sim_settings.heater_radiation
             heater.set_boundary_conditions(
                 heating_power_each, heater_radiation)
+        vol_per_inlet = 0
+        vol_per_outlet = 0
         # calculate volumetric flow rate in l/s according to
         # DIN EN 16798-1:2022-03, Table B.6/B.7 + Table NA.6/NA.7
         # building with high emissions, air quality cat 1: 2 l/s/m2
@@ -133,13 +135,15 @@ class SetOpenFOAMBoundaryConditions(ITask):
         total_volumetric_flow_l_per_s = (openfoam_case.floor_area * 2.0 + 7 *
                                          len(people))
         num_inlets = len(
-            [i for i in air_terminals if i.air_type.upper() == 'INLET'])
-        vol_per_inlet = total_volumetric_flow_l_per_s / num_inlets
+            [i for i in air_terminals if 'INLET' in i.air_type.upper()])
+        if num_inlets > 0:
+            vol_per_inlet = total_volumetric_flow_l_per_s / num_inlets
         num_outlets = len(
-            [i for i in air_terminals if i.air_type.upper() == 'OUTLET'])
-        vol_per_outlet = total_volumetric_flow_l_per_s / num_outlets
+            [i for i in air_terminals if 'OUTLET' in i.air_type.upper()])
+        if num_outlets > 0:
+            vol_per_outlet = total_volumetric_flow_l_per_s / num_outlets
         for air_terminal in air_terminals:
-            if air_terminal.air_type.upper() == 'INLET':
+            if 'INLET' in air_terminal.air_type.upper():
                 volumetric_flow_l_per_s = vol_per_inlet
             else:
                 volumetric_flow_l_per_s = vol_per_outlet

@@ -61,6 +61,20 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         description='Choose air terminal outlet type.',
         for_frontend=True
     )
+    outflow_direction = ChoiceSetting(
+        default='down',
+        choices={
+            'down': 'Outflow facing downward. Only applicable for original '
+                    'shapes.',
+            'side': 'Outflow facing sideways. Only applicable for original '
+                    'shapes.',
+            'angle45down': 'Outflow facing downward with a 45 degrees angle. '
+                           'Only applicable for original shapes.'
+        },
+        description='Choose the outflow direction for original shapes from '
+                    'IFC that should be automatically processed. Defaults to '
+                    'downward facing flows.'
+    )
     select_space_guid = ChoiceSetting(
         default='',
         choices={
