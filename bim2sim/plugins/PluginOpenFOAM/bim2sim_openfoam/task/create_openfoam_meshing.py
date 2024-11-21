@@ -379,7 +379,8 @@ class CreateOpenFOAMMeshing(ITask):
             openfoam_case.snappyHexMeshDict.values[
                 # 'castellatedMeshControls'].update({'maxGlobalCells':
                 # 6000000}) works
-                'castellatedMeshControls'].update({'maxGlobalCells': 3000000})
+                'castellatedMeshControls'].update({'maxGlobalCells':
+                    self.playground.sim_settings.mesh_max_global_cells})
         openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
 
     def update_snappyHexMesh_furniture(self, openfoam_case, openfoam_elements):

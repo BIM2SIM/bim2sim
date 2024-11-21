@@ -125,6 +125,14 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         max_value=0.2,
         for_frontend=True,
     )
+    mesh_max_global_cells = NumberSetting(
+        default=3000000,
+        description='Set the maximum number of global cells for meshing in '
+                    'snappyHexMesh.',
+        min_value=2000000,
+        max_value=20000000,
+        for_frontend=True,
+    )
     adjust_refinements = BooleanSetting(
         default=False,
         description='Whether surface and region refinements of airterminals '
