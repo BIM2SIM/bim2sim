@@ -46,22 +46,27 @@ class CalculateEmissionHydraulicSystem(ITask):
         component_dict = {}
         for index, row in df.iterrows():
             if self.playground.sim_settings.heat_delivery_type == "Radiator":
-                if ("radiator_forward" in row["Type"] or "Pumpe" in row["Type"]) and not "ground" in row["Type"]:
+                if "radiator_forward" in row["Type"] and not "ground" in row["Type"]:
                     component_dict[index] = {"Type": row["Type"],
                                              "Material": row["Material"],
                                              "Mass [kg]": row["Mass [kg]"],
+                                             "Power [kW]": row["Power [kW]"]}
+                if "Pumpe" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"],
                                              "Power [kW]": row["Power [kW]"]}
             elif self.playground.sim_settings.heat_delivery_type == "UFH":
                 if "radiator_forward" in row["Type"] and not "extra" in row["Type"]:
                     component_dict[index] = {"Type": row["Type"],
                                              "UFH Area [m²]": row["UFH area [m²]"],
                                              "UFH Laying Distance [mm]": row["UFH Laying Distance [mm]"]}
-                elif ("radiator_forward_extra" in row["Type"] or "Pumpe" in row["Type"]) and not "ground" in row["Type"]:
+                elif "radiator_forward_extra" in row["Type"] and not "ground" in row["Type"]:
                     component_dict[index] = {"Type": row["Type"],
                                              "Material": row["Material"],
                                              "Mass [kg]": row["Mass [kg]"],
                                              "Power [kW]": row["Power [kW]"]}
-
+                elif "Pumpe" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"],
+                                             "Power [kW]": row["Power [kW]"]}
         return component_dict
 
     def calulcate_emission_pipe(self,
