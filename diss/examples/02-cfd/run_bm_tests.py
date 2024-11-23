@@ -11,6 +11,9 @@ def run_bm_tests():
     bm05()
     bm10()
     bm15()
+    bm20()
+    bm25()
+    bm30()
 
 if __name__ == '__main__':
     run_bm_tests()
