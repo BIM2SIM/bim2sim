@@ -6,7 +6,9 @@ from typing import List, Tuple, Union
 
 import numpy as np
 from OCC.Core.BRep import BRep_Tool
+from OCC.Core.BRepAdaptor import BRepAdaptor_Surface
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
+from scipy.spatial import KDTree
 from OCC.Core.BRepBndLib import brepbndlib_Add
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace, \
     BRepBuilderAPI_Transform, BRepBuilderAPI_MakePolygon, \
@@ -97,6 +99,16 @@ class PyOCCTools:
         nb_vertex = shape_analysis.NbVertices()
 
         return nb_vertex
+
+    @staticmethod
+    def get_number_of_faces(shape: TopoDS_Shape) -> int:
+        """ get number of faces of a shape"""
+        shape_analysis = ShapeAnalysis_ShapeContents()
+        shape_analysis.Perform(shape)
+        nb_faces = shape_analysis.NbFaces()
+
+        return nb_faces
+
 
     @staticmethod
     def get_points_of_face(shape: TopoDS_Shape) -> List[gp_Pnt]:
@@ -753,3 +765,69 @@ class PyOCCTools:
         trsf.SetRotation(rot_ax, rotation * math.pi/180)
         new_shape = BRepBuilderAPI_Transform(shape, trsf).Shape()
         return new_shape
+
+    @staticmethod
+    def sample_points_on_faces(shape, u_samples=10, v_samples=10):
+        """
+        Generate a grid of points on the surfaces of a shape.
+        Parameters:
+            - shape: TopoDS_Shape
+            - u_samples: Number of samples along the U direction
+            - v_samples: Number of samples along the V direction
+        Returns:
+            A list of (x, y, z) points.
+        """
+        points = []
+        explorer = TopExp_Explorer(shape, TopAbs_FACE)
+        while explorer.More():
+            face = topods_Face(explorer.Current())
+            surface = BRepAdaptor_Surface(face)
+            # Get the parameter range of the surface
+            u_min, u_max = surface.FirstUParameter(), surface.LastUParameter()
+            v_min, v_max = surface.FirstVParameter(), surface.LastVParameter()
+            # Generate a grid of parameters
+            u_values = np.linspace(u_min, u_max, u_samples)
+            v_values = np.linspace(v_min, v_max, v_samples)
+            # Evaluate the surface at each grid point
+            for u in u_values:
+                for v in v_values:
+                    pnt = surface.Value(u, v)
+                    points.append((pnt.X(), pnt.Y(), pnt.Z()))
+            explorer.Next()
+        return points
+
+    @staticmethod
+    def calculate_point_based_distance(shape1, shape2, final_num_points=1e5):
+        num_verts_1 = PyOCCTools.get_number_of_vertices(shape1)
+        if num_verts_1 < 5e4:
+            num_faces_1 = PyOCCTools.get_number_of_faces(shape1)
+            sample_points_per_face = math.floor(math.sqrt((
+                                                              final_num_points-num_verts_1)
+                                               / num_faces_1))
+            points_on_shape1 = PyOCCTools.sample_points_on_faces(
+                shape1, u_samples=sample_points_per_face,
+                v_samples=sample_points_per_face)
+        else:
+            points_on_shape1 = PyOCCTools.get_points_of_face(shape1)
+            points_on_shape1 = [(p.X(), p.Y(), p.Z()) for p in points_on_shape1]
+
+        num_verts_2 = PyOCCTools.get_number_of_vertices(shape2)
+        if num_verts_2 < 5e4:
+            num_faces_2 = PyOCCTools.get_number_of_faces(shape2)
+            sample_points_per_face = math.floor(math.sqrt(
+                (final_num_points-num_verts_2) / num_faces_2))
+            points_on_shape2 = PyOCCTools.sample_points_on_faces(
+                shape2, u_samples=sample_points_per_face,
+                v_samples=sample_points_per_face)
+        else:
+            points_on_shape2 = PyOCCTools.get_points_of_face(shape2)
+            points_on_shape2 = [(p.X(), p.Y(), p.Z()) for p in points_on_shape2]
+
+        tree1 = KDTree(points_on_shape1)
+        distances, _ = tree1.query(points_on_shape2)
+        #print(f"Minimum distance: {min(distances)}")
+        return min(distances)
+
+
+
+

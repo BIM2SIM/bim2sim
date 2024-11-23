@@ -5,6 +5,8 @@ import shutil
 import tempfile
 import logging
 from pathlib import Path
+
+import numpy as np
 import stl
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex, \
     BRepBuilderAPI_Transform
@@ -921,68 +923,96 @@ class CreateOpenFOAMGeometry(ITask):
 
         return inlet, outlet
 
-    def adjust_refinements(self, case, elements):
+    def adjust_refinements(self, case, openfoam_elements):
         """
         Compute surface and region refinements for air terminals and other
         interior elements.
         """
         bM_size = self.playground.sim_settings.mesh_size
         if self.playground.sim_settings.add_airterminals:
-            for terminal in [elements['inlet_AirTerminal'], elements[
-                'outlet_AirTerminal']]:
-                if (terminal.air_type == 'inlet' and
+            air_terminals = filter_elements(openfoam_elements, 'AirTerminal')
+            for air_t in air_terminals:
+                if ('INLET' in air_t.air_type.upper() and
                     self.playground.sim_settings.inlet_type == 'Plate') or \
-                        (terminal.air_type == 'outlet' and \
+                        ('OUTLET' in air_t.air_type.upper() and \
                          self.playground.sim_settings.outlet_type == 'Plate'):
-                    diff = terminal.diffuser.tri_geom
-                    box = terminal.box.tri_geom
+                    diff = air_t.diffuser.tri_geom
+                    box = air_t.box.tri_geom
                     dist = OpenFOAMUtils.get_min_refdist_between_shapes(
                         diff, box)
                     ref_level = OpenFOAMUtils.get_refinement_level(dist,
                                                                    bM_size)
-                    terminal.diffuser.refinement_level = \
-                        terminal.box.refinement_level = ref_level
-                    terminal.refinement_zone_level_small[1] = \
-                        terminal.diffuser.refinement_level[0]
-                    terminal.refinement_zone_level_large[1] = \
-                        terminal.diffuser.refinement_level[0] - 1
+                    air_t.diffuser.refinement_level = ref_level
+                    air_t.box.refinement_level = ref_level
+                    air_t.refinement_zone_level_small[1] = \
+                        air_t.diffuser.refinement_level[0]
+                    air_t.refinement_zone_level_large[1] = \
+                        air_t.diffuser.refinement_level[0] - 1
                 else:
-                    verts = OpenFOAMUtils.detriangulize(OpenFOAMUtils,
-                                                        terminal.diffuser.tri_geom)
-                    min_dist = OpenFOAMUtils.get_min_internal_dist(verts)
-                    terminal.diffuser.refinement_level = \
-                        OpenFOAMUtils.get_refinement_level(min_dist, bM_size)
-                    terminal.refinement_zone_level_small[1] = \
-                        terminal.diffuser.refinement_level[0]
-                    terminal.refinement_zone_level_large[1] = \
-                        terminal.diffuser.refinement_level[0] - 1
+                    for part in [p for p in [air_t.diffuser, air_t.box,
+                                     air_t.source_sink] if p.tri_geom is not
+                                                           None]:
+                        verts, edges = OpenFOAMUtils.detriangulize(
+                            OpenFOAMUtils, part.tri_geom)
+                        min_dist = OpenFOAMUtils.get_min_internal_dist(verts)
+                        edge_lengths = OpenFOAMUtils.get_edge_lengths(edges)
+                        median_dist = np.median(edge_lengths)
+                        self.logger.info(f"{air_t.solid_name}:\tPrev: "
+                                         f"{part.refinement_level}")
+                        part.refinement_level = \
+                            OpenFOAMUtils.get_refinement_level(min_dist, bM_size,
+                                                               median_dist)
+                        self.logger.info(f"{air_t.solid_name}:\tNEW: "
+                                         f"{part.refinement_level}")
+                    air_t.refinement_zone_level_small[1] = \
+                        air_t.diffuser.refinement_level[0]
+                    air_t.refinement_zone_level_large[1] = \
+                        air_t.diffuser.refinement_level[0] - 1
 
         interior = dict()  # Add other interior equipment and topoDS Shape
         if self.playground.sim_settings.add_heating:
-            interior = {elements['heater1']: elements[
-                'heater1'].heater_surface.tri_geom}
-        for i, elem in enumerate(interior.keys()):
-            verts = OpenFOAMUtils.detriangulize(OpenFOAMUtils, interior[elem])
+            heaters = filter_elements(openfoam_elements, 'Heater')
+            interior.update({h: h.heater_surface.tri_geom for h in heaters})
+        if self.playground.sim_settings.add_furniture:
+            furniture = filter_elements(openfoam_elements, 'Furniture')
+            interior.update({f: f.tri_geom for f in furniture})
+        if self.playground.sim_settings.add_people:
+            people = filter_elements(openfoam_elements, 'People')
+            interior.update({p: p.tri_geom for p in people})
+        for int_elem, int_geom in interior.items():
+            self.logger.info(f"Updating refinements for {int_elem.solid_name}.")
+            verts, edges = OpenFOAMUtils.detriangulize(OpenFOAMUtils, int_geom)
             int_dist = OpenFOAMUtils.get_min_internal_dist(verts)
-            wall_dist = OpenFOAMUtils.get_min_refdist_between_shapes(interior[
-                                                                         elem],
-                                                                     case.current_zone.space_shape)
-            obj_dist = wall_dist
+            edge_lengths = OpenFOAMUtils.get_edge_lengths(edges)
+            median_int_dist = np.median(edge_lengths)
+            wall_dist = OpenFOAMUtils.get_min_refdist_between_shapes(
+                int_geom, case.current_zone.space_shape)
+            if wall_dist > 1e-6:
+                obj_dist = wall_dist
+            else:
+                obj_dist = 1000
             if len(interior) > 1:
-                for objs in list(interior.keys())[i:]:
+                for key, obj_geom in interior.items():
+                    if key == int_elem:
+                        continue
                     new_dist = OpenFOAMUtils.get_min_refdist_between_shapes(
-                        interior[elem], interior[objs])
-                    if new_dist < obj_dist: obj_dist = new_dist
-            min_dist_ext = min(wall_dist, obj_dist)
+                        int_geom, obj_geom)
+                    if new_dist < obj_dist and new_dist > 1e-6:
+                        obj_dist = new_dist
+            if wall_dist > 1e-6:
+                min_dist_ext = min(wall_dist, obj_dist)
+            else:
+                min_dist_ext = obj_dist
             ref_level_reg = OpenFOAMUtils.get_refinement_level(min_dist_ext,
-                                                               bM_size)
+                                                               bM_size, median_int_dist)
             if int_dist < min_dist_ext:
                 ref_level_surf = OpenFOAMUtils.get_refinement_level(
-                    int_dist, bM_size)
+                    int_dist, bM_size, median_int_dist)
             else:
                 ref_level_surf = ref_level_reg
-            elem.refinement_level = ref_level_reg
-            interior[elem].refinement_level = ref_level_surf
+            self.logger.info(f"{int_elem.solid_name}:\tPREV: "
+                             f"{int_elem.refinement_level},\tNEW: {ref_level_surf}")
+            int_elem.refinement_level = ref_level_surf
 
     def init_furniture(self, openfoam_case, elements, openfoam_elements):
         if not self.playground.sim_settings.add_furniture:
