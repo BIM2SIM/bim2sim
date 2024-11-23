@@ -1,4 +1,6 @@
 import OCC.Core.TopoDS
+from OCC.Core.Extrema import Extrema_ExtFlag_MIN
+from OCC.Core.TopOpeBRep import TopOpeBRep_ShapeIntersector
 from OCC.Core.gp import gp_Pnt
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 import bim2sim.tasks.common.inner_loop_remover as ilr
@@ -22,7 +24,8 @@ class OpenFOAMUtils:
         return stl_bounds, heaters, air_terminals, furniture, people
 
     @staticmethod
-    def get_refinement_level(dist: float, bM_size: float) -> list:
+    def get_refinement_level(dist: float, bM_size: float, mean_dist:
+            float=None) -> list:
         """
         Computes the refinement level based on the desired
         refined cell size and the blockMesh cell size.
@@ -30,25 +33,53 @@ class OpenFOAMUtils:
         """
         ref_level = math.log(bM_size / dist) / math.log(2)
         ref_level = math.ceil(ref_level)
-        return [ref_level, ref_level + 2]
+        if mean_dist:
+            min_level = math.log(bM_size / mean_dist) / math.log(2)
+            min_level = int(round(min_level,0))
+            if min_level < 0:
+                min_level = 0
+            if min_level > ref_level:
+                min_level = ref_level
+        else:
+            min_level = ref_level
+        return [min_level, ref_level + 2]
 
     @staticmethod
     def get_min_refdist_between_shapes(shape1: OCC.Core.TopoDS.TopoDS_Shape,
                                        shape2: OCC.Core.TopoDS.TopoDS_Shape,
-                                       dist_bound=0.01) -> float:
+                                       dist_bound=0.05) -> float:
         """
         Computes the minimal distance between two TopoDS Shapes and returns
         the distance divided by 3 such that in the refinement zone,
         there will be 3 cells in between two objects. Optional argument
-        dist_bound can specify a maximal minimal distance (default: 1mm).
+        dist_bound can specify a maximal minimal distance (default: 1cm).
         """
-        extrema = BRepExtrema_DistShapeShape(shape1, shape2)
-        extrema.Perform()
-        dist = extrema.Value()
+        ins = TopOpeBRep_ShapeIntersector()
+        ins.InitIntersection(shape1, shape2)
+        if ins.MoreIntersection():
+            return 0
+        nb1 = PyOCCTools.get_number_of_vertices(shape1)
+        nb2 = PyOCCTools.get_number_of_vertices(shape2)
+        if nb1+nb2 > 1e3:
+            # avoid expensive distance calculations for far complex elements
+            box1 = PyOCCTools.simple_bounding_box_shape([shape1])
+            box2 = PyOCCTools.simple_bounding_box_shape([shape2])
+            box_dist = BRepExtrema_DistShapeShape(box1, box2,
+                                                  Extrema_ExtFlag_MIN).Value()
+            if box_dist/3 > dist_bound:
+                return dist_bound
+        if (nb1+nb2) < 200:
+            dist = BRepExtrema_DistShapeShape(shape1, shape2,
+                                              Extrema_ExtFlag_MIN).Value()
+        else:
+            # apply point based distance computation for cases with a large
+            # amount of vertices. OpenCascade is very slow on these kind of
+            # distance computations, so an approximate solution is calculated
+            dist = PyOCCTools.calculate_point_based_distance(shape1, shape2)
         # To ensure correctness of all boundary conditions, there must be at
         # least 3 cells between the object and the wall.
         min_dist = dist / 3
-        if min_dist > dist_bound or min_dist == 0:
+        if min_dist > dist_bound:
             min_dist = dist_bound
         return min_dist
 
@@ -153,10 +184,30 @@ class OpenFOAMUtils:
         triang = ilr._get_triangulation(obj)
         inner_edges, outer_edges = ilr._get_inside_outside_edges(triang,
                                                                  must_equal=False)
+        edges = inner_edges + outer_edges
         vertices = PyOCCTools.get_unique_vertices(outer_edges)
         vertices = self.remove_coincident_vertices(vertices)
         vertices = PyOCCTools.remove_collinear_vertices2(vertices)
-        return vertices
+        return vertices, edges
+
+    @staticmethod
+    def get_edge_lengths(edges):
+        """
+        Calculate the lengths of edges in 3D space.
+
+        Parameters:
+            edges (list of tuples): A list where each element is a tuple
+            containing two 3D coordinates
+            (e.g., [((x1, y1, z1), (x2, y2, z2)), ...]).
+
+        Returns:
+            list: A list of lengths corresponding to the edges.
+        """
+        lengths = []
+        for (x1, y1, z1), (x2, y2, z2) in edges:
+            length = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
+            lengths.append(length)
+        return lengths
 
     @staticmethod
     def remove_coincident_vertices(vert_list: list) -> list:
