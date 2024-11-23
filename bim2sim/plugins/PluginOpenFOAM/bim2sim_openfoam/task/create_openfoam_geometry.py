@@ -942,8 +942,8 @@ class CreateOpenFOAMGeometry(ITask):
                         diff, box)
                     ref_level = OpenFOAMUtils.get_refinement_level(dist,
                                                                    bM_size)
-                    air_t.diffuser.refinement_level = \
-                        air_t.box.refinement_level = ref_level
+                    air_t.diffuser.refinement_level = ref_level
+                    air_t.box.refinement_level = ref_level
                     air_t.refinement_zone_level_small[1] = \
                         air_t.diffuser.refinement_level[0]
                     air_t.refinement_zone_level_large[1] = \
@@ -954,9 +954,13 @@ class CreateOpenFOAMGeometry(ITask):
                     min_dist = OpenFOAMUtils.get_min_internal_dist(verts)
                     edge_lengths = OpenFOAMUtils.get_edge_lengths(edges)
                     median_dist = np.median(edge_lengths)
+                    self.logger.info(f"{air_t.solid_name}:\tPrev: "
+                                     f"{air_t.diffuser.refinement_level}")
                     air_t.diffuser.refinement_level = \
                         OpenFOAMUtils.get_refinement_level(min_dist, bM_size,
                                                            median_dist)
+                    self.logger.info(f"{air_t.solid_name}:\tNEW: "
+                                     f"{air_t.diffuser.refinement_level}")
                     air_t.refinement_zone_level_small[1] = \
                         air_t.diffuser.refinement_level[0]
                     air_t.refinement_zone_level_large[1] = \
@@ -973,20 +977,29 @@ class CreateOpenFOAMGeometry(ITask):
             people = filter_elements(openfoam_elements, 'People')
             interior.update({p: p.tri_geom for p in people})
         for int_elem, int_geom in interior.items():
+            self.logger.info(f"Updating refinements for {int_elem.solid_name}.")
             verts, edges = OpenFOAMUtils.detriangulize(OpenFOAMUtils, int_geom)
             int_dist = OpenFOAMUtils.get_min_internal_dist(verts)
             edge_lengths = OpenFOAMUtils.get_edge_lengths(edges)
             median_int_dist = np.median(edge_lengths)
             wall_dist = OpenFOAMUtils.get_min_refdist_between_shapes(
                 int_geom, case.current_zone.space_shape)
-            obj_dist = wall_dist
+            if wall_dist > 1e-6:
+                obj_dist = wall_dist
+            else:
+                obj_dist = 1000
             if len(interior) > 1:
-                for obj_geom in interior.values():
+                for key, obj_geom in interior.items():
+                    if key == int_elem:
+                        continue
                     new_dist = OpenFOAMUtils.get_min_refdist_between_shapes(
                         int_geom, obj_geom)
-                    if new_dist < obj_dist:
+                    if new_dist < obj_dist and new_dist > 1e-6:
                         obj_dist = new_dist
-            min_dist_ext = min(wall_dist, obj_dist)
+            if wall_dist > 1e-6:
+                min_dist_ext = min(wall_dist, obj_dist)
+            else:
+                min_dist_ext = obj_dist
             ref_level_reg = OpenFOAMUtils.get_refinement_level(min_dist_ext,
                                                                bM_size, median_int_dist)
             if int_dist < min_dist_ext:
@@ -994,7 +1007,8 @@ class CreateOpenFOAMGeometry(ITask):
                     int_dist, bM_size, median_int_dist)
             else:
                 ref_level_surf = ref_level_reg
-            #elem.refinement_level = ref_level_reg
+            self.logger.info(f"{int_elem.solid_name}:\tPREV: "
+                             f"{int_elem.refinement_level},\tNEW: {ref_level_surf}")
             int_elem.refinement_level = ref_level_surf
 
     def init_furniture(self, openfoam_case, elements, openfoam_elements):

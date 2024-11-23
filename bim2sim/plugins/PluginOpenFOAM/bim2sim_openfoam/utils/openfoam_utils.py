@@ -1,4 +1,6 @@
 import OCC.Core.TopoDS
+from OCC.Core.Extrema import Extrema_ExtFlag_MIN
+from OCC.Core.TopOpeBRep import TopOpeBRep_ShapeIntersector
 from OCC.Core.gp import gp_Pnt
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 import bim2sim.tasks.common.inner_loop_remover as ilr
@@ -50,15 +52,34 @@ class OpenFOAMUtils:
         Computes the minimal distance between two TopoDS Shapes and returns
         the distance divided by 3 such that in the refinement zone,
         there will be 3 cells in between two objects. Optional argument
-        dist_bound can specify a maximal minimal distance (default: 1mm).
+        dist_bound can specify a maximal minimal distance (default: 1cm).
         """
-        extrema = BRepExtrema_DistShapeShape(shape1, shape2)
-        extrema.Perform()
-        dist = extrema.Value()
+        ins = TopOpeBRep_ShapeIntersector()
+        ins.InitIntersection(shape1, shape2)
+        if ins.MoreIntersection():
+            return 0
+        nb1 = PyOCCTools.get_number_of_vertices(shape1)
+        nb2 = PyOCCTools.get_number_of_vertices(shape2)
+        if nb1+nb2 > 1e3:
+            # avoid expensive distance calculations for far complex elements
+            box1 = PyOCCTools.simple_bounding_box_shape([shape1])
+            box2 = PyOCCTools.simple_bounding_box_shape([shape2])
+            box_dist = BRepExtrema_DistShapeShape(box1, box2,
+                                                  Extrema_ExtFlag_MIN).Value()
+            if box_dist/3 > dist_bound:
+                return dist_bound
+        if (nb1+nb2) < 200:
+            dist = BRepExtrema_DistShapeShape(shape1, shape2,
+                                              Extrema_ExtFlag_MIN).Value()
+        else:
+            # apply point based distance computation for cases with a large
+            # amount of vertices. OpenCascade is very slow on these kind of
+            # distance computations, so an approximate solution is calculated
+            dist = PyOCCTools.calculate_point_based_distance(shape1, shape2)
         # To ensure correctness of all boundary conditions, there must be at
         # least 3 cells between the object and the wall.
         min_dist = dist / 3
-        if min_dist > dist_bound or min_dist == 0:
+        if min_dist > dist_bound:
             min_dist = dist_bound
         return min_dist
 
