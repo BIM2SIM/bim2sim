@@ -949,18 +949,21 @@ class CreateOpenFOAMGeometry(ITask):
                     air_t.refinement_zone_level_large[1] = \
                         air_t.diffuser.refinement_level[0] - 1
                 else:
-                    verts, edges = OpenFOAMUtils.detriangulize(OpenFOAMUtils,
-                                                        air_t.diffuser.tri_geom)
-                    min_dist = OpenFOAMUtils.get_min_internal_dist(verts)
-                    edge_lengths = OpenFOAMUtils.get_edge_lengths(edges)
-                    median_dist = np.median(edge_lengths)
-                    self.logger.info(f"{air_t.solid_name}:\tPrev: "
-                                     f"{air_t.diffuser.refinement_level}")
-                    air_t.diffuser.refinement_level = \
-                        OpenFOAMUtils.get_refinement_level(min_dist, bM_size,
-                                                           median_dist)
-                    self.logger.info(f"{air_t.solid_name}:\tNEW: "
-                                     f"{air_t.diffuser.refinement_level}")
+                    for part in [p for p in [air_t.diffuser, air_t.box,
+                                     air_t.source_sink] if p.tri_geom is not
+                                                           None]:
+                        verts, edges = OpenFOAMUtils.detriangulize(
+                            OpenFOAMUtils, part.tri_geom)
+                        min_dist = OpenFOAMUtils.get_min_internal_dist(verts)
+                        edge_lengths = OpenFOAMUtils.get_edge_lengths(edges)
+                        median_dist = np.median(edge_lengths)
+                        self.logger.info(f"{air_t.solid_name}:\tPrev: "
+                                         f"{part.refinement_level}")
+                        part.refinement_level = \
+                            OpenFOAMUtils.get_refinement_level(min_dist, bM_size,
+                                                               median_dist)
+                        self.logger.info(f"{air_t.solid_name}:\tNEW: "
+                                         f"{part.refinement_level}")
                     air_t.refinement_zone_level_small[1] = \
                         air_t.diffuser.refinement_level[0]
                     air_t.refinement_zone_level_large[1] = \

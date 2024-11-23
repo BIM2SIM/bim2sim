@@ -47,7 +47,7 @@ class OpenFOAMUtils:
     @staticmethod
     def get_min_refdist_between_shapes(shape1: OCC.Core.TopoDS.TopoDS_Shape,
                                        shape2: OCC.Core.TopoDS.TopoDS_Shape,
-                                       dist_bound=0.01) -> float:
+                                       dist_bound=0.05) -> float:
         """
         Computes the minimal distance between two TopoDS Shapes and returns
         the distance divided by 3 such that in the refinement zone,
