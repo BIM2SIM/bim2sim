@@ -122,7 +122,7 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         description='Set the mesh size of the blockMesh in [m]. Insert a '
                     'number between 0.001 and 0.2.',
         min_value=0.001,
-        max_value=0.2,
+        max_value=0.4,
         for_frontend=True,
     )
     mesh_max_global_cells = NumberSetting(
@@ -130,7 +130,7 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         description='Set the maximum number of global cells for meshing in '
                     'snappyHexMesh.',
         min_value=2000000,
-        max_value=20000000,
+        max_value=50000000,
         for_frontend=True,
     )
     adjust_refinements = BooleanSetting(
