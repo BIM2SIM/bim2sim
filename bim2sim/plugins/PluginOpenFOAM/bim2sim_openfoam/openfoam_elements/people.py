@@ -10,22 +10,122 @@ from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 body_part_boundary_conditions = {
+    # detailed temperatures represent clothing/skin temperatures according to
+    # Yamamoto et al. 2023, Case 3 (3rd) (average for left and right
+    # temperatures), and face temperature has been defined according to Zhu
+    # et al. (2007). All body part temperatures have been mapped to MORPHEUS
+    # body part definitions (19 body parts).
     'FullBody':
         {
             'T': 32,
             'power_fraction': 1
         },
-    'Head':
+    'manikinsittinghead':
         {
             'T': 36,
             'power_fraction': 0.3
         },
-    'Body':
+    'manikinsittingbody':
         {
             'T': 30,
             'power_fraction': 0.7
-        }
-    # todo: further extend dictionary for all bodyparts
+        },
+    'abdomen':
+        {
+            'T': 27.25,
+            'power_fraction': 0
+        },
+
+    'head_back':
+        {
+            'T': 32.43,
+            'power_fraction': 0
+        },
+    'head_face':
+        {
+            'T': 35.9,
+            'power_fraction': 0
+        },
+    'left_foot':
+        {
+            'T': 29.33,
+            'power_fraction': 0
+        },
+    'left_hand':
+        {
+            'T': 32,
+            'power_fraction': 0
+        },
+    'left_lower_arm':
+        {
+            'T': 26.225,
+            'power_fraction': 0
+        },
+    'left_lower_leg':
+        {
+            'T': 25.21,
+            'power_fraction': 0
+        },
+    'left_shoulder':
+        {
+            'T': 25.865,
+            'power_fraction': 0
+        },
+    'left_upper_arm':
+        {
+            'T': 26.225,
+            'power_fraction': 0
+        },
+    'left_upper_leg':
+        {
+            'T': 26.195,
+            'power_fraction': 0
+        },
+    'neck':
+        {
+            'T': 31.25,
+            'power_fraction': 0
+        },
+    'right_foot':
+        {
+            'T': 29.33,
+            'power_fraction': 0
+        },
+    'right_hand':
+        {
+            'T': 32,
+            'power_fraction': 0
+        },
+    'right_lower_arm':
+        {
+            'T': 26.225,
+            'power_fraction': 0
+        },
+    'right_lower_leg':
+        {
+            'T': 25.21,
+            'power_fraction': 0
+        },
+    'right_shoulder':
+        {
+            'T': 25.865,
+            'power_fraction': 0
+        },
+    'right_upper_arm':
+        {
+            'T': 26.225,
+            'power_fraction': 0
+        },
+    'right_upper_leg':
+        {
+            'T': 26.195,
+            'power_fraction': 0
+        },
+    'thorax':
+        {
+            'T': 26.645,
+            'power_fraction': 0
+        },
 }
 
 
@@ -53,17 +153,22 @@ class BodyPart(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
             qr = 'none'
         else:
             qr = 'qr'
-        self.T = \
-            {'type': 'externalWallHeatFluxTemperature',
-             'mode': 'power',
-             'qr': f"{qr}",
-             'Q': f'{self.power}',
-             'qrRelaxation': 0.003,
-             'relaxation': 1.0,
-             'kappaMethod': 'fluidThermo',
-             'kappa': 'fluidThermo',
-             'value': f'uniform {self.temperature + 273.15}'
-             }
+        if self.power == 0:
+            self.T = {'type': 'fixedTemperature',
+                      'value': f'uniform {self.temperature + 273.15}'
+                      }
+        else:
+            self.T = \
+                {'type': 'externalWallHeatFluxTemperature',
+                 'mode': 'power',
+                 'qr': f"{qr}",
+                 'Q': f'{self.power}',
+                 'qrRelaxation': 0.003,
+                 'relaxation': 1.0,
+                 'kappaMethod': 'fluidThermo',
+                 'kappa': 'fluidThermo',
+                 'value': f'uniform {self.temperature + 273.15}'
+                 }
 
 
 class People(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
@@ -117,7 +222,7 @@ class People(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         for m in mesh.Mesh.from_multi_file(person_path):
             person_meshes.append(m)
         if len(person_meshes) > 1:
-            temp_path = triSurface_path / 'Temp'
+            temp_path = triSurface_path / 'Temp/person'
             temp_path.mkdir(exist_ok=True)
             for m in person_meshes:
                 curr_name = temp_path.as_posix() + '/' + str(m.name,
@@ -126,19 +231,15 @@ class People(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                     m.save(str(m.name, encoding='utf-8'), output_file,
                            mode=stl.Mode.ASCII)
                 output_file.close()
-            person_head = TopoDS_Shape()
-            stl_reader = StlAPI_Reader()
-            stl_reader.Read(person_head,
-                            temp_path.as_posix() + '/' +
-                            "manikinsittinghead.stl")
-            person_body = TopoDS_Shape()
-            stl_reader = StlAPI_Reader()
-            stl_reader.Read(person_body,
-                            temp_path.as_posix() + '/' +
-                            "manikinsittingbody.stl")
-            person_head = BRepBuilderAPI_Transform(person_head, trsf).Shape()
-            person_body = BRepBuilderAPI_Transform(person_body, trsf).Shape()
-            return {'Head': person_head, 'Body': person_body}
+            part_dict = {}
+            for part_stl in temp_path.glob('*'):
+                part_name = part_stl.name.split('.')[0]
+                part_shape = TopoDS_Shape()
+                stl_reader = StlAPI_Reader()
+                stl_reader.Read(part_shape, str(part_stl))
+                part_shape = BRepBuilderAPI_Transform(part_shape, trsf).Shape()
+                part_dict.update({part_name: part_shape})
+            return part_dict
         elif len(person_meshes) == 1:
             # keep original shape
             return {'FullBody': full_shape}

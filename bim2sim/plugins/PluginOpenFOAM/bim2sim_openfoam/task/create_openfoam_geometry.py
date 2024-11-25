@@ -1140,7 +1140,7 @@ class CreateOpenFOAMGeometry(ITask):
 
         if self.playground.sim_settings.people_setting in ['Seated']:
             person_path = (furniture_path.as_posix() + '/' +
-                           "manikin_split_body_head.stl")
+                           "manikin_split_19parts.stl")
             person_shape = TopoDS_Shape()
             stl_reader = StlAPI_Reader()
             stl_reader.Read(person_shape, person_path)
