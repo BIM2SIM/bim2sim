@@ -1095,6 +1095,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         plt.subplots_adjust(left=0.03, bottom=0.04, right=0.99,
                             top=0.96)  # Removes the border around the diagram, diagram quasi full screen
         # plt.axis('equal') # Ensures that the plot is true to scale
+        plt.close()
 
         # Define node positions
         pos = {node: (node[0], node[1]) for node in node_coordinates}
@@ -1298,6 +1299,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                          with_labels=False)
         plt.title(f'Graphennetzwerk vom Typ {type_grid}')
         plt.tight_layout()
+        plt.close()
 
     def get_bottom_left_node(self, graph, nodes):
         positions = nx.get_node_attributes(graph, 'pos')
@@ -4061,6 +4063,7 @@ class CreateBuildingAndHeatingGraph(ITask):
 
             plt.title(title)
         fig.tight_layout()
+        plt.close()
 
     def visualzation_networkx_3D(self, graph, minimum_trees: list, type_grid: str):
 
@@ -4110,6 +4113,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         ax.set_zlabel("z")
         plt.title(f'Graphennetzwerk vom typ {type_grid}')
         fig.tight_layout()
+        plt.close()
 
     def create_node_on_edge_overlap(self,
                                     graph: nx.Graph(),

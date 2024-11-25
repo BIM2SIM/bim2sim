@@ -746,6 +746,7 @@ class GeometryBuildingsNetworkx(object):
                          with_labels=False)
         plt.title(f'Graphennetzwerk vom Typ {type_grid}')
         plt.tight_layout()
+        plt.close()
 
     def get_bottom_left_node(self, G, nodes):
         positions = nx.get_node_attributes(G, 'pos')
@@ -3494,6 +3495,7 @@ class GeometryBuildingsNetworkx(object):
 
             plt.title(title)
         fig.tight_layout()
+        plt.close()
 
     def visualzation_networkx_3D(self, G, minimum_trees: list, type_grid: str):
 
@@ -3543,6 +3545,7 @@ class GeometryBuildingsNetworkx(object):
         ax.set_zlabel("z")
         plt.title(f'Graphennetzwerk vom typ {type_grid}')
         fig.tight_layout()
+        plt.close()
 
     def create_node_on_edge_overlap(self,
                                     G: nx.Graph(),
@@ -4546,6 +4549,7 @@ class IfcBuildingsGeometry():
         ax.set_zlabel("z")
         fig.tight_layout()
         plt.show()
+        plt.close()
 
     def visualzation_networkx_3D(self, G, minimum_tree, start_points, end_points):
         node_xyz = np.array([v for v in sorted(G)])
@@ -4574,6 +4578,7 @@ class IfcBuildingsGeometry():
         ax.set_zlabel("z")
         fig.tight_layout()
         plt.show()
+        plt.close()
 
     def visualzation_networkx_2D(self, G, short_edges, other_edges, start_ref, end_points):
         pos = nx.spring_layout(G)
@@ -5228,7 +5233,8 @@ class CalculateDistributionSystem():
         plt.ylabel('Förderhöhe')
         plt.title('Pumpenkennlinie')
         plt.grid(True)
-        plt.show()"""
+        plt.show()
+        plt.close()"""
         return pump_low_flow_low_head, pump_optimal_range, pump_high_flow_high_head
 
     @staticmethod
@@ -5492,6 +5498,7 @@ class CalculateDistributionSystem():
         fig.tight_layout()
         fig.legend()
         plt.show()
+        plt.close()
         # ax1.plot(flow_rates.magnitude, pump_power, label='Pump Curve')
         # print('Operating Flow Rate:', operating_flow_rate)
         # print('Operating Pressure:', operation_pump_pressure)
@@ -5506,6 +5513,7 @@ class CalculateDistributionSystem():
         plt.ylabel(f'Pressure  [{pressure_unit.units}]')
         plt.legend()
         plt.show()
+        plt.close()
         print('Operating Flow Rate:', operating_flow_rate)
         print('Operating Head:', operating_head)"""
 
@@ -6260,6 +6268,7 @@ class CalculateDistributionSystem():
         # Anzeigen des Diagramms
         plt.title(title)
         # plt.show()
+        plt.close()
 
         """
 
@@ -6334,6 +6343,7 @@ class CalculateDistributionSystem():
         # Anzeigen des Diagramms
         plt.title('Positionsbasierter Druckverlauf in einem Rohrnetzwerk')"""
         """plt.show()
+        plt.close()
 
         min_edge_color = min(edge_colors)
         max_edge_color = max(edge_colors)
@@ -6537,6 +6547,7 @@ class CalculateDistributionSystem():
         else:
             plt.title(title)
         fig.tight_layout()
+        plt.close()
 
     def plot_nodes(self, G):
         # Knotendiagramm erstellen

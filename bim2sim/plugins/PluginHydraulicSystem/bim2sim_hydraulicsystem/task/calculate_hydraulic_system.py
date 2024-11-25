@@ -461,7 +461,8 @@ class CalculateHydraulicSystem(ITask):
         plt.ylabel('Förderhöhe')
         plt.title('Pumpenkennlinie')
         plt.grid(True)
-        plt.show()"""
+        plt.show()
+        plt.close()"""
         return pump_low_flow_low_head, pump_optimal_range, pump_high_flow_high_head
 
     @staticmethod
@@ -765,6 +766,7 @@ class CalculateHydraulicSystem(ITask):
         fig.tight_layout()
         fig.legend()
         plt.show()
+        plt.close()
         # ax1.plot(flow_rates.magnitude, pump_power, label='Pump Curve')
         # print('Operating Flow Rate:', operating_flow_rate)
         # print('Operating Pressure:', operation_pump_pressure)
@@ -779,6 +781,7 @@ class CalculateHydraulicSystem(ITask):
         plt.ylabel(f'Pressure  [{pressure_unit.units}]')
         plt.legend()
         plt.show()
+        plt.close()
         print('Operating Flow Rate:', operating_flow_rate)
         print('Operating Head:', operating_head)"""
 
@@ -1451,6 +1454,7 @@ class CalculateHydraulicSystem(ITask):
         ax.set_xlabel('X')
         ax.set_ylabel('Y')
         ax.set_zlabel('Z')
+        plt.close()
         # Zeichnen der Knoten mit entsprechender Farbe und Druck als Label
         # node_pressure_in = {node: round((graph.nodes[node]['pressure_in'] * 10 ** -5), 1) for node in graph.nodes()}
         node_pressure_out = {node: round((graph.nodes[node][node_attribute][viewpoint] * 10 ** -5), 1) for node in
@@ -1517,6 +1521,7 @@ class CalculateHydraulicSystem(ITask):
         # Anzeigen des Diagramms
         plt.title(title)
         # plt.show()
+        plt.close()
 
         """
 
@@ -1630,6 +1635,7 @@ class CalculateHydraulicSystem(ITask):
         # Anzeigen des Diagramms
         plt.title('Positionsbasierter Druckverlauf in einem Rohrnetzwerk')
         plt.show()
+        plt.close()
 
 
 
@@ -1794,6 +1800,7 @@ class CalculateHydraulicSystem(ITask):
         else:
             plt.title(title)
         fig.tight_layout()
+        plt.close()
 
     @staticmethod
     def arrow3D(ax, x, y, z, dx, dy, dz, length, arrowstyle="-|>", color="black"):

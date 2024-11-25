@@ -64,3 +64,10 @@ class TEASERSimSettings(BuildingSimSettings):
                     'Not generic at this time',
         for_frontend=True
     )
+
+    dymola_executable = PathSetting(
+        default=None,
+        description='Path to the local Dymola executable',
+        for_frontend=True,
+        mandatory=False
+    )

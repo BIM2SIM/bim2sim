@@ -529,6 +529,7 @@ class DesignExaustLCA(ITask):
         else:
             plt.title(title)
         fig.tight_layout()
+        plt.close()
 
     @staticmethod
     def arrow3D(ax, x, y, z, dx, dy, dz, length, arrowstyle="-|>", color="black"):

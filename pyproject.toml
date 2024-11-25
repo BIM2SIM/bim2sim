@@ -57,6 +57,7 @@ where = ["bim2sim"]
 namespaces = false
 
 [project.optional-dependencies]
+
 PluginTEASER = [
     "pyqt5",
     "pillow",
@@ -65,6 +66,10 @@ PluginTEASER = [
     "ebcpy",
     "TEASER@git+https://github.com/RWTH-EBC/TEASER#egg=development",
     "BuildingsPy@git+https://github.com/DaJansenGit/BuildingsPy.git",
+    "reportlab",
+    "svglib",
+    "psutil"
+    #"subprocess"
 ]
 PluginEnergyPlus = [
     "shapely",
@@ -82,8 +87,28 @@ PluginCFD = [ # prepared to add dependencies, same installtion routine like othe
 PluginHKESim = [
     "pyvis@git+https://github.com/squidKid-deluxe/pyvis.git#egg=fix-show",
 ]
-PluginLCA = [ # prepared to add dependencies, same installtion routine like other plugins
+PluginHydraulicSystem = [
+    "colebrook",
+    "colorama",
+    "ebcpy",
+    "pathlib",
+    "shapely"
 ]
+PluginVentilationSystem = [
+    "openpyxl",
+    #"e2nIEE@git+https://github.com/e2nIEE/pandapipes@develop",
+    "pandapipes",
+    "requests",
+    "pathlib"
+]
+'PluginLCA' = [
+    "pathlib",
+    "pandas",
+    "requests",
+    "matplotlib",
+    "networkx"
+]
+
 docu = [
     "sphinx==6.2.1",
     "myst-parser",

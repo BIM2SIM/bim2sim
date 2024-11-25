@@ -201,8 +201,8 @@ class SimulateModelEBCPy(ITask):
         with open(mos_file_path, 'w') as file:
             file.write(script)
 
-        dymola_executable = r"C:\Program Files\Dymola 2023\bin64\dymola.exe"
-        subprocess.Popen([dymola_executable, mos_file_path], shell=True)
+
+        subprocess.Popen([self.playground.sim_settings.dymola_executable, mos_file_path], shell=True)
         time.sleep(10)
         for proc in psutil.process_iter(['pid', 'name']):
             try:

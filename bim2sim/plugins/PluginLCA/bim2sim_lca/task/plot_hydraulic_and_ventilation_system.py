@@ -106,6 +106,7 @@ class PlotHydraulicVentilationGraphs(ITask):
         plt.savefig(filepath)
 
         #plt.show()
+        plt.close()
 
 
     def plot_3d_graph_building(self, graph_list_ventilation_supply_air, graph_list_ventilation_exhaust_air,
@@ -146,6 +147,7 @@ class PlotHydraulicVentilationGraphs(ITask):
         plt.savefig(filepath)
 
         #plt.show()
+        plt.close()
 
 
 

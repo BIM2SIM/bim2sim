@@ -473,6 +473,7 @@ class DesignSupplyLCA(ITask):
         else:
             plt.title(title)
         fig.tight_layout()
+        plt.close()
 
     @staticmethod
     def arrow3D(ax, x, y, z, dx, dy, dz, length, arrowstyle="-|>", color="black"):
@@ -2181,6 +2182,7 @@ class DesignSupplyLCA(ITask):
 
             # show plot
             # plt.show()
+            plt.close()
 
         def check_if_lines_are_aligned(line1, line2):
             """

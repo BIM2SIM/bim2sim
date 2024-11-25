@@ -472,6 +472,7 @@ class GetIFCBuildingGeometry(ITask):
         ax.set_zlabel("z")
         fig.tight_layout()
         plt.show()
+        plt.close()
 
     def visualzation_networkx_3D(self, G, minimum_tree, start_points, end_points):
         node_xyz = np.array([v for v in sorted(G)])
@@ -500,6 +501,7 @@ class GetIFCBuildingGeometry(ITask):
         ax.set_zlabel("z")
         fig.tight_layout()
         plt.show()
+        plt.close()
 
     def visualzation_networkx_2D(self, G, short_edges, other_edges, start_ref, end_points):
         pos = nx.spring_layout(G)

@@ -10,7 +10,8 @@ from bim2sim.utilities.common_functions import download_test_resources, \
     download_library
 
 
-def run_example_complex_building_teaser(project_path, heating_bool, cooling_bool, ahu_central_bool,
+def run_example_complex_building_teaser(project_path, dymola_executable,
+                                        heating_bool, cooling_bool, ahu_central_bool,
                                         ahu_heat_bool, ahu_cool_bool, ahu_hum_bool, building_standard,
                                         window_standard):
     """Run a building performance simulation with the TEASER backend.
@@ -77,6 +78,7 @@ def run_example_complex_building_teaser(project_path, heating_bool, cooling_bool
     # Run a simulation directly with dymola after model creation
     project.sim_settings.dymola_simulation = True
     project.sim_settings.edit_mat_result_file_flag = True
+    project.sim_settings.dymola_executable = dymola_executable
     # Make sure that AixLib modelica library exist on machine by cloning it and
     #  setting the path of it as a sim_setting
     repo_url = "https://github.com/RWTH-EBC/AixLib.git"
