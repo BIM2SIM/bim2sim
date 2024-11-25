@@ -154,7 +154,7 @@ class BodyPart(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         else:
             qr = 'qr'
         if self.power == 0:
-            self.T = {'type': 'fixedTemperature',
+            self.T = {'type': 'fixedValue',
                       'value': f'uniform {self.temperature + 273.15}'
                       }
         else:
