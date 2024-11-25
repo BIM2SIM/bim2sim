@@ -106,7 +106,7 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
     ufh_max_heat_flow_per_area = NumberSetting(
         default=100,
         min_value=0,
-        max_value=150,
+        max_value=300,
         description="Max heat flow per area of under floor heating"
                     "Further heat flow needs to be delivered e.g. by air or radiator",
         for_frontend=True

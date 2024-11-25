@@ -196,7 +196,7 @@ class DesignVentilationSystem(ITask):
                                        nodelist=filtered_nodes_supply,  # Verwenden der gefilterten Liste
                                        node_shape='s',
                                        node_color='blue',
-                                       node_size=300
+                                       node_size=10
                                        )
 
                 # Für Exhaust Air
@@ -210,7 +210,7 @@ class DesignVentilationSystem(ITask):
                                        nodelist=filtered_nodes_exhaust,  # Verwenden der gefilterten Liste
                                        node_shape='s',
                                        node_color='orange',
-                                       node_size=300
+                                       node_size=10
                                        )
 
                 # Kanten zeichnen
@@ -220,9 +220,9 @@ class DesignVentilationSystem(ITask):
                                        edge_color="orange")
 
                 # Lüftungsschächte als grüne Vierecke zeichnen
-                plt.scatter(building_shaft_supply_air[0], building_shaft_supply_air[1], s=350, marker='s',
+                plt.scatter(building_shaft_supply_air[0], building_shaft_supply_air[1], s=10, marker='s',
                             color='green', label='Lüftungsschacht Zuluft')
-                plt.scatter(building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], s=350, marker='s',
+                plt.scatter(building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], s=10, marker='s',
                             color='green', label='Lüftungsschacht Abluft')
 
                 # Knotengewichte für Supply Air anpassen und Labels zeichnen
@@ -254,7 +254,9 @@ class DesignVentilationSystem(ITask):
                 edge_exhaust_air = plt.Line2D([0], [0], color='orange', lw=1, linestyle='-', label='Abluftkanal')
 
                 # Legende zum Plot hinzufügen
-                plt.legend(handles=[legend_knoten_supply, legend_knoten_exhaust, legend_shaft,edge_supply_air,edge_exhaust_air], loc='best')
+                plt.legend(handles=[legend_knoten_supply, legend_knoten_exhaust, legend_shaft,edge_supply_air,edge_exhaust_air],
+                           loc='best',
+                           fontsize=8)
 
                 # Setze den Pfad für den neuen Ordner
                 ordner_pfad = Path(self.paths.export / 'ventilation system' / 'complete system')
@@ -263,7 +265,10 @@ class DesignVentilationSystem(ITask):
                 ordner_pfad.mkdir(parents=True, exist_ok=True)
 
                 pfad_plus_name = ordner_pfad / f'complete system {z_value}.png'
-                plt.savefig(pfad_plus_name)
+                plt.gca().patch.set_alpha(0)
+                plt.xlim(-5, 50)
+                plt.ylim(-5, 30)
+                plt.savefig(pfad_plus_name, transparent=True)
 
                 plt.close()
 

@@ -9,7 +9,7 @@ from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain
 
 
-def run_example_complex_building_lca(project_path):
+def run_example_complex_building_lca(project_path, heat_delivery_type):
     """Generate output for an LCA analysis.
 
     This example generates output for an LCA analysis. Specifies project
@@ -55,7 +55,7 @@ def run_example_complex_building_lca(project_path):
     project.sim_settings.calculate_lca_hydraulic_system = True
     project.sim_settings.pipe_type = "Stahlrohr"
 
-    project.sim_settings.heat_delivery_type = "UFH"
+    project.sim_settings.heat_delivery_type = heat_delivery_type
     project.sim_settings.ufh_pipe_type = "PEX"
 
     project.sim_settings.hydraulic_system_material_xlsx = (Path(project_path, "export", "hydraulic system",

@@ -681,7 +681,7 @@ class DesignExaustLCA(ITask):
         :param mantelflaeche_gesamt: Gesamte Fläche des Kanalmantels
         """
         # Visualisierung
-        plt.figure(figsize=(15, 8), dpi=200)
+        plt.figure(figsize=(8.3, 5.8), dpi=300)
         plt.xlabel('X-Achse [m]')
         plt.ylabel('Y-Achse [m]')
         plt.title(name + f", Z: {z_value}")
@@ -706,13 +706,13 @@ class DesignExaustLCA(ITask):
                                nodelist=filtered_coords_ceiling_without_airflow,
                                node_shape='D',
                                node_color='blue',
-                               node_size=300)
+                               node_size=10)
         nx.draw_networkx_nodes(G,
                                pos,
                                nodelist=[(building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], z_value)],
                                node_shape="s",
                                node_color="green",
-                               node_size=400)
+                               node_size=10)
 
         nx.draw_networkx_nodes(G,
                                pos,
@@ -723,7 +723,7 @@ class DesignExaustLCA(ITask):
 
         # Kanten zeichnen
         nx.draw_networkx_edges(G, pos, width=1)
-        nx.draw_networkx_edges(steiner_baum, pos, width=4, style="-", edge_color="blue")
+        nx.draw_networkx_edges(steiner_baum, pos, width=1, style="-", edge_color="blue")
 
         # Kantengewicht
         edge_labels = nx.get_edge_attributes(steiner_baum, edge_label)
@@ -745,7 +745,7 @@ class DesignExaustLCA(ITask):
                     edge_labels_without_unit[key] = f"{breite} x {hoehe}"
             except:
                 None
-
+        """
         nx.draw_networkx_edge_labels(steiner_baum, pos, edge_labels=edge_labels_without_unit, font_size=8,
                                      font_weight=10,
                                      rotate=False)
@@ -759,7 +759,7 @@ class DesignExaustLCA(ITask):
             except AttributeError:
                 node_labels_without_unit[key] = ""
         nx.draw_networkx_labels(G, pos, labels=node_labels_without_unit, font_size=8, font_color="white")
-
+        """
         # Legende erstellen
         legend_ceiling = plt.Line2D([0], [0], marker='D', color='w', label='Deckenauslass in m³ pro h',
                                     markerfacecolor='blue',
@@ -778,7 +778,8 @@ class DesignExaustLCA(ITask):
             # Legende zum Diagramm hinzufügen, inklusive der Mantelfläche
             plt.legend(
                 handles=[legend_ceiling, legend_intersection, legend_shaft, legend_steiner_edge, legend_mantelflaeche],
-                loc='best')
+                loc='best',
+                fontsize=8)
         else:
             # Legende zum Diagramm hinzufügen, ohne die Mantelfläche
             plt.legend(handles=[legend_ceiling, legend_intersection, legend_shaft, legend_steiner_edge],
@@ -793,7 +794,10 @@ class DesignExaustLCA(ITask):
         # Speichern des Graphens
         gesamte_bezeichnung = name + " Z " + f"{z_value}" + ".png"
         pfad_plus_name = ordner_pfad / gesamte_bezeichnung
-        plt.savefig(pfad_plus_name)
+        plt.gca().patch.set_alpha(0)
+        plt.xlim(-5, 50)
+        plt.ylim(-5, 30)
+        plt.savefig(pfad_plus_name, transparent=True)
 
         # Anzeigen des Graphens
         # plt.show()

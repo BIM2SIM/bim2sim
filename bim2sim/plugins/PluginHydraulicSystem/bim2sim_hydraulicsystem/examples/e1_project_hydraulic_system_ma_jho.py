@@ -57,6 +57,8 @@ def run_example_project_hydraulic_system(project_path, heat_delivery_type, t_for
     project.sim_settings.heat_delivery_type = heat_delivery_type # UFH or Radiator
     project.sim_settings.hydraulic_components_data_file_radiator_sheet = "Profilierte Flachheizkörper"
     project.sim_settings.hydraulic_components_data_file_pipe_sheet = "Stahlrohre"
+    project.sim_settings.ufh_heat_flow_laying_distance_changeover = 70
+    project.sim_settings.ufh_max_heat_flow_per_area = 300
 
     project.sim_settings.density_fluid = 1000
     project.sim_settings.kinematic_velocity_fluid = 1.002
