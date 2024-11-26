@@ -180,7 +180,7 @@ class CreateIdf(ITask):
                                   space=space)
             if (not self.playground.sim_settings.cooling and
                     self.playground.sim_settings.add_natural_ventilation):
-                self.set_natural_ventilation(idf, name=zone.Name,
+                self.set_natural_ventilation(idf, sim_settings, name=zone.Name,
                                              zone_name=zone.Name, space=space)
             self.set_people(sim_settings, idf, name=zone.Name, zone_name=zone.Name,
                             space=space)
@@ -762,7 +762,7 @@ class CreateIdf(ITask):
             )
 
     @staticmethod
-    def set_natural_ventilation(idf: IDF, name: str, zone_name: str,
+    def set_natural_ventilation(sim_settings: EnergyPlusSimSettings, idf: IDF, name: str, zone_name: str,
                                 space: ThermalZone):
         """Set natural ventilation.
 
@@ -778,50 +778,94 @@ class CreateIdf(ITask):
             zone_name: name of zone or zone_list
             space: ThermalZone instance
         """
+        if sim_settings.ep_version in ["9-2-0", "9-4-0"]:
+            idf.newidfobject(
+                "ZONEVENTILATION:DESIGNFLOWRATE",
+                Name=name + '_winter',
+                Zone_or_ZoneList_Name=zone_name,
+                Schedule_Name="Continuous",
+                Ventilation_Type="Natural",
+                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                Air_Changes_per_Hour=space.winter_reduction_infiltration[0],
+                Minimum_Outdoor_Temperature=
+                space.winter_reduction_infiltration[1] - 273.15,
+                Maximum_Outdoor_Temperature=
+                space.winter_reduction_infiltration[2] - 273.15,
+            )
 
-        idf.newidfobject(
-            "ZONEVENTILATION:DESIGNFLOWRATE",
-            Name=name + '_winter',
-            Zone_or_ZoneList_Name=zone_name,
-            Schedule_Name="Continuous",
-            Ventilation_Type="Natural",
-            Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-            Air_Changes_per_Hour=space.winter_reduction_infiltration[0],
-            Minimum_Outdoor_Temperature=
-            space.winter_reduction_infiltration[1] - 273.15,
-            Maximum_Outdoor_Temperature=
-            space.winter_reduction_infiltration[2] - 273.15,
-        )
+            idf.newidfobject(
+                "ZONEVENTILATION:DESIGNFLOWRATE",
+                Name=name + '_summer',
+                Zone_or_ZoneList_Name=zone_name,
+                Schedule_Name="Continuous",
+                Ventilation_Type="Natural",
+                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                Air_Changes_per_Hour=space.max_summer_infiltration[0],
+                Minimum_Outdoor_Temperature
+                =space.max_summer_infiltration[1] - 273.15,
+                Maximum_Outdoor_Temperature
+                =space.max_summer_infiltration[2] - 273.15,
+            )
 
-        idf.newidfobject(
-            "ZONEVENTILATION:DESIGNFLOWRATE",
-            Name=name + '_summer',
-            Zone_or_ZoneList_Name=zone_name,
-            Schedule_Name="Continuous",
-            Ventilation_Type="Natural",
-            Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-            Air_Changes_per_Hour=space.max_summer_infiltration[0],
-            Minimum_Outdoor_Temperature
-            =space.max_summer_infiltration[1] - 273.15,
-            Maximum_Outdoor_Temperature
-            =space.max_summer_infiltration[2] - 273.15,
-        )
+            idf.newidfobject(
+                "ZONEVENTILATION:DESIGNFLOWRATE",
+                Name=name + '_overheating',
+                Zone_or_ZoneList_Name=zone_name,
+                Schedule_Name="Continuous",
+                Ventilation_Type="Natural",
+                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                # calculation of overheating infiltration is a simplification
+                # compared to the corresponding TEASER implementation which
+                # dynamically computes thresholds for overheating infiltration
+                # based on the zone temperature and additional factors.
+                Air_Changes_per_Hour=space.max_overheating_infiltration[0],
+                Minimum_Outdoor_Temperature
+                =space.max_summer_infiltration[2] - 273.15,
+            )
+        else:
+            idf.newidfobject(
+                "ZONEVENTILATION:DESIGNFLOWRATE",
+                Name=name + '_winter',
+                Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
+                Schedule_Name="Continuous",
+                Ventilation_Type="Natural",
+                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                Air_Changes_per_Hour=space.winter_reduction_infiltration[0],
+                Minimum_Outdoor_Temperature=
+                space.winter_reduction_infiltration[1] - 273.15,
+                Maximum_Outdoor_Temperature=
+                space.winter_reduction_infiltration[2] - 273.15,
+            )
 
-        idf.newidfobject(
-            "ZONEVENTILATION:DESIGNFLOWRATE",
-            Name=name + '_overheating',
-            Zone_or_ZoneList_Name=zone_name,
-            Schedule_Name="Continuous",
-            Ventilation_Type="Natural",
-            Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-            # calculation of overheating infiltration is a simplification
-            # compared to the corresponding TEASER implementation which
-            # dynamically computes thresholds for overheating infiltration
-            # based on the zone temperature and additional factors.
-            Air_Changes_per_Hour=space.max_overheating_infiltration[0],
-            Minimum_Outdoor_Temperature
-            =space.max_summer_infiltration[2] - 273.15,
-        )
+            idf.newidfobject(
+                "ZONEVENTILATION:DESIGNFLOWRATE",
+                Name=name + '_summer',
+                Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
+                Schedule_Name="Continuous",
+                Ventilation_Type="Natural",
+                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                Air_Changes_per_Hour=space.max_summer_infiltration[0],
+                Minimum_Outdoor_Temperature
+                =space.max_summer_infiltration[1] - 273.15,
+                Maximum_Outdoor_Temperature
+                =space.max_summer_infiltration[2] - 273.15,
+            )
+
+            idf.newidfobject(
+                "ZONEVENTILATION:DESIGNFLOWRATE",
+                Name=name + '_overheating',
+                Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
+                Schedule_Name="Continuous",
+                Ventilation_Type="Natural",
+                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                # calculation of overheating infiltration is a simplification
+                # compared to the corresponding TEASER implementation which
+                # dynamically computes thresholds for overheating infiltration
+                # based on the zone temperature and additional factors.
+                Air_Changes_per_Hour=space.max_overheating_infiltration[0],
+                Minimum_Outdoor_Temperature
+                =space.max_summer_infiltration[2] - 273.15,
+            )
 
     def set_day_hvac_template(self, idf: IDF, space: ThermalZone, name: str):
         """Set 24 hour hvac template.
