@@ -180,7 +180,7 @@ class CreateIdf(ITask):
                                   space=space)
             if (not self.playground.sim_settings.cooling and
                     self.playground.sim_settings.add_natural_ventilation):
-                self.set_natural_ventilation(idf, sim_settings, name=zone.Name,
+                self.set_natural_ventilation(sim_settings, idf, name=zone.Name,
                                              zone_name=zone.Name, space=space)
             self.set_people(sim_settings, idf, name=zone.Name, zone_name=zone.Name,
                             space=space)
