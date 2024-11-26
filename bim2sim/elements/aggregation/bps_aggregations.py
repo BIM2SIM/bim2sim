@@ -129,11 +129,13 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
 
     def _intensive_calc(self, name) -> ureg.Quantity:
         """intensive properties getter - volumetric mean
-        intensive_attributes = ['t_set_heat', 't_set_cool', 'height',  'AreaPerOccupant', 'typical_length',
-        'typical_width', 'T_threshold_heating', 'activity_degree_persons', 'fixed_heat_flow_rate_persons',
-        'internal_gains_moisture_no_people', 'T_threshold_cooling', 'ratio_conv_rad_persons', 'machines',
-        'ratio_conv_rad_machines', 'lighting_power', 'ratio_conv_rad_lighting', 'infiltration_rate',
-        'max_user_infiltration', 'min_ahu', 'max_ahu', 'persons']"""
+        intensive_attributes = ['t_set_heat', 't_set_cool', 'height',
+         'AreaPerOccupant',  'T_threshold_heating', 'activity_degree_persons',
+         'fixed_heat_flow_rate_persons', 'internal_gains_moisture_no_people',
+         'T_threshold_cooling', 'ratio_conv_rad_persons', 'machines',
+         'ratio_conv_rad_machines', 'lighting_power',
+         'ratio_conv_rad_lighting', 'infiltration_rate',
+          'max_user_infiltration', 'min_ahu', 'max_ahu', 'persons']"""
         prop_sum = sum(
             getattr(tz, name) * tz.net_volume for tz in self.elements if
             getattr(tz, name) is not None and tz.net_volume is not None)
@@ -141,9 +143,10 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
 
     def _intensive_list_calc(self, name) -> list:
         """intensive list properties getter - volumetric mean
-        intensive_list_attributes = ['heating_profile', 'cooling_profile', 'persons_profile', 'machines_profile',
-         'lighting_profile', 'max_overheating_infiltration', 'max_summer_infiltration',
-         'winter_reduction_infiltration']"""
+        intensive_list_attributes = ['heating_profile', 'cooling_profile',
+        'persons_profile', 'machines_profile', 'lighting_profile',
+        'max_overheating_infiltration', 'max_summer_infiltration',
+        'winter_reduction_infiltration']"""
         list_attrs = {'heating_profile': 24, 'cooling_profile': 24,
                       'persons_profile': 24,
                       'machines_profile': 24, 'lighting_profile': 24,
