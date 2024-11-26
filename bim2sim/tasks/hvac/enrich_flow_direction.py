@@ -2,6 +2,8 @@ from bim2sim.elements.graphs.hvac_graph import HvacGraph
 from bim2sim.tasks.base import ITask
 import logging
 from bim2sim.kernel.decision import BoolDecision, DecisionBunch
+from bim2sim.utilities.types import FlowSide
+
 
 logger = logging.getLogger(__name__)
 
@@ -11,9 +13,10 @@ class EnrichFlowDirection(ITask):
     reads = ('graph', )
 
     def run(self, graph: HvacGraph):
-        self.set_flow_sides(graph)
+        yield from self.set_flow_sides(graph)
+        print('test')
 
-    # Continue here #633
+    #Todo Continue here #733
     def set_flow_sides(self, graph: HvacGraph):
         """ Set flow sides for ports in HVAC graph based on known flow sides.
 
@@ -31,11 +34,12 @@ class EnrichFlowDirection(ITask):
         """
         # TODO: needs testing!
         # TODO: at least one master element required
+        print('test')
         accepted = []
         while True:
             unset_port = None
-            for port in graph.get_nodes():
-                if port.flow_side == 0 and graph.graph[port] \
+            for port in list(graph.nodes):
+                if port.flow_side == FlowSide.unknown and graph.graph[port] \
                         and port not in accepted:
                     unset_port = port
                     break
@@ -69,7 +73,6 @@ class EnrichFlowDirection(ITask):
                 # done
                 logging.info("Flow_side set")
                 break
-    print('Test')
 
     # TODO not used yet
     def recurse_set_side(self, port, side, known: dict = None,

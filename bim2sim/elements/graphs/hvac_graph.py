@@ -182,9 +182,6 @@ class HvacGraph(nx.Graph):
         return [edge for edge in self.edges
                 if not edge[0].parent is edge[1].parent]
 
-    # def get_nodes(self):
-    #     """Returns list of nodes represented by graph"""
-    #     return list(self.nodes)
 
     def plot(self, path: Path = None, ports: bool = False, dpi: int = 400,
              use_pyvis=False):
@@ -293,7 +290,7 @@ class HvacGraph(nx.Graph):
                     node['label'] = node['label'].split('<')[1]
                 except:
                     pass
-                # TODO #633 use is_generator(), is_consumer() etc.
+                # TODO #733 use is_generator(), is_consumer() etc.
                 node['label'] = node['label'].split('(ports')[0]
                 if 'agg' in node['label'].lower():
                     node['label'] = node['label'].split('Agg0')[0]
