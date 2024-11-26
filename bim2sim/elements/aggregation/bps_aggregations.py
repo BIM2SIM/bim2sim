@@ -252,14 +252,6 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         functions=[_intensive_calc],
         dependant_elements='elements'
     )
-    typical_length = attribute.Attribute(
-        functions=[_intensive_calc],
-        dependant_elements='elements'
-    )
-    typical_width = attribute.Attribute(
-        functions=[_intensive_calc],
-        dependant_elements='elements'
-    )
     T_threshold_heating = attribute.Attribute(
         functions=[_intensive_calc],
         dependant_elements='elements'

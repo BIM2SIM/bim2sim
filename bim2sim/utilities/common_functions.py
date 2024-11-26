@@ -78,6 +78,7 @@ def get_use_conditions_dict(custom_use_cond_path: Path) -> dict:
     if validateJSON(use_cond_path):
         with open(use_cond_path, 'r+', encoding='utf-8') as file:
             use_cond_dict = json.load(file)
+            del use_cond_dict['version']
             return use_cond_dict
     else:
         raise ValueError(f"Invalid JSON file {use_cond_path}")
@@ -221,6 +222,7 @@ def get_type_building_elements():
     if validateJSON(type_building_elements_path):
         with open(type_building_elements_path, 'r+') as file:
             type_building_elements = json.load(file)
+            del type_building_elements['version']
     else:
         raise ValueError(f"Invalid JSON file  {type_building_elements_path}")
     template_options = {}
@@ -241,6 +243,7 @@ def get_material_templates():
     if validateJSON(material_templates_path):
         with open(material_templates_path, 'r+') as f:
             material_templates = json.load(f)
+            del material_templates['version']
     else:
         raise ValueError(f"Invalid JSON file  {material_templates_path}")
     return material_templates

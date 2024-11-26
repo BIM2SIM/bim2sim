@@ -1,7 +1,35 @@
 {
+    "version":{
+        "with_heating":"TEASER-v1.0.1",
+        "T_threshold_heating":"TEASER-v1.0.1",
+        "with_cooling":"TEASER-v1.0.1",
+        "persons":"TEASER-v1.0.1",
+        "activity_degree_persons":"TEASER-v1.0.1",
+        "fixed_heat_flow_rate_persons":"TEASER-v1.0.1",
+        "internal_gains_moisture_no_people":"TEASER-v1.0.1",
+        "T_threshold_cooling":"TEASER-v1.0.1",
+        "ratio_conv_rad_persons":"TEASER-v1.0.1",
+        "machines":"TEASER-v1.0.1",
+        "ratio_conv_rad_machines":"TEASER-v1.0.1",
+        "lighting_power":"TEASER-v1.0.1",
+        "ratio_conv_rad_lighting":"TEASER-v1.0.1",
+        "use_constant_infiltration":"TEASER-v1.0.1",
+        "infiltration_rate":"TEASER-v1.0.1",
+        "max_user_infiltration":"TEASER-v1.0.1",
+        "max_overheating_infiltration":"TEASER-v1.0.1",
+        "max_summer_infiltration":"TEASER-v1.0.1",
+        "winter_reduction_infiltration":"TEASER-v1.0.1",
+        "min_ahu":"TEASER-v1.0.1",
+        "max_ahu":"TEASER-v1.0.1",
+        "with_ahu":"TEASER-v1.0.1",
+        "with_ideal_thresholds":"TEASER-v1.0.1",
+        "heating_profile":"TEASER-v1.0.1",
+        "cooling_profile":"TEASER-v1.0.1",
+        "persons_profile":"TEASER-v1.0.1",
+        "machines_profile":"TEASER-v1.0.1",
+        "lighting_profile":"TEASER-v1.0.1"
+    },
     "Single office": {
-        "typical_length": 3.0,
-        "typical_width": 6.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -13,7 +41,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 7.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 15.9,
         "maintained_illuminance": 500.0,
         "lighting_efficiency_lumen": 150,
@@ -171,8 +199,6 @@
         ]
     },
     "Group Office (between 2 and 6 employees)": {
-        "typical_length": 6.0,
-        "typical_width": 6.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -184,7 +210,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 7.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 12.5,
         "ratio_conv_rad_lighting": 0.9,
         "maintained_illuminance": 500.0,
@@ -342,8 +368,6 @@
         ]
     },
     "Open-plan Office (7 or more employees)": {
-        "typical_length": 12.0,
-        "typical_width": 12.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -355,7 +379,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 10.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 12.5,
         "maintained_illuminance": 500.0,
         "lighting_efficiency_lumen": 150,
@@ -513,8 +537,6 @@
         ]
     },
     "Meeting, Conference, seminar": {
-        "typical_length": 6.0,
-        "typical_width": 6.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -526,7 +548,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 2.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 15.9,
         "maintained_illuminance": 500.0,
         "lighting_efficiency_lumen": 150,
@@ -684,8 +706,6 @@
         ]
     },
     "Main Hall, Reception": {
-        "typical_length": 10.0,
-        "typical_width": 10.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -697,7 +717,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 4.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 4.4,
         "maintained_illuminance": 300.0,
         "lighting_efficiency_lumen": 150,
@@ -855,8 +875,6 @@
         ]
     },
     "Retail, department store": {
-        "typical_length": 20.0,
-        "typical_width": 20.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -868,7 +886,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 2.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 9.3,
         "maintained_illuminance": 300.0,
         "lighting_efficiency_lumen": 150,
@@ -1026,8 +1044,6 @@
         ]
     },
     "Retail with cooling": {
-        "typical_length": 20.0,
-        "typical_width": 20.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -1039,7 +1055,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 5.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 9.3,
         "maintained_illuminance": 300.0,
         "lighting_efficiency_lumen": 150,
@@ -1197,8 +1213,6 @@
         ]
     },
     "Class room (school), group room (kindergarden)": {
-        "typical_length": 10.0,
-        "typical_width": 10.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -1210,7 +1224,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 4.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 14.0,
         "maintained_illuminance": 300.0,
         "lighting_efficiency_lumen": 150,
@@ -1368,8 +1382,6 @@
         ]
     },
     "Lecture hall, auditorium": {
-        "typical_length": 20.0,
-        "typical_width": 10.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -1381,7 +1393,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 4.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 12.5,
         "maintained_illuminance": 500.0,
         "lighting_efficiency_lumen": 150,
@@ -1539,8 +1551,6 @@
         ]
     },
     "Bed room": {
-        "typical_length": 4.0,
-        "typical_width": 4.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -1552,7 +1562,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 4.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 4.5,
         "maintained_illuminance": 300.0,
         "lighting_efficiency_lumen": 150,
@@ -1710,8 +1720,6 @@
         ]
     },
     "Hotel room": {
-        "typical_length": 4.0,
-        "typical_width": 4.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -1723,7 +1731,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 4.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 2.9,
         "maintained_illuminance": 200.0,
         "lighting_efficiency_lumen": 150,
@@ -1881,8 +1889,6 @@
         ]
     },
     "Canteen": {
-        "typical_length": 20.0,
-        "typical_width": 20.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -1894,7 +1900,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 2.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 6.1,
         "maintained_illuminance": 200.0,
         "lighting_efficiency_lumen": 150,
@@ -2052,8 +2058,6 @@
         ]
     },
     "Restaurant": {
-        "typical_length": 12.0,
-        "typical_width": 12.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -2065,7 +2069,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 2.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 6.9,
         "maintained_illuminance": 200.0,
         "lighting_efficiency_lumen": 150,
@@ -2223,8 +2227,6 @@
         ]
     },
     "Kitchen in non-residential buildings": {
-        "typical_length": 6.0,
-        "typical_width": 6.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -2236,7 +2238,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 300.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 12.5,
         "maintained_illuminance": 500.0,
         "lighting_efficiency_lumen": 150,
@@ -2394,8 +2396,6 @@
         ]
     },
     "Kitchen - preparations, storage": {
-        "typical_length": 6.0,
-        "typical_width": 6.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -2407,7 +2407,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 30.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 15.9,
         "maintained_illuminance": 300.0,
         "lighting_efficiency_lumen": 150,
@@ -2565,8 +2565,6 @@
         ]
     },
     "WC and sanitary rooms in non-residential buildings": {
-        "typical_length": 3.0,
-        "typical_width": 6.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "T_threshold_cooling": 295.15,
@@ -2578,7 +2576,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 0.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 11.1,
         "maintained_illuminance": 200.0,
         "lighting_efficiency_lumen": 150,
@@ -2736,8 +2734,6 @@
         ]
     },
     "Further common rooms": {
-        "typical_length": 6.0,
-        "typical_width": 6.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -2749,7 +2745,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 2.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 6.3,
         "maintained_illuminance": 300.0,
         "lighting_efficiency_lumen": 150,
@@ -2907,8 +2903,6 @@
         ]
     },
     "Auxiliary areas (without common rooms)": {
-        "typical_length": 3.0,
-        "typical_width": 6.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "T_threshold_cooling": 295.15,
@@ -2920,7 +2914,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 0.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 6.3,
         "maintained_illuminance": 100.0,
         "lighting_efficiency_lumen": 150,
@@ -3078,8 +3072,6 @@
         ]
     },
     "Traffic area": {
-        "typical_length": 2.0,
-        "typical_width": 12.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "T_threshold_cooling": 295.15,
@@ -3091,7 +3083,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 0.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 7.0,
         "maintained_illuminance": 100.0,
         "lighting_efficiency_lumen": 150,
@@ -3249,8 +3241,6 @@
         ]
     },
     "Stock, technical equipment, archives": {
-        "typical_length": 6.0,
-        "typical_width": 6.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -3262,7 +3252,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 0.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 11.3,
         "maintained_illuminance": 100.0,
         "lighting_efficiency_lumen": 150,
@@ -3420,8 +3410,6 @@
         ]
     },
     "Data center": {
-        "typical_length": 6.0,
-        "typical_width": 6.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -3433,7 +3421,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 150.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 7.1,
         "maintained_illuminance": 500.0,
         "lighting_efficiency_lumen": 150,
@@ -3591,8 +3579,6 @@
         ]
     },
     "Commercial and industrial Halls - heavy work, standing activity": {
-        "typical_length": 20.0,
-        "typical_width": 20.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -3604,7 +3590,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 35.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 10.8,
         "maintained_illuminance": 300.0,
         "lighting_efficiency_lumen": 150,
@@ -3762,8 +3748,6 @@
         ]
     },
     "Commercial and industrial Halls - medium work, standing activity": {
-        "typical_length": 20.0,
-        "typical_width": 20.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -3775,7 +3759,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 35.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 10.8,
         "maintained_illuminance": 400.0,
         "lighting_efficiency_lumen": 150,
@@ -3933,8 +3917,6 @@
         ]
     },
     "Commercial and industrial Halls - light work, standing activity": {
-        "typical_length": 20.0,
-        "typical_width": 20.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -3946,7 +3928,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 35.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 14.7,
         "maintained_illuminance": 500.0,
         "lighting_efficiency_lumen": 150,
@@ -4104,8 +4086,6 @@
         ]
     },
     "Spectator area (theater and event venues)": {
-        "typical_length": 20.0,
-        "typical_width": 10.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -4117,7 +4097,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 0.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 10.8,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
@@ -4273,8 +4253,6 @@
         ]
     },
     "Foyer (theater and event venues)": {
-        "typical_length": 12.0,
-        "typical_width": 12.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -4286,7 +4264,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 0.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 4.4,
         "maintained_illuminance": 300.0,
         "lighting_efficiency_lumen": 150,
@@ -4444,8 +4422,6 @@
         ]
     },
     "Stage (theater and event venues)": {
-        "typical_length": 10.0,
-        "typical_width": 5.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -4457,7 +4433,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 0.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 10.8,
         "maintained_illuminance": 1000.0,
         "lighting_efficiency_lumen": 150,
@@ -4615,8 +4591,6 @@
         ]
     },
     "Exhibition, congress": {
-        "typical_length": 40.0,
-        "typical_width": 20.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -4628,7 +4602,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 2.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 10.8,
         "maintained_illuminance": 300.0,
         "lighting_efficiency_lumen": 150,
@@ -4786,8 +4760,6 @@
         ]
     },
     "Exhibition room and museum conservational demands": {
-        "typical_length": 20.0,
-        "typical_width": 20.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -4799,7 +4771,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 0.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 10.8,
         "maintained_illuminance": 200.0,
         "lighting_efficiency_lumen": 150,
@@ -4957,8 +4929,6 @@
         ]
     },
     "Library - reading room": {
-        "typical_length": 20.0,
-        "typical_width": 20.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -4970,7 +4940,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 0.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 6.9,
         "maintained_illuminance": 500.0,
         "lighting_efficiency_lumen": 150,
@@ -5128,8 +5098,6 @@
         ]
     },
     "Library - open stacks": {
-        "typical_length": 6.0,
-        "typical_width": 6.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -5141,7 +5109,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 0.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 6.9,
         "maintained_illuminance": 200.0,
         "lighting_efficiency_lumen": 150,
@@ -5299,8 +5267,6 @@
         ]
     },
     "Library - magazine and depot": {
-        "typical_length": 6.0,
-        "typical_width": 6.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -5312,7 +5278,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 0.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 6.9,
         "maintained_illuminance": 100.0,
         "lighting_efficiency_lumen": 150,
@@ -5470,8 +5436,6 @@
         ]
     },
     "Gym (without spectator area)": {
-        "typical_length": 40.0,
-        "typical_width": 20.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -5483,7 +5447,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 0.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 10.5,
         "maintained_illuminance": 300.0,
         "lighting_efficiency_lumen": 150,
@@ -5641,8 +5605,6 @@
         ]
     },
     "Parking garages (office and private usage)": {
-        "typical_length": 50.0,
-        "typical_width": 50.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -5654,7 +5616,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 0.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 2.9,
         "maintained_illuminance": 75.0,
         "lighting_efficiency_lumen": 150,
@@ -5812,8 +5774,6 @@
         ]
     },
     "Parking garages (public usage)": {
-        "typical_length": 100.0,
-        "typical_width": 50.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "T_threshold_cooling": 295.15,
@@ -5825,7 +5785,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 0.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 2.9,
         "maintained_illuminance": 75.0,
         "lighting_efficiency_lumen": 150,
@@ -5983,8 +5943,6 @@
         ]
     },
     "Sauna area": {
-        "typical_length": 1.0,
-        "typical_width": 1.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -5996,7 +5954,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 50.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 11.3,
         "maintained_illuminance": 200.0,
         "lighting_efficiency_lumen": 150,
@@ -6154,8 +6112,6 @@
         ]
     },
     "Exercise room": {
-        "typical_length": 10.0,
-        "typical_width": 10.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -6167,7 +6123,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 2.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 9.9,
         "maintained_illuminance": 300.0,
         "lighting_efficiency_lumen": 150,
@@ -6325,8 +6281,6 @@
         ]
     },
     "Laboratory": {
-        "typical_length": 6.0,
-        "typical_width": 6.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -6338,7 +6292,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 18.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 14.0,
         "maintained_illuminance": 500.0,
         "lighting_efficiency_lumen": 150,
@@ -6496,8 +6450,6 @@
         ]
     },
     "Examination- or treatment room": {
-        "typical_length": 3.0,
-        "typical_width": 6.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -6509,7 +6461,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 7.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 15.9,
         "maintained_illuminance": 500.0,
         "lighting_efficiency_lumen": 150,
@@ -6667,8 +6619,6 @@
         ]
     },
     "Special care area": {
-        "typical_length": 6.0,
-        "typical_width": 6.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -6680,7 +6630,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 10.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 14.0,
         "maintained_illuminance": 300.0,
         "lighting_efficiency_lumen": 150,
@@ -6838,8 +6788,6 @@
         ]
     },
     "Corridors in the general care area": {
-        "typical_length": 2.0,
-        "typical_width": 12.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "T_threshold_cooling": 295.15,
@@ -6851,7 +6799,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 0.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 14.1,
         "maintained_illuminance": 125.0,
         "lighting_efficiency_lumen": 150,
@@ -7009,8 +6957,6 @@
         ]
     },
     "Medical and therapeutic practices": {
-        "typical_length": 6.0,
-        "typical_width": 6.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -7022,7 +6968,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 5.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 15.9,
         "maintained_illuminance": 500.0,
         "lighting_efficiency_lumen": 150,
@@ -7180,8 +7126,6 @@
         ]
     },
     "Storehouse, logistics building": {
-        "typical_length": 20.0,
-        "typical_width": 20.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -7193,7 +7137,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 0.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 11.3,
         "maintained_illuminance": 150.0,
         "lighting_efficiency_lumen": 150,
@@ -7351,8 +7295,6 @@
         ]
     },
     "Living": {
-        "typical_length": 3.0,
-        "typical_width": 6.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -7364,7 +7306,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 2.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 10,
         "maintained_illuminance": 75.0,
         "lighting_efficiency_lumen": 150,
@@ -7522,8 +7464,6 @@
         ]
     },
     "Classroom": {
-        "typical_length": 10.0,
-        "typical_width": 7.0,
         "with_heating": true,
         "T_threshold_heating": 288.15,
         "with_cooling": false,
@@ -7535,7 +7475,7 @@
         "ratio_conv_rad_persons": 0.5,
         "machines": 2.0,
         "ratio_conv_rad_machines": 0.75,
-        "use_maintained_illuminance": true,
+        "use_maintained_illuminance": false,
         "fixed_lighting_power": 10.3,
         "maintained_illuminance": 500.0,
         "lighting_efficiency_lumen": 150,

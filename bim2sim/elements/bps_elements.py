@@ -500,10 +500,6 @@ class ThermalZone(BPSProduct):
     )
     with_heating = attribute.Attribute(
     )
-    typical_length = attribute.Attribute(
-    )
-    typical_width = attribute.Attribute(
-    )
     T_threshold_heating = attribute.Attribute(
     )
     activity_degree_persons = attribute.Attribute(
