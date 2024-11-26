@@ -8,10 +8,11 @@ from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain, LOD
 
 
-def run_example_complex_building_teaser():
-    """Run a building performance simulation with the TEASER backend.
+def run_example_complex_building_energyplus():
+    """Run a building performance simulation with PluginEnergyPlus.
 
-    ...
+    This example creates a BEPS simulation model and performs the simulation
+    in Dymola based on the DigitalHub IFC using PluginTEASER.
     """
     # Create the default logging to for quality log and bim2sim main log
     # (see logging documentation for more information)
@@ -94,4 +95,4 @@ def run_example_complex_building_teaser():
 
 
 if __name__ == '__main__':
-    run_example_complex_building_teaser()
+    run_example_complex_building_energyplus()

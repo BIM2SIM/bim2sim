@@ -10,9 +10,10 @@ from bim2sim.utilities.common_functions import download_library
 
 
 def run_example_complex_building_teaser():
-    """Run a building performance simulation with the TEASER backend.
+    """Run a building performance simulation with PluginTEASER.
 
-    ...
+    This example creates a BEPS simulation model and performs the simulation
+    in Dymola based on the DigitalHub IFC using PluginTEASER.
     """
     # Create the default logging to for quality log and bim2sim main log
     # (see logging documentation for more information)

@@ -10,17 +10,13 @@ bim2sim is a library to create simulation models for different purposes based on
 * Heating, Ventilation, Air Conditioning (HVAC)
 * Life Cycle Assessment (LCA) 
 
-The focus of the currently released tool is on BPS and HVAC but we already provide basic methods for LCA as well. The base structure is shown below: 
-![Toolchain](docs/source/img/static/bim2sim_project_workflow_eng.png)
+The focus of the currently released tool is on BPS and HVAC but we already provide basic methods for CFD and LCA as well. The base structure is shown below: 
+![Toolchain](docs/source/img/static/bim2sim_framework_overview.png)
 
 ## Installation and Usage
-You can find detailed documentation and description how to install and to use in our [documentation](https://bim2sim.github.io/bim2sim//development/docs/overview.html). We recommend reading at least:
-* [Big Picture](https://bim2sim.github.io/bim2sim//development/docs/overview.html)
-* [Installation](https://bim2sim.github.io/bim2sim//development/docs/installation.html)
-* [First Steps](https://bim2sim.github.io/bim2sim//development/docs/first-steps.html)
-
-For questions like why we don't use pip and if we support docker we refer to the linked documentation.
-
+You can find detailed documentation and description how to install and to use in our [documentation](https://bim2sim.github.io/bim2sim//development/docs/index.html). We recommend reading at least:
+* [Big Picture](https://bim2sim.github.io/bim2sim//development/docs/big-picture.html) to understand the concepts of bim2sim
+* [PluginTemplate - How to install?](https://bim2sim.github.io/bim2sim//development/docs/user-guide/PluginTemplate.html#how-to-install) to understand how to install the Base of the framework.
 
 ## Related Publications
 * [Final Report of BIM2SIM project](https://www.tib.eu/en/search/id/TIBKAT:1819319997)

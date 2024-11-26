@@ -35,14 +35,14 @@ version of [mamba](https://github.com/mamba-org/mamba)) is used.
 
 We will guide you through the process now.
 ```shell
-# create fresh python environment with conda (python 3.9 to 3.11 are supported currently)
+# create fresh python environment with conda (python 3.10 to 3.11 are supported currently)
 micromamba create -n bim2sim python=3.11 -c conda-forge
 # activate your environment
 micromamba activate bim2sim
 
 # clone bim2sim repository (you can also use SSH if you prefer)
 # the option "--recurse-submodules" is needed to load submodules 
-git clone -b development https://github.com/BIM2SIM/bim2sim.git
+git clone --recurse-submodules -b development https://github.com/BIM2SIM/bim2sim.git
 
 # install conda-forge packages (OCC not available via PyPi)
 micromamba install -c conda-forge pythonocc-core=7.7.0
