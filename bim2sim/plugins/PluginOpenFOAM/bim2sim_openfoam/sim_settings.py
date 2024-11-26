@@ -251,3 +251,10 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         description='Add solar radiation. Requires fvDOM as radiation model.',
         for_frontend=True
     )
+    scale_person_for_eval = NumberSetting(
+        default=0.03,
+        min_value=0.001,
+        max_value=0.2,
+        description='Scale shape of person for evaluation in paraview.',
+        for_frontend=True,
+    )

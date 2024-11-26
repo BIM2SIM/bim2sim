@@ -207,6 +207,31 @@ class PyOCCTools:
         return BRepBuilderAPI_Transform(shape, trsf).Shape()
 
     @staticmethod
+    def scale_shape_absolute(shape: TopoDS_Shape, scale_in_meters: float,
+                             predefined_center: gp_Pnt = None):
+        """
+        Scales the given shape by the given distance in all directions.
+        Using the center of mass of the shape as origin of the
+        transformation. If another center than the center of mass should be
+        used for the origin of the transformation,
+        set the predefined_center.
+        Args:
+            shape:
+            scale_in_meters: scale in meters, scaling is applied in each
+            direction.
+            predefined_center:
+
+        Returns:
+
+        """
+        (min_x, min_y, min_z), (max_x, max_y, max_z) = (
+            PyOCCTools.simple_bounding_box(shape))
+        original_size = min(max_x - min_x, max_y - min_y, max_z - min_z)
+        new_size = original_size + scale_in_meters*2
+        scaling_factor = new_size / original_size
+        return PyOCCTools.scale_shape(shape, scaling_factor)
+
+    @staticmethod
     def scale_edge(edge: TopoDS_Edge, factor: float) -> TopoDS_Shape:
         """
         Scales the given edge by the given factor, using the center of mass of

@@ -1141,9 +1141,18 @@ class CreateOpenFOAMGeometry(ITask):
         if self.playground.sim_settings.people_setting in ['Seated']:
             person_path = (furniture_path.as_posix() + '/' +
                            "manikin_split_19parts.stl")
+            part_meshes = []
+            for m in mesh.Mesh.from_multi_file(person_path):
+                part_meshes.append(m)
+            combined_data = np.concatenate([m.data.copy() for m in part_meshes])
+            combined_mesh = mesh.Mesh(combined_data)
+            combined_mesh.save(openfoam_case.openfoam_triSurface_dir /
+                               'Temp' / 'combined_person.stl')
             person_shape = TopoDS_Shape()
             stl_reader = StlAPI_Reader()
-            stl_reader.Read(person_shape, person_path)
+            stl_reader.Read(person_shape,
+                            str(openfoam_case.openfoam_triSurface_dir /
+                                'Temp' / 'combined_person.stl'))
             # people_shapes.append(person_shape)
             if people_amount > len(available_trsfs):
                 people_amount = len(available_trsfs)
@@ -1172,12 +1181,13 @@ class CreateOpenFOAMGeometry(ITask):
                 break
             new_person_shape = BRepBuilderAPI_Transform(person_shape,
                                                         trsf).Shape()
-            person = People(new_person_shape, trsf, person_path,
-                            openfoam_case.openfoam_triSurface_dir, f'Person'
-                                                                   f'{i}',
-                            radiation_model=openfoam_case.radiation_model,
-                            power=openfoam_case.current_zone.fixed_heat_flow_rate_persons.to(
-                                ureg.watt).m)
+            person = People(
+                new_person_shape, trsf, person_path,
+                openfoam_case.openfoam_triSurface_dir, f'Person{i}',
+                radiation_model=openfoam_case.radiation_model,
+                power=openfoam_case.current_zone.fixed_heat_flow_rate_persons.to(
+                        ureg.watt).m,
+                scale=self.playground.sim_settings.scale_person_for_eval)
             people_items.append(person)
         return people_items
 

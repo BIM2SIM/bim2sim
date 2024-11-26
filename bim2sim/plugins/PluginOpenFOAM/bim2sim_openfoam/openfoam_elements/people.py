@@ -18,113 +18,135 @@ body_part_boundary_conditions = {
     'FullBody':
         {
             'T': 32,
-            'power_fraction': 1
+            'power_fraction': 1,
+            'hr_hc': 0
         },
     'manikinsittinghead':
         {
             'T': 36,
-            'power_fraction': 0.3
+            'power_fraction': 0.3,
+            'hr_hc': 0
         },
     'manikinsittingbody':
         {
             'T': 30,
-            'power_fraction': 0.7
+            'power_fraction': 0.7,
+            'hr_hc': 0
         },
     'abdomen':
         {
             'T': 27.25,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 7.81
         },
 
     'head_back':
         {
             'T': 32.43,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 9.89
         },
     'head_face':
         {
             'T': 35.9,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 9.92
         },
     'left_foot':
         {
             'T': 29.33,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 20.615
         },
     'left_hand':
         {
             'T': 32,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 8.2
         },
     'left_lower_arm':
         {
             'T': 26.225,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 7.815
         },
     'left_lower_leg':
         {
             'T': 25.21,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 14.32
         },
     'left_shoulder':
         {
             'T': 25.865,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 8.35
         },
     'left_upper_arm':
         {
             'T': 26.225,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 7.815
         },
     'left_upper_leg':
         {
             'T': 26.195,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 4.06
         },
     'neck':
         {
             'T': 31.25,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 9.27
         },
     'right_foot':
         {
             'T': 29.33,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 20.615
         },
     'right_hand':
         {
             'T': 32,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 8.2
         },
     'right_lower_arm':
         {
             'T': 26.225,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 7.815
         },
     'right_lower_leg':
         {
             'T': 25.21,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 14.32
         },
     'right_shoulder':
         {
             'T': 25.865,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 8.35
         },
     'right_upper_arm':
         {
             'T': 26.225,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 7.815
         },
     'right_upper_leg':
         {
             'T': 26.195,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 4.06
         },
     'thorax':
         {
             'T': 26.645,
-            'power_fraction': 0
+            'power_fraction': 0,
+            'hr_hc': 7.985
         },
 }
 
@@ -147,6 +169,13 @@ class BodyPart(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
             self.bbox_min_max = PyOCCTools.simple_bounding_box(shape)
         self.power = body_part_boundary_conditions[key]['power_fraction'] * person.power
         self.temperature = body_part_boundary_conditions[key]['T']
+        self.area = PyOCCTools.get_shape_area(self.tri_geom)
+        self.scaled_surface = PyOCCTools.scale_shape_absolute(self.tri_geom,
+                                                              person.scale_surface_factor)
+        self.heat_flux = body_part_boundary_conditions[key][
+                             'hr_hc']*(self.temperature-21)
+        # todo: remove hardcoded 21 degC and replace with actual
+        #  indoor air temperature
 
     def set_boundary_conditions(self):
         if self.radiation_model == 'none':
@@ -154,9 +183,20 @@ class BodyPart(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         else:
             qr = 'qr'
         if self.power == 0:
-            self.T = {'type': 'fixedValue',
-                      'value': f'uniform {self.temperature + 273.15}'
-                      }
+            self.T = \
+                {'type': 'externalWallHeatFluxTemperature',
+                 'mode': 'flux',
+                 'qr': f"{qr}",
+                 'Q': f'{self.heat_flux}',
+                 'qrRelaxation': 0.003,
+                 'relaxation': 1.0,
+                 'kappaMethod': 'fluidThermo',
+                 'kappa': 'fluidThermo',
+                 'value': f'uniform {self.temperature + 273.15}'
+                 }
+            # self.T = {'type': 'fixedValue',
+            #           'value': f'uniform {self.temperature + 273.15}'
+            #           }
         else:
             self.T = \
                 {'type': 'externalWallHeatFluxTemperature',
@@ -173,7 +213,7 @@ class BodyPart(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
 
 class People(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
     def __init__(self, shape, trsf, person_path, triSurface_path,
-                 people_type, radiation_model,
+                 people_type, radiation_model, scale,
                  bbox_min_max=None, solid_name='person', power=120, temperature=32,
                  increase_small_refinement=0.10,
                  increase_large_refinement=0.20):
@@ -192,12 +232,18 @@ class People(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.point_in_shape = PyOCCTools.get_center_of_volume(self.tri_geom)
         self.power = power
         self.temperature = temperature
+        self.scale_surface_factor = scale
         if not bbox_min_max:
             self.bbox_min_max = PyOCCTools.simple_bounding_box(shape)
         body_shapes_dict = self.split_body_part_shapes(person_path, shape,
                                                        triSurface_path, trsf)
         self.body_parts_dict = {key: BodyPart(self, key, value)
                                 for key, value in body_shapes_dict.items()}
+        self.area = PyOCCTools.get_shape_area(self.tri_geom)
+        self.scaled_surface = PyOCCTools.sew_shapes(
+            [PyOCCTools.scale_shape(
+                PyOCCTools.simple_bounding_box_shape(
+                    p.tri_geom), 1.1) for p in self.body_parts_dict.values()])
 
         # self.refinement_zone_small = []
         # self.refinement_zone_small.append([c - increase_small_refinement for c
