@@ -343,6 +343,9 @@ class ThermalZone(BPSProduct):
 
         return leveled_sbs
 
+    def _area_specific_post_processing(self, value):
+        return value / self.net_area
+
     def __repr__(self):
         return "<%s (usage: %s)>" \
                % (self.__class__.__name__, self.usage)
@@ -522,8 +525,12 @@ class ThermalZone(BPSProduct):
         default=0.5,
     )
     machines = attribute.Attribute(
+        description="Specific internal gains through machines, if taken from"
+                    " IFC property set a division by thermal zone area is"
+                    " needed.",
         default_ps=("Pset_SpaceThermalLoad", "EquipmentSensible"),
-        unit=ureg.watt,
+        ifc_postprocessing=_area_specific_post_processing,
+        unit=ureg.W / (ureg.meter ** 2),
     )
 
     def _calc_lighting_power(self, name) -> float:
@@ -533,9 +540,13 @@ class ThermalZone(BPSProduct):
             return self.fixed_lighting_power
 
     lighting_power = attribute.Attribute(
+        description="Specific lighting power, if taken from IFC property set"
+                    "a division by thermal zone area is needed.",
         default_ps=("Pset_SpaceThermalLoad", "Lighting"),
+        ifc_postprocessing=_area_specific_post_processing,
         functions=[_calc_lighting_power],
         unit=ureg.W / (ureg.meter ** 2),
+
     )
     fixed_lighting_power = attribute.Attribute(
         description="Specific fixed electrical power for lighting in Lx. This "
@@ -545,7 +556,7 @@ class ThermalZone(BPSProduct):
     maintained_illuminance = attribute.Attribute(
         description="Maintained illuminance value for lighting. This value is"
                     " taken from SIA 2024.",
-        unit=ureg.Lumen / (ureg.meter ** 2)
+        unit=ureg.lumen / (ureg.meter ** 2)
     )
     use_maintained_illuminance = attribute.Attribute(
         description="Decision variable to determine if lighting_power will"
@@ -555,7 +566,7 @@ class ThermalZone(BPSProduct):
     )
     lighting_efficiency_lumen = attribute.Attribute(
         description="Lighting efficiency in lm/W_el, in german: Lichtausbeute.",
-        unit=ureg.Lumen / ureg.watt
+        unit=ureg.lumen / ureg.W
     )
     use_constant_infiltration = attribute.Attribute()
     infiltration_rate = attribute.Attribute(
