@@ -60,16 +60,12 @@ namespaces = false
 
 PluginTEASER = [
     "pyqt5",
-    "pillow",
-    "RWTHColors",
-    "scienceplots",
     "ebcpy",
     "TEASER@git+https://github.com/RWTH-EBC/TEASER#egg=development",
     "BuildingsPy@git+https://github.com/DaJansenGit/BuildingsPy.git",
     "reportlab",
     "svglib",
     "psutil"
-    #"subprocess"
 ]
 PluginEnergyPlus = [
     "shapely",
@@ -92,21 +88,18 @@ PluginHydraulicSystem = [
     "colorama",
     "ebcpy",
     "pathlib",
-    "shapely"
+    "shapely",
 ]
 PluginVentilationSystem = [
     "openpyxl",
     #"e2nIEE@git+https://github.com/e2nIEE/pandapipes@develop",
     "pandapipes",
     "requests",
-    "pathlib"
+    "pathlib",
 ]
 'PluginLCA' = [
     "pathlib",
-    "pandas",
     "requests",
-    "matplotlib",
-    "networkx"
 ]
 
 docu = [
