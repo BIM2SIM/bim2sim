@@ -643,7 +643,9 @@ class BuildingSimSettings(BaseSimSettings):
         default=None,
         description="Path to a custom UseConditions.json for the specific "
                     "project, that holds custom usage conditions for this "
-                    "project.",
+                    "project. If this is used, this use_conditions file have "
+                    "to hold all information. The basic UseConditions.json "
+                    "file is ignored in this case.",
         for_frontend=True
     )
     prj_custom_usages = PathSetting(

@@ -33,7 +33,7 @@ class TestCommonFunctions(unittest.TestCase):
         """test get_use_conditions_dict function (perform test for 4 samples)"""
         use_conditions_dh_path = Path(bim2sim.__file__).parent.parent / \
                              'test/resources/arch/custom_usages/' \
-                             'UseConditionsFM_ARC_DigitalHub_fixed002.json'
+                             'UseConditionsFM_ARC_DigitalHub.json'
         use_conditions_dict = cf.get_use_conditions_dict(use_conditions_dh_path)
         self.assertIsInstance(use_conditions_dict, dict)
         expected_heating_profile = [
@@ -86,7 +86,7 @@ class TestCommonFunctions(unittest.TestCase):
          samples)"""
         use_conditions_dh_path = Path(bim2sim.__file__).parent.parent / \
                              'test/resources/arch/custom_usages/' \
-                             'UseConditionsFM_ARC_DigitalHub_fixed002.json'
+                             'UseConditionsFM_ARC_DigitalHub.json'
         use_conditions_dict = cf.get_use_conditions_dict(use_conditions_dh_path)
         usage_dict_dh_path = Path(bim2sim.__file__).parent.parent / \
                              'test/resources/arch/custom_usages/' \
