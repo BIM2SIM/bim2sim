@@ -187,7 +187,7 @@ class BodyPart(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                 {'type': 'externalWallHeatFluxTemperature',
                  'mode': 'flux',
                  'qr': f"{qr}",
-                 'Q': f'{self.heat_flux}',
+                 'q': f'{self.heat_flux}',
                  'qrRelaxation': 0.003,
                  'relaxation': 1.0,
                  'kappaMethod': 'fluidThermo',
