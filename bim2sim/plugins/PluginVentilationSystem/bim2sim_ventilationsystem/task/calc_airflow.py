@@ -26,7 +26,7 @@ class CalcAirFlow(ITask):
 
     def run(self, elements):
 
-        export = self.playground.sim_settings.ventilation_lca_export_airflow
+        export = self.playground.sim_settings.export_graphs
 
         thermal_zones = filter_elements(elements, 'ThermalZone')
 
@@ -53,7 +53,7 @@ class CalcAirFlow(ITask):
         self.logger.info(f"Caluclated airflow for building {air_flow_building} succesful")
 
         self.logger.info("Creation of the dataframe for the air volume calculation")
-        self.create_dataframe_air_volumes(thermal_zones, export)
+        self.create_dataframe_air_volumes(thermal_zones)
 
         return elements, air_flow_building
 
@@ -121,11 +121,10 @@ class CalcAirFlow(ITask):
 
         return building_air_flow
 
-    def create_dataframe_air_volumes(self, thermal_zones, export):
+    def create_dataframe_air_volumes(self, thermal_zones):
         """
         Function create a dataframe for the air volumes
         :param thermal_zones: Thermal Zones
-        :param export: Export True or False
         :return: dataframe and export Excel
         """
         air_volumes_df = pd.DataFrame({
@@ -143,38 +142,38 @@ class CalcAirFlow(ITask):
             "Total air volume": [tz.air_flow for tz in thermal_zones]
         })
 
-        if export:
-            # Path for saving
-            ventilation_directory = self.paths.export / 'ventilation system'
-            air_volumes_excel_path = ventilation_directory / 'air_volume_calculation.xlsx'
 
-            ventilation_directory.mkdir(parents=True, exist_ok=True)
+        # Path for saving
+        ventilation_directory = self.paths.export / 'ventilation system'
+        air_volumes_excel_path = ventilation_directory / 'air_volume_calculation.xlsx'
 
-            # Add a new line with zeros (or NaNs, as required)
-            air_volumes_df.loc['sum'] = 0
+        ventilation_directory.mkdir(parents=True, exist_ok=True)
 
-            summe = air_volumes_df['Total air volume'].sum()
+        # Add a new line with zeros (or NaNs, as required)
+        air_volumes_df.loc['sum'] = 0
 
-            # Calculating the sum
-            air_volumes_df.loc['sum', 'Total air volume'] = summe
+        summe = air_volumes_df['Total air volume'].sum()
 
-            # Save as Excel
-            air_volumes_df.to_excel(air_volumes_excel_path)
+        # Calculating the sum
+        air_volumes_df.loc['sum', 'Total air volume'] = summe
 
-            # Save
-            with pd.ExcelWriter(air_volumes_excel_path, engine='openpyxl') as writer:
-                air_volumes_df.to_excel(writer, index=False, sheet_name="Air volume calculation")
+        # Save as Excel
+        air_volumes_df.to_excel(air_volumes_excel_path)
 
-                # Auto-adjustment of the column widths
-                for column in writer.sheets['Air volume calculation'].columns:
-                    max_length = 0
-                    column = [cell for cell in column if cell.value]
-                    for cell in column:
-                        try:
-                            if len(str(cell.value)) > max_length:
-                                max_length = len(cell.value)
-                        except:
-                            pass
-                    adjusted_width = (max_length + 2)
-                    writer.sheets['Air volume calculation'].column_dimensions[
-                        get_column_letter(column[0].column)].width = adjusted_width
+        # Save
+        with pd.ExcelWriter(air_volumes_excel_path, engine='openpyxl') as writer:
+            air_volumes_df.to_excel(writer, index=False, sheet_name="Air volume calculation")
+
+            # Auto-adjustment of the column widths
+            for column in writer.sheets['Air volume calculation'].columns:
+                max_length = 0
+                column = [cell for cell in column if cell.value]
+                for cell in column:
+                    try:
+                        if len(str(cell.value)) > max_length:
+                            max_length = len(cell.value)
+                    except:
+                        pass
+                adjusted_width = (max_length + 2)
+                writer.sheets['Air volume calculation'].column_dimensions[
+                    get_column_letter(column[0].column)].width = adjusted_width

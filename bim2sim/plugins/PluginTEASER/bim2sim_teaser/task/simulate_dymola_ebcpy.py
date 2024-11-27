@@ -118,6 +118,12 @@ class SimulateModelEBCPy(ITask):
                 )
                 if teaser_mat_result_path:
                     n_success += 1
+
+                if self.playground.sim_settings.edit_mat_result_file_flag:
+                    mos_file_path = self.edit_mat_result_file(teaser_prj, bldg_name, bldg_result_dir)
+                    dym_api.dymola.RunScript(mos_file_path)
+                    time.sleep(10)
+                dym_api.close()
             self.playground.sim_settings.simulated = True
             self.logger.info(f"Successfully simulated "
                              f"{n_success}/{len(bldg_names)}"
@@ -125,8 +131,6 @@ class SimulateModelEBCPy(ITask):
             self.logger.info(f"You can find the results under "
                              f"{str(sim_results_path)}")
 
-            if self.playground.sim_settings.edit_mat_result_file_flag:
-                self.edit_mat_result_file(teaser_prj, bldg_name, bldg_result_dir)
 
             return sim_results_path,
 
@@ -201,13 +205,29 @@ class SimulateModelEBCPy(ITask):
         with open(mos_file_path, 'w') as file:
             file.write(script)
 
+        if isinstance(mos_file_path, Path):
+            mos_file_path = str(mos_file_path)
 
-        subprocess.Popen([self.playground.sim_settings.dymola_executable, mos_file_path], shell=True)
-        time.sleep(10)
-        for proc in psutil.process_iter(['pid', 'name']):
-            try:
-                if proc.info['name'] == 'Dymola.exe':
-                    psutil.Process(proc.info['pid']).terminate()
-                    print('Dymola.exe wurde beendet')
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                pass
+        mos_file_path = mos_file_path.replace("\\", "/")
+        # Search for e.g. "D:testzone" and replace it with D:/testzone
+        loc = mos_file_path.find(":")
+        if mos_file_path[loc + 1] != "/" and loc != -1:
+            path = mos_file_path.replace(":", ":/")
+
+        return mos_file_path
+
+
+        # process = subprocess.Popen([self.playground.sim_settings.dymola_executable, mos_file_path], shell=True)
+        # time.sleep(10)
+        # process.terminate()
+        # process.kill()
+        # process.wait()
+
+
+        # for proc in psutil.process_iter(['pid', 'name']):
+        #     try:
+        #         if proc.info['name'] == 'Dymola.exe':
+        #             psutil.Process(proc.info['pid']).terminate()
+        #             print('Dymola.exe wurde beendet')
+        #     except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+        #         pass

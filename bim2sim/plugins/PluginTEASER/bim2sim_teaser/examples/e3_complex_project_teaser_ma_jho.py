@@ -86,7 +86,7 @@ def run_example_complex_building_teaser(project_path, dymola_executable,
     repo_name = "AixLib"
     path_aixlib = (
             Path(bim2sim.__file__).parent.parent / "local" / f"library_{repo_name}")
-    download_library(repo_url, branch_name, path_aixlib)
+    #download_library(repo_url, branch_name, path_aixlib)
     project.sim_settings.path_aixlib = path_aixlib / repo_name / 'package.mo'
 
 

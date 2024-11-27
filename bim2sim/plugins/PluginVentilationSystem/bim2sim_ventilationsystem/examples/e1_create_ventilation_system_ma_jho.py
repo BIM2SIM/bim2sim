@@ -9,7 +9,7 @@ from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 
 
-def run_example_project_ventilation_system(project_path):
+def run_example_project_ventilation_system(project_path, export_graphs):
     """
     """
 
@@ -43,11 +43,9 @@ def run_example_project_ventilation_system(project_path):
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 
 
-    # Define if exhaust and/or supply air data should be exported
-    project.sim_settings.ventilation_lca_export_airflow = True
-    project.sim_settings.ventilation_lca_export_supply = True
-    project.sim_settings.ventilation_lca_export_exhaust = True
-    project.sim_settings.ventilation_lca_export_system = True
+    # Define if ventilation plots should be exported
+    project.sim_settings.export_graphs = export_graphs
+
 
     project.sim_settings.prj_use_conditions = (Path(bim2sim.__file__).parent.parent /
                                                "bim2sim/assets/enrichment/usage/UseConditions.json")

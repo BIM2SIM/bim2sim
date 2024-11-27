@@ -588,7 +588,8 @@ class GetIFCBuildingGeometry(ITask):
         mst = nx.minimum_spanning_tree(T)
         lengths = [edge[2]['length'] for edge in mst.edges(data=True)]
         total_length = sum(lengths)
-        self.visualzation_networkx_3D(G=graph, minimum_tree=mst, start_points=start, end_points=end_points)
+        if self.playground.sim_settings.export_graphs:
+            self.visualzation_networkx_3D(G=graph, minimum_tree=mst, start_points=start, end_points=end_points)
         return graph, mst, start, end_points
 
     def shortest_path(self, graph: nx.DiGraph(), start, end_points):

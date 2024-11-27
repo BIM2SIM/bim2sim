@@ -56,7 +56,8 @@ class DesignSupplyLCA(ITask):
                      (1.6, 8, 5.7), (41, 8, 5.7), (41, 2.8, 5.7),
                      (1.6, 8, 8.7), (41, 8, 8.7), (41, 2.8, 8.7)]
 
-        export = self.playground.sim_settings.ventilation_lca_export_supply
+        self.export_graphs = self.playground.sim_settings.export_graphs
+
         building_shaft_supply_air = [41, 2.8, -2]  # building shaft supply air
         position_ahu = [25, building_shaft_supply_air[1], building_shaft_supply_air[2]]
         # y-axis of shaft and AHU must be identical
@@ -111,9 +112,7 @@ class DesignSupplyLCA(ITask):
         main_line_graph = self.create_main_graph(main_line,
                                                  intersection_points_main_line,
                                                  z_coordinate_list,
-                                                 building_shaft_supply_air,
-                                                 export
-                                                 )
+                                                 building_shaft_supply_air)
 
         self.logger.info("Graph created for each floor")
 
@@ -126,9 +125,7 @@ class DesignSupplyLCA(ITask):
                                                                               z_coordinate_list,
                                                                               building_shaft_supply_air,
                                                                               cross_section_type,
-                                                                              suspended_ceiling_space,
-                                                                              export
-                                                                              )
+                                                                              suspended_ceiling_space,)
 
         self.logger.info("Connect shaft and AHU")
         (dict_steiner_tree_with_duct_length,
@@ -143,9 +140,7 @@ class DesignSupplyLCA(ITask):
                                                                            dict_steiner_tree_with_duct_cross_section,
                                                                            dict_steiner_tree_with_air_volume_supply_air,
                                                                            dict_steinertree_with_shell,
-                                                                           dict_steiner_tree_with_calculated_cross_section,
-                                                                           export
-                                                                           )
+                                                                           dict_steiner_tree_with_calculated_cross_section)
 
         self.logger.info("3D-Graph erstellen")
         (graph_ventilation_duct_length_supply_air,
@@ -159,7 +154,6 @@ class DesignSupplyLCA(ITask):
                                                                                     dict_steinertree_with_shell,
                                                                                     dict_steiner_tree_with_calculated_cross_section,
                                                                                     position_ahu,
-                                                                                    export,
                                                                                     dict_coordinate_with_space_type)
         self.logger.info("3D-Graph erstellt")
 
@@ -173,7 +167,6 @@ class DesignSupplyLCA(ITask):
                                                                                     graph_kanalquerschnitt,
                                                                                     graph_mantelflaeche,
                                                                                     graph_calculated_diameter,
-                                                                                    export,
                                                                                     dataframe_distribution_network_supply_air
                                                                                     )
         self.logger.info("pressure_lossberechnung erfolgreich")
@@ -184,8 +177,7 @@ class DesignSupplyLCA(ITask):
         self.logger.info("Starte C02 Berechnung")
         (pressure_loss_supply_air,
          dataframe_rooms_supply_air,
-         dataframe_distribution_network_supply_air) = self.co2(export,
-                                                               pressure_loss,
+         dataframe_distribution_network_supply_air) = self.co2(pressure_loss,
                                                                dataframe_rooms,
                                                                dataframe_distribution_network_supply_air)
 
@@ -413,67 +405,6 @@ class DesignSupplyLCA(ITask):
 
         return filtered_intersection_points
 
-    def visulize_networkx(self,
-                          graph,
-                          title: str = None, ):
-        """
-				[[[0.2 4.2 0.2]
-					[0.2 0.2 0.2]]
-				Args:
-					graph ():
-				"""
-        # node_xyz = np.array(sorted(nx.get_node_attributes(graph, "pos").values()))
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection="3d")
-        node_xyz = np.array(sorted(list(graph.nodes()), key=lambda x: (x[0], x[1], x[2])))
-        used_labels = set()
-        for node, data in graph.nodes(data=True):
-            pos = np.array(node)
-            color = data["color"]
-            if color == "blue":
-                label = "Air outlet"
-                s = 50
-            elif color == "green":
-                label = "Shaft"
-                s = 50
-            else:
-                s = 10
-                label = None
-            if label not in used_labels:
-                used_labels.add(label)
-                ax.scatter(*pos, s=s, ec="w", c=color, label=label)
-            else:
-                ax.scatter(*pos, s=s, ec="w", c=color)
-        # ax.scatter(*pos.T, s=s, ec="w", c=color, label=label)
-        if graph.is_directed():
-            for u, v in graph.edges():
-                edge = np.array([u,v])
-                direction = edge[1] - edge[0]
-                length = self.euclidean_distance(u,v)
-                self.arrow3D(ax, *edge[0][0], *direction, arrowstyle="-|>",
-                             color=graph.edges[u, v]['color'],
-                             length=length)
-        else:
-            for u, v in graph.edges():
-                edge = np.array([(graph.nodes[u], graph.nodes[v])])
-                ax.plot(*edge.T, color=graph.edges[u, v]['color'])
-        ax.set_xlabel("x")
-        ax.set_ylabel("y")
-        ax.set_zlabel("z")
-        ax.set_xlim(0, 43)
-        # Achsenlimits festlegen
-        ax.set_xlim(node_xyz[:, 0].min(), node_xyz[:, 0].max())
-        ax.set_ylim(node_xyz[:, 1].min(), node_xyz[:, 1].max())
-        ax.set_zlim(node_xyz[:, 2].min(), node_xyz[:, 2].max())
-        ax.set_box_aspect([3, 1.5, 1])
-        # ax.set_box_aspect([1, 1, 1])
-        ax.legend()
-        if title is None:
-            plt.title(f'Gebäudegraph')
-        else:
-            plt.title(title)
-        fig.tight_layout()
-        plt.close()
 
     @staticmethod
     def arrow3D(ax, x, y, z, dx, dy, dz, length, arrowstyle="-|>", color="black"):
@@ -502,48 +433,6 @@ class DesignSupplyLCA(ITask):
         ax.quiver(x, y, z, dx, dy, dz, color=color, arrow_length_ratio=arrow)
         # ax.quiver(x, y, z, dx, dy, dz, color=color, normalize=True)
 
-    def visualization(self, room_ceiling_ventilation_outlet, intersection):
-        """The function visualizes the points in a diagram
-
-        Args:
-            room_ceiling_ventilation_outlet: Point at the ceiling in the middle of the room
-            air_flow_building:
-        Returns:
-            3D diagramm
-        """
-
-        # Create 3D diagram
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-
-        # Customizing the layout for the legend
-        plt.subplots_adjust(right=0.75)
-
-        # add points
-        coordinates1 = room_ceiling_ventilation_outlet  #Points for outlets
-        coordinates2 = intersection  # intersection points
-
-        # Extraction of the x, y and z coordinates from the two lists
-        x1, y1, z1, a1 = zip(*coordinates1)
-        x2, y2, z2, a2 = zip(*coordinates2)
-
-        # Plotting the second list of coordinates in red
-        ax.scatter(x2, y2, z2, c='red', marker='x', label='Intersectionpoints')
-
-        # Plotting the first list of coordinates in blue
-        ax.scatter(x1, y1, z1, c='blue', marker='D', label='Ventilation outlets')
-
-        # Axis labels
-        ax.set_xlabel('X-Achse [m]')
-        ax.set_ylabel('Y-Achse [m]')
-        ax.set_zlabel('Z-Achse [m]')
-
-        # Add legend
-        ax.legend(loc="center left", bbox_to_anchor=(1, 0))
-
-        # show diagram
-        # plt.show()
-        plt.close()
 
     def write_json_graph(self, graph, filename):
 
@@ -589,7 +478,7 @@ class DesignSupplyLCA(ITask):
         :param total_coat_area: gesamte Fläche des Kanalmantels
         """
         # visualization
-        plt.figure(figsize=(8.3, 5.8), dpi=300)
+        plt.figure(figsize=(8.3, 5.8) )
         plt.xlabel('X-Achse in m',
                    fontsize=12
                    )
@@ -1033,8 +922,7 @@ class DesignSupplyLCA(ITask):
                 leaves.append(node)
         return leaves
 
-    def create_main_graph(self, main_line_points, main_line_intersection_points, z_coordinate_list, starting_point,
-                          export_graph):
+    def create_main_graph(self, main_line_points, main_line_intersection_points, z_coordinate_list, starting_point):
 
         def kink_in_ventilation_duct(ventilation_outlet_to_x):
             if ventilation_outlet_to_x != []:
@@ -1201,7 +1089,7 @@ class DesignSupplyLCA(ITask):
             # Create Steiner tree
             graph_steiner_tree = steiner_tree(G, terminals, weight="length")
 
-            if export_graph == True:
+            if self.export_graphs:
                 self.visualization_graph(graph_steiner_tree,
                                          graph_steiner_tree,
                                          z_value,
@@ -1268,7 +1156,7 @@ class DesignSupplyLCA(ITask):
             # Creation of the new Steiner tree
             graph_steiner_tree = steiner_tree(G, terminals, weight="length")
 
-            if export_graph == True:
+            if self.export_graphs:
                 self.visualization_graph(graph_steiner_tree,
                                          graph_steiner_tree,
                                          z_value,
@@ -1341,7 +1229,7 @@ class DesignSupplyLCA(ITask):
             # Creation of the new Steiner tree
             graph_steiner_tree = steiner_tree(G, terminals, weight="length")
 
-            if export_graph == True:
+            if self.export_graphs:
                 self.visualization_graph(graph_steiner_tree,
                                          graph_steiner_tree,
                                          z_value,
@@ -1377,7 +1265,7 @@ class DesignSupplyLCA(ITask):
                 # Update the length of the edge in the Steiner tree
                 data['length'] = weight_with_unit
 
-            if export_graph == True:
+            if self.export_graphs:
                 self.visualization_graph(graph_steiner_tree,
                                          graph_steiner_tree,
                                          z_value,
@@ -1396,7 +1284,7 @@ class DesignSupplyLCA(ITask):
         return main_line_graph
 
     def create_graph(self, main_graph, ceiling_point, z_coordinate_list, starting_point,
-                     cross_section_type, suspended_ceiling_space, export_graph):
+                     cross_section_type, suspended_ceiling_space):
 
         def is_point_on_node_in_graph(G, point):
             """
@@ -1557,18 +1445,19 @@ class DesignSupplyLCA(ITask):
             filtered_main_graph = self.check_if_graph_in_building_boundaries(filtered_main_graph, z_value)
             print("Check done")
 
-            self.visualization_graph(filtered_main_graph,
-                                     filtered_main_graph,
-                                     z_value,
-                                     list(filtered_main_graph.nodes()),
-                                     filtered_coords_ceiling_without_airflow,
-                                     None,
-                                     edge_label="length",
-                                     name=f"Steinerbaum mit Luftauslässen",
-                                     unit_edge="m³/h",
-                                     total_coat_area=False,
-                                     building_shaft_supply_air=starting_point
-                                     )
+            if self.export_graphs:
+                self.visualization_graph(filtered_main_graph,
+                                         filtered_main_graph,
+                                         z_value,
+                                         list(filtered_main_graph.nodes()),
+                                         filtered_coords_ceiling_without_airflow,
+                                         None,
+                                         edge_label="length",
+                                         name=f"Steinerbaum mit Luftauslässen",
+                                         unit_edge="m³/h",
+                                         total_coat_area=False,
+                                         building_shaft_supply_air=starting_point
+                                         )
 
             ##### Rohrnetzberechnung #####
 
@@ -1605,7 +1494,7 @@ class DesignSupplyLCA(ITask):
             # Here the individual steiner tree is added to the list with Volume_flow
             dict_steiner_tree_with_air_quantities[z_value] = deepcopy(filtered_main_graph)
 
-            if export_graph == True:
+            if self.export_graphs:
                 self.visualization_graph(filtered_main_graph,
                                           filtered_main_graph,
                                           z_value,
@@ -1629,7 +1518,7 @@ class DesignSupplyLCA(ITask):
             # Adding the graph to the dict
             dict_steiner_tree_with_duct_cross_section[z_value] = deepcopy(filtered_main_graph)
 
-            if export_graph == True:
+            if self.export_graphs:
                 self.visualization_graph(filtered_main_graph,
                                           filtered_main_graph,
                                           z_value,
@@ -1655,7 +1544,7 @@ class DesignSupplyLCA(ITask):
             # Add to dict
             dict_steiner_tree_with_equivalent_cross_section[z_value] = deepcopy(filtered_main_graph)
 
-            if export_graph == True:
+            if self.export_graphs:
                 self.visualization_graph(filtered_main_graph,
                                           filtered_main_graph,
                                           z_value,
@@ -1686,7 +1575,7 @@ class DesignSupplyLCA(ITask):
             # Adding the graph to the dict
             dict_steinertree_with_shell[z_value] = deepcopy(filtered_main_graph)
 
-            if export_graph == True:
+            if self.export_graphs:
                 self.visualization_graph(filtered_main_graph,
                                           filtered_main_graph,
                                           z_value,
@@ -1717,9 +1606,7 @@ class DesignSupplyLCA(ITask):
                     dict_steiner_tree_with_duct_cross_section,
                     dict_steiner_tree_with_air_volume_supply_air,
                     dict_steiner_tree_with_sheath_area,
-                    dict_steiner_tree_with_calculated_cross_section,
-                    export_graph
-                    ):
+                    dict_steiner_tree_with_calculated_cross_section):
 
         nodes_shaft = list()
         z_coordinate_list = list(z_coordinate_list)
@@ -1971,7 +1858,6 @@ class DesignSupplyLCA(ITask):
                                  dict_steiner_tree_with_sheath_area,
                                  dict_steiner_tree_with_calculated_cross_section,
                                  position_ahu,
-                                 export,
                                  dict_coordinate_with_space_type):
 
         # A helper function to recursively traverse the graph, align the edges and apply the weights
@@ -2081,7 +1967,7 @@ class DesignSupplyLCA(ITask):
                 database_distribution_network.at[index, 'width'] = str(width)
                 database_distribution_network.at[index, 'hight'] = str(height)
 
-        if export == True:
+        if self.export_graphs:
             # Display of the 3D graph:
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
@@ -2136,7 +2022,6 @@ class DesignSupplyLCA(ITask):
                       graph_duct_cross_section,
                       graph_coat_area,
                       graph_calculated_diameter,
-                      export,
                       database_distribution_network):
 
         def presentation_t_piece(input, duct, output):
@@ -2928,22 +2813,21 @@ class DesignSupplyLCA(ITask):
             database_distribution_network.loc[database_distribution_network['edge'] == duct, "p_from_pa"] = p_from_pa
             database_distribution_network.loc[database_distribution_network['edge'] == duct, "p_to_pa"] = p_to_pa
 
-        if export:
-            database_distribution_network.to_excel(self.paths.export / 'ventilation system' / 'supply air' /
-                                                   'dataframe_supply_air.xlsx',
-index=False)
+        database_distribution_network.to_excel(self.paths.export / 'ventilation system' / 'supply air' /
+                                               'dataframe_supply_air.xlsx', index=False)
 
         # path für Speichern
         pipes_excel_pfad = self.paths.export / 'ventilation system' / 'supply air' / 'pressure_loss.xlsx'
 
-        if export == True:
-            # Export
-            dataframe_pipes.to_excel(pipes_excel_pfad)
 
-            with pd.ExcelWriter(pipes_excel_pfad) as writer:
-                dataframe_pipes.to_excel(writer, sheet_name="Pipes")
-                dataframe_junctions.to_excel(writer, sheet_name="Junctions")
+        # Export
+        dataframe_pipes.to_excel(pipes_excel_pfad)
 
+        with pd.ExcelWriter(pipes_excel_pfad) as writer:
+            dataframe_pipes.to_excel(writer, sheet_name="Pipes")
+            dataframe_junctions.to_excel(writer, sheet_name="Junctions")
+
+        if self.export_graphs:
             # create additional junction collections for junctions with sink connections and junctions with valve connections
             junction_sink_collection = plot.create_junction_collection(net,
                                                                        junctions=list_ventilation_outlets,
@@ -2965,7 +2849,7 @@ index=False)
             collections = [junction_sink_collection, junction_source_collection, pipe_collection]
 
             # Draw the collections
-            fig, ax = plt.subplots(num=f"pressure_loss", figsize=(18, 12), dpi=300)
+            fig, ax = plt.subplots(num=f"pressure_loss", figsize=(18, 12) )
 
             plot.draw_collections(collections=collections, ax=ax, axes_visible=(True, True))
 
@@ -3185,7 +3069,6 @@ index=False)
         return dataframe_rooms
 
     def co2(self,
-            export,
             pressure_loss,
             dataframe_rooms,
             dataframe_distribution_network_supply_air):
@@ -3308,10 +3191,10 @@ index=False)
         dataframe_distribution_network_supply_air[
             "CO2 Duct Isolation"] = list_dataframe_distribution_network_supply_air_CO2_duct_isolation
 
-        if export:
-            # Export to Excel
-            dataframe_distribution_network_supply_air.to_excel(
-                self.paths.export / 'ventilation system' / 'supply air' / 'dataframe_supply_air.xlsx', index=False)
+
+        # Export to Excel
+        dataframe_distribution_network_supply_air.to_excel(
+            self.paths.export / 'ventilation system' / 'supply air' / 'dataframe_supply_air.xlsx', index=False)
 
         """
         Berechnung des CO2 für die room_connection
@@ -3508,8 +3391,8 @@ index=False)
 
         dataframe_rooms['CO2 Duct Isolation'] = list_dataframe_rooms_CO2_kanaldaemmung
 
-        if export:
-            # Export to Excel
-            dataframe_rooms.to_excel(self.paths.export / 'ventilation system' / 'supply air' / 'dataframe_rooms.xlsx', index=False)
+
+        # Export to Excel
+        dataframe_rooms.to_excel(self.paths.export / 'ventilation system' / 'supply air' / 'dataframe_rooms.xlsx', index=False)
 
         return pressure_loss, dataframe_rooms, dataframe_distribution_network_supply_air

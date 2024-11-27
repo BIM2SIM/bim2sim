@@ -56,7 +56,8 @@ class DesignExaustLCA(ITask):
         self.supply_graph = graph_ventilation_duct_length_supply_air
         self.dict_supply_graph_cross_section = dict_steiner_tree_with_duct_cross_section
 
-        export = self.playground.sim_settings.ventilation_lca_export_exhaust
+        self.export_graphs = self.playground.sim_settings.export_graphs
+
         building_shaft_exhaust_air = [1, 2.8, -2]
         position_rlt = [25, building_shaft_exhaust_air[1], building_shaft_exhaust_air[2]]
         # y-Achse von Schacht und RLT müssen identisch sein
@@ -106,8 +107,7 @@ class DesignExaustLCA(ITask):
         self.visualization_points_by_level(corner,
                                            intersection_points,
                                            z_coordinate_list,
-                                           building_shaft_exhaust_air,
-                                           export)
+                                           building_shaft_exhaust_air)
 
         self.logger.info("Graph für jedes Geschoss erstellen")
         (dict_steinerbaum_mit_leitungslaenge,
@@ -119,9 +119,7 @@ class DesignExaustLCA(ITask):
                                                                              z_coordinate_list,
                                                                              building_shaft_exhaust_air,
                                                                              cross_section_type,
-                                                                             zwischendeckenraum,
-                                                                             export
-                                                                             )
+                                                                             zwischendeckenraum)
         self.logger.info("Graph für jedes Geschoss wurde erstellt")
 
         self.logger.info("Schacht und RLT verbinden")
@@ -137,9 +135,7 @@ class DesignExaustLCA(ITask):
                                                                             dict_steinerbaum_mit_kanalquerschnitt,
                                                                             dict_steiner_tree_with_air_volume_exhaust_air,
                                                                             dict_steinerbaum_mit_mantelflaeche,
-                                                                            dict_steinerbaum_mit_rechnerischem_querschnitt,
-                                                                            export
-                                                                            )
+                                                                            dict_steinerbaum_mit_rechnerischem_querschnitt)
         self.logger.info("Schacht und RLT verbunden")
 
         self.logger.info("3D-Graph erstellen")
@@ -154,7 +150,6 @@ class DesignExaustLCA(ITask):
                                                                                     dict_steinerbaum_mit_mantelflaeche,
                                                                                     dict_steinerbaum_mit_rechnerischem_querschnitt,
                                                                                     position_rlt,
-                                                                                    export,
                                                                                     dict_koordinate_mit_raumart)
         self.logger.info("3D-Graph erstellt")
 
@@ -168,9 +163,7 @@ class DesignExaustLCA(ITask):
                                                                                     graph_kanalquerschnitt,
                                                                                     graph_mantelflaeche,
                                                                                     graph_rechnerischer_durchmesser,
-                                                                                    export,
-                                                                                    dataframe_distribution_network_exhaust_air
-                                                                                    )
+                                                                                    dataframe_distribution_network_exhaust_air)
         self.logger.info("Druckverlustberechnung erfolgreich")
 
         self.logger.info("Starte Berechnung der Raumanbindung")
@@ -179,8 +172,7 @@ class DesignExaustLCA(ITask):
         self.logger.info("Starte CO2 Berechnung")
         (pressure_loss_exhaust_air,
          dataframe_rooms_exhaust_air,
-         dataframe_distribution_network_exhaust_air) = self.co2(export,
-                                                               druckverlust,
+         dataframe_distribution_network_exhaust_air) = self.co2(druckverlust,
                                                                dataframe_rooms,
                                                                dataframe_distribution_network_exhaust_air)
 
@@ -601,19 +593,17 @@ class DesignExaustLCA(ITask):
         # plt.show()
         plt.close()
 
-    def visualization_points_by_level(self, corner, intersection, z_coordinate_list, building_shaft_exhaust_air,
-                                      export):
+    def visualization_points_by_level(self, corner, intersection, z_coordinate_list, building_shaft_exhaust_air):
         """The function visualizes the points in a diagram
         Args:
             corner: Ecke es Raumes an der Decke
             intersection: intersection points at the ceiling
             z_coordinate_list: Z-Koordinaten für jedes Geschoss an der Decke
             building_shaft_exhaust_air
-            export: True or False
         Returns:
            2D diagramm for each ceiling
        """
-        if export:
+        if self.export_graphs:
             for z_value in z_coordinate_list:
                 xy_values = [(x, y) for x, y, z, a in intersection if z == z_value]
                 xy_shaft = (building_shaft_exhaust_air[0], building_shaft_exhaust_air[1])
@@ -682,7 +672,7 @@ class DesignExaustLCA(ITask):
         :param mantelflaeche_gesamt: Gesamte Fläche des Kanalmantels
         """
         # Visualisierung
-        plt.figure(figsize=(8.3, 5.8), dpi=300)
+        plt.figure(figsize=(8.3, 5.8) )
         plt.xlabel('X-Achse [m]')
         plt.ylabel('Y-Achse [m]')
         plt.title(name + f", Z: {z_value}")
@@ -1343,7 +1333,7 @@ class DesignExaustLCA(ITask):
 
 
     def create_graph(self, ceiling_point, intersection_points, z_coordinate_list, building_shaft_exhaust_air,
-                     querschnittsart, zwischendeckenraum, export_graphen):
+                     querschnittsart, zwischendeckenraum):
         """The function creates a connected graph for each floor
         Args:
            ceiling_point: Point at the ceiling in the middle of the room
@@ -1624,7 +1614,7 @@ class DesignExaustLCA(ITask):
             # Erstellung des Steinerbaums
             steiner_baum = steiner_tree(G, terminals, weight="length")
 
-            if export_graphen == True:
+            if self.export_graphs:
                 self.visualisierung_graph(steiner_baum,
                                           steiner_baum,
                                           z_value,
@@ -1692,7 +1682,7 @@ class DesignExaustLCA(ITask):
             # Erstellung des neuen Steinerbaums
             steiner_baum = steiner_tree(G, terminals, weight="length")
 
-            if export_graphen == True:
+            if self.export_graphs:
                 self.visualisierung_graph(steiner_baum,
                                           steiner_baum,
                                           z_value,
@@ -1765,7 +1755,7 @@ class DesignExaustLCA(ITask):
             # Erstellung des neuen Steinerbaums
             steiner_baum = steiner_tree(G, terminals, weight="length")
 
-            if export_graphen == True:
+            if self.export_graphs:
                 self.visualisierung_graph(steiner_baum,
                                           steiner_baum,
                                           z_value,
@@ -1801,7 +1791,7 @@ class DesignExaustLCA(ITask):
                 # Aktualisiere das Gewicht der Kante im Steinerbaum
                 data['length'] = gewicht_mit_einheit
 
-            if export_graphen == True:
+            if self.export_graphs:
                 self.visualisierung_graph(steiner_baum,
                                           steiner_baum,
                                           z_value,
@@ -1870,7 +1860,7 @@ class DesignExaustLCA(ITask):
             # Hier wird der einzelne Steinerbaum mit Volumenstrom der Liste hinzugefügt
             dict_steiner_tree_with_air_volume_exhaust_air[z_value] = deepcopy(steiner_baum)
 
-            if export_graphen == True:
+            if self.export_graphs:
                 self.visualisierung_graph(steiner_baum,
                                           steiner_baum,
                                           z_value,
@@ -1895,7 +1885,7 @@ class DesignExaustLCA(ITask):
             # Hinzufügen des Graphens zum Dict
             dict_steinerbaum_mit_kanalquerschnitt[z_value] = deepcopy(steiner_baum)
 
-            if export_graphen == True:
+            if self.export_graphs:
                 self.visualisierung_graph(steiner_baum,
                                           steiner_baum,
                                           z_value,
@@ -1921,7 +1911,7 @@ class DesignExaustLCA(ITask):
             # Zum Dict hinzufügen
             dict_steinerbaum_mit_rechnerischem_querschnitt[z_value] = deepcopy(steiner_baum)
 
-            if export_graphen == True:
+            if self.export_graphs:
                 self.visualisierung_graph(steiner_baum,
                                           steiner_baum,
                                           z_value,
@@ -1950,7 +1940,7 @@ class DesignExaustLCA(ITask):
             # Hinzufügen des Graphens zum Dict
             dict_steinerbaum_mit_mantelflaeche[z_value] = deepcopy(steiner_baum)
 
-            if export_graphen == True:
+            if self.export_graphs:
                 self.visualisierung_graph(steiner_baum,
                                           steiner_baum,
                                           z_value,
@@ -1980,9 +1970,7 @@ class DesignExaustLCA(ITask):
                     dict_steiner_tree_with_duct_cross_section,
                     dict_steiner_tree_with_air_volume,
                     dict_steiner_tree_with_sheath_area,
-                    dict_steiner_tree_with_calculated_cross_section,
-                    export_graphen
-                    ):
+                    dict_steiner_tree_with_calculated_cross_section):
 
         nodes_schacht = list()
         z_coordinate_list = list(z_coordinate_list)
@@ -2145,7 +2133,6 @@ class DesignExaustLCA(ITask):
                                  dict_steinerbaum_mit_mantelflaeche,
                                  dict_steinerbaum_mit_rechnerischem_querschnitt,
                                  position_rlt,
-                                 export,
                                  dict_koordinate_mit_raumart):
 
         # Eine Hilfsfunktion, um den Graphen rekursiv zu durchlaufen, die Kanten zu richten und die Gewichte zu übernehmen
@@ -2256,7 +2243,7 @@ class DesignExaustLCA(ITask):
                 dataframe_distribution_network_exhaust_air.at[index, 'Breite'] = str(breite)
                 dataframe_distribution_network_exhaust_air.at[index, 'Höhe'] = str(hoehe)
 
-        if export == True:
+        if self.export_graphs:
             # Darstellung des 3D-Graphens:
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
@@ -2311,7 +2298,6 @@ class DesignExaustLCA(ITask):
                      graph_kanalquerschnitt,
                      graph_mantelflaeche,
                      graph_rechnerischer_durchmesser,
-                     export,
                      dataframe_distribution_network_exhaust_air):
         # Standardwerte für Berechnung
         rho = 1.204 * (ureg.kilogram / (ureg.meter ** 3))  # Dichte der Luft bei Standardbedingungen
@@ -3447,20 +3433,21 @@ class DesignExaustLCA(ITask):
             dataframe_distribution_network_exhaust_air.loc[
                 dataframe_distribution_network_exhaust_air["Kante"] == kanal, "p_to_pa"] = p_to_pa
 
-        if export == True:
-            # Export
-            dataframe_distribution_network_exhaust_air.to_excel(
-                self.paths.export / 'ventilation system' / 'exhaust air' / 'dataframe_exhaust_air.xlsx', index=False)
 
-            # Pfad für Speichern
-            pipes_excel_pfad = self.paths.export / 'ventilation system' / 'exhaust air' / "pressure_loss.xlsx"
+        # Export
+        dataframe_distribution_network_exhaust_air.to_excel(
+            self.paths.export / 'ventilation system' / 'exhaust air' / 'dataframe_exhaust_air.xlsx', index=False)
 
-            dataframe_pipes.to_excel(pipes_excel_pfad)
+        # Pfad für Speichern
+        pipes_excel_pfad = self.paths.export / 'ventilation system' / 'exhaust air' / "pressure_loss.xlsx"
 
-            with pd.ExcelWriter(pipes_excel_pfad) as writer:
-                dataframe_pipes.to_excel(writer, sheet_name="Pipes")
-                dataframe_junctions.to_excel(writer, sheet_name="Junctions")
+        dataframe_pipes.to_excel(pipes_excel_pfad)
 
+        with pd.ExcelWriter(pipes_excel_pfad) as writer:
+            dataframe_pipes.to_excel(writer, sheet_name="Pipes")
+            dataframe_junctions.to_excel(writer, sheet_name="Junctions")
+
+        if self.export_graphs:
             # # create additional junction collections for junctions with sink connections and junctions with valve connections
             junction_sink_collection = plot.create_junction_collection(net,
                                                                        junctions=liste_lueftungsauslaesse,
@@ -3669,7 +3656,6 @@ class DesignExaustLCA(ITask):
         return dataframe_rooms
 
     def co2(self,
-            export,
             druckverlust,
             dataframe_rooms,
             dataframe_distribution_network_exhaust_air):
@@ -3794,10 +3780,9 @@ class DesignExaustLCA(ITask):
         dataframe_distribution_network_exhaust_air[
             "CO2-Kanaldämmung"] = list_dataframe_distribution_network_exhaust_air_CO2_kanaldaemmung
 
-        if export:
-            # Export to Excel
-            dataframe_distribution_network_exhaust_air.to_excel(
-                self.paths.export / 'ventilation system' / 'exhaust air' / 'dataframe_exhaust_air.xlsx', index=False)
+        # Export to Excel
+        dataframe_distribution_network_exhaust_air.to_excel(
+            self.paths.export / 'ventilation system' / 'exhaust air' / 'dataframe_exhaust_air.xlsx', index=False)
 
         """
         Berechnung des CO2 für die Raumanbindung
@@ -3982,9 +3967,9 @@ class DesignExaustLCA(ITask):
         dataframe_rooms['CO2-Kanaldämmung'] = list_dataframe_rooms_CO2_kanaldaemmung
 
 
-        if export:
-            # Export to Excel
-            dataframe_rooms.to_excel(self.paths.export / 'ventilation system' / 'exhaust air' / 'dataframe_rooms.xlsx',
-            index=False)
+
+        # Export to Excel
+        dataframe_rooms.to_excel(self.paths.export / 'ventilation system' / 'exhaust air' / 'dataframe_rooms.xlsx',
+        index=False)
 
         return druckverlust, dataframe_rooms, dataframe_distribution_network_exhaust_air

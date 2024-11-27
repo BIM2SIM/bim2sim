@@ -38,6 +38,7 @@ class CreateBuildingAndHeatingGraph(ITask):
 
         self.hydraulic_system_directory = Path(self.paths.export / 'hydraulic system')
 
+        self.export_graphs = self.playground.sim_settings.export_graphs
         self.floor_dict = floor_dict
         self.elements = elements
         self.heat_demand_dict = heat_demand_dict
@@ -849,16 +850,17 @@ class CreateBuildingAndHeatingGraph(ITask):
             floor_graph = self.check_if_graph_in_building_boundaries(floor_graph, z_value_floor)
             print("Check done")
 
-            self.visualize_graph(graph=floor_graph,
-                                 graph_steiner_tree=floor_graph,
-                                 z_value=z_value_floor,
-                                 node_coordinates=nodes_floor,
-                                 delivery_nodes_coordinates=delivery_nodes_floor,
-                                 intersection_nodes_coordinates=intersection_nodes_floor,
-                                 name=f"0. Optimierung",
-                                 unit_edge="m",
-                                 building_shaft=shaft_node_floor
-                                 )
+            if self.export_graphs:
+                self.visualize_graph(graph=floor_graph,
+                                     graph_steiner_tree=floor_graph,
+                                     z_value=z_value_floor,
+                                     node_coordinates=nodes_floor,
+                                     delivery_nodes_coordinates=delivery_nodes_floor,
+                                     intersection_nodes_coordinates=intersection_nodes_floor,
+                                     name=f"0. Optimierung",
+                                     unit_edge="m",
+                                     building_shaft=shaft_node_floor
+                                     )
 
             # Optimize heating graph using steiner method
             print(f"Calculate steiner tree {floor}_{i}")
@@ -877,19 +879,20 @@ class CreateBuildingAndHeatingGraph(ITask):
                                               start_nodes=[shaft_node_floor],
                                               end_nodes=delivery_nodes_floor)
 
-                self.visualize_graph(graph=f_st,
-                                     graph_steiner_tree=f_st,
-                                     z_value=z_value_floor,
-                                     node_coordinates=[tuple(data["pos"]) for node, data in floor_graph.nodes(data=True)],
-                                     delivery_nodes_coordinates=[tuple(data["pos"]) for node, data in f_st.nodes(data=True)
-                                                                    if data["type"] in [['radiator_forward'],
-                                                                                        ['radiator_forward_extra']]],
-                                     intersection_nodes_coordinates=[tuple(data["pos"]) for node, data in f_st.nodes(data=True)
-                                                                    if "intersection_point" in data["type"]],
-                                     name=f"Nach Optimierung und Reduzierung",
-                                     unit_edge="m",
-                                     building_shaft=shaft_node_floor
-                                     )
+                if self.export_graphs:
+                    self.visualize_graph(graph=f_st,
+                                         graph_steiner_tree=f_st,
+                                         z_value=z_value_floor,
+                                         node_coordinates=[tuple(data["pos"]) for node, data in floor_graph.nodes(data=True)],
+                                         delivery_nodes_coordinates=[tuple(data["pos"]) for node, data in f_st.nodes(data=True)
+                                                                        if data["type"] in [['radiator_forward'],
+                                                                                            ['radiator_forward_extra']]],
+                                         intersection_nodes_coordinates=[tuple(data["pos"]) for node, data in f_st.nodes(data=True)
+                                                                        if "intersection_point" in data["type"]],
+                                         name=f"Nach Optimierung und Reduzierung",
+                                         unit_edge="m",
+                                         building_shaft=shaft_node_floor
+                                         )
 
                 # Add back window nodes
                 if type_delivery == ["window"]:
@@ -1087,7 +1090,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         :param unit_edge: Einheit der Kante für Legende Diagramm
         """
         # visualization
-        plt.figure(figsize=(8.3, 5.8), dpi=300)
+        plt.figure(figsize=(8.3, 5.8) )
         #plt.xlabel('X-Achse in m',fontsize=12)
         #plt.ylabel('Y-Achse in m',fontsize=12)
         plt.title(name + f", Z: {z_value}",fontsize=12)
@@ -4466,7 +4469,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         # Erstellung des Steinerbaums
         steiner_baum = steiner_tree(graph, terminal_nodes_floor, weight="length")
 
-        if export:
+        if self.export_graphs:
             self.visualize_graph(graph=steiner_baum,
                                  graph_steiner_tree=steiner_baum,
                                  z_value=z_value,
@@ -4535,7 +4538,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         # Erstellung des neuen Steinerbaums
         steiner_baum = steiner_tree(graph, terminal_nodes_floor, weight="length")
 
-        if export:
+        if self.export_graphs:
             self.visualize_graph(graph=steiner_baum,
                                  graph_steiner_tree=steiner_baum,
                                  z_value=z_value,
@@ -4607,7 +4610,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         # Erstellung des neuen Steinerbaums
         steiner_baum = steiner_tree(graph, terminal_nodes_floor, weight="length")
 
-        if export:
+        if self.export_graphs:
             self.visualize_graph(graph=steiner_baum,
                                  graph_steiner_tree=steiner_baum,
                                  z_value=z_value,
@@ -4631,7 +4634,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         # Erstellung des neuen Steinerbaums
         steiner_baum = steiner_tree(graph, terminal_nodes_floor, weight="length")
 
-        if export:
+        if self.export_graphs:
             self.visualize_graph(graph=steiner_baum,
                                  graph_steiner_tree=steiner_baum,
                                  z_value=z_value,

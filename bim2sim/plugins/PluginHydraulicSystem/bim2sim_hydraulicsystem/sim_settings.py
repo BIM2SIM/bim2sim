@@ -25,6 +25,10 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
         description="True: Generate new heating graph out of ifc file"
                     "Else: Load existing heating graph out of json file"
     )
+    export_graphs = BooleanSetting(
+        default=True,
+        description="Export figues of the hydraulic system graphs"
+    )
     disaggregate_heat_demand_thermal_zones = BooleanSetting(
     default=False,
         description="Disaggregates heat demand for thermal zones based on thermal zone floor area"

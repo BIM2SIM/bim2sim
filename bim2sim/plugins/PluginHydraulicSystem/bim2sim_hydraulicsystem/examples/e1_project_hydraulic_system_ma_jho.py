@@ -11,7 +11,7 @@ from bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_medium_project_teas
     (run_medium_building_teaser)
 
 
-def run_example_project_hydraulic_system(project_path, heat_delivery_type, t_forward, t_backward):
+def run_example_project_hydraulic_system(project_path, export_graphs, heat_delivery_type, t_forward, t_backward):
     """
     """
 
@@ -45,6 +45,8 @@ def run_example_project_hydraulic_system(project_path, heat_delivery_type, t_for
     project.sim_settings.generate_new_building_data = False
     project.sim_settings.generate_new_building_graph = False
     project.sim_settings.generate_new_heating_graph = True
+
+    project.sim_settings.export_graphs = export_graphs
 
     project.sim_settings.disaggregate_heat_demand_thermal_zones = True
 
