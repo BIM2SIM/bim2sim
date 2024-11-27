@@ -8,6 +8,8 @@ import numpy as np
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepAdaptor import BRepAdaptor_Surface
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
+from OCC.Core.BRepOffsetAPI import BRepOffsetAPI_MakeOffsetShape
+from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
 from scipy.spatial import KDTree
 from OCC.Core.BRepBndLib import brepbndlib_Add
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace, \
@@ -415,8 +417,9 @@ class PyOCCTools:
         return volume
 
     @staticmethod
-    def sew_shapes(shape_list: list[TopoDS_Shape]) -> TopoDS_Shape:
-        sew = BRepBuilderAPI_Sewing(0.0001)
+    def sew_shapes(shape_list: list[TopoDS_Shape], tolerance=0.0001) -> (
+            TopoDS_Shape):
+        sew = BRepBuilderAPI_Sewing(tolerance)
         for shp in shape_list:
             sew.Add(shp)
         sew.Perform()
@@ -853,6 +856,21 @@ class PyOCCTools:
         #print(f"Minimum distance: {min(distances)}")
         return min(distances)
 
+    @staticmethod
+    def create_offset_shape(shape, offset, tolerance=0.0001):
+        sewing = BRepBuilderAPI_Sewing()
+        sewing.SetTolerance(tolerance)
+        sewing.Add(shape)
+        sewing.Perform()
+        sewed_shell = sewing.SewedShape()
+        offset_builder = BRepOffsetAPI_MakeOffsetShape()
+        offset_builder.PerformBySimple(sewed_shell, offset)
+        return offset_builder.Shape()
 
-
+    @staticmethod
+    def unify_shape(shape):
+        unify = ShapeUpgrade_UnifySameDomain()
+        unify.Initialize(shape)
+        unify.Build()
+        return unify.Shape()
 

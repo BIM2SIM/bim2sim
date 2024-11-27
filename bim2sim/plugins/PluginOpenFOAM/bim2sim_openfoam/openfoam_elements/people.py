@@ -240,10 +240,8 @@ class People(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.body_parts_dict = {key: BodyPart(self, key, value)
                                 for key, value in body_shapes_dict.items()}
         self.area = PyOCCTools.get_shape_area(self.tri_geom)
-        self.scaled_surface = PyOCCTools.sew_shapes(
-            [PyOCCTools.scale_shape(
-                PyOCCTools.simple_bounding_box_shape(
-                    p.tri_geom), 1.1) for p in self.body_parts_dict.values()])
+        self.scaled_surface = PyOCCTools.create_offset_shape(self.tri_geom,
+                                                             0.03)
 
         # self.refinement_zone_small = []
         # self.refinement_zone_small.append([c - increase_small_refinement for c

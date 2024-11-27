@@ -1,7 +1,10 @@
 from collections import OrderedDict
 
 import stl
+from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
+from OCC.Core.StlAPI import StlAPI_Writer
+from OCC.Core.TopOpeBRep import TopOpeBRep_ShapeIntersector
 from OCC.Core.gp import gp_Pnt
 from stl import mesh
 
@@ -30,6 +33,7 @@ class CreateOpenFOAMMeshing(ITask):
         self.create_snappyHexMesh(openfoam_case, openfoam_elements)
         self.update_snappyHexMesh_heating(openfoam_case, openfoam_elements)
         self.add_topoSetDict_for_heating(openfoam_case, openfoam_elements)
+        self.modify_topoSet_for_evaluation(openfoam_case, openfoam_elements)
         self.update_blockMeshDict_air(openfoam_case, openfoam_elements)
         self.update_snappyHexMesh_air(openfoam_case, openfoam_elements)
         self.update_snappyHexMesh_furniture(openfoam_case, openfoam_elements)
@@ -255,6 +259,75 @@ class CreateOpenFOAMMeshing(ITask):
                 },
                 }
             )
+        openfoam_case.topoSetDict.values.update({');': '//'})  # required to
+        # close
+        # the
+        # round bracket. Replace by better option if you find any.
+
+        openfoam_case.topoSetDict.save(openfoam_case.openfoam_dir)
+
+    @staticmethod
+    def modify_topoSet_for_evaluation(openfoam_case, openfoam_elements):
+        furniture = filter_elements(openfoam_elements, 'Furniture')
+        people = filter_elements(openfoam_elements, 'People')
+        heaters = filter_elements(openfoam_elements, 'Heater')
+        airterminals = filter_elements(openfoam_elements, 'AirTerminal')
+        cut_shapes = []
+        for furn in furniture:
+            cut_shapes.append(PyOCCTools.unify_shape(PyOCCTools.make_solid_from_shape(
+                PyOCCTools, PyOCCTools.simple_bounding_box_shape([
+                    furn.tri_geom]))))
+        for heater in heaters:
+            cut_shapes.append(
+                PyOCCTools.unify_shape(PyOCCTools.make_solid_from_shape(
+                    PyOCCTools,
+                    PyOCCTools.scale_shape(heater.porous_media.tri_geom, 1.1))))
+        for person in people:
+            cut_shapes.append(PyOCCTools.unify_shape(PyOCCTools.make_solid_from_shape(
+                PyOCCTools, PyOCCTools.simple_bounding_box_shape(
+                    [person.scaled_surface]))))
+        for air in airterminals:
+            cut_shapes.append(PyOCCTools.unify_shape(PyOCCTools.make_solid_from_shape(
+                PyOCCTools, PyOCCTools.scale_shape(air.bbox_min_max_shape,
+                                                   1.1))))
+        space_solid_shrinked = (PyOCCTools.make_solid_from_shape(
+            PyOCCTools, PyOCCTools.scale_shape(
+                openfoam_case.current_zone.space_shape,0.9)))
+        shape = space_solid_shrinked
+        for cut_shape in cut_shapes:
+            ins = TopOpeBRep_ShapeIntersector()
+            ins.InitIntersection(cut_shape, shape)
+            if ins.MoreIntersection():
+                shape = BRepAlgoAPI_Cut(shape, cut_shape).Shape()
+                shape = PyOCCTools.make_solid_from_shape(PyOCCTools, shape)
+        tri_eval_shape = PyOCCTools.triangulate_bound_shape(shape)
+        stl_writer = StlAPI_Writer()
+        stl_writer.SetASCIIMode(True)
+        stl_writer.Write(tri_eval_shape,
+                         str(openfoam_case.openfoam_triSurface_dir /
+                         'evaluate_air_volume.stl'))
+        openfoam_case.topoSetDict.values.pop(');')  # required to
+        openfoam_case.topoSetDict.values.update(
+            {f'//evaluate air volume': {
+                'name': 'evaluate_air_volume',
+                'action': 'new',
+                'type': 'cellSet',
+                'source': 'surfaceToCell',
+                'sourceInfo':
+                    {
+                        'file': fr'"constant/triSurface/'
+                                fr'evaluate_air_volume.stl"',
+                        'useSurfaceOrientation': 'true',
+                        'outsidePoints': '((0 0 0))',
+                        'includeCut': 'false',
+                        'includeInside': 'true',
+                        'includeOutside': 'false',
+                        'nearDistance': '-1',
+                        'curvature': '0',
+                    }
+            },
+            }
+        )
         openfoam_case.topoSetDict.values.update({');': '//'})  # required to
         # close
         # the
