@@ -34,7 +34,7 @@ def run_example_18():
     # directory
     #tempfile.tempdir = '/mnt/sim/SimData/CFD-temp'
     project_path = Path(
-        tempfile.TemporaryDirectory(prefix='diss_DH_ovf_P3_b15_').name)
+        tempfile.TemporaryDirectory(prefix='diss_DH_ovf_fv3_b14_').name)
 
     # download additional test resources for arch domain, you might want to set
     # force_new to True to update your test resources
@@ -81,9 +81,9 @@ def run_example_18():
     # Cafeteria: '3GmoJyFk9FvAnea6mogixJ'
     project.sim_settings.inlet_type = 'Original'
     project.sim_settings.outlet_type = 'Original'
-    project.sim_settings.mesh_size = 0.15
-    project.sim_settings.n_procs = 48
+    project.sim_settings.mesh_size = 0.14
     project.sim_settings.mesh_max_global_cells = 30000000
+    project.sim_settings.n_procs = 96
     project.sim_settings.add_heating = True
     project.sim_settings.add_people = True
     project.sim_settings.add_floorheating = False
@@ -98,9 +98,9 @@ def run_example_18():
     project.sim_settings.people_setting = 'Seated'
     project.sim_settings.run_meshing = True
     project.sim_settings.adjust_refinements = True
-    # project.sim_settings.run_cfd_simulation = True
-    # project.sim_settings.radiation_precondition_time = 4000
-    project.sim_settings.radiation_model = 'P1'
+    #project.sim_settings.run_cfd_simulation = True
+    #project.sim_settings.radiation_precondition_time = 4000
+    project.sim_settings.radiation_model = 'fvDOM'
     project.sim_settings.output_keys = ['output_outdoor_conditions',
                                         'output_zone_temperature',
                                         'output_zone', 'output_infiltration',
