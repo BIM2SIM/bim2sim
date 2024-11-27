@@ -183,20 +183,20 @@ class BodyPart(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         else:
             qr = 'qr'
         if self.power == 0:
-            self.T = \
-                {'type': 'externalWallHeatFluxTemperature',
-                 'mode': 'flux',
-                 'qr': f"{qr}",
-                 'q': f'{self.heat_flux}',
-                 'qrRelaxation': 0.003,
-                 'relaxation': 1.0,
-                 'kappaMethod': 'fluidThermo',
-                 'kappa': 'fluidThermo',
-                 'value': f'uniform {self.temperature + 273.15}'
-                 }
-            # self.T = {'type': 'fixedValue',
-            #           'value': f'uniform {self.temperature + 273.15}'
-            #           }
+            # self.T = \
+            #     {'type': 'externalWallHeatFluxTemperature',
+            #      'mode': 'flux',
+            #      'qr': f"{qr}",
+            #      'q': f'{self.heat_flux}',
+            #      'qrRelaxation': 0.003,
+            #      'relaxation': 1.0,
+            #      'kappaMethod': 'fluidThermo',
+            #      'kappa': 'fluidThermo',
+            #      'value': f'uniform {self.temperature + 273.15}'
+            #      }
+            self.T = {'type': 'fixedValue',
+                      'value': f'uniform {self.temperature + 273.15}'
+                      }
         else:
             self.T = \
                 {'type': 'externalWallHeatFluxTemperature',

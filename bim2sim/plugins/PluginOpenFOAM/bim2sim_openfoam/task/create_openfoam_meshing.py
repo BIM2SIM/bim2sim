@@ -307,6 +307,41 @@ class CreateOpenFOAMMeshing(ITask):
                          str(openfoam_case.openfoam_triSurface_dir /
                          'evaluate_air_volume.stl'))
         openfoam_case.topoSetDict.values.pop(');')  # required to
+
+        for person in people:
+            tri_eval_shape = PyOCCTools.triangulate_bound_shape(
+                person.scaled_surface)
+            stl_writer = StlAPI_Writer()
+            stl_writer.SetASCIIMode(True)
+            stl_writer.Write(tri_eval_shape,
+                             str(openfoam_case.openfoam_triSurface_dir /
+                                 f"evaluate_{person.solid_name}.stl"))
+            openfoam_case.topoSetDict.values.update(
+                {f'//evaluate_{person.solid_name}': {
+                    'name': f"evaluate_{person.solid_name}",
+                    'action': 'new',
+                    'type': 'cellSet',
+                    'source': 'surfaceToCell',
+                    'sourceInfo':
+                        {
+                            'file': fr'"constant/triSurface/'
+                                    fr'evaluate_{person.solid_name}.stl"',
+                            'useSurfaceOrientation': 'false',
+                            'outsidePoints':
+                                f'(('
+                                f'{openfoam_case.current_zone.space_center.X()} '
+                                f'{openfoam_case.current_zone.space_center.Y()} '
+                                f'{openfoam_case.current_zone.space_center.Z()}'
+                                f' ))',
+                            'includeCut': 'true',
+                            'includeInside': 'false',
+                            'includeOutside': 'false',
+                            'nearDistance': '-1',
+                            'curvature': '0',
+                        }
+                },
+                }
+            )
         openfoam_case.topoSetDict.values.update(
             {f'//evaluate air volume': {
                 'name': 'evaluate_air_volume',
@@ -334,6 +369,46 @@ class CreateOpenFOAMMeshing(ITask):
         # round bracket. Replace by better option if you find any.
 
         openfoam_case.topoSetDict.save(openfoam_case.openfoam_dir)
+
+        # update controlDict for evaluation
+        for person in people:
+            for operation in ['average', 'min', 'max']:
+                evaluate_dict = {
+                    f"{person.solid_name}_{operation}": {
+                        'type': 'volFieldValue',
+                        'libs': '(fieldFunctionObjects)',
+                        'log': 'true',
+                        'writeFields': 'false',
+                        'enabled': 'true',
+                        'writeControl': 'timeStep',
+                        'writeInterval': '1',
+                        'regionType': 'cellZone',
+                        'name': f"evaluate_{person.solid_name}",
+                        'operation': operation,
+                        'fields': '( T U PMV PPD )'
+                    }}
+                openfoam_case.controlDict.values['functions'].update(
+                    evaluate_dict)
+        for operation in ['average', 'min', 'max']:
+            evaluate_dict = {
+                f"evaluate_air_volume_{operation}": {
+                    'type': 'volFieldValue',
+                    'libs': '(fieldFunctionObjects)',
+                    'log': 'true',
+                    'writeFields': 'false',
+                    'enabled': 'true',
+                    'writeControl': 'timeStep',
+                    'writeInterval': '1',
+                    'regionType': 'cellZone',
+                    'name': f"evaluate_air_volume",
+                    'operation': operation,
+                    'fields': '( T U PMV PPD )'
+                }}
+            openfoam_case.controlDict.values['functions'].update(
+                evaluate_dict)
+
+        openfoam_case.controlDict.save(openfoam_case.openfoam_dir)
+
 
     def update_blockMeshDict_air(self, openfoam_case, openfoam_elements):
         air_terminals = filter_elements(openfoam_elements, 'AirTerminal')

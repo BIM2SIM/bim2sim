@@ -252,7 +252,7 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         for_frontend=True
     )
     scale_person_for_eval = NumberSetting(
-        default=0.03,
+        default=0.05,
         min_value=0.001,
         max_value=0.2,
         description='Scale shape of person for evaluation in paraview.',
