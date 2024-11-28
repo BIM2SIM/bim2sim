@@ -559,39 +559,39 @@ class DesignExaustLCA(ITask):
         Returns:
             3D diagramm
         """
+        if self.export_graphs:
+            # 3D-Diagramm erstellen
+            fig = plt.figure()
+            ax = fig.add_subplot(111, projection='3d')
 
-        # 3D-Diagramm erstellen
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
+            # Anpassen des Layouts für die Legende
+            plt.subplots_adjust(right=0.75)
 
-        # Anpassen des Layouts für die Legende
-        plt.subplots_adjust(right=0.75)
+            # Punkte hinzufügen
+            coordinates1 = room_ceiling_ventilation_outlet  # Punkte für Auslässe
+            coordinates2 = intersection  # Schnittpunkte
 
-        # Punkte hinzufügen
-        coordinates1 = room_ceiling_ventilation_outlet  # Punkte für Auslässe
-        coordinates2 = intersection  # Schnittpunkte
+            # Extrahieren der x, y und z Koordinaten aus den beiden Listen
+            x1, y1, z1, a1 = zip(*coordinates1)
+            x2, y2, z2, a2 = zip(*coordinates2)
 
-        # Extrahieren der x, y und z Koordinaten aus den beiden Listen
-        x1, y1, z1, a1 = zip(*coordinates1)
-        x2, y2, z2, a2 = zip(*coordinates2)
+            # Plotten der zweiten Liste von Koordinaten in Rot
+            ax.scatter(x2, y2, z2, c='red', marker='x', label='Schnittpunkte')
 
-        # Plotten der zweiten Liste von Koordinaten in Rot
-        ax.scatter(x2, y2, z2, c='red', marker='x', label='Schnittpunkte')
+            # Plotten der ersten Liste von Koordinaten in Blau
+            ax.scatter(x1, y1, z1, c='blue', marker='D', label='Lüftungsauslässe')
 
-        # Plotten der ersten Liste von Koordinaten in Blau
-        ax.scatter(x1, y1, z1, c='blue', marker='D', label='Lüftungsauslässe')
+            # Achsenbeschriftungen
+            ax.set_xlabel('X-Achse [m]')
+            ax.set_ylabel('Y-Achse [m]')
+            ax.set_zlabel('Z-Achse [m]')
 
-        # Achsenbeschriftungen
-        ax.set_xlabel('X-Achse [m]')
-        ax.set_ylabel('Y-Achse [m]')
-        ax.set_zlabel('Z-Achse [m]')
+            # Legende hinzufügen
+            ax.legend(loc="center left", bbox_to_anchor=(1, 0))
 
-        # Legende hinzufügen
-        ax.legend(loc="center left", bbox_to_anchor=(1, 0))
-
-        # Diagramm anzeigen
-        # plt.show()
-        plt.close()
+            # Diagramm anzeigen
+            # plt.show()
+            plt.close()
 
     def visualization_points_by_level(self, corner, intersection, z_coordinate_list, building_shaft_exhaust_air):
         """The function visualizes the points in a diagram

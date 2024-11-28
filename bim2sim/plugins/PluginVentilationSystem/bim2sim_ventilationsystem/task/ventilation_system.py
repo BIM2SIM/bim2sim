@@ -412,11 +412,11 @@ class DesignVentilationSystem(ITask):
 
 
         # Pfad für die Exportdatei definieren
-        export_pfad = self.paths.export / 'ventilation system' / 'complete system' / 'fire_dampers.xlsx'
+        export_pfad = self.paths.export / 'ventilation system' / 'complete system'
         export_pfad.mkdir(parents=True, exist_ok=True)
 
         # ExcelWriter verwenden, um mehrere dataframes in einer Excel-Datei zu speichern
-        with pd.ExcelWriter(export_pfad) as writer:
+        with pd.ExcelWriter(export_pfad / 'fire_dampers.xlsx') as writer:
             # Speichern des ersten dataframes in einem Tabellenblatt
             dataframe_fire_dampers_supply_air.to_excel(writer, sheet_name='Brandschutzklappen Zuluft', index=False)
 

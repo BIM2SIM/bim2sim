@@ -290,6 +290,12 @@ class CalculateHydraulicSystem(ITask):
                         length = l1
                         norm_heat_flow = norm_heat_flow_per_length
 
+        if selected_model == None:
+            min_mass = l1 * mass_per_length
+            selected_model = model
+            length = l1
+            norm_heat_flow = norm_heat_flow_per_length
+
         return selected_model, min_mass, material, length, norm_heat_flow
 
     @staticmethod
