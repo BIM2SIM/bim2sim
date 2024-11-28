@@ -18,7 +18,7 @@ from bim2sim.elements.mapping.units import ureg
 from bim2sim.utilities.common_functions import angle_equivalent, vector_angle, \
     remove_umlaut
 from bim2sim.utilities.pyocc_tools import PyOCCTools
-from bim2sim.utilities.types import IFCDomain
+from bim2sim.utilities.types import IFCDomain, AttributeDataSource
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -118,6 +118,16 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
             external_decision: Decision to use instead of default decision
         """
         return self.attributes.request(name, external_decision)
+
+    def reset(self, name, data_source=AttributeDataSource.manual_overwrite):
+        """Reset the attribute of the element.
+
+        Args:
+            name: attribute name
+            data_source (object): data source of the attribute
+        """
+
+        return self.attributes.reset(name, data_source)
 
     def source_info(self) -> str:
         """Get informative string about source of Element."""
@@ -484,6 +494,7 @@ class ProductBased(IFCBased):
         self.ports = self.get_ports()
         self.material = None
         self.material_set = {}
+        self.cost_group = self.calc_cost_group()
 
     def __init_subclass__(cls, **kwargs):
         # set key for each class
@@ -570,9 +581,7 @@ class ProductBased(IFCBased):
             except:
                 logger.warning(f"No calculation of geometric volume possible "
                                f"for {self.ifc}.")
-    @cached_property
-    def cost_group(self) -> int:
-        return self.calc_cost_group()
+
     def __str__(self):
         return "<%s>" % (self.__class__.__name__)
 
