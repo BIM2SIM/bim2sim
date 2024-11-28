@@ -176,14 +176,16 @@ class CreateIdf(ITask):
                 Volume=volume
             )
             self.set_heating_and_cooling(idf, zone_name=zone.Name, space=space)
-            self.set_infiltration(sim_settings, idf, name=zone.Name, zone_name=zone.Name,
-                                  space=space)
+            self.set_infiltration(
+                idf, name=zone.Name, zone_name=zone.Name, space=space,
+                ep_version=sim_settings.ep_version)
             if (not self.playground.sim_settings.cooling and
                     self.playground.sim_settings.add_natural_ventilation):
-                self.set_natural_ventilation(sim_settings, idf, name=zone.Name,
-                                             zone_name=zone.Name, space=space)
-            self.set_people(sim_settings, idf, name=zone.Name, zone_name=zone.Name,
-                            space=space)
+                self.set_natural_ventilation(
+                    idf, name=zone.Name, zone_name=zone.Name, space=space,
+                    ep_version=sim_settings.ep_version)
+            self.set_people(sim_settings, idf, name=zone.Name,
+                            zone_name=zone.Name, space=space)
             self.set_equipment(sim_settings, idf, name=zone.Name,
                                zone_name=zone.Name, space=space)
             self.set_lights(sim_settings, idf, name=zone.Name, zone_name=zone.Name,
@@ -728,8 +730,9 @@ class CreateIdf(ITask):
             )
 
     @staticmethod
-    def set_infiltration(sim_settings: EnergyPlusSimSettings, idf: IDF, name: str, zone_name: str,
-                         space: ThermalZone):
+    def set_infiltration(idf: IDF,
+                         name: str, zone_name: str,
+                         space: ThermalZone, ep_version: str):
         """Set infiltration rate.
 
         This function sets the infiltration rate per space based on the
@@ -741,8 +744,9 @@ class CreateIdf(ITask):
             name: name of the new people idf object
             zone_name: name of zone or zone_list
             space: ThermalZone instance
+            ep_version: Used version of EnergyPlus
         """
-        if sim_settings.ep_version in ["9-2-0", "9-4-0"]:
+        if ep_version in ["9-2-0", "9-4-0"]:
             idf.newidfobject(
                 "ZONEINFILTRATION:DESIGNFLOWRATE",
                 Name=name,
@@ -762,8 +766,8 @@ class CreateIdf(ITask):
             )
 
     @staticmethod
-    def set_natural_ventilation(sim_settings: EnergyPlusSimSettings, idf: IDF, name: str, zone_name: str,
-                                space: ThermalZone):
+    def set_natural_ventilation(idf: IDF, name: str, zone_name: str,
+                                space: ThermalZone, ep_version):
         """Set natural ventilation.
 
         This function sets the natural ventilation per space based on the
@@ -777,8 +781,10 @@ class CreateIdf(ITask):
             name: name of the new people idf object
             zone_name: name of zone or zone_list
             space: ThermalZone instance
+            ep_version: Used version of EnergyPlus
+
         """
-        if sim_settings.ep_version in ["9-2-0", "9-4-0"]:
+        if ep_version in ["9-2-0", "9-4-0"]:
             idf.newidfobject(
                 "ZONEVENTILATION:DESIGNFLOWRATE",
                 Name=name + '_winter',
