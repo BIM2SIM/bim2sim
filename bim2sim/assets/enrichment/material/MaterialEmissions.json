@@ -153,8 +153,8 @@
       "Recyclingpotential": -17.1
    },
    "concrete_CEM_II_BS325R_wz05": {
-      "oekobaudat_uuid": "3be4fe78-86d4-4497-9e9d-173b87f321f4",
-      "oekobaudat_calculation_factor": 1,
+      "oekobaudat_uuid": "7c7f17df-1dfb-454e-a792-96b3b8665663",
+      "oekobaudat_calculation_factor": 0.00043879,
       "Herstellung": 0.742068684145491
    },
    "plasterboard": {
