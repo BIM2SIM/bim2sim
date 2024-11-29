@@ -4,10 +4,12 @@ from bim2sim.export import modelica
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.export.modelica import check_numeric
+from bim2sim.export.modelica import HeatPort
 
 MEDIUM_WATER = 'AixLib.Media.Water'
 
 
+# TODO get_port_name functions: use verbose_flow_direction instead index
 class AixLib(modelica.ModelicaElement):
     library = "AixLib"
 
@@ -43,7 +45,9 @@ class Boiler(AixLib):
                             required=True,
                             attributes=['min_PLR'],
                             check=check_numeric(
-                                min_value=0 * ureg.dimensionless))
+                                min_value=0 * ureg.dimensionless,
+                                max_value=1 * ureg.dimensionless)
+                            )
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':
@@ -60,6 +64,14 @@ class Radiator(AixLib):
 
     def __init__(self, element):
         super().__init__(element)
+        self.heat_ports = [
+            HeatPort(name='heatPortCon',
+                     heat_transfer_type='convective',
+                     parent=self),
+            HeatPort(name='heatPortRad',
+                     heat_transfer_type='radiative',
+                      parent=self)
+        ]
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
@@ -70,14 +82,14 @@ class Radiator(AixLib):
                             attributes=['rated_power'],
                             check=check_numeric(min_value=0 * ureg.watt))
         self._set_parameter(name='T_a_nominal',
-                            unit=ureg.celsius,
+                            unit=ureg.kelvin,
                             required=True,
-                            check=check_numeric(min_value=0 * ureg.celsius),
+                            check=check_numeric(min_value=0 * ureg.kelvin),
                             attributes=['flow_temperature'])
         self._set_parameter(name='T_b_nominal',
-                            unit=ureg.celsius,
+                            unit=ureg.kelvin,
                             required=True,
-                            check=check_numeric(min_value=0 * ureg.celsius),
+                            check=check_numeric(min_value=0 * ureg.kelvin),
                             attributes=['return_temperature'])
 
     def get_port_name(self, port):
@@ -129,6 +141,11 @@ class Pump(AixLib):
             return 'port_b'
         else:
             return super().get_port_name(port)
+
+    def get_heat_port_names(self):
+        return {
+            "con": "heatPortCon",
+        }
 
 
 class Consumer(AixLib):
@@ -294,8 +311,7 @@ class ConsumerHeatingDistributorModule(AixLib):
 class BoilerAggregation(AixLib):
     # TODO: the model does not exists in AiLib
     """Modelica AixLib representation of the GeneratorOneFluid aggregation."""
-    path = "AixLib.Systems.ModularEnergySystems.Modules.ModularBoiler." \
-           "ModularBoiler"
+    path = "AixLib.Systems.ModularEnergySystems.ModularBoiler.ModularBoiler"
     represents = [hvac_aggregations.GeneratorOneFluid]
 
     def __init__(self, element):
@@ -312,32 +328,43 @@ class BoilerAggregation(AixLib):
                             unit=None,
                             required=False,
                             attributes=['has_bypass'])
-        self._set_parameter(name='QNom',
+        self._set_parameter(name='Q_flow_nominal',
                             unit=ureg.watt,
-                            required=False,
+                            required=True,
                             check=check_numeric(min_value=0 * ureg.watt),
                             attributes=['rated_power'])
-        self._set_parameter(name='PLRMin',
+        self._set_parameter(name='FirRatMin',
                             unit=ureg.dimensionless,
-                            required=False,
+                            required=True,
                             check=check_numeric(
-                                min_value=0 * ureg.dimensionless),
+                                min_value=0 * ureg.dimensionless,
+                                max_value=1 * ureg.dimensionless),
                             attributes=['min_PLR'])
-        self._set_parameter(name='TRetNom',
+        self._set_parameter(name='TRet_nominal',
                             unit=ureg.kelvin,
-                            required=False,
+                            required=True,
                             check=check_numeric(
-                                min_value=0 * ureg.kelvin),
+                                min_value=20 * ureg.celsius),
                             attributes=['return_temperature'])
-        self._set_parameter(name='dTWaterNom',
+        self._set_parameter(name='TSup_nominal',
                             unit=ureg.kelvin,
-                            required=False,
+                            required=True,
+                            check=check_numeric(
+                                min_value=40 * ureg.celsius),
+                            attributes=['flow_temperature'])
+        self._set_parameter(name='dT_nominal',
+                            unit=ureg.kelvin,
+                            required=True,
                             check=check_numeric(min_value=0 * ureg.kelvin),
                             attributes=['dT_water'])
         self._set_parameter(name='dp_Valve',
                             unit=ureg.pascal,
                             required=False,
-                            value=10000)
+                            value=10000*ureg.pascal)
+        self._set_parameter(name='Kv',
+                            unit=ureg.m**3/ureg.hour / ureg.bar**0.5,
+                            required=False,
+                            value=0.7*ureg.m**3/ureg.hour / ureg.bar**0.5)
 
     def get_port_name(self, port):
         if port.verbose_flow_direction == 'SINK':
@@ -354,15 +381,15 @@ class Distributor(AixLib):
 
     def __init__(self, element: hvac.Distributor):
         super().__init__(element)
-        n_ports = self.get_n_ports()
+        # n_ports = self.get_n_ports()
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
                             value=MEDIUM_WATER)
-        self._set_parameter(name='n',
-                            unit=None,
-                            required=False,
-                            value=n_ports)
+        # self._set_parameter(name='n',
+        #                     unit=None,
+        #                     required=False,
+        #                     value=n_ports)
         self._set_parameter(name='m_flow_nominal',
                             unit=ureg.kg / ureg.s,
                             required=False,
@@ -416,7 +443,7 @@ class ThreeWayValve(AixLib):
 
     def __init__(self, element):
         super().__init__(element)
-        self._set_parameter(name='redeclare package Medium_con',
+        self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
                             value=MEDIUM_WATER)
@@ -428,8 +455,9 @@ class ThreeWayValve(AixLib):
                             attributes=['nominal_mass_flow_rate'])
         self._set_parameter(name='dpValve_nominal',
                             unit=ureg.pascal,
-                            required=True,
+                            required=False,
                             check=check_numeric(min_value=0 * ureg.pascal),
+                            value=1000*ureg.pascal,
                             attributes=['nominal_pressure_difference'])
 
     def get_port_name(self, port):
@@ -543,7 +571,26 @@ class Storage(AixLib):
                             check=check_numeric(min_value=0 * ureg.meter),
                             attributes=['diameter'])
         self._set_parameter(name='data',
-                            unit=None,
+                              unit=None,
                             required=False,
                             value={'hTank': self.parameters['hTank'],
-                                   "dTank": self.parameters['dTank']})
+                              "dTank": self.parameters['dTank']})
+
+    # def get_port_name(self, port):
+        # TODO #733
+        # TODO function to determine ports. One Idea would be to use the
+        #  geometric positions of ports to determine input and output.
+        # Top port with input: fluidportTop1
+        # Bottom port with input: fluidportBottom1
+        # Top port with output: fluidportTop2
+        # Bottom port with input: fluidportBottom2
+
+        #  Additionally,  the number of ports can be used to determine if its a
+        #  direct loaded or indirect loaded storage:
+        #  4 ports -> direct,
+        #  6 or any other even number > 4 -> indirect load
+        #       with n=n_ports /2 -4 -> number of heating coils
+        # Then again used height of port to determine port name
+        # top port of first heating coil: portHC1In
+        # bottom port of first heating coil: portHC1Out
+        # etc.

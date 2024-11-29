@@ -30,6 +30,7 @@ from OCC.Core.gp import gp_XYZ, gp_Pnt, gp_Trsf, gp_Vec
 
 
 class PyOCCTools:
+    # TODO @Veronika: why is this a class and not just a file with functions?
     """Class for Tools handling and modifying Python OCC Shapes"""
 
     @staticmethod
@@ -556,5 +557,5 @@ class PyOCCTools:
         shell = PyOCCTools.make_shell_from_faces(faces)
         obj1_solid = PyOCCTools.make_solid_from_shell(shell)
         obj2_center = PyOCCTools.get_center_of_volume(obj2)
-
         return PyOCCTools.check_pnt_in_solid(obj1_solid, obj2_center)
+

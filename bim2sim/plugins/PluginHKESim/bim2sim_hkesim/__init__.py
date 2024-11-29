@@ -31,5 +31,6 @@ class PluginHKESim(Plugin):
         hvac.Reduce,
         hvac.DeadEnds,
         LoadLibrariesHKESim,
+        hvac.CreateModelicaModel,
         hvac.Export,
     ]

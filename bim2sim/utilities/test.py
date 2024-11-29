@@ -53,7 +53,7 @@ class IntegrationBase:
             ifc_paths=ifc_paths,
             plugin=plugin)
         # set weather file data
-        self.project.sim_settings.weather_file_path = self.weather_file_path()
+        self.set_test_weather_file()
         return self.project
 
     @staticmethod
@@ -63,12 +63,15 @@ class IntegrationBase:
     def model_domain_path(self) -> Union[str, None]:
         return None
 
-    def weather_file_path(self) -> Path:
-        return (self.test_resources_path() /
-                'weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+
+class IntegrationWeatherBase(IntegrationBase):
+    """Base class for integration tests that need weather files."""
+    def set_test_weather_file(self):
+        """Set the weather file path."""
+        raise NotImplementedError("")
 
 
-class RegressionTestBase(IntegrationBase):
+class RegressionTestBase(IntegrationWeatherBase):
     """Base class for regression tests."""
     def setUp(self):
         self.results_src_dir = None
