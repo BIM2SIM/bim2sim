@@ -1,2 +1,0 @@
-# bim2sim add after release of bim2sim on pypi
-git+https://github.com/squidKid-deluxe/pyvis.git@fix-show

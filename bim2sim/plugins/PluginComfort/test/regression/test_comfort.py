@@ -158,7 +158,7 @@ class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
         project.sim_settings.setpoints_from_template = True
         project.sim_settings.add_window_shading = 'Exterior'
         project.sim_settings.cooling = False
-        project.sim_settings.rename_result_keys = True
+        project.sim_settings.rename_plot_keys = True
         project.sim_settings.add_natural_ventilation = True
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
@@ -184,7 +184,7 @@ class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
         project.sim_settings.setpoints_from_template = True
         project.sim_settings.add_window_shading = 'Exterior'
         project.sim_settings.cooling = False
-        project.sim_settings.rename_result_keys = True
+        project.sim_settings.rename_plot_keys = True
         project.sim_settings.add_natural_ventilation = True
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
@@ -226,7 +226,7 @@ class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
         project.sim_settings.setpoints_from_template = True
         project.sim_settings.add_window_shading = 'Exterior'
         project.sim_settings.cooling = False
-        project.sim_settings.rename_result_keys = True
+        project.sim_settings.rename_plot_keys = True
 
         answers = (space_boundary_genenerator,
                    *handle_proxies,

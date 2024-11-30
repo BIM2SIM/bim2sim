@@ -1,8 +1,4 @@
 ## Python
-# Test files
-# additional test resources
-/test/resources/*
-
 # Dont add IFC to repo
 *.ifc
 
@@ -486,3 +482,7 @@ funnel_comp/
 .vscode/
 # test/debug stuff from Falk
 falk_stuff/
+
+# ignore download libraries
+**/test/regression/library/
+local/

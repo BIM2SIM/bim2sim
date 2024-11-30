@@ -947,8 +947,6 @@ class SpaceBoundary(RelationBased):
                     unify.Build()
                     shape = unify.Shape()
                     faces = PyOCCTools.get_faces_from_shape(shape)
-                    if len(faces) > 1:
-                        print('hold')
                 face = faces[0]
                 face = PyOCCTools.remove_coincident_and_collinear_points_from_face(
                     face)
@@ -1815,6 +1813,15 @@ class Building(BPSProduct):
                 avg_height = storey_height_sum / len(self.storeys)
         return avg_height
 
+    def _check_tz_ahu(self, name):
+        """Check if any TZs have AHU, then the building has one as well."""
+        with_ahu = False
+        for tz in self.thermal_zones:
+            if tz.with_ahu:
+                with_ahu = True
+                break
+        return with_ahu
+
     bldg_name = attribute.Attribute(
         functions=[_get_building_name],
     )
@@ -1840,6 +1847,26 @@ class Building(BPSProduct):
     avg_storey_height = attribute.Attribute(
         unit=ureg.meter,
         functions=[_get_avg_storey_height]
+    )
+    with_ahu = attribute.Attribute(
+        functions=[_check_tz_ahu]
+    )
+    ahu_heating = attribute.Attribute(
+        attr_type=bool
+    )
+    ahu_cooling = attribute.Attribute(
+        attr_type=bool
+    )
+    ahu_dehumidification = attribute.Attribute(
+        attr_type=bool
+    )
+    ahu_humidification = attribute.Attribute(
+        attr_type=bool
+    )
+    ahu_heat_recovery = attribute.Attribute(
+        attr_type=bool
+    )
+    ahu_heat_recovery_efficiency = attribute.Attribute(
     )
 
 
