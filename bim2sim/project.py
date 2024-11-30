@@ -208,10 +208,12 @@ class FolderStructure:
 
         # set rootpath
         self = cls(rootpath)
-        if issubclass(plugin, Plugin):
+        if isinstance(plugin, str):
+            plugin_name = plugin
+        elif issubclass(plugin, Plugin):
             plugin_name = plugin.name
         else:
-            plugin_name = plugin
+            raise ValueError(f"{plugin} is not a subclass of Plugin or a str.")
 
         if self.is_project_folder():
             logger.info(

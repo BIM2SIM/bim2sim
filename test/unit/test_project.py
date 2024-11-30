@@ -97,7 +97,8 @@ class TestProject(BaseTestProject):
         project2 = Project.create(
             self.path,
             ifc_paths,
-            PluginDummy2
+            'aixlib'
         )
-        self.assertEqual(project2.plugin_cls, PluginDummy2)
+        from bim2sim.plugins.PluginAixLib.bim2sim_aixlib import PluginAixLib
         project2.finalize(True)
+        self.assertEqual(project2.plugin_cls.__name__, PluginAixLib.__name__)
