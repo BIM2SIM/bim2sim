@@ -146,9 +146,10 @@ class TemplateFinder(Finder):
                 pset = ifc2python.get_property_set_by_name(res_ele[0],
                                                            element.ifc,
                                                            element.ifc_units)
-                val = pset.get(res_ele[1])
-                if val is not None:
-                    return val
+                if pset:
+                    val = pset.get(res_ele[1])
+                    if val is not None:
+                        return val
             return None
         except AttributeError:
             raise AttributeError("Can't find property as defined by template.")
