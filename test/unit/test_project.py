@@ -23,6 +23,12 @@ class PluginDummy(Plugin):
     tasks = []
 
 
+class PluginDummy2(Plugin):
+    name = "Dummy2"
+    sim_settings = PlantSimSettings
+    tasks = []
+
+
 class BaseTestProject(unittest.TestCase):
 
     def setUp(self):
@@ -76,4 +82,22 @@ class TestProject(BaseTestProject):
             PluginDummy
         )
         self.assertTrue(os.path.exists(project2.paths.ifc_base / domain))
+        project2.finalize(True)
+
+    def test_reuse_project_folder_change_plugin(self):
+        """Tests to create project, reuse folder with other Plugin"""
+        project = Project.create(
+            self.path,
+            ifc_paths,
+            PluginDummy
+        )
+        self.assertEqual(project.plugin_cls, PluginDummy)
+        project.finalize(True)
+
+        project2 = Project.create(
+            self.path,
+            ifc_paths,
+            PluginDummy2
+        )
+        self.assertEqual(project2.plugin_cls, PluginDummy2)
         project2.finalize(True)
