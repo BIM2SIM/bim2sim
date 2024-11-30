@@ -32,10 +32,9 @@ class SimulateModelEBCPy(ITask):
         """
         if not self.playground.sim_settings.dymola_simulation:
             self.logger.warning(
-                f"{self.name} task was selected to run, but sim_setting for"
-                f" dymola_simulation is set to "
-                f"{self.playground.sim_settings.dymola_simulation}. "
-                f"Please set sim_setting to True or deactivate task.")
+                f"Skipping task {self.name} as sim_setting 'dymola_simulation' "
+                f"is set to {self.playground.sim_settings.dymola_simulation} "
+                f"and no simulation should be performed.")
             return None,
         else:
             if self.playground.sim_settings.path_aixlib:

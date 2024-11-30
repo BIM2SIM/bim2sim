@@ -11,5 +11,4 @@
    user-guide/PluginAixLib
    user-guide/PluginHKESim
    user-guide/PluginLCA
-   user-guide/PluginCFD
 ```
