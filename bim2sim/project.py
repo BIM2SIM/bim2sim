@@ -192,7 +192,7 @@ class FolderStructure:
 
     @classmethod
     def create(cls, rootpath: str, ifc_paths: Dict = None,
-               target: str = None, open_conf: bool = False):
+               plugin: Union[str, Type[Plugin]] = None, open_conf: bool = False):
         """Create ProjectFolder and set it up.
 
         Create instance, set source path, create project folder
@@ -202,19 +202,23 @@ class FolderStructure:
             rootpath: path of root folder
             ifc_paths: dict with key: bim2sim domain and value: path
                 to corresponding ifc which gets copied into project folder
-            target: the target simulation tool
+            plugin: the target Plugin
             open_conf: flag to open the config file in default application
         """
 
         # set rootpath
         self = cls(rootpath)
+        if issubclass(plugin, Plugin):
+            plugin_name = plugin.name
+        else:
+            plugin_name = plugin
 
         if self.is_project_folder():
             logger.info(
                 "Given path is already a project folder ('%s')" % self.root)
         else:
             self.create_project_folder()
-            config_base_setup(self.config, target)
+            config_base_setup(self.config, plugin_name)
 
         if ifc_paths:
             if not isinstance(ifc_paths, Dict):
@@ -323,7 +327,7 @@ class Project:
     def _get_plugin(self, plugin):
         if plugin and isinstance(plugin, str):
             return load_plugin(plugin)
-        elif plugin and isinstance(plugin, Plugin):
+        elif plugin and issubclass(plugin, Plugin):
             return plugin
         else:
             plugin_name = self.config['Backend']['use']
@@ -333,7 +337,7 @@ class Project:
 
     @classmethod
     def create(cls, project_folder, ifc_paths: Dict = None, plugin: Union[
-        str, Type[Plugin]] = None, open_conf: bool = False):
+            str, Type[Plugin]] = None, open_conf: bool = False):
         """Create new project
 
         Args:
@@ -346,8 +350,9 @@ class Project:
             updated from config
         """
         # create folder first and use given plugin
-        if plugin and (isinstance(plugin, str) or isinstance(plugin, Plugin)):
-            FolderStructure.create(project_folder, ifc_paths, plugin, open_conf)
+        if plugin and (isinstance(plugin, str) or issubclass(plugin, Plugin)):
+            FolderStructure.create(
+                project_folder, ifc_paths, plugin, open_conf)
             project = cls(project_folder, plugin=plugin)
         else:
             # recreate plugin out of config, since no plugin was given
