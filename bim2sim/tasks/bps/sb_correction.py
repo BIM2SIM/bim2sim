@@ -32,6 +32,7 @@ from bim2sim.tasks.common.inner_loop_remover import convex_decomposition, \
 from bim2sim.utilities.common_functions import filter_elements, \
     get_spaces_with_bounds
 from bim2sim.utilities.pyocc_tools import PyOCCTools
+from bim2sim.tasks.base import Playground
 
 logger = logging.getLogger(__name__)
 
@@ -46,10 +47,10 @@ class CorrectSpaceBoundaries(ITask):
     """
     reads = ('elements',)
 
-    def __init__(self, playground):
+    def __init__(self, playground: Playground):
         super().__init__(playground)
 
-    def run(self, elements):
+    def run(self, elements: dict):
         """Geometric preprocessing for BPS.
 
         This module contains all functions for geometric preprocessing of the BIM2SIM

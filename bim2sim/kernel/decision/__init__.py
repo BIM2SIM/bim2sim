@@ -7,6 +7,7 @@ This package contains:
     - functions save() and load() to save to file system
 """
 
+from importlib.metadata import version
 import enum
 import hashlib
 import json
@@ -17,8 +18,6 @@ from typing import Iterable, Callable, List, Dict, Any, Tuple, Union
 import pint
 
 from bim2sim.elements.mapping.units import ureg
-# todo remove version? what is this used for?
-__VERSION__ = '0.1'
 logger = logging.getLogger(__name__)
 
 
@@ -84,6 +83,8 @@ class Decision:
             (frontend)
         default: default answer
         group: group of decisions this decision belongs to
+        representative_global_keys: list of global keys of elements that this
+         decision also has the answer for
 
     Example:
         >>> decision = Decision("How much is the fish?", allow_skip=True)
@@ -116,7 +117,8 @@ class Decision:
                  key: str = None, global_key: str = None,
                  allow_skip=False, validate_checksum=None,
                  related: List[str] = None, context: List[str] = None,
-                 default=None, group: str = None):
+                 default=None, group: str = None,
+                 representative_global_keys: list = None):
 
         self.status = Status.pending
         self._frozen = False
@@ -145,6 +147,7 @@ class Decision:
         self.context = context
 
         self.group = group
+        self.representative_global_keys = representative_global_keys
 
     @property
     def value(self):
@@ -538,7 +541,7 @@ def save(bunch: DecisionBunch, path):
 
     decisions = bunch.to_serializable()
     data = {
-        'version': __VERSION__,
+        'version': version("bim2sim"),
         'checksum_ifc': None,
         'decisions': decisions,
     }
@@ -557,11 +560,12 @@ def load(path) -> Dict[str, Any]:
         logger.info(f"Unable to load decisions. "
                     f"No Existing decisions found at {ex.filename}")
         return {}
-    version = data.get('version', '0')
-    if version != __VERSION__:
+    cur_version = data.get('version', '0')
+    if cur_version != version("bim2sim"):
         try:
-            data = convert(version, __VERSION__, data)
-            logger.info("Converted stored decisions from version '%s' to '%s'", version, __VERSION__)
+            data = convert(cur_version, version("bim2sim"), data)
+            logger.info("Converted stored decisions from version '%s' to '%s'",
+                        cur_version, version("bim2sim"))
         except:
             logger.error("Decision conversion from %s to %s failed")
             return {}

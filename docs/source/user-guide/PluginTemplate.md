@@ -8,7 +8,7 @@ framework and first steps of the usage.
 For further information of the specific plugins:
 
 [TEASER](PluginTEASER), [EnergyPlus](PluginEnergyPlus), [AixLib](PluginAixLib),
-[HKESIM](PluginHKESIM), [LCA](PluginLCA), [CFD](PluginCFD)
+[HKESIM](PluginHKESIM), [LCA](PluginLCA), 
 
 The base installation of the `bim2sim` framework includes a generic Base-Plugin.
 The Base-Plugin is a plugin, which includes generic features and structure. This
@@ -35,21 +35,20 @@ version of [mamba](https://github.com/mamba-org/mamba)) is used.
 
 We will guide you through the process now.
 ```shell
-# create fresh python environment with conda 
-micromamba create -n bim2sim python=3.10 -c conda-forge
+# create fresh python environment with conda (python 3.10 to 3.11 are supported currently)
+micromamba create -n bim2sim python=3.11 -c conda-forge
 # activate your environment
 micromamba activate bim2sim
 
 # clone bim2sim repository (you can also use SSH if you prefer)
 # the option "--recurse-submodules" is needed to load submodules 
-git clone --recurse-submodules https://github.com/BIM2SIM/bim2sim.git
-# change into bim2sim folder
-cd bim2sim
-# use of development branch is recommended, as main branch is currently not updated regulary
-git checkout development
+git clone --recurse-submodules -b development https://github.com/BIM2SIM/bim2sim.git
 
 # install conda-forge packages (OCC not available via PyPi)
 micromamba install -c conda-forge pythonocc-core=7.7.0
+
+# change into bim2sim folder
+cd bim2sim
 
 # install pip requirements
 pip install -e '.'
@@ -57,11 +56,13 @@ pip install -e '.'
 ```
 
 Now the base library installation is done. First check is to call the help
-method of bim2sim. When an overview of arguments are returned, the bim2sim base
-libraray is functional.
+method of bim2sim. When the version of bim2sim is returned, the bim2sim base
+libraray is functional. You can either run of these commands:
 
 ```shell
-python -m bim2sim -h
+python -m bim2sim -v
+
+bim2sim -v
 ```
 
 To use one of the bim2sim plugins, please follow their additional install steps.
@@ -95,11 +96,18 @@ For more plugin-specific trouble shooting please have a look at the individual i
 
 
 ### Docker
-We already create docker images for each the base `bim2sim` tool as for every
-Plugin, but currently these are only available through our own registry. You can
-still build the images yourself based on the existing Dockerfiles. As our
-current structure is a bit complicated, please have a look at the explanation of
-the [Docker Structure](docker_structure).
+Docker images for `bim2sim` are currently available through our private registry.
+However, you can build these images yourself using the provided Dockerfiles. 
+We offer images for multiple Python versions, each based on micromamba to 
+install PythonOCC, a required package not available through PyPI.
+
+For each Python version, we provide two types of images:
+* A base image with essential dependencies
+* An extended image that includes pre-installed EnergyPlus for running EP simulations
+
+Regarding Dymola, we can't publicly distribute an image due to licensing 
+restrictions. However, you're welcome to build your own using our Dockerfile 
+as a starting point.
 
 We will release the images on DockerHub soon to make them accessible for
 everyone (see [issuue 452](https://github.com/BIM2SIM/bim2sim/issues/452)). 

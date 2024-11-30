@@ -29,8 +29,7 @@ class CreateSpaceBoundaries(ITask):
 
     reads = ('ifc_files', 'elements')
 
-    def run(self, ifc_files: list, elements: dict) \
-            -> tuple[dict[str, SpaceBoundary]]:
+    def run(self, ifc_files: list, elements: dict):
         """Create space boundaries for elements from IfcRelSpaceBoundary.
 
         This module contains all functions for setting up bim2sim elements of
@@ -51,7 +50,6 @@ class CreateSpaceBoundaries(ITask):
                 SpaceBoundary], dictionary of IFC-based space boundary elements.
         """
 
-    def run(self, ifc_files, elements):
         if not self.playground.sim_settings.add_space_boundaries:
             return
         logger.info("Creates elements for IfcRelSpaceBoundarys")
@@ -76,7 +74,7 @@ class CreateSpaceBoundaries(ITask):
         self.remove_elements_without_sbs(elements)
 
     @staticmethod
-    def remove_elements_without_sbs(elements):
+    def remove_elements_without_sbs(elements: dict):
         """Remove elements that hold no Space Boundaries.
 
         Those elements are usual not relevant for the simulation.
@@ -110,11 +108,25 @@ class CreateSpaceBoundaries(ITask):
         logger.info("Creates python representation of relevant ifc types")
         instance_dict = {}
         spaces = get_spaces_with_bounds(elements)
+        total_bounds_removed = 0
         for space in spaces:
+            drop_bound_counter = 0
+            keep_bounds = []
             for bound in space.space_boundaries:
                 if not bound.guid in space_boundaries.keys():
+                    drop_bound_counter += 1
                     continue
-                instance_dict[bound.guid] = bound
+                else:
+                    instance_dict[bound.guid] = bound
+                    keep_bounds.append(bound)
+            total_bounds_removed += drop_bound_counter
+            space.space_boundaries = keep_bounds
+            if drop_bound_counter > 0:
+                logger.info(f"Removed {drop_bound_counter} space boundaries in "
+                            f"{space.guid} {space.name}")
+        if total_bounds_removed > 0:
+            logger.warning(f"Total of {total_bounds_removed} space boundaries "
+                           f"removed.")
         elements.update(instance_dict)
 
     def get_parents_and_children(self, sim_settings: BaseSimSettings,
@@ -233,7 +245,7 @@ class CreateSpaceBoundaries(ITask):
         Returns:
             opening_boundary: Union[SpaceBoundary, None]
         """
-        opening_boundary = None
+        opening_boundary: Union[SpaceBoundary, None] = None
         distances = {}
         for op_bound in opening_elem.space_boundaries:
             if not op_bound.ifc.RelatingSpace == this_space:
@@ -298,7 +310,7 @@ class CreateSpaceBoundaries(ITask):
                 therefore should be dropped
         """
         rel_bound = None
-        drop_list[this_boundary.guid] = this_boundary
+        drop_list[this_boundary.guid]: dict[str, SpaceBoundary] = this_boundary
         ib = [b for b in bound_element.space_boundaries if
               b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries
               if
