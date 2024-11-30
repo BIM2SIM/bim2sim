@@ -23,12 +23,6 @@ class PluginDummy(Plugin):
     tasks = []
 
 
-class PluginDummy2(Plugin):
-    name = "Dummy2"
-    sim_settings = PlantSimSettings
-    tasks = []
-
-
 class BaseTestProject(unittest.TestCase):
 
     def setUp(self):
