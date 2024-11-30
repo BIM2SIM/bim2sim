@@ -46,7 +46,7 @@ def run_example_1():
     # specified settings for workflows can be changed later as well
     # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
     project.sim_settings.layers_and_materials = LOD.low
-    project.sim_settings.construction_class_walls = 'heavy'
+    project.sim_settings.construction_class_walls = 'iwu_heavy'
     project.sim_settings.construction_class_windows = \
         'Waermeschutzverglasung, dreifach'
     project.sim_settings.run_full_simulation = True

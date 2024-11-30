@@ -216,9 +216,9 @@ def wildcard_match(pattern, text):
     return True
 
 
-def get_type_building_elements():
+def get_type_building_elements(data_file):
     type_building_elements_path = \
-        assets / 'enrichment/material/TypeBuildingElements.json'
+        assets / 'enrichment/material' / data_file
     if validateJSON(type_building_elements_path):
         with open(type_building_elements_path, 'r+') as file:
             type_building_elements = json.load(file)
@@ -227,7 +227,8 @@ def get_type_building_elements():
         raise ValueError(f"Invalid JSON file  {type_building_elements_path}")
     template_options = {}
     for i in type_building_elements:
-        i_name, i_years, i_template = i.split('_')
+        i_name, i_years = i.split('_')[0:2]
+        i_template = i.split(f'{i_years}_')[1]
         if i_name not in template_options:
             template_options[i_name] = {}
         if i_years not in template_options[i_name]:
