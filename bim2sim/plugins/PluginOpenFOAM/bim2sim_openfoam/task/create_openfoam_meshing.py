@@ -274,25 +274,28 @@ class CreateOpenFOAMMeshing(ITask):
         airterminals = filter_elements(openfoam_elements, 'AirTerminal')
         cut_shapes = []
         for furn in furniture:
-            cut_shapes.append(PyOCCTools.unify_shape(PyOCCTools.make_solid_from_shape(
-                PyOCCTools, PyOCCTools.simple_bounding_box_shape([
-                    furn.tri_geom]))))
+            cut_shapes.append(
+                PyOCCTools.unify_shape(PyOCCTools.make_solid_from_shape(
+                    PyOCCTools, PyOCCTools.simple_bounding_box_shape([
+                        furn.tri_geom]))))
         for heater in heaters:
             cut_shapes.append(
                 PyOCCTools.unify_shape(PyOCCTools.make_solid_from_shape(
                     PyOCCTools,
                     PyOCCTools.scale_shape(heater.porous_media.tri_geom, 1.1))))
         for person in people:
-            cut_shapes.append(PyOCCTools.unify_shape(PyOCCTools.make_solid_from_shape(
-                PyOCCTools, PyOCCTools.simple_bounding_box_shape(
-                    [person.scaled_surface]))))
+            cut_shapes.append(
+                PyOCCTools.unify_shape(PyOCCTools.make_solid_from_shape(
+                    PyOCCTools, PyOCCTools.simple_bounding_box_shape(
+                        [person.scaled_surface]))))
         for air in airterminals:
-            cut_shapes.append(PyOCCTools.unify_shape(PyOCCTools.make_solid_from_shape(
-                PyOCCTools, PyOCCTools.scale_shape(air.bbox_min_max_shape,
-                                                   1.1))))
+            cut_shapes.append(
+                PyOCCTools.unify_shape(PyOCCTools.make_solid_from_shape(
+                    PyOCCTools, PyOCCTools.scale_shape(air.bbox_min_max_shape,
+                                                       1.1))))
         space_solid_shrinked = (PyOCCTools.make_solid_from_shape(
             PyOCCTools, PyOCCTools.scale_shape(
-                openfoam_case.current_zone.space_shape,0.9)))
+                openfoam_case.current_zone.space_shape, 0.9)))
         shape = space_solid_shrinked
         for cut_shape in cut_shapes:
             ins = TopOpeBRep_ShapeIntersector()
@@ -305,7 +308,7 @@ class CreateOpenFOAMMeshing(ITask):
         stl_writer.SetASCIIMode(True)
         stl_writer.Write(tri_eval_shape,
                          str(openfoam_case.openfoam_triSurface_dir /
-                         'evaluate_air_volume.stl'))
+                             'evaluate_air_volume.stl'))
         openfoam_case.topoSetDict.values.pop(');')  # required to
 
         for person in people:
@@ -408,7 +411,6 @@ class CreateOpenFOAMMeshing(ITask):
                 evaluate_dict)
 
         openfoam_case.controlDict.save(openfoam_case.openfoam_dir)
-
 
     def update_blockMeshDict_air(self, openfoam_case, openfoam_elements):
         air_terminals = filter_elements(openfoam_elements, 'AirTerminal')
@@ -514,11 +516,13 @@ class CreateOpenFOAMMeshing(ITask):
             openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
                 'refinementRegions'].update(
                 {air_terminal.air_type + '_refinement_small':
-                     {'mode': 'inside', 'levels': f"(({air_terminal.refinement_zone_level_small[0]} "
-                                                  f"{air_terminal.refinement_zone_level_small[1]}))"},
+                     {'mode': 'inside',
+                      'levels': f"(({air_terminal.refinement_zone_level_small[0]} "
+                                f"{air_terminal.refinement_zone_level_small[1]}))"},
                  air_terminal.air_type + '_refinement_large':
-                     {'mode': 'inside', 'levels': f"(({air_terminal.refinement_zone_level_large[0]} "
-                                                  f"{air_terminal.refinement_zone_level_large[1]}))"}}
+                     {'mode': 'inside',
+                      'levels': f"(({air_terminal.refinement_zone_level_large[0]} "
+                                f"{air_terminal.refinement_zone_level_large[1]}))"}}
             )
             openfoam_case.snappyHexMeshDict.values[
                 # 'castellatedMeshControls'].update({'maxLocalCells':
@@ -528,7 +532,7 @@ class CreateOpenFOAMMeshing(ITask):
                 # 'castellatedMeshControls'].update({'maxGlobalCells':
                 # 6000000}) works
                 'castellatedMeshControls'].update({'maxGlobalCells':
-                    self.playground.sim_settings.mesh_max_global_cells})
+                                                       self.playground.sim_settings.mesh_max_global_cells})
             openfoam_case.snappyHexMeshDict.values[
                 'meshQualityControls'].update({'maxBoundarySkewness': 20})
             openfoam_case.snappyHexMeshDict.values[
@@ -624,6 +628,30 @@ class CreateOpenFOAMMeshing(ITask):
     def update_snappyHexMesh_people(self, openfoam_case, openfoam_elements):
         people = filter_elements(openfoam_elements, 'People')
         for person in people:
+            openfoam_case.snappyHexMeshDict.values['geometry'].update(
+                {
+                    person.solid_name + "_box":
+                        {
+                            'type': 'searchableBox',
+                            'min': f"({person.bbox_min_max[0][0]} "
+                                   f"{person.bbox_min_max[0][1]} "
+                                   f"{person.bbox_min_max[0][2]})",
+                            'max': f"({person.bbox_min_max[1][0]} "
+                                   f"{person.bbox_min_max[1][1]} "
+                                   f"{person.bbox_min_max[1][2]})",
+                        },
+                }
+            )
+            openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
+                'refinementRegions'].update(
+                {
+                    person.solid_name + "_box":
+                        {'mode': 'inside',
+                         'levels': f"(({person.refinement_level[0]} "
+                                   f"{person.refinement_level[1]}))"
+                         },
+                }
+            )
             for body_part in person.body_parts_dict.values():
                 openfoam_case.snappyHexMeshDict.values['geometry'].update(
                     {
@@ -638,9 +666,10 @@ class CreateOpenFOAMMeshing(ITask):
                                         }
                                     }
                             },
-                    }
-                )
-                openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
+                    })
+
+                openfoam_case.snappyHexMeshDict.values[
+                    'castellatedMeshControls'][
                     'refinementSurfaces'].update(
                     {
                         body_part.solid_name:
