@@ -54,9 +54,9 @@
             </div>
         </aside>
         <h2>
-            <span class="text">40 statements &nbsp;</span>
+            <span class="text">41 statements &nbsp;</span>
             <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">0<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">40<span class="text"> missing</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">41<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_6d841987277e824a_e2_complex_project_teaser_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.8">coverage.py v7.6.8</a>,
-            created at 2024-12-02 12:52 +0000
+            created at 2024-12-02 14:33 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -87,7 +87,7 @@
     <p class="mis show_mis"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t"><span class="key">from</span> <span class="nam">bim2sim</span> <span class="key">import</span> <span class="nam">Project</span><span class="op">,</span> <span class="nam">run_project</span><span class="op">,</span> <span class="nam">ConsoleDecisionHandler</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="key">from</span> <span class="nam">bim2sim</span><span class="op">.</span><span class="nam">kernel</span><span class="op">.</span><span class="nam">log</span> <span class="key">import</span> <span class="nam">default_logging_setup</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="key">from</span> <span class="nam">bim2sim</span><span class="op">.</span><span class="nam">utilities</span><span class="op">.</span><span class="nam">types</span> <span class="key">import</span> <span class="nam">IFCDomain</span><span class="op">,</span> <span class="nam">LOD</span><span class="op">,</span> <span class="nam">ZoningCriteria</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="key">from</span> <span class="nam">bim2sim</span><span class="op">.</span><span class="nam">plugins</span><span class="op">.</span><span class="nam">PluginTEASER</span><span class="op">.</span><span class="nam">bim2sim_teaser</span> <span class="key">import</span> <span class="nam">PluginTEASER</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t"><span class="key">def</span> <span class="nam">run_example_simple_building_teaser</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t">    <span class="str">"""Run a building performance simulation with the TEASER backend.</span>&nbsp;</span><span class="r"></span></p>
@@ -111,7 +111,7 @@
     <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">    <span class="com"># Create a project including the folder structure for the project with</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">    <span class="com"># teaser as backend and no specified workflow (default workflow is taken)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">    <span class="nam">project</span> <span class="op">=</span> <span class="nam">Project</span><span class="op">.</span><span class="nam">create</span><span class="op">(</span><span class="nam">project_path</span><span class="op">,</span> <span class="nam">ifc_paths</span><span class="op">,</span> <span class="str">'teaser'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">    <span class="nam">project</span> <span class="op">=</span> <span class="nam">Project</span><span class="op">.</span><span class="nam">create</span><span class="op">(</span><span class="nam">project_path</span><span class="op">,</span> <span class="nam">ifc_paths</span><span class="op">,</span> <span class="nam">PluginTEASER</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">    <span class="com"># specify simulation settings (please have a look at the documentation of</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">    <span class="com"># all under concepts/sim_settings</span>&nbsp;</span><span class="r"></span></p>
@@ -186,7 +186,7 @@
             <a class="nav" href="z_6d841987277e824a_e2_complex_project_teaser_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.8">coverage.py v7.6.8</a>,
-            created at 2024-12-02 12:52 +0000
+            created at 2024-12-02 14:33 +0000
         </p>
     </div>
 </footer>
