@@ -3,6 +3,7 @@ from pathlib import Path
 import json
 import bim2sim
 from bim2sim.tasks.base import ITask
+import threading
 
 class LoadMaterialEmissionParameter(ITask):
 
@@ -10,6 +11,8 @@ class LoadMaterialEmissionParameter(ITask):
     touches = ('material_emission_dict',)
 
     def run(self):
+
+        self.lock = threading.Lock()
 
         self.logger.info("###### Load material emission data from Ökobaudat! ######")
 
@@ -39,8 +42,10 @@ class LoadMaterialEmissionParameter(ITask):
         #### Distribution emission data ####
         material_emissions_file_path = Path(
             Path(bim2sim.__file__).parent, r"assets/enrichment/material/MaterialEmissions.json")
+        self.lock.acquire()
         with open(material_emissions_file_path,'r') as json_file:
             material_emission_parameter_dict = json.load(json_file)
+        self.lock.release()
 
         if self.playground.sim_settings.update_emission_parameter_from_oekobdauat:
             self.logger.info("Update material emission parameter from Ökobaudat")

@@ -5,11 +5,10 @@ import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
-from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 
 
-def run_example_project_ventilation_system(project_path, export_graphs):
+def run_example_project_ventilation_system(project_path, weather_file_path, export_graphs):
     """
     """
 
@@ -21,9 +20,6 @@ def run_example_project_ventilation_system(project_path, export_graphs):
     # directory
     #project_path = Path(r"D:\dja-jho\Testing\SystemTest")
 
-    # download additional test resources for arch domain, you might want to set
-    # force_new to True to update your test resources
-    download_test_resources(IFCDomain.arch, force_new=False)
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
         IFCDomain.arch:
@@ -38,9 +34,7 @@ def run_example_project_ventilation_system(project_path, export_graphs):
     # all under concepts/sim_settings
 
     # set weather file data
-    project.sim_settings.weather_file_path = (
-            Path(bim2sim.__file__).parent.parent /
-            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+    project.sim_settings.weather_file_path = weather_file_path
 
 
     # Define if ventilation plots should be exported

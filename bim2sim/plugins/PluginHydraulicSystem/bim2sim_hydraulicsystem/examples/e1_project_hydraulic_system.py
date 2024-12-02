@@ -5,7 +5,6 @@ import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
-from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 from bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_medium_project_teaser import \
     (run_medium_building_teaser)

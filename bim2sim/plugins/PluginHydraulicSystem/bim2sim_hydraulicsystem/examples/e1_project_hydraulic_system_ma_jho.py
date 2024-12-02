@@ -5,13 +5,12 @@ import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
-from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 from bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_medium_project_teaser import \
     (run_medium_building_teaser)
 
 
-def run_example_project_hydraulic_system(project_path, export_graphs, heat_delivery_type, t_forward, t_backward):
+def run_example_project_hydraulic_system(project_path, weather_file_path, export_graphs, heat_delivery_type, t_forward, t_backward):
     """
     """
 
@@ -38,9 +37,7 @@ def run_example_project_hydraulic_system(project_path, export_graphs, heat_deliv
 
 
     # set weather file data
-    project.sim_settings.weather_file_path = (
-            Path(bim2sim.__file__).parent.parent /
-            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+    project.sim_settings.weather_file_path = weather_file_path
 
     project.sim_settings.generate_new_building_data = False
     project.sim_settings.generate_new_building_graph = False

@@ -12,6 +12,7 @@ import math
 import colebrook
 from pint import Quantity
 from scipy.spatial import distance
+import threading
 
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
@@ -81,6 +82,8 @@ class CalculateHydraulicSystem(ITask):
     touches = ()
 
     def run(self, heating_graph, heat_demand_dict, elements):
+
+        self.lock = threading.Lock()
 
         self.hydraulic_system_directory = Path(self.paths.export / 'hydraulic system')
         self.material_result_file = self.hydraulic_system_directory / "material_quantities_hydraulic_system.xlsx"
@@ -2213,8 +2216,10 @@ class CalculateHydraulicSystem(ITask):
 
     def define_standard_indoor_temperature(self, usage):
         UseConditions_Path = Path(__file__).parent.parent / 'assets/UseConditions.json'
+        self.lock.acquire()
         with open(UseConditions_Path, 'r') as file:
             UseConditions = json.load(file)
+        self.lock.release()
 
         standard_indoor_temperature = 0
         for key, values in UseConditions.items():

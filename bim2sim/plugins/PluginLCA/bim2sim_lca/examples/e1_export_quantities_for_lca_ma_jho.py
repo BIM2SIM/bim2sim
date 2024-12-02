@@ -5,11 +5,10 @@ import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
-from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain
 
 
-def run_example_complex_building_lca(project_path, heat_delivery_type):
+def run_example_complex_building_lca(project_path, weather_file_path, heat_delivery_type):
     """Generate output for an LCA analysis.
 
     This example generates output for an LCA analysis. Specifies project
@@ -27,11 +26,6 @@ def run_example_complex_building_lca(project_path, heat_delivery_type):
     # see logging documentation for more information
     default_logging_setup()
 
-
-    # download additional test resources for arch domain, you might want to set
-    # force_new to True to update your test resources
-    download_test_resources(IFCDomain.arch, force_new=False)
-
     # Get path of the IFC Building model that is used for this example
     # In this case the mainbuilding of EBC at Aachen which has mostly correct
     # implemented materials in IFC
@@ -46,9 +40,7 @@ def run_example_complex_building_lca(project_path, heat_delivery_type):
     project = Project.create(project_path, ifc_paths, 'lca')
 
     # set weather file data
-    project.sim_settings.weather_file_path = (
-            Path(bim2sim.__file__).parent.parent /
-            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+    project.sim_settings.weather_file_path = weather_file_path
 
     project.sim_settings.update_emission_parameter_from_oekobdauat = False
     project.sim_settings.calculate_lca_building = True

@@ -5,6 +5,7 @@ from bim2sim.tasks import common
 from ebcpy import TimeSeriesData
 import json
 import pickle
+import threading
 
 from bim2sim.utilities.common_functions import filter_elements
 
@@ -22,11 +23,14 @@ class InterfaceToPluginTeaser(ITask):
     def run(self, elements):
         self.logger.info("Load thermal zone data")
 
+        self.lock = threading.Lock()
 
         if self.playground.sim_settings.disaggregate_heat_demand_thermal_zones:
             pickle_path = self.paths.export / "serialized_elements.pickle"
+            self.lock.acquire()
             with open(pickle_path, 'rb') as file:
                 deserialized_elements = pickle.load(file)
+            self.lock.acquire()
 
             zone_dict = CreateResultDF.map_zonal_results(
                 bim2sim_teaser_mapping, deserialized_elements)
@@ -79,8 +83,10 @@ class InterfaceToPluginTeaser(ITask):
 
     def read_thermal_zone_mapping_json(self):
         filepath = self.playground.sim_settings.thermal_zone_mapping_file_path
+        self.lock.acquire()
         with open(filepath, "r") as file:
             json_data = json.load(file)
+        self.lock.release()
 
         space_dict = {}
         i = 1

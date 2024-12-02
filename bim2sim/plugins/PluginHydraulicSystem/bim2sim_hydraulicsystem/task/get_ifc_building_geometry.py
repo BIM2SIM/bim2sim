@@ -7,6 +7,7 @@ from pathlib import Path
 import ifcopenshell
 import networkx as nx
 from networkx.readwrite import json_graph
+import threading
 
 from bim2sim.tasks.base import ITask
 
@@ -20,6 +21,8 @@ class GetIFCBuildingGeometry(ITask):
 
     def run(self, ifc_files):
 
+        self.lock = threading.Lock()
+
         self.hydraulic_system_directory = Path(self.paths.export / 'hydraulic system')
         self.hydraulic_system_directory.mkdir(parents=True, exist_ok=True)
 
@@ -31,7 +34,10 @@ class GetIFCBuildingGeometry(ITask):
             floor_dict = self.sort_room_floor(spaces_dict=room)
             self.write_json(data=floor_dict, filename=f"ifc_building_floor.json")
         else:
+            self.lock.acquire()
             floor_dict = self.load_json(filename=f"ifc_building_floor.json")
+            self.lock.release()
+
 
         return floor_dict,
 

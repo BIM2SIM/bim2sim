@@ -20,6 +20,7 @@ import ifcopenshell.geom
 from OCC.Core.BRepClass3d import BRepClass3d_SolidClassifier
 from OCC.Core.gp import gp_Pnt
 from OCC.Core.TopAbs import TopAbs_IN, TopAbs_ON
+import threading
 
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
@@ -35,6 +36,8 @@ class CreateBuildingAndHeatingGraph(ITask):
 
 
     def run(self, floor_dict, elements, heat_demand_dict):
+
+        self.lock = threading.Lock()
 
         self.hydraulic_system_directory = Path(self.paths.export / 'hydraulic system')
 
@@ -89,9 +92,11 @@ class CreateBuildingAndHeatingGraph(ITask):
     def load_json_graph(self, filename: str):
         filepath = Path(self.paths.root).parent / filename
         self.logger.info(f"Read {filename} Graph from file {filepath}")
+        self.lock.acquire()
         with open(filepath, "r") as file:
             json_data = json.load(file)
             graph = nx.node_link_graph(json_data)
+        self.lock.release()
         return graph
 
     def write_json_graph(self, graph, filename):
@@ -384,8 +389,10 @@ class CreateBuildingAndHeatingGraph(ITask):
 
     def define_standard_indoor_temperature(self, usage):
         UseConditions_Path = Path(__file__).parent.parent / 'assets/UseConditions.json'
+        self.lock.acquire()
         with open(UseConditions_Path, 'r') as file:
             UseConditions = json.load(file)
+        self.lock.release()
 
         standard_indoor_temperature = 0
         for key, values in UseConditions.items():

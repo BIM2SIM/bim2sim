@@ -6,11 +6,10 @@ from bim2sim import Project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
-from bim2sim.utilities.common_functions import download_test_resources, \
-    download_library
+from bim2sim.utilities.common_functions import download_library
 
 
-def run_example_complex_building_teaser(project_path, dymola_executable,
+def run_example_complex_building_teaser(project_path, dymola_executable, weather_file_path,
                                         heating_bool, cooling_bool, ahu_central_bool,
                                         ahu_heat_bool, ahu_cool_bool, ahu_hum_bool, building_standard,
                                         window_standard):
@@ -27,9 +26,7 @@ def run_example_complex_building_teaser(project_path, dymola_executable,
     # directory
     #project_path = r"D:\dja-jho\Testing\SystemTest"
 
-    # download additional test resources for arch domain, you might want to set
-    # force_new to True to update your test resources
-    download_test_resources(IFCDomain.arch, force_new=False)
+
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
         IFCDomain.arch:
@@ -72,9 +69,7 @@ def run_example_complex_building_teaser(project_path, dymola_executable,
 
 
     # set weather file data
-    project.sim_settings.weather_file_path = (
-            Path(bim2sim.__file__).parent.parent /
-            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+    project.sim_settings.weather_file_path = weather_file_path
     # Run a simulation directly with dymola after model creation
     project.sim_settings.dymola_simulation = True
     project.sim_settings.edit_mat_result_file_flag = True
