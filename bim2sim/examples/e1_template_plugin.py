@@ -4,7 +4,6 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project, ConsoleDecisionHandler, run_project
 from bim2sim.elements import bps_elements
-from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.types import IFCDomain
 from bim2sim.elements.base_elements import Material
