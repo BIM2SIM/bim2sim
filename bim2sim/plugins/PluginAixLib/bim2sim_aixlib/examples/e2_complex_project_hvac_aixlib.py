@@ -5,7 +5,6 @@ import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain
-from bim2sim.utilities.common_functions import download_test_resources
 
 
 def run_example_complex_hvac_aixlib():
@@ -19,19 +18,11 @@ def run_example_complex_hvac_aixlib():
     decisions via command line input.
     """
 
-    # Create the default logging to for quality log and bim2sim main log (
-    # see logging documentation for more information
-    default_logging_setup()
-
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
         tempfile.TemporaryDirectory(
             prefix='bim2sim_example_complex_aixlib').name)
-
-    # download additional test resources for arch domain, you might want to set
-    # force_new to True to update your test resources
-    download_test_resources(IFCDomain.hydraulic, force_new=False)
 
     # Set path of ifc for hydraulic domain with the fresh downloaded test models
     ifc_paths = {

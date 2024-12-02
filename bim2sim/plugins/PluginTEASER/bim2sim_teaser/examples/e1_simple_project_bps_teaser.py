@@ -4,7 +4,6 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
-from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 
 
@@ -16,18 +15,11 @@ def run_example_simple_building_teaser():
     project with the TEASER backend. Sim settings are specified before the
     project is executed with the previously specified settings.
     """
-    # Create the default logging to for quality log and bim2sim main log
-    # (see logging documentation for more information)
-    default_logging_setup()
-
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(tempfile.TemporaryDirectory(
         prefix='bim2sim_teaser_example_e1_').name)
 
-    # download additional test resources for arch domain, you might want to set
-    # force_new to True to update your test resources
-    download_test_resources(IFCDomain.arch, force_new=False)
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
         IFCDomain.arch:

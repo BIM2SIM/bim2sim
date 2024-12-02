@@ -14,10 +14,6 @@ def run_example_load_existing_project():
     # TODO
     ...
     """
-    # Create the default logging to for quality log and bim2sim main log
-    # (see logging documentation for more information)
-    default_logging_setup()
-
     # First run the previous example e1: run_example_simple_building_teaser
     project = run_example_simple_building_teaser()
 
