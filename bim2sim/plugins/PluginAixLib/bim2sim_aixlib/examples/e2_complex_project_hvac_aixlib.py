@@ -18,10 +18,6 @@ def run_example_complex_hvac_aixlib():
     decisions via command line input.
     """
 
-    # Create the default logging to for quality log and bim2sim main log (
-    # see logging documentation for more information
-    default_logging_setup()
-
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(

@@ -383,8 +383,9 @@ class Project:
         # tear down existing handlers (just in case)
         self._teardown_logger()
 
-        thread_name = threading.current_thread().name
 
+        thread_name = threading.current_thread().name
+        log.default_logging_setup(prj_log_path=self.paths.log)
         # quality logger
         quality_logger = logging.getLogger('bim2sim.QualityReport')
         quality_handler = logging.FileHandler(
