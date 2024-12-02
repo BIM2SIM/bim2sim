@@ -32,7 +32,7 @@ def run_example_18():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    tempfile.tempdir = '/mnt/sim/SimData/CFD-temp'
+    # tempfile.tempdir = '/mnt/sim/SimData/CFD-temp'
     project_path = Path(
         tempfile.TemporaryDirectory(prefix='diss_DH_ovf_P3_b30_').name)
 
@@ -70,7 +70,7 @@ def run_example_18():
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
     # Set the install path to your EnergyPlus installation according to your
     # system requirements
-    # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+    project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
 
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
@@ -96,10 +96,10 @@ def run_example_18():
     project.sim_settings.people_amount = 1
     project.sim_settings.people_setting = 'Seated'
     project.sim_settings.run_meshing = True
-    project.sim_settings.adjust_refinements = True
+    project.sim_settings.adjust_refinements = False
     # project.sim_settings.run_cfd_simulation = True
     # project.sim_settings.radiation_precondition_time = 4000
-    project.sim_settings.radiation_model = 'fvDOM'
+    project.sim_settings.radiation_model = 'P1'
     project.sim_settings.output_keys = ['output_outdoor_conditions',
                                         'output_zone_temperature',
                                         'output_zone', 'output_infiltration',
