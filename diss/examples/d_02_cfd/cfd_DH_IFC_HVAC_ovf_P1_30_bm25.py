@@ -98,7 +98,7 @@ def run_example_18():
     project.sim_settings.people_amount = 1
     project.sim_settings.people_setting = 'Seated'
     project.sim_settings.run_meshing = True
-    project.sim_settings.adjust_refinements = True
+    project.sim_settings.adjust_refinements = False
     # project.sim_settings.run_cfd_simulation = True
     # project.sim_settings.radiation_precondition_time = 4000
     project.sim_settings.radiation_model = 'P1'
