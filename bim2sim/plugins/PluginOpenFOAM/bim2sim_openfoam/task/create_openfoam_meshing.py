@@ -211,17 +211,26 @@ class CreateOpenFOAMMeshing(ITask):
                     heater.porous_media.solid_name:
                         {
                             'mode': 'inside',
-                            'levels': '((0 4))'
+                            'levels':
+                                f'(('
+                                f'{heater.porous_media.refinement_level[0]} '
+                                f'{heater.porous_media.refinement_level[1]}))'
                         },
                     heater.solid_name + '_refinement_small':
                         {
                             'mode': 'inside',
-                            'levels': '((0 4))'
+                            'levels':
+                                f'(('
+                                f'{heater.refinement_level[0]} '
+                                f'{heater.refinement_level[1]}))'
                         },
                     heater.solid_name + '_refinement_large':
                         {
                             'mode': 'inside',
-                            'levels': '((0 3))'
+                            'levels':
+                                f'(('
+                                f'{heater.refinement_level[0]} '
+                                f'{heater.refinement_level[1]-1}))'
                         }
 
                 }
@@ -538,7 +547,7 @@ class CreateOpenFOAMMeshing(ITask):
             openfoam_case.snappyHexMeshDict.values[
                 'meshQualityControls'].update({'maxInternalSkewness': 3})
             openfoam_case.snappyHexMeshDict.values[
-                'castellatedMeshControls'].update({'resolveFeatureAngle': 60})
+                'castellatedMeshControls'].update({'resolveFeatureAngle': 180})
             openfoam_case.snappyHexMeshDict.values[
                 'castellatedMeshControls'].update({'minRefinementCells': 5})
             openfoam_case.snappyHexMeshDict.values[
@@ -680,8 +689,9 @@ class CreateOpenFOAMMeshing(ITask):
                                         body_part.solid_name:
                                             {
                                                 'level':
-                                                    f"({body_part.refinement_level[0]} "
-                                                    f"{body_part.refinement_level[1]})",
+                                                    f"("
+                                                    f"{person.refinement_level[0]} "
+                                                    f"{person.refinement_level[1]})",
                                                 'patchInfo':
                                                     {
                                                         'type':

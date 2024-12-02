@@ -16,21 +16,21 @@ class AirDiffuser(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.stl_name = self.solid_name + '.stl'
         self.stl_file_path_name = (triSurface_path.as_posix() + '/' +
                                    self.stl_name)
-        self.refinement_level = [4, 9]
+        self.refinement_level = [3, 6]
 
         if inlet_outlet_type == 'IfcDiffusor':
             raise NotImplementedError
         elif inlet_outlet_type == 'Original':
             self.tri_geom = PyOCCTools.triangulate_bound_shape(shape)
-            self.refinement_level = [4, 10]
+            self.refinement_level = [3, 6]
         elif inlet_outlet_type == 'SimpleStlDiffusor':
             self.tri_geom = PyOCCTools.triangulate_bound_shape(
                 shape)
-            self.refinement_level = [4, 10]
+            self.refinement_level = [3, 6]
         elif inlet_outlet_type == 'StlDiffusor':
             self.tri_geom = PyOCCTools.triangulate_bound_shape(
                 shape)
-            self.refinement_level = [4, 10]
+            self.refinement_level = [3, 6]
         elif inlet_outlet_type == 'Plate':
             x1 = bbox_min_max[0][0] - 0.05
             x2 = bbox_min_max[1][0] + 0.05
@@ -44,11 +44,11 @@ class AirDiffuser(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                     gp_Pnt(x2, y2, z),
                     gp_Pnt(x1, y2, z)]
                 ))
-            self.refinement_level = [3, 8]
+            self.refinement_level = [3, 6]
         else:
             self.tri_geom = None
             self.solid_name = None
-            self.refinement_level = [3, 8]
+            self.refinement_level = [3, 6]
 
 
 class AirSourceSink(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
@@ -60,7 +60,7 @@ class AirSourceSink(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.stl_name = self.solid_name + '.stl'
         self.stl_file_path_name = (triSurface_path.as_posix() + '/' +
                                    self.stl_name)
-        self.refinement_level = [2, 7]
+        self.refinement_level = [3, 6]
         if shape:
             self.tri_geom = PyOCCTools.triangulate_bound_shape(shape)
         else:
@@ -78,7 +78,7 @@ class AirBox(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.stl_name = self.solid_name + '.stl'
         self.stl_file_path_name = (triSurface_path.as_posix() + '/' +
                                    self.stl_name)
-        self.refinement_level = [2, 7]
+        self.refinement_level = [2, 4]
         if shape:
             self.tri_geom = PyOCCTools.triangulate_bound_shape(shape)
         else:
