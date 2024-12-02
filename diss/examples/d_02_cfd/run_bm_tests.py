@@ -12,15 +12,14 @@ from diss.examples.d_02_cfd.cfd_DH_IFC_HVAC_ovf_P1_30_bm30 import run_example_18
 
 def run_bm_tests():
     bm05()
+    bm07()
+    bm08()
     bm10()
+    bm12()
+    bm14()
     bm15()
     bm20()
     bm25()
-    # bm30()
-    bm08()
-    bm12()
-    bm14()
-    bm07()
 
 if __name__ == '__main__':
     run_bm_tests()
