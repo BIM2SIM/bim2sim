@@ -227,7 +227,7 @@ class People(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.stl_file_path_name = (triSurface_path.as_posix() + '/' +
                                    self.stl_name)
         self.patch_info_type = 'wall'
-        self.refinement_level = [2, 5]
+        self.refinement_level = [1, 4]
         self.tri_geom = PyOCCTools.triangulate_bound_shape(shape)
         self.point_in_shape = PyOCCTools.get_center_of_volume(self.tri_geom)
         self.power = power

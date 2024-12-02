@@ -48,9 +48,9 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         if self.bound_element_type in ['OuterWall', 'Window', 'Door',
                                        'InnerFloor', 'Floor', 'Roof',
                                        'GroundFloor', 'OuterDoor', 'Ceiling']:
-            self.refinement_level = [2, 4]
+            self.refinement_level = [1, 3]
         elif self.bound_element_type in ['InnerWall', 'Wall', 'InnerDoor']:
-            self.refinement_level = [2, 3]
+            self.refinement_level = [1, 3]
         else:
             logger.warning(f"{self.bound_element_type} bound_element_type is "
                            f"unknown")

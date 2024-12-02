@@ -22,7 +22,7 @@ class HeaterSurface(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.temperature = 40.0
         self.stl_file_path_name = (triSurface_path.as_posix() + '/' +
                                    self.stl_name)
-        self.refinement_level = [1, 4]
+        self.refinement_level = [1, 3]
         self.bound_area = PyOCCTools.get_shape_area(self.tri_geom)
 
 
@@ -35,7 +35,7 @@ class PorousMedia(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.stl_file_path_name = (triSurface_path.as_posix() + '/' +
                                    self.stl_name)
         self.power = convective_power
-        self.refinement_level = [2, 4]
+        self.refinement_level = [1, 3]
         self.tri_geom, self.bbox_min_max = (
             self.create_porous_media_tri_geom(heater_shape))
 
@@ -81,7 +81,7 @@ class Heater:
                                         triSurface_path,
                                         self.convective_power)
 
-        self.refinement_level = [1, 4]
+        self.refinement_level = [1, 3]
         self.refinement_zone_small = []
         self.refinement_zone_small.append([c - increase_small_refinement for c
                                            in
