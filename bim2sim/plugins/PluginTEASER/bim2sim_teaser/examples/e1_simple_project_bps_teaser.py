@@ -5,7 +5,7 @@ import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
-
+from bim2sim.plugins.PluginTEASER.bim2sim_teaser import PluginTEASER
 
 def run_example_simple_building_teaser():
     """Run a building performance simulation with the TEASER backend.
@@ -33,7 +33,7 @@ def run_example_simple_building_teaser():
 
     # Create a project including the folder structure for the project with
     # teaser as backend and no specified workflow (default workflow is taken)
-    project = Project.create(project_path, ifc_paths, 'teaser')
+    project = Project.create(project_path, ifc_paths, PluginTEASER)
 
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
