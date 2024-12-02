@@ -214,7 +214,7 @@ class CreateOpenFOAMMeshing(ITask):
                             'levels':
                                 f'(('
                                 f'{heater.porous_media.refinement_level[0]} '
-                                f'{heater.porous_media.refinement_level[0]+1}))'
+                                f'{heater.porous_media.refinement_level[1]-1}))'
                         },
                     heater.solid_name + '_refinement_small':
                         {
@@ -527,11 +527,11 @@ class CreateOpenFOAMMeshing(ITask):
                 {air_terminal.air_type + '_refinement_small':
                      {'mode': 'inside',
                       'levels': f"(({air_terminal.refinement_zone_level_small[0]} "
-                                f"{air_terminal.refinement_zone_level_small[0]+2}))"},
+                                f"{air_terminal.refinement_zone_level_small[1]-1}))"},
                  air_terminal.air_type + '_refinement_large':
                      {'mode': 'inside',
                       'levels': f"(({air_terminal.refinement_zone_level_large[0]} "
-                                f"{air_terminal.refinement_zone_level_large[0]+1}))"}}
+                                f"{air_terminal.refinement_zone_level_large[1]-2}))"}}
             )
             openfoam_case.snappyHexMeshDict.values[
                 # 'castellatedMeshControls'].update({'maxLocalCells':
@@ -657,7 +657,7 @@ class CreateOpenFOAMMeshing(ITask):
                     person.solid_name + "_box":
                         {'mode': 'inside',
                          'levels': f"(({person.refinement_level[0]} "
-                                   f"{person.refinement_level[0]+1}))"
+                                   f"{person.refinement_level[1]-1}))"
                          },
                 }
             )
