@@ -232,7 +232,8 @@ def convergencePlot2(of_directory: str):
     plt.show()
     return global_max
 
-def MinMaxPlot(of_directory: str):
+def MinMaxPlot(of_directory: str, min_max_dir='MinMax',
+               vol_field_dir='volFieldValue', max_dir='', min_dir='', name=''):
     """
     Creates a plot of minimal and maximal values of the velocity's magnitude
     (U) and temperature (T) over the simulated iteration steps.
@@ -242,43 +243,59 @@ def MinMaxPlot(of_directory: str):
     T_av = []
     U_mag_min = []
     U_mag_max = []
-    time_dirs = os.listdir(of_directory / 'postProcessing/MinMax/')
-    mean_dirs = os.listdir(of_directory / 'postProcessing/volFieldValue')
-    time_dirs.sort()
-    time_dirs.sort(key=len)  # yes, these are both necessary
+    max_dirs = None
+    min_dirs = None
+    time_dirs = None
+    if not (max_dir and min_dir):
+        time_dirs = os.listdir(of_directory / f'postProcessing/{min_max_dir}/')
+        time_dirs.sort()
+        time_dirs.sort(key=len)  # yes, these are both necessary
+    else:
+        max_dirs = os.listdir(of_directory / f'postProcessing/{max_dir}/')
+        min_dirs = os.listdir(of_directory / f'postProcessing/{min_dir}/')
+        min_dirs.sort()
+        min_dirs.sort(key=len)  # yes, these are both necessary
+        max_dirs.sort()
+        max_dirs.sort(key=len)  # yes, these are both necessary
+    mean_dirs = os.listdir(of_directory / f'postProcessing/{vol_field_dir}')
     mean_dirs.sort()
     mean_dirs.sort(key=len)
-    for timestep in time_dirs:
-        with open(of_directory / 'postProcessing/MinMax' /
-                  timestep / 'fieldMinMax.dat', 'r') as f:
-            lines = f.readlines()
-            for i in range(11, len(lines)):
-                line = lines[i].split('\t')
-                if len(line) > 5 and 'T' in line[1]:
-                    tmin = line[2]
-                    tmax = line[5]
+    if time_dirs:
+        for timestep in time_dirs:
+            with open(of_directory / f'postProcessing/{min_max_dir}' /
+                      timestep / 'fieldMinMax.dat', 'r') as f:
+                lines = f.readlines()
+                for i in range(11, len(lines)):
+                    line = lines[i].split('\t')
+                    if len(line) > 5 and 'T' in line[1]:
+                        tmin = line[2]
+                        tmax = line[5]
+                        T_min.append(float(tmin))
+                        T_max.append(float(tmax))
+                    elif len(line) > 5 and 'mag(U)' in line[1]:
+                        umin = line[2]
+                        umax = line[5]
+                        U_mag_min.append(float(umin))
+                        U_mag_max.append(float(umax))
+    if min_dirs and max_dirs:
+        for timestep in min_dirs:
+            with open(of_directory / f'postProcessing/{min_dir}' /
+                      timestep / 'volFieldValue.dat', 'r') as f3:
+                lines = f3.readlines()
+                for i in range(4, len(lines)):
+                    line = lines[i].split('\t')
+                    tmin = line[1]
                     T_min.append(float(tmin))
+        for timestep in max_dirs:
+            with open(of_directory / f'postProcessing/{max_dir}' /
+                      timestep / 'volFieldValue.dat', 'r') as f4:
+                lines = f4.readlines()
+                for i in range(4, len(lines)):
+                    line = lines[i].split('\t')
+                    tmax = line[1]
                     T_max.append(float(tmax))
-                elif len(line) > 5 and 'mag(U)' in line[1]:
-                    umin = line[2]
-                    umax = line[5]
-                    U_mag_min.append(float(umin))
-                    U_mag_max.append(float(umax))
     for timestep in mean_dirs:
-        with open(of_directory/ 'postProcessing/volFieldValue' /
-                  timestep / 'volFieldValue.dat', 'r') as f2:
-            lines = f2.readlines()
-            for i in range(4, len(lines)):
-                line = lines[i].split('\t')
-                avT = line[1]
-                T_av.append(float(avT))
-    plt.plot(T_min, linewidth=0.1)
-    plt.plot(T_max, linewidth=0.1)
-    plt.plot(T_av, linewidth=0.1)
-    plt.text(len(T_av), T_av[-1], f'T_mean_final: {T_av[-1]:.2f} K',
-             ha='right', va='bottom', fontsize=12)
-    for timestep in mean_dirs:
-        with open(of_directory/ 'postProcessing/volFieldValue' /
+        with open(of_directory/ f'postProcessing/{vol_field_dir}' /
                   timestep / 'volFieldValue.dat', 'r') as f2:
             lines = f2.readlines()
             for i in range(4, len(lines)):
@@ -293,19 +310,19 @@ def MinMaxPlot(of_directory: str):
     plt.ylabel('T')
     plt.xlabel('Iteration')
     plt.legend(['T_min', 'T_max', 'T_av'])
-    plt.title('Temperature min/max/average')
-    plt.savefig(of_directory / 'minmaxavT.png')
+    plt.title(f'{name} Temperature min/max/average')
+    plt.savefig(of_directory / f'{name}minmaxavT.png')
     plt.show()
     plt.close()
-
-    plt.plot(U_mag_min)
-    plt.plot(U_mag_max)
-    plt.ylabel('|U|')
-    plt.xlabel('Iteration')
-    plt.legend(['|U|_min', '|U|_max'])
-    plt.title('mag(U) min/max')
-    plt.savefig(of_directory / 'minmax_U_.png')
-    plt.show()
+    if time_dirs:
+        plt.plot(U_mag_min)
+        plt.plot(U_mag_max)
+        plt.ylabel('|U|')
+        plt.xlabel('Iteration')
+        plt.legend(['|U|_min', '|U|_max'])
+        plt.title(f'{name} mag(U) min/max')
+        plt.savefig(of_directory / f'{name}minmax_U_.png')
+        # plt.show()
 
 
 def analyze_execution_times(of_directory, target_iterations=[1000, 'final']):
@@ -444,7 +461,7 @@ def add_simulation_times(fig, of_directory, name='', number=0):
     # Save the plot
     fig.savefig(of_directory / f'iteration_time_V{number}.png')
 
-    fig.show()
+    #fig.show()
     return fig
 
 if __name__ == '__main__':
@@ -457,70 +474,43 @@ if __name__ == '__main__':
     # else:
     #     analyze_execution_times(this_path, target_iterations=[1000, 'final'])
     #
-    directory = Path(r'C:\Users\richter\Documents\CFD-Data\PluginTests')
+    directory = Path(r'C:\Users\richter\Documents\CFD-Data\PluginTests'
+                     r'\grid_conv_1o1p\P1')
     # Iterate through directories that start with 'diss_'
 
     fig_temp = None
     counter=0
-    for diss_dir in directory.glob('diss_[!noR]*'):
+    for diss_dir in directory.glob('bm*'):
         # Check if "OpenFOAM" subdirectory exists within the current directory
         openfoam_dir = diss_dir / 'OpenFOAM'
         if openfoam_dir.is_dir():
             print(openfoam_dir)
             try:
                 global_conv_iter = convergencePlot2(openfoam_dir)
-                MinMaxPlot(openfoam_dir)
-                if global_conv_iter:
-                    analyze_execution_times(openfoam_dir,
-                                            target_iterations=[global_conv_iter,
-                                                               'final'])
-                else:
-                    analyze_execution_times(openfoam_dir,
-                                            target_iterations=[1000, 'final'])
-                fig_temp = add_simulation_times(fig_temp, openfoam_dir,
-                                                name=diss_dir.name.replace(
-                                                    'diss_', ''),
-                                            number=counter)
+                MinMaxPlot(openfoam_dir, min_max_dir=None,
+                           vol_field_dir='evaluate_air_volume_average',
+                           max_dir='evaluate_air_volume_max',
+                           min_dir='evaluate_air_volume_min',
+                           name=str(diss_dir.name+'_volume'))
+                MinMaxPlot(openfoam_dir, min_max_dir=None,
+                           vol_field_dir='person_Person0_average',
+                           max_dir='person_Person0_max',
+                           min_dir='person_Person0_min',
+                           name=str(diss_dir.name+'_Person0')
+                           )
+                # if global_conv_iter:
+                #     analyze_execution_times(openfoam_dir,
+                #                             target_iterations=[global_conv_iter,
+                #                                                'final'])
+                # else:
+                #     analyze_execution_times(openfoam_dir,
+                #                             target_iterations=[1000, 'final'])
+                # fig_temp = add_simulation_times(fig_temp, openfoam_dir,
+                #                                 name=diss_dir.name.replace(
+                #                                     'diss_', ''),
+                #                             number=counter)
                 plt.close('all')
                 counter+=1
             except:
                 print(f"failed plot for {diss_dir}")
-
-    # this_path = Path(r'C:\Users\richter\sciebo\03-Paperdrafts\00-Promotion\05'
-    #                  r'-SIM-Data\02-CFD\diss_fv_100\OpenFOAM')
-    # global_conv_iter = convergencePlot2(this_path)
-    # MinMaxPlot(this_path)
-    # if global_conv_iter:
-    #     analyze_execution_times(this_path, target_iterations=[global_conv_iter, 'final'])
-    # else:
-    #     analyze_execution_times(this_path, target_iterations=[1000, 'final'])
-    #
-    directory = Path(r'C:\Users\richter\Documents\CFD-Data\PluginTests')
-    # Iterate through directories that start with 'diss_'
-
-    fig_temp = None
-    counter=0
-    for diss_dir in directory.glob('diss_ov_*3_fif*'):
-    # for diss_dir in directory.glob('diss_[!noR]*'):
-        # Check if "OpenFOAM" subdirectory exists within the current directory
-        openfoam_dir = diss_dir / 'OpenFOAM'
-        if openfoam_dir.is_dir():
-            print(openfoam_dir)
-            try:
-                global_conv_iter = convergencePlot2(openfoam_dir)
-                MinMaxPlot(openfoam_dir)
-                if global_conv_iter:
-                    analyze_execution_times(openfoam_dir,
-                                            target_iterations=[global_conv_iter,
-                                                               'final'])
-                else:
-                    analyze_execution_times(openfoam_dir,
-                                            target_iterations=[1000, 'final'])
-                fig_temp = add_simulation_times(fig_temp, openfoam_dir,
-                                                name=diss_dir.name.replace(
-                                                    'diss_', ''),
-                                            number=counter)
-                plt.close('all')
-                counter+=1
-            except:
-                print(f"failed plot for {diss_dir}")
+    fig_temp.show()

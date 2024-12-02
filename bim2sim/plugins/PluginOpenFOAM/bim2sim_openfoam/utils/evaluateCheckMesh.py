@@ -212,6 +212,7 @@ if __name__ == '__main__':
     directory = Path(r'C:\Users\richter\Documents\CFD-Data\PluginTests')
     global_eval_df = pd.DataFrame()
     comparative_results = pd.DataFrame()
+    final_dir = Path()
     for diss_dir in directory.glob(r'grid_conv_1o1p\P1\bm*'):
         # Check if "OpenFOAM" subdirectory exists within the current directory
         openfoam_dir = diss_dir / 'OpenFOAM'
@@ -220,6 +221,7 @@ if __name__ == '__main__':
                                               'logCheckMesh.compress')
             parsed_data2 = parse_snappyHexMeshLog(openfoam_dir /
                                                   'log.compress')
+
             if parsed_data and parsed_data2:
                 parsed_data.update(
                     {'nProcs': parsed_data2['nProcs']})
@@ -260,8 +262,12 @@ if __name__ == '__main__':
                                                  result], axis=1)
                 global_eval_df = pd.concat([global_eval_df, eval_mesh_df],
                                            axis=1)
+                tr_comparative_results = comparative_results.T
+                print(comparative_results)
                 with open(openfoam_dir / 'mesh.json', 'w',
                           encoding='utf-8') as f:
                     json.dump(parsed_data, f, ensure_ascii=True, indent=4)
                 # print(json.dumps(parsed_data, indent=4))
+                final_dir = diss_dir
+    comparative_results.to_csv(final_dir.parent/'comparative_result.csv')
     print('DONE')
