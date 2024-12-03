@@ -7,11 +7,6 @@ from e5_serialize_teaser_prj import run_serialize_teaser_project_example
 
 def load_serialized_teaser_project():
     """This function demonstrates different loading options of TEASER"""
-
-    # In example e4_save we saved two TEASER projects using `*.teaserjson` and
-    # Python package pickle. This example shows how to import these
-    # information into your python environment again.
-
     prj_export_path, prj_json_path = run_serialize_teaser_project_example()
     prj = Project()
 
