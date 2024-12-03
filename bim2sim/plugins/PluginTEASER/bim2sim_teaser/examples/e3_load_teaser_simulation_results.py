@@ -17,10 +17,6 @@ def run_example_load_existing_project():
     the zoning setup is specified to be with a medium level of detail),
     before the project is executed with the previously specified settings.
     """
-    # Create the default logging to for quality log and bim2sim main log
-    # (see logging documentation for more information)
-    default_logging_setup()
-
     # First run the previous example e1: run_example_simple_building_teaser
     project = run_example_simple_building_teaser()
 
