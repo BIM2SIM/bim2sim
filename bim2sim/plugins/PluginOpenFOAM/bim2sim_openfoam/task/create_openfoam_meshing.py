@@ -633,7 +633,7 @@ class CreateOpenFOAMMeshing(ITask):
                     furniture.solid_name:
                         {'mode': 'distance',
                          'levels': f"((0.03 {furniture.refinement_level[1]})"
-                                   f"(0.6 {furniture.refinement_level[1] - 1}))"
+                                   f"(0.06 {furniture.refinement_level[1] - 1}))"
                          }
                 },
             )
