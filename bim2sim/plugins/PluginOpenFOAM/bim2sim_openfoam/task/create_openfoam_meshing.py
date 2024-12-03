@@ -520,6 +520,12 @@ class CreateOpenFOAMMeshing(ITask):
                                 f"{air_terminal.source_sink.refinement_level[1]}) "
                                 f"(0.08 "
                                 f"{air_terminal.source_sink.refinement_level[1] - 1}))"},
+                 air_terminal.diffuser.solid_name:
+                     {'mode': 'distance',
+                      'levels': f"((0.03 "
+                                f"{air_terminal.diffuser.refinement_level[1]}) "
+                                f"(0.08 "
+                                f"{air_terminal.diffuser.refinement_level[1] - 1}))"},
                  }
             )
             openfoam_case.snappyHexMeshDict.values[
