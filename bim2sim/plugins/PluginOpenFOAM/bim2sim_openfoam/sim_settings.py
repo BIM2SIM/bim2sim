@@ -258,3 +258,9 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         description='Scale shape of person for evaluation in paraview.',
         for_frontend=True,
     )
+    mesh_feature_snapping = BooleanSetting(
+        default=False,
+        description='Choose if explicit surface feature snapping should be '
+                    'applied in snappyHexMesh. ',
+        for_frontend=True
+    )

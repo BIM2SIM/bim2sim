@@ -13,7 +13,8 @@ from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils import
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.pyocc_tools import PyOCCTools
-from butterfly.butterfly import blockMeshDict, snappyHexMeshDict, foamfile
+from butterfly.butterfly import (blockMeshDict, snappyHexMeshDict, foamfile,
+                                 surfaceFeatureExtractDict)
 
 
 class CreateOpenFOAMMeshing(ITask):
@@ -38,6 +39,9 @@ class CreateOpenFOAMMeshing(ITask):
         self.update_snappyHexMesh_air(openfoam_case, openfoam_elements)
         self.update_snappyHexMesh_furniture(openfoam_case, openfoam_elements)
         self.update_snappyHexMesh_people(openfoam_case, openfoam_elements)
+        if self.playground.sim_settings.mesh_feature_snapping:
+            self.create_surfaceFeatureExtract(openfoam_case)
+
         return openfoam_case, openfoam_elements
 
     def create_blockMesh(self, openfoam_case, resize_factor=0.1, shape=None):
@@ -62,6 +66,24 @@ class CreateOpenFOAMMeshing(ITask):
         openfoam_case.blockMeshDict = blockMeshDict.BlockMeshDict.from_min_max(
             scaled_min_pt, scaled_max_pt, n_div_xyz=n_div_xyz)
         openfoam_case.blockMeshDict.save(openfoam_case.openfoam_dir)
+
+    @staticmethod
+    def create_surfaceFeatureExtract(openfoam_case):
+        """Initialize surfaceFeatureExtractDict"""
+        level=0
+        features_string = "("
+        openfoam_case.surfaceFeatureExtract = (
+            surfaceFeatureExtractDict.SurfaceFeatureExtractDict())
+        for stl_file in openfoam_case.snappyHexMeshDict.stl_file_names:
+            openfoam_case.surfaceFeatureExtract.update_values(
+                surfaceFeatureExtractDict.SurfaceFeatureExtractDict.from_stl_file(
+                    stl_file + '.stl').values)
+            features_string += (f'{{file "{stl_file}.eMesh";'
+                                f'level {level};}}')
+        features_string += ")"
+        openfoam_case.snappyHexMeshDict.features = features_string
+        openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
+        openfoam_case.surfaceFeatureExtract.save(openfoam_case.openfoam_dir)
 
     def create_snappyHexMesh(self, openfoam_case, openfoam_elements, ):
         stl_name = "space_" + openfoam_case.current_zone.guid
@@ -554,6 +576,14 @@ class CreateOpenFOAMMeshing(ITask):
                 'snapControls'].update({'nSolveIter': 50})
             openfoam_case.snappyHexMeshDict.values[
                 'snapControls'].update({'tolerance': 5})
+            if self.playground.sim_settings.mesh_feature_snapping:
+                openfoam_case.snappyHexMeshDict.values[
+                    'snapControls'].update({'explicitFeatureSnap': 'true'})
+                openfoam_case.snappyHexMeshDict.values[
+                    'snapControls'].update({'implicitFeatureSnap': 'false'})
+                openfoam_case.snappyHexMeshDict.values[
+                    'snapControls'].update({'extractFeaturesRefineLevel': 'true'})
+
         openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
 
     def update_snappyHexMesh_furniture(self, openfoam_case, openfoam_elements):
