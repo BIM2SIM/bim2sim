@@ -320,7 +320,8 @@ If deemed appropriate, the record may be modified in-place.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">CustomFormatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fmt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.CustomFormatter" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Formatter</span></code></p>
 <p>Custom logging design based on
-<a class="reference external" href="https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output">https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output</a></p>
+<a class="reference external" href="https://stackoverflow.com/questions/384076/how-can-i-color-python">https://stackoverflow.com/questions/384076/how-can-i-color-python</a>
+-logging-output</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.kernel.log.CustomFormatter.format">
 <span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.CustomFormatter.format" title="Permalink to this definition"></a></dt>
@@ -354,7 +355,7 @@ If deemed appropriate, the record may be modified in-place.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.kernel.log.default_logging_setup">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">default_logging_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.default_logging_setup" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">default_logging_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prj_log_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.default_logging_setup" title="Permalink to this definition"></a></dt>
 <dd><p>Setup for logging module</p>
 <p>This creates the following:
 * the general logger with name bim2sim as default logger

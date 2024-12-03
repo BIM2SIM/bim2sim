@@ -163,9 +163,6 @@ To include bim2sim in your scripts start with something like this:
 
 ```python
 from bim2sim import Project
-from bim2sim.log import default_logging_setup
-
-default_logging_setup()  # call this first or do a custom logging setup
 
 project_path = 'path/to/project'
 ifc_path = 'path/to/ifc'
