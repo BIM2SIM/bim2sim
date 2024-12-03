@@ -5,7 +5,7 @@ from bim2sim_teaser.task import CreateTEASER
 from e5_serialize_teaser_prj import run_serialize_teaser_project_example
 
 
-def example_load():
+def load_serialized_teaser_project():
     """This function demonstrates different loading options of TEASER"""
 
     # In example e4_save we saved two TEASER projects using `*.teaserjson` and
@@ -78,6 +78,5 @@ def example_load():
 
 
 if __name__ == "__main__":
-    example_load()
+    load_serialized_teaser_project()
 
-    print("Example 5: That's it! :)")
