@@ -1,0 +1,17 @@
+bim2sim.plugins.PluginEnergyPlus.test package
+=============================================
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.test
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   bim2sim.plugins.PluginEnergyPlus.test.integration
+   bim2sim.plugins.PluginEnergyPlus.test.regression
+   bim2sim.plugins.PluginEnergyPlus.test.unit
