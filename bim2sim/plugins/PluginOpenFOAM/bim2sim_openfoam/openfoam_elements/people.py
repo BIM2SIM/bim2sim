@@ -1,6 +1,6 @@
 import stl
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
-from OCC.Core.StlAPI import StlAPI_Reader
+from OCC.Core.StlAPI import StlAPI_Reader, StlAPI_Writer
 from OCC.Core.TopoDS import TopoDS_Shape
 from stl import mesh
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_base_boundary_conditions import \
@@ -227,8 +227,12 @@ class People(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.stl_file_path_name = (triSurface_path.as_posix() + '/' +
                                    self.stl_name)
         self.patch_info_type = 'wall'
-        self.refinement_level = [1, 4]
+        self.refinement_level = [4, 4]
         self.tri_geom = PyOCCTools.triangulate_bound_shape(shape)
+        # export person geometry for refinementRegion of person
+        stl_writer = StlAPI_Writer()
+        stl_writer.SetASCIIMode(True)
+        stl_writer.Write(self.tri_geom, self.stl_file_path_name)
         self.point_in_shape = PyOCCTools.get_center_of_volume(self.tri_geom)
         self.power = power
         self.temperature = temperature

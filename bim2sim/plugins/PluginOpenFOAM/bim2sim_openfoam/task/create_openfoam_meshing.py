@@ -70,7 +70,7 @@ class CreateOpenFOAMMeshing(ITask):
     @staticmethod
     def create_surfaceFeatureExtract(openfoam_case):
         """Initialize surfaceFeatureExtractDict"""
-        level=0
+        level = 0
         features_string = "("
         openfoam_case.surfaceFeatureExtract = (
             surfaceFeatureExtractDict.SurfaceFeatureExtractDict())
@@ -182,26 +182,6 @@ class CreateOpenFOAMMeshing(ITask):
                                    f"{heater.porous_media.bbox_min_max[1][1]} "
                                    f"{heater.porous_media.bbox_min_max[1][2]})",
                         },
-                    heater.solid_name + '_refinement_small':
-                        {
-                            'type': 'searchableBox',
-                            'min': f"({heater.refinement_zone_small[0][0]} "
-                                   f"{heater.refinement_zone_small[0][1]} "
-                                   f"{heater.refinement_zone_small[0][2]})",
-                            'max': f"({heater.refinement_zone_small[1][0]} "
-                                   f"{heater.refinement_zone_small[1][1]} "
-                                   f"{heater.refinement_zone_small[1][2]})",
-                        },
-                    heater.solid_name + '_refinement_large':
-                        {
-                            'type': 'searchableBox',
-                            'min': f"({heater.refinement_zone_large[0][0]} "
-                                   f"{heater.refinement_zone_large[0][1]} "
-                                   f"{heater.refinement_zone_large[0][2]})",
-                            'max': f"({heater.refinement_zone_large[1][0]} "
-                                   f"{heater.refinement_zone_large[1][1]} "
-                                   f"{heater.refinement_zone_large[1][2]})",
-                        }
                 }
             )
             openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
@@ -235,26 +215,14 @@ class CreateOpenFOAMMeshing(ITask):
                             'mode': 'inside',
                             'levels':
                                 f'(('
-                                f'{heater.porous_media.refinement_level[0]} '
-                                f'{heater.porous_media.refinement_level[1]-1}))'
+                                f'0 '
+                                f'{heater.porous_media.refinement_level[1]}))'
                         },
-                    heater.solid_name + '_refinement_small':
-                        {
-                            'mode': 'inside',
-                            'levels':
-                                f'(('
-                                f'{heater.refinement_level[0]} '
-                                f'{heater.refinement_level[0]+2}))'
-                        },
-                    heater.solid_name + '_refinement_large':
-                        {
-                            'mode': 'inside',
-                            'levels':
-                                f'(('
-                                f'{heater.refinement_level[0]} '
-                                f'{heater.refinement_level[0]+1}))'
-                        }
-
+                    heater.heater_surface.solid_name:
+                        {'mode': 'distance',
+                         'levels': f"((0.05 {heater.heater_surface.refinement_level[1]}) "
+                                   f"(0.15 {heater.heater_surface.refinement_level[1] - 1}))"
+                         },
                 }
             )
             openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
@@ -546,14 +514,13 @@ class CreateOpenFOAMMeshing(ITask):
             )
             openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
                 'refinementRegions'].update(
-                {air_terminal.air_type + '_refinement_small':
-                     {'mode': 'inside',
-                      'levels': f"(({air_terminal.refinement_zone_level_small[0]} "
-                                f"{air_terminal.refinement_zone_level_small[1]-1}))"},
-                 air_terminal.air_type + '_refinement_large':
-                     {'mode': 'inside',
-                      'levels': f"(({air_terminal.refinement_zone_level_large[0]} "
-                                f"{air_terminal.refinement_zone_level_large[1]-2}))"}}
+                {air_terminal.source_sink.solid_name:
+                     {'mode': 'distance',
+                      'levels': f"((0.03 "
+                                f"{air_terminal.source_sink.refinement_level[1]}) "
+                                f"(0.08 "
+                                f"{air_terminal.source_sink.refinement_level[1] - 1}))"},
+                 }
             )
             openfoam_case.snappyHexMeshDict.values[
                 # 'castellatedMeshControls'].update({'maxLocalCells':
@@ -569,20 +536,33 @@ class CreateOpenFOAMMeshing(ITask):
             openfoam_case.snappyHexMeshDict.values[
                 'meshQualityControls'].update({'maxInternalSkewness': 3})
             openfoam_case.snappyHexMeshDict.values[
-                'castellatedMeshControls'].update({'resolveFeatureAngle': 180})
+                'castellatedMeshControls'].update({'resolveFeatureAngle': 60})
             openfoam_case.snappyHexMeshDict.values[
                 'castellatedMeshControls'].update({'minRefinementCells': 5})
             openfoam_case.snappyHexMeshDict.values[
+                'castellatedMeshControls'].update({'gapMode': 'mixed'})
+            openfoam_case.snappyHexMeshDict.values[
+                'castellatedMeshControls'].update({'gapLevel': '(3 0 7)'})
+            openfoam_case.snappyHexMeshDict.values[
                 'snapControls'].update({'nSolveIter': 50})
             openfoam_case.snappyHexMeshDict.values[
-                'snapControls'].update({'tolerance': 5})
+                'snapControls'].update({'nRelaxIter': 15})
+            openfoam_case.snappyHexMeshDict.values[
+                'snapControls'].update({'tolerance': 5.0})
+            openfoam_case.snappyHexMeshDict.values[
+                'snapControls'].update({'multiRegionFeatureSnap': 'false'})
+            openfoam_case.snappyHexMeshDict.values[
+                'snapControls'].update({'implicitFeatureSnap': 'true'})
+            openfoam_case.snappyHexMeshDict.values[
+                'snapControls'].update({'explicitFeatureSnap': 'false'})
             if self.playground.sim_settings.mesh_feature_snapping:
                 openfoam_case.snappyHexMeshDict.values[
                     'snapControls'].update({'explicitFeatureSnap': 'true'})
                 openfoam_case.snappyHexMeshDict.values[
                     'snapControls'].update({'implicitFeatureSnap': 'false'})
                 openfoam_case.snappyHexMeshDict.values[
-                    'snapControls'].update({'extractFeaturesRefineLevel': 'true'})
+                    'snapControls'].update(
+                    {'extractFeaturesRefineLevel': 'true'})
 
         openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
 
@@ -647,6 +627,16 @@ class CreateOpenFOAMMeshing(ITask):
                         }
                 },
             )
+            openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
+                'refinementRegions'].update(
+                {
+                    furniture.solid_name:
+                        {'mode': 'distance',
+                         'levels': f"((0.03 {furniture.refinement_level[1]})"
+                                   f"(0.6 {furniture.refinement_level[1] - 1}))"
+                         }
+                },
+            )
             # openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
             #     'refinementRegions'].update(
             #     {
@@ -669,25 +659,20 @@ class CreateOpenFOAMMeshing(ITask):
         for person in people:
             openfoam_case.snappyHexMeshDict.values['geometry'].update(
                 {
-                    person.solid_name + "_box":
+                    person.stl_name:
                         {
-                            'type': 'searchableBox',
-                            'min': f"({person.bbox_min_max[0][0]} "
-                                   f"{person.bbox_min_max[0][1]} "
-                                   f"{person.bbox_min_max[0][2]})",
-                            'max': f"({person.bbox_min_max[1][0]} "
-                                   f"{person.bbox_min_max[1][1]} "
-                                   f"{person.bbox_min_max[1][2]})",
+                            'type': 'triSurfaceMesh',
+                            'name': person.solid_name
                         },
                 }
             )
             openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
                 'refinementRegions'].update(
                 {
-                    person.solid_name + "_box":
-                        {'mode': 'inside',
-                         'levels': f"(({person.refinement_level[0]} "
-                                   f"{person.refinement_level[1]-1}))"
+                    person.solid_name:
+                        {'mode': 'distance',
+                         'levels': f"((0.05 {person.refinement_level[1]})"
+                                   f"(0.1 {person.refinement_level[1] - 1}))"
                          },
                 }
             )
