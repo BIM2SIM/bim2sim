@@ -12,11 +12,6 @@ def example_load():
     # Python package pickle. This example shows how to import these
     # information into your python environment again.
 
-    # To load data from `*.teaserjson` we can use a simple API function. So
-    # first we need to instantiate our API (similar to example
-    # e1_generate_archetype). The json file is called
-    # `ArchetypeExample.teaserjson` and saved in the default path. You need to
-    # run e4 first before you can load this example file.
     prj_export_path, prj_json_path = run_serialize_teaser_project_example()
     prj = Project()
 
