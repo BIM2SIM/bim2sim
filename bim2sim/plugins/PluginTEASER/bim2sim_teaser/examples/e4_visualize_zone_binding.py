@@ -20,7 +20,6 @@ def visualize_zoning_of_complex_building():
     """
     # The following is the same as in the example e2, look their if you want to
     # know what happens here
-    default_logging_setup()
     project_path = Path(
         tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
     ifc_paths = {
