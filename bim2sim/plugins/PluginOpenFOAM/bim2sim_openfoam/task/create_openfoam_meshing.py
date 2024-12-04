@@ -39,6 +39,7 @@ class CreateOpenFOAMMeshing(ITask):
         self.update_snappyHexMesh_air(openfoam_case, openfoam_elements)
         self.update_snappyHexMesh_furniture(openfoam_case, openfoam_elements)
         self.update_snappyHexMesh_people(openfoam_case, openfoam_elements)
+        self.update_snappyHexMesh_mesh_controls(openfoam_case)
         if self.playground.sim_settings.mesh_feature_snapping:
             self.create_surfaceFeatureExtract(openfoam_case)
 
@@ -528,48 +529,6 @@ class CreateOpenFOAMMeshing(ITask):
                                 f"{air_terminal.diffuser.refinement_level[1] - 1}))"},
                  }
             )
-            openfoam_case.snappyHexMeshDict.values[
-                # 'castellatedMeshControls'].update({'maxLocalCells':
-                # 2000000}) # works
-                'castellatedMeshControls'].update({'maxLocalCells': 1000000})
-            openfoam_case.snappyHexMeshDict.values[
-                # 'castellatedMeshControls'].update({'maxGlobalCells':
-                # 6000000}) works
-                'castellatedMeshControls'].update({'maxGlobalCells':
-                                                       self.playground.sim_settings.mesh_max_global_cells})
-            openfoam_case.snappyHexMeshDict.values[
-                'meshQualityControls'].update({'maxBoundarySkewness': 20})
-            openfoam_case.snappyHexMeshDict.values[
-                'meshQualityControls'].update({'maxInternalSkewness': 3})
-            openfoam_case.snappyHexMeshDict.values[
-                'castellatedMeshControls'].update({'resolveFeatureAngle': 60})
-            openfoam_case.snappyHexMeshDict.values[
-                'castellatedMeshControls'].update({'minRefinementCells': 5})
-            openfoam_case.snappyHexMeshDict.values[
-                'castellatedMeshControls'].update({'gapMode': 'mixed'})
-            openfoam_case.snappyHexMeshDict.values[
-                'castellatedMeshControls'].update({'gapLevel': '(3 0 7)'})
-            openfoam_case.snappyHexMeshDict.values[
-                'snapControls'].update({'nSolveIter': 50})
-            openfoam_case.snappyHexMeshDict.values[
-                'snapControls'].update({'nRelaxIter': 15})
-            openfoam_case.snappyHexMeshDict.values[
-                'snapControls'].update({'tolerance': 5.0})
-            openfoam_case.snappyHexMeshDict.values[
-                'snapControls'].update({'multiRegionFeatureSnap': 'false'})
-            openfoam_case.snappyHexMeshDict.values[
-                'snapControls'].update({'implicitFeatureSnap': 'true'})
-            openfoam_case.snappyHexMeshDict.values[
-                'snapControls'].update({'explicitFeatureSnap': 'false'})
-            if self.playground.sim_settings.mesh_feature_snapping:
-                openfoam_case.snappyHexMeshDict.values[
-                    'snapControls'].update({'explicitFeatureSnap': 'true'})
-                openfoam_case.snappyHexMeshDict.values[
-                    'snapControls'].update({'implicitFeatureSnap': 'false'})
-                openfoam_case.snappyHexMeshDict.values[
-                    'snapControls'].update(
-                    {'extractFeaturesRefineLevel': 'true'})
-
         openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
 
     def update_snappyHexMesh_furniture(self, openfoam_case, openfoam_elements):
@@ -724,3 +683,45 @@ class CreateOpenFOAMMeshing(ITask):
                     },
                 )
                 openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
+
+    def update_snappyHexMesh_mesh_controls(self, openfoam_case):
+        openfoam_case.snappyHexMeshDict.values[
+            'castellatedMeshControls'].update({'maxLocalCells': 1000000})
+        openfoam_case.snappyHexMeshDict.values[
+            'castellatedMeshControls'].update({
+            'maxGlobalCells':
+                self.playground.sim_settings.mesh_max_global_cells})
+        openfoam_case.snappyHexMeshDict.values[
+            'meshQualityControls'].update({'maxBoundarySkewness': 20})
+        openfoam_case.snappyHexMeshDict.values[
+            'meshQualityControls'].update({'maxInternalSkewness': 3})
+        openfoam_case.snappyHexMeshDict.values[
+            'castellatedMeshControls'].update({'resolveFeatureAngle': 60})
+        openfoam_case.snappyHexMeshDict.values[
+            'castellatedMeshControls'].update({'minRefinementCells': 5})
+        openfoam_case.snappyHexMeshDict.values[
+            'castellatedMeshControls'].update({'gapMode': 'mixed'})
+        openfoam_case.snappyHexMeshDict.values[
+            'castellatedMeshControls'].update({'gapLevel': '(3 0 7)'})
+        openfoam_case.snappyHexMeshDict.values[
+            'snapControls'].update({'nSolveIter': 50})
+        openfoam_case.snappyHexMeshDict.values[
+            'snapControls'].update({'nRelaxIter': 15})
+        openfoam_case.snappyHexMeshDict.values[
+            'snapControls'].update({'tolerance': 5.0})
+        openfoam_case.snappyHexMeshDict.values[
+            'snapControls'].update({'multiRegionFeatureSnap': 'false'})
+        openfoam_case.snappyHexMeshDict.values[
+            'snapControls'].update({'implicitFeatureSnap': 'true'})
+        openfoam_case.snappyHexMeshDict.values[
+            'snapControls'].update({'explicitFeatureSnap': 'false'})
+        if self.playground.sim_settings.mesh_feature_snapping:
+            openfoam_case.snappyHexMeshDict.values[
+                'snapControls'].update({'explicitFeatureSnap': 'true'})
+            openfoam_case.snappyHexMeshDict.values[
+                'snapControls'].update({'implicitFeatureSnap': 'false'})
+            openfoam_case.snappyHexMeshDict.values[
+                'snapControls'].update(
+                {'extractFeaturesRefineLevel': 'true'})
+
+        openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
