@@ -1,4 +1,4 @@
-﻿"""Module contains the different classes for all HVAC elements"""
+"""Module contains the different classes for all HVAC elements"""
 import inspect
 import itertools
 import logging
@@ -369,6 +369,24 @@ class HeatPump(HVACProduct):
                     '[percentage_of_rated_power,efficiency]',
         unit=ureg.dimensionless
     )
+    vdi_performance_data_table=attribute.Attribute(
+        description="temp dummy to test vdi table export",
+    )
+    is_reversible = attribute.Attribute(
+        description="Does the heatpump support cooling as well?",
+        unit=ureg.dimensionless
+    )
+    rated_cooling_power = attribute.Attribute(
+        description='Rated power of HeatPump in cooling mode.',
+        unit=ureg.kilowatt,
+    )
+    COP = attribute.Attribute(
+        description="The COP of the heatpump, definition based on VDI 3805-22",
+        unit=ureg.dimensionless
+    )
+    internal_pump = attribute.Attribute(
+        description="The COP of the heatpump, definition based on VDI 3805-22",
+    )
 
     @cached_property
     def expected_hvac_ports(self):
@@ -575,10 +593,31 @@ class Boiler(HVACProduct):
         unit=ureg.dimensionless,
     )
 
-    nominal_partial_ratio = attribute.Attribute(
-        description="Nominal partial ratio of the boiler",
+    part_load_ratio_range = attribute.Attribute(
+        description="Allowable part load ratio range (Bounded value).",
         default_ps=('Pset_BoilerTypeCommon', 'NominalPartLoadRatio'),
     )
+
+    def _get_minimal_part_load_ratio(self, name):
+        """Calculates the minimal part load ratio based on the given range."""
+        # TODO this is not tested yet but should work with the new BoundedValue
+        #  in ifc2python
+        if hasattr(self, "part_load_ratio_range"):
+            return min(self.part_load_ratio_range)
+
+    def _normalise_value_zero_to_one(self, value):
+        if (max(self.part_load_ratio_range) == 100
+                and min(self.part_load_ratio_range) == 0):
+            return value * 0.01
+
+    minimal_part_load_ratio = attribute.Attribute(
+        description="Minimal part load ratio",
+        functions=[_get_minimal_part_load_ratio],
+        # TODO use ifc_post_processing to make sure that ranged value are between
+        #  0 and 1
+        ifc_postprocessing=[_normalise_value_zero_to_one]
+    )
+
 
     def _calc_nominal_efficiency(self, name):
         """function to calculate the boiler nominal efficiency using the
@@ -618,7 +657,8 @@ class Boiler(HVACProduct):
         nominal partial ratio and the efficiency curve"""
         if isinstance(self.efficiency, list):
             efficiency_curve = {y: x for x, y in self.efficiency}
-            partial_eff = efficiency_curve.get(self.nominal_partial_ratio, None)
+            partial_eff = efficiency_curve.get(max(self.part_load_ratio_range),
+                                               None)
             if partial_eff:
                 return partial_eff
             else:
