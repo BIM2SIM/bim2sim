@@ -18,8 +18,7 @@ def run_serialize_teaser_project_example():
     default_logging_setup()
     # Create the default logging to for quality log and bim2sim main log
     # (see logging documentation for more information)
-    project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
+    project_path = Path("D:\dja-jho\Testing\Test")
 
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
@@ -38,7 +37,7 @@ def run_serialize_teaser_project_example():
 
 
     project.sim_settings.zoning_setup = LOD.medium
-    project.sim_settings.zoning_criteria = ZoningCriteria.usage
+    project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
     # use cooling
     project.sim_settings.cooling = False
     project.sim_settings.setpoints_from_template = True
@@ -47,18 +46,19 @@ def run_serialize_teaser_project_example():
     project.sim_settings.ahu_heating = True
     project.sim_settings.ahu_cooling = True
     project.sim_settings.ahu_heat_recovery = True
+    project.sim_settings.ahu_heat_recovery_efficiency = 0.8
+
+
 
     # overwrite existing layer structures and materials based on templates
     project.sim_settings.layers_and_materials = LOD.low
     # specify templates for the layer and material overwrite
-    project.sim_settings.construction_class_walls = 'heavy'
+    project.sim_settings.construction_class_walls = 'kfw_40'
     project.sim_settings.construction_class_windows = \
         'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
 
     # set weather file data
-    project.sim_settings.weather_file_path = (
-            Path(bim2sim.__file__).parent.parent /
-            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+    project.sim_settings.weather_file_path = fr"D:\dja-jho\Git\Dissertation_coding\outer_optimization\clustering\DEU_NW_Aachen.105010_TMYx.mos"
     # Run a simulation directly with dymola after model creation
     project.sim_settings.dymola_simulation = True
     # Make sure that AixLib modelica library exist on machine by cloning it and
@@ -66,8 +66,7 @@ def run_serialize_teaser_project_example():
     repo_url = "https://github.com/RWTH-EBC/AixLib.git"
     branch_name = "main"
     repo_name = "AixLib"
-    path_aixlib = (
-            Path(bim2sim.__file__).parent.parent / "local" / f"library_{repo_name}")
+    path_aixlib = (Path(bim2sim.__file__).parent.parent / "local" / f"library_{repo_name}")
     download_library(repo_url, branch_name, path_aixlib)
     project.sim_settings.path_aixlib = path_aixlib / repo_name / 'package.mo'
 
