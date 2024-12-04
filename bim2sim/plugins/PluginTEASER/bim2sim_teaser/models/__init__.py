@@ -242,6 +242,8 @@ class ElementWithLayers(TEASER):
     def __init__(self, element):
         self.add_layers_to_element(element)
         super().__init__(element)
+        self.name = self.element.guid
+
 
     def add_layers_to_element(self, element):
         if element.layerset:
