@@ -273,14 +273,14 @@ class OpenFOAMUtils:
     @staticmethod
     def split_into_three_factors(n):
         factors = OpenFOAMUtils.prime_factors(n)
-        factors.sort()
-        groups = []
-        for i, factor in enumerate(factors):
-            groups.append(factor)
-        while len(groups) < 3:
-            groups.append(1)
-        res = len(groups) - 3
-        for i in range(res):
-            groups[i] = groups[i] * groups[-1]
-            groups.pop()
+        factors.sort(reverse=True)  # Start with the largest primes first
+        groups = [1, 1, 1]
+
+        # Distribute factors to minimize the difference among groups
+        for factor in factors:
+            groups.sort()  # Always add to the smallest group
+            groups[0] *= factor
+
+        # Sort the final groups to ensure descending order
+        groups.sort(reverse=True)
         return groups
