@@ -37,6 +37,7 @@ class PluginTEASER(Plugin):
         common.Weather,
         LoadLibrariesTEASER,
         teaser_task.CreateTEASER,
+        teaser_task.SerializeTEASER,
         common.SerializeElements,
         teaser_task.ExportTEASER,
         teaser_task.SimulateModelEBCPy,
