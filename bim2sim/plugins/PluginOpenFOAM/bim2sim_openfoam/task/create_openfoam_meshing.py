@@ -622,25 +622,6 @@ class CreateOpenFOAMMeshing(ITask):
     def update_snappyHexMesh_people(self, openfoam_case, openfoam_elements):
         people = filter_elements(openfoam_elements, 'People')
         for person in people:
-            openfoam_case.snappyHexMeshDict.values['geometry'].update(
-                {
-                    person.stl_name:
-                        {
-                            'type': 'triSurfaceMesh',
-                            'name': person.solid_name
-                        },
-                }
-            )
-            openfoam_case.snappyHexMeshDict.values['castellatedMeshControls'][
-                'refinementRegions'].update(
-                {
-                    person.solid_name:
-                        {'mode': 'distance',
-                         'levels': f"((0.05 {person.refinement_level[1]})"
-                                   f"(0.1 {person.refinement_level[1] - 1}))"
-                         },
-                }
-            )
             for body_part in person.body_parts_dict.values():
                 openfoam_case.snappyHexMeshDict.values['geometry'].update(
                     {
@@ -682,7 +663,19 @@ class CreateOpenFOAMMeshing(ITask):
                             }
                     },
                 )
-                openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
+                openfoam_case.snappyHexMeshDict.values[
+                    'castellatedMeshControls'][
+                    'refinementRegions'].update(
+                    {
+                        body_part.solid_name:
+                            {'mode': 'distance',
+                             'levels': f"((0.05 {person.refinement_level[1]})"
+                                       f"(0.1 {person.refinement_level[1] - 1}))"
+                             },
+                    }
+                )
+
+        openfoam_case.snappyHexMeshDict.save(openfoam_case.openfoam_dir)
 
     def update_snappyHexMesh_mesh_controls(self, openfoam_case):
         openfoam_case.snappyHexMeshDict.values[
