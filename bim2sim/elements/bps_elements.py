@@ -1930,6 +1930,134 @@ class Storey(BPSProduct):
     )
 
 
+class Plate(BPSProductWithLayers):
+    ifc_types = {"IfcPlate": ['*', 'CURTAIN_PANEL', 'SHEET']}
+    def calc_cost_group(self) -> int:
+        """Calc cost group for Plates
+        External: 337
+        Internal: 346
+        """
+        if self.is_external:
+            return 337
+        elif not self.is_external:
+            return 346
+        else:
+            return 300
+    width = attribute.Attribute(
+        default_ps=("Qto_PlateBaseQuantities", "Width"),
+        functions=[BPSProductWithLayers.get_thickness_by_layers],
+        unit=ureg.m
+    )
+    net_volume = attribute.Attribute(
+        default_ps=("Qto_PlateBaseQuantities", "NetVolume"),
+        unit=ureg.m **3
+    )
+    gross_volume = attribute.Attribute(
+        default_ps=("Qto_PlateBaseQuantities", "GrossVolume"),
+        unit=ureg.m **3
+    )
+    net_area = attribute.Attribute(
+        default_ps=("Qto_PlateBaseQuantities", "NetArea"),
+        unit=ureg.m **3
+    )
+    gross_area = attribute.Attribute(
+        default_ps=("Qto_PlateBaseQuantities", "GrossArea"),
+        unit=ureg.m **3
+    )
+    net_weight = attribute.Attribute(
+        default_ps=("Qto_PlateBaseQuantities", "NetWeight"),
+        unit=ureg.m **3
+    )
+    gross_weight = attribute.Attribute(
+        default_ps=("Qto_PlateBaseQuantities", "GrossWeight"),
+        unit=ureg.m **3
+    )
+    is_load_bearing = attribute.Attribute(
+        default_ps=("Pset_PlateCommon", "LoadBearing"),
+    )
+    u_value = attribute.Attribute(
+        default_ps=("Pset_PlateCommon", "ThermalTransmittance"),
+        unit=ureg.W / ureg.K / ureg.meter ** 2,
+        functions=[BPSProductWithLayers.get_u_value],
+    )
+
+
+class Covering(BPSProductWithLayers):
+    # todo connect covering with element via CoversElements and CoversSpaces
+    ifc_types = {'IfcCovering': [
+        'CEILING',
+        'FLOORING',
+        'CLADDING',
+        'ROOFING',
+        'MODLING',
+        'SKIRTINGBOARD'
+    ]
+    }
+    def __init__(self, *args, **kwargs):
+        """Covering __init__ function"""
+        super().__init__(*args, **kwargs)
+    def calc_cost_group(self) -> int:
+        """Calc cost group for Coverings
+        """
+        if self.predefined_type == "CEILING":
+            return 354
+        elif self.predefined_type == "ROOFING":
+            return 364
+        elif self.predefined_type == "FLOORING":
+            return 353
+        elif self.predefined_type == "CLADDING" and self.is_external:
+            return 335
+        elif self.predefined_type == "ROOFING" and not self.is_external:
+            return 336
+        elif self.predefined_type == "MOLDING" and self.is_external:
+            return 339
+        elif self.predefined_type == "MOLDING" and not self.is_external:
+            return 349
+        elif self.predefined_type == "SKIRTINGBOARD" and not self.is_external:
+            return 349
+        elif self.is_external:
+            return 330
+        elif not self.is_external:
+            return 340
+        else:
+            return 300
+    width = attribute.Attribute(
+        default_ps=("Qto_CoveringBaseQuantities", "Width"),
+        unit=ureg.m
+     )
+    gross_area = attribute.Attribute(
+        default_ps=("Qto_CoveringBaseQuantities", "GrossArea"),
+        unit=ureg.meter ** 2
+    )
+    net_area = attribute.Attribute(
+        default_ps=("Qto_CoveringBaseQuantities", "NetArea"),
+        unit=ureg.meter ** 2
+    )
+
+
+class Insulation(Covering):
+    ifc_types = {'IfcCovering': ['INSULATION']}
+    pattern_ifc_type = [
+        re.compile('Dämmung', flags=re.IGNORECASE),
+        re.compile('Isolierung', flags=re.IGNORECASE),
+        re.compile('Isolation', flags=re.IGNORECASE),
+        re.compile('Insulation', flags=re.IGNORECASE),
+    ]
+    def __init__(self, *args, **kwargs):
+        """Insulation __init__ function"""
+        super().__init__(*args, **kwargs)
+    def calc_cost_group(self) -> int:
+        """Calc cost group for Insulations
+        External: 330
+        Internal: 340
+        """
+        if self.is_external:
+            return 330
+        elif not self.is_external:
+            return 340
+        else:
+            return 300
+
 class SpaceBoundaryRepresentation(BPSProduct):
     """describes the geometric representation of space boundaries which are
     created by the webtool to allow the """

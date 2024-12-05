@@ -84,6 +84,7 @@ class EnrichMaterial(ITask):
             ele_enrichment_data = self.enrich_element_data_from_template(
                 element_template[template_name])
             elements_to_enrich = []
+            # TODO no roof, groundfloor or floors in this project...
             for ele_type in ele_types:
                 elements_to_enrich.extend(filter_elements(elements, ele_type))
             for element in elements_to_enrich:

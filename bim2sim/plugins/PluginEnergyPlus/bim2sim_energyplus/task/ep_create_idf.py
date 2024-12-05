@@ -311,6 +311,10 @@ class CreateIdf(ITask):
                 continue
             if not any([isinstance(rel_elem, window) for window in
                         all_subclasses(Window, include_self=True)]):
+                # TODO for EDGE Building main IfcSlab has no layerset, why?
+                #  GUID is 1WMSddxcH4rPeyHXcrszog
+                if rel_elem.layerset is None:
+                    print('todo')
                 # set construction for all but fenestration
                 if self.check_preprocessed_materials_and_constructions(
                         rel_elem, rel_elem.layerset.layers):
@@ -330,7 +334,7 @@ class CreateIdf(ITask):
                     rel_elem, idf, sim_settings.add_window_shading)
 
         # Add air boundaries as construction as a material for virtual bounds
-        if sim_settings.ep_version in ["9-2-0", "9-4-0"]:
+        if sim_settings.ep_version in ["9-2-0", "9-4-0", "9-6-0"]:
             idf.newidfobject("CONSTRUCTION:AIRBOUNDARY",
                              Name='Air Wall',
                              Solar_and_Daylighting_Method='GroupedZones',
@@ -746,7 +750,7 @@ class CreateIdf(ITask):
             space: ThermalZone instance
             ep_version: Used version of EnergyPlus
         """
-        if ep_version in ["9-2-0", "9-4-0"]:
+        if ep_version in ["9-2-0", "9-4-0", "9-6-0"]:
             idf.newidfobject(
                 "ZONEINFILTRATION:DESIGNFLOWRATE",
                 Name=name,
@@ -784,7 +788,7 @@ class CreateIdf(ITask):
             ep_version: Used version of EnergyPlus
 
         """
-        if ep_version in ["9-2-0", "9-4-0"]:
+        if ep_version in ["9-2-0", "9-4-0", "9-6-0"]:
             idf.newidfobject(
                 "ZONEVENTILATION:DESIGNFLOWRATE",
                 Name=name + '_winter',

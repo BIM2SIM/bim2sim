@@ -6,7 +6,6 @@ from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
 from bim2sim.tasks import common, bps
-from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import task as ep_tasks
 
@@ -29,9 +28,6 @@ def run_example_simple_building():
     project_path = Path(
         tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
 
-    # download additional test resources for arch domain, you might want to set
-    # force_new to True to update your test resources
-    download_test_resources(IFCDomain.arch, force_new=False)
     # Set the ifc path to use and define which domain the IFC belongs to
     # TODO
     # LOCAL CODE VERONIKA
@@ -65,25 +61,25 @@ def run_example_simple_building():
         "heat_energy_rooms", "cool_energy_rooms",
         "operative_temp_rooms", "air_temp_rooms", "air_temp_out"
     ]
-    project.sim_settings.ep_install_path = 'C:/EnergyPlusV24-1-0'
-    project.sim_settings.ep_version = '24-1-0'
+    # project.sim_settings.ep_install_path = 'C:/EnergyPlusV24-1-0'
+    project.sim_settings.ep_install_path = 'C:/EnergyPlusV9-6-0'
+    project.sim_settings.ep_version = '9-6-0'
     project.plugin_cls.default_tasks = [
         common.LoadIFC,
         # common.CheckIfc,
-        common.CreateElements,
+        common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
-        bps.FilterTZ,
-        bps.ProcessSlabsRoofs,
-        common.BindStoreys,
+        bps.AddSpaceBoundaries2B,
+        bps.CorrectSpaceBoundaries,
+        common.CreateRelations,
+        bps.DisaggregationCreationAndTypeCheck,
+        bps.EnrichMaterial,
         bps.EnrichUseConditions,
-        bps.VerifyLayersMaterials,  # LOD.full
-        bps.EnrichMaterial,  # LOD.full
-        ep_tasks.EPGeomPreprocessing,
-        ep_tasks.AddSpaceBoundaries2B,
         common.Weather,
         ep_tasks.CreateIdf,
         ep_tasks.IdfPostprocessing,
         ep_tasks.ExportIdfForCfd,
+        common.SerializeElements,
         ep_tasks.RunEnergyPlusSimulation,
         ep_tasks.CreateResultDF,
         # ep_tasks.VisualizeResults,
@@ -92,13 +88,14 @@ def run_example_simple_building():
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
-    answers = ('ArchiCAD', 'ArchiCAD',*(None,)*2, ('BPS-InnerWall',)*3,
-               *(None,)*13, *('Traffic area',)*3, 2015)
+    #todo none*5 is used as decision rotate randomly, fix this
+    answers = ('ArchiCAD', 'ArchiCAD',*(None,)*5,
+               *(None,)*14, 2015, *('Traffic area',)*3)
 
-    answers = ('ArchiCAD', 'ArchiCAD',*(None,)*3, *(None,)*23,
-               *('Traffic area',)*3, 2015)
-    run_project(project, ConsoleDecisionHandler())
-    # run_project(project, DebugDecisionHandler(answers))
+    # answers = ('ArchiCAD', 'ArchiCAD',*(None,)*3, *(None,)*23,
+    #            *('Traffic area',)*3, 2015)
+    # run_project(project, ConsoleDecisionHandler())
+    run_project(project, DebugDecisionHandler(answers))
 
 
 if __name__ == '__main__':
