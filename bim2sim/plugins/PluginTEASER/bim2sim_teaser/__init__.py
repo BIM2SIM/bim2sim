@@ -6,7 +6,8 @@ import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
 from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginTEASER.bim2sim_teaser.models import TEASER
 from bim2sim.tasks import common, bps, base
-from bim2sim.sim_settings import TEASERSimSettings
+from bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings import \
+    TEASERSimSettings
 
 
 class LoadLibrariesTEASER(base.ITask):
@@ -22,20 +23,21 @@ class PluginTEASER(Plugin):
     sim_settings = TEASERSimSettings
     default_tasks = [
         common.LoadIFC,
-        common.CheckIfc,
-        common.CreateElements,
+        # common.CheckIfc,
+        common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
-        bps.FilterTZ,
-        bps.ProcessSlabsRoofs,
-        common.BindStoreys,
-        bps.EnrichUseConditions,
-        bps.VerifyLayersMaterials,
+        bps.AddSpaceBoundaries2B,
+        bps.CorrectSpaceBoundaries,
+        common.CreateRelations,
+        bps.DisaggregationCreationAndTypeCheck,
         bps.EnrichMaterial,
-        bps.DisaggregationCreation,
+        bps.EnrichUseConditions,
         bps.CombineThermalZones,
         common.Weather,
         LoadLibrariesTEASER,
         teaser_task.CreateTEASER,
+        teaser_task.SerializeTEASER,
+        common.SerializeElements,
         teaser_task.ExportTEASER,
         teaser_task.SimulateModelEBCPy,
         teaser_task.CreateResultDF,

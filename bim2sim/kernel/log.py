@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 USER = 'user'
 
@@ -34,7 +35,7 @@ def get_user_logger(name):
     return logging.LoggerAdapter(logging.getLogger(name), user)
 
 
-def default_logging_setup(verbose=False):
+def default_logging_setup(verbose=False, prj_log_path: Path = None):
     """Setup for logging module
 
     This creates the following:
@@ -53,10 +54,15 @@ def default_logging_setup(verbose=False):
         stream_handler.addFilter(log_filter)
         general_logger.addHandler(stream_handler)
 
-    file_handler = logging.FileHandler("bim2sim.log")
-    file_handler.setFormatter(dev_formatter)
-    file_handler.addFilter(log_filter)
-    general_logger.addHandler(file_handler)
+    log_name = "bim2sim.log"
+    if prj_log_path is not None:
+        general_log_path = prj_log_path / log_name
+    else:
+        general_log_path = log_name
+    general_log_handler = logging.FileHandler(general_log_path)
+    general_log_handler.setFormatter(dev_formatter)
+    general_log_handler.addFilter(log_filter)
+    general_logger.addHandler(general_log_handler)
 
     quality_logger = logging.getLogger('bim2sim.QualityReport')
     quality_logger.propagate = False
@@ -68,7 +74,9 @@ def default_logging_setup(verbose=False):
 
 class CustomFormatter(logging.Formatter):
     """Custom logging design based on
-    https://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output"""
+    https://stackoverflow.com/questions/384076/how-can-i-color-python
+    -logging-output"""
+
     def __init__(self, fmt):
         super().__init__()
         self._fmt = fmt

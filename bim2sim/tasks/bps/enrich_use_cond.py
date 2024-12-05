@@ -3,26 +3,35 @@ from typing import Union, Dict
 from bim2sim.kernel.decision import ListDecision, DecisionBunch
 from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.tasks.base import ITask
-from bim2sim.utilities.common_functions import get_use_conditions_dict, get_pattern_usage
+from bim2sim.utilities.common_functions import get_use_conditions_dict, \
+    get_pattern_usage, wildcard_match, filter_elements
+from bim2sim.tasks.base import Playground
+from bim2sim.sim_settings import BuildingSimSettings
+from bim2sim.utilities.types import AttributeDataSource
 
 
 class EnrichUseConditions(ITask):
     """Enriches Use Conditions of thermal zones
     based on decisions and translation of zone names"""
 
-    reads = ('tz_elements',)
-    touches = ('enriched_tz',)
+    reads = ('elements',)
 
-    def __init__(self, playground):
+    def __init__(self, playground: Playground):
         super().__init__(playground)
-        self.enriched_tz = []
-        self.use_conditions = {}
+        self.enriched_tz: list = []
+        self.use_conditions: dict = {}
 
-    def run(self, tz_elements: dict):
+    def run(self, elements: dict):
+        """Enriches Use Conditions of thermal zones and central AHU settings.
+
+        Enrichment data in the files commonUsages.json and UseConditions.json
+        is taken from TEASER. The underlying data comes from DIN 18599-10 and
+        SIA 2024.
+        """
+        tz_elements = filter_elements(elements, 'ThermalZone', True)
         # case no thermal zones found
         if len(tz_elements) == 0:
             self.logger.warning("Found no spaces to enrich")
-            return tz_elements,
         else:
             # set heating and cooling based on sim settings configuration
             self.set_heating_cooling(tz_elements, self.playground.sim_settings)
@@ -51,11 +60,30 @@ class EnrichUseConditions(ITask):
                 self.logger.info('Enrich ThermalZone from IfcSpace with '
                                  'original usage "%s" with usage "%s"',
                                  orig_usage, usage)
-
-        return self.enriched_tz,
+        building_elements = filter_elements(elements, 'Building')
+        if self.playground.sim_settings.overwrite_ahu_by_settings:
+            for building in building_elements:
+                building.ahu_heating = (
+                    self.playground.sim_settings.ahu_heating,
+                    AttributeDataSource.enrichment)
+                building.ahu_cooling = (
+                    self.playground.sim_settings.ahu_cooling,
+                    AttributeDataSource.enrichment)
+                building.ahu_humidification = (
+                    self.playground.sim_settings.ahu_humidification,
+                    AttributeDataSource.enrichment)
+                building.ahu_dehumidification = (
+                    self.playground.sim_settings.ahu_dehumidification,
+                    AttributeDataSource.enrichment)
+                building.ahu_heat_recovery = (
+                    self.playground.sim_settings.ahu_heat_recovery,
+                    AttributeDataSource.enrichment)
+                building.ahu_heat_recovery_efficiency = (
+                    self.playground.sim_settings.ahu_heat_recovery_efficiency,
+                    AttributeDataSource.enrichment)
 
     @staticmethod
-    def set_heating_cooling(tz_elements:dict , sim_settings):
+    def set_heating_cooling(tz_elements: dict, sim_settings: BuildingSimSettings):
         """set cooling and heating values based on simulation settings"""
 
         for tz in tz_elements.values():
@@ -161,7 +189,8 @@ class EnrichUseConditions(ITask):
                     # check custom first
                     if "custom" in pattern_usage[usage]:
                         for cus_usage in pattern_usage[usage]["custom"]:
-                            if cus_usage == tz.usage:
+                            # if cus_usage == tz.usage:
+                            if wildcard_match(cus_usage, tz.usage):
                                 if usage not in matches:
                                     matches.append(usage)
                     # if not found in custom, continue with common
@@ -240,7 +269,7 @@ class EnrichUseConditions(ITask):
                 setattr(tz, attr, value)
 
     @staticmethod
-    def value_processing(value):
+    def value_processing(value: float):
         """"""
         if isinstance(value, dict):
             values = next(iter(value.values()))

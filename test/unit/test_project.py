@@ -16,6 +16,7 @@ ifc_paths = {
         sample_root /
         'KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'}
 
+
 class PluginDummy(Plugin):
     name = "Dummy"
     sim_settings = PlantSimSettings
@@ -76,3 +77,22 @@ class TestProject(BaseTestProject):
         )
         self.assertTrue(os.path.exists(project2.paths.ifc_base / domain))
         project2.finalize(True)
+
+    def test_reuse_project_folder_change_plugin(self):
+        """Tests to create project, reuse folder with other Plugin"""
+        project = Project.create(
+            self.path,
+            ifc_paths,
+            PluginDummy
+        )
+        self.assertEqual(project.plugin_cls, PluginDummy)
+        project.finalize(True)
+
+        project2 = Project.create(
+            self.path,
+            ifc_paths,
+            'aixlib'
+        )
+        from bim2sim.plugins.PluginAixLib.bim2sim_aixlib import PluginAixLib
+        project2.finalize(True)
+        self.assertEqual(project2.plugin_cls.__name__, PluginAixLib.__name__)

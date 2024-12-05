@@ -7,6 +7,7 @@ from bim2sim.elements.base_elements import ProductBased
 from bim2sim.elements.mapping.attribute import Attribute
 from bim2sim.elements.mapping.units import ureg
 from test.unit.elements.helper import SetupHelperHVAC
+from bim2sim.utilities.types import AttributeDataSource
 
 
 class TestElement(ProductBased):
@@ -21,6 +22,9 @@ class TestElement(ProductBased):
     attr5 = Attribute(
         functions=[lambda self, attr:42]
     )
+    attr6 = Attribute(attr_type=str)
+    attr7 = Attribute(attr_type=bool)
+
 
 
 class TestAttribute(unittest.TestCase):
@@ -60,9 +64,9 @@ class TestAttribute(unittest.TestCase):
         """Test attribute manager"""
         self.assertIsNone(self.subject.attr1)
 
-        self.assertEqual(5, len(self.subject.attributes), "All Attributes should be registered in AttributeManager")
+        self.assertEqual(7, len(self.subject.attributes), "All Attributes should be registered in AttributeManager")
 
-        self.assertEqual(5, len(list(self.subject.attributes.names)))
+        self.assertEqual(7, len(list(self.subject.attributes.names)))
 
         self.assertIn('attr1', self.subject.attributes)
 
@@ -84,7 +88,8 @@ class TestAttribute(unittest.TestCase):
     def test_attribute_manager_names(self):
         """test names of manager"""
 
-        target = {'attr1', 'attr2', 'attr3', 'attr4', 'attr5'}
+        target = {'attr1', 'attr2', 'attr3', 'attr4', 'attr5', 'attr6', 'attr7'
+                  }
         found = set(self.subject.attributes.names)
         self.assertEqual(target, found)
 
@@ -156,6 +161,16 @@ class TestAttributeDecisions(unittest.TestCase):
         self.assertEqual(3, ele1.attr3)
         self.assertEqual(42, ele2.attr3)
 
+    def test_request_decision_bool(self):
+        """Test acceptance of input formats for different attr_types"""
+        ele = TestElement()
+        decision1 = ele.request('attr1')
+        decision2 = ele.request('attr6')
+        decision3 = ele.request('attr7')
+        decision1.value = 5.0
+        decision2.value = 'test'
+        decision3.value = True
+
     def test_external_decision(self):
         """Test to set attribute by external decision."""
         ele = TestElement()
@@ -165,6 +180,29 @@ class TestAttributeDecisions(unittest.TestCase):
 
         ext_decision.value = 99
         self.assertEqual(99, ele.attr2)
+
+
+class TestAttributeDataSource(unittest.TestCase):
+    def test_data_source(self):
+        ele = TestElement()
+        ele.attr3 = 3
+        decision = ele.request('attr2')
+        decision.value = 10
+        data_source_attr1 = ele.attributes['attr1'][-1]
+        data_source_attr3 = ele.attributes['attr3'][-1]
+        data_source_attr4 = ele.attributes['attr4'][-1]
+        # get attribute values to make __get__ function run
+        attr2 = ele.attr2
+        attr5 = ele.attr5
+        data_source_attr2 = ele.attributes['attr2'][-1]
+        data_source_attr5 = ele.attributes['attr5'][-1]
+
+        self.assertEqual(data_source_attr1, None)
+        self.assertEqual(data_source_attr2, AttributeDataSource.decision)
+        self.assertEqual(
+            data_source_attr3, AttributeDataSource.manual_overwrite)
+        self.assertEqual(data_source_attr4, None)
+        self.assertEqual(data_source_attr5, AttributeDataSource.function)
 
 
 if __name__ == '__main__':

@@ -13,8 +13,6 @@ from bim2sim.elements.base_elements import Port, ProductBased
 from bim2sim.elements.hvac_elements import HeatExchanger, Pipe
 from bim2sim.plugins import Plugin
 from bim2sim.project import Project
-from bim2sim.tasks import common
-from bim2sim.tasks import hvac
 from bim2sim.tasks.hvac import ConnectElements
 from bim2sim.sim_settings import PlantSimSettings
 from bim2sim.utilities.types import IFCDomain
@@ -25,7 +23,7 @@ class PluginDummy(Plugin):
     sim_settings = PlantSimSettings
     default_tasks = [
         bim2sim.tasks.common.load_ifc.LoadIFC,
-        bim2sim.tasks.common.create_elements.CreateElements,
+        bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes,
         bim2sim.tasks.hvac.connect_elements.ConnectElements
     ]
 

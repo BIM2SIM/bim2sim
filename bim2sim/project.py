@@ -66,8 +66,8 @@ def config_base_setup(path, backend=None):
 
     if not config.sections():
         # add all default attributes from base workflow
-        config = add_config_section(config, BaseSimSettings, "Generic Simulation "
-                                                     "Settings")
+        config = add_config_section(
+            config, BaseSimSettings, "Generic Simulation Settings")
         # add all default attributes from sub workflows
         all_settings = all_subclasses(BaseSimSettings)
         for flow in all_settings:
@@ -192,7 +192,7 @@ class FolderStructure:
 
     @classmethod
     def create(cls, rootpath: str, ifc_paths: Dict = None,
-               target: str = None, open_conf: bool = False):
+               plugin: Union[str, Type[Plugin]] = None, open_conf: bool = False):
         """Create ProjectFolder and set it up.
 
         Create instance, set source path, create project folder
@@ -202,19 +202,25 @@ class FolderStructure:
             rootpath: path of root folder
             ifc_paths: dict with key: bim2sim domain and value: path
                 to corresponding ifc which gets copied into project folder
-            target: the target simulation tool
+            plugin: the target Plugin
             open_conf: flag to open the config file in default application
         """
 
         # set rootpath
         self = cls(rootpath)
+        if isinstance(plugin, str):
+            plugin_name = plugin
+        elif issubclass(plugin, Plugin):
+            plugin_name = plugin.name
+        else:
+            raise ValueError(f"{plugin} is not a subclass of Plugin or a str.")
 
         if self.is_project_folder():
             logger.info(
                 "Given path is already a project folder ('%s')" % self.root)
         else:
             self.create_project_folder()
-            config_base_setup(self.config, target)
+            config_base_setup(self.config, plugin_name)
 
         if ifc_paths:
             if not isinstance(ifc_paths, Dict):
@@ -228,10 +234,12 @@ class FolderStructure:
                             and "resources" in file_path.parts:
                         raise ValueError(
                             f"Provided path to ifc is: {file_path}, but this "
-                            f"file does not exist. You are trying to run a test on your local machine,"
+                            f"file does not exist. You are trying to run a "
+                            f"test on your local machine,"
                             f" but it seems like you have not downloaded the"
-                            f" needed test resources. Run dl_test_resources.py "
-                            f"in test folder first."
+                            f" needed test resources. "
+                            f"Run 'git submodule update --init --recursive' "
+                            f"to make sure to include the test resources."
                         )
                     else:
                         raise ValueError(
@@ -319,7 +327,9 @@ class Project:
         self._setup_logger()  # setup project specific handlers
 
     def _get_plugin(self, plugin):
-        if plugin:
+        if plugin and isinstance(plugin, str):
+            return load_plugin(plugin)
+        elif plugin and issubclass(plugin, Plugin):
             return plugin
         else:
             plugin_name = self.config['Backend']['use']
@@ -329,7 +339,7 @@ class Project:
 
     @classmethod
     def create(cls, project_folder, ifc_paths: Dict = None, plugin: Union[
-        str, Type[Plugin]] = None, open_conf: bool = False):
+            str, Type[Plugin]] = None, open_conf: bool = False):
         """Create new project
 
         Args:
@@ -341,16 +351,16 @@ class Project:
             open_conf: flag to open the config file in default application
             updated from config
         """
-        # create folder first
-        if isinstance(plugin, str):
-            FolderStructure.create(project_folder, ifc_paths, plugin, open_conf)
-            project = cls(project_folder)
+        # create folder first and use given plugin
+        if plugin and (isinstance(plugin, str) or issubclass(plugin, Plugin)):
+            FolderStructure.create(
+                project_folder, ifc_paths, plugin, open_conf)
+            project = cls(project_folder, plugin=plugin)
         else:
-            # an explicit plugin can't be recreated from config.
-            # Thou we don't save it
+            # recreate plugin out of config, since no plugin was given
             FolderStructure.create(
                 project_folder, ifc_paths, open_conf=open_conf)
-            project = cls(project_folder, plugin=plugin)
+            project = cls(project_folder)
 
         return project
 
@@ -381,8 +391,9 @@ class Project:
         # tear down existing handlers (just in case)
         self._teardown_logger()
 
-        thread_name = threading.current_thread().name
 
+        thread_name = threading.current_thread().name
+        log.default_logging_setup(prj_log_path=self.paths.log)
         # quality logger
         quality_logger = logging.getLogger('bim2sim.QualityReport')
         quality_handler = logging.FileHandler(
@@ -536,7 +547,9 @@ class Project:
                              self.playground.available_tasks()}
             choices = [(name, task.__doc__) for name, task in
                        tasks_classes.items()]
-            task_decision = ListDecision("What shall we do?", choices=choices)
+            task_decision = ListDecision("What shall we do?",
+                                         choices=choices,
+                                         global_key = "_task_%s_decision" % (self.__class__.__name__)) # add global key: or task.__name__
             yield DecisionBunch([task_decision])
             task_name = task_decision.value
             task_class = tasks_classes[task_name]
@@ -572,6 +585,13 @@ class Project:
         self.finalize(True)
         self.paths.delete(False)
         user_logger.info("Project deleted")
+
+    def reset(self):
+        """Reset the current project."""
+        user_logger.info("Project reset")
+        self.playground.state.clear()
+        self.playground.history.clear()
+        self._made_decisions.clear()
 
     def __repr__(self):
         return "<Project(%s)>" % self.paths.root

@@ -1,6 +1,6 @@
 import logging
 import math
-from typing import List, Union
+from typing import List, Union, Tuple, Dict
 
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
@@ -9,41 +9,125 @@ from OCC.Core.gp import gp_Pnt, gp_Dir
 
 from bim2sim.elements.mapping.filter import TypeFilter
 from bim2sim.elements.base_elements import RelationBased, Element, IFCBased
-from bim2sim.elements.bps_elements import SpaceBoundary, ExtSpatialSpaceBoundary, \
-    ThermalZone, Window, Door
+from bim2sim.elements.bps_elements import (
+    SpaceBoundary, ExtSpatialSpaceBoundary, ThermalZone, Window, Door,
+    BPSProductWithLayers)
 from bim2sim.elements.mapping.finder import TemplateFinder
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
 from bim2sim.sim_settings import BaseSimSettings
+from bim2sim.utilities.common_functions import (
+    get_spaces_with_bounds, all_subclasses)
 
 logger = logging.getLogger(__name__)
 
 
 class CreateSpaceBoundaries(ITask):
-    """Create space boundary elements from ifc."""
+    """Create space boundary elements from ifc.
+
+    See run function for further information on this module. """
 
     reads = ('ifc_files', 'elements')
-    touches = ('space_boundaries',)
 
-    def run(self, ifc_files, elements):
+    def run(self, ifc_files: list, elements: dict):
+        """Create space boundaries for elements from IfcRelSpaceBoundary.
+
+        This module contains all functions for setting up bim2sim elements of
+        type SpaceBoundary based on the IFC elements IfcRelSpaceBoundary and
+        their subtypes of IfcRelSpaceBoundary2ndLevel.
+        Within this module, bim2sim SpaceBoundary instances are created.
+        Additionally, the relationship to their parent elements (i.e.,
+        related IfcProduct-based bim2sim elements, such as IfcWalls or
+        IfcRoof) is assigned. The SpaceBoundary instances are added to the
+        dictionary of space_boundaries in the format {guid:
+        bim2sim SpaceBoundary} and returned.
+
+        Args:
+            ifc_files (list): list of ifc files that have to be processed.
+            elements (dict): dictionary of preprocessed bim2sim elements (
+                generated from IFC or from other enrichment processes.
+            space_boundaries (dict): dictionary in the format dict[guid:
+                SpaceBoundary], dictionary of IFC-based space boundary elements.
+        """
+
+        if not self.playground.sim_settings.add_space_boundaries:
+            return
         logger.info("Creates elements for IfcRelSpaceBoundarys")
         type_filter = TypeFilter(('IfcRelSpaceBoundary',))
         space_boundaries = {}
         for ifc_file in ifc_files:
             entity_type_dict, unknown_entities = type_filter.run(ifc_file.file)
-            element_lst = self.instantiate_space_boundaries(
+            bound_list = self.instantiate_space_boundaries(
                 entity_type_dict, elements, ifc_file.finder,
                 self.playground.sim_settings.create_external_elements,
                 ifc_file.ifc_units)
             bound_elements = self.get_parents_and_children(
-                self.playground.sim_settings, element_lst, elements)
-            element_lst = list(bound_elements.values())
+                self.playground.sim_settings, bound_list, elements)
+            bound_list = list(bound_elements.values())
             logger.info(f"Created {len(bound_elements)} bim2sim SpaceBoundary "
                         f"elements based on IFC file: {ifc_file.ifc_file_name}")
-            space_boundaries.update({inst.guid: inst for inst in element_lst})
+            space_boundaries.update({inst.guid: inst for inst in bound_list})
         logger.info(f"Created {len(space_boundaries)} bim2sim SpaceBoundary "
                     f"elements in total for all IFC files.")
-        return space_boundaries,
+
+        self.add_bounds_to_elements(elements, space_boundaries)
+        self.remove_elements_without_sbs(elements)
+
+    @staticmethod
+    def remove_elements_without_sbs(elements: dict):
+        """Remove elements that hold no Space Boundaries.
+
+        Those elements are usual not relevant for the simulation.
+        """
+        elements_to_remove = []
+        for ele in elements.values():
+            if not any([isinstance(ele, bps_product_layer_ele) for
+                        bps_product_layer_ele in
+                        all_subclasses(BPSProductWithLayers)]):
+                continue
+            if not ele.space_boundaries:
+                elements_to_remove.append(ele.guid)
+        for ele_guid_to_remove in elements_to_remove:
+            del elements[ele_guid_to_remove]
+
+    @staticmethod
+    def add_bounds_to_elements(
+            elements: dict, space_boundaries: dict[str, SpaceBoundary]):
+        """Add space boundaries to elements.
+
+        This function adds those space boundaries from space_boundaries to
+        elements. This includes all space boundaries included in
+        space_boundaries, which bound an IfcSpace. The space boundaries which
+        have been excluded during the preprocessing in the kernel are skipped
+        by only considering boundaries from the space_boundaries dictionary.
+
+        Args:
+            elements: dict[guid: element]
+            space_boundaries: dict[guid: SpaceBoundary]
+        """
+        logger.info("Creates python representation of relevant ifc types")
+        instance_dict = {}
+        spaces = get_spaces_with_bounds(elements)
+        total_bounds_removed = 0
+        for space in spaces:
+            drop_bound_counter = 0
+            keep_bounds = []
+            for bound in space.space_boundaries:
+                if not bound.guid in space_boundaries.keys():
+                    drop_bound_counter += 1
+                    continue
+                else:
+                    instance_dict[bound.guid] = bound
+                    keep_bounds.append(bound)
+            total_bounds_removed += drop_bound_counter
+            space.space_boundaries = keep_bounds
+            if drop_bound_counter > 0:
+                logger.info(f"Removed {drop_bound_counter} space boundaries in "
+                            f"{space.guid} {space.name}")
+        if total_bounds_removed > 0:
+            logger.warning(f"Total of {total_bounds_removed} space boundaries "
+                           f"removed.")
+        elements.update(instance_dict)
 
     def get_parents_and_children(self, sim_settings: BaseSimSettings,
                                  boundaries: list[SpaceBoundary],
@@ -161,7 +245,7 @@ class CreateSpaceBoundaries(ITask):
         Returns:
             opening_boundary: Union[SpaceBoundary, None]
         """
-        opening_boundary = None
+        opening_boundary: Union[SpaceBoundary, None] = None
         distances = {}
         for op_bound in opening_elem.space_boundaries:
             if not op_bound.ifc.RelatingSpace == this_space:
@@ -226,7 +310,7 @@ class CreateSpaceBoundaries(ITask):
                 therefore should be dropped
         """
         rel_bound = None
-        drop_list[this_boundary.guid] = this_boundary
+        drop_list[this_boundary.guid]: dict[str, SpaceBoundary] = this_boundary
         ib = [b for b in bound_element.space_boundaries if
               b.ifc.ConnectionGeometry.SurfaceOnRelatingElement.InnerBoundaries
               if
@@ -285,7 +369,7 @@ class CreateSpaceBoundaries(ITask):
         return rel_bound, drop_list
 
     def instantiate_space_boundaries(
-            self, entities_dict: dict[str], elements: dict, finder:
+            self, entities_dict: dict, elements: dict, finder:
             TemplateFinder,
             create_external_elements: bool, ifc_units: dict[str, ureg]) \
             -> List[RelationBased]:

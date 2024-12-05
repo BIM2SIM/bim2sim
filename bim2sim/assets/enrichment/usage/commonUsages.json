@@ -104,7 +104,8 @@
    "Main Hall, Reception":[
       "Hauptsaal",
       "Empfang",
-      "lounge"
+      "lounge",
+      "Atrium"
    ],
    "Medical and therapeutic practices":[
       "Arzt",
@@ -182,7 +183,9 @@
       "RLT",
       "Putzmittel",
       "Hausanschluss",
-      "Heizzentrale"
+      "Heizzentrale",
+      "EDV",
+      "ELT"
    ],
    "Storehouse, logistics building":[
       "Lager, Logistikgebäude",

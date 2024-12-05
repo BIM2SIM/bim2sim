@@ -5,8 +5,10 @@ import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
+from bim2sim.tasks import common, bps
 from bim2sim.utilities.common_functions import download_test_resources
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import task as ep_tasks
 
 
 def run_example_simple_building():
@@ -31,12 +33,18 @@ def run_example_simple_building():
     # force_new to True to update your test resources
     download_test_resources(IFCDomain.arch, force_new=False)
     # Set the ifc path to use and define which domain the IFC belongs to
+    # TODO
+    # LOCAL CODE VERONIKA
+    # ifc_paths = {
+    #     IFCDomain.arch:
+    #         Path(r'C:\Users\richter\Downloads\BIM-ESH-5A-BDS (EDITED)-IFC4 ('
+    #         r'EDITED).ifc'),
+    # }
+    # LOCAL CODE DAVID
     ifc_paths = {
         IFCDomain.arch:
-            Path(r'C:\Users\richter\Downloads\BIM-ESH-5A-BDS (EDITED)-IFC4 ('
-            r'EDITED).ifc'),
+            Path(r'D:\12_IFCs\BIM-ESH-5A-BDS (EDITED) 00 EG _ OKFF +0,00 - 00 MZ _ OKFF +3,72 -IFC4.ifc'),
     }
-
     # Create a project including the folder structure for the project with
     # teaser as backend and no specified workflow (default workflow is taken)
     project = Project.create(project_path, ifc_paths, 'energyplus')
@@ -57,13 +65,40 @@ def run_example_simple_building():
         "heat_energy_rooms", "cool_energy_rooms",
         "operative_temp_rooms", "air_temp_rooms", "air_temp_out"
     ]
-    project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+    project.sim_settings.ep_install_path = 'C:/EnergyPlusV24-1-0'
+    project.sim_settings.ep_version = '24-1-0'
+    project.plugin_cls.default_tasks = [
+        common.LoadIFC,
+        # common.CheckIfc,
+        common.CreateElements,
+        bps.CreateSpaceBoundaries,
+        bps.FilterTZ,
+        bps.ProcessSlabsRoofs,
+        common.BindStoreys,
+        bps.EnrichUseConditions,
+        bps.VerifyLayersMaterials,  # LOD.full
+        bps.EnrichMaterial,  # LOD.full
+        ep_tasks.EPGeomPreprocessing,
+        ep_tasks.AddSpaceBoundaries2B,
+        common.Weather,
+        ep_tasks.CreateIdf,
+        ep_tasks.IdfPostprocessing,
+        ep_tasks.ExportIdfForCfd,
+        ep_tasks.RunEnergyPlusSimulation,
+        ep_tasks.CreateResultDF,
+        # ep_tasks.VisualizeResults,
+        bps.PlotBEPSResults,
+    ]
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
+    answers = ('ArchiCAD', 'ArchiCAD',*(None,)*2, ('BPS-InnerWall',)*3,
+               *(None,)*13, *('Traffic area',)*3, 2015)
+
     answers = ('ArchiCAD', 'ArchiCAD',*(None,)*3, *(None,)*23,
                *('Traffic area',)*3, 2015)
-    run_project(project, DebugDecisionHandler(answers))
+    run_project(project, ConsoleDecisionHandler())
+    # run_project(project, DebugDecisionHandler(answers))
 
 
 if __name__ == '__main__':

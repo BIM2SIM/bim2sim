@@ -5,12 +5,13 @@ from bim2sim.export.modelica import standardlibrary
 from bim2sim.plugins import Plugin
 from bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models import AixLib
 from bim2sim.tasks import base, common, hvac
-from bim2sim.sim_settings import PlantSimSettings
+from bim2sim.plugins.PluginAixLib.bim2sim_aixlib.sim_settings import \
+    AixLibSimSettings
 
 
 class LoadLibrariesAixLib(base.ITask):
     """Load AixLib library for export"""
-    touches = ('libraries', )
+    touches = ('libraries',)
 
     def run(self, **kwargs):
         return (standardlibrary.StandardLibrary, AixLib),
@@ -21,12 +22,12 @@ class LoadLibrariesAixLib(base.ITask):
 
 class PluginAixLib(Plugin):
     name = 'AixLib'
-    sim_settings = PlantSimSettings
+    sim_settings = AixLibSimSettings
     tasks = {LoadLibrariesAixLib}
     default_tasks = [
         common.LoadIFC,
         common.CheckIfc,
-        common.CreateElements,
+        common.CreateElementsOnIfcTypes,
         hvac.ConnectElements,
         hvac.MakeGraph,
         hvac.ExpansionTanks,

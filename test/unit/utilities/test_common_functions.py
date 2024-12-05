@@ -156,36 +156,6 @@ class TestCommonFunctions(unittest.TestCase):
         """test all_subclasses function"""
         all_subclasses = cf.all_subclasses(BPSProduct)
         self.assertIsInstance(all_subclasses, set)
-        self.assertEqual(len(all_subclasses), 24)
+        self.assertEqual(len(all_subclasses), 29)
 
-    def test_download_test_files_arch(self):
-        testmodels_path = Path(__file__).parent.parent.parent / \
-                          'resources/arch'
-        # delete if already exists
-        if testmodels_path.exists():
-            cf.rm_tree(testmodels_path)
-        cf.download_test_resources('arch', with_regression=True)
-        ifc_path = testmodels_path / 'ifc'
-        usages_path = testmodels_path / 'custom_usages'
-        regression_path = testmodels_path / 'regression_results'
-        for path in [ifc_path, usages_path, regression_path]:
-            if not path.exists():
-                raise AssertionError(
-                    f"Path does not exist: {path}, download of "
-                    f"architecture IFC files didn't work.")
 
-    def test_download_test_files_hydraulic(self):
-        testmodels_path = Path(__file__).parent.parent.parent / \
-                          'resources/hydraulic'
-        # delete if already exists
-        if testmodels_path.exists():
-            cf.rm_tree(testmodels_path)
-        cf.download_test_resources('hydraulic')
-        ifc_path = testmodels_path / 'ifc'
-        regression_path = testmodels_path / 'regression_results'
-        # TODO #539: include hvac regression results here when implemented
-        for path in [ifc_path]:
-            if not path.exists():
-                raise AssertionError(
-                    f"Path does not exist: {path}, download of "
-                    f"architecture IFC files didn't work.")

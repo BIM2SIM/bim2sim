@@ -1,14 +1,18 @@
 import json
+from pathlib import Path
 
 import pandas as pd
 import pint_pandas
+from geomeppy import IDF
 from pint_pandas import PintArray
 
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task import \
+    IdfPostprocessing
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
     PostprocessingUtils
 from bim2sim.tasks.base import ITask
 from bim2sim.elements.mapping.units import ureg
-
+from bim2sim.utilities.common_functions import filter_elements
 
 bim2sim_energyplus_mapping_base = {
     "NOT_AVAILABLE": "heat_demand_total",
@@ -19,9 +23,9 @@ bim2sim_energyplus_mapping_base = {
     "Rate [W](Hourly)": "cool_demand_rooms",
     "Heating:EnergyTransfer [J](Hourly)": "heat_energy_total",
     "Cooling:EnergyTransfer [J](Hourly) ": "cool_energy_total",
-    "SPACEGUID:Zone Total Internal Total Heating Energy [J](Hourly)":
+    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Heating Energy [J](Hourly)":
         "heat_energy_rooms",
-    "SPACEGUID:Zone Total Internal Total Cooling Energy [J](Hourly)":
+    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Cooling Energy [J](Hourly)":
         "cool_energy_rooms",
     "Environment:Site Outdoor Air Drybulb Temperature [C](Hourly)":
         "air_temp_out",
@@ -36,6 +40,7 @@ bim2sim_energyplus_mapping_base = {
     "SPACEGUID:Zone Ventilation Standard Density Volume Flow Rate [m3/s](Hourly)": "mech_ventilation_rooms",
     "SPACEGUID:Zone Thermostat Heating Setpoint Temperature [C](Hourly)": "heat_set_rooms",
     "SPACEGUID:Zone Thermostat Cooling Setpoint Temperature [C](Hourly)": "cool_set_rooms",
+    "BOUNDGUID:Surface Inside Face Temperature [C](Hourly)": "surf_inside_temp",
 }
 
 pint_pandas.PintType.ureg = ureg
@@ -50,40 +55,89 @@ unit_mapping = {
     "cool_set": ureg.degree_Celsius,
     "internal_gains": ureg.watt,
     "n_persons": ureg.dimensionless,
-    "infiltration": ureg.hour**(-1),
-    "mech_ventilation": (ureg.meter**3) / ureg.second,
+    "infiltration": ureg.hour ** (-1),
+    "mech_ventilation": (ureg.meter ** 3) / ureg.second,
 }
 
 
 class CreateResultDF(ITask):
-    """This ITask creates a result dataframe for EnergyPlus BEPS simulations.
+    """This ITask creates a result dataframe for EnergyPlus BEPS simulations
 
-    Args:
-        idf: eppy idf
-    Returns:
-        df_final: final dataframe that holds only relevant data, with generic
-        `bim2sim` names and index in form of MM/DD-hh:mm:ss
+    See detailed explanation in the run function below.
     """
-    reads = ('idf', 'sim_results_path')
+
+    reads = ('idf', 'sim_results_path', 'elements')
     touches = ('df_finals',)
 
-    def run(self, idf, sim_results_path):
+    def run(self, idf: IDF, sim_results_path: Path, elements: dict) \
+            -> dict[str: pd.DataFrame]:
+        """ Create a result DataFrame for EnergyPlus BEPS results.
+
+        This function transforms the EnergyPlus simulation results to the
+        general result data format used in this bim2sim project. The
+        simulation results stored in the EnergyPlus result file (
+        "eplusout.csv") are shifted by one hour to match the simulation
+        results of the modelica simulation. Afterwards, the simulation
+        results are formatted to match the bim2sim dataframe format.
+
+        Args:
+            idf (IDF): eppy idf
+            sim_results_path (Path): path to the simulation results from
+                EnergyPlus
+            elements (dict): dictionary in the format dict[guid: element],
+                holds preprocessed elements including space boundaries.
+        Returns:
+            df_finals (dict): dictionary in the format
+            dict[str(project name): pd.DataFrame], final dataframe
+            that holds only relevant data, with generic `bim2sim` names and
+            index in form of MM/DD-hh:mm:ss
+
+        """
         # ToDO handle multiple buildings/ifcs #35
         df_finals = {}
+        if not self.playground.sim_settings.create_plots:
+            self.logger.warning("Skipping task CreateResultDF as sim_setting "
+                                "'create_plots' is set to False and no "
+                                "DataFrame ist needed.")
+            return df_finals,
         raw_csv_path = sim_results_path / self.prj_name / 'eplusout.csv'
+        # TODO @Veronika: the zone_dict.json can be removed and instead the
+        #  elements structure can be used to get the zone guids
         zone_dict_path = sim_results_path / self.prj_name / 'zone_dict.json'
+        if not zone_dict_path.exists():
+            IdfPostprocessing.write_zone_names(idf, elements,
+                                               sim_results_path / self.prj_name)
         with open(zone_dict_path) as j:
-            zone_dict =json.load(j)
+            zone_dict = json.load(j)
+
+        # create dict for mapping surfaces to spaces
+        space_bound_dict = {}
+        spaces = filter_elements(elements, 'ThermalZone')
+        for space in spaces:
+            space_guids = []
+            for bound in space.space_boundaries:
+                if isinstance(bound, str):
+                    space_guids.append(bound)
+                else:
+                    space_guids.append(bound.guid)
+            space_bound_dict[space.guid] = space_guids
+        with open(sim_results_path / self.prj_name / 'space_bound_dict.json',
+                  'w+') as file:
+            json.dump(space_bound_dict, file, indent=4)
 
         df_original = PostprocessingUtils.read_csv_and_format_datetime(
             raw_csv_path)
-        df_original = PostprocessingUtils.shift_dataframe_to_midnight(df_original)
-        df_final = self.format_dataframe(df_original, zone_dict)
+        df_original = (
+            PostprocessingUtils.shift_dataframe_to_midnight(df_original))
+        df_final = self.format_dataframe(df_original, zone_dict,
+                                         space_bound_dict)
         df_finals[self.prj_name] = df_final
+
         return df_finals,
 
     def format_dataframe(
-            self, df_original: pd.DataFrame, zone_dict: dict) -> pd.DataFrame:
+            self, df_original: pd.DataFrame, zone_dict: dict,
+            space_bound_dict: dict) -> pd.DataFrame:
         """Formats the dataframe to generic bim2sim output structure.
 
         This function:
@@ -93,12 +147,14 @@ class CreateResultDF(ITask):
         Args:
             df_original: original dataframe directly taken from simulation
             zone_dict: dictionary with all zones, in format {GUID : Zone Usage}
-
+            space_bound_dict: dictionary with space_guid and a list of space
+                boundary guids of this space.
         Returns:
             df_final: converted dataframe in `bim2sim` result structure
         """
         bim2sim_energyplus_mapping = self.map_zonal_results(
-            bim2sim_energyplus_mapping_base, zone_dict)
+            bim2sim_energyplus_mapping_base, zone_dict, space_bound_dict,
+            self.playground.sim_settings.plot_singe_zone_guid)
         # select only relevant columns
         short_list = \
             list(bim2sim_energyplus_mapping.keys())
@@ -108,7 +164,9 @@ class CreateResultDF(ITask):
             columns=bim2sim_energyplus_mapping)
 
         # convert negative cooling demands and energies to absolute values
-        df_final = df_final.abs()
+        energy_and_demands = df_final.filter(like='energy').columns.union(
+            df_final.filter(like='demand').columns)
+        df_final[energy_and_demands].abs()
         heat_demand_columns = df_final.filter(like='heat_demand')
         cool_demand_columns = df_final.filter(like='cool_demand')
         df_final['heat_demand_total'] = heat_demand_columns.sum(axis=1)
@@ -130,7 +188,8 @@ class CreateResultDF(ITask):
         return bim2sim_energyplus_mapping
 
     @staticmethod
-    def map_zonal_results(bim2sim_energyplus_mapping_base, zone_dict):
+    def map_zonal_results(bim2sim_energyplus_mapping_base, zone_dict,
+                          space_bound_dict=None, plot_single_zone_guid=None):
         """Add zone/space guids/names to mapping dict.
 
         EnergyPlus outputs the results referencing to the IFC-GlobalId. This
@@ -144,7 +203,8 @@ class CreateResultDF(ITask):
             bim2sim_energyplus_mapping_base: Holds the mapping between
              simulation outputs and generic `bim2sim` output names.
             zone_dict: dictionary with all zones, in format {GUID : Zone Usage}
-
+            space_bound_dict: dictionary mapping space guids and their bounds
+            plot_single_zone_guid: guid of single space that should be analyzed
         Returns:
             dict: A mapping between simulation results and space guids, with
              appropriate adjustments for aggregated zones.
@@ -161,6 +221,19 @@ class CreateResultDF(ITask):
                     # todo: according to #497, names should keep a _zone_ flag
                     new_value = value.replace("rooms", 'rooms_' + space_guid)
                     bim2sim_energyplus_mapping[new_key] = new_value
+            elif "BOUNDGUID" in key and space_bound_dict is not None:
+                for i, space in enumerate(space_bound_dict):
+                    if plot_single_zone_guid and \
+                            space not in plot_single_zone_guid:
+                        # avoid loading space boundary data of multiple
+                        # zones unless all zones should be considered to
+                        # avoid an unreasonably large dataframe
+                        continue
+                    for bound in space_bound_dict[space]:
+                        guid = bound
+                        new_key = key.replace("BOUNDGUID", guid.upper())
+                        new_value = value.replace("temp", "temp_" + guid)
+                        bim2sim_energyplus_mapping[new_key] = new_value
             else:
                 bim2sim_energyplus_mapping[key] = value
         return bim2sim_energyplus_mapping
