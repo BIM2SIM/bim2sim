@@ -247,7 +247,7 @@ if __name__ == '__main__':
                                       parsed_data['Checking geometry...'][
                                           'Maximum face area']})
                 eval_dict.update({'BlockMeshSize': float("0."+diss_dir.name[
-                                                              -2:])})
+                                                              2:4])})
                 eval_mesh_df = pd.DataFrame()
                 eval_mesh_df[diss_dir.name] = eval_dict
                 eval_mesh_df = eval_mesh_df.apply(pd.to_numeric)
@@ -262,12 +262,14 @@ if __name__ == '__main__':
                                                  result], axis=1)
                 global_eval_df = pd.concat([global_eval_df, eval_mesh_df],
                                            axis=1)
-                tr_comparative_results = comparative_results.T
                 print(comparative_results)
                 with open(openfoam_dir / 'mesh.json', 'w',
                           encoding='utf-8') as f:
                     json.dump(parsed_data, f, ensure_ascii=True, indent=4)
-                # print(json.dumps(parsed_data, indent=4))
+                #print(json.dumps(parsed_data, indent=4))
                 final_dir = diss_dir
+    comparative_results.loc['reff'] = comparative_results.loc['points'] ** (
+                1 / 3)
+    print(comparative_results)
     comparative_results.to_csv(final_dir.parent/'comparative_result.csv')
     print('DONE')
