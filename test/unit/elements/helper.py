@@ -380,5 +380,11 @@ class SetupHelperBPS(SetupHelper):
         build_1 = self.element_generator(bps.Building,
                                          bldg_name='simpleTestBuilding', year_of_construction=2010)
             # bps.ThermalZone, bound_elements=[out_wall_1])
-        elements = [out_wall_1, window_1, tz_1, build_1]
+
+        elements = {
+            out_wall_1.guid : out_wall_1,
+            window_1.guid:window_1,
+            tz_1.guid: tz_1,
+            build_1.guid: build_1
+        }
         return elements

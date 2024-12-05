@@ -1,14 +1,18 @@
 import ast
+import logging
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, List
 
 from bim2sim.elements.base_elements import Material
+from bim2sim.elements.bps_elements import Layer, LayerSet, Building
 from bim2sim.kernel.decision import DecisionBunch
 from bim2sim.sim_settings import BuildingSimSettings
 from bim2sim.tasks.base import ITask
+from bim2sim.tasks.base import Playground
 from bim2sim.utilities.common_functions import filter_elements, \
     get_type_building_elements, get_material_templates
-from bim2sim.elements.bps_elements import Layer, LayerSet, Building
 from bim2sim.utilities.types import LOD, AttributeDataSource
-from bim2sim.tasks.base import Playground
 
 
 class EnrichMaterial(ITask):
@@ -24,8 +28,8 @@ class EnrichMaterial(ITask):
         "Roof": ["Roof"],
         "Floor": ["InnerFloor", "InnerFloorDisaggregated"],
         "GroundFloor": ["GroundFloor", "GroundFloorDisaggregated"],
-        "OuterDoor": ["OuterDoor", "OuterDoorDisaggregated"],
-        "InnerDoor": ["InnerDoor", "InnerDoorDisaggregated"],
+        "Door": ["OuterDoor", "InnerDoor", "OuterDoorDisaggregated",
+                 "InnerDoorDisaggregated"],
     }
 
     def __init__(self, playground: Playground):
@@ -37,12 +41,13 @@ class EnrichMaterial(ITask):
         """Enriches materials and layer sets of building elements.
 
         Enrichment data in the files MaterialTemplates.json and
-        TypeBuildingElements.json is taken from TEASER. The underlying data
+        TypeElements_IWU.json is taken from TEASER. The underlying data
         comes from IWU data. For more detailed information please review TEASER
         code documentation:
         https://rwth-ebc.github.io/TEASER//master/docs/index.html
         """
-        # TODO change data_source when existing for all overwritten information
+        # TODO add data_source also to non attributes values:
+        #  layer and layerset
         [element_templates, material_template] = \
             yield from self.get_templates(elements)
         if self.playground.sim_settings.layers_and_materials is LOD.low:
@@ -141,7 +146,8 @@ class EnrichMaterial(ITask):
         material.spec_heat_capacity = (
             material_template['heat_capac'], AttributeDataSource.enrichment)
         material.thermal_conduc = (
-            material_template['thermal_conduc'], AttributeDataSource.enrichment)
+            material_template['thermal_conduc'],
+            AttributeDataSource.enrichment)
         material.solar_absorp = (
             material_template['solar_absorp'], AttributeDataSource.enrichment)
         return material
@@ -201,71 +207,185 @@ class EnrichMaterial(ITask):
                             material_templates[k][attr]
         return resumed
 
+    @dataclass
+    class ConstructionTemplate:
+        """Data class to hold construction template information.
+
+        Attributes:
+            walls: Path to wall construction data file
+            windows: Path to window construction data file
+            doors: Path to door construction data file
+        """
+        walls: Path
+        windows: Path
+        doors: Path
+
+    @staticmethod
+    def determine_construction_data_file(construction_type: str,
+                                         data_source: str) -> Path:
+        """Determines the appropriate construction data file based on the data source.
+
+        Args:
+            construction_type: Type of construction element ('wall', 'window', or 'door')
+            data_source: Source of construction data (e.g., 'iwu', 'kfw', 'tabula_de')
+
+        Returns:
+            Path: Path to the construction data file
+
+        Raises:
+            ValueError: If the construction data source is unknown
+        """
+        # Map of known data sources to their respective files
+        source_to_file = {
+            'iwu': 'TypeElements_IWU.json',
+            'kfw': 'TypeElements_KFW.json',
+            'tabula_de': 'TypeElements_TABULA_DE.json',
+            'tabula_dk': 'TypeElements_TABULA_DK.json'
+        }
+
+        # Special case for IWU windows
+        iwu_window_types = [
+            'Holzfenster, zweifach',
+            'Kunststofffenster, Isolierverglasung',
+            'Alu- oder Stahlfenster, Isolierverglasung',
+            'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
+            'Waermeschutzverglasung, dreifach'
+        ]
+
+        if construction_type == 'window' and any(
+                type_name in data_source for type_name in iwu_window_types):
+            return Path('TypeElements_IWU.json')
+
+        for source, filename in source_to_file.items():
+            if source in data_source.lower():
+                return Path(filename)
+
+        raise ValueError(
+            f"Unknown {construction_type} construction class: {data_source}")
+
+    @staticmethod
+    def get_element_template(element_type: str, year_of_construction: int,
+                             years_dict: dict, construction_data: str,
+                             logger: logging.Logger) -> dict:
+        """Retrieves the template for a specific building element based on construction year.
+
+        Args:
+            element_type: Type of building element
+            year_of_construction: Year when the building was constructed
+            years_dict: Dictionary containing templates for different year ranges
+            construction_data: Construction data identifier
+            logger: Logger instance for warnings
+
+        Returns:
+            dict: Template for the specified building element
+        """
+        # Handle single template case
+        if len(years_dict) == 1:
+            template_options = years_dict[list(years_dict.keys())[0]]
+            if len(template_options) == 1:
+                return template_options[list(template_options.keys())[0]]
+            return template_options[construction_data]
+
+        # Find template for specific year range
+        template_options = None
+        for year_range, template in years_dict.items():
+            years = ast.literal_eval(year_range)
+            if years[0] <= year_of_construction <= years[1]:
+                template_options = template
+                break
+
+        if not template_options:
+            return None
+
+        if len(template_options) == 1:
+            return template_options[list(template_options.keys())[0]]
+
+        # Special handling for windows
+        if element_type == 'Window':
+            try:
+                return template_options[construction_data]
+            except KeyError:
+                # Fallback to last available window type
+                new_construction_data = list(template_options.keys())[-1]
+                logger.warning(
+                    f"The window_construction_data {construction_data} is not "
+                    f"available for year_of_construction {year_of_construction}. "
+                    f"Using {new_construction_data} instead.")
+                return template_options[new_construction_data]
+
+        return template_options[construction_data]
+
     def get_templates_for_buildings(
-            self, buildings: list, sim_settings: BuildingSimSettings) -> dict:
-        """Return template for each building based on year of construction."""
+            self, buildings: List,
+            sim_settings: 'BuildingSimSettings') -> Dict:
+        """Generate templates for building elements based on construction year.
 
-        def _get_template_for_year(
-                year_of_construction,
-                construction_type,
-                windows_construction_type):
-            element_templates = get_type_building_elements()
-            bldg_template = {}
-            for element_type, years_dict in element_templates.items():
-                if len(years_dict) == 1:
-                    template_options = years_dict[list(years_dict.keys())[0]]
-                else:
-                    template_options = None
-                    for i, template in years_dict.items():
-                        years = ast.literal_eval(i)
-                        if years[0] <= year_of_construction <= years[1]:
-                            template_options = element_templates[element_type][
-                                i]
-                            break
-                if len(template_options) == 1:
-                    bldg_template[element_type] = \
-                        template_options[list(template_options.keys())[0]]
-                else:
-                    if element_type == 'Window':
-                        try:
-                            bldg_template[element_type] = \
-                                template_options[windows_construction_type]
-                        except KeyError:
-                            # select last available window construction type if
-                            # the selected/default window type is not available
-                            # for the given year.
-                            new_window_construction_type = \
-                                list(template_options.keys())[-1]
-                            self.logger.warning(
-                                f"The window_construction_type"
-                                f" {windows_construction_type} is not "
-                                f"available for year_of_construction "
-                                f"{year_of_construction}. Using the "
-                                f"window_construction_type "
-                                f"{new_window_construction_type} instead.")
-                            bldg_template[element_type] = \
-                                template_options[new_window_construction_type]
-                    else:
-                        bldg_template[element_type] = \
-                            template_options[construction_type]
-            return bldg_template
+        Args:
+            buildings: List of building objects to process
+            sim_settings: Settings object containing construction parameters
 
-        templates = {}
-        construction_type = sim_settings.construction_class_walls
-        windows_construction_type = sim_settings.construction_class_windows
+        Returns:
+            Dict: Mapping of buildings to their construction templates
+
+        Raises:
+            ValueError: If no buildings are provided
+        """
         if not buildings:
             raise ValueError(
-                "No buildings found, without a building no template can be"
-                " assigned and enrichment can't proceed.")
+                "No buildings found, without a building no template can be "
+                "assigned and enrichment can't proceed.")
+
+        templates = {}
         for building in buildings:
+            # Handle construction year
             if sim_settings.year_of_construction_overwrite:
-                building.year_of_construction = \
-                    int(sim_settings.year_of_construction_overwrite)
+                building.year_of_construction = int(
+                    sim_settings.year_of_construction_overwrite)
             if not building.year_of_construction:
                 year_decision = building.request('year_of_construction')
                 yield DecisionBunch([year_decision])
+
             year_of_construction = int(building.year_of_construction.m)
-            templates[building] = _get_template_for_year(
-                year_of_construction, construction_type,
-                windows_construction_type)
+
+            # Get construction data files
+            construction_files = self.ConstructionTemplate(
+                walls=self.determine_construction_data_file(
+                    'wall', sim_settings.construction_class_walls),
+                windows=self.determine_construction_data_file(
+                    'window', sim_settings.construction_class_windows),
+                doors=self.determine_construction_data_file(
+                    'door', sim_settings.construction_class_doors)
+            )
+
+            # Load element templates
+            element_templates = {
+                'walls': get_type_building_elements(construction_files.walls),
+                'windows': get_type_building_elements(
+                    construction_files.windows),
+                'doors': get_type_building_elements(construction_files.doors)
+            }
+
+            # Build template for current building
+            bldg_template = {}
+            for element_type, years_dict in element_templates[
+                'windows'].items():
+                if element_type == 'Window':
+                    bldg_template[element_type] = self.get_element_template(
+                        element_type, year_of_construction, years_dict,
+                        sim_settings.construction_class_windows, self.logger)
+
+            for element_type, years_dict in element_templates['doors'].items():
+                if element_type == 'Door':
+                    bldg_template[element_type] = self.get_element_template(
+                        element_type, year_of_construction, years_dict,
+                        sim_settings.construction_class_doors, self.logger)
+
+            for element_type, years_dict in element_templates['walls'].items():
+                if element_type not in ('Window', 'Door'):
+                    bldg_template[element_type] = self.get_element_template(
+                        element_type, year_of_construction, years_dict,
+                        sim_settings.construction_class_walls, self.logger)
+
+            templates[building] = bldg_template
+
         return templates

@@ -1,7 +1,5 @@
 {
     "version":{
-        "typical_length":0.7,
-        "typical_width":0.7,
         "with_heating":0.7,
         "T_threshold_heating":0.7,
         "with_cooling":0.7,
@@ -34,8 +32,6 @@
         "surround_clo_persons":"ComfortExtension_V002"
     },
     "Single office":{
-        "typical_length":3.0,
-        "typical_width":6.0,
         "with_heating":true,
         "T_threshold_heating":288.15,
         "with_cooling":false,
@@ -209,8 +205,6 @@
         "surround_clo_persons":0.15
     },
     "Bed room":{
-        "typical_length":4.0,
-        "typical_width":4.0,
         "with_heating":true,
         "T_threshold_heating":288.15,
         "with_cooling":false,
@@ -384,8 +378,6 @@
         "surround_clo_persons":2.0
     },
     "Kitchen residential":{
-        "typical_length":6.0,
-        "typical_width":6.0,
         "with_heating":true,
         "T_threshold_heating":288.15,
         "with_cooling":false,
@@ -559,8 +551,6 @@
         "surround_clo_persons":0.0
     },
     "WC residential":{
-        "typical_length":3.0,
-        "typical_width":6.0,
         "with_heating":true,
         "T_threshold_heating":288.15,
         "with_cooling":false,
@@ -729,8 +719,6 @@
         "surround_clo_persons":0.0
     },
     "Traffic area":{
-        "typical_length":2.0,
-        "typical_width":12.0,
         "with_heating":true,
         "T_threshold_heating":288.15,
         "with_cooling":false,
@@ -899,8 +887,6 @@
         "surround_clo_persons":0.0
     },
     "Living":{
-        "typical_length":3.0,
-        "typical_width":6.0,
         "with_heating":true,
         "T_threshold_heating":288.15,
         "with_cooling":false,

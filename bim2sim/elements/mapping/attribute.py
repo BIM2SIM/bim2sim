@@ -1,12 +1,13 @@
+import inspect
 import logging
 from functools import partial
 from typing import Tuple, Iterable, Callable, Any, Union
 
 import pint
 
+from bim2sim.elements.mapping.units import ureg
 from bim2sim.kernel.decision import RealDecision, Decision, \
     DecisionBunch, BoolDecision, StringDecision
-from bim2sim.elements.mapping.units import ureg
 from bim2sim.utilities.types import AttributeDataSource
 
 logger = logging.getLogger(__name__)
@@ -127,28 +128,28 @@ class Attribute:
             if value is None and self.ifc_attr_name:
                 if hasattr(bind.ifc, self.ifc_attr_name):
                     raw_value = getattr(bind.ifc, self.ifc_attr_name)
-                    value = self.ifc_post_processing(raw_value)
+                    value = self.post_process_value(bind, raw_value)
                     if value is not None:
                         data_source = AttributeDataSource.ifc_attr
             # default property set
             if value is None and self.default_ps:
                 raw_value = self.get_from_default_propertyset(bind,
                                                               self.default_ps)
-                value = self.ifc_post_processing(raw_value)
+                value = self.post_process_value(bind, raw_value)
                 if value is not None:
                     data_source = AttributeDataSource.default_ps
 
             if value is None and self.default_association:
                 raw_value = self.get_from_default_propertyset(
                     bind, self.default_association)
-                value = self.ifc_post_processing(raw_value)
+                value = self.post_process_value(bind, raw_value)
                 if value is not None:
                     data_source = AttributeDataSource.default_association
 
             # tool specific properties (finder)
             if value is None:
                 raw_value = self.get_from_finder(bind, self.name)
-                value = self.ifc_post_processing(raw_value)
+                value = self.post_process_value(bind, raw_value)
                 if value is not None:
                     data_source = AttributeDataSource.finder
 
@@ -156,7 +157,7 @@ class Attribute:
             if value is None and self.patterns:
                 raw_value = self.get_from_patterns(bind, self.patterns,
                                                    self.name)
-                value = self.ifc_post_processing(raw_value)
+                value = self.post_process_value(bind, raw_value)
                 if value is not None:
                     data_source = AttributeDataSource.patterns
 
@@ -309,6 +310,33 @@ class Attribute:
                 related=related
             )
         return decision
+
+    def post_process_value(self, bind, raw_value):
+        """Post-process the raw_value.
+
+        If attribute is given an external ifc_postprocessing entry, this
+        function will be used. Otherwise, the pre implemented
+        ifc_post_processing of the attribute class will be used.
+        If an external ifc_postprocessing is give, this is checked for being
+        static or not, because if not static, the bind needs to be forwarded to
+        the method.
+        """
+        if raw_value is not None:
+            ifc_post_process_func_name = self.ifc_post_processing.__name__
+            # check if external ifc_post_processing method exists:
+            if hasattr(bind, ifc_post_process_func_name):
+                # check of the method is static or needs the bind
+                is_static = isinstance(inspect.getattr_static(
+                    bind, ifc_post_process_func_name), staticmethod)
+                if is_static:
+                    value = self.ifc_post_processing(raw_value)
+                else:
+                    value = self.ifc_post_processing(bind, raw_value)
+            else:
+                value = self.ifc_post_processing(raw_value)
+        else:
+            value = raw_value
+        return value
 
     @staticmethod
     def ifc_post_processing(value):

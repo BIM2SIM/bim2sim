@@ -3,9 +3,10 @@ import re
 import unittest
 from pathlib import Path
 
+import bim2sim.elements.aggregation.bps_aggregations
 import bim2sim.utilities.common_functions as cf
 from bim2sim.elements.bps_elements import BPSProduct, Wall, Window, Door
-import bim2sim.elements.aggregation.bps_aggregations
+from bim2sim.sim_settings import SettingsManager, BuildingSimSettings
 
 
 class TestCommonFunctions(unittest.TestCase):
@@ -18,7 +19,7 @@ class TestCommonFunctions(unittest.TestCase):
         output_angles = []
         for input_angle in input_angles:
             output_angles.append(cf.angle_equivalent(input_angle))
-        self.assertEqual(expected_angles, output_angles,)
+        self.assertEqual(expected_angles, output_angles, )
 
     def test_vector_angle(self):
         """test vector_angle function"""
@@ -27,14 +28,16 @@ class TestCommonFunctions(unittest.TestCase):
         output_angles = []
         for input_vector in input_vectors:
             output_angles.append(cf.vector_angle(input_vector))
-        self.assertEqual(expected_angles, output_angles,)
+        self.assertEqual(expected_angles, output_angles, )
 
     def test_get_usage_dict(self):
-        """test get_use_conditions_dict function (perform test for 4 samples)"""
+        """test get_use_conditions_dict function (perform test for 4
+        samples)"""
         use_conditions_dh_path = Path(bim2sim.__file__).parent.parent / \
-                             'test/resources/arch/custom_usages/' \
-                             'UseConditionsFM_ARC_DigitalHub_fixed002.json'
-        use_conditions_dict = cf.get_use_conditions_dict(use_conditions_dh_path)
+                                 'test/resources/arch/custom_usages/' \
+                                 'UseConditionsFM_ARC_DigitalHub.json'
+        use_conditions_dict = cf.get_use_conditions_dict(
+            use_conditions_dh_path)
         self.assertIsInstance(use_conditions_dict, dict)
         expected_heating_profile = [
             291.15, 291.15, 291.15, 291.15, 291.15, 294.15, 294.15, 294.15,
@@ -85,9 +88,10 @@ class TestCommonFunctions(unittest.TestCase):
         """test get_custom_pattern_usage function (perform test for two
          samples)"""
         use_conditions_dh_path = Path(bim2sim.__file__).parent.parent / \
-                             'test/resources/arch/custom_usages/' \
-                             'UseConditionsFM_ARC_DigitalHub_fixed002.json'
-        use_conditions_dict = cf.get_use_conditions_dict(use_conditions_dh_path)
+                                 'test/resources/arch/custom_usages/' \
+                                 'UseConditionsFM_ARC_DigitalHub.json'
+        use_conditions_dict = cf.get_use_conditions_dict(
+            use_conditions_dh_path)
         usage_dict_dh_path = Path(bim2sim.__file__).parent.parent / \
                              'test/resources/arch/custom_usages/' \
                              'customUsagesFM_ARC_DigitalHub_fixed002.json'
@@ -95,7 +99,8 @@ class TestCommonFunctions(unittest.TestCase):
         pattern_usage = cf.get_pattern_usage(
             use_conditions_dict, usage_dict_dh_path)
         self.assertEqual(
-            pattern_usage['Group Office (between 2 and 6 employees)']['common'],
+            pattern_usage['Group Office (between 2 and 6 employees)'][
+                'common'],
             [re.compile('(.*?)Group(.*?)Office(.*?)', re.IGNORECASE),
              re.compile('(.*?)Gruppen Buero', re.IGNORECASE)]
         )
@@ -107,10 +112,12 @@ class TestCommonFunctions(unittest.TestCase):
     def test_get_type_building_elements(self):
         """test get_type_building_elements function (perform test for 1
         sample)"""
-        type_building_elements = cf.get_type_building_elements()
+        type_building_elements = cf.get_type_building_elements(
+            data_file="TypeElements_IWU.json")
         self.assertIsInstance(type_building_elements, dict)
         self.assertEqual(
-            type_building_elements['OuterWall']['[0, 1918]']['heavy']['layer']['0']['thickness'], 0.015)
+            type_building_elements['OuterWall']['[0, 1918]']['iwu_heavy'][
+                'layer']['0']['thickness'], 0.015)
 
     def test_get_material_templates(self):
         """test get_material_templates function (perform test for 1
@@ -159,3 +166,104 @@ class TestCommonFunctions(unittest.TestCase):
         self.assertEqual(len(all_subclasses), 29)
 
 
+class TestConstructionClassChoices(unittest.TestCase):
+    def setUp(self):
+        self.building_sim_settings = BuildingSimSettings()
+        self.settings_manager = SettingsManager(self.building_sim_settings)
+
+    def test_construction_class_walls_choices(self):
+        """Test that all wall construction choices can be loaded"""
+        walls_choices = self.settings_manager[
+            'construction_class_walls'].choices
+        self.assertIsInstance(walls_choices, dict)
+        self.assertGreater(len(walls_choices), 0)
+
+        # Test some specific expected choices
+        expected_choices = [
+            'iwu_heavy',
+            'iwu_light',
+            'kfw_40',
+            'tabula_de_standard_1_SFH',
+            'tabula_dk_standard'
+        ]
+        for choice in expected_choices:
+            self.assertIn(choice, walls_choices)
+            self.assertIsInstance(walls_choices[choice], str)
+            self.assertGreater(len(walls_choices[choice]), 0)
+
+    def test_construction_class_windows_choices(self):
+        """Test that all window construction choices can be loaded"""
+        windows_choices = self.settings_manager[
+            'construction_class_windows'].choices
+        self.assertIsInstance(windows_choices, dict)
+        self.assertGreater(len(windows_choices), 0)
+
+        # Test some specific expected choices
+        expected_choices = [
+            'Holzfenster, zweifach',
+            'Kunststofffenster, Isolierverglasung',
+            'tabula_de_standard_1_SFH',
+            'tabula_dk_standard'
+        ]
+        for choice in expected_choices:
+            self.assertIn(choice, windows_choices)
+            self.assertIsInstance(windows_choices[choice], str)
+            self.assertGreater(len(windows_choices[choice]), 0)
+
+    def test_construction_class_doors_choices(self):
+        """Test that all door construction choices can be loaded"""
+        doors_choices = self.settings_manager[
+            'construction_class_doors'].choices
+        self.assertIsInstance(doors_choices, dict)
+        self.assertGreater(len(doors_choices), 0)
+
+        # Test some specific expected choices
+        expected_choices = [
+            'iwu_typical',
+            'kfw_40',
+            'tabula_de_standard_1_SFH',
+            'tabula_dk_standard_1_SFH'
+        ]
+        for choice in expected_choices:
+            self.assertIn(choice, doors_choices)
+            self.assertIsInstance(doors_choices[choice], str)
+            self.assertGreater(len(doors_choices[choice]), 0)
+
+    def test_default_values(self):
+        """Test that default values are set and valid"""
+        walls_default = self.settings_manager[
+            'construction_class_walls'].default
+        windows_default = self.settings_manager[
+            'construction_class_windows'].default
+        doors_default = self.settings_manager[
+            'construction_class_doors'].default
+
+        self.assertEqual(walls_default, 'iwu_heavy')
+        self.assertEqual(windows_default,
+                         'Alu- oder Stahlfenster, Waermeschutzverglasung, '
+                         'zweifach')
+        self.assertEqual(doors_default, 'iwu_typical')
+
+        # Verify defaults are in choices
+        self.assertIn(walls_default, self.settings_manager[
+            'construction_class_walls'].choices)
+        self.assertIn(windows_default, self.settings_manager[
+            'construction_class_windows'].choices)
+        self.assertIn(doors_default, self.settings_manager[
+            'construction_class_doors'].choices)
+
+    def test_choice_counts(self):
+        """Test the expected number of choices for each construction class"""
+        walls_count = len(
+            self.settings_manager['construction_class_walls'].choices)
+        windows_count = len(
+            self.settings_manager['construction_class_windows'].choices)
+        doors_count = len(
+            self.settings_manager['construction_class_doors'].choices)
+
+        self.assertEqual(walls_count,
+                         42)
+        self.assertEqual(windows_count,
+                         40)
+        self.assertEqual(doors_count,
+                         19)
