@@ -20,10 +20,6 @@ class TestEnrichMaterial(unittest.TestCase):
         cls.playground.project = project
         cls.playground.sim_settings = BuildingSimSettings()
 
-        # Load libraries as these are required for export
-        # lib_msl = LoadLibrariesStandardLibrary(cls.playground)
-        # cls.loaded_libs = lib_msl.run()[0]
-
         # Instantiate export task and set required values via mocks
         cls.enrich_task = EnrichMaterial(cls.playground)
         cls.enrich_task.prj_name = 'TestEnrichMaterial'
