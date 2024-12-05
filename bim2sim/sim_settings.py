@@ -752,6 +752,13 @@ class EnergyPlusSimSettings(BuildingSimSettings):
     specific settings are added here, such as simulation control parameters
     and export settings.
     """
+    def __init__(self):
+        super().__init__()
+        self.relevant_elements = {*bps_elements.items,
+                                  Material} - {bps_elements.Plate,
+                                               bps_elements.Covering,
+                                               bps_elements.Insulation}
+
     cfd_export = BooleanSetting(
         default=False,
         description='Whether to use CFD export for this simulation or not.',

@@ -1333,16 +1333,18 @@ class CreateIdf(ITask):
                 idf.removeidfobject(f)
             fbco = f.Building_Surface_Name
             bs = idf.getobject('BUILDINGSURFACE:DETAILED', fbco)
-            if bs.Outside_Boundary_Condition == 'Adiabatic':
-                logger.info('Removed Fenestration: %s' % f.Name)
-                idf.removeidfobject(f)
+            if bs is not None:
+                if bs.Outside_Boundary_Condition == 'Adiabatic':
+                    logger.info('Removed Fenestration: %s' % f.Name)
+                    idf.removeidfobject(f)
         for f in fenestration:
             fbco = f.Building_Surface_Name
             bs = idf.getobject('BUILDINGSURFACE:DETAILED', fbco)
-            if bs.Outside_Boundary_Condition == 'Adiabatic':
-                logger.info(
-                    'Removed Fenestration in second try: %s' % f.Name)
-                idf.removeidfobject(f)
+            if bs is not None:
+                if bs.Outside_Boundary_Condition == 'Adiabatic':
+                    logger.info(
+                        'Removed Fenestration in second try: %s' % f.Name)
+                    idf.removeidfobject(f)
 
         sfs = idf.getsurfaces()
         small_area_obj = [s for s in sfs
@@ -1491,6 +1493,9 @@ class IdfObject:
         # write bound_shape to obj
         obj_pnts = PyOCCTools.get_points_of_face(self.bound_shape)
         obj_coords = []
+        if not obj_pnts:
+            self.skip_bound = True
+            return
         for pnt in obj_pnts:
             co = tuple(round(p, 3) for p in pnt.Coord())
             obj_coords.append(co)
@@ -1566,28 +1571,38 @@ class IdfObject:
         elem = inst_obj.bound_element
         surface_type = None
         if elem is not None:
-            if elem.ifc.is_a("IfcWall"):
+            if elem.ifc.is_a("IfcWall") or elem.key == "BPS-Wall":
                 surface_type = 'Wall'
-            elif elem.ifc.is_a("IfcDoor"):
+            elif elem.ifc.is_a("IfcDoor") or elem.key == "BPS-Door":
                 surface_type = "Door"
-            elif elem.ifc.is_a("IfcWindow"):
+            elif elem.ifc.is_a("IfcWindow") or elem.key == "BPS-Window":
                 surface_type = "Window"
-            elif elem.ifc.is_a("IfcRoof"):
+            elif elem.ifc.is_a("IfcRoof") or elem.key == "BPS-Roof":
                 surface_type = "Roof"
             elif elem.ifc.is_a("IfcSlab"):
-                if elem.predefined_type.lower() == 'baseslab':
-                    surface_type = 'Floor'
-                elif elem.predefined_type.lower() == 'roof':
-                    surface_type = 'Roof'
-                elif elem.predefined_type.lower() == 'floor':
-                    if inst_obj.top_bottom == "BOTTOM":
-                        surface_type = "Floor"
-                    elif inst_obj.top_bottom == "TOP":
-                        surface_type = "Ceiling"
-                    elif inst_obj.top_bottom == "VERTICAL":
-                        surface_type = "Wall"
+                if elem.predefined_type:
+                    if elem.predefined_type.lower() == 'baseslab':
+                        surface_type = 'Floor'
+                    elif elem.predefined_type.lower() == 'roof':
+                        surface_type = 'Roof'
+                    elif elem.predefined_type.lower() == 'floor':
+                        if inst_obj.top_bottom == "BOTTOM":
+                            surface_type = "Floor"
+                        elif inst_obj.top_bottom == "TOP":
+                            surface_type = "Ceiling"
+                        elif inst_obj.top_bottom == "VERTICAL":
+                            surface_type = "Wall"
+                        else:
+                            surface_type = "Floor"
                     else:
-                        surface_type = "Floor"
+                        if inst_obj.top_bottom == "BOTTOM":
+                            surface_type = "Floor"
+                        elif inst_obj.top_bottom == "TOP":
+                            surface_type = "Ceiling"
+                        elif inst_obj.top_bottom == "VERTICAL":
+                            surface_type = "Wall"
+                        else:
+                            surface_type = "Floor"
             elif elem.ifc.is_a("IfcBeam"):
                 if not PyOCCTools.compare_direction_of_normals(
                         inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
