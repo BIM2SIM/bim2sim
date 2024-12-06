@@ -46,7 +46,8 @@ class DisaggregationCreationAndTypeCheck(ITask):
          """
         elements_overwrite = {}
         elements_to_aggregate = {}  # dict(new_element, old_element)
-        for ele in elements.values():
+        # TODO check slab with GUID 1WMSddxcH4rPeyHXcrszog
+        for guid, ele in elements.items():
             # only handle BPSProductWithLayers
             if not any([isinstance(ele, bps_product_layer_ele) for
                         bps_product_layer_ele in
@@ -82,7 +83,8 @@ class DisaggregationCreationAndTypeCheck(ITask):
                     # sb with related bound and only 2 sbs needs no
                     # disaggregation
                     if len(ele.space_boundaries) == 2:
-                        self.logger.info(f'No disggregation needed for {ele}')
+                        self.logger.info(f'No disggregation needed for {ele}'
+                                         f' with GUID {ele.guid}')
                         continue
                     if len(ele.space_boundaries) > 2:
                         # as above: if the related_bound of a space boundary

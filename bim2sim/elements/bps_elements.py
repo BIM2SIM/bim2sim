@@ -1712,6 +1712,11 @@ class InnerFloor(Slab):
         "IfcSlab": ['FLOOR']
     }
 
+    pattern_ifc_type = [
+        re.compile('Geschossdecke', flags=re.IGNORECASE),
+        re.compile('Ceiling', flags=re.IGNORECASE)
+    ]
+
     def calc_cost_group(self) -> int:
         """Calc cost group for Floors
 
