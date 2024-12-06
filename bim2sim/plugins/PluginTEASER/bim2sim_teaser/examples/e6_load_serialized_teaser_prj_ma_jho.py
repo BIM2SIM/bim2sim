@@ -13,7 +13,6 @@ from teaser.data.dataclass import DataClass
 from teaser.data.utilities import ConstructionData
 
 from bim2sim_teaser.task import CreateTEASER
-from e5_serialize_teaser_prj import run_serialize_teaser_project_example
 
 import bim2sim
 from bim2sim.utilities.common_functions import download_library
@@ -36,7 +35,7 @@ def load_serialized_teaser_project(project_path, serialized_teaser_path,
     branch_name = "main"
     repo_name = "AixLib"
     path_aixlib = (Path(bim2sim.__file__).parent.parent / "local" / f"library_{repo_name}")
-    download_library(repo_url, branch_name, path_aixlib)
+    #download_library(repo_url, branch_name, path_aixlib)
     path_aixlib = path_aixlib / repo_name / 'package.mo'
 
     prj = Project()
