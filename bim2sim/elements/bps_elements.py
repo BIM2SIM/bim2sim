@@ -587,20 +587,20 @@ class SpaceBoundary(RelationBased):
         self.bound_thermal_zone = None
         self._elements = elements
 
-    def calc_orientation(self):
-        """
-        calculates the orientation of the spaceboundary, using the relative
-        position of resultant disaggregation
-        """
-        if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement,
-                   'BasisSurface'):
-            axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
-                BasisSurface.Position.Axis.DirectionRatios
-        else:
-            axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
-                Position.Axis.DirectionRatios
-
-        return vector_angle(axis)
+    # def calc_orientation(self):
+    #     """
+    #     calculates the orientation of the spaceboundary, using the relative
+    #     position of resultant disaggregation
+    #     """
+    #     if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement,
+    #                'BasisSurface'):
+    #         axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
+    #             BasisSurface.Position.Axis.DirectionRatios
+    #     else:
+    #         axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
+    #             Position.Axis.DirectionRatios
+    #
+    #     return vector_angle(axis)
 
     def calc_position(self):
         """
@@ -709,16 +709,23 @@ class SpaceBoundary(RelationBased):
         # TODO: This might fail for multi storey spaces.
         else:
             if (self.bound_center.Z() - self.bound_thermal_zone.space_center.Z()) \
-                    > 1e-2:
+                    > 1e-8:
                 top_bottom = "TOP"
             elif (self.bound_center.Z() - self.bound_thermal_zone.space_center.Z()) \
-                    < -1e-2:
+                    < -1e-8:
                 top_bottom = "BOTTOM"
             else:
+                # maximum angle between vertical vector (0,0,1) and normal
+                #  80 is a very steep roof
+                angle_threshold_top = 89
+                angle_threshold_bottom = 91
                 # caution, this relies on correct surface normals
-                if vertical.Dot(self.bound_normal) < -0.8:
+                if vertical.Dot(self.bound_normal) < math.cos(
+                        math.radians(angle_threshold_bottom)):
                     top_bottom = "BOTTOM"
-                elif vertical.Dot(self.bound_normal) > 0.8:
+                # 0.985 is equal to a 10 degree angle between
+                elif vertical.Dot(self.bound_normal) > math.cos(
+                        math.radians(angle_threshold_top)):
                     top_bottom = "TOP"
         return top_bottom
 
