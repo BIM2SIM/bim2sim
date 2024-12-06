@@ -31,7 +31,7 @@ class InterfaceToPluginTeaser(ITask):
             self.lock.acquire()
             with open(pickle_path, 'rb') as file:
                 deserialized_elements = pickle.load(file)
-            self.lock.acquire()
+            self.lock.release()
 
             zone_dict = CreateResultDF.map_zonal_results(
                 bim2sim_teaser_mapping, deserialized_elements)

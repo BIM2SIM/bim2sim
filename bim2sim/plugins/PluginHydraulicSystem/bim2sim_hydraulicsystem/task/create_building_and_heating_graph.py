@@ -1501,7 +1501,7 @@ class CreateBuildingAndHeatingGraph(ITask):
             # self.visulize_networkx(graph=graph)
             for node in graph.nodes():
                 if nx.is_isolate(graph, node) is True:
-                    self.logger.info("node", node, "is not connected.")
+                    self.logger.info(f"node {node} is not connected.")
                     self.logger.info(f'{graph.nodes[node]["pos"]} with type {graph.nodes[node]["type"]}')
             # Bestimme die verbundenen Komponenten
             components = list(nx.connected_components(graph))

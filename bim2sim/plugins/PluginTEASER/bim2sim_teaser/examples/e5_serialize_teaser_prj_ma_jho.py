@@ -96,6 +96,7 @@ def run_serialize_teaser_project_example(project_path, weather_file_path):
         LoadLibrariesTEASER,
         teaser_task.CreateTEASER,
         teaser_task.SerializeTEASER,
+        common.SerializeElements,
     ]
     answers = (2015,)
     handler = DebugDecisionHandler(answers)
