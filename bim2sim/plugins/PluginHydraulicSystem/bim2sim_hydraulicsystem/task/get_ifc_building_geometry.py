@@ -546,7 +546,7 @@ class GetIFCBuildingGeometry(ITask):
             if from_bus in net.junction.index and to_bus in net.junction.index:
                 pp.create_pipe_from_parameters(net, from_bus, to_bus, length_km=1, diameter_m=0.1)
             else:
-                print(
+                self.logger.info(
                     f"Warning: Pipe {from_bus}-{to_bus} tries to attach to non-existing junction(s) {from_bus} or {to_bus}.")
 
         # Prüfe, ob das Netzwerk korrekt erstellt wurde
@@ -611,8 +611,8 @@ class GetIFCBuildingGeometry(ITask):
             distance = nx.dijkstra_path_length(graph, start, end, length='length')
             _short_path_edges.append(list(zip(path, path[1:])))
             _other_path_edges.append([edge for edge in graph.edges() if edge not in list(zip(path, path[1:]))])
-            print("Kürzester Pfad:", path)
-            print("Distanz:", distance)
+            self.logger.info("Kürzester Pfad:", path)
+            self.logger.info("Distanz:", distance)
         return graph, _short_path_edges, _other_path_edges, start, end_points
 
     def calc_pipe_coordinates(self, floors, ref_point):

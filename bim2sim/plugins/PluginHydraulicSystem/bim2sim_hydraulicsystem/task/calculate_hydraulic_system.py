@@ -121,7 +121,7 @@ class CalculateHydraulicSystem(ITask):
         graph = self.count_space(graph=graph)
         """graph = nx.convert_node_labels_to_integers(graph, first_label=0, ordering="default",
                                                        label_attribute="old_label")
-        print(graph)"""
+        self.logger.info(graph)"""
         # graph = self.index_strang(graph=graph)
         # Entferne nicht notwendige attribute
         graph = self.remove_attributes(graph=graph, attributes=["center_wall_forward", "snapped_nodes",
@@ -250,7 +250,7 @@ class CalculateHydraulicSystem(ITask):
             file ():
         """
         file = self.hydraulic_system_directory / filename
-        print(f"Save Networkx {graph} with type {type_grid} in {file}.")
+        self.logger.info(f"Save Networkx {graph} with type {type_grid} in {file}.")
         data = json_graph.node_link_data(graph)
         with open(file, 'w') as f:
             json.dump(data, f, indent=4)
@@ -752,16 +752,16 @@ class CalculateHydraulicSystem(ITask):
 
         x_intersection_low, y_intersection_low = find_intersection(pump_x, pump_y, tuple(x_data), tuple(y_data))
         # Markiere den Schnittpunkt im Diagramm
-        print(x_intersection_low)
-        print(y_intersection_low)
+        self.logger.info(x_intersection_low)
+        self.logger.info(y_intersection_low)
         ax1.plot(x_intersection_low, y_intersection_low, 'bo', label='Schnittpunkt')
         op_x, op_y = operation_point
         if pump_optimal_range[0][0] <= op_x.magnitude <= pump_optimal_range[-1][0] and pump_optimal_range[0][
             1] <= op_y.magnitude <= \
                 pump_optimal_range[-1][1]:
-            print("Die Pumpe und ihre Pumpenkennlinie sind geeignet für Ihr System.")
+            self.logger.info("Die Pumpe und ihre Pumpenkennlinie sind geeignet für Ihr System.")
         else:
-            print("Die Pumpe und ihre Pumpenkennlinie sind nicht geeignet für Ihr System.")
+            self.logger.info("Die Pumpe und ihre Pumpenkennlinie sind nicht geeignet für Ihr System.")
 
         # ax1.plot(flow_rates.magnitude, system_head, label='System Curve')
         # ax1.set_xlabel(f'Flow Rate in [{flow_rates.units}]')
@@ -777,8 +777,8 @@ class CalculateHydraulicSystem(ITask):
         plt.show()
         plt.close()
         # ax1.plot(flow_rates.magnitude, pump_power, label='Pump Curve')
-        # print('Operating Flow Rate:', operating_flow_rate)
-        # print('Operating Pressure:', operation_pump_pressure)
+        # self.logger.info('Operating Flow Rate:', operating_flow_rate)
+        # self.logger.info('Operating Pressure:', operation_pump_pressure)
 
         """
         fig = plt.figure()
@@ -791,8 +791,8 @@ class CalculateHydraulicSystem(ITask):
         plt.legend()
         plt.show()
         plt.close()
-        print('Operating Flow Rate:', operating_flow_rate)
-        print('Operating Head:', operating_head)"""
+        self.logger.info('Operating Flow Rate:', operating_flow_rate)
+        self.logger.info('Operating Head:', operating_head)"""
 
     def operation_pump_pressure(self):
         """
@@ -1097,19 +1097,19 @@ class CalculateHydraulicSystem(ITask):
         return graph"""
         # graph = self.hardy_cross(graph=graph, viewpoint=viewpoint)
         """critical_cycle, max_pressure_loss = self.find_critical_cycle(graph=graph, viewpoint=viewpoint)
-        print(max_pressure_loss)
-        print(critical_cycle)
+        self.logger.info(max_pressure_loss)
+        self.logger.info(critical_cycle)
         longest_cycle = self.find_longest_cycle(graph=graph)
-        print(longest_cycle)
+        self.logger.info(longest_cycle)
         pump_nodes = [node for node in longest_cycle if "Pumpe" in set(graph.nodes[node]["type"])]
-        print(pump_nodes)
+        self.logger.info(pump_nodes)
         # Starte die Iteration an der Pumpe mit dem höchsten Index
         pump_nodes.sort(reverse=True)
         for start_node in pump_nodes:
             # Die Iteration erfolgt entlang des Zyklus, beginnend bei der Pumpe und endend bei der Pumpe
             cycle_iter = nx.dfs_edges(graph, start_node)
-            print(cycle_iter)
-            print("hallo")
+            self.logger.info(cycle_iter)
+            self.logger.info("hallo")
             prev_pressure_out = initial_pressure
             for node, next_node in cycle_iter:
                 edge_pressure_loss = graph[node][next_node]['pressure_loss'][viewpoint]
@@ -1275,7 +1275,7 @@ class CalculateHydraulicSystem(ITask):
 
         Returns:
         """
-        print("Calculate Inner diameter")
+        self.logger.info("Calculate Inner diameter")
         # list(nx.topological_sort(graph))
         for node in graph.nodes():
             successors = list(graph.successors(node))
@@ -1306,9 +1306,9 @@ class CalculateHydraulicSystem(ITask):
                 graph.edges[node, succ]['density'] = density
                 graph.edges[node, succ]['mass'] = pipe_mass * graph.edges[node, succ]['length']
                 graph.edges[node, succ]['isolation_diameter'] = self.calculate_isolation(outer_diameter)
-                # print(graph.edges[node, succ]['length'])
-                # print(pipe_mass)
-                # print(graph.edges[node, succ]['mass'])
+                # self.logger.info(graph.edges[node, succ]['length'])
+                # self.logger.info(pipe_mass)
+                # self.logger.info(graph.edges[node, succ]['mass'])
         return graph
 
     def calculate_mass_flow_circular_graph(self, graph, known_nodes, viewpoint):
@@ -1362,7 +1362,7 @@ class CalculateHydraulicSystem(ITask):
         return graph
 
     def calculate_pressure_node(self, graph, viewpoint: str):
-        print("Calculate pressure node")
+        self.logger.info("Calculate pressure node")
         graph = self.iterate_pressure_loss_edges(graph=graph,
                                                  v_mid=self.v_mean,
                                                  viewpoint=viewpoint)
@@ -1377,7 +1377,7 @@ class CalculateHydraulicSystem(ITask):
     def calculate_flow(self, graph, source, sink):
         # Füge eine Kantenkapazität zu den Kanten hinzu
         # Führe den Ford-Fulkerson-Algorithmus durch
-        print("Calculate pressure node")
+        self.logger.info("Calculate pressure node")
         flow_value, flow_dict = nx.maximum_flow(graph, source, sink)
         # Extrahiere den Massenstrom aus dem Flussdictionary
 
@@ -1392,7 +1392,7 @@ class CalculateHydraulicSystem(ITask):
             graph ():
             viewpoint ():
         """
-        print("Calculate Mass flow")
+        self.logger.info("Calculate Mass flow")
         forward, backward, connection = self.separate_graph(graph=graph)
         forward = self.iterate_forward_nodes_mass_volume_flow(graph=forward, viewpoint=viewpoint)
         #self.plot_attributes_nodes(graph=forward, type_grid="Vorlaufkreislauf", viewpoint=viewpoint,
@@ -1567,10 +1567,10 @@ class CalculateHydraulicSystem(ITask):
         for (u, v) in graph.edges():
             pressure_start = round(graph.nodes[u]['pressure_out'].magnitude * 10 ** -5, 2)
             pressure_end = round(graph.nodes[v]['pressure_in'].magnitude * 10 ** -5, 2)
-            #print(pressure_start)
-            #print(pressure_end)
-            #print(pressure_max)
-            #print(pressure_min)
+            #self.logger.info(pressure_start)
+            #self.logger.info(pressure_end)
+            #self.logger.info(pressure_max)
+            #self.logger.info(pressure_min)
             #pressure_difference = (pressure_end - pressure_start) / (pressure_max - pressure_min)
             pressure_difference = (pressure_end - pressure_start)
             color = cmap(pressure_difference)
@@ -1684,7 +1684,7 @@ class CalculateHydraulicSystem(ITask):
         plt.show()"""
 
     def remove_attributes(self, graph, attributes):
-        print("Delete unnecessary attributes.")
+        self.logger.info("Delete unnecessary attributes.")
         for node, data in graph.nodes(data=True):
             if set(attributes) & set(data["type"]):
                 for attr in attributes:
@@ -1974,7 +1974,7 @@ class CalculateHydraulicSystem(ITask):
             nodes ():
         Returns:
         """
-        print("Update delivery node")
+        self.logger.info("Update delivery node")
 
         if delivery_type == "Radiator":
             radiator_dict = self.read_radiator_material_excel(
@@ -2198,7 +2198,7 @@ class CalculateHydraulicSystem(ITask):
         Returns:
 
         """
-        print("Count radiators in space.")
+        self.logger.info("Count radiators in space.")
         radiator_count = {}
         for node, data in graph.nodes(data=True):
             if "radiator_forward" in data["type"]:
@@ -2253,7 +2253,7 @@ class CalculateHydraulicSystem(ITask):
         # todo: coefficient_resistance aus dicitonary lesen
         # todo: Norm Innentemperatur
         # todo: Verengung und erweiterung erkennen
-        print("Initilize attributes for nodes and egdes")
+        self.logger.info("Initilize attributes for nodes and egdes")
         for node, data in graph.nodes(data=True):
             coefficient_resistance = 0.0
             velocity = 0.5 * (ureg.meter / ureg.seconds)
@@ -2362,7 +2362,7 @@ class CalculateHydraulicSystem(ITask):
             df_components_quantities.to_excel(writer, sheet_name='Component Quantities', index_label='Type')
 
         # Bestätigung, dass das Sheet hinzugefügt wurde
-        print(f"Das neue Sheet {filename} wurde erfolgreich zur Excel-Datei hinzugefügt.")
+        self.logger.info(f"Das neue Sheet {filename} wurde erfolgreich zur Excel-Datei hinzugefügt.")
 
 
 

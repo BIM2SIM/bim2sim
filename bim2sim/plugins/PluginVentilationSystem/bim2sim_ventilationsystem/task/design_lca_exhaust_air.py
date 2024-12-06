@@ -1249,7 +1249,7 @@ class DesignExaustLCA(ITask):
         nodes_floor = [node for node in graph.nodes]
         for node in nodes_floor: # Assuming the nodes have 'x' and 'y' attributes
             if not any(is_point_inside_shape(shape, node) for shape in storey_floor_shapes):
-                print(f"Node {node} is not inside the building boundaries")
+                self.logger.info(f"Node {node} is not inside the building boundaries")
                 if any(type in graph.nodes[node]["type"] for type in ["radiator_forward",
                                                                       "radiator_backward"]):
                     assert KeyError(f"Delivery node {node} not in building boundaries")
@@ -1258,7 +1258,7 @@ class DesignExaustLCA(ITask):
         edges_floor = [edge for edge in graph.edges()]
         for edge in edges_floor:
             if not any(is_edge_inside_shape(shape, edge[0], edge[1]) for shape in storey_floor_shapes):
-                print(f"Edge {edge} does not intersect boundaries")
+                self.logger.info(f"Edge {edge} does not intersect boundaries")
                 graph.remove_edge(edge[0], edge[1])
         return graph
 
@@ -1604,9 +1604,9 @@ class DesignExaustLCA(ITask):
             #test1 = self.minimize_collisions_with_supply_graph(test_supply, test_exhaust, terminals)
             """
 
-            print("Check if nodes and edges of forward graph are inside the boundaries of the building")
+            self.logger.info("Check if nodes and edges of forward graph are inside the boundaries of the building")
             G = self.check_if_graph_in_building_boundaries(G, z_value)
-            print("Check done")
+            self.logger.info("Check done")
 
             # Checke Kollisionen mit Zuluftgraph und lösche entsprechende Kanten im Abluftgraph
             G = self.minimize_collisions_with_supply_graph(self.supply_graph, G, terminals)
@@ -3071,7 +3071,7 @@ class DesignExaustLCA(ITask):
                         zeta_bogen = widerstandsbeiwert_bogen_rund(winkel=90,
                                                                    mittlerer_radius=0.75 * ureg.meter,
                                                                    durchmesser=durchmesser)
-                        # print(f"Zeta-Bogen rund: {zeta_bogen}")
+                        # self.logger.info(f"Zeta-Bogen rund: {zeta_bogen}")
 
                     elif "x" in abmessung_kanal:
                         breite = self.finde_abmessung(abmessung_kanal)[0].to(ureg.meter)
@@ -3082,7 +3082,7 @@ class DesignExaustLCA(ITask):
                                                                     breite=breite,
                                                                     rechnerischer_durchmesser=rechnerischer_durchmesser
                                                                     )
-                        # print(f"Zeta Bogen eckig: {zeta_bogen}")
+                        # self.logger.info(f"Zeta Bogen eckig: {zeta_bogen}")
 
                     # Ändern des loss_coefficient-Werts
                     net['pipe'].at[index, 'loss_coefficient'] += zeta_bogen
@@ -3116,7 +3116,7 @@ class DesignExaustLCA(ITask):
                 if d > d_D:
                     zeta_reduzierung = widerstandsbeiwert_querschnittsverengung_stetig(d, d_D)
 
-                    # print(f"Zeta Reduzierung: {zeta_reduzierung}")
+                    # self.logger.info(f"Zeta Reduzierung: {zeta_reduzierung}")
 
                     net['pipe'].at[index, 'loss_coefficient'] += zeta_reduzierung
 
@@ -3127,7 +3127,7 @@ class DesignExaustLCA(ITask):
                 elif d_D > d:
                     zeta_erweiterung = widerstandsbeiwert_querschnittserweiterung_stetig(d, d_D)
 
-                    # print(f"Zeta Erweiterung: {zeta_erweiterung}")
+                    # self.logger.info(f"Zeta Erweiterung: {zeta_erweiterung}")
 
                     net['pipe'].at[index, 'loss_coefficient'] += zeta_erweiterung
 

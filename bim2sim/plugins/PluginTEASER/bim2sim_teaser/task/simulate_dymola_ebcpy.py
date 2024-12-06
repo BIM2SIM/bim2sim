@@ -214,19 +214,3 @@ class SimulateModelEBCPy(ITask):
             path = mos_file_path.replace(":", ":/")
 
         return mos_file_path
-
-
-        # process = subprocess.Popen([self.playground.sim_settings.dymola_executable, mos_file_path], shell=True)
-        # time.sleep(10)
-        # process.terminate()
-        # process.kill()
-        # process.wait()
-
-
-        # for proc in psutil.process_iter(['pid', 'name']):
-        #     try:
-        #         if proc.info['name'] == 'Dymola.exe':
-        #             psutil.Process(proc.info['pid']).terminate()
-        #             print('Dymola.exe wurde beendet')
-        #     except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-        #         pass

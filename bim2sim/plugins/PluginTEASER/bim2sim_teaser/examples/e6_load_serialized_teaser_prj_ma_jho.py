@@ -22,12 +22,15 @@ from bim2sim.utilities.common_functions import download_library
 
 
 
-def load_serialized_teaser_project():
+def load_serialized_teaser_project(project_path, serialized_teaser_path,
+                                   heating_bool, cooling_bool,
+                                   ahu_central_bool, ahu_heat_bool, ahu_cool_bool, ahu_hum_bool,
+                                   ahu_heat_recovery, ahu_heat_recovery_efficiency,
+                                   building_standard, window_standard):
+
     """This function demonstrates different loading options of TEASER"""
-    project_path = Path("D:\dja-jho\Testing\Test")
     prj_export_path = Path(project_path, "export", "TEASER")
     prj_model_path = Path(prj_export_path, "Model")
-    prj_json_path = Path(prj_export_path, "serialized_teaser", "AC20-Institute-Var-2.json")
 
     repo_url = "https://github.com/RWTH-EBC/AixLib.git"
     branch_name = "main"
@@ -37,14 +40,9 @@ def load_serialized_teaser_project():
     path_aixlib = path_aixlib / repo_name / 'package.mo'
 
     prj = Project()
-    prj.load_project(path=prj_json_path)
+    prj.load_project(path=serialized_teaser_path)
 
     prj.data = DataClass(construction_data=ConstructionData.kfw_40)
-
-
-
-    # set weather file data
-    weather_file_path = fr"D:\dja-jho\Git\Dissertation_coding\outer_optimization\clustering\DEU_NW_Aachen.105010_TMYx.mos"
 
 
     # Select results to output:
@@ -70,17 +68,19 @@ def load_serialized_teaser_project():
     # specify templates for the layer and material overwrite
     construction_classes = {"year_of_construction": 2016,
                             "year_of_construction_windows": 2015,
-                            "construction_class_walls": "kfw_40",
-                            "construction_class_windows": "Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach",
-                            "construction_class_doors": "kfw_40"}
+                            "construction_class_walls": building_standard,
+                            "construction_class_windows": window_standard,
+                            "construction_class_doors": building_standard}
 
     # Specify hvac parameters
-    hvac_params = {"cooling": False,
-                   "overwrite_ahu_by_settings": True,
-                   "ahu_heating": True,
-                   "ahu_cooling": True,
-                   "ahu_heat_recovery": True,
-                   "ahu_heat_recovery_efficiency": 0.8,
+    hvac_params = {"heating_bool": heating_bool,
+                   "cooling_bool": cooling_bool,
+                   "ahu_central_bool": ahu_central_bool,
+                   "ahu_heating": ahu_heat_bool,
+                   "ahu_cooling": ahu_cool_bool,
+                   "ahu_hum_bool": ahu_hum_bool,
+                   "ahu_heat_recovery": ahu_heat_recovery,
+                   "ahu_heat_recovery_efficiency": ahu_heat_recovery_efficiency,
                   }
 
     manipulate_teaser_model(teaser_prj=prj,
@@ -318,7 +318,7 @@ def simulate_dymola_ebcpy(teaser_prj, prj_export_path, path_aixlib):
         )
 
 
-        mos_file_path = edit_mat_result_file(teaser_prj, bldg_result_dir, bldg.name)
+        mos_file_path = edit_mat_result_file(teaser_prj, bldg.name, bldg_result_dir)
         dym_api.dymola.RunScript(mos_file_path)
         time.sleep(10)
 

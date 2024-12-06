@@ -578,8 +578,8 @@ class CreateBuildingAndHeatingGraph(ITask):
                                      type_node: str,
                                      start_source_point: tuple):
         source_dict = {}
-        # print(self.heating_graph_start_point)
-        # print(self.floor_dict)
+        # self.logger.info(self.heating_graph_start_point)
+        # self.logger.info(self.floor_dict)
         for i, floor in enumerate(self.floor_dict):
             _dict = {}
             pos = (start_source_point[0], start_source_point[1], self.floor_dict[floor]["height"])
@@ -611,7 +611,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                 Returns:
                 """
         # Pro Etage Source Knoten definieren
-        print("Add Source Nodes")
+        self.logger.info("Add Source Nodes")
         source_list = []
         source_dict = self.define_source_node_per_floor(color="green",
                                                         type_node=type,
@@ -639,7 +639,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         return graph, source_list
 
     def remove_attributes(self, graph: nx.Graph(), attributes: list):
-        print("Delete unnecessary attributes.")
+        self.logger.info("Delete unnecessary attributes.")
         for node, data in graph.nodes(data=True):
             if set(attributes) & set(data["type"]):
                 for attr in attributes:
@@ -665,7 +665,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         for node, data in graph.nodes(data=True):
             node_list = ["start_node", "end_node"]
             """if "Verteiler" in set(data["type"]):
-                        print(data["type"])"""
+                        self.logger.info(data["type"])"""
             if set(node_list) & set(data["type"]):
                 element = data["floor_belongs_to"]
                 if element not in element_nodes:
@@ -833,9 +833,9 @@ class CreateBuildingAndHeatingGraph(ITask):
                                        positions[source_forward_list[i]][2] - positions[source_forward_list[i + 1]][
                                            2]))
 
-        #print("Check if nodes and edges of forward graph are inside the boundaries of the building")
+        #self.logger.info("Check if nodes and edges of forward graph are inside the boundaries of the building")
         #forward_graph = self.check_if_graph_in_building_boundaries(forward_graph)
-        #print("Check done")
+        #self.logger.info("Check done")
 
         for i, floor in enumerate(self.floor_dict):
             # Save graph for each floor
@@ -851,11 +851,11 @@ class CreateBuildingAndHeatingGraph(ITask):
             shaft_node_floor = source_forward_list[i]
             terminal_nodes_floor = forward_nodes_floor[floor].copy()
 
-            print("Check if nodes and edges of forward graph are inside the boundaries of the building")
+            self.logger.info("Check if nodes and edges of forward graph are inside the boundaries of the building")
             if nx.is_frozen(floor_graph):
                 floor_graph = nx.Graph(floor_graph)
             floor_graph = self.check_if_graph_in_building_boundaries(floor_graph, z_value_floor)
-            print("Check done")
+            self.logger.info("Check done")
 
             if self.export_graphs:
                 self.visualize_graph(graph=floor_graph,
@@ -870,7 +870,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                      )
 
             # Optimize heating graph using steiner method
-            print(f"Calculate steiner tree {floor}_{i}")
+            self.logger.info(f"Calculate steiner tree {floor}_{i}")
             f_st, forward_total_length = self.steiner_graph(graph=floor_graph,
                                                             nodes_floor=nodes_floor,
                                                             delivery_nodes_floor=delivery_nodes_floor,
@@ -1061,7 +1061,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         nodes_floor = [node for node in graph.nodes]
         for node in nodes_floor: # Assuming the nodes have 'x' and 'y' attributes
             if not any(is_point_inside_shape(shape, node) for shape in storey_floor_shapes):
-                print(f"Node {node} is not inside the building boundaries")
+                self.logger.info(f"Node {node} is not inside the building boundaries")
                 if any(type in graph.nodes[node]["type"] for type in ["radiator_forward",
                                                                       "radiator_backward"]):
                     assert KeyError(f"Delivery node {node} not in building boundaries")
@@ -1070,7 +1070,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         edges_floor = [edge for edge in graph.edges()]
         for edge in edges_floor:
             if not any(is_edge_inside_shape(shape, edge[0], edge[1]) for shape in storey_floor_shapes):
-                print(f"Edge {edge} does not intersect boundaries")
+                self.logger.info(f"Edge {edge} does not intersect boundaries")
                 graph.remove_edge(edge[0], edge[1])
         return graph
 
@@ -1494,34 +1494,34 @@ class CreateBuildingAndHeatingGraph(ITask):
 
     def check_graph(self, graph, type):
         if nx.is_connected(graph) is True:
-            print(f"{Fore.BLACK + Back.GREEN} {type} Graph is connected.")
+            self.logger.info(f"{Fore.BLACK + Back.GREEN} {type} Graph is connected.")
             return graph
         else:
-            print(f"{Fore.BLACK + Back.RED} {type} Graph is not connected.")
+            self.logger.info(f"{Fore.BLACK + Back.RED} {type} Graph is not connected.")
             # self.visulize_networkx(graph=graph)
             for node in graph.nodes():
                 if nx.is_isolate(graph, node) is True:
-                    print("node", node, "is not connected.")
-                    print(f'{graph.nodes[node]["pos"]} with type {graph.nodes[node]["type"]}')
+                    self.logger.info("node", node, "is not connected.")
+                    self.logger.info(f'{graph.nodes[node]["pos"]} with type {graph.nodes[node]["type"]}')
             # Bestimme die verbundenen Komponenten
             components = list(nx.connected_components(graph))
             # Gib die nicht miteinander verbundenen Komponenten aus
-            print("Not Conntected Components")
+            self.logger.info("Not Conntected Components")
             graph = self.kit_grid(graph=graph)
             if nx.is_connected(graph) is True:
-                print(f"{Fore.BLACK + Back.GREEN} {type} Graph is connected.")
+                self.logger.info(f"{Fore.BLACK + Back.GREEN} {type} Graph is connected.")
                 # self.visulize_networkx(graph=graph)
                 # plt.show()
                 return graph
             else:
-                print(f"{Fore.BLACK + Back.RED} {type} Graph is not connected.")
+                self.logger.info(f"{Fore.BLACK + Back.RED} {type} Graph is not connected.")
                 # self.visulize_networkx(graph=graph)
                 plt.show()
                 exit(1)
             """for component in disconnected_components:
                         for c in component:
-                            print("node", c, "is not connected.")
-                            print(f'{graph.nodes[c]["pos"]} with type {graph.nodes[c]["type"]}')"""
+                            self.logger.info("node", c, "is not connected.")
+                            self.logger.info(f'{graph.nodes[c]["pos"]} with type {graph.nodes[c]["type"]}')"""
 
             """# Erhalte die Teilgraphen
                     subgraphs = list(nx.connected_component_subgraphs(graph))
@@ -1538,7 +1538,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                     is_connected = nx.is_connected(graph)
 
                     # Gib das Ergebnis aus
-                    print("Ist der Graph komplett verbunden?", is_connected)"""
+                    self.logger.info("Ist der Graph komplett verbunden?", is_connected)"""
 
     def nearest_neighbour_edge(self,
                                graph: nx.Graph(),
@@ -1619,7 +1619,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                                                                                     neg_neighbors=neg_neighbors)
                     if connect_floor_spaces_together is True:
                         if node_type is None:
-                            print(f"Define node_type {node_type}.")
+                            self.logger.info(f"Define node_type {node_type}.")
                             exit(1)
                         if set(node_type) & set(graph.nodes[node]["type"]) and set(node_type) & set(data["type"]):
                             if graph.nodes[node]["floor_belongs_to"] == data["floor_belongs_to"]:
@@ -3100,9 +3100,9 @@ class CreateBuildingAndHeatingGraph(ITask):
 
         direction_flags = [top_z_flag, bottom_z_flag, pos_x_flag, neg_x_flag, pos_y_flag, neg_y_flag]
         nodes = []
-        print(f"Number of snapped nodes {len(node_list)}")
+        self.logger.info(f"Number of snapped nodes {len(node_list)}")
         for i, node in enumerate(node_list):
-            print(f"Number node ({i + 1}/{len(node_list)})")
+            self.logger.info(f"Number node ({i + 1}/{len(node_list)})")
             # Sucht alle Kanten, auf die ein Knoten gesnappt werden kann.
             for j, direction in enumerate(direction_flags):
                 direction_flags = [top_z_flag, bottom_z_flag, pos_x_flag, neg_x_flag, pos_y_flag, neg_y_flag]
@@ -3376,7 +3376,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                     **args ():
                 Returns:
                 """
-        print("Creates nodes for each room independently")
+        self.logger.info("Creates nodes for each room independently")
         floor_graph_list = []
         for i, floor_id in enumerate(self.floor_dict):
             graph = nx.Graph(grid_type="building")
@@ -3405,9 +3405,9 @@ class CreateBuildingAndHeatingGraph(ITask):
                         Erstellt Fenster und Tür Element von Raum r
                         """
                 for element in room_elements:
-                    print(f"Create element structure {element} for floor {floor_id}")
+                    self.logger.info(f"Create element structure {element} for floor {floor_id}")
                     if room_elements[element]["type"] == "wall":
-                        print(f"Create wall structure {element} for floor {floor_id}")
+                        self.logger.info(f"Create wall structure {element} for floor {floor_id}")
                         if room_elements[element]["global_corners"] is not None:
                             graph, center_wall = self.center_element(graph=graph,
                                                                  global_corners=room_elements[element][
@@ -3539,7 +3539,7 @@ class CreateBuildingAndHeatingGraph(ITask):
             """
                     Entfernte überschneidene Kanten und erstellt neue
                     """
-            print(f"Solve Overlapping edges for floor {floor_id}")
+            self.logger.info(f"Solve Overlapping edges for floor {floor_id}")
             graph = self.edge_overlap(graph=graph,
                                   delete_degree=3,
                                   color="grey",
@@ -3597,7 +3597,7 @@ class CreateBuildingAndHeatingGraph(ITask):
             """
                     Verbinde neue Hilfsknoten mit Kanten miteinander
                     """
-            print(f"Connect elements with center_wall_forward for floor {floor_id}")
+            self.logger.info(f"Connect elements with center_wall_forward for floor {floor_id}")
             graph = self.create_edges(graph=graph,
                                   node_list=snapped_nodes,
                                   edge_type="center_wall_forward",

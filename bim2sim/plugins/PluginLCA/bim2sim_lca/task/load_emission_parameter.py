@@ -51,7 +51,7 @@ class LoadMaterialEmissionParameter(ITask):
             self.logger.info("Update material emission parameter from Ökobaudat")
             gwp_data = {}
             for material, material_data in material_emission_parameter_dict.items():
-                print(f"Update material {material}")
+                self.logger.info(f"Update material {material}")
                 oekobaudat_uuid = material_emission_parameter_dict[material]["oekobaudat_uuid"]
                 oekobaudat_calculation_factor = material_emission_parameter_dict[material]["oekobaudat_calculation_factor"]
                 gwp_data = self.load_gwp_from_oekobaudat(oekobaudat_uuid)

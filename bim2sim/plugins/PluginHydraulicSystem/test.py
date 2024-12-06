@@ -53,7 +53,7 @@ class GeometryBuildingsNetworkx(object):
         self.one_pump_flag = one_pump_flag
 
     def __call__(self, G=None):
-        print("Create Buildings network")
+        self.logger.info("Create Buildings network")
         if self.create_new_graph:
             G = self.create_building_nx_network(floor_dict_data=self.building_data,
                                                 grid_type="building",
@@ -100,16 +100,16 @@ class GeometryBuildingsNetworkx(object):
         min_y = min([coord[1] for coord in room_coordinates])
         max_y = max([coord[1] for coord in room_coordinates])
         num_horizontal_pipes = int((max_x - min_x) / leg_distance) + 1
-        print("num_horizontal_pipes", num_horizontal_pipes)
+        self.logger.info("num_horizontal_pipes", num_horizontal_pipes)
         num_vertical_pipes = int((max_y - min_y) / leg_distance) + 1
-        print("num_vertical_pipes", num_vertical_pipes)
+        self.logger.info("num_vertical_pipes", num_vertical_pipes)
         for i in range(num_horizontal_pipes):
             for j in range(num_vertical_pipes):
                 x = min_x + i * leg_distance
 
                 y = min_y + j * leg_distance
-                #print("x", x)
-                #print("y", y)
+                #self.logger.info("x", x)
+                #self.logger.info("y", y)
                 pos = (x,y,0)
                 G.add_node(f"{i}_pipe",pos=pos )
                 # Berechnen Sie die Länge des Rohres entsprechend der Raumgeometrie
@@ -146,9 +146,9 @@ class GeometryBuildingsNetworkx(object):
                 if u != v:
                     dist = ((attr1["pos"][0] - attr2["pos"][0]) ** 2 +
                             (attr1["pos"][1] - attr2["pos"][1]) ** 2) ** 0.5
-                    print(dist)
+                    self.logger.info(dist)
                     if dist <= verlegeabstand:
-                        print(dist)
+                        self.logger.info(dist)
                         G.add_edge(u, v, weight=dist, color="red")
 
         # Berechne den minimalen Spannbau
@@ -164,8 +164,8 @@ class GeometryBuildingsNetworkx(object):
                 G.add_edges_from(loop, color="blue")
 
         # Ausgabe des Rohrnetzwerks
-        print("Rohrnetzwerk:")
-        print(G.edges())
+        self.logger.info("Rohrnetzwerk:")
+        self.logger.info(G.edges())
 
         return G
 
@@ -178,9 +178,9 @@ class GeometryBuildingsNetworkx(object):
         # Überprüfen, ob der Graph vollständig verbunden ist
         is_connected = is_strongly_connected(G)
         if is_connected:
-            print(f"Der Graph {type_graph} ist vollständig verbunden.")
+            self.logger.info(f"Der Graph {type_graph} ist vollständig verbunden.")
         else:
-            print(f"Der Graph {type_graph} ist nicht vollständig verbunden.")
+            self.logger.info(f"Der Graph {type_graph} ist nicht vollständig verbunden.")
             isolated_nodes = [node for node in G.nodes if G.in_degree(node) == 0 and G.out_degree(node) == 0]
 
     def reduce_path_nodes(self, G, color, start_nodes: list, end_nodes: list):
@@ -242,9 +242,9 @@ class GeometryBuildingsNetworkx(object):
         for node in nodes_remove:
             G_copy.remove_node(node)
         if nx.is_connected(G_copy) is True:
-            print("Grid is conntected.")
+            self.logger.info("Grid is conntected.")
         else:
-            print("Error: Grid is not conntected.")
+            self.logger.info("Error: Grid is not conntected.")
             G_copy = self.kit_grid(G_copy)
         return G_copy
 
@@ -346,8 +346,8 @@ class GeometryBuildingsNetworkx(object):
                                      type_node: str,
                                      start_source_point: tuple):
         source_dict = {}
-        # print(self.heating_graph_start_point)
-        # print(floor_dict)
+        # self.logger.info(self.heating_graph_start_point)
+        # self.logger.info(floor_dict)
         for i, floor in enumerate(floor_dict):
             _dict = {}
             pos = (start_source_point[0], start_source_point[1], floor_dict[floor]["height"])
@@ -388,7 +388,7 @@ class GeometryBuildingsNetworkx(object):
         Returns:
         """
         # Pro Etage Source Knoten definieren
-        print("Add Source Nodes")
+        self.logger.info("Add Source Nodes")
         source_list = []
         source_dict = self.define_source_node_per_floor(floor_dict=floor_dict,
                                                         color="green",
@@ -456,7 +456,7 @@ class GeometryBuildingsNetworkx(object):
         return G, source_list
 
     def remove_attributes(self, G: nx.Graph(), attributes: list):
-        print("Delete unnecessary attributes.")
+        self.logger.info("Delete unnecessary attributes.")
         for node, data in G.nodes(data=True):
             if set(attributes) & set(data["type"]):
                 for attr in attributes:
@@ -482,7 +482,7 @@ class GeometryBuildingsNetworkx(object):
         for node, data in G.nodes(data=True):
             node_list = ["start_node", "end_node"]
             """if "Verteiler" in set(data["type"]):
-                print(data["type"])"""
+                self.logger.info(data["type"])"""
             if set(node_list) & set(data["type"]):
                 element = data["floor_belongs_to"]
                 if element not in element_nodes:
@@ -564,7 +564,7 @@ class GeometryBuildingsNetworkx(object):
         ff_graph_list = []
         # pro Etage
         for i, floor in enumerate(self.building_data):
-            print(f"Calculate steiner tree {floor}_{i}")
+            self.logger.info(f"Calculate steiner tree {floor}_{i}")
             # Pro Delivery Point pro Etage
             element_nodes_forward = []
             element_nodes_backward = []
@@ -715,7 +715,7 @@ class GeometryBuildingsNetworkx(object):
 
     @staticmethod
     def read_json_graph(file: Path):
-        print(f"Read Building Graph from file {file}")
+        self.logger.info(f"Read Building Graph from file {file}")
         with open(file, "r") as file:
             json_data = json.load(file)
             G = nx.node_link_graph(json_data)
@@ -931,35 +931,35 @@ class GeometryBuildingsNetworkx(object):
 
     def check_graph(self, G, type):
         if nx.is_connected(G) is True:
-            print(f"{Fore.BLACK + Back.GREEN} {type} Graph is connected.")
+            self.logger.info(f"{Fore.BLACK + Back.GREEN} {type} Graph is connected.")
             return G
         else:
-            print(f"{Fore.BLACK + Back.RED} {type} Graph is not connected.")
+            self.logger.info(f"{Fore.BLACK + Back.RED} {type} Graph is not connected.")
             GeometryBuildingsNetworkx.visulize_networkx(G=G,
                                                         type_grid=type)
             for node in G.nodes():
                 if nx.is_isolate(G, node) is True:
-                    print("node", node, "is not connected.")
-                    print(f'{G.nodes[node]["pos"]} with type {G.nodes[node]["type"]}')
+                    self.logger.info("node", node, "is not connected.")
+                    self.logger.info(f'{G.nodes[node]["pos"]} with type {G.nodes[node]["type"]}')
             # Bestimme die verbundenen Komponenten
             components = list(nx.connected_components(G))
             # Gib die nicht miteinander verbundenen Komponenten aus
-            print("Not Conntected Components")
+            self.logger.info("Not Conntected Components")
             G = self.kit_grid(G=G)
             if nx.is_connected(G) is True:
-                print(f"{Fore.BLACK + Back.GREEN} {type} Graph is connected.")
+                self.logger.info(f"{Fore.BLACK + Back.GREEN} {type} Graph is connected.")
                 GeometryBuildingsNetworkx.visulize_networkx(G=G, type_grid=type)
                 # plt.show()
                 return G
             else:
-                print(f"{Fore.BLACK + Back.RED} {type} Graph is not connected.")
+                self.logger.info(f"{Fore.BLACK + Back.RED} {type} Graph is not connected.")
                 GeometryBuildingsNetworkx.visulize_networkx(G=G, type_grid=type)
                 plt.show()
                 exit(1)
             """for component in disconnected_components:
                 for c in component:
-                    print("node", c, "is not connected.")
-                    print(f'{G.nodes[c]["pos"]} with type {G.nodes[c]["type"]}')"""
+                    self.logger.info("node", c, "is not connected.")
+                    self.logger.info(f'{G.nodes[c]["pos"]} with type {G.nodes[c]["type"]}')"""
 
             """# Erhalte die Teilgraphen
             subgraphs = list(nx.connected_component_subgraphs(G))
@@ -976,7 +976,7 @@ class GeometryBuildingsNetworkx(object):
             is_connected = nx.is_connected(G)
 
             # Gib das Ergebnis aus
-            print("Ist der Graph komplett verbunden?", is_connected)"""
+            self.logger.info("Ist der Graph komplett verbunden?", is_connected)"""
 
     def nearest_neighbour_edge(self,
                                G: nx.Graph(),
@@ -1057,7 +1057,7 @@ class GeometryBuildingsNetworkx(object):
                                                                                     neg_neighbors=neg_neighbors)
                     if connect_floor_spaces_together is True:
                         if node_type is None:
-                            print(f"Define node_type {node_type}.")
+                            self.logger.info(f"Define node_type {node_type}.")
                             exit(1)
                         if set(node_type) & set(G.nodes[node]["type"]) and set(node_type) & set(data["type"]):
                             if G.nodes[node]["floor_belongs_to"] == data["floor_belongs_to"]:
@@ -2504,9 +2504,9 @@ class GeometryBuildingsNetworkx(object):
 
         direction_flags = [top_z_flag, bottom_z_flag, pos_x_flag, neg_x_flag, pos_y_flag, neg_y_flag]
         nodes = []
-        print(f"Number of snapped nodes {len(node_list)}")
+        self.logger.info(f"Number of snapped nodes {len(node_list)}")
         for i, node in enumerate(node_list):
-            print(f"Number node ({i + 1}/{len(node_list)})")
+            self.logger.info(f"Number node ({i + 1}/{len(node_list)})")
             # Sucht alle Kanten, auf die ein Knoten gesnappt werden kann.
             for j, direction in enumerate(direction_flags):
                 direction_flags = [top_z_flag, bottom_z_flag, pos_x_flag, neg_x_flag, pos_y_flag, neg_y_flag]
@@ -2781,7 +2781,7 @@ class GeometryBuildingsNetworkx(object):
             **args ():
         Returns:
         """
-        print("Creates nodes for each room independently")
+        self.logger.info("Creates nodes for each room independently")
         floor_graph_list = []
         for i, floor_id in enumerate(floor_dict_data):
             G = nx.Graph(grid_type="building")
@@ -2810,9 +2810,9 @@ class GeometryBuildingsNetworkx(object):
                 Erstellt Fenster und Tür Element von Raum r
                 """
                 for element in room_elements:
-                    print(f"Create element structure {element} for floor {floor_id}")
+                    self.logger.info(f"Create element structure {element} for floor {floor_id}")
                     if room_elements[element]["type"] == "wall":
-                        print(f"Create wall structure {element} for floor {floor_id}")
+                        self.logger.info(f"Create wall structure {element} for floor {floor_id}")
                         if room_elements[element]["global_corners"] is not None:
                             G, center_wall = self.center_element(G=G,
                                                                  global_corners=room_elements[element][
@@ -2944,7 +2944,7 @@ class GeometryBuildingsNetworkx(object):
             """
             Entfernte überschneidene Kanten und erstellt neue
             """
-            print(f"Solve Overlapping edges for floor {floor_id}")
+            self.logger.info(f"Solve Overlapping edges for floor {floor_id}")
             G = self.edge_overlap(G=G,
                                   delete_degree=3,
                                   color="grey",
@@ -3002,7 +3002,7 @@ class GeometryBuildingsNetworkx(object):
             """
             Verbinde neue Hilfsknoten mit Kanten miteinander
             """
-            print(f"Connect elements with center_wall_forward for floor {floor_id}")
+            self.logger.info(f"Connect elements with center_wall_forward for floor {floor_id}")
             G = self.create_edges(G=G,
                                   node_list=snapped_nodes,
                                   edge_type="center_wall_forward",
@@ -3323,7 +3323,7 @@ class GeometryBuildingsNetworkx(object):
             G ():
             file ():
         """
-        print(f"Save Networkx {G} with type {type_grid} in {file}.")
+        self.logger.info(f"Save Networkx {G} with type {type_grid} in {file}.")
         data = json_graph.node_link_data(G)
         with open(file, 'w') as f:
             json.dump(data, f)
@@ -3751,7 +3751,7 @@ class GeometryBuildingsNetworkx(object):
                                                                            terminal_nodes=term_points,
                                                                            method="kou")
         total_length = sum([edge[2]['length'] for edge in steinerbaum.edges(data=True)])
-        print(f"Steiner Tree: {grid_type} {total_length}")
+        self.logger.info(f"Steiner Tree: {grid_type} {total_length}")
         steinerbaum.graph["grid_type"] = grid_type
         # Farbe der Kanten ändern
         edge_attributes = {(u, v): {"color": color} for u, v in graph.edges()}
@@ -3781,7 +3781,7 @@ class GeometryBuildingsNetworkx(object):
         T = nx.Graph(graph.subgraph(T.nodes()).copy())
         mst = nx.minimum_spanning_tree(T, length="length")
         total_length = sum([edge[2]['length'] for edge in mst.edges(data=True)])
-        print(f"spanning Tree:{total_length}")
+        self.logger.info(f"spanning Tree:{total_length}")
         return mst
 
     def add_offset(self, offset, start_p, end_p, path_p):
@@ -4618,7 +4618,7 @@ class IfcBuildingsGeometry():
             if from_bus in net.junction.index and to_bus in net.junction.index:
                 pp.create_pipe_from_parameters(net, from_bus, to_bus, length_km=1, diameter_m=0.1)
             else:
-                print(
+                self.logger.info(
                     f"Warning: Pipe {from_bus}-{to_bus} tries to attach to non-existing junction(s) {from_bus} or {to_bus}.")
 
         # Prüfe, ob das Netzwerk korrekt erstellt wurde
@@ -4682,8 +4682,8 @@ class IfcBuildingsGeometry():
             distance = nx.dijkstra_path_length(graph, start, end, length='length')
             _short_path_edges.append(list(zip(path, path[1:])))
             _other_path_edges.append([edge for edge in graph.edges() if edge not in list(zip(path, path[1:]))])
-            print("Kürzester Pfad:", path)
-            print("Distanz:", distance)
+            self.logger.info("Kürzester Pfad:", path)
+            self.logger.info("Distanz:", distance)
         return graph, _short_path_edges, _other_path_edges, start, end_points
 
     def calc_pipe_coordinates(self, floors, ref_point):
@@ -4892,7 +4892,7 @@ class CalculateDistributionSystem():
         G = self.count_space(G=G)
         """G = nx.convert_node_labels_to_integers(G, first_label=0, ordering="default",
                                                        label_attribute="old_label")
-        print(G)"""
+        self.logger.info(G)"""
         # G = self.index_strang(G=G)
         # Entferne nicht notwendige attribute
         G = self.remove_attributes(G=G, attributes=["center_wall_forward", "snapped_nodes"])
@@ -5007,7 +5007,7 @@ class CalculateDistributionSystem():
             G ():
             file ():
         """
-        print(f"Save Networkx {G} with type {type_grid} in {file}.")
+        self.logger.info(f"Save Networkx {G} with type {type_grid} in {file}.")
         data = json_graph.node_link_data(G)
         with open(file, 'w') as f:
             json.dump(data, f)
@@ -5475,16 +5475,16 @@ class CalculateDistributionSystem():
 
         x_intersection_low, y_intersection_low = find_intersection(pump_x, pump_y, tuple(x_data), tuple(y_data))
         # Markiere den Schnittpunkt im Diagramm
-        print(x_intersection_low)
-        print(y_intersection_low)
+        self.logger.info(x_intersection_low)
+        self.logger.info(y_intersection_low)
         ax1.plot(x_intersection_low, y_intersection_low, 'bo', label='Schnittpunkt')
         op_x, op_y = operation_point
         if pump_optimal_range[0][0] <= op_x.magnitude <= pump_optimal_range[-1][0] and pump_optimal_range[0][
             1] <= op_y.magnitude <= \
                 pump_optimal_range[-1][1]:
-            print("Die Pumpe und ihre Pumpenkennlinie sind geeignet für Ihr System.")
+            self.logger.info("Die Pumpe und ihre Pumpenkennlinie sind geeignet für Ihr System.")
         else:
-            print("Die Pumpe und ihre Pumpenkennlinie sind nicht geeignet für Ihr System.")
+            self.logger.info("Die Pumpe und ihre Pumpenkennlinie sind nicht geeignet für Ihr System.")
 
         # ax1.plot(flow_rates.magnitude, system_head, label='System Curve')
         # ax1.set_xlabel(f'Flow Rate in [{flow_rates.units}]')
@@ -5500,8 +5500,8 @@ class CalculateDistributionSystem():
         plt.show()
         plt.close()
         # ax1.plot(flow_rates.magnitude, pump_power, label='Pump Curve')
-        # print('Operating Flow Rate:', operating_flow_rate)
-        # print('Operating Pressure:', operation_pump_pressure)
+        # self.logger.info('Operating Flow Rate:', operating_flow_rate)
+        # self.logger.info('Operating Pressure:', operation_pump_pressure)
 
         """
         fig = plt.figure()
@@ -5514,8 +5514,8 @@ class CalculateDistributionSystem():
         plt.legend()
         plt.show()
         plt.close()
-        print('Operating Flow Rate:', operating_flow_rate)
-        print('Operating Head:', operating_head)"""
+        self.logger.info('Operating Flow Rate:', operating_flow_rate)
+        self.logger.info('Operating Head:', operating_head)"""
 
     def operation_pump_pressure(self):
         """
@@ -5820,19 +5820,19 @@ class CalculateDistributionSystem():
         return G"""
         # G = self.hardy_cross(G=G, viewpoint=viewpoint)
         """critical_cycle, max_pressure_loss = self.find_critical_cycle(G=G, viewpoint=viewpoint)
-        print(max_pressure_loss)
-        print(critical_cycle)
+        self.logger.info(max_pressure_loss)
+        self.logger.info(critical_cycle)
         longest_cycle = self.find_longest_cycle(G=G)
-        print(longest_cycle)
+        self.logger.info(longest_cycle)
         pump_nodes = [node for node in longest_cycle if "Pumpe" in set(G.nodes[node]["type"])]
-        print(pump_nodes)
+        self.logger.info(pump_nodes)
         # Starte die Iteration an der Pumpe mit dem höchsten Index
         pump_nodes.sort(reverse=True)
         for start_node in pump_nodes:
             # Die Iteration erfolgt entlang des Zyklus, beginnend bei der Pumpe und endend bei der Pumpe
             cycle_iter = nx.dfs_edges(G, start_node)
-            print(cycle_iter)
-            print("hallo")
+            self.logger.info(cycle_iter)
+            self.logger.info("hallo")
             prev_pressure_out = initial_pressure
             for node, next_node in cycle_iter:
                 edge_pressure_loss = G[node][next_node]['pressure_loss'][viewpoint]
@@ -5998,7 +5998,7 @@ class CalculateDistributionSystem():
 
         Returns:
         """
-        print("Calculate Inner diameter")
+        self.logger.info("Calculate Inner diameter")
         # list(nx.topological_sort(G))
         for node in G.nodes():
             successors = list(G.successors(node))
@@ -6045,9 +6045,9 @@ class CalculateDistributionSystem():
                     G.edges[node, succ]['density'] = density
                     G.edges[node, succ]['mass'] = pipe_mass * G.edges[node, succ]['length']
                 G.edges[node, succ]['dammung'] = self.calculate_dammung(outer_diameter)
-                # print(G.edges[node, succ]['length'])
-                # print(pipe_mass)
-                # print(G.edges[node, succ]['mass'])
+                # self.logger.info(G.edges[node, succ]['length'])
+                # self.logger.info(pipe_mass)
+                # self.logger.info(G.edges[node, succ]['mass'])
         return G
 
     def calculate_mass_flow_circular_graph(self, G, known_nodes, viewpoint):
@@ -6101,7 +6101,7 @@ class CalculateDistributionSystem():
         return G
 
     def calculate_pressure_node(self, G, viewpoint: str):
-        print("Calculate pressure node")
+        self.logger.info("Calculate pressure node")
         G = self.iterate_pressure_loss_edges(G=G,
                                              v_mid=self.v_mittel,
                                              viewpoint=viewpoint)
@@ -6116,7 +6116,7 @@ class CalculateDistributionSystem():
     def calculate_flow(self, G, source, sink):
         # Füge eine Kantenkapazität zu den Kanten hinzu
         # Führe den Ford-Fulkerson-Algorithmus durch
-        print("Calculate pressure node")
+        self.logger.info("Calculate pressure node")
         flow_value, flow_dict = nx.maximum_flow(G, source, sink)
         # Extrahiere den Massenstrom aus dem Flussdictionary
 
@@ -6131,7 +6131,7 @@ class CalculateDistributionSystem():
             G ():
             viewpoint ():
         """
-        print("Caluclate Mass flow")
+        self.logger.info("Caluclate Mass flow")
         forward, backward, connection = self.separate_graph(G=G)
         forward = self.iterate_forward_nodes_mass_volume_flow(G=forward, viewpoint=viewpoint)
         #self.plot_attributes_nodes(G=forward, type_grid="Vorlaufkreislauf", viewpoint=viewpoint,
@@ -6305,10 +6305,10 @@ class CalculateDistributionSystem():
         for (u, v) in G.edges():
             pressure_start = round(G.nodes[u]['pressure_out'].magnitude * 10 ** -5, 2)
             pressure_end = round(G.nodes[v]['pressure_in'].magnitude * 10 ** -5, 2)
-            #print(pressure_start)
-            #print(pressure_end)
-            #print(pressure_max)
-            #print(pressure_min)
+            #self.logger.info(pressure_start)
+            #self.logger.info(pressure_end)
+            #self.logger.info(pressure_max)
+            #self.logger.info(pressure_min)
             #pressure_difference = (pressure_end - pressure_start) / (pressure_max - pressure_min)
             pressure_difference = (pressure_end - pressure_start)
             color = cmap(pressure_difference)
@@ -6422,7 +6422,7 @@ class CalculateDistributionSystem():
         plt.show()"""
 
     def remove_attributes(self, G, attributes):
-        print("Delete unnecessary attributes.")
+        self.logger.info("Delete unnecessary attributes.")
         for node, data in G.nodes(data=True):
             if set(attributes) & set(data["type"]):
                 for attr in attributes:
@@ -6686,7 +6686,7 @@ class CalculateDistributionSystem():
             nodes ():
         Returns:
         """
-        print("Update delivery node")
+        self.logger.info("Update delivery node")
         if delivery_type == "radiator":
             radiator_nodes = [n for n, attr in G.nodes(data=True) if
                               any(t in attr.get("type", []) for t in nodes)]
@@ -6787,7 +6787,7 @@ class CalculateDistributionSystem():
         Returns:
 
         """
-        print("Count elements in space.")
+        self.logger.info("Count elements in space.")
         window_count = {}
         for node, data in G.nodes(data=True):
             if "radiator_forward" in data["type"]:
@@ -6854,7 +6854,7 @@ class CalculateDistributionSystem():
         # todo: coefficient_resistance aus dicitonary lesen
         # todo: Norm Innentemperatur
         # todo: Verengung und erweiterung erkennen
-        print("Initilize attributes for nodes and egdes")
+        self.logger.info("Initilize attributes for nodes and egdes")
         for node, data in G.nodes(data=True):
             coefficient_resistance = 0.0
             velocity = 0.5 * (ureg.meter / ureg.seconds)
@@ -6955,7 +6955,7 @@ class CalculateDistributionSystem():
 
             df_new_sheet.to_excel(writer, sheet_name='Komponenten')
         # Bestätigung, dass das Sheet hinzugefügt wurde
-        print(f"Das neue Sheet {filename} wurde erfolgreich zur Excel-Datei hinzugefügt.")
+        self.logger.info(f"Das neue Sheet {filename} wurde erfolgreich zur Excel-Datei hinzugefügt.")
 
 
 
@@ -7019,8 +7019,8 @@ class CalculateDistributionSystem():
 
             if "Pumpe" in set(data["type"]):
                 pass
-                #print(node)
-                #print(data)
+                #self.logger.info(node)
+                #self.logger.info(data)
 
             if node not in bom:
                 bom[node] = {}
@@ -7043,7 +7043,7 @@ class CalculateDistributionSystem():
             if "norm_heat_flow_per_length" in data:
                 bom[node]["norm_heat_flow_per_length"] = data["norm_heat_flow_per_length"]
         """for node,data  in G.nodes(data=True):
-            print(data)
+            self.logger.info(data)
             component_type = G.nodes[node].get('type')
             for comp in component_type:
                 if comp in bom:
@@ -7482,7 +7482,7 @@ class PandaPipesSystem(object):
 
     def _get_attributes(self, net):
         # Rufen Sie die Junctions als DataFrame ab
-        print(dir(net.junction))
+        self.logger.info(dir(net.junction))
 
 
 class Bim2simVTSInterface(object):
@@ -7633,17 +7633,17 @@ if __name__ == '__main__':
     ################################################################
 
     # network_heating_json = f"{working_path}/{ifc_model}/network_build.json"
-    print("Create Working Path ")
+    self.logger.info("Create Working Path ")
     # Überprüfen, ob der Ordner bereits vorhanden ist
     folder_path = Path(working_path, ifc_model)
     if not os.path.exists(folder_path):
         # Ordner erstellen
         os.makedirs(folder_path)
-        print("Ordner wurde erfolgreich erstellt.")
+        self.logger.info("Ordner wurde erfolgreich erstellt.")
     else:
-        print("Der Ordner existiert bereits.")
+        self.logger.info("Der Ordner existiert bereits.")
 
-    print("Load IFC model.")
+    self.logger.info("Load IFC model.")
     ifc = IfcBuildingsGeometry(ifc_file=ifc,
                                ifc_building_json=ifc_building_json,
                                ifc_delivery_json=ifc_delivery_json
@@ -7657,7 +7657,7 @@ if __name__ == '__main__':
     # start_point = (23.9, 6.7, -2.50)
     start_point = (23.9, 6.7, -3.0)
 
-    print("Load IFC model complete.")
+    self.logger.info("Load IFC model complete.")
 
     floor_dict = GeometryBuildingsNetworkx.read_buildings_json(file=ifc_building_json)
     element_dict = GeometryBuildingsNetworkx.read_buildings_json(file=ifc_delivery_json)

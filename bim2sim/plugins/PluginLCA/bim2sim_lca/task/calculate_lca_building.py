@@ -379,7 +379,7 @@ class CalculateEmissionBuilding(ITask):
                         emissions = values["Total Mass [kg]"] * material_emission[corresponding_material]
                     values["GWP [kg CO2-eq]"] = emissions
             else:
-                print(f'Material {key} nicht erkannt.')
+                self.logger.info(f'Material {key} nicht erkannt.')
                 exit(1)
         return building_material
 

@@ -1441,9 +1441,9 @@ class DesignSupplyLCA(ITask):
 
             graph_dict[z_value] = filtered_main_graph
 
-            print("Check if nodes and edges of forward graph are inside the boundaries of the building")
+            self.logger.info("Check if nodes and edges of forward graph are inside the boundaries of the building")
             filtered_main_graph = self.check_if_graph_in_building_boundaries(filtered_main_graph, z_value)
-            print("Check done")
+            self.logger.info("Check done")
 
             if self.export_graphs:
                 self.visualization_graph(filtered_main_graph,
@@ -1825,7 +1825,7 @@ class DesignSupplyLCA(ITask):
         nodes_floor = [node for node in graph.nodes]
         for node in nodes_floor: # Assuming the nodes have 'x' and 'y' attributes
             if not any(is_point_inside_shape(shape, node) for shape in storey_floor_shapes):
-                print(f"Node {node} is not inside the building boundaries")
+                self.logger.info(f"Node {node} is not inside the building boundaries")
                 if any(type in graph.nodes[node]["type"] for type in ["radiator_forward",
                                                                       "radiator_backward"]):
                     assert KeyError(f"Delivery node {node} not in building boundaries")
@@ -1834,7 +1834,7 @@ class DesignSupplyLCA(ITask):
         edges_floor = [edge for edge in graph.edges()]
         for edge in edges_floor:
             if not any(is_edge_inside_shape(shape, edge[0], edge[1]) for shape in storey_floor_shapes):
-                print(f"Edge {edge} does not intersect boundaries")
+                self.logger.info(f"Edge {edge} does not intersect boundaries")
                 graph.remove_edge(edge[0], edge[1])
         return graph
 
@@ -2500,7 +2500,7 @@ class DesignSupplyLCA(ITask):
                         zeta_arch = drag_coefficient_arc_round(angle=90,
                                                                    mean_radius=0.75 * ureg.meter,
                                                                    diameter=diameter)
-                        # print(f"Zeta-Bogen round: {zeta_arch}")
+                        # self.logger.info(f"Zeta-Bogen round: {zeta_arch}")
 
                     elif "x" in dimension_duct:
                         width = self.find_dimension(dimension_duct)[0].to(ureg.meter)
@@ -2511,7 +2511,7 @@ class DesignSupplyLCA(ITask):
                                                                     width=width,
                                                                     calculated_diameter=calculated_diameter
                                                                     )
-                        # print(f"Zeta Bogen angular: {zeta_arch}")
+                        # self.logger.info(f"Zeta Bogen angular: {zeta_arch}")
 
                     # Changing the loss_coefficient value
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_arch
@@ -2549,7 +2549,7 @@ class DesignSupplyLCA(ITask):
                 if d > d_D:
                     zeta_reduzierung = drag_coefficient_cross_sectional_narrowing_continuous(d, d_D)
 
-                    # print(f"Zeta T-Reduzierung: {zeta_reduzierung}")
+                    # self.logger.info(f"Zeta T-Reduzierung: {zeta_reduzierung}")
 
                     net['pipe'].at[pipe, 'loss_coefficient'] += zeta_reduzierung
 
@@ -2611,7 +2611,7 @@ class DesignSupplyLCA(ITask):
                     #    |
                     #  Eingang
 
-                    # print("T-Stück geht durch ")
+                    # self.logger.info("T-Stück geht durch ")
 
                     if "Ø" in dimensions_incoming_edge:
 
@@ -2623,7 +2623,7 @@ class DesignSupplyLCA(ITask):
                                                                                   v_A=v_A,
                                                                                   direction="direction of passage")
 
-                        # print(f"Zeta T-Stück: {zeta_t_piece}")
+                        # self.logger.info(f"Zeta T-Stück: {zeta_t_piece}")
 
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_piece
 
@@ -2641,7 +2641,7 @@ class DesignSupplyLCA(ITask):
                         else:
                             zeta_cross_section_narrowing = 0
 
-                        # print(f"Zeta T-Stück: {zeta_t_piece + zeta_cross_section_narrowing}")
+                        # self.logger.info(f"Zeta T-Stück: {zeta_t_piece + zeta_cross_section_narrowing}")
 
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_piece + zeta_cross_section_narrowing
 
@@ -2656,7 +2656,7 @@ class DesignSupplyLCA(ITask):
                     #    |
                     #  Eingang
 
-                    # print("T-Stück knickt ab ")
+                    # self.logger.info("T-Stück knickt ab ")
 
                     if "Ø" in dimensions_incoming_edge:
 
@@ -2668,7 +2668,7 @@ class DesignSupplyLCA(ITask):
                                                                                   v_A=v_A,
                                                                                   direction="branching direction")
 
-                        # print(f"Zeta T-Stück: {zeta_t_piece}")
+                        # self.logger.info(f"Zeta T-Stück: {zeta_t_piece}")
 
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_piece
 
@@ -2682,7 +2682,7 @@ class DesignSupplyLCA(ITask):
                                                                                    v_A=v_A,
                                                                                    direction="branching direction")
 
-                        # print(f"Zeta T-Stück: {zeta_t_piece}")
+                        # self.logger.info(f"Zeta T-Stück: {zeta_t_piece}")
 
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_piece
 
@@ -2692,7 +2692,7 @@ class DesignSupplyLCA(ITask):
                     # Ausgang ---------- duct für Verlust
                     #              |
                     #           Eingang
-                    # print("T-Stück ist Verteiler")
+                    # self.logger.info("T-Stück ist Verteiler")
 
                     if "Ø" in dimensions_incoming_edge:
                         zeta_t_piece = drag_coefficient_T_end_piece_round(d=d,
@@ -2707,7 +2707,7 @@ class DesignSupplyLCA(ITask):
                         else:
                             zeta_cross_section_narrowing = 0
 
-                        # print(f"Zeta T-Stück: {zeta_t_piece}")
+                        # self.logger.info(f"Zeta T-Stück: {zeta_t_piece}")
 
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_piece + zeta_cross_section_narrowing
 
@@ -2722,7 +2722,7 @@ class DesignSupplyLCA(ITask):
                                                                                    v_A=v_D
                                                                                    )
 
-                        # print(f"Zeta T-Stück: {zeta_t_piece}")
+                        # self.logger.info(f"Zeta T-Stück: {zeta_t_piece}")
 
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_piece
 
