@@ -24,7 +24,7 @@ from bim2sim.utilities.common_functions import download_library
 def load_serialized_teaser_project(project_path, serialized_teaser_path,
                                    heating_bool, cooling_bool,
                                    ahu_central_bool, ahu_heat_bool, ahu_cool_bool, ahu_hum_bool,
-                                   ahu_efficiency, ahu_heat_recovery, ahu_heat_recovery_efficiency,
+                                   ahu_heat_recovery, ahu_efficiency, ahu_heat_recovery_efficiency,
                                    building_standard, window_standard):
 
     """This function demonstrates different loading options of TEASER"""
@@ -105,7 +105,8 @@ def load_serialized_teaser_project(project_path, serialized_teaser_path,
 
     simulate_dymola_ebcpy(teaser_prj=prj,
                           prj_export_path=prj_export_path,
-                          path_aixlib=path_aixlib)
+                          path_aixlib=path_aixlib,
+                          hvac_params=hvac_params)
 
 def manipulate_teaser_model(teaser_prj,
                             window_increase_percentage,
@@ -189,7 +190,7 @@ def manipulate_teaser_model(teaser_prj,
                 door.load_type_element(year=construction_classes["year_of_construction"],
                                        construction=construction_classes["construction_class_doors"])
 
-def simulate_dymola_ebcpy(teaser_prj, prj_export_path, path_aixlib):
+def simulate_dymola_ebcpy(teaser_prj, prj_export_path, path_aixlib, hvac_params):
     """Simulates the exported TEASER model by using ebcpy.
 
     The Modelica model that is created through TEASER is simulated by using
@@ -205,7 +206,7 @@ def simulate_dymola_ebcpy(teaser_prj, prj_export_path, path_aixlib):
     """
 
     # Function for extracting relevant information out of simulation result file
-    def edit_mat_result_file(self, teaser_prj, bldg_result_dir, bldg_name):
+    def edit_mat_result_file(teaser_prj, bldg_name, bldg_result_dir, hvac_params):
         """Creates .mos script to extract specific data out of dymola mat result file
             and safe it to a new .mat file
 
@@ -237,9 +238,9 @@ def simulate_dymola_ebcpy(teaser_prj, prj_export_path, path_aixlib):
         ]
 
         var_names = var_names_heating
-        if self.playground.sim_settings.cooling:
+        if hvac_params["cooling_bool"]:
             var_names += var_names_cooling
-        if self.playground.sim_settings.overwrite_ahu_by_settings:
+        if hvac_params["ahu_central_bool"]:
             var_names += var_names_ahu
 
         for building in teaser_prj.buildings:
@@ -336,7 +337,11 @@ def simulate_dymola_ebcpy(teaser_prj, prj_export_path, path_aixlib):
         )
 
 
-        mos_file_path = edit_mat_result_file(teaser_prj, bldg.name, bldg_result_dir)
+        mos_file_path = edit_mat_result_file(teaser_prj=teaser_prj,
+                                             bldg_name=bldg.name,
+                                             bldg_result_dir=bldg_result_dir,
+                                             hvac_params=hvac_params)
+
         dym_api.dymola.RunScript(mos_file_path)
         time.sleep(10)
 

@@ -62,6 +62,12 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
         for_frontend=True,
         mandatory=True
     )
+    serialized_elements_path = PathSetting(
+        default=None,
+        description='Path to the pickled/serialized elements file',
+        for_frontend=True,
+        mandatory=True
+    )
 
     # TODO convert xlsx into json and translate to english
     hydraulic_components_data_file_path = PathSetting(

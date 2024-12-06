@@ -29,10 +29,16 @@ def run_example_project_hydraulic_system():
         project_path = Path(
             "D:\dja-jho\Testing\Teaser3")
 
-    # TODO reset config.toml backend
+    # Set the ifc path to use and define which domain the IFC belongs to
+    ifc_paths = {
+        IFCDomain.arch:
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/arch/ifc/AC20-Institute-Var-2.ifc',
+    }
 
     # Create a project including the folder structure for the project
-    project = Project.create(project_path, plugin='HydraulicSystem')
+    project = Project.create(project_path, ifc_paths, plugin='HydraulicSystem')
+
 
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings

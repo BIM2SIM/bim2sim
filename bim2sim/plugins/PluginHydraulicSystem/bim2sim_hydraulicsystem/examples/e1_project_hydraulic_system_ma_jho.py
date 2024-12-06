@@ -29,8 +29,16 @@ def run_example_project_hydraulic_system(project_path, weather_file_path, export
         #project_path = Path("D:\dja-jho\Testing\SystemTest")
         pass
 
+    # Set the ifc path to use and define which domain the IFC belongs to
+    ifc_paths = {
+        IFCDomain.arch:
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/arch/ifc/AC20-Institute-Var-2.ifc',
+    }
+
     # Create a project including the folder structure for the project
-    project = Project.create(project_path, plugin='HydraulicSystem')
+    project = Project.create(project_path, ifc_paths, plugin='HydraulicSystem')
+
 
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
@@ -52,6 +60,7 @@ def run_example_project_hydraulic_system(project_path, weather_file_path, export
     project.sim_settings.startpoint_heating_graph_z_axis = -3
 
     project.sim_settings.heat_demand_mat_file_path = fr"{project_path}\export\TEASER\SimResults\AC20InstituteVar2\Buerogebaeude\teaser_results_edited.mat"
+    serialized_elements_path = Path(Path(project_path.parent), "SerializedTEASER", "export")
 
     project.sim_settings.heat_delivery_type = heat_delivery_type # UFH or Radiator
     project.sim_settings.hydraulic_components_data_file_radiator_sheet = "Profilierte Flachheizkörper"

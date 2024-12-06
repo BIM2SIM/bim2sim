@@ -26,7 +26,8 @@ class InterfaceToPluginTeaser(ITask):
         self.lock = threading.Lock()
 
         if self.playground.sim_settings.disaggregate_heat_demand_thermal_zones:
-            pickle_path = self.paths.export / "serialized_elements.pickle"
+            #pickle_path = self.paths.export / "serialized_elements.pickle"
+            pickle_path = self.playground.sim_settings.serialized_elements_path
             self.lock.acquire()
             with open(pickle_path, 'rb') as file:
                 deserialized_elements = pickle.load(file)

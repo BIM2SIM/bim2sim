@@ -207,7 +207,7 @@ def simulate_dymola_ebcpy(teaser_prj, prj_export_path, path_aixlib):
     """
 
     # Function for extracting relevant information out of simulation result file
-    def edit_mat_result_file(self, teaser_prj, bldg_result_dir, bldg_name):
+    def edit_mat_result_file(self, teaser_prj, bldg_name, bldg_result_dir):
         """Creates .mos script to extract specific data out of dymola mat result file
             and safe it to a new .mat file
 
@@ -337,8 +337,10 @@ def simulate_dymola_ebcpy(teaser_prj, prj_export_path, path_aixlib):
             result_file_name="teaser_results"
         )
 
+        mos_file_path = edit_mat_result_file(teaser_prj=teaser_prj,
+                                             bldg_name=bldg.name,
+                                             bldg_result_dir=bldg_result_dir)
 
-        mos_file_path = edit_mat_result_file(teaser_prj, bldg_result_dir, bldg.name)
         dym_api.dymola.RunScript(mos_file_path)
         time.sleep(10)
 
