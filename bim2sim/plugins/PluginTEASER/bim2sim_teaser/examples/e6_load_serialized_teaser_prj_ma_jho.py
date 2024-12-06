@@ -24,7 +24,7 @@ from bim2sim.utilities.common_functions import download_library
 def load_serialized_teaser_project(project_path, serialized_teaser_path,
                                    heating_bool, cooling_bool,
                                    ahu_central_bool, ahu_heat_bool, ahu_cool_bool, ahu_hum_bool,
-                                   ahu_heat_recovery, ahu_heat_recovery_efficiency,
+                                   ahu_efficiency, ahu_heat_recovery, ahu_heat_recovery_efficiency,
                                    building_standard, window_standard):
 
     """This function demonstrates different loading options of TEASER"""
@@ -75,10 +75,11 @@ def load_serialized_teaser_project(project_path, serialized_teaser_path,
     hvac_params = {"heating_bool": heating_bool,
                    "cooling_bool": cooling_bool,
                    "ahu_central_bool": ahu_central_bool,
-                   "ahu_heating": ahu_heat_bool,
-                   "ahu_cooling": ahu_cool_bool,
+                   "ahu_heat_bool": ahu_heat_bool,
+                   "ahu_cool_bool": ahu_cool_bool,
                    "ahu_hum_bool": ahu_hum_bool,
                    "ahu_heat_recovery": ahu_heat_recovery,
+                   "ahu_efficiency": ahu_efficiency,
                    "ahu_heat_recovery_efficiency": ahu_heat_recovery_efficiency,
                   }
 
@@ -113,7 +114,25 @@ def manipulate_teaser_model(teaser_prj,
 
     for bldg in teaser_prj.buildings:
 
+        bldg.with_ahu = hvac_params["ahu_central_bool"]
+
+        bldg.central_ahu.heating = hvac_params["ahu_heat_bool"]
+        bldg.central_ahu.cooling = hvac_params["ahu_cool_bool"]
+        bldg.central_ahu.humidification = hvac_params["ahu_hum_bool"]
+        bldg.central_ahu.heat_recovery = hvac_params["ahu_heat_recovery"]
+        bldg.central_ahu.efficiency_recovery = hvac_params["ahu_heat_recovery_efficiency"]
+        bldg.central_ahu.efficiency_recovery_false = hvac_params["ahu_heat_recovery_efficiency"]
+
+        bldg.central_ahu.efficiency_fan_return = hvac_params["ahu_efficiency"]
+        bldg.central_ahu.efficiency_fan_return = hvac_params["ahu_efficiency"]
+
         for tz in bldg.thermal_zones:
+
+            tz.use_conditions.with_heating = hvac_params["heating_bool"]
+            tz.use_conditions.with_cooling = hvac_params["cooling_bool"]
+            if not hvac_params["ahu_central_bool"]:
+                tz.use_conditions.with_ahu = False
+
 
             # Increase window-wall ratio
             """ow_area_old = 0
