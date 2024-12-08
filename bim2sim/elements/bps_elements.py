@@ -670,79 +670,88 @@ class SpaceBoundary(RelationBased):
     @cached_property
     def top_bottom(self):
         """
-        This function computes, if the center of a space boundary
-        is below (bottom) or above (top) the center of a space.
-        This function is used to distinguish floors and ceilings (IfcSlab).
+        Determines the vertical position relationship between space boundaries.
 
-        If the SB is vertical (Walls etc.) VERTICAL will be returned.
-        :return: top_bottom ("TOP", "BOTTOM", "VERTICAL")
+        This function analyzes the geometric relationship between space boundaries to classify
+        them as top (ceiling), bottom (floor), or vertical (wall) elements. The classification
+        is based on:
+        1. The boundary's normal vector relative to vertical
+        2. The Z-coordinate comparison with related boundaries
+        3. The angle between the boundary's normal and vertical vector
+
+        The function handles three cases:
+        - Regular boundaries with related bounds
+        - Adiabatic boundaries
+        - Exterior boundaries (using space center as reference)
+
+        Args:
+            self: Space boundary object containing:
+                - bound_normal: Normal vector of the boundary surface
+                - bound_center: Center point of the boundary
+                - related_bound: Reference to related boundary
+                - related_adb_bound: Reference to related adiabatic boundary
+                - bound_thermal_zone: Thermal zone containing the boundary
+
+        Returns:
+            str: Position classification ("TOP", "BOTTOM", or "VERTICAL")
+
+        Note:
+            - Uses a threshold of 89-91 degrees for steep roof classification
+            - Relies on accurate surface normal vectors for angle-based
+            classification
+            - May need adjustment for multi-storey spaces
         """
-        top_bottom = None
-        vertical = gp_XYZ(0.0, 0.0, 1.0)
-        # only assign top and bottom for elements, whose
-        # surface normals are not perpendicular to a vertical
-        if -1e-3 < self.bound_normal.Dot(vertical) < 1e-3:
-            top_bottom = "VERTICAL"
-        # is related bounds z-coordinate below current bound(self) then
-        # current bound is a floor (BOTTOM), otherwise a ceiling (TOP)
-        elif self.related_bound != None:
-            if (self.bound_center.Z() - self.related_bound.bound_center.Z()) \
-                    > 1e-2:
-                top_bottom = "BOTTOM"
-            elif (self.bound_center.Z() - self.related_bound.bound_center.Z()) \
-                    < -1e-2:
-                top_bottom = "TOP"
-            else:
-                # caution, this relies on correct surface normals
-                if vertical.Dot(self.bound_normal) < -0.8:
-                    top_bottom = "BOTTOM"
-                elif vertical.Dot(self.bound_normal) > 0.8:
-                    top_bottom = "TOP"
-        # for adiabatic bounds we need no tolerance
-        elif self.related_adb_bound is not None:
-            if self.bound_center.Z() > self.related_adb_bound.bound_center.Z():
-                top_bottom = "BOTTOM"
-            else:
-                top_bottom = "TOP"
-        # if no relating bound exists (exterior boundaries), we use the space
-        # center instead.
-        # TODO: This might fail for multi storey spaces.
-        else:
-            if (self.bound_center.Z() - self.bound_thermal_zone.space_center.Z()) \
-                    > 1e-8:
-                top_bottom = "TOP"
-            elif (self.bound_center.Z() - self.bound_thermal_zone.space_center.Z()) \
-                    < -1e-8:
-                top_bottom = "BOTTOM"
-            else:
-                # maximum angle between vertical vector (0,0,1) and normal
-                #  80 is a very steep roof
-                angle_threshold_top = 89
-                angle_threshold_bottom = 91
-                # caution, this relies on correct surface normals
-                if vertical.Dot(self.bound_normal) < math.cos(
-                        math.radians(angle_threshold_bottom)):
-                    top_bottom = "BOTTOM"
-                # 0.985 is equal to a 10 degree angle between
-                elif vertical.Dot(self.bound_normal) > math.cos(
-                        math.radians(angle_threshold_top)):
-                    top_bottom = "TOP"
-        return top_bottom
+        vertical_vector = gp_XYZ(0.0, 0.0, 1.0)
+        angle_threshold_top = 89
+        angle_threshold_bottom = 91
+        position_tolerance = 1e-2
+        vertical_tolerance = 1e-3
 
-    # @staticmethod
-    # def compare_direction_of_normals(normal1, normal2):
-    #     """
-    #     Compare the direction of two surface normals (vectors).
-    #     True, if direction is same or reversed
-    #     :param normal1: first normal (gp_Pnt)
-    #     :param normal2: second normal (gp_Pnt)
-    #     :return: True/False
-    #     """
-    #     dotp = normal1.Dot(normal2)
-    #     check = False
-    #     if 1-1e-2 < dotp ** 2 < 1+1e-2:
-    #         check = True
-    #     return check
+        def _is_vertical():
+            """Check boundary vertical (perpendicular to vertical vector)."""
+            return abs(
+                self.bound_normal.Dot(vertical_vector)) < vertical_tolerance
+
+        def _classify_by_angle():
+            """Classify boundary based on angle with vertical vector."""
+            normal_dot_vertical = vertical_vector.Dot(self.bound_normal)
+            if normal_dot_vertical < math.cos(
+                    math.radians(angle_threshold_bottom)):
+                return "BOTTOM"
+            elif normal_dot_vertical > math.cos(
+                    math.radians(angle_threshold_top)):
+                return "TOP"
+            return None
+
+        def _get_z_difference(reference_z):
+            """Calculate Z-coordinate difference with reference point."""
+            return self.bound_center.Z() - reference_z
+
+        # Check if boundary is vertical
+        if _is_vertical():
+            return "VERTICAL"
+
+        # Handle regular boundaries with related bounds
+        if self.related_bound is not None:
+            z_diff = _get_z_difference(self.related_bound.bound_center.Z())
+            if z_diff > position_tolerance:
+                return "BOTTOM"
+            elif z_diff < -position_tolerance:
+                return "TOP"
+            return _classify_by_angle()
+
+        # Handle adiabatic boundaries
+        if self.related_adb_bound is not None:
+            return "BOTTOM" if (self.bound_center.Z() >
+                                self.related_adb_bound.bound_center.Z()) \
+                else "TOP"
+
+        # Handle exterior boundaries using space center
+        z_diff = _get_z_difference(self.bound_thermal_zone.space_center.Z())
+        if abs(z_diff) > vertical_tolerance:
+            return "TOP" if z_diff > 0 else "BOTTOM"
+
+        return _classify_by_angle()
 
     def get_bound_center(self):
         """ compute center of the bounding box of a space boundary"""
