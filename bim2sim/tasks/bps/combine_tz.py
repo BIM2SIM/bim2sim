@@ -1,7 +1,7 @@
 from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
-from bim2sim.utilities.types import LOD, ZoningCriteria
+from bim2sim.utilities.types import ZoningCriteria
 from typing import Callable
 
 
@@ -27,11 +27,7 @@ class CombineThermalZones(ITask):
         if len(tz_elements) == 0:
             self.logger.warning("Found no ThermalZones to combine.")
         else:
-            if self.playground.sim_settings.zoning_setup is LOD.low:
-                self.combine_tzs_to_one_zone(
-                    tz_elements, elements)
-            elif self.playground.sim_settings.zoning_setup is LOD.medium:
-                self.combine_tzs_based_on_criteria(tz_elements, elements)
+            self.combine_tzs_based_on_criteria(tz_elements, elements)
             tz_elements_after = filter_elements(
                 elements, 'ThermalZone')
             self.logger.info(f"Reduced number of ThermalZone elements from"
@@ -47,24 +43,27 @@ class CombineThermalZones(ITask):
     def combine_tzs_based_on_criteria(self, thermal_zones: list, elements: dict):
         """groups together all the thermal zones based on selected criteria
         (answer)"""
-        mapping = {
-            ZoningCriteria.external:
-                self.group_thermal_zones_by_is_external,
-            ZoningCriteria.external_orientation:
-                self.group_thermal_zones_by_is_external_and_orientation,
-            ZoningCriteria.usage:
-                self.group_thermal_zones_by_usage,
-            ZoningCriteria.external_orientation_usage:
-                self.group_thermal_zones_by_is_external_orientation_and_usage,
-            ZoningCriteria.all_criteria:
-                self.group_thermal_zones_by_use_all_criteria
-        }
+        if self.playground.sim_settings.zoning_criteria == ZoningCriteria.combined_single_zone:
+            self.combine_tzs_to_one_zone(thermal_zones, elements)
+        else:
+            mapping = {
+                ZoningCriteria.external:
+                    self.group_thermal_zones_by_is_external,
+                ZoningCriteria.external_orientation:
+                    self.group_thermal_zones_by_is_external_and_orientation,
+                ZoningCriteria.usage:
+                    self.group_thermal_zones_by_usage,
+                ZoningCriteria.external_orientation_usage:
+                    self.group_thermal_zones_by_is_external_orientation_and_usage,
+                ZoningCriteria.all_criteria:
+                    self.group_thermal_zones_by_use_all_criteria,
+            }
 
-        criteria_function = \
-            mapping[self.playground.sim_settings.zoning_criteria]
-        tz_groups = criteria_function(thermal_zones)
-        new_aggregations = AggregatedThermalZone.find_matches(
-            tz_groups, elements)
+            criteria_function = \
+                mapping[self.playground.sim_settings.zoning_criteria]
+            tz_groups = criteria_function(thermal_zones)
+            new_aggregations = AggregatedThermalZone.find_matches(
+                tz_groups, elements)
 
     @classmethod
     def group_thermal_zones_by_is_external(cls, thermal_zones: list):

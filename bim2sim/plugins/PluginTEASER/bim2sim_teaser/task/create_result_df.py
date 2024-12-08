@@ -33,7 +33,8 @@ bim2sim_teaser_mapping_base = {
     "multizone.zone[numZones].ventCont.y": "infiltration_rooms",
     "multizone.zone[numZones].ventRate": "mech_ventilation_rooms",
     "tableTSet.y[numZones]": "heat_set_rooms",
-    "tableTSetCool.y[numZones]": "cool_set_rooms"
+    "tableTSetCool.y[numZones]": "cool_set_rooms",
+    "CPUtime": "cpu_time"
 }
 
 # bim2sim_teaser_indirect_mapping = {
