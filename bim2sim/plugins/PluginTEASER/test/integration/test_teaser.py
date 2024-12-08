@@ -18,7 +18,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-Institute-Var-2.ifc"""
         ifc_names = {IFCDomain.arch: 'AC20-Institute-Var-2.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
-        project.sim_settings.zoning_setup = LOD.medium
         project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         answers = (2015,)
         handler = DebugDecisionHandler(answers)
@@ -42,7 +41,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Test DigitalHub IFC"""
         ifc_names = {IFCDomain.arch:  'FM_ARC_DigitalHub_with_SB_neu.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
-        project.sim_settings.zoning_setup = LOD.medium
         project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         project.sim_settings.prj_use_conditions = Path(
             bim2sim.__file__).parent.parent / \
@@ -64,7 +62,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
-        project.sim_settings.zoning_setup = LOD.low
+        project.sim_settings.zoning_criteria = ZoningCriteria.combined_single_zone
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -77,7 +75,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Test ERC Main Building"""
         ifc_names = {IFCDomain.arch:  'ERC_Mainbuilding_Arch.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
-        project.sim_settings.zoning_setup = LOD.full
+        project.sim_settings.zoning_criteria = ZoningCriteria.individual_spaces
         project.sim_settings.layers_and_materials = LOD.full
         answers = ("Kitchen in non-residential buildings",
                    "Library - reading room",
@@ -99,7 +97,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Test ERC Main Building"""
         ifc_names = {IFCDomain.arch:  'ERC_Mainbuilding_Arch.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
-        project.sim_settings.zoning_setup = LOD.medium
         project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         answers = ()
         handler = DebugDecisionHandler(answers)
@@ -125,7 +122,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
-        project.sim_settings.zoning_setup = LOD.medium
         project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         answers = ()
         handler = DebugDecisionHandler(answers)
@@ -139,7 +135,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
-        project.sim_settings.zoning_setup = LOD.medium
         project.sim_settings.layers_and_materials = LOD.full
         project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         answers = ('vertical_core_brick_700',
@@ -155,7 +150,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-Institute-Var-2.ifc"""
         ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
-        project.sim_settings.zoning_setup = LOD.medium
         project.sim_settings.layers_and_materials = LOD.full
         project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         answers = (2015, 'concrete_CEM_II_BS325R_wz05', 'clay_brick',
@@ -172,7 +166,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
         project.sim_settings.layers_and_materials = LOD.full
-        project.sim_settings.zoning_setup = LOD.full = LOD.full
+        project.sim_settings.zoningCriteria = ZoningCriteria.individual_spaces
         answers = (True, 'solid_brick_h', True, 'hardwood', True,
                    'Concrete_DK', True, 'Light_Concrete_DK',
                    'heavy', 1, 'Door', 1, 'Brick', 'solid_brick_h', 'EnEv',
@@ -188,7 +182,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-Institute-Var-2.ifc"""
         ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
-        project.sim_settings.zoning_setup = LOD.full
+        project.sim_settings.zoning_criteria = ZoningCriteria.individual_spaces
         project.sim_settings.layers_and_materials = LOD.full
         answers = ('Glas', True, 'glas_generic', 500, 1.5, 0.2,
                    True, 'air_layer', 'sandstone', True, 'lime_sandstone_1',
@@ -208,7 +202,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
         # ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2.ifc'
         project = self.create_project(ifc_names, 'TEASER')
-        project.sim_settings.zoning_setup = LOD.full
+        project.sim_settings.zoning_criteria = ZoningCriteria.individual_spaces
         # answers = ('Glas', True, 'generic', 500, 1.5, 0.2,
         #            True, 'air_layer_DK', 'sandstone', True, 'lime',
         #            'lime_sandstone_1', True, 'aluminium', 0.1, True,
@@ -230,7 +224,6 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
-        project.sim_settings.zoning_setup = LOD.medium
         project.sim_settings.layers_and_materials = LOD.full
         project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         answers = ('Kitchen - preparations, storage', True,
