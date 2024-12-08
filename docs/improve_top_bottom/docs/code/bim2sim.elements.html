@@ -2520,11 +2520,39 @@ vertices.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="bim2sim.elements.bps_elements.SpaceBoundary.top_bottom">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">top_bottom</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.SpaceBoundary.top_bottom" title="Permalink to this definition"></a></dt>
-<dd><p>This function computes, if the center of a space boundary
-is below (bottom) or above (top) the center of a space.
-This function is used to distinguish floors and ceilings (IfcSlab).</p>
-<p>If the SB is vertical (Walls etc.) VERTICAL will be returned.
-:return: top_bottom (“TOP”, “BOTTOM”, “VERTICAL”)</p>
+<dd><p>Determines the vertical position relationship between space boundaries.</p>
+<p>This function analyzes the geometric relationship between space boundaries to classify
+them as top (ceiling), bottom (floor), or vertical (wall) elements. The classification
+is based on:
+1. The boundary’s normal vector relative to vertical
+2. The Z-coordinate comparison with related boundaries
+3. The angle between the boundary’s normal and vertical vector</p>
+<p>The function handles three cases:
+- Regular boundaries with related bounds
+- Adiabatic boundaries
+- Exterior boundaries (using space center as reference)</p>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>self: Space boundary object containing:</dt><dd><ul class="simple">
+<li><p>bound_normal: Normal vector of the boundary surface</p></li>
+<li><p>bound_center: Center point of the boundary</p></li>
+<li><p>related_bound: Reference to related boundary</p></li>
+<li><p>related_adb_bound: Reference to related adiabatic boundary</p></li>
+<li><p>bound_thermal_zone: Thermal zone containing the boundary</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>str: Position classification (“TOP”, “BOTTOM”, or “VERTICAL”)</p>
+</dd>
+<dt>Note:</dt><dd><ul class="simple">
+<li><p>Uses a threshold of 89-91 degrees for steep roof classification</p></li>
+<li><p>Relies on accurate surface normal vectors for angle-based</p></li>
+</ul>
+<p>classification
+- May need adjustment for multi-storey spaces</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
