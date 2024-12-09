@@ -670,11 +670,11 @@ class SpaceBoundary(RelationBased):
     @cached_property
     def top_bottom(self) -> BoundaryOrientation:
         """
-        Determines if a boundary is a top (ceiling/roof) or bottom (floor/slab) element
-        based solely on its normal vector orientation.
+        Determines if a boundary is a top (ceiling/roof) or bottom (floor/slab)
+         element based solely on its normal vector orientation.
 
-        Classification is based on the dot product between the boundary's normal vector
-        and the vertical vector (0, 0, 1):
+        Classification is based on the dot product between the boundary's
+        normal vector and the vertical vector (0, 0, 1):
         - TOP: when normal points upward (dot product > cos(89°))
         - BOTTOM: when normal points downward (dot product < cos(91°))
         - VERTICAL: when normal is perpendicular to vertical (dot product ≈ 0)
@@ -682,21 +682,21 @@ class SpaceBoundary(RelationBased):
         Returns:
             BoundaryOrientation: Enumerated orientation classification
         """
-        VERTICAL_VECTOR = gp_XYZ(0.0, 0.0, 1.0)
-        VERTICAL_TOLERANCE = 1e-3
-        COS_ANGLE_TOP = math.cos(math.radians(89))
-        COS_ANGLE_BOTTOM = math.cos(math.radians(91))
+        vertical_vector = gp_XYZ(0.0, 0.0, 1.0)
+        vertical_tolerance = 1e-3
+        cos_angle_top = math.cos(math.radians(89))
+        cos_angle_bottom = math.cos(math.radians(91))
 
-        normal_dot_vertical = VERTICAL_VECTOR.Dot(self.bound_normal)
+        normal_dot_vertical = vertical_vector.Dot(self.bound_normal)
 
         # Check if boundary is vertical
-        if abs(normal_dot_vertical) < VERTICAL_TOLERANCE:
+        if abs(normal_dot_vertical) < vertical_tolerance:
             return BoundaryOrientation.vertical
 
         # Classify based on dot product
-        if normal_dot_vertical > COS_ANGLE_TOP:
+        if normal_dot_vertical > cos_angle_top:
             return BoundaryOrientation.top
-        elif normal_dot_vertical < COS_ANGLE_BOTTOM:
+        elif normal_dot_vertical < cos_angle_bottom:
             return BoundaryOrientation.bottom
 
         return BoundaryOrientation.vertical
