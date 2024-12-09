@@ -21,11 +21,44 @@ class LOD(Enum):
 
 
 class ZoningCriteria(Enum):
+    """Criteria for grouping thermal zones within a building.
+
+    This enum defines different strategies for combining thermal zones based on
+    various architectural and functional characteristics.
+
+    Attributes:
+        external: Groups zones based on their contact with the building
+        exterior. Separates zones with exterior contact from
+         interior-only zones.
+
+        usage: Groups zones based on their functional usage/purpose within the
+            building.
+
+        external_orientation: Groups zones based on both exterior contact and
+            facade orientation (North, East, South, West).
+
+        external_orientation_usage: Combines grouping based on exterior contact
+        , orientation, and usage.
+
+        all_criteria: Most comprehensive grouping that considers:
+            - Exterior contact
+            - Facade orientation
+            - Usage
+            - Glass percentage
+            - Physical adjacency between zones
+
+        individual_spaces: Every space is converted into a thermal zone.
+
+        combined_single_zone: All spaces are converted into a single thermal zone.
+    """
+
     external = auto()
     usage = auto()
     external_orientation = auto()
     external_orientation_usage = auto()
     all_criteria = auto()
+    individual_spaces = auto()
+    combined_single_zone = auto()
 
 
 class AttributeDataSource(Enum):
