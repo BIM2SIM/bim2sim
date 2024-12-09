@@ -88,6 +88,36 @@
       "Beseitigung": 0.0905775718945771,
       "Recyclingpotential": -51.2008551963688
    },
+   "Mineralwolle-Daemmstoff": {
+      "oekobaudat_uuid": "699e3d57-72b4-402d-a0ee-cebb06f3cdf1",
+      "oekobaudat_calculation_factor": 0.01,
+      "Herstellung": 120.801189957615,
+      "Transport": 0.303243834316614,
+      "Einbau": 18.5055888958115,
+      "Beseitigung": 2.19085477694245,
+      "Recyclingpotential": -6.01332991285451
+   },
+   "Lueftungskanal": {
+      "oekobaudat_uuid": "40edb030-3b81-47f6-a24f-acd8b2be0d20",
+      "oekobaudat_calculation_factor": 1,
+      "Herstellung": 3.06453168438919,
+      "Transport": 0.0110084632730329,
+      "Abfallbehandlung": 0.0,
+      "Beseitigung": 0.00179751487455734,
+      "Recyclingpotential": -1.23421464154503
+   },
+   "Brandschutzklappe": {
+      "oekobaudat_uuid": "e8f279e9-d72d-4645-bb33-5651d9ec07c0",
+      "oekobaudat_calculation_factor": 1,
+      "Herstellung": 20.7,
+      "Transport": 0.0115,
+      "Einbau": 0.112,
+      "Energieeinsatz": 2.84,
+      "Abbruch": 0.00574,
+      "Abfallbehandlung": 1.17,
+      "Beseitigung": 0.0369,
+      "Recyclingpotential": -1.42
+   },
    "Kalksandstein": {
       "oekobaudat_uuid": "cc0d7baa-755a-4a4a-baf3-4fe53d68a041",
       "oekobaudat_calculation_factor": 0.0005,
@@ -155,7 +185,14 @@
    "concrete_CEM_II_BS325R_wz05": {
       "oekobaudat_uuid": "7c7f17df-1dfb-454e-a792-96b3b8665663",
       "oekobaudat_calculation_factor": 0.00043879,
-      "Herstellung": 0.742068684145491
+      "Herstellung": 139.12746653453877,
+      "Transport": 9.400875,
+      "Einbau": 1.8646061779407925,
+      "Nutzung": -3.165207198166792,
+      "Abbruch": 8.64,
+      "Abfallbehandlung": 3.5650856307435252,
+      "Beseitigung": 0.0,
+      "Recyclingpotential": -9.41227
    },
    "plasterboard": {
       "oekobaudat_uuid": "0773f90c-78ef-4727-a966-3b005c1a1469",

@@ -360,24 +360,24 @@ class DesignVentilationSystem(ITask):
 
         # dataframe fire damper exhaust air:
         dataframe_fire_dampers_exhaust_air = pd.DataFrame(columns=['Startknoten',
-                                                                   'Zielknoten',
-                                                                   'Kante',
-                                                                   'rechnerischer Durchmesser'])  # dataframe for fire dampers for supply air
+                                                                  'Zielknoten',
+                                                                  'Kante',
+                                                                  'rechnerischer Durchmesser'])  # dataframe for fire dampers for supply air
 
         for index, line in dataframe_distribution_network_exhaust_air.iterrows():
-            starting_point = line['Startknoten']
-            end_point = line['Zielknoten']
+            starting_point = line['starting_node']
+            end_point = line['target_node']
             if (end_point[0] == building_shaft_exhaust_air[0]) and (
                     end_point[1] == building_shaft_exhaust_air[1]) and (
                     starting_point[2] == end_point[2]
             ):
-                new_rows = [{'Startknoten': dataframe_distribution_network_exhaust_air.at[index, 'Startknoten'],
-                             'Zielknoten': dataframe_distribution_network_exhaust_air.at[index, 'Zielknoten'],
-                             'Kante': dataframe_distribution_network_exhaust_air.at[index, 'Kante'],
+                new_rows = [{'Startknoten': dataframe_distribution_network_exhaust_air.at[index, 'starting_node'],
+                             'Zielknoten': dataframe_distribution_network_exhaust_air.at[index, 'target_node'],
+                             'Kante': dataframe_distribution_network_exhaust_air.at[index, 'edge'],
                              'rechnerischer Durchmesser': dataframe_distribution_network_exhaust_air.at[
-                                 index, 'rechnerischer Durchmesser'],
+                                 index, 'calculated diameter'],
                              'Gewicht Brandschutzklappe': get_next_larger_weight_fire_damp(
-                                 dataframe_distribution_network_exhaust_air.at[index, 'rechnerischer Durchmesser'])}
+                                 dataframe_distribution_network_exhaust_air.at[index, 'calculated diameter'])}
                             ]
 
                 # Add to dataframe

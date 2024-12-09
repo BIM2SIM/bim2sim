@@ -94,13 +94,14 @@ class LoadMaterialEmissionParameter(ITask):
 
         results = {}
         for entry in data['LCIAResults']['LCIAResult']:
-            if entry['referenceToLCIAMethodDataSet']['shortDescription'][1]['value'] == (
+            index = len(entry['referenceToLCIAMethodDataSet']['shortDescription']) - 1
+            if entry['referenceToLCIAMethodDataSet']['shortDescription'][index]['value'] == (
             "Global Warming Potential - total (GWP-total)") or \
-                    entry['referenceToLCIAMethodDataSet']['shortDescription'][1]['value'] == (
+                    entry['referenceToLCIAMethodDataSet']['shortDescription'][index]['value'] == (
             "Globales Erwärmungspotenzial - total (GWP-total)") or \
-                    entry['referenceToLCIAMethodDataSet']['shortDescription'][1]['value'] == (
+                    entry['referenceToLCIAMethodDataSet']['shortDescription'][index]['value'] == (
             "Globales Erwärmungspotenzial total (GWP-total)") or \
-                    entry['referenceToLCIAMethodDataSet']['shortDescription'][1]['value'] == (
+                    entry['referenceToLCIAMethodDataSet']['shortDescription'][index]['value'] == (
             "Global Warming Potential total (GWP-total)"):
 
                 # Initialisieren eines leeren Dictionaries für GWP-total

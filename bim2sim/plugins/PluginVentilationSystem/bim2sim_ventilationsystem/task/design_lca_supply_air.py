@@ -3133,16 +3133,16 @@ class DesignSupplyLCA(ITask):
 
         # Calculation of the sheet weight
         dataframe_distribution_network_supply_air[
-            "Sheet weight"] = list_dataframe_distribution_network_supply_air_blechgewicht
+            "Sheet weight"] = [x.magnitude for x in list_dataframe_distribution_network_supply_air_blechgewicht]
 
         # Determination of the CO2 of the duct
-        dataframe_distribution_network_supply_air["CO2-Kanal"] = dataframe_distribution_network_supply_air[
-                                                                     "Sheet weight"] * (
-                                                                         float(
-                                                                             gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[
-                                                                                 0]["A1-A3"]) + float(
-                                                                     gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0][
-                                                                         "C2"]))
+        # dataframe_distribution_network_supply_air["CO2-Kanal"] = dataframe_distribution_network_supply_air[
+        #                                                              "Sheet weight"] * (
+        #                                                                  float(
+        #                                                                      gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[
+        #                                                                          0]["A1-A3"]) + float(
+        #                                                              gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0][
+        #                                                                  "C2"]))
 
         def cross_sectional_area_duct_insulation(row):
             """
@@ -3175,21 +3175,23 @@ class DesignSupplyLCA(ITask):
             'Cross-sectional area of insulation'] = dataframe_distribution_network_supply_air.apply(
             cross_sectional_area_duct_insulation, axis=1)
 
-        dataframe_distribution_network_supply_air['Isolation volume'] = dataframe_distribution_network_supply_air[
+        list_dataframe_isolation_volume_distribution_network_supply_air = list(dataframe_distribution_network_supply_air[
                                                                            'Cross-sectional area of insulation'] * \
                                                                        dataframe_distribution_network_supply_air[
-                                                                           'duct length']
+                                                                           'duct length'])
 
-        gwp_isulation = (
-                    121.8 * ureg.kilogram / ureg.meter ** 3 + 1.96 * ureg.kilogram / ureg.meter ** 3 + 10.21 * ureg.kilogram / ureg.meter ** 3)
+        dataframe_distribution_network_supply_air['Isolation volume'] = [x.magnitude for x in list_dataframe_isolation_volume_distribution_network_supply_air]
+
+        # gwp_isulation = (
+        #             121.8 * ureg.kilogram / ureg.meter ** 3 + 1.96 * ureg.kilogram / ureg.meter ** 3 + 10.21 * ureg.kilogram / ureg.meter ** 3)
         # https://www.oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?lang=de&uuid=eca9691f-06d7-48a7-94a9-ea808e2d67e8
 
-        list_dataframe_distribution_network_supply_air_CO2_duct_isolation = [v * gwp_isulation for v in
-                                                                            dataframe_distribution_network_supply_air[
-                                                                                "Isolation volume"]]
-
-        dataframe_distribution_network_supply_air[
-            "CO2 Duct Isolation"] = list_dataframe_distribution_network_supply_air_CO2_duct_isolation
+        # list_dataframe_distribution_network_supply_air_CO2_duct_isolation = [v * gwp_isulation for v in
+        #                                                                     dataframe_distribution_network_supply_air[
+        #                                                                         "Isolation volume"]]
+        #
+        # dataframe_distribution_network_supply_air[
+        #     "CO2 Duct Isolation"] = list_dataframe_distribution_network_supply_air_CO2_duct_isolation
 
 
         # Export to Excel
@@ -3200,10 +3202,9 @@ class DesignSupplyLCA(ITask):
         Berechnung des CO2 für die room_connection
         """
         # Ermittlung des CO2-Kanal
-        dataframe_rooms["CO2-Kanal"] = dataframe_rooms["Sheet weight"] * (
-                    float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0][
-                              "A1-A3"]) + float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"])
-                    )
+        # dataframe_rooms["CO2-Kanal"] = dataframe_rooms["Sheet weight"] * (
+        #             float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0][
+        #                       "A1-A3"]) + float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
 
         # Vordefinierte Daten für Trox RN Volume_flow_controller
         # https://cdn.trox.de/4ab7c57caaf55be6/3450dc5eb9d7/TVR_PD_2022_08_03_DE_de.pdf
@@ -3285,8 +3286,8 @@ class DesignSupplyLCA(ITask):
         # Anwenden der Funktion auf jede Zeile
         dataframe_rooms['Gewicht Volume_flow_controller'] = dataframe_rooms.apply(gewicht_volumenstromregler, axis=1)
 
-        dataframe_rooms["CO2-Volume_flow_controller"] = dataframe_rooms['Gewicht Volume_flow_controller'] * (
-                19.08 + 0.01129 + 0.647) * 0.348432
+        # dataframe_rooms["CO2-Volume_flow_controller"] = dataframe_rooms['Gewicht Volume_flow_controller'] * (
+        #         19.08 + 0.01129 + 0.647) * 0.348432
         # Nach Ökobaudat https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=29e922f6-d872-4a67-b579-38bb8cd82abf&version=00.02.000&stock=OBD_2023_I&lang=de
 
         # CO2 für Schallfämpfer
@@ -3326,15 +3327,15 @@ class DesignSupplyLCA(ITask):
         dataframe_rooms['Isolation volume silencer'] = dataframe_rooms.apply(volumen_daemmung_schalldaempfer,
                                                                                  axis=1)
 
-        gwp_daemmung_schalldaempfer = (117.4 + 2.132 + 18.43) * (ureg.kilogram / (ureg.meter ** 3))
-        # https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=89b4bfdf-8587-48ae-9178-33194f6d1314&version=00.02.000&stock=OBD_2023_I&lang=de
+        # gwp_daemmung_schalldaempfer = (117.4 + 2.132 + 18.43) * (ureg.kilogram / (ureg.meter ** 3))
+        # # https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=89b4bfdf-8587-48ae-9178-33194f6d1314&version=00.02.000&stock=OBD_2023_I&lang=de
+        #
+        # list_dataframe_distribution_network_supply_air_CO2_schalldaempferdaemmung = [v * gwp_daemmung_schalldaempfer for
+        #                                                                              v in dataframe_rooms[
+        #                                                                                  "Isolation volume silencer"]]
 
-        list_dataframe_distribution_network_supply_air_CO2_schalldaempferdaemmung = [v * gwp_daemmung_schalldaempfer for
-                                                                                     v in dataframe_rooms[
-                                                                                         "Isolation volume silencer"]]
-
-        dataframe_rooms[
-            "CO2-Dämmung silencer"] = list_dataframe_distribution_network_supply_air_CO2_schalldaempferdaemmung
+        # dataframe_rooms[
+        #     "CO2-Dämmung silencer"] = list_dataframe_distribution_network_supply_air_CO2_schalldaempferdaemmung
 
         # Gewicht des Metalls des Schalldämpfers für Trox CA für Packungsdicke 50 bis 400mm danach Packungsdicke 100
         # vordefinierte Daten für Trox CA silencer
@@ -3371,9 +3372,9 @@ class DesignSupplyLCA(ITask):
         dataframe_rooms['Gewicht Blech silencer'] = dataframe_rooms.apply(gewicht_schalldaempfer_ohne_daemmung,
                                                                                axis=1)
 
-        dataframe_rooms["CO2-Blech Schalldämfer"] = dataframe_rooms["Gewicht Blech silencer"] * (
-                float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["A1-A3"]) + float(
-            gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
+        # dataframe_rooms["CO2-Blech Schalldämfer"] = dataframe_rooms["Gewicht Blech silencer"] * (
+        #         float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["A1-A3"]) + float(
+        #     gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
 
         # Berechnung der Dämmung
         dataframe_rooms['Cross-sectional area of insulation'] = dataframe_rooms.apply(cross_sectional_area_duct_insulation,
@@ -3382,14 +3383,14 @@ class DesignSupplyLCA(ITask):
         dataframe_rooms['Isolation volume'] = dataframe_rooms['Cross-sectional area of insulation'] * dataframe_rooms[
             'duct length']
 
-        gwp_kanaldaemmung = (
-                    121.8 * (ureg.kilogram / ureg.meter ** 3) + 1.96 * (ureg.kilogram / ureg.meter ** 3) + 10.21 * (
-                        ureg.kilogram / ureg.meter ** 3))
-        # https://www.oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?lang=de&uuid=eca9691f-06d7-48a7-94a9-ea808e2d67e8
-
-        list_dataframe_rooms_CO2_kanaldaemmung = [v * gwp_kanaldaemmung for v in dataframe_rooms["Isolation volume"]]
-
-        dataframe_rooms['CO2 Duct Isolation'] = list_dataframe_rooms_CO2_kanaldaemmung
+        # gwp_kanaldaemmung = (
+        #             121.8 * (ureg.kilogram / ureg.meter ** 3) + 1.96 * (ureg.kilogram / ureg.meter ** 3) + 10.21 * (
+        #                 ureg.kilogram / ureg.meter ** 3))
+        # # https://www.oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?lang=de&uuid=eca9691f-06d7-48a7-94a9-ea808e2d67e8
+        #
+        # list_dataframe_rooms_CO2_kanaldaemmung = [v * gwp_kanaldaemmung for v in dataframe_rooms["Isolation volume"]]
+        #
+        # dataframe_rooms['CO2 Duct Isolation'] = list_dataframe_rooms_CO2_kanaldaemmung
 
 
         # Export to Excel

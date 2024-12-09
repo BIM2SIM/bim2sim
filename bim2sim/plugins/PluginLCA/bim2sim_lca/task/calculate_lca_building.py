@@ -153,6 +153,7 @@ class CalculateEmissionBuilding(ITask):
         )
 
     def run(self, ifc_files, elements, material_emission_dict):
+        total_gwp_building = 0
         if self.playground.sim_settings.calculate_lca_building:
             self.logger.info("Exporting material quantities to CSV")
 

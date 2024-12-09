@@ -390,12 +390,12 @@ class DesignExaustLCA(ITask):
                 airflow_volume_per_storey[z] = a
 
         dataframe_rooms = pd.DataFrame()
-        dataframe_rooms["Koordinate"] = list(dict_koordinate_mit_raumart.keys())
-        dataframe_rooms["X"] = [x for x, _, _ in dataframe_rooms["Koordinate"]]
-        dataframe_rooms["Y"] = [y for _, y, _ in dataframe_rooms["Koordinate"]]
-        dataframe_rooms["Z"] = [z for _, _, z in dataframe_rooms["Koordinate"]]
-        dataframe_rooms["Raumart"] = dataframe_rooms["Koordinate"].map(dict_koordinate_mit_raumart)
-        dataframe_rooms["Volumenstrom"] = dataframe_rooms["Koordinate"].map(dict_koordinate_mit_erf_luftvolumen)
+        dataframe_rooms["coordinate"] = list(dict_koordinate_mit_raumart.keys())
+        dataframe_rooms["X"] = [x for x, _, _ in dataframe_rooms["coordinate"]]
+        dataframe_rooms["Y"] = [y for _, y, _ in dataframe_rooms["coordinate"]]
+        dataframe_rooms["Z"] = [z for _, _, z in dataframe_rooms["coordinate"]]
+        dataframe_rooms["room type"] = dataframe_rooms["coordinate"].map(dict_koordinate_mit_raumart)
+        dataframe_rooms["Volume_flow"] = dataframe_rooms["coordinate"].map(dict_koordinate_mit_erf_luftvolumen)
 
         for z_coord in z_axis:
             room_ceiling_ventilation_outlet.append(
@@ -814,7 +814,7 @@ class DesignExaustLCA(ITask):
 
     # Dimensions according to EN 1505 table 1
     df_EN_1505 = pd.DataFrame({
-        "Breite": [200 * ureg.millimeter, 250 * ureg.millimeter, 300 * ureg.millimeter, 400 * ureg.millimeter,
+        "width": [200 * ureg.millimeter, 250 * ureg.millimeter, 300 * ureg.millimeter, 400 * ureg.millimeter,
                    500 * ureg.millimeter, 600 * ureg.millimeter, 800 * ureg.millimeter, 1000 * ureg.millimeter,
                    1200 * ureg.millimeter, 1400 * ureg.millimeter, 1600 * ureg.millimeter, 1800 * ureg.millimeter,
                    2000 * ureg.millimeter],
@@ -877,7 +877,7 @@ class DesignExaustLCA(ITask):
         # Berechnen der Differenzen und Verhältnisse für jede Kombination
         kombinationen = []
         for index, row in df_EN_1505.iterrows():
-            breite = row['Breite']
+            breite = row['width']
             for hoehe in filtered_hoehen:
                 flaeche = row[hoehe]
                 # try:
@@ -893,12 +893,12 @@ class DesignExaustLCA(ITask):
 
         # Erstellen eines neuen dataframes aus den Kombinationen
         kombinationen_df = pd.DataFrame(kombinationen,
-                                        columns=['Breite', 'Hoehe', 'Flaeche', 'Diff', 'Verhaeltnis'])
+                                        columns=['width', 'height', 'surface', 'Diff', 'ratio'])
 
         # Finden der besten Kombination
         beste_kombination_index = (kombinationen_df['Diff'] + abs(kombinationen_df['Diff'] - 1)).idxmin()
-        beste_breite = kombinationen_df.at[beste_kombination_index, 'Breite']
-        beste_hoehe = kombinationen_df.at[beste_kombination_index, 'Hoehe']
+        beste_breite = kombinationen_df.at[beste_kombination_index, 'width']
+        beste_hoehe = kombinationen_df.at[beste_kombination_index, 'height']
         querschnitt = f"{beste_breite} x {beste_hoehe}"
 
         return querschnitt
@@ -987,7 +987,7 @@ class DesignExaustLCA(ITask):
         # Berechnen der Differenzen und Verhältnisse für jede Kombination
         kombinationen = []
         for index, row in df_EN_1505.iterrows():
-            breite = row['Breite']
+            breite = row['width']
             for hoehe in filtered_hoehen:
                 flaeche = row[hoehe]
                 if not pd.isna(flaeche) and flaeche >= kanalquerschnitt:
@@ -999,12 +999,12 @@ class DesignExaustLCA(ITask):
 
         # Erstellen eines neuen dataframes aus den Kombinationen
         kombinationen_df = pd.DataFrame(kombinationen,
-                                        columns=['Breite', 'Hoehe', 'Flaeche', 'Diff', 'Verhaeltnis'])
+                                        columns=['width', 'height', 'surface', 'Diff', 'ratio'])
 
         # Finden der besten Kombination
         beste_kombination_index = (kombinationen_df['Diff'] + abs(kombinationen_df['Diff'] - 1)).idxmin()
-        beste_breite = kombinationen_df.at[beste_kombination_index, 'Breite']
-        beste_hoehe = kombinationen_df.at[beste_kombination_index, 'Hoehe']
+        beste_breite = kombinationen_df.at[beste_kombination_index, 'width']
+        beste_hoehe = kombinationen_df.at[beste_kombination_index, 'height']
 
         umfang = (2 * beste_breite + 2 * beste_hoehe).to(ureg.meter)
 
@@ -1021,7 +1021,7 @@ class DesignExaustLCA(ITask):
         # Berechnen der Differenzen und Verhältnisse für jede Kombination
         kombinationen = []
         for index, row in df_EN_1505.iterrows():
-            breite = row['Breite']
+            breite = row['width']
             for hoehe in filtered_hoehen:
                 flaeche = row[hoehe]
                 if not pd.isna(flaeche) and flaeche >= kanalquerschnitt:
@@ -1033,12 +1033,12 @@ class DesignExaustLCA(ITask):
 
         # Erstellen eines neuen dataframes aus den Kombinationen
         kombinationen_df = pd.DataFrame(kombinationen,
-                                        columns=['Breite', 'Hoehe', 'Flaeche', 'Diff', 'Verhaeltnis'])
+                                        columns=['width', 'height', 'surface', 'Diff', 'ratio'])
 
         # Finden der besten Kombination
         beste_kombination_index = (kombinationen_df['Diff'] + abs(kombinationen_df['Diff'] - 1)).idxmin()
-        beste_breite = kombinationen_df.at[beste_kombination_index, 'Breite']
-        beste_hoehe = kombinationen_df.at[beste_kombination_index, 'Hoehe']
+        beste_breite = kombinationen_df.at[beste_kombination_index, 'width']
+        beste_hoehe = kombinationen_df.at[beste_kombination_index, 'height']
 
         # Für Luftleitungen mit Rechteckquerschnitt (a × b) beträgt der hydraulische Durchmesser nach VDI 2087
         aequivalent_durchmesser = (2 * beste_breite * beste_hoehe) / (beste_breite + beste_hoehe)
@@ -2199,49 +2199,49 @@ class DesignExaustLCA(ITask):
         add_edges_and_nodes(graph_rechnerischer_durchmesser_gerichtet, position_rlt, graph_rechnerischer_durchmesser)
 
         dataframe_distribution_network_exhaust_air = pd.DataFrame(columns=[
-            'Startknoten',
-            'Zielknoten',
-            'Kante',
-            'Raumart Startknoten',
-            'Raumart Zielknoten',
-            'Leitungslänge',
-            'Luftmenge',
-            'Kanalquerschnitt',
-            'Mantelfläche',
-            'rechnerischer Durchmesser'
+            'starting_node',
+            'target_node',
+            'edge',
+            'room type starting_node',
+            'room type target_node',
+            'duct length',
+            'Air volume',
+            'duct cross section',
+            'Surface area',
+            'calculated diameter'
         ])
 
         # Daten der Datenbank hinzufügen
         for u, v in graph_leitungslaenge_gerichtet.edges():
             temp_df = pd.DataFrame({
-                'Startknoten': [v],  # Gedreht da Abluft
-                'Zielknoten': [u],  # Gedreht da Abluft
-                'Kante': [(v, u)],  # Gedreht da Abluft
-                'Raumart Startknoten': [dict_koordinate_mit_raumart.get(v, None)],
-                'Raumart Zielknoten': [dict_koordinate_mit_raumart.get(u, None)],
-                'Leitungslänge': [graph_leitungslaenge_gerichtet.get_edge_data(u, v)["length"]],
-                'Luftmenge': [graph_luftmengen_gerichtet.get_edge_data(u, v)["volume_flow"]],
-                'Kanalquerschnitt': [graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["cross_section"]],
-                'Mantelfläche': [graph_mantelflaeche_gerichtet.get_edge_data(u, v)["circumference"] *
+                'starting_node': [v],  # Gedreht da Abluft
+                'target_node': [u],  # Gedreht da Abluft
+                'edge': [(v, u)],  # Gedreht da Abluft
+                'room type starting_node': [dict_koordinate_mit_raumart.get(v, None)],
+                'room type target_node': [dict_koordinate_mit_raumart.get(u, None)],
+                'duct length': [graph_leitungslaenge_gerichtet.get_edge_data(u, v)["length"]],
+                'Air volume': [graph_luftmengen_gerichtet.get_edge_data(u, v)["volume_flow"]],
+                'duct cross section': [graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["cross_section"]],
+                'Surface area': [graph_mantelflaeche_gerichtet.get_edge_data(u, v)["circumference"] *
                                  graph_leitungslaenge_gerichtet.get_edge_data(u, v)["length"]],
-                'rechnerischer Durchmesser': [graph_rechnerischer_durchmesser_gerichtet.get_edge_data(u, v)["equivalent_diameter"]]
+                'calculated diameter': [graph_rechnerischer_durchmesser_gerichtet.get_edge_data(u, v)["equivalent_diameter"]]
             })
             dataframe_distribution_network_exhaust_air = pd.concat([dataframe_distribution_network_exhaust_air, temp_df],
                                                                   ignore_index=True)
 
         for index, zeile in dataframe_distribution_network_exhaust_air.iterrows():
-            kanalquerschnitt = zeile['Kanalquerschnitt']
+            kanalquerschnitt = zeile['duct cross section']
 
             if "Ø" in kanalquerschnitt:
                 # Finde den Durchmesser und aktualisiere den entsprechenden Wert in der Datenbank
-                dataframe_distribution_network_exhaust_air.at[index, 'Durchmesser'] = str(
+                dataframe_distribution_network_exhaust_air.at[index, 'diameter'] = str(
                     self.finde_abmessung(kanalquerschnitt))
 
             elif "x" in kanalquerschnitt:
                 # Finde Breite und Höhe, zerlege den Querschnittswert und aktualisiere die entsprechenden Werte in der Datenbank
                 breite, hoehe = self.finde_abmessung(kanalquerschnitt)
-                dataframe_distribution_network_exhaust_air.at[index, 'Breite'] = str(breite)
-                dataframe_distribution_network_exhaust_air.at[index, 'Höhe'] = str(hoehe)
+                dataframe_distribution_network_exhaust_air.at[index, 'width'] = str(breite)
+                dataframe_distribution_network_exhaust_air.at[index, 'height'] = str(hoehe)
 
         if self.export_graphs:
             # Darstellung des 3D-Graphens:
@@ -3019,11 +3019,11 @@ class DesignExaustLCA(ITask):
                                )
 
         # Definition der Parameter für die Pipe
-        name_pipe = dataframe_distribution_network_exhaust_air["Kante"].tolist()
-        length_pipe = dataframe_distribution_network_exhaust_air["Leitungslänge"].tolist()
-        from_junction = dataframe_distribution_network_exhaust_air["Startknoten"].tolist()
-        to_junction = dataframe_distribution_network_exhaust_air["Zielknoten"].tolist()
-        diameter_pipe = dataframe_distribution_network_exhaust_air["rechnerischer Durchmesser"].tolist()
+        name_pipe = dataframe_distribution_network_exhaust_air["edge"].tolist()
+        length_pipe = dataframe_distribution_network_exhaust_air["duct length"].tolist()
+        from_junction = dataframe_distribution_network_exhaust_air["starting_node"].tolist()
+        to_junction = dataframe_distribution_network_exhaust_air["target_node"].tolist()
+        diameter_pipe = dataframe_distribution_network_exhaust_air["calculated diameter"].tolist()
 
         # Hinzufügen der Rohre zum Netz
         for index, pipe in enumerate(name_pipe):
@@ -3051,16 +3051,16 @@ class DesignExaustLCA(ITask):
 
                 # Rechnerischer Durchmesser des Kanals
                 rechnerischer_durchmesser = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
-                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
-                    'rechnerischer Durchmesser'
+                    (dataframe_distribution_network_exhaust_air['starting_node'] == from_junction[index]) &
+                    (dataframe_distribution_network_exhaust_air['target_node'] == to_junction[index]),
+                    'calculated diameter'
                 ].iloc[0].to(ureg.meter)
 
                 # Abmessung des Kanals
                 abmessung_kanal = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
-                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
-                    'Kanalquerschnitt'
+                    (dataframe_distribution_network_exhaust_air['starting_node'] == from_junction[index]) &
+                    (dataframe_distribution_network_exhaust_air['target_node'] == to_junction[index]),
+                    'duct cross section'
                 ].iloc[0]
 
                 if not check_if_lines_are_aligned(eingehende_kante, ausgehende_kante):
@@ -3088,7 +3088,7 @@ class DesignExaustLCA(ITask):
                     net['pipe'].at[index, 'loss_coefficient'] += zeta_bogen
 
                     dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                      'Zielknoten'] == to_junction[
+                                                                      'target_node'] == to_junction[
                                                                       index], 'Zeta Bogen'] = zeta_bogen
 
             """Reduzierungen"""
@@ -3101,16 +3101,16 @@ class DesignExaustLCA(ITask):
                 """ Daten für Widerstandsbeiwerte"""
                 # Durchmesser des Eingangs:
                 d = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['Startknoten'] == eingehende_kante[0]) &
-                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == eingehende_kante[1]),
-                    'rechnerischer Durchmesser'
+                    (dataframe_distribution_network_exhaust_air['starting_node'] == eingehende_kante[0]) &
+                    (dataframe_distribution_network_exhaust_air['target_node'] == eingehende_kante[1]),
+                    'calculated diameter'
                 ].iloc[0].to(ureg.meter)
 
                 # Durchmesser des Durchgangs:
                 d_D = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['Startknoten'] == ausgehende_kante[0]) &
-                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == ausgehende_kante[1]),
-                    'rechnerischer Durchmesser'
+                    (dataframe_distribution_network_exhaust_air['starting_node'] == ausgehende_kante[0]) &
+                    (dataframe_distribution_network_exhaust_air['target_node'] == ausgehende_kante[1]),
+                    'calculated diameter'
                 ].iloc[0].to(ureg.meter)
 
                 if d > d_D:
@@ -3121,7 +3121,7 @@ class DesignExaustLCA(ITask):
                     net['pipe'].at[index, 'loss_coefficient'] += zeta_reduzierung
 
                     dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                      'Zielknoten'] == to_junction[
+                                                                      'target_node'] == to_junction[
                                                                       index], 'Zeta Reduzierung'] = zeta_reduzierung
 
                 elif d_D > d:
@@ -3132,7 +3132,7 @@ class DesignExaustLCA(ITask):
                     net['pipe'].at[index, 'loss_coefficient'] += zeta_erweiterung
 
                     dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                      'Zielknoten'] == to_junction[
+                                                                      'target_node'] == to_junction[
                                                                       index], 'Zeta Erweiterung'] = zeta_erweiterung
 
             """T-Stücke"""
@@ -3141,22 +3141,22 @@ class DesignExaustLCA(ITask):
 
                 # Rechnerischer Durchmesser des Kanals
                 rechnerischer_durchmesser_kanal = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
-                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
-                    'rechnerischer Durchmesser'
+                    (dataframe_distribution_network_exhaust_air['starting_node'] == from_junction[index]) &
+                    (dataframe_distribution_network_exhaust_air['target_node'] == to_junction[index]),
+                    'calculated diameter'
                 ].iloc[0].to(ureg.meter)
 
                 # Abmessung des Kanals
                 abmessung_kanal = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
-                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
-                    'Kanalquerschnitt'
+                    (dataframe_distribution_network_exhaust_air['starting_node'] == from_junction[index]) &
+                    (dataframe_distribution_network_exhaust_air['target_node'] == to_junction[index]),
+                    'duct cross section'
                 ].iloc[0]
 
                 luftmenge_kanal = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
-                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
-                    'Luftmenge'
+                    (dataframe_distribution_network_exhaust_air['starting_node'] == from_junction[index]) &
+                    (dataframe_distribution_network_exhaust_air['target_node'] == to_junction[index]),
+                    'Air volume'
                 ].iloc[0]
 
                 # Liste der eingehenden Kanten
@@ -3174,42 +3174,42 @@ class DesignExaustLCA(ITask):
 
                 # Rechnerischer Durchmesser eingehende Kante 1
                 rechnerischer_durchmesser_eingehende_kante_1 = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['Startknoten'] == eingehende_kante_1[0]) &
-                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == eingehende_kante_1[1]),
-                    'rechnerischer Durchmesser'
+                    (dataframe_distribution_network_exhaust_air['starting_node'] == eingehende_kante_1[0]) &
+                    (dataframe_distribution_network_exhaust_air['target_node'] == eingehende_kante_1[1]),
+                    'calculated diameter'
                 ].iloc[0].to(ureg.meter)
 
                 # Abmessung des Kanals eingehende Kante 1
                 abmessung_kanal_eingehende_kante_1 = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['Startknoten'] == eingehende_kante_1[0]) &
-                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == eingehende_kante_1[1]),
-                    'Kanalquerschnitt'
+                    (dataframe_distribution_network_exhaust_air['starting_node'] == eingehende_kante_1[0]) &
+                    (dataframe_distribution_network_exhaust_air['target_node'] == eingehende_kante_1[1]),
+                    'duct cross section'
                 ].iloc[0]
 
                 luftmenge_eingehende_kante_1 = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
-                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
-                    'Luftmenge'
+                    (dataframe_distribution_network_exhaust_air['starting_node'] == from_junction[index]) &
+                    (dataframe_distribution_network_exhaust_air['target_node'] == to_junction[index]),
+                    'Air volume'
                 ].iloc[0]
 
                 # Rechnerischer Durchmesser eingehende Kante 2
                 rechnerischer_durchmesser_eingehende_kante_2 = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['Startknoten'] == eingehende_kante_2[0]) &
-                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == eingehende_kante_2[1]),
-                    'rechnerischer Durchmesser'
+                    (dataframe_distribution_network_exhaust_air['starting_node'] == eingehende_kante_2[0]) &
+                    (dataframe_distribution_network_exhaust_air['target_node'] == eingehende_kante_2[1]),
+                    'calculated diameter'
                 ].iloc[0].to(ureg.meter)
 
                 # Abmessung des Kanals eingehende Kante 1
                 abmessung_kanal_eingehende_kante_2 = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['Startknoten'] == eingehende_kante_2[0]) &
-                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == eingehende_kante_2[1]),
-                    'Kanalquerschnitt'
+                    (dataframe_distribution_network_exhaust_air['starting_node'] == eingehende_kante_2[0]) &
+                    (dataframe_distribution_network_exhaust_air['target_node'] == eingehende_kante_2[1]),
+                    'duct cross section'
                 ].iloc[0]
 
                 luftmenge_eingehende_kante_2 = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['Startknoten'] == from_junction[index]) &
-                    (dataframe_distribution_network_exhaust_air['Zielknoten'] == to_junction[index]),
-                    'Luftmenge'
+                    (dataframe_distribution_network_exhaust_air['starting_node'] == from_junction[index]) &
+                    (dataframe_distribution_network_exhaust_air['target_node'] == to_junction[index]),
+                    'Air volume'
                 ].iloc[0]
 
                 # 3D Darstellung des T-Stücks
@@ -3232,7 +3232,7 @@ class DesignExaustLCA(ITask):
                             net['pipe'].at[
                                 name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
                             dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                              'Kante'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
+                                                                              'edge'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
 
                             zeta_eingehende_kante_2 = wiederstandsbeiwert_T_endstueck_stromvereinigung_rund(
                                 d_A=rechnerischer_durchmesser_eingehende_kante_2,
@@ -3245,7 +3245,7 @@ class DesignExaustLCA(ITask):
                             net['pipe'].at[
                                 name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
                             dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                              'Kante'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
+                                                                              'edge'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
 
                         elif rechnerischer_durchmesser_eingehende_kante_2 > rechnerischer_durchmesser_eingehende_kante_1:
                             zeta_eingehende_kante_2 = wiederstandsbeiwert_T_endstueck_stromvereinigung_rund(
@@ -3257,7 +3257,7 @@ class DesignExaustLCA(ITask):
                             net['pipe'].at[
                                 name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
                             dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                              'Kante'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
+                                                                              'edge'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
 
                             zeta_eingehende_kante_1 = wiederstandsbeiwert_T_endstueck_stromvereinigung_rund(
                                 d_A=rechnerischer_durchmesser_eingehende_kante_1,
@@ -3270,21 +3270,21 @@ class DesignExaustLCA(ITask):
                             net['pipe'].at[
                                 name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
                             dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                              'Kante'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
+                                                                              'edge'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
                     elif "x" in abmessung_kanal:
                         zeta_eingehende_kante_1 = wiederstandsbeiwert_T_endstueck_stromvereinigung_eckig()
 
                         net['pipe'].at[
                             name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
                         dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                          'Kante'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
+                                                                          'edge'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
 
                         zeta_eingehende_kante_2 = wiederstandsbeiwert_T_endstueck_stromvereinigung_eckig()
 
                         net['pipe'].at[
                             name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
                         dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                          'Kante'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
+                                                                          'edge'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
 
                 if check_if_lines_are_aligned(eingehende_kante_1, kanal) == True:
                     # Eingehende Kante 1 --→ --→ Kanal
@@ -3303,7 +3303,7 @@ class DesignExaustLCA(ITask):
                         net['pipe'].at[
                             name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
                         dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                          'Kante'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
+                                                                          'edge'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
 
                         zeta_eingehende_kante_2 = wiederstandsbeiwert_T_stueck_stromvereinigung_rund(
                             d=rechnerischer_durchmesser_kanal,
@@ -3317,7 +3317,7 @@ class DesignExaustLCA(ITask):
                         net['pipe'].at[
                             name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
                         dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                          'Kante'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
+                                                                          'edge'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
 
                     if "x" in abmessung_kanal:
                         zeta_eingehende_kante_1 = wiederstandsbeiwert_T_stueck_stromvereinigung_eckig(
@@ -3332,7 +3332,7 @@ class DesignExaustLCA(ITask):
                         net['pipe'].at[
                             name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
                         dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                          'Kante'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
+                                                                          'edge'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
 
                         zeta_eingehende_kante_2 = wiederstandsbeiwert_T_stueck_stromvereinigung_eckig(
                             d=rechnerischer_durchmesser_kanal,
@@ -3346,7 +3346,7 @@ class DesignExaustLCA(ITask):
                         net['pipe'].at[
                             name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
                         dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                          'Kante'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
+                                                                          'edge'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
 
         # Luftmengen aus Graphen
         luftmengen = nx.get_node_attributes(graph_luftmengen, 'weight')
@@ -3424,14 +3424,14 @@ class DesignExaustLCA(ITask):
         dataframe_pipes = pd.concat([net.pipe, net.res_pipe], axis=1)
         dataframe_junctions = pd.concat([net.junction, net.res_junction], axis=1)
 
-        for kanal in dataframe_distribution_network_exhaust_air["Kante"]:
+        for kanal in dataframe_distribution_network_exhaust_air["edge"]:
             p_from_pa = int(dataframe_pipes.loc[dataframe_pipes["name"] == str(kanal), "p_from_bar"].iloc[0] * 100000)
             p_to_pa = int(dataframe_pipes.loc[dataframe_pipes["name"] == str(kanal), "p_to_bar"].iloc[0] * 100000)
 
             dataframe_distribution_network_exhaust_air.loc[
-                dataframe_distribution_network_exhaust_air["Kante"] == kanal, "p_from_pa"] = p_from_pa
+                dataframe_distribution_network_exhaust_air["edge"] == kanal, "p_from_pa"] = p_from_pa
             dataframe_distribution_network_exhaust_air.loc[
-                dataframe_distribution_network_exhaust_air["Kante"] == kanal, "p_to_pa"] = p_to_pa
+                dataframe_distribution_network_exhaust_air["edge"] == kanal, "p_to_pa"] = p_to_pa
 
 
         # Export
@@ -3566,45 +3566,45 @@ class DesignExaustLCA(ITask):
     def raumanbindung(self, cross_section_type, zwischendeckenraum, dataframe_rooms):
 
         # Ermittlung des Kanalquerschnittes
-        dataframe_rooms["Kanalquerschnitt"] = \
+        dataframe_rooms["duct cross section"] = \
             dataframe_rooms.apply(lambda row: self.abmessungen_kanal(cross_section_type,
                                                                      self.notwendiger_kanaldquerschnitt(
-                                                                         row["Volumenstrom"]),
+                                                                         row["Volume_flow"]),
                                                                      zwischendeckenraum),
                                   axis=1
                                   )
 
         # Ermittung der Abmessungen
-        dataframe_rooms['Leitungslänge'] = 2*ureg.meter
-        dataframe_rooms['Durchmesser'] = None
-        dataframe_rooms['Breite'] = None
-        dataframe_rooms['Höhe'] = None
+        dataframe_rooms['duct length'] = 2*ureg.meter
+        dataframe_rooms['diameter'] = None
+        dataframe_rooms['width'] = None
+        dataframe_rooms['height'] = None
 
-        for index, kanalquerschnitt in enumerate(dataframe_rooms["Kanalquerschnitt"]):
+        for index, kanalquerschnitt in enumerate(dataframe_rooms["duct cross section"]):
             if "Ø" in kanalquerschnitt:
-                dataframe_rooms.at[index, 'Durchmesser'] = self.finde_abmessung(kanalquerschnitt)
+                dataframe_rooms.at[index, 'diameter'] = self.finde_abmessung(kanalquerschnitt)
 
             elif "x" in kanalquerschnitt:
-                dataframe_rooms.at[index, 'Breite'] = self.finde_abmessung(kanalquerschnitt)[0]
-                dataframe_rooms.at[index, 'Höhe'] = self.finde_abmessung(kanalquerschnitt)[1]
+                dataframe_rooms.at[index, 'width'] = self.finde_abmessung(kanalquerschnitt)[0]
+                dataframe_rooms.at[index, 'height'] = self.finde_abmessung(kanalquerschnitt)[1]
 
-        dataframe_rooms["Mantelfläche"] = dataframe_rooms.apply(
+        dataframe_rooms["Surface area"] = dataframe_rooms.apply(
             lambda row: self.mantelflaeche_kanal(
                 cross_section_type,
-                self.notwendiger_kanaldquerschnitt(row["Volumenstrom"]),
+                self.notwendiger_kanaldquerschnitt(row["Volume_flow"]),
                 zwischendeckenraum
-            ) * row["Leitungslänge"], axis=1)
+            ) * row["duct length"], axis=1)
 
-        dataframe_rooms["rechnerischer Durchmesser"] = dataframe_rooms.apply(
+        dataframe_rooms["calculated diameter"] = dataframe_rooms.apply(
             lambda row: round(self.rechnerischer_durchmesser(cross_section_type,
-                                                             self.notwendiger_kanaldquerschnitt(row["Volumenstrom"]),
+                                                             self.notwendiger_kanaldquerschnitt(row["Volume_flow"]),
                                                              zwischendeckenraum),
                               2
                               ), axis=1)
 
         # Ermittlung der Blechstärke
-        dataframe_rooms["Blechstärke"] = dataframe_rooms.apply(
-            lambda row: self.blechstaerke(70, row["Kanalquerschnitt"]), axis=1)
+        dataframe_rooms["sheet thickness"] = dataframe_rooms.apply(
+            lambda row: self.blechstaerke(70, row["duct cross section"]), axis=1)
 
         # Überprüfung, ob ein Schalldämpfer erfordlerlich ist
         liste_raeume_schalldaempfer = ["Bed room",
@@ -3636,18 +3636,18 @@ class DesignExaustLCA(ITask):
                                        "Single office",
                                        "office_function"
                                        ]
-        dataframe_rooms['Schalldämpfer'] = dataframe_rooms['Raumart'].apply(
+        dataframe_rooms['silencer'] = dataframe_rooms['room type'].apply(
             lambda x: 1 if x in liste_raeume_schalldaempfer else 0)
 
         # Volumenstromregler
-        dataframe_rooms["Volumenstromregler"] = 1
+        dataframe_rooms["Volume_flow_controller"] = 1
 
         # Berechnung des Blechvolumens
-        dataframe_rooms["Blechvolumen"] = dataframe_rooms["Blechstärke"] * dataframe_rooms[
-            "Mantelfläche"]
+        dataframe_rooms["Sheet volume"] = dataframe_rooms["sheet thickness"] * dataframe_rooms[
+            "Surface area"]
 
         list_dataframe_rooms_blechgewicht = [v * (7850 * ureg.kilogram / ureg.meter ** 3) for v in
-                                             dataframe_rooms["Blechvolumen"]]
+                                             dataframe_rooms["Sheet volume"]]
         # Dichte Stahl 7850 kg/m³
 
         # Berechnung des Blechgewichts
@@ -3656,7 +3656,7 @@ class DesignExaustLCA(ITask):
         return dataframe_rooms
 
     def co2(self,
-            druckverlust,
+            pressure_loss,
             dataframe_rooms,
             dataframe_distribution_network_exhaust_air):
 
@@ -3703,152 +3703,163 @@ class DesignExaustLCA(ITask):
         Berechnung des CO2 des Lüftungsverteilernetztes des Blechs der Zuluft des Verteilernetzes
         """
         # Ermittlung der Blechstärke
-        dataframe_distribution_network_exhaust_air["Blechstärke"] = dataframe_distribution_network_exhaust_air.apply(
-            lambda row: self.blechstaerke(druckverlust, row["Kanalquerschnitt"]), axis=1)
+        dataframe_distribution_network_exhaust_air["sheet thickness"] = dataframe_distribution_network_exhaust_air.apply(
+            lambda row: self.blechstaerke(pressure_loss, row["duct cross section"]), axis=1)
 
         # Berechnung des Blechvolumens
-        dataframe_distribution_network_exhaust_air["Blechvolumen"] = dataframe_distribution_network_exhaust_air[
-                                                                        "Blechstärke"] * \
+        dataframe_distribution_network_exhaust_air["Sheet volume"] = dataframe_distribution_network_exhaust_air[
+                                                                        "sheet thickness"] * \
                                                                     dataframe_distribution_network_exhaust_air[
-                                                                        "Mantelfläche"]
+                                                                        "Surface area"]
 
         list_dataframe_distribution_network_exhaust_air_blechgewicht = [v * (7850 * ureg.kilogram / ureg.meter ** 3) for
                                                                        v
                                                                        in
                                                                        dataframe_distribution_network_exhaust_air[
-                                                                           "Blechvolumen"]]
+                                                                           "Sheet volume"]]
         # Dichte Stahl 7850 kg/m³
 
         # Berechnung des Blechgewichts
         dataframe_distribution_network_exhaust_air[
-            "Blechgewicht"] = list_dataframe_distribution_network_exhaust_air_blechgewicht
+            "Sheet weight"] = [x.magnitude for x in list_dataframe_distribution_network_exhaust_air_blechgewicht]
 
-        # Ermittlung des CO2-Kanal
-        dataframe_distribution_network_exhaust_air["CO2-Kanal"] = dataframe_distribution_network_exhaust_air[
-                                                                     "Blechgewicht"] * (
-                                                                         float(
-                                                                             gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[
-                                                                                 0]["A1-A3"]) + float(
-                                                                     gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0][
-                                                                         "C2"]))
+        # # Ermittlung des CO2-Kanal
+        # dataframe_distribution_network_exhaust_air["CO2-Kanal"] = dataframe_distribution_network_exhaust_air[
+        #                                                              "Blechgewicht"] * (
+        #                                                                  float(
+        #                                                                      gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[
+        #                                                                          0]["A1-A3"]) + float(
+        #                                                              gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0][
+        #                                                                  "C2"]))
 
-        def querschnittsflaeche_kanaldaemmung(row):
+        def cross_sectional_area_duct_insulation(row):
             """
             Berechnet die Querschnittsfläche der Dämmung
-            Abluft bekommt keine Dämmung!
             """
-            querschnittsflaeche = 0
-            if 'Ø' in row['Kanalquerschnitt']:
+            cross_sectional_area = 0
+            if 'Ø' in row['duct cross section']:
                 try:
-                    durchmesser = ureg(row['Durchmesser'])
+                    diameter = ureg(row['diameter'])
                 except AttributeError:
-                    durchmesser = row['Durchmesser']
-                querschnittsflaeche = math.pi * ((durchmesser + 0.04 * ureg.meter) ** 2) / 4 - math.pi * (
-                        durchmesser ** 2) / 4  # 20mm Dämmung des Lüftungskanals nach anerkanten
+                    diameter = row['diameter']
+                cross_sectional_area = math.pi * ((diameter + 0.04 * ureg.meter) ** 2) / 4 - math.pi * (
+                        diameter ** 2) / 4  # 20mm Dämmung des Lüftungskanals nach anerkannten
                 # Regeln der Technik nach Missel Seite 42
 
-            elif 'x' in row['Kanalquerschnitt']:
+            elif 'x' in row['duct cross section']:
                 try:
-                    breite = ureg(row['Breite'])
-                    hoehe = ureg(row['Höhe'])
+                    width = ureg(row['width'])
+                    height = ureg(row['height'])
                 except AttributeError:
-                    breite = row['Breite']
-                    hoehe = row['Höhe']
-                querschnittsflaeche = ((breite + 0.04 * ureg.meter) * (hoehe + 0.04 * ureg.meter)) - (
-                        breite * hoehe)  # 20mm Dämmung des Lüftungskanals nach anerkanten Regeln der Technik nach Missel Seite 42
+                    width = row['width']
+                    height = row['height']
+                cross_sectional_area = ((width + 0.04 * ureg.meter) * (height + 0.04 * ureg.meter)) - (
+                        width * height)  # 20mm Dämmung des Lüftungskanals nach aneredges Regeln der Technik nach Missel Seite 42
 
-            return 0*ureg.meter ** 2 # querschnittsflaeche.to(ureg.meter ** 2)
+            return cross_sectional_area.to(ureg.meter ** 2)
 
-        # Berechnung der Dämmung
+        # Calculation of the insulation
         dataframe_distribution_network_exhaust_air[
-            'Querschnittsfläche Dämmung'] = dataframe_distribution_network_exhaust_air.apply(
-            querschnittsflaeche_kanaldaemmung, axis=1)
+            'Cross-sectional area of insulation'] = dataframe_distribution_network_exhaust_air.apply(
+            cross_sectional_area_duct_insulation, axis=1)
 
-        dataframe_distribution_network_exhaust_air['Volumen Dämmung'] = dataframe_distribution_network_exhaust_air[
-                                                                           'Querschnittsfläche Dämmung'] * \
-                                                                       dataframe_distribution_network_exhaust_air[
-                                                                           'Leitungslänge']
+        list_dataframe_isolation_volume_distribution_network_exhaust_air = list(dataframe_distribution_network_exhaust_air[
+                                                                            'Cross-sectional area of insulation'] * \
+                                                                        dataframe_distribution_network_exhaust_air[
+                                                                            'duct length'])
 
-        gwp_daemmung = (
-                121.8 * ureg.kilogram / ureg.meter ** 3 + 1.96 * ureg.kilogram / ureg.meter ** 3 + 10.21 * ureg.kilogram / ureg.meter ** 3)
+        dataframe_distribution_network_exhaust_air['Isolation volume'] = [x.magnitude for x in list_dataframe_isolation_volume_distribution_network_exhaust_air]
+        # gwp_isulation = (
+        #             121.8 * ureg.kilogram / ureg.meter ** 3 + 1.96 * ureg.kilogram / ureg.meter ** 3 + 10.21 * ureg.kilogram / ureg.meter ** 3)
         # https://www.oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?lang=de&uuid=eca9691f-06d7-48a7-94a9-ea808e2d67e8
 
-        list_dataframe_distribution_network_exhaust_air_CO2_kanaldaemmung = [v * gwp_daemmung for v in
-                                                                            dataframe_distribution_network_exhaust_air[
-                                                                                "Volumen Dämmung"]]
-
-        dataframe_distribution_network_exhaust_air[
-            "CO2-Kanaldämmung"] = list_dataframe_distribution_network_exhaust_air_CO2_kanaldaemmung
+        # list_dataframe_distribution_network_exhaust_air_CO2_duct_isolation = [v * gwp_isulation for v in
+        #                                                                     dataframe_distribution_network_exhaust_air[
+        #                                                                         "Isolation volume"]]
+        #
+        # dataframe_distribution_network_exhaust_air[
+        #     "CO2 Duct Isolation"] = list_dataframe_distribution_network_exhaust_air_CO2_duct_isolation
 
         # Export to Excel
         dataframe_distribution_network_exhaust_air.to_excel(
             self.paths.export / 'ventilation system' / 'exhaust air' / 'dataframe_exhaust_air.xlsx', index=False)
 
         """
-        Berechnung des CO2 für die Raumanbindung
+        Berechnung des CO2 für die room_connection
         """
         # Ermittlung des CO2-Kanal
-        dataframe_rooms["CO2-Kanal"] = dataframe_rooms["Blechgewicht"] * (float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0][
-                                         "A1-A3"]) + float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"])
-                               )
+        # dataframe_rooms["CO2-Kanal"] = dataframe_rooms["Sheet weight"] * (
+        #             float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0][
+        #                       "A1-A3"]) + float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
 
-
-        # Vordefinierte Daten für Trox RN Volumenstromregler
+        # Vordefinierte Daten für Trox RN Volume_flow_controller
         # https://cdn.trox.de/4ab7c57caaf55be6/3450dc5eb9d7/TVR_PD_2022_08_03_DE_de.pdf
-        trox_tvr_durchmesser_gewicht = {
-            'Durchmesser': [100*ureg.millimeter, 125*ureg.millimeter, 160*ureg.millimeter, 200*ureg.millimeter, 250*ureg.millimeter, 315*ureg.millimeter, 400*ureg.millimeter],
-            'Gewicht': [3.3*ureg.kilogram, 3.6*ureg.kilogram, 4.2*ureg.kilogram, 5.1*ureg.kilogram, 6.1*ureg.kilogram, 7.2*ureg.kilogram, 9.4*ureg.kilogram]
+        trox_tvr_diameter_gewicht = {
+            'diameter': [100 * ureg.millimeter, 125 * ureg.millimeter, 160 * ureg.millimeter, 200 * ureg.millimeter,
+                            250 * ureg.millimeter, 315 * ureg.millimeter, 400 * ureg.millimeter],
+            'Gewicht': [3.3 * ureg.kilogram, 3.6 * ureg.kilogram, 4.2 * ureg.kilogram, 5.1 * ureg.kilogram,
+                        6.1 * ureg.kilogram, 7.2 * ureg.kilogram, 9.4 * ureg.kilogram]
         }
-        df_trox_tvr_durchmesser_gewicht = pd.DataFrame(trox_tvr_durchmesser_gewicht)
+        df_trox_tvr_diameter_gewicht = pd.DataFrame(trox_tvr_diameter_gewicht)
 
         # Funktion, um das nächstgrößere Gewicht zu finden
         def gewicht_runde_volumenstromregler(row):
-            if row['Volumenstromregler'] == 1 and 'Ø' in row['Kanalquerschnitt']:
-                rechnerischer_durchmesser = row['rechnerischer Durchmesser']
-                next_durchmesser = df_trox_tvr_durchmesser_gewicht[
-                    df_trox_tvr_durchmesser_gewicht['Durchmesser'] >= rechnerischer_durchmesser]['Durchmesser'].min()
+            if row['Volume_flow_controller'] == 1 and 'Ø' in row['duct cross section']:
+                calculated_diameter = row['calculated diameter']
+                next_diameter = df_trox_tvr_diameter_gewicht[
+                    df_trox_tvr_diameter_gewicht['diameter'] >= calculated_diameter]['diameter'].min()
                 return \
-                    df_trox_tvr_durchmesser_gewicht[df_trox_tvr_durchmesser_gewicht['Durchmesser'] == next_durchmesser][
+                    df_trox_tvr_diameter_gewicht[df_trox_tvr_diameter_gewicht['diameter'] == next_diameter][
                         'Gewicht'].values[0]
             return None
 
-        # Tabelle mit Breite, Höhe und Gewicht für Trox TVJ Volumenstromregler
+        # Tabelle mit width, Höhe und Gewicht für Trox TVJ Volume_flow_controller
         # https://cdn.trox.de/502e3cb43dff27e2/af9a822951e1/TVJ_PD_2021_07_19_DE_de.pdf
-        df_trox_tvj_durchmesser_gewicht = pd.DataFrame({
-            'Breite': [200*ureg.millimeter, 300*ureg.millimeter, 400*ureg.millimeter, 500*ureg.millimeter, 600*ureg.millimeter,
+        df_trox_tvj_diameter_gewicht = pd.DataFrame({
+            'width': [200 * ureg.millimeter, 300 * ureg.millimeter, 400 * ureg.millimeter, 500 * ureg.millimeter,
+                       600 * ureg.millimeter,
 
-                       200 * ureg.millimeter, 300 * ureg.millimeter, 400 * ureg.millimeter, 500 * ureg.millimeter, 600 * ureg.millimeter, 700 * ureg.millimeter, 800 * ureg.millimeter,
+                       200 * ureg.millimeter, 300 * ureg.millimeter, 400 * ureg.millimeter, 500 * ureg.millimeter,
+                       600 * ureg.millimeter, 700 * ureg.millimeter, 800 * ureg.millimeter,
 
-                       300*ureg.millimeter, 400*ureg.millimeter, 500*ureg.millimeter, 600*ureg.millimeter, 700*ureg.millimeter, 800*ureg.millimeter, 900*ureg.millimeter, 1000*ureg.millimeter,
+                       300 * ureg.millimeter, 400 * ureg.millimeter, 500 * ureg.millimeter, 600 * ureg.millimeter,
+                       700 * ureg.millimeter, 800 * ureg.millimeter, 900 * ureg.millimeter, 1000 * ureg.millimeter,
 
-                       400 * ureg.millimeter, 500*ureg.millimeter, 600*ureg.millimeter, 700*ureg.millimeter, 800*ureg.millimeter, 900*ureg.millimeter, 1000*ureg.millimeter
+                       400 * ureg.millimeter, 500 * ureg.millimeter, 600 * ureg.millimeter, 700 * ureg.millimeter,
+                       800 * ureg.millimeter, 900 * ureg.millimeter, 1000 * ureg.millimeter
                        ],
 
-            'Höhe': [100*ureg.millimeter, 100*ureg.millimeter, 100*ureg.millimeter, 100*ureg.millimeter, 100*ureg.millimeter,
+            'height': [100 * ureg.millimeter, 100 * ureg.millimeter, 100 * ureg.millimeter, 100 * ureg.millimeter,
+                     100 * ureg.millimeter,
 
-                     200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter,
+                     200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter,
+                     200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter,
 
+                     300 * ureg.millimeter, 300 * ureg.millimeter, 300 * ureg.millimeter, 300 * ureg.millimeter,
+                     300 * ureg.millimeter, 300 * ureg.millimeter, 300 * ureg.millimeter, 300 * ureg.millimeter,
 
-                     300*ureg.millimeter, 300*ureg.millimeter, 300*ureg.millimeter, 300*ureg.millimeter, 300*ureg.millimeter, 300*ureg.millimeter, 300*ureg.millimeter, 300*ureg.millimeter,
-
-                     400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter
+                     400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter,
+                     400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter
                      ],
 
-            'Gewicht': [6*ureg.kilogram, 7*ureg.kilogram, 8*ureg.kilogram, 9*ureg.kilogram, 10*ureg.kilogram,
-                        9*ureg.kilogram, 10*ureg.kilogram, 11*ureg.kilogram, 12*ureg.kilogram, 13*ureg.kilogram, 14*ureg.kilogram, 15*ureg.kilogram,
-                        10*ureg.kilogram, 11*ureg.kilogram, 12*ureg.kilogram, 13*ureg.kilogram, 15*ureg.kilogram, 16*ureg.kilogram, 18*ureg.kilogram, 19*ureg.kilogram,
-                        14*ureg.kilogram, 15*ureg.kilogram, 16*ureg.kilogram, 17*ureg.kilogram, 18*ureg.kilogram, 21*ureg.kilogram, 20*ureg.kilogram]
+            'Gewicht': [6 * ureg.kilogram, 7 * ureg.kilogram, 8 * ureg.kilogram, 9 * ureg.kilogram, 10 * ureg.kilogram,
+                        9 * ureg.kilogram, 10 * ureg.kilogram, 11 * ureg.kilogram, 12 * ureg.kilogram,
+                        13 * ureg.kilogram, 14 * ureg.kilogram, 15 * ureg.kilogram,
+                        10 * ureg.kilogram, 11 * ureg.kilogram, 12 * ureg.kilogram, 13 * ureg.kilogram,
+                        15 * ureg.kilogram, 16 * ureg.kilogram, 18 * ureg.kilogram, 19 * ureg.kilogram,
+                        14 * ureg.kilogram, 15 * ureg.kilogram, 16 * ureg.kilogram, 17 * ureg.kilogram,
+                        18 * ureg.kilogram, 21 * ureg.kilogram, 20 * ureg.kilogram]
         })
 
         # Funktion, um das entsprechende oder nächstgrößere Gewicht zu finden
-        def gewicht_eckige_volumenstromregler(row):
-            if row['Volumenstromregler'] == 1 and 'x' in row['Kanalquerschnitt']:
-                breite, hoehe = row['Breite'], row['Höhe']
-                passende_zeilen = df_trox_tvj_durchmesser_gewicht[
-                    (df_trox_tvj_durchmesser_gewicht['Breite'] >= breite) & (
-                            df_trox_tvj_durchmesser_gewicht['Höhe'] >= hoehe)]
+        def gewicht_angulare_volumenstromregler(row):
+            if row['Volume_flow_controller'] == 1 and 'x' in row['duct cross section']:
+                width, height = row['width'], row['height']
+                passende_zeilen = df_trox_tvj_diameter_gewicht[
+                    (df_trox_tvj_diameter_gewicht['width'] >= width) & (
+                            df_trox_tvj_diameter_gewicht['height'] >= height)]
                 if not passende_zeilen.empty:
-                    return passende_zeilen.sort_values(by=['Breite', 'Höhe', 'Gewicht']).iloc[0]['Gewicht']
+                    return passende_zeilen.sort_values(by=['width', 'height', 'Gewicht']).iloc[0]['Gewicht']
             return None
 
         # Kombinierte Funktion, die beide Funktionen ausführt
@@ -3856,28 +3867,29 @@ class DesignExaustLCA(ITask):
             gewicht_rn = gewicht_runde_volumenstromregler(row)
             if gewicht_rn is not None:
                 return gewicht_rn
-            return gewicht_eckige_volumenstromregler(row)
+            return gewicht_angulare_volumenstromregler(row)
 
         # Anwenden der Funktion auf jede Zeile
-        dataframe_rooms['Gewicht Volumenstromregler'] = dataframe_rooms.apply(gewicht_volumenstromregler, axis=1)
+        dataframe_rooms['Gewicht Volume_flow_controller'] = dataframe_rooms.apply(gewicht_volumenstromregler, axis=1)
 
-        dataframe_rooms["CO2-Volumenstromregler"] = dataframe_rooms['Gewicht Volumenstromregler'] * (
-                19.08 + 0.01129 + 0.647) * 0.348432
+        # dataframe_rooms["CO2-Volume_flow_controller"] = dataframe_rooms['Gewicht Volume_flow_controller'] * (
+        #         19.08 + 0.01129 + 0.647) * 0.348432
         # Nach Ökobaudat https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=29e922f6-d872-4a67-b579-38bb8cd82abf&version=00.02.000&stock=OBD_2023_I&lang=de
 
         # CO2 für Schallfämpfer
         # Tabelle Daten für Berechnung nach Trox CA
-        durchmesser_tabelle = pd.DataFrame({
-            'Durchmesser': [80 * ureg.millimeter, 100 * ureg.millimeter, 125 * ureg.millimeter, 160 * ureg.millimeter,
+        # https://cdn.trox.de/97af1ba558b3669e/e3aa6ed495df/CA_PD_2023_04_26_DE_de.pdf
+        diameter_tabelle = pd.DataFrame({
+            'diameter': [80 * ureg.millimeter, 100 * ureg.millimeter, 125 * ureg.millimeter, 160 * ureg.millimeter,
                             200 * ureg.millimeter, 250 * ureg.millimeter, 315 * ureg.millimeter, 400 * ureg.millimeter,
                             450 * ureg.millimeter, 500 * ureg.millimeter, 560 * ureg.millimeter, 630 * ureg.millimeter,
                             710 * ureg.millimeter, 800 * ureg.millimeter],
-            'Innendurchmesser': [80 * ureg.millimeter, 100 * ureg.millimeter, 125 * ureg.millimeter,
+            'Innendiameter': [80 * ureg.millimeter, 100 * ureg.millimeter, 125 * ureg.millimeter,
                                  160 * ureg.millimeter, 200 * ureg.millimeter, 250 * ureg.millimeter,
                                  315 * ureg.millimeter, 400 * ureg.millimeter, 450 * ureg.millimeter,
                                  500 * ureg.millimeter, 560 * ureg.millimeter, 630 * ureg.millimeter,
                                  710 * ureg.millimeter, 800 * ureg.millimeter],
-            'Aussendurchmesser': [184 * ureg.millimeter, 204 * ureg.millimeter, 228 * ureg.millimeter,
+            'Aussendiameter': [184 * ureg.millimeter, 204 * ureg.millimeter, 228 * ureg.millimeter,
                                   254 * ureg.millimeter, 304 * ureg.millimeter, 354 * ureg.millimeter,
                                   405 * ureg.millimeter, 505 * ureg.millimeter, 636 * ureg.millimeter,
                                   716 * ureg.millimeter, 806 * ureg.millimeter, 806 * ureg.millimeter,
@@ -3886,35 +3898,35 @@ class DesignExaustLCA(ITask):
 
         # Funktion zur Berechnung der Fläche des Kreisrings
         def volumen_daemmung_schalldaempfer(row):
-            rechnerischer_durchmesser = row['rechnerischer Durchmesser']
-            passende_zeilen = durchmesser_tabelle[durchmesser_tabelle['Durchmesser'] >= rechnerischer_durchmesser]
+            calculated_diameter = row['calculated diameter']
+            passende_zeilen = diameter_tabelle[diameter_tabelle['diameter'] >= calculated_diameter]
             if not passende_zeilen.empty:
-                naechster_durchmesser = passende_zeilen.iloc[0]
-                innen = naechster_durchmesser['Innendurchmesser']
-                aussen = naechster_durchmesser['Aussendurchmesser']
+                naechster_diameter = passende_zeilen.iloc[0]
+                innen = naechster_diameter['Innendiameter']
+                aussen = naechster_diameter['Aussendiameter']
                 volumen = math.pi * (aussen ** 2 - innen ** 2) / 4 * 0.88 * ureg.meter  # Für einen Meter Länge des
                 # Schalldämpfers, entspricht nach Datenblatt einer Länge des Dämmkerns von 0.88m,
-                return volumen.to(ureg.meter**3)
+                return volumen.to(ureg.meter ** 3)
             return None
 
         # Gewicht Dämmung Schalldämpfer
-        dataframe_rooms['Volumen Dämmung Schalldämpfer'] = dataframe_rooms.apply(volumen_daemmung_schalldaempfer,
+        dataframe_rooms['Isolation volume silencer'] = dataframe_rooms.apply(volumen_daemmung_schalldaempfer,
                                                                                  axis=1)
 
-        gwp_daemmung_schalldaempfer = (117.4 + 2.132 + 18.43) * (ureg.kilogram / (ureg.meter ** 3))
+        # gwp_daemmung_schalldaempfer = (117.4 + 2.132 + 18.43) * (ureg.kilogram / (ureg.meter ** 3))
         # https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=89b4bfdf-8587-48ae-9178-33194f6d1314&version=00.02.000&stock=OBD_2023_I&lang=de
 
-        list_dataframe_distribution_network_exhaust_air_CO2_schalldaempferdaemmung = [v * gwp_daemmung_schalldaempfer for
-                                                                                     v in dataframe_rooms[
-                                                                                         "Volumen Dämmung Schalldämpfer"]]
+        # list_dataframe_distribution_network_exhaust_air_CO2_schalldaempferdaemmung = [v * gwp_daemmung_schalldaempfer for
+        #                                                                              v in dataframe_rooms[
+        #                                                                                  "Volumen Dämmung Schalldämpfer"]]
 
-        dataframe_rooms[
-            "CO2-Dämmung Schalldämpfer"] = list_dataframe_distribution_network_exhaust_air_CO2_schalldaempferdaemmung
+        # dataframe_rooms[
+        #     "CO2-Dämmung Schalldämpfer"] = list_dataframe_distribution_network_exhaust_air_CO2_schalldaempferdaemmung
 
         # Gewicht des Metalls des Schalldämpfers für Trox CA für Packungsdicke 50 bis 400mm danach Packungsdicke 100
         # vordefinierte Daten für Trox CA Schalldämpfer
         trox_ca_durchmesser_gewicht = {
-            'Durchmesser': [80 * ureg.millimeter, 100 * ureg.millimeter, 125 * ureg.millimeter, 160 * ureg.millimeter,
+            'diameter': [80 * ureg.millimeter, 100 * ureg.millimeter, 125 * ureg.millimeter, 160 * ureg.millimeter,
                             200 * ureg.millimeter, 250 * ureg.millimeter, 315 * ureg.millimeter, 400 * ureg.millimeter,
                             450 * ureg.millimeter, 500 * ureg.millimeter, 560 * ureg.millimeter, 630 * ureg.millimeter,
                             710 * ureg.millimeter, 800 * ureg.millimeter],
@@ -3923,53 +3935,51 @@ class DesignExaustLCA(ITask):
                         28 * ureg.kilogram, 45 * ureg.kilogram * 2 / 3, 47 * ureg.kilogram * 2 / 3,
                         54 * ureg.kilogram * 2 / 3, 62 * ureg.kilogram * 2 / 3]
         }
-        df_trox_ca_durchmesser_gewicht = pd.DataFrame(trox_ca_durchmesser_gewicht)
+        df_trox_ca_diameter_gewicht = pd.DataFrame(trox_ca_durchmesser_gewicht)
 
         # Funktion, um das nächstgrößere Gewicht zu finden
         def gewicht_schalldaempfer_ohne_daemmung(row):
-            if row['Schalldämpfer'] == 1:
-                rechnerischer_durchmesser = row['rechnerischer Durchmesser']
-                passende_zeilen = df_trox_ca_durchmesser_gewicht[
-                    df_trox_ca_durchmesser_gewicht['Durchmesser'] >= rechnerischer_durchmesser]
+            if row['silencer'] == 1:
+                calculated_diameter = row['calculated diameter']
+                passende_zeilen = df_trox_ca_diameter_gewicht[
+                    df_trox_ca_diameter_gewicht['diameter'] >= calculated_diameter]
                 if not passende_zeilen.empty:
-                    next_durchmesser = passende_zeilen['Durchmesser'].min()
+                    next_diameter = passende_zeilen['diameter'].min()
                     gewicht_schalldaempfer = \
-                        df_trox_ca_durchmesser_gewicht[
-                            df_trox_ca_durchmesser_gewicht['Durchmesser'] == next_durchmesser][
+                        df_trox_ca_diameter_gewicht[
+                            df_trox_ca_diameter_gewicht['diameter'] == next_diameter][
                             'Gewicht'].values[0]
                     daemmung_gewicht = row[
-                        "Gewicht Dämmung Schalldämpfer"] if "Gewicht Dämmung Schalldämpfer" in row and not pd.isnull(
-                        row["Gewicht Dämmung Schalldämpfer"]) else 0
+                        "Gewicht Dämmung silencer"] if "Gewicht Dämmung silencer" in row and not pd.isnull(
+                        row["Gewicht Dämmung silencer"]) else 0
                     return gewicht_schalldaempfer - daemmung_gewicht
             return None
 
-        dataframe_rooms['Gewicht Blech Schalldämpfer'] = dataframe_rooms.apply(gewicht_schalldaempfer_ohne_daemmung,
+        dataframe_rooms['Gewicht Blech silencer'] = dataframe_rooms.apply(gewicht_schalldaempfer_ohne_daemmung,
                                                                                axis=1)
 
-        dataframe_rooms["CO2-Blech Schalldämfer"] = dataframe_rooms["Gewicht Blech Schalldämpfer"] * (
-                float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["A1-A3"]) + float(
-            gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
+        # dataframe_rooms["CO2-Blech Schalldämfer"] = dataframe_rooms["Gewicht Blech silencer"] * (
+        #         float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["A1-A3"]) + float(
+        #     gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
 
         # Berechnung der Dämmung
-        dataframe_rooms['Querschnittsfläche Dämmung'] = dataframe_rooms.apply(querschnittsflaeche_kanaldaemmung,
+        dataframe_rooms['Cross-sectional area of insulation'] = dataframe_rooms.apply(cross_sectional_area_duct_insulation,
                                                                               axis=1)
 
-        dataframe_rooms['Volumen Dämmung'] = dataframe_rooms['Querschnittsfläche Dämmung'] * dataframe_rooms[
-            'Leitungslänge']
+        dataframe_rooms['Isolation volume'] = dataframe_rooms['Cross-sectional area of insulation'] * dataframe_rooms[
+            'duct length']
 
-        gwp_kanaldaemmung = (
-                    121.8 * (ureg.kilogram / ureg.meter ** 3) + 1.96 * (ureg.kilogram / ureg.meter ** 3) + 10.21 * (
-                        ureg.kilogram / ureg.meter ** 3))
-        # https://www.oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?lang=de&uuid=eca9691f-06d7-48a7-94a9-ea808e2d67e8
-
-        list_dataframe_rooms_CO2_kanaldaemmung = [v * gwp_kanaldaemmung for v in dataframe_rooms["Volumen Dämmung"]]
-
-        dataframe_rooms['CO2-Kanaldämmung'] = list_dataframe_rooms_CO2_kanaldaemmung
-
+        # gwp_kanaldaemmung = (
+        #             121.8 * (ureg.kilogram / ureg.meter ** 3) + 1.96 * (ureg.kilogram / ureg.meter ** 3) + 10.21 * (
+        #                 ureg.kilogram / ureg.meter ** 3))
+        # # https://www.oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?lang=de&uuid=eca9691f-06d7-48a7-94a9-ea808e2d67e8
+        #
+        # list_dataframe_rooms_CO2_kanaldaemmung = [v * gwp_kanaldaemmung for v in dataframe_rooms["Isolation volume"]]
+        #
+        # dataframe_rooms['CO2 Duct Isolation'] = list_dataframe_rooms_CO2_kanaldaemmung
 
 
         # Export to Excel
-        dataframe_rooms.to_excel(self.paths.export / 'ventilation system' / 'exhaust air' / 'dataframe_rooms.xlsx',
-        index=False)
+        dataframe_rooms.to_excel(self.paths.export / 'ventilation system' / 'exhaust air' / 'dataframe_rooms.xlsx', index=False)
 
-        return druckverlust, dataframe_rooms, dataframe_distribution_network_exhaust_air
+        return pressure_loss, dataframe_rooms, dataframe_distribution_network_exhaust_air

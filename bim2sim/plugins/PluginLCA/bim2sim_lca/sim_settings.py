@@ -23,7 +23,12 @@ class LCAExportSettings(BuildingSimSettings):
     )
     calculate_lca_hydraulic_system = BooleanSetting(
         default=True,
-        description='Whether to calculate lca of building or not',
+        description='Whether to calculate lca of hydraulic system or not',
+        for_frontend=True
+    )
+    calculate_lca_ventilation_system = BooleanSetting(
+        default=True,
+        description='Whether to calculate lca of ventilation system or not',
         for_frontend=True
     )
     pipe_type = ChoiceSetting(
@@ -62,5 +67,19 @@ class LCAExportSettings(BuildingSimSettings):
         description='Path to the excel file which holds information'
                     'about used material in hydraulic system'
                     '(Output of PluginHydraulicSystem)',
+        for_frontend=True
+    )
+    ventilation_supply_system_material_xlsx = PathSetting(
+        default=None,
+        description='Path to the excel file which holds information'
+                    'about used material in ventilation supply system'
+                    '(Output of PluginVentilationSystem)',
+        for_frontend=True
+    )
+    ventilation_exhaust_system_material_xlsx = PathSetting(
+        default=None,
+        description='Path to the excel file which holds information'
+                    'about used material in ventilation exhaust system'
+                    '(Output of PluginVentilationSystem)',
         for_frontend=True
     )

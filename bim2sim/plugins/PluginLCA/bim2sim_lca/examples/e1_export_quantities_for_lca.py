@@ -41,19 +41,22 @@ def run_example_complex_building_lca():
     project = Project.create(project_path, ifc_paths, 'lca')
 
     # set weather file data
-    project.sim_settings.weather_file_path = (
-            Path(bim2sim.__file__).parent.parent /
-            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+    project.sim_settings.weather_file_path = Path(
+        r"D:\02_Git\Dissertation_Coding\outer_optimization\clustering\DEU_NW_Aachen.105010_TMYx.mos")
 
     project.sim_settings.update_emission_parameter_from_oekobdauat = False
     project.sim_settings.calculate_lca_building = False
     project.sim_settings.calculate_lca_hydraulic_system = False
+    project.sim_settings.calculate_lca_ventilation_system = True
     project.sim_settings.pipe_type = "Stahlrohr"
 
     project.sim_settings.heat_delivery_type = "UFH"
     project.sim_settings.ufh_pipe_type = "PEX"
 
-    project.sim_settings.hydraulic_system_material_xlsx = project_path / "export" / "hydraulic system" / "material_quantities_hydraulic_system.xlsx"
+    #project.sim_settings.hydraulic_system_material_xlsx = project_path / "export" / "hydraulic system" / "material_quantities_hydraulic_system.xlsx"
+
+    project.sim_settings.ventilation_supply_system_material_xlsx = project_path / "export" / "ventilation system" / "supply air" / "dataframe_supply_air.xlsx"
+    project.sim_settings.ventilation_exhaust_system_material_xlsx = project_path / "export" / "ventilation system" / "exhaust air" / "dataframe_exhaust_air.xlsx"
 
     answers = (2015,)
     handler = DebugDecisionHandler(answers)

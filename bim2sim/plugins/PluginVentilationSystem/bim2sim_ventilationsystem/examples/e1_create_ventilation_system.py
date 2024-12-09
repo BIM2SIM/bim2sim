@@ -34,25 +34,13 @@ def run_example_project_ventilation_system():
     # all under concepts/sim_settings
 
     # set weather file data
-    project.sim_settings.weather_file_path = (
-            Path(bim2sim.__file__).parent.parent /
-            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+    project.sim_settings.weather_file_path = Path(r"D:\02_Git\Dissertation_Coding\outer_optimization\clustering\DEU_NW_Aachen.105010_TMYx.mos")
 
 
-    # Define if exhaust and/or supply air data should be exported
-    project.sim_settings.ventilation_lca_export_airflow = True
-    project.sim_settings.ventilation_lca_export_supply = True
-    project.sim_settings.ventilation_lca_export_exhaust = True
-    project.sim_settings.ventilation_lca_export_system = True
 
-    #project.sim_settings.heating = True
-    #project.sim_settings.cooling = True
-    #project.sim_settings.deactivate_ahu = False
-
-    project.sim_settings.prj_use_conditions = (
-        r"D:\dja-jho\Git\BIM2SIM\bim2sim\assets\enrichment\usage\UseConditions.json")
-    project.sim_settings.prj_custom_usages = (Path(
-        bim2sim.__file__).parent.parent /
+    project.sim_settings.prj_use_conditions = (Path(bim2sim.__file__).parent.parent /
+                                               "bim2sim/assets/enrichment/usage/UseConditions.json")
+    project.sim_settings.prj_custom_usages = (Path(bim2sim.__file__).parent.parent /
                                               "test/resources/arch/custom_usages/"
                                               "customUsagesFM_ARC_DigitalHub_with_SB89.json")
     # Run the project with the ConsoleDecisionHandler. This allows interactive
