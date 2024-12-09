@@ -12,6 +12,8 @@ from bim2sim.elements.bps_elements import (
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import all_subclasses
+from bim2sim.utilities.types import BoundaryOrientation
+
 if TYPE_CHECKING:
     from bim2sim.elements.bps_elements import SpaceBoundary
 
@@ -339,16 +341,16 @@ class DisaggregationCreationAndTypeCheck(ITask):
                 if sb.is_external:
                     if sb.internal_external_type == 'EXTERNAL_EARTH':
                         return GroundFloor
-                    elif sb.top_bottom == 'BOTTOM':
+                    elif sb.top_bottom == BoundaryOrientation.bottom:
                         # Possible failure for overhangs that are external but
                         # have contact to air, because IFC provides
                         # information about "EXTERNAL_EARTH" only in rare cases
                         return GroundFloor
-                    elif sb.top_bottom == 'TOP':
+                    elif sb.top_bottom == BoundaryOrientation.top:
                         return Roof
                     # vertical slabs might occur in IFC but will be mapped to
                     # bim2sim OuterWall
-                    elif sb.top_bottom == "VERTICAL":
+                    elif sb.top_bottom == BoundaryOrientation.vertical:
                         return OuterWall
                     else:
                         self.logger.error(f"Error in type correction of "

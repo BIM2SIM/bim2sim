@@ -1,3 +1,4 @@
 [submodule "test/resources"]
 	path = test/resources
 	url = https://github.com/BIM2SIM/bim2sim-test-resources.git
+    branch = top_bottom_changes
