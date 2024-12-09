@@ -68,7 +68,7 @@ class TEASERSimSettings(BuildingSimSettings):
     )
 
     zoning_criteria = ChoiceSetting(
-        default=ZoningCriteria.usage,
+        default=ZoningCriteria.individual_spaces,
         choices={
             ZoningCriteria.external:
                 'Group all thermal zones that have contact to the exterior'

@@ -9,7 +9,7 @@ import buildingspy.development.regressiontest as u
 import bim2sim
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import RegressionTestBase
-from bim2sim.utilities.types import IFCDomain
+from bim2sim.utilities.types import IFCDomain, ZoningCriteria
 
 logger = logging.getLogger(__name__)
 
@@ -137,6 +137,8 @@ class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
         # FZK Haus as correct IFC types but wrong SB external/internal
         # information
         project.sim_settings.fix_type_mismatches_with_sb = False
+        project.sim_settings.zoning_criteria = (
+            ZoningCriteria.combined_single_zone)
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
