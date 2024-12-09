@@ -164,10 +164,11 @@ occurs, please delete this folder. Be careful, don’t delete anything else.</p>
 <li><p>Create a branch called <code class="docutils literal notranslate"><span class="pre">update_resources_submodule</span></code> from the current <code class="docutils literal notranslate"><span class="pre">development</span></code> branch</p></li>
 <li><p>Checkout this branch on your local device and perform the following commands in the root path:</p>
 <ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">test/resources</span></code> (Go into the submodule directory)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span> <span class="pre">origin</span> <span class="pre">update_test_resources</span></code> (Pull the latest changes of the test resources submodule)</p></li>
+<li><p>open the .gitmodules file in the room of bim2sim and adjust the branch to the test-resources branch (in this case <code class="docutils literal notranslate"><span class="pre">update_test_resources</span></code>)</p></li>
+<li><p>run <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">submodule</span> <span class="pre">update</span> <span class="pre">--init</span> <span class="pre">--recursive</span> <span class="pre">--remote</span></code> in bim2sim root directory (update submodule)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">/test/resources</span></code> and run <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">checkout</span> <span class="pre">update_test_resources</span></code> (checkout the branch)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">../..</span></code> (Go back to parent repo)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">add</span> <span class="pre">test/resources</span></code> (add the changes)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">add</span> <span class="pre">.</span></code> (add the changes)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&quot;Update</span> <span class="pre">submodule</span> <span class="pre">of</span> <span class="pre">test</span> <span class="pre">resources&quot;</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span></code></p></li>
 </ol>
