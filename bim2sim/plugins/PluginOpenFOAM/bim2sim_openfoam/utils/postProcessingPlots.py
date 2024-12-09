@@ -492,23 +492,26 @@ if __name__ == '__main__':
                            max_dir='evaluate_air_volume_max',
                            min_dir='evaluate_air_volume_min',
                            name=str(diss_dir.name+'_volume'))
-                MinMaxPlot(openfoam_dir, min_max_dir=None,
-                           vol_field_dir='person_Person0_average',
-                           max_dir='person_Person0_max',
-                           min_dir='person_Person0_min',
-                           name=str(diss_dir.name+'_Person0')
-                           )
-                # if global_conv_iter:
-                #     analyze_execution_times(openfoam_dir,
-                #                             target_iterations=[global_conv_iter,
-                #                                                'final'])
-                # else:
-                #     analyze_execution_times(openfoam_dir,
-                #                             target_iterations=[1000, 'final'])
-                # fig_temp = add_simulation_times(fig_temp, openfoam_dir,
-                #                                 name=diss_dir.name.replace(
-                #                                     'diss_', ''),
-                #                             number=counter)
+                try:
+                    MinMaxPlot(openfoam_dir, min_max_dir=None,
+                               vol_field_dir='person_Person0_average',
+                               max_dir='person_Person0_max',
+                               min_dir='person_Person0_min',
+                               name=str(diss_dir.name+'_Person0')
+                               )
+                except:
+                    print('No person found!')
+                if global_conv_iter:
+                    analyze_execution_times(openfoam_dir,
+                                            target_iterations=[global_conv_iter,
+                                                               'final'])
+                else:
+                    analyze_execution_times(openfoam_dir,
+                                            target_iterations=[1000, 'final'])
+                fig_temp = add_simulation_times(fig_temp, openfoam_dir,
+                                                name=diss_dir.name.replace(
+                                                    'diss_', ''),
+                                            number=counter)
                 plt.close('all')
                 counter+=1
             except:
