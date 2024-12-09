@@ -28,12 +28,14 @@ class ExportTEASER(ITask):
         # and bim2sim_teaser_mapping_base in CreateResultDF
         export_vars = {
             "HeatingDemands": [
+                "*multizone.PHeater*",
                 "*multizonePostProcessing.PHeater*",
                 'multizonePostProcessing.PHeaterSum',
                 '*multizonePostProcessing.WHeater*',
                 'multizonePostProcessing.WHeaterSum',
                 ],
             "CoolingDemands": [
+                '*multizone.PCooler*',
                 '*multizonePostProcessing.PCooler*',
                 '*multizonePostProcessing.PCoolerSum',
                 '*multizonePostProcessing.WCooler*',
@@ -41,6 +43,7 @@ class ExportTEASER(ITask):
             ],
             "Temperatures": [
                 'weaDat.weaBus.TDryBul',
+                '*multizone.TAir*',
                 '*multizonePostProcessing.TAir*',
                 'multizonePostProcessing.TAirMean',
                 'multizonePostProcessing.TOperativeMean',
