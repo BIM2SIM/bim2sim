@@ -43,17 +43,7 @@ def run_example_1():
 
     # run annual simulation for EnergyPlus
     project.sim_settings.run_full_simulation = True
-    project.sim_settings.sim_results = [
-        "heat_demand_total", "cool_demand_total",
-        "heat_demand_rooms", "cool_demand_rooms",
-        "heat_energy_total", "cool_energy_total",
-        "heat_energy_rooms", "cool_energy_rooms",
-        "operative_temp_rooms", "air_temp_rooms", "air_temp_out",
-        "internal_gains_machines_rooms", "internal_gains_persons_rooms",
-        "internal_gains_lights_rooms",
-        "heat_set_rooms",
-        "cool_set_rooms", "cpu_time"
-    ]
+
     # Set other simulation settings, otherwise all settings are set to default
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
