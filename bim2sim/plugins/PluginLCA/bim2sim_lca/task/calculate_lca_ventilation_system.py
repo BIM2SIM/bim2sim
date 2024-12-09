@@ -8,7 +8,7 @@ from bim2sim.elements.mapping.units import ureg
 class CalculateEmissionVentilationSystem(ITask):
 
     reads = ('material_emission_dict',)
-    touches = ('total_gwp_ventilation_pipe', 'total_gwp_hydraulic_component')
+    touches = ('total_gwp_ventilation_duct', 'total_gwp_ventilation_component')
 
     def run(self, material_emission_dict):
         total_gwp_ventilation_duct = 0

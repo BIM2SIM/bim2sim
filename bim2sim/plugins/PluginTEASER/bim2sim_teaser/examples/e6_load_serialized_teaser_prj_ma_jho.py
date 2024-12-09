@@ -3,6 +3,7 @@ import ast
 import time
 import psutil
 import re
+import threading
 
 from ebcpy import DymolaAPI
 
@@ -12,7 +13,7 @@ from teaser.project import Project
 from teaser.data.dataclass import DataClass
 from teaser.data.utilities import ConstructionData
 
-from bim2sim_teaser.task import CreateTEASER
+from bim2sim.plugins.PluginTEASER.bim2sim_teaser.task import CreateTEASER
 
 import bim2sim
 from bim2sim.utilities.common_functions import download_library
@@ -286,7 +287,10 @@ def simulate_dymola_ebcpy(teaser_prj, prj_export_path, path_aixlib, hvac_params)
 
         return mos_file_path
 
+    lock = threading.Lock()
+
     for bldg in teaser_prj.buildings:
+        lock.acquire()
         # needed because teaser removes special characters
         model_export_name = teaser_prj.name
         dir_model_package = Path(prj_export_path, "Model", model_export_name, "package.mo")
@@ -301,7 +305,6 @@ def simulate_dymola_ebcpy(teaser_prj, prj_export_path, path_aixlib, hvac_params)
                             "output_interval": 3600,
                             "solver": "Cvode",
                             "tolerance": 0.001}
-        n_success = 0
 
         print(f"Starting simulation for model {model_export_name}.")
 
@@ -328,8 +331,10 @@ def simulate_dymola_ebcpy(teaser_prj, prj_export_path, path_aixlib, hvac_params)
 
         dym_api.set_sim_setup(sim_setup=simulation_setup)
         # activate spare solver as TEASER models are mostly sparse
-        dym_api.dymola.ExecuteCommand(
-            "Advanced.SparseActivate=true")
+        dym_api.dymola.ExecuteCommand("Advanced.SparseActivate=true")
+
+        lock.release()
+
         teaser_mat_result_path = dym_api.simulate(
             return_option="savepath",
             savepath=str(sim_results_path / bldg.name),

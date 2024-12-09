@@ -45,7 +45,6 @@ class PlotHydraulicVentilationGraphs(ITask):
             filepath_supply = self.paths.export / "ventilation system" / "supply air" / f"supply_air_floor_Z_{z_value}.json"
             filepath_exhaust = self.paths.export / "ventilation system" / "exhaust air" / f"exhaust_air_floor_Z_{z_value}.json"
 
-            self.lock.acquire()
             with open(filepath_supply, "r") as file:
                 json_data = json.load(file)
                 self.floor_supply_graphs.append(nx.node_link_graph(json_data))
@@ -53,22 +52,18 @@ class PlotHydraulicVentilationGraphs(ITask):
             with open(filepath_exhaust, "r") as file:
                 json_data = json.load(file)
                 self.floor_exhaust_graphs.append(nx.node_link_graph(json_data))
-            self.lock.release()
 
         for z_value in z_values_hydraulic:
             filepath_hydraulic = self.paths.export / "hydraulic system" / f"heating_circle_floor_Z_{z_value}.json"
 
-            self.lock.acquire()
             with open(filepath_hydraulic, "r") as file:
                 json_data = json.load(file)
                 self.floor_heating_graphs.append(nx.node_link_graph(json_data))
-            self.lock.release()
 
         filepath_supply_shaft = self.paths.export / "ventilation system" / "supply air" / "supply_air_shaft.json"
         filepath_exhaust_shaft = self.paths.export / "ventilation system" / "exhaust air" / "exhaust_air_shaft.json"
         filepath_heating_circle = self.paths.export / "hydraulic system" / "heating_circle.json"
 
-        self.lock.acquire()
         with open(filepath_supply_shaft, "r") as file:
             json_data = json.load(file)
             self.shaft_supply_graph = nx.node_link_graph(json_data)
@@ -80,8 +75,6 @@ class PlotHydraulicVentilationGraphs(ITask):
         with open(filepath_heating_circle, "r") as file:
             json_data = json.load(file)
             self.heating_graph = nx.node_link_graph(json_data)
-        self.lock.release()
-
 
     def plot_3d_graph_floor(self, graph_ventilation_supply_air, graph_ventilation_exhaust_air,
                             graph_hydraulic_heating_circle, floor):
