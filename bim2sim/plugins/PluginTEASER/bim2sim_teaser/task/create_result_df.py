@@ -6,6 +6,7 @@ from bim2sim.tasks.base import ITask
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.utilities.common_functions import filter_elements
 
+# Important: if these are adjusted, also adjust export_vars in ExportTEASER
 bim2sim_teaser_mapping_base = {
     "multizonePostProcessing.PHeaterSum": "heat_demand_total",
     "multizonePostProcessing.PHeater[numZones]": "heat_demand_rooms",
@@ -57,6 +58,7 @@ unit_mapping = {
     "heat_set": ureg.kelvin,
     "cool_set": ureg.kelvin,
     "internal_gains": ureg.watt,
+    "cpu_time": ureg.second
 }
 
 
