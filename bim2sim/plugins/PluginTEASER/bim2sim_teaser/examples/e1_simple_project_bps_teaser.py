@@ -51,7 +51,8 @@ def run_example_simple_building_teaser():
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
     # Run a simulation directly with dymola after model creation
-    project.sim_settings.dymola_simulation = False
+    project.sim_settings.dymola_simulation = True
+    project.sim_settings.create_plots = True
     # Select results to output:
     project.sim_settings.sim_results = [
         "heat_demand_total", "cool_demand_total",
@@ -61,9 +62,6 @@ def run_example_simple_building_teaser():
         "operative_temp_rooms", "air_temp_rooms", "air_temp_out",
         "infiltration_rooms"
     ]
-    # FZK Haus has correct IFC typings but faulty SB internal/external
-    # information
-    project.sim_settings.fix_type_mismatches_with_sb = True
 
     # run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming decisions during the model creation process
