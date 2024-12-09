@@ -26,12 +26,16 @@ class CombineThermalZones(ITask):
         self.logger.info("Try to reduce number of thermal zones by combining.")
         if len(tz_elements) == 0:
             self.logger.warning("Found no ThermalZones to combine.")
-        else:
+        # No aggregation for ZoningCriteria.individual_spaces:
+        elif (self.playground.sim_settings.zoning_criteria is not
+              ZoningCriteria.individual_spaces):
             self.combine_tzs_based_on_criteria(tz_elements, elements)
             tz_elements_after = filter_elements(
                 elements, 'ThermalZone')
             self.logger.info(f"Reduced number of ThermalZone elements from"
                              f" {n_zones_before} to  {len(tz_elements_after)}")
+
+
 
     @staticmethod
     def combine_tzs_to_one_zone(thermal_zones: list, elements: dict):
