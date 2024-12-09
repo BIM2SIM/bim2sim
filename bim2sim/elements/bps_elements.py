@@ -34,7 +34,7 @@ from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.common.inner_loop_remover import remove_inner_loops
 from bim2sim.utilities.common_functions import vector_angle, angle_equivalent
 from bim2sim.utilities.pyocc_tools import PyOCCTools
-from bim2sim.utilities.types import IFCDomain
+from bim2sim.utilities.types import IFCDomain, BoundaryOrientation
 
 logger = logging.getLogger(__name__)
 
@@ -332,7 +332,7 @@ class ThermalZone(BPSProduct):
         """get all horizonal SBs in a zone and convert them into a dict with
          key z-height in room and the SB as value."""
         # todo: use only bottom when TOP bottom is working correctly
-        valid = ['TOP', 'BOTTOM']
+        valid = [BoundaryOrientation.top, BoundaryOrientation.bottom]
         leveled_sbs = {}
         for sb in self.sbs_without_corresponding:
             if sb.top_bottom in valid:
@@ -668,90 +668,38 @@ class SpaceBoundary(RelationBased):
         return self.get_bound_area()
 
     @cached_property
-    def top_bottom(self):
+    def top_bottom(self) -> BoundaryOrientation:
         """
-        Determines the vertical position relationship between space boundaries.
+        Determines if a boundary is a top (ceiling/roof) or bottom (floor/slab) element
+        based solely on its normal vector orientation.
 
-        This function analyzes the geometric relationship between space boundaries to classify
-        them as top (ceiling), bottom (floor), or vertical (wall) elements. The classification
-        is based on:
-        1. The boundary's normal vector relative to vertical
-        2. The Z-coordinate comparison with related boundaries
-        3. The angle between the boundary's normal and vertical vector
-
-        The function handles three cases:
-        - Regular boundaries with related bounds
-        - Adiabatic boundaries
-        - Exterior boundaries (using space center as reference)
-
-        Args:
-            self: Space boundary object containing:
-                - bound_normal: Normal vector of the boundary surface
-                - bound_center: Center point of the boundary
-                - related_bound: Reference to related boundary
-                - related_adb_bound: Reference to related adiabatic boundary
-                - bound_thermal_zone: Thermal zone containing the boundary
+        Classification is based on the dot product between the boundary's normal vector
+        and the vertical vector (0, 0, 1):
+        - TOP: when normal points upward (dot product > cos(89°))
+        - BOTTOM: when normal points downward (dot product < cos(91°))
+        - VERTICAL: when normal is perpendicular to vertical (dot product ≈ 0)
 
         Returns:
-            str: Position classification ("TOP", "BOTTOM", or "VERTICAL")
-
-        Note:
-            - Uses a threshold of 89-91 degrees for steep roof classification
-            - Relies on accurate surface normal vectors for angle-based
-            classification
-            - May need adjustment for multi-storey spaces
+            BoundaryOrientation: Enumerated orientation classification
         """
-        vertical_vector = gp_XYZ(0.0, 0.0, 1.0)
-        angle_threshold_top = 89
-        angle_threshold_bottom = 91
-        position_tolerance = 1e-2
-        vertical_tolerance = 1e-3
+        VERTICAL_VECTOR = gp_XYZ(0.0, 0.0, 1.0)
+        VERTICAL_TOLERANCE = 1e-3
+        COS_ANGLE_TOP = math.cos(math.radians(89))
+        COS_ANGLE_BOTTOM = math.cos(math.radians(91))
 
-        def _is_vertical():
-            """Check boundary vertical (perpendicular to vertical vector)."""
-            return abs(
-                self.bound_normal.Dot(vertical_vector)) < vertical_tolerance
-
-        def _classify_by_angle():
-            """Classify boundary based on angle with vertical vector."""
-            normal_dot_vertical = vertical_vector.Dot(self.bound_normal)
-            if normal_dot_vertical < math.cos(
-                    math.radians(angle_threshold_bottom)):
-                return "BOTTOM"
-            elif normal_dot_vertical > math.cos(
-                    math.radians(angle_threshold_top)):
-                return "TOP"
-            return None
-
-        def _get_z_difference(reference_z):
-            """Calculate Z-coordinate difference with reference point."""
-            return self.bound_center.Z() - reference_z
+        normal_dot_vertical = VERTICAL_VECTOR.Dot(self.bound_normal)
 
         # Check if boundary is vertical
-        if _is_vertical():
-            return "VERTICAL"
+        if abs(normal_dot_vertical) < VERTICAL_TOLERANCE:
+            return BoundaryOrientation.vertical
 
-        # Handle regular boundaries with related bounds
-        if self.related_bound is not None:
-            z_diff = _get_z_difference(self.related_bound.bound_center.Z())
-            if z_diff > position_tolerance:
-                return "BOTTOM"
-            elif z_diff < -position_tolerance:
-                return "TOP"
-            return _classify_by_angle()
+        # Classify based on dot product
+        if normal_dot_vertical > COS_ANGLE_TOP:
+            return BoundaryOrientation.top
+        elif normal_dot_vertical < COS_ANGLE_BOTTOM:
+            return BoundaryOrientation.bottom
 
-        # Handle adiabatic boundaries
-        if self.related_adb_bound is not None:
-            return "BOTTOM" if (self.bound_center.Z() >
-                                self.related_adb_bound.bound_center.Z()) \
-                else "TOP"
-
-        # Handle exterior boundaries using space center
-        z_diff = _get_z_difference(self.bound_thermal_zone.space_center.Z())
-        if abs(z_diff) > vertical_tolerance:
-            return "TOP" if z_diff > 0 else "BOTTOM"
-
-        return _classify_by_angle()
+        return BoundaryOrientation.vertical
 
     def get_bound_center(self):
         """ compute center of the bounding box of a space boundary"""
