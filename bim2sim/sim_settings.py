@@ -925,6 +925,13 @@ class BuildingSimSettings(BaseSimSettings):
                     "if template-based values should be used instead.",
         for_frontend=True
     )
+    use_maintained_illuminance = BooleanSetting(
+        default=True,
+        description="Use maintained illuminance required per zone based on "
+                    "DIN V EN 18599 information to calculate internal loads"
+                    "through lighting.",
+        for_frontend=True
+    )
     sim_results = ChoiceSetting(
         default=[
             "heat_demand_total", "cool_demand_total",

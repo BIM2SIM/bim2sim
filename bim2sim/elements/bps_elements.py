@@ -562,7 +562,9 @@ class ThermalZone(BPSProduct):
         description="Decision variable to determine if lighting_power will"
                     " be given by fixed_lighting_power or by calculation "
                     "using the variables maintained_illuminance and "
-                    "lighting_efficiency_lumen."
+                    "lighting_efficiency_lumen. This is not available in IFC "
+                    "and can be set through the sim_setting with equivalent "
+                    "name. "
     )
     lighting_efficiency_lumen = attribute.Attribute(
         description="Lighting efficiency in lm/W_el, in german: Lichtausbeute.",
