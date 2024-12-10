@@ -372,9 +372,14 @@ class SetupHelperBPS(SetupHelper):
             net_area=20,
             gross_area=21,
             width=0.2,
-            orientation=90
+            orientation=90,
+            guid='outerWall001'
         )
-        window_1 = self.element_generator(bps.Window, net_area=2, width=0.1)
+        window_1 = self.element_generator(
+            bps.Window,
+            net_area=2,
+            width=0.1,
+            guid='window001')
         tz_1 = self.get_thermalzone()
         tz_1.bound_elements = [out_wall_1, window_1]
         build_1 = self.element_generator(bps.Building,
@@ -382,8 +387,8 @@ class SetupHelperBPS(SetupHelper):
             # bps.ThermalZone, bound_elements=[out_wall_1])
 
         elements = {
-            out_wall_1.guid : out_wall_1,
-            window_1.guid:window_1,
+            out_wall_1.guid: out_wall_1,
+            window_1.guid: window_1,
             tz_1.guid: tz_1,
             build_1.guid: build_1
         }

@@ -69,45 +69,45 @@ class TestEnrichMaterial(unittest.TestCase):
 
         # Outer wall test data
         ow_layer_1_thickness = elements[
-            '0000000000000000000001'].layerset.layers[0].thickness
+            'outerWall001'].layerset.layers[0].thickness
         ow_layer_2_thickness = elements[
-            '0000000000000000000001'].layerset.layers[1].thickness
+            'outerWall001'].layerset.layers[1].thickness
         ow_layer_1_material_dens = elements[
-            '0000000000000000000001'].layerset.layers[0].material.density
+            'outerWall001'].layerset.layers[0].material.density
         ow_layer_1_material_cp = elements[
-            '0000000000000000000001'].layerset.layers[
+            'outerWall001'].layerset.layers[
             0].material.spec_heat_capacity
         ow_layer_1_material_thermal_conduc = elements[
-            '0000000000000000000001'].layerset.layers[
+            'outerWall001'].layerset.layers[
             0].material.thermal_conduc
         ow_layer_2_material_dens = elements[
-            '0000000000000000000001'].layerset.layers[1].material.density
+            'outerWall001'].layerset.layers[1].material.density
         ow_layer_2_material_cp = elements[
-            '0000000000000000000001'].layerset.layers[
+            'outerWall001'].layerset.layers[
             1].material.spec_heat_capacity
         ow_layer_2_material_thermal_conduc = elements[
-            '0000000000000000000001'].layerset.layers[
+            'outerWall001'].layerset.layers[
             1].material.thermal_conduc
 
         # Window test data
         window_layer_thickness = elements[
-            '0000000000000000000002'].layerset.layers[0].thickness
+            'window001'].layerset.layers[0].thickness
         window_inner_radiation = elements[
-            '0000000000000000000002'].inner_radiation
+            'window001'].inner_radiation
         window_inner_convection = elements[
-            '0000000000000000000002'].inner_convection
+            'window001'].inner_convection
         window_outer_radiation = elements[
-            '0000000000000000000002'].outer_radiation
+            'window001'].outer_radiation
         window_outer_convection = elements[
-            '0000000000000000000002'].outer_convection
+            'window001'].outer_convection
         window_g_value = elements[
-            '0000000000000000000002'].g_value
+            'window001'].g_value
         window_a_conv = elements[
-            '0000000000000000000002'].a_conv
+            'window001'].a_conv
         window_shading_g_total = elements[
-            '0000000000000000000002'].shading_g_total
+            'window001'].shading_g_total
         window_shading_max_irr = elements[
-            '0000000000000000000002'].shading_max_irr
+            'window001'].shading_max_irr
 
         # Assertions
         self.assertEqual(ow_layer_1_thickness_exp, ow_layer_1_thickness)
@@ -163,37 +163,37 @@ class TestEnrichMaterial(unittest.TestCase):
 
         # Outer wall test data
         ow_layer_1_thickness = elements[
-            '0000000000000000000001'].layerset.layers[0].thickness
+            'outerWall001'].layerset.layers[0].thickness
         ow_layer_2_thickness = elements[
-            '0000000000000000000001'].layerset.layers[1].thickness
+            'outerWall001'].layerset.layers[1].thickness
         ow_layer_3_thickness = elements[
-            '0000000000000000000001'].layerset.layers[2].thickness
+            'outerWall001'].layerset.layers[2].thickness
         ow_layer_4_thickness = elements[
-            '0000000000000000000001'].layerset.layers[3].thickness
+            'outerWall001'].layerset.layers[3].thickness
         ow_layer_5_thickness = elements[
-            '0000000000000000000001'].layerset.layers[4].thickness
+            'outerWall001'].layerset.layers[4].thickness
         ow_layer_6_thickness = elements[
-            '0000000000000000000001'].layerset.layers[5].thickness
+            'outerWall001'].layerset.layers[5].thickness
 
         # Window test data
         window_layer_thickness = elements[
-            '0000000000000000000002'].layerset.layers[0].thickness
+            'window001'].layerset.layers[0].thickness
         window_inner_radiation = elements[
-            '0000000000000000000002'].inner_radiation
+            'window001'].inner_radiation
         window_inner_convection = elements[
-            '0000000000000000000002'].inner_convection
+            'window001'].inner_convection
         window_outer_radiation = elements[
-            '0000000000000000000002'].outer_radiation
+            'window001'].outer_radiation
         window_outer_convection = elements[
-            '0000000000000000000002'].outer_convection
+            'window001'].outer_convection
         window_g_value = elements[
-            '0000000000000000000002'].g_value
+            'window001'].g_value
         window_a_conv = elements[
-            '0000000000000000000002'].a_conv
+            'window001'].a_conv
         window_shading_g_total = elements[
-            '0000000000000000000002'].shading_g_total
+            'window001'].shading_g_total
         window_shading_max_irr = elements[
-            '0000000000000000000002'].shading_max_irr
+            'window001'].shading_max_irr
 
         # Assertions for outer wall
         self.assertEqual(ow_layer_1_thickness_exp, ow_layer_1_thickness)
