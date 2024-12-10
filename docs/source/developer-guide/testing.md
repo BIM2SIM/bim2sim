@@ -58,7 +58,7 @@ If test resources needs to be updated, please follow the following procedure:
 5. Checkout this branch on your local device and perform the following commands in the root path:
    1. open the .gitmodules file in the room of bim2sim and adjust the branch to the new test-resources branch (in this case `update_test_resources`)
    2. in bim2sim root directory run `git submodule sync` and afterwards `git submodule update --recursive --remote` (update submodule according to changes in .gitmodules file)
-   3. `git add .` (add the changes)
+   3. `git add .\test\resources .gitmodules` (add the changes)
    4. `git commit -m "Update submodule of test resources"`
    5. `git push`
 6. Wait for the pipeline to run through on your branch, this makes sure that the code runs with the new test resources without issues
