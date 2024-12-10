@@ -15,10 +15,6 @@ def run_example_simple_building_teaser():
     project with the TEASER backend. Sim settings are specified before the
     project is executed with the previously specified settings.
     """
-    # Create the default logging to for quality log and bim2sim main log
-    # (see logging documentation for more information)
-    default_logging_setup()
-
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(tempfile.TemporaryDirectory(
@@ -38,8 +34,7 @@ def run_example_simple_building_teaser():
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
     # combine spaces to thermal zones based on their usage
-    project.sim_settings.zoning_setup = LOD.full
-    project.sim_settings.zoning_criteria = ZoningCriteria.usage
+    project.sim_settings.zoning_criteria = ZoningCriteria.individual_spaces
     # use cooling
     project.sim_settings.cooling = True
     # use set points for heating and cooling from templates
@@ -56,7 +51,8 @@ def run_example_simple_building_teaser():
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
     # Run a simulation directly with dymola after model creation
-    project.sim_settings.dymola_simulation = False
+    project.sim_settings.dymola_simulation = True
+    project.sim_settings.create_plots = True
     # Select results to output:
     project.sim_settings.sim_results = [
         "heat_demand_total", "cool_demand_total",
@@ -66,9 +62,6 @@ def run_example_simple_building_teaser():
         "operative_temp_rooms", "air_temp_rooms", "air_temp_out",
         "infiltration_rooms"
     ]
-    # FZK Haus has correct IFC typings but faulty SB internal/external
-    # information
-    project.sim_settings.fix_type_mismatches_with_sb = True
 
     # run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming decisions during the model creation process

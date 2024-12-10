@@ -20,7 +20,6 @@ def visualize_zoning_of_complex_building():
     """
     # The following is the same as in the example e2, look their if you want to
     # know what happens here
-    default_logging_setup()
     project_path = Path(
         tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
     ifc_paths = {
@@ -34,7 +33,6 @@ def visualize_zoning_of_complex_building():
 
     # we use LOD.medium that means that zones are merged based on
     # zoning_criteria sim_setting
-    project.sim_settings.zoning_setup = LOD.medium
 
     # We don't need a full bim2sim run with simulation to demonstrate this, so
     # we will just run the needed tasks:

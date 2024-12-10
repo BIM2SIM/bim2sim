@@ -34,7 +34,7 @@ from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.common.inner_loop_remover import remove_inner_loops
 from bim2sim.utilities.common_functions import vector_angle, angle_equivalent
 from bim2sim.utilities.pyocc_tools import PyOCCTools
-from bim2sim.utilities.types import IFCDomain
+from bim2sim.utilities.types import IFCDomain, BoundaryOrientation
 
 logger = logging.getLogger(__name__)
 
@@ -332,7 +332,7 @@ class ThermalZone(BPSProduct):
         """get all horizonal SBs in a zone and convert them into a dict with
          key z-height in room and the SB as value."""
         # todo: use only bottom when TOP bottom is working correctly
-        valid = ['TOP', 'BOTTOM']
+        valid = [BoundaryOrientation.top, BoundaryOrientation.bottom]
         leveled_sbs = {}
         for sb in self.sbs_without_corresponding:
             if sb.top_bottom in valid:
@@ -587,20 +587,20 @@ class SpaceBoundary(RelationBased):
         self.bound_thermal_zone = None
         self._elements = elements
 
-    def calc_orientation(self):
-        """
-        calculates the orientation of the spaceboundary, using the relative
-        position of resultant disaggregation
-        """
-        if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement,
-                   'BasisSurface'):
-            axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
-                BasisSurface.Position.Axis.DirectionRatios
-        else:
-            axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
-                Position.Axis.DirectionRatios
-
-        return vector_angle(axis)
+    # def calc_orientation(self):
+    #     """
+    #     calculates the orientation of the spaceboundary, using the relative
+    #     position of resultant disaggregation
+    #     """
+    #     if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement,
+    #                'BasisSurface'):
+    #         axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
+    #             BasisSurface.Position.Axis.DirectionRatios
+    #     else:
+    #         axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
+    #             Position.Axis.DirectionRatios
+    #
+    #     return vector_angle(axis)
 
     def calc_position(self):
         """
@@ -668,74 +668,33 @@ class SpaceBoundary(RelationBased):
         return self.get_bound_area()
 
     @cached_property
-    def top_bottom(self):
+    def top_bottom(self) -> BoundaryOrientation:
         """
-        This function computes, if the center of a space boundary
-        is below (bottom) or above (top) the center of a space.
-        This function is used to distinguish floors and ceilings (IfcSlab).
+        Determines if a boundary is a top (ceiling/roof) or bottom (floor/slab)
+         element based solely on its normal vector orientation.
 
-        If the SB is vertical (Walls etc.) VERTICAL will be returned.
-        :return: top_bottom ("TOP", "BOTTOM", "VERTICAL")
+        Classification is based on the dot product between the boundary's
+        normal vector and the vertical vector (0, 0, 1):
+        - TOP: when normal points upward (dot product > cos(89°))
+        - BOTTOM: when normal points downward (dot product < cos(91°))
+        - VERTICAL: when normal is perpendicular to vertical (dot product ≈ 0)
+
+        Returns:
+            BoundaryOrientation: Enumerated orientation classification
         """
-        top_bottom = None
-        vertical = gp_XYZ(0.0, 0.0, 1.0)
-        # only assign top and bottom for elements, whose
-        # surface normals are not perpendicular to a vertical
-        if -1e-3 < self.bound_normal.Dot(vertical) < 1e-3:
-            top_bottom = "VERTICAL"
-        # is related bounds z-coordinate below current bound(self) then
-        # current bound is a floor (BOTTOM), otherwise a ceiling (TOP)
-        elif self.related_bound != None:
-            if (self.bound_center.Z() - self.related_bound.bound_center.Z()) \
-                    > 1e-2:
-                top_bottom = "BOTTOM"
-            elif (self.bound_center.Z() - self.related_bound.bound_center.Z()) \
-                    < -1e-2:
-                top_bottom = "TOP"
-            else:
-                # caution, this relies on correct surface normals
-                if vertical.Dot(self.bound_normal) < -0.8:
-                    top_bottom = "BOTTOM"
-                elif vertical.Dot(self.bound_normal) > 0.8:
-                    top_bottom = "TOP"
-        # for adiabatic bounds we need no tolerance
-        elif self.related_adb_bound is not None:
-            if self.bound_center.Z() > self.related_adb_bound.bound_center.Z():
-                top_bottom = "BOTTOM"
-            else:
-                top_bottom = "TOP"
-        # if no relating bound exists (exterior boundaries), we use the space
-        # center instead.
-        # TODO: This might fail for multi storey spaces.
-        else:
-            if (self.bound_center.Z() - self.bound_thermal_zone.space_center.Z()) \
-                    > 1e-2:
-                top_bottom = "TOP"
-            elif (self.bound_center.Z() - self.bound_thermal_zone.space_center.Z()) \
-                    < -1e-2:
-                top_bottom = "BOTTOM"
-            else:
-                # caution, this relies on correct surface normals
-                if vertical.Dot(self.bound_normal) < -0.8:
-                    top_bottom = "BOTTOM"
-                elif vertical.Dot(self.bound_normal) > 0.8:
-                    top_bottom = "TOP"
-        return top_bottom
+        vertical_vector = gp_XYZ(0.0, 0.0, 1.0)
+        cos_angle_top = math.cos(math.radians(89))
+        cos_angle_bottom = math.cos(math.radians(91))
 
-    # @staticmethod
-    # def compare_direction_of_normals(normal1, normal2):
-    #     """
-    #     Compare the direction of two surface normals (vectors).
-    #     True, if direction is same or reversed
-    #     :param normal1: first normal (gp_Pnt)
-    #     :param normal2: second normal (gp_Pnt)
-    #     :return: True/False
-    #     """
-    #     dotp = normal1.Dot(normal2)
-    #     check = False
-    #     if 1-1e-2 < dotp ** 2 < 1+1e-2:
-    #         check = True
-    #     return check
+        normal_dot_vertical = vertical_vector.Dot(self.bound_normal)
+
+        # Classify based on dot product
+        if normal_dot_vertical > cos_angle_top:
+            return BoundaryOrientation.top
+        elif normal_dot_vertical < cos_angle_bottom:
+            return BoundaryOrientation.bottom
+
+        return BoundaryOrientation.vertical
 
     def get_bound_center(self):
         """ compute center of the bounding box of a space boundary"""

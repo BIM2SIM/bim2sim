@@ -2,21 +2,22 @@ import tempfile
 from pathlib import Path
 
 import bim2sim
-from bim2sim import Project
+from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.kernel.log import default_logging_setup
-from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
+from bim2sim.tasks import common, bps
 from bim2sim.utilities.common_functions import download_library
+from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
+from bim2sim.plugins.PluginTEASER.bim2sim_teaser import PluginTEASER, \
+    LoadLibrariesTEASER
+import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
 
 
-def run_example_complex_building_teaser():
-    """Run a building performance simulation with PluginTEASER.
-
-    This example creates a BEPS simulation model and performs the simulation
-    in Dymola based on the DigitalHub IFC using PluginTEASER.
-    """
-    # Create a temp directory for the project, feel free to use a "normal"
-    # directory
+def run_serialize_teaser_project_example():
+    """Serialize a TEASER Project for further use."""
+    default_logging_setup()
+    # Create the default logging to for quality log and bim2sim main log
+    # (see logging documentation for more information)
     project_path = Path(
         tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
 
@@ -24,9 +25,8 @@ def run_example_complex_building_teaser():
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc',
+            'test/resources/arch/ifc/AC20-Institute-Var-2.ifc',
     }
-
     # Create a project including the folder structure for the project with
     # teaser as backend and no specified workflow (default workflow is taken)
     project = Project.create(project_path, ifc_paths, 'teaser')
@@ -34,9 +34,12 @@ def run_example_complex_building_teaser():
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
     # combine spaces to thermal zones based on their usage
+
+
+
     project.sim_settings.zoning_criteria = ZoningCriteria.usage
     # use cooling
-    project.sim_settings.cooling = True
+    project.sim_settings.cooling = False
     project.sim_settings.setpoints_from_template = True
 
     project.sim_settings.overwrite_ahu_by_settings = True
@@ -66,6 +69,7 @@ def run_example_complex_building_teaser():
             Path(bim2sim.__file__).parent.parent / "local" / f"library_{repo_name}")
     download_library(repo_url, branch_name, path_aixlib)
     project.sim_settings.path_aixlib = path_aixlib / repo_name / 'package.mo'
+
     # Select results to output:
     project.sim_settings.sim_results = [
         "heat_demand_total", "cool_demand_total",
@@ -78,27 +82,37 @@ def run_example_complex_building_teaser():
         "heat_set_rooms",
         "cool_set_rooms"
     ]
-    project.sim_settings.prj_use_conditions = (Path(
-        bim2sim.__file__).parent.parent /
-            "test/resources/arch/custom_usages/"
-            "UseConditionsFM_ARC_DigitalHub_with_SB89.json")
     project.sim_settings.prj_custom_usages = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
-            "customUsagesFM_ARC_DigitalHub_with_SB89.json")
+            "customUsagesAC20-Institute-Var-2_with_SB-1-0.json")
     # create plots based on the results after simulation
     project.sim_settings.create_plots = True
-
-    # Run the project with pre-configured answers for decisions
-    space_boundary_genenerator = 'Other'
-    handle_proxies = (*(None,) * 12,)
-    construction_year = 2015
-    answers = (space_boundary_genenerator,
-               *handle_proxies,
-               construction_year)
+    project.plugin_cls.default_tasks = [
+        common.LoadIFC,
+        common.CreateElementsOnIfcTypes,
+        bps.CreateSpaceBoundaries,
+        bps.AddSpaceBoundaries2B,
+        bps.CorrectSpaceBoundaries,
+        common.CreateRelations,
+        bps.DisaggregationCreationAndTypeCheck,
+        bps.EnrichMaterial,
+        bps.EnrichUseConditions,
+        bps.CombineThermalZones,
+        common.Weather,
+        LoadLibrariesTEASER,
+        teaser_task.CreateTEASER,
+        teaser_task.SerializeTEASER,
+    ]
+    answers = (2015,)
     handler = DebugDecisionHandler(answers)
     handler.handle(project.run())
 
+    # return the export path and the path of the serialized project json file
+    return (project.paths.export,
+            project.paths.export /
+            f"TEASER/serialized_teaser/{project.name}.json")
+
 
 if __name__ == '__main__':
-    run_example_complex_building_teaser()
+    run_serialize_teaser_project_example()
