@@ -13,6 +13,7 @@ from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone
 from bim2sim.kernel import log
 from bim2sim.elements.base_elements import Element
 from bim2sim.elements.base_elements import Dummy as ElementDummy
+from bim2sim.utilities.types import BoundaryOrientation
 
 lock = Lock()
 
@@ -179,12 +180,12 @@ class TEASERExportInstance:
         else:
             sb_ele = sbs_ele_inside_zone[0]
             top_bottom = sb_ele.top_bottom
-            if top_bottom == 'TOP':
+            if top_bottom == BoundaryOrientation.top:
                 export_cls = Ceiling
-            elif top_bottom == 'BOTTOM':
+            elif top_bottom == BoundaryOrientation.bottom:
                 export_cls = Floor
             # This might be the case of slabs with opening inside a IfcSpace
-            elif top_bottom == 'VERTICAL':
+            elif top_bottom == BoundaryOrientation.vertical:
                 export_cls = Ceiling
             else:
                 logger.error(

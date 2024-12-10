@@ -152,7 +152,6 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.cooling = True
         project.sim_settings.split_bounds = True
         project.sim_settings.add_shadings = True
@@ -174,7 +173,6 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         """Test DigitalHub IFC, includes regression test."""
         ifc_names = {IFCDomain.arch: 'FM_ARC_DigitalHub_with_SB89.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.create_external_elements = True
         project.sim_settings.cooling = True
         project.sim_settings.construction_class_windows = \
