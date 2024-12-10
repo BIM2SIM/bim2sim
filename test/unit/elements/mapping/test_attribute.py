@@ -11,6 +11,9 @@ from bim2sim.utilities.types import AttributeDataSource
 
 
 class TestElement(ProductBased):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.x = 42
     ifc_types = {}
 
     attr1 = Attribute(
@@ -20,17 +23,10 @@ class TestElement(ProductBased):
     attr3 = Attribute()
     attr4 = Attribute()
     attr5 = Attribute(
-        functions=[lambda self, attr:42]
+        functions=[lambda self, attr:self.x]
     )
     attr6 = Attribute(attr_type=str)
     attr7 = Attribute(attr_type=bool)
-
-
-class TestElementDynamicFunction(TestElement):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.x = 5
-    attr8 = Attribute(functions=[lambda self, attr:self.x])
 
 
 class TestAttribute(unittest.TestCase):
@@ -70,7 +66,8 @@ class TestAttribute(unittest.TestCase):
         """Test attribute manager"""
         self.assertIsNone(self.subject.attr1)
 
-        self.assertEqual(7, len(self.subject.attributes), "All Attributes should be registered in AttributeManager")
+        self.assertEqual(7, len(self.subject.attributes),
+                         "All Attributes should be registered in AttributeManager")
 
         self.assertEqual(7, len(list(self.subject.attributes.names)))
 
@@ -138,24 +135,18 @@ class TestAttribute(unittest.TestCase):
         self.subject.reset('attr5')
         self.assertEqual(42, self.subject.attr5)
 
-
-class TestAttributeDynamic(TestAttribute):
-    def setUp(self):
-        self.subject = self.helper.element_generator(
-            TestElementDynamicFunction)
-
     def test_attribute_reset_with_function_change(self):
         """test reset an attribute with a function change in meantime."""
         # check that the attribute is correctly calculated
-        self.assertEqual(5, self.subject.attr8)
+        self.assertEqual(42, self.subject.attr5)
         # change the value based on that the function calculates the attribute
         self.subject.x = 10
         # the calculated value still remains the same
-        self.assertEqual(5, self.subject.attr8)
+        self.assertEqual(42, self.subject.attr5)
         # reset the attribute to make sure that is calculated again
-        self.subject.reset('attr8')
+        self.subject.reset('attr5')
         # check again that the new calculation returns the correct value
-        self.assertEqual(10, self.subject.attr8)
+        self.assertEqual(10, self.subject.attr5)
 
 
 class TestAttributeDecisions(unittest.TestCase):
