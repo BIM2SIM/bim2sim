@@ -98,3 +98,16 @@ class AttributeDataSource(Enum):
     manual_overwrite = auto()
     enrichment = auto()
     space_boundary = auto()
+
+
+class BoundaryOrientation(Enum):
+    """
+    Enumeration for boundary orientations.
+
+    top: Ceilings, roofs (normal points upward)
+    bottom: Floors, slabs (normal points downward)
+    vertical: Walls (normal perpendicular to vertical)
+    """
+    top = auto()
+    bottom = auto()
+    vertical = auto()
