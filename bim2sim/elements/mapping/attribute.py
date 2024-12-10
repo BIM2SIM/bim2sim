@@ -586,6 +586,8 @@ class AttributeManager(dict):
 
     def reset(self, name, data_source=AttributeDataSource.manual_overwrite):
         """Reset attribute, set to None and STATUS_NOT_AVAILABLE."""
+        # TODO this has limitations when the corresponding attribute uses
+        #  functions to calculate the value, see #760 for more information
         try:
             attr = self.get_attribute(name)
         except KeyError:
