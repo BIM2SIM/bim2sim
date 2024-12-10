@@ -1,7 +1,6 @@
 """Module for defining simulation model specific process settings.
 This targets both, settings to set for the later simulation and settings for
-the
-model generation process in bim2sim.
+the model generation process in bim2sim.
 """
 import logging
 import ast
@@ -724,7 +723,8 @@ class BuildingSimSettings(BaseSimSettings):
                                   'tabula standard'
         },
         description="Select the most fitting construction class type for"
-                    "the walls of the selected building.",
+                    "the walls of the selected building. For all settings but "
+                    "kfw_* the  year of construction is required.",
         for_frontend=True
     )
     construction_class_windows = ChoiceSetting(
