@@ -341,12 +341,10 @@ class SetupHelperBPS(SetupHelper):
         element.orientation = orient
         return element
 
-    def get_thermalzone(self, usage='Living'):
+    def get_thermalzone(self, **kwargs):
         tz = self.element_generator(
             bps.ThermalZone,
-            net_area=100,
-            gross_area=110,
-            usage=usage)
+            **kwargs)
         return tz
 
     def get_thermalzones_diff_usage(self, usages: list):
@@ -380,7 +378,10 @@ class SetupHelperBPS(SetupHelper):
             net_area=2,
             width=0.1,
             guid='window001')
-        tz_1 = self.get_thermalzone()
+        tz_1 = self.get_thermalzone(
+            net_area=100,
+            gross_area=110,
+            usage='Living')
         tz_1.bound_elements = [out_wall_1, window_1]
         build_1 = self.element_generator(bps.Building,
                                          bldg_name='simpleTestBuilding', year_of_construction=2010)
