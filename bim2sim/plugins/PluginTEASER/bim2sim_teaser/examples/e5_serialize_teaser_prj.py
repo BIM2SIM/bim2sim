@@ -37,7 +37,6 @@ def run_serialize_teaser_project_example():
 
 
 
-    project.sim_settings.zoning_setup = LOD.medium
     project.sim_settings.zoning_criteria = ZoningCriteria.usage
     # use cooling
     project.sim_settings.cooling = False
