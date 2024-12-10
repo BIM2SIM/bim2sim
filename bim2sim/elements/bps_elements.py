@@ -683,15 +683,10 @@ class SpaceBoundary(RelationBased):
             BoundaryOrientation: Enumerated orientation classification
         """
         vertical_vector = gp_XYZ(0.0, 0.0, 1.0)
-        vertical_tolerance = 1e-3
         cos_angle_top = math.cos(math.radians(89))
         cos_angle_bottom = math.cos(math.radians(91))
 
         normal_dot_vertical = vertical_vector.Dot(self.bound_normal)
-
-        # Check if boundary is vertical
-        if abs(normal_dot_vertical) < vertical_tolerance:
-            return BoundaryOrientation.vertical
 
         # Classify based on dot product
         if normal_dot_vertical > cos_angle_top:
