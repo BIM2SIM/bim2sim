@@ -540,8 +540,8 @@ class ThermalZone(BPSProduct):
             return self.fixed_lighting_power
 
     lighting_power = attribute.Attribute(
-        description="Specific lighting power, if taken from IFC property set"
-                    "a division by thermal zone area is needed.",
+        description="Specific lighting power in W/m2. If taken from IFC"
+                    " property set a division by thermal zone area is needed.",
         default_ps=("Pset_SpaceThermalLoad", "Lighting"),
         ifc_postprocessing=_area_specific_post_processing,
         functions=[_calc_lighting_power],
@@ -549,8 +549,8 @@ class ThermalZone(BPSProduct):
 
     )
     fixed_lighting_power = attribute.Attribute(
-        description="Specific fixed electrical power for lighting in Lx. This "
-                    "value is taken from SIA 2024.",
+        description="Specific fixed electrical power for lighting in W/m2. "
+                    "This value is taken from SIA 2024.",
         unit=ureg.W / (ureg.meter ** 2)
     )
     maintained_illuminance = attribute.Attribute(
