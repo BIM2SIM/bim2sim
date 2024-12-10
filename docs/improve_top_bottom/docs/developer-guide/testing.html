@@ -164,11 +164,9 @@ occurs, please delete this folder. Be careful, don’t delete anything else.</p>
 <li><p>Create a branch called <code class="docutils literal notranslate"><span class="pre">update_resources_submodule</span></code> from the current <code class="docutils literal notranslate"><span class="pre">development</span></code> branch</p></li>
 <li><p>Checkout this branch on your local device and perform the following commands in the root path:</p>
 <ol class="arabic simple">
-<li><p>open the .gitmodules file in the room of bim2sim and adjust the branch to the test-resources branch (in this case <code class="docutils literal notranslate"><span class="pre">update_test_resources</span></code>)</p></li>
-<li><p>run <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">submodule</span> <span class="pre">update</span> <span class="pre">--init</span> <span class="pre">--recursive</span> <span class="pre">--remote</span></code> in bim2sim root directory (update submodule)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">/test/resources</span></code> and run <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">checkout</span> <span class="pre">update_test_resources</span></code> (checkout the branch)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">../..</span></code> (Go back to parent repo)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">add</span> <span class="pre">.</span></code> (add the changes)</p></li>
+<li><p>open the .gitmodules file in the room of bim2sim and adjust the branch to the new test-resources branch (in this case <code class="docutils literal notranslate"><span class="pre">update_test_resources</span></code>)</p></li>
+<li><p>in bim2sim root directory run <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">submodule</span> <span class="pre">sync</span></code> and afterwards <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">submodule</span> <span class="pre">update</span> <span class="pre">--recursive</span> <span class="pre">--remote</span></code> (update submodule according to changes in .gitmodules file)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">add</span> <span class="pre">.\test\resources</span> <span class="pre">.gitmodules</span></code> (add the changes)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&quot;Update</span> <span class="pre">submodule</span> <span class="pre">of</span> <span class="pre">test</span> <span class="pre">resources&quot;</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span></code></p></li>
 </ol>
@@ -188,7 +186,7 @@ occurs, please delete this folder. Be careful, don’t delete anything else.</p>
 <section id="id2">
 <h3><a class="reference external" href="https://github.com/BIM2SIM/bim2sim">Main bim2sim Repository</a><a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
 <ol class="arabic simple" start="11">
-<li><p>Repeat the same steps as under step 6, but this time in step 6.ii use <code class="docutils literal notranslate"><span class="pre">main</span></code> instead <code class="docutils literal notranslate"><span class="pre">update_test_resources</span></code> as branch name</p></li>
+<li><p>Repeat the same steps as under step 6, but this time in step 5.1 use <code class="docutils literal notranslate"><span class="pre">main</span></code> instead <code class="docutils literal notranslate"><span class="pre">update_test_resources</span></code> as branch name</p></li>
 <li><p>again wait for the pipeline to succeed</p></li>
 <li><p>Create a PR to merge <code class="docutils literal notranslate"><span class="pre">update_resources_submodule</span></code> branch in the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch and assign a reviewer</p></li>
 <li><p>If pipeline has passed (what it should) and review is approved merge the PR</p></li>
