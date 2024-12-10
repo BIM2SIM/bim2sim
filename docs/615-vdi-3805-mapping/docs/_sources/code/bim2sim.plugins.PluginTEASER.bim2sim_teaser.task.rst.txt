@@ -41,6 +41,14 @@ bim2sim.plugins.PluginTEASER.bim2sim\_teaser.task.load\_modelica\_results module
    :undoc-members:
    :show-inheritance:
 
+bim2sim.plugins.PluginTEASER.bim2sim\_teaser.task.serialize\_teaser\_prj module
+-------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bim2sim.plugins.PluginTEASER.bim2sim\_teaser.task.simulate\_dymola\_ebcpy module
 --------------------------------------------------------------------------------
 
