@@ -54,9 +54,9 @@
             </div>
         </aside>
         <h2>
-            <span class="text">17 statements &nbsp;</span>
+            <span class="text">16 statements &nbsp;</span>
             <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">0<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">17<span class="text"> missing</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">16<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -64,8 +64,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_86c79c58876cda99_prepare_regression_tests_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.6.8">coverage.py v7.6.8</a>,
-            created at 2024-12-04 10:29 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.6.9">coverage.py v7.6.9</a>,
+            created at 2024-12-10 10:05 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -97,20 +97,17 @@
     <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">        <span class="str">"""Create fresh regression results for the AC20-FZK-Haus.ifc"""</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">        <span class="nam">ifc_names</span> <span class="op">=</span> <span class="op">{</span><span class="nam">IFCDomain</span><span class="op">.</span><span class="nam">arch</span><span class="op">:</span> <span class="str">'AC20-FZK-Haus.ifc'</span><span class="op">}</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">        <span class="nam">project</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">create_project</span><span class="op">(</span><span class="nam">ifc_names</span><span class="op">,</span> <span class="str">'TEASER'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">        <span class="com"># FZK Haus as correct IFC types but wrong SB external/internal</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">        <span class="com"># information</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">        <span class="nam">project</span><span class="op">.</span><span class="nam">sim_settings</span><span class="op">.</span><span class="nam">fix_type_mismatches_with_sb</span> <span class="op">=</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">        <span class="nam">answers</span> <span class="op">=</span> <span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">        <span class="nam">handler</span> <span class="op">=</span> <span class="nam">DebugDecisionHandler</span><span class="op">(</span><span class="nam">answers</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">        <span class="key">for</span> <span class="nam">decision</span><span class="op">,</span> <span class="nam">answer</span> <span class="key">in</span> <span class="nam">handler</span><span class="op">.</span><span class="nam">decision_answer_mapping</span><span class="op">(</span><span class="nam">project</span><span class="op">.</span><span class="nam">run</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">            <span class="nam">decision</span><span class="op">.</span><span class="nam">value</span> <span class="op">=</span> <span class="nam">answer</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">create_regression_setup</span><span class="op">(</span><span class="nam">tolerance</span><span class="op">=</span><span class="num">1E-3</span><span class="op">,</span> <span class="nam">batch_mode</span><span class="op">=</span><span class="key">False</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">create_regression_results</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t"><span class="key">if</span> <span class="nam">__name__</span> <span class="op">==</span> <span class="str">'__main__'</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">    <span class="nam">my_reg</span> <span class="op">=</span> <span class="nam">CreateRegressionResultsTEASER</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">    <span class="nam">my_reg</span><span class="op">.</span><span class="nam">create_regression_results_FZKHaus</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">        <span class="nam">answers</span> <span class="op">=</span> <span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t">        <span class="nam">handler</span> <span class="op">=</span> <span class="nam">DebugDecisionHandler</span><span class="op">(</span><span class="nam">answers</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">        <span class="key">for</span> <span class="nam">decision</span><span class="op">,</span> <span class="nam">answer</span> <span class="key">in</span> <span class="nam">handler</span><span class="op">.</span><span class="nam">decision_answer_mapping</span><span class="op">(</span><span class="nam">project</span><span class="op">.</span><span class="nam">run</span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">            <span class="nam">decision</span><span class="op">.</span><span class="nam">value</span> <span class="op">=</span> <span class="nam">answer</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">create_regression_setup</span><span class="op">(</span><span class="nam">tolerance</span><span class="op">=</span><span class="num">1E-3</span><span class="op">,</span> <span class="nam">batch_mode</span><span class="op">=</span><span class="key">False</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">create_regression_results</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t"><span class="key">if</span> <span class="nam">__name__</span> <span class="op">==</span> <span class="str">'__main__'</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">    <span class="nam">my_reg</span> <span class="op">=</span> <span class="nam">CreateRegressionResultsTEASER</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">    <span class="nam">my_reg</span><span class="op">.</span><span class="nam">create_regression_results_FZKHaus</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -119,8 +116,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_86c79c58876cda99_prepare_regression_tests_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.6.8">coverage.py v7.6.8</a>,
-            created at 2024-12-04 10:29 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.6.9">coverage.py v7.6.9</a>,
+            created at 2024-12-10 10:05 +0000
         </p>
     </div>
 </footer>
