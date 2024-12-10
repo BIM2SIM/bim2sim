@@ -206,7 +206,6 @@ class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
         """Test DigitalHub IFC, includes regression test."""
         ifc_names = {IFCDomain.arch: 'FM_ARC_DigitalHub_with_SB89.ifc'}
         project = self.create_project(ifc_names, 'comfort')
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.create_external_elements = True
         project.sim_settings.cooling = True
         project.sim_settings.construction_class_windows = \
