@@ -343,6 +343,9 @@ class ThermalZone(BPSProduct):
 
         return leveled_sbs
 
+    def _area_specific_post_processing(self, value):
+        return value / self.net_area
+
     def __repr__(self):
         return "<%s (usage: %s)>" \
                % (self.__class__.__name__, self.usage)
@@ -500,10 +503,6 @@ class ThermalZone(BPSProduct):
     )
     with_heating = attribute.Attribute(
     )
-    typical_length = attribute.Attribute(
-    )
-    typical_width = attribute.Attribute(
-    )
     T_threshold_heating = attribute.Attribute(
     )
     activity_degree_persons = attribute.Attribute(
@@ -526,15 +525,52 @@ class ThermalZone(BPSProduct):
         default=0.5,
     )
     machines = attribute.Attribute(
+        description="Specific internal gains through machines, if taken from"
+                    " IFC property set a division by thermal zone area is"
+                    " needed.",
         default_ps=("Pset_SpaceThermalLoad", "EquipmentSensible"),
-        unit=ureg.watt,
+        ifc_postprocessing=_area_specific_post_processing,
+        unit=ureg.W / (ureg.meter ** 2),
     )
+
+    def _calc_lighting_power(self, name) -> float:
+        if self.use_maintained_illuminance:
+            return self.maintained_illuminance / self.lighting_efficiency_lumen
+        else:
+            return self.fixed_lighting_power
+
     lighting_power = attribute.Attribute(
+        description="Specific lighting power in W/m2. If taken from IFC"
+                    " property set a division by thermal zone area is needed.",
         default_ps=("Pset_SpaceThermalLoad", "Lighting"),
-        unit=ureg.W,
+        ifc_postprocessing=_area_specific_post_processing,
+        functions=[_calc_lighting_power],
+        unit=ureg.W / (ureg.meter ** 2),
+
     )
-    use_constant_infiltration = attribute.Attribute(
+    fixed_lighting_power = attribute.Attribute(
+        description="Specific fixed electrical power for lighting in W/m2. "
+                    "This value is taken from SIA 2024.",
+        unit=ureg.W / (ureg.meter ** 2)
     )
+    maintained_illuminance = attribute.Attribute(
+        description="Maintained illuminance value for lighting. This value is"
+                    " taken from SIA 2024.",
+        unit=ureg.lumen / (ureg.meter ** 2)
+    )
+    use_maintained_illuminance = attribute.Attribute(
+        description="Decision variable to determine if lighting_power will"
+                    " be given by fixed_lighting_power or by calculation "
+                    "using the variables maintained_illuminance and "
+                    "lighting_efficiency_lumen. This is not available in IFC "
+                    "and can be set through the sim_setting with equivalent "
+                    "name. "
+    )
+    lighting_efficiency_lumen = attribute.Attribute(
+        description="Lighting efficiency in lm/W_el, in german: Lichtausbeute.",
+        unit=ureg.lumen / ureg.W
+    )
+    use_constant_infiltration = attribute.Attribute()
     infiltration_rate = attribute.Attribute(
     )
     max_user_infiltration = attribute.Attribute(

@@ -148,6 +148,25 @@ class TestAttribute(unittest.TestCase):
         # check again that the new calculation returns the correct value
         self.assertEqual(10, self.subject.attr5)
 
+    def test_attribute_reset(self):
+        """test reset an attribute"""
+        self.assertIsNone(self.subject.attr1)
+
+        # set attribute and check if it is correctly set
+        self.subject.attr1 = 0.2
+        self.assertIs(type(0.2), type(self.subject.attr1.magnitude))
+
+        # reset attribute and check that it's correctly set
+        self.subject.reset('attr1')
+        self.assertIsNone(self.subject.attr1)
+        # status should be "NOT_AVAILABLE"
+        status = self.subject.attributes['attr1'][1]
+        self.assertEqual(status, "NOT_AVAILABLE")
+
+        # set attribute again and check if it is correctly set
+        self.subject.attr1 = 0.2
+        self.assertIs(type(0.2), type(self.subject.attr1.magnitude))
+
 
 class TestAttributeDecisions(unittest.TestCase):
 

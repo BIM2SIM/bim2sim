@@ -1,11 +1,11 @@
 {
-    "version": "0.7",
-    "OuterWall_[0, 1918]_heavy": {
+    "version": "TEASER-v1.0.1",
+    "OuterWall_[0, 1918]_iwu_heavy": {
         "building_age_group": [
             0,
             1918
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -34,12 +34,12 @@
             }
         }
     },
-    "OuterWall_[0, 1918]_light": {
+    "OuterWall_[0, 1918]_iwu_light": {
         "building_age_group": [
             0,
             1918
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -68,12 +68,12 @@
             }
         }
     },
-    "OuterWall_[1919, 1948]_heavy": {
+    "OuterWall_[1919, 1948]_iwu_heavy": {
         "building_age_group": [
             1919,
             1948
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -102,12 +102,12 @@
             }
         }
     },
-    "OuterWall_[1919, 1948]_light": {
+    "OuterWall_[1919, 1948]_iwu_light": {
         "building_age_group": [
             1919,
             1948
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -136,12 +136,12 @@
             }
         }
     },
-    "OuterWall_[1949, 1968]_heavy": {
+    "OuterWall_[1949, 1968]_iwu_heavy": {
         "building_age_group": [
             1949,
             1968
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -170,12 +170,12 @@
             }
         }
     },
-    "OuterWall_[1949, 1968]_light": {
+    "OuterWall_[1949, 1968]_iwu_light": {
         "building_age_group": [
             1949,
             1968
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -204,12 +204,12 @@
             }
         }
     },
-    "OuterWall_[1969, 1978]_heavy": {
+    "OuterWall_[1969, 1978]_iwu_heavy": {
         "building_age_group": [
             1969,
             1978
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -238,12 +238,12 @@
             }
         }
     },
-    "OuterWall_[1969, 1978]_light": {
+    "OuterWall_[1969, 1978]_iwu_light": {
         "building_age_group": [
             1969,
             1978
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -272,12 +272,12 @@
             }
         }
     },
-    "OuterWall_[1979, 1983]_heavy": {
+    "OuterWall_[1979, 1983]_iwu_heavy": {
         "building_age_group": [
             1979,
             1983
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -306,12 +306,12 @@
             }
         }
     },
-    "OuterWall_[1979, 1983]_light": {
+    "OuterWall_[1979, 1983]_iwu_light": {
         "building_age_group": [
             1979,
             1983
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -340,12 +340,12 @@
             }
         }
     },
-    "OuterWall_[1984, 1994]_heavy": {
+    "OuterWall_[1984, 1994]_iwu_heavy": {
         "building_age_group": [
             1984,
             1994
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -374,12 +374,12 @@
             }
         }
     },
-    "OuterWall_[1984, 1994]_light": {
+    "OuterWall_[1984, 1994]_iwu_light": {
         "building_age_group": [
             1984,
             1994
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -408,12 +408,12 @@
             }
         }
     },
-    "OuterWall_[1995, 2015]_heavy": {
+    "OuterWall_[1995, 2015]_iwu_heavy": {
         "building_age_group": [
             1995,
             2015
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -435,12 +435,12 @@
             }
         }
     },
-    "OuterWall_[1995, 2015]_light": {
+    "OuterWall_[1995, 2015]_iwu_light": {
         "building_age_group": [
             1995,
             2015
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -481,7 +481,7 @@
             0,
             1978
         ],
-        "construction_type": "Holzfenster, einfach",
+        "construction_data": "Holzfenster, einfach",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -505,7 +505,7 @@
             0,
             1978
         ],
-        "construction_type": "Holzfenster, zweifach",
+        "construction_data": "Holzfenster, zweifach",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -529,7 +529,7 @@
             0,
             1978
         ],
-        "construction_type": "Kunststofffenster, Isolierverglasung",
+        "construction_data": "Kunststofffenster, Isolierverglasung",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -553,7 +553,7 @@
             0,
             1978
         ],
-        "construction_type": "Alu- oder Stahlfenster, Isolierverglasung",
+        "construction_data": "Alu- oder Stahlfenster, Isolierverglasung",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -577,7 +577,7 @@
             1979,
             1983
         ],
-        "construction_type": "Holzfenster, zweifach",
+        "construction_data": "Holzfenster, zweifach",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -601,7 +601,7 @@
             1979,
             1983
         ],
-        "construction_type": "Kunststofffenster, Isolierverglasung",
+        "construction_data": "Kunststofffenster, Isolierverglasung",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -625,7 +625,7 @@
             1979,
             1983
         ],
-        "construction_type": "Alu- oder Stahlfenster, Isolierverglasung",
+        "construction_data": "Alu- oder Stahlfenster, Isolierverglasung",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -649,7 +649,7 @@
             1984,
             1994
         ],
-        "construction_type": "Holzfenster, zweifach",
+        "construction_data": "Holzfenster, zweifach",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -673,7 +673,7 @@
             1984,
             1994
         ],
-        "construction_type": "Kunststofffenster, Isolierverglasung",
+        "construction_data": "Kunststofffenster, Isolierverglasung",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -697,7 +697,7 @@
             1984,
             1994
         ],
-        "construction_type": "Alu- oder Stahlfenster, Isolierverglasung",
+        "construction_data": "Alu- oder Stahlfenster, Isolierverglasung",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -721,7 +721,7 @@
             1995,
             2015
         ],
-        "construction_type": "Holzfenster, zweifach",
+        "construction_data": "Holzfenster, zweifach",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -745,7 +745,7 @@
             1995,
             2015
         ],
-        "construction_type": "Kunststofffenster, Isolierverglasung",
+        "construction_data": "Kunststofffenster, Isolierverglasung",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -769,7 +769,7 @@
             1995,
             2015
         ],
-        "construction_type": "Alu- oder Stahlfenster, Isolierverglasung",
+        "construction_data": "Alu- oder Stahlfenster, Isolierverglasung",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -793,7 +793,7 @@
             1995,
             2015
         ],
-        "construction_type": "Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach",
+        "construction_data": "Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -817,7 +817,7 @@
             1995,
             2015
         ],
-        "construction_type": "Waermeschutzverglasung, dreifach",
+        "construction_data": "Waermeschutzverglasung, dreifach",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -841,7 +841,7 @@
             1995,
             2015
         ],
-        "construction_type": "EnEv",
+        "construction_data": "EnEv",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -860,12 +860,38 @@
             }
         }
     },
-    "Roof_[0, 1918]_heavy": {
+    "Window_[2016, 2100]_Waermeschutzverglasung, dreifach": {
+        "_comment": "from TypeElements_IWU",
+        "building_age_group": [
+            2016,
+            2100
+        ],
+        "construction_data": "Waermeschutzverglasung, dreifach",
+        "inner_radiation": 5,
+        "inner_convection": 2.7,
+        "outer_radiation": 5.0,
+        "outer_convection": 20.0,
+        "u_value": 0.8,
+        "g_value": 0.5,
+        "a_conv": 0.07,
+        "shading_g_total": 1.0,
+        "shading_max_irr": 100.0,
+        "layer": {
+            "0": {
+                "thickness": 0.024,
+                "material": {
+                    "name": "Glas1995_2015Waermeschutzverglasungdreifach",
+                    "material_id": "0abbb1a2-83ff-11e6-946a-2cd444b2e704"
+                }
+            }
+        }
+    },
+    "Roof_[0, 1918]_iwu_heavy": {
         "building_age_group": [
             0,
             1918
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "outer_radiation": 5.0,
@@ -887,12 +913,12 @@
             }
         }
     },
-    "Roof_[0, 1918]_light": {
+    "Roof_[0, 1918]_iwu_light": {
         "building_age_group": [
             0,
             1918
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "outer_radiation": 5.0,
@@ -914,12 +940,12 @@
             }
         }
     },
-    "Roof_[1919, 1948]_heavy": {
+    "Roof_[1919, 1948]_iwu_heavy": {
         "building_age_group": [
             1919,
             1948
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "outer_radiation": 5.0,
@@ -941,12 +967,12 @@
             }
         }
     },
-    "Roof_[1919, 1948]_light": {
+    "Roof_[1919, 1948]_iwu_light": {
         "building_age_group": [
             1919,
             1948
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "outer_radiation": 5.0,
@@ -975,12 +1001,12 @@
             }
         }
     },
-    "Roof_[1949, 1968]_heavy": {
+    "Roof_[1949, 1968]_iwu_heavy": {
         "building_age_group": [
             1949,
             1968
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "outer_radiation": 5.0,
@@ -1002,12 +1028,12 @@
             }
         }
     },
-    "Roof_[1949, 1968]_light": {
+    "Roof_[1949, 1968]_iwu_light": {
         "building_age_group": [
             1949,
             1968
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "outer_radiation": 5.0,
@@ -1036,12 +1062,12 @@
             }
         }
     },
-    "Roof_[1969, 1978]_heavy": {
+    "Roof_[1969, 1978]_iwu_heavy": {
         "building_age_group": [
             1969,
             1978
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "outer_radiation": 5.0,
@@ -1070,12 +1096,12 @@
             }
         }
     },
-    "Roof_[1969, 1978]_light": {
+    "Roof_[1969, 1978]_iwu_light": {
         "building_age_group": [
             1969,
             1978
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "outer_radiation": 5.0,
@@ -1097,12 +1123,12 @@
             }
         }
     },
-    "Roof_[1979, 1983]_heavy": {
+    "Roof_[1979, 1983]_iwu_heavy": {
         "building_age_group": [
             1979,
             1983
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "outer_radiation": 5.0,
@@ -1131,12 +1157,12 @@
             }
         }
     },
-    "Roof_[1979, 1983]_light": {
+    "Roof_[1979, 1983]_iwu_light": {
         "building_age_group": [
             1979,
             1983
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "outer_radiation": 5.0,
@@ -1158,12 +1184,12 @@
             }
         }
     },
-    "Roof_[1984, 1994]_heavy": {
+    "Roof_[1984, 1994]_iwu_heavy": {
         "building_age_group": [
             1984,
             1994
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "outer_radiation": 5.0,
@@ -1192,12 +1218,12 @@
             }
         }
     },
-    "Roof_[1984, 1994]_light": {
+    "Roof_[1984, 1994]_iwu_light": {
         "building_age_group": [
             1984,
             1994
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "outer_radiation": 5.0,
@@ -1226,12 +1252,12 @@
             }
         }
     },
-    "Roof_[1995, 2015]_heavy": {
+    "Roof_[1995, 2015]_iwu_heavy": {
         "building_age_group": [
             1995,
             2015
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "outer_radiation": 5.0,
@@ -1260,12 +1286,12 @@
             }
         }
     },
-    "Roof_[1995, 2015]_light": {
+    "Roof_[1995, 2015]_iwu_light": {
         "building_age_group": [
             1995,
             2015
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "outer_radiation": 5.0,
@@ -1294,12 +1320,12 @@
             }
         }
     },
-    "GroundFloor_[0, 1918]_heavy": {
+    "GroundFloor_[0, 1918]_iwu_heavy": {
         "building_age_group": [
             0,
             1918
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -1319,12 +1345,12 @@
             }
         }
     },
-    "GroundFloor_[0, 1918]_light": {
+    "GroundFloor_[0, 1918]_iwu_light": {
         "building_age_group": [
             0,
             1918
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -1358,12 +1384,12 @@
             }
         }
     },
-    "GroundFloor_[1919, 1948]_heavy": {
+    "GroundFloor_[1919, 1948]_iwu_heavy": {
         "building_age_group": [
             1919,
             1948
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -1383,12 +1409,12 @@
             }
         }
     },
-    "GroundFloor_[1919, 1948]_light": {
+    "GroundFloor_[1919, 1948]_iwu_light": {
         "building_age_group": [
             1919,
             1948
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -1422,12 +1448,12 @@
             }
         }
     },
-    "GroundFloor_[1949, 1968]_heavy": {
+    "GroundFloor_[1949, 1968]_iwu_heavy": {
         "building_age_group": [
             1949,
             1968
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -1447,12 +1473,12 @@
             }
         }
     },
-    "GroundFloor_[1949, 1968]_light": {
+    "GroundFloor_[1949, 1968]_iwu_light": {
         "building_age_group": [
             1949,
             1968
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -1486,12 +1512,12 @@
             }
         }
     },
-    "GroundFloor_[1969, 1978]_heavy": {
+    "GroundFloor_[1969, 1978]_iwu_heavy": {
         "building_age_group": [
             1969,
             1978
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -1518,12 +1544,12 @@
             }
         }
     },
-    "GroundFloor_[1969, 1978]_light": {
+    "GroundFloor_[1969, 1978]_iwu_light": {
         "building_age_group": [
             1969,
             1978
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -1543,12 +1569,12 @@
             }
         }
     },
-    "GroundFloor_[1979, 1983]_heavy": {
+    "GroundFloor_[1979, 1983]_iwu_heavy": {
         "building_age_group": [
             1979,
             1983
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -1575,12 +1601,12 @@
             }
         }
     },
-    "GroundFloor_[1979, 1983]_light": {
+    "GroundFloor_[1979, 1983]_iwu_light": {
         "building_age_group": [
             1979,
             1983
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -1600,12 +1626,12 @@
             }
         }
     },
-    "GroundFloor_[1984, 1994]_heavy": {
+    "GroundFloor_[1984, 1994]_iwu_heavy": {
         "building_age_group": [
             1984,
             1994
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -1632,12 +1658,12 @@
             }
         }
     },
-    "GroundFloor_[1984, 1994]_light": {
+    "GroundFloor_[1984, 1994]_iwu_light": {
         "building_age_group": [
             1984,
             1994
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -1671,12 +1697,12 @@
             }
         }
     },
-    "GroundFloor_[1995, 2015]_heavy": {
+    "GroundFloor_[1995, 2015]_iwu_heavy": {
         "building_age_group": [
             1995,
             2015
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -1703,12 +1729,12 @@
             }
         }
     },
-    "GroundFloor_[1995, 2015]_light": {
+    "GroundFloor_[1995, 2015]_iwu_light": {
         "building_age_group": [
             1995,
             2015
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -1742,12 +1768,12 @@
             }
         }
     },
-    "InnerWall_[0, 1918]_heavy": {
+    "InnerWall_[0, 1918]_iwu_heavy": {
         "building_age_group": [
             0,
             1918
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "layer": {
@@ -1774,12 +1800,12 @@
             }
         }
     },
-    "InnerWall_[0, 1918]_light": {
+    "InnerWall_[0, 1918]_iwu_light": {
         "building_age_group": [
             0,
             1918
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "layer": {
@@ -1806,12 +1832,12 @@
             }
         }
     },
-    "InnerWall_[1919, 1948]_heavy": {
+    "InnerWall_[1919, 1948]_iwu_heavy": {
         "building_age_group": [
             1919,
             1948
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "layer": {
@@ -1838,12 +1864,12 @@
             }
         }
     },
-    "InnerWall_[1919, 1948]_light": {
+    "InnerWall_[1919, 1948]_iwu_light": {
         "building_age_group": [
             1919,
             1948
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "layer": {
@@ -1870,12 +1896,12 @@
             }
         }
     },
-    "InnerWall_[1949, 1968]_heavy": {
+    "InnerWall_[1949, 1968]_iwu_heavy": {
         "building_age_group": [
             1949,
             1968
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "layer": {
@@ -1902,12 +1928,12 @@
             }
         }
     },
-    "InnerWall_[1949, 1968]_light": {
+    "InnerWall_[1949, 1968]_iwu_light": {
         "building_age_group": [
             1949,
             1968
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "layer": {
@@ -1934,12 +1960,12 @@
             }
         }
     },
-    "InnerWall_[1969, 1978]_heavy": {
+    "InnerWall_[1969, 1978]_iwu_heavy": {
         "building_age_group": [
             1969,
             1978
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "layer": {
@@ -1966,12 +1992,12 @@
             }
         }
     },
-    "InnerWall_[1969, 1978]_light": {
+    "InnerWall_[1969, 1978]_iwu_light": {
         "building_age_group": [
             1969,
             1978
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "layer": {
@@ -2005,12 +2031,12 @@
             }
         }
     },
-    "InnerWall_[1979, 1983]_heavy": {
+    "InnerWall_[1979, 1983]_iwu_heavy": {
         "building_age_group": [
             1979,
             1983
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "layer": {
@@ -2037,12 +2063,12 @@
             }
         }
     },
-    "InnerWall_[1979, 1983]_light": {
+    "InnerWall_[1979, 1983]_iwu_light": {
         "building_age_group": [
             1979,
             1983
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "layer": {
@@ -2069,12 +2095,12 @@
             }
         }
     },
-    "InnerWall_[1984, 1994]_heavy": {
+    "InnerWall_[1984, 1994]_iwu_heavy": {
         "building_age_group": [
             1984,
             1994
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "layer": {
@@ -2101,12 +2127,12 @@
             }
         }
     },
-    "InnerWall_[1984, 1994]_light": {
+    "InnerWall_[1984, 1994]_iwu_light": {
         "building_age_group": [
             1984,
             1994
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "layer": {
@@ -2133,12 +2159,12 @@
             }
         }
     },
-    "InnerWall_[1995, 2015]_heavy": {
+    "InnerWall_[1995, 2015]_iwu_heavy": {
         "building_age_group": [
             1995,
             2015
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "layer": {
@@ -2165,12 +2191,12 @@
             }
         }
     },
-    "InnerWall_[1995, 2015]_light": {
+    "InnerWall_[1995, 2015]_iwu_light": {
         "building_age_group": [
             1995,
             2015
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "layer": {
@@ -2197,12 +2223,12 @@
             }
         }
     },
-    "Ceiling_[0, 1918]_heavy": {
+    "Ceiling_[0, 1918]_iwu_heavy": {
         "building_age_group": [
             0,
             1918
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2222,12 +2248,12 @@
             }
         }
     },
-    "Ceiling_[0, 1918]_light": {
+    "Ceiling_[0, 1918]_iwu_light": {
         "building_age_group": [
             0,
             1918
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2261,12 +2287,12 @@
             }
         }
     },
-    "Ceiling_[1919, 1948]_heavy": {
+    "Ceiling_[1919, 1948]_iwu_heavy": {
         "building_age_group": [
             1919,
             1948
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2286,12 +2312,12 @@
             }
         }
     },
-    "Ceiling_[1919, 1948]_light": {
+    "Ceiling_[1919, 1948]_iwu_light": {
         "building_age_group": [
             1919,
             1948
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2325,12 +2351,12 @@
             }
         }
     },
-    "Ceiling_[1949, 1968]_heavy": {
+    "Ceiling_[1949, 1968]_iwu_heavy": {
         "building_age_group": [
             1949,
             1968
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2350,12 +2376,12 @@
             }
         }
     },
-    "Ceiling_[1949, 1968]_light": {
+    "Ceiling_[1949, 1968]_iwu_light": {
         "building_age_group": [
             1949,
             1968
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2389,12 +2415,12 @@
             }
         }
     },
-    "Ceiling_[1969, 1978]_heavy": {
+    "Ceiling_[1969, 1978]_iwu_heavy": {
         "building_age_group": [
             1969,
             1978
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2414,12 +2440,12 @@
             }
         }
     },
-    "Ceiling_[1969, 1978]_light": {
+    "Ceiling_[1969, 1978]_iwu_light": {
         "building_age_group": [
             1969,
             1978
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2446,12 +2472,12 @@
             }
         }
     },
-    "Ceiling_[1979, 1983]_heavy": {
+    "Ceiling_[1979, 1983]_iwu_heavy": {
         "building_age_group": [
             1979,
             1983
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2478,12 +2504,12 @@
             }
         }
     },
-    "Ceiling_[1979, 1983]_light": {
+    "Ceiling_[1979, 1983]_iwu_light": {
         "building_age_group": [
             1979,
             1983
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2503,12 +2529,12 @@
             }
         }
     },
-    "Ceiling_[1984, 1994]_heavy": {
+    "Ceiling_[1984, 1994]_iwu_heavy": {
         "building_age_group": [
             1984,
             1994
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2535,12 +2561,12 @@
             }
         }
     },
-    "Ceiling_[1984, 1994]_light": {
+    "Ceiling_[1984, 1994]_iwu_light": {
         "building_age_group": [
             1984,
             1994
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2574,12 +2600,12 @@
             }
         }
     },
-    "Ceiling_[1995, 2015]_heavy": {
+    "Ceiling_[1995, 2015]_iwu_heavy": {
         "building_age_group": [
             1995,
             2015
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2606,12 +2632,12 @@
             }
         }
     },
-    "Ceiling_[1995, 2015]_light": {
+    "Ceiling_[1995, 2015]_iwu_light": {
         "building_age_group": [
             1995,
             2015
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2645,12 +2671,12 @@
             }
         }
     },
-    "Floor_[0, 1918]_heavy": {
+    "Floor_[0, 1918]_iwu_heavy": {
         "building_age_group": [
             0,
             1918
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2670,12 +2696,12 @@
             }
         }
     },
-    "Floor_[0, 1918]_light": {
+    "Floor_[0, 1918]_iwu_light": {
         "building_age_group": [
             0,
             1918
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2709,12 +2735,12 @@
             }
         }
     },
-    "Floor_[1919, 1948]_heavy": {
+    "Floor_[1919, 1948]_iwu_heavy": {
         "building_age_group": [
             1919,
             1948
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2734,12 +2760,12 @@
             }
         }
     },
-    "Floor_[1919, 1948]_light": {
+    "Floor_[1919, 1948]_iwu_light": {
         "building_age_group": [
             1919,
             1948
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2773,12 +2799,12 @@
             }
         }
     },
-    "Floor_[1949, 1968]_heavy": {
+    "Floor_[1949, 1968]_iwu_heavy": {
         "building_age_group": [
             1949,
             1968
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2798,12 +2824,12 @@
             }
         }
     },
-    "Floor_[1949, 1968]_light": {
+    "Floor_[1949, 1968]_iwu_light": {
         "building_age_group": [
             1949,
             1968
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2837,12 +2863,12 @@
             }
         }
     },
-    "Floor_[1969, 1978]_heavy": {
+    "Floor_[1969, 1978]_iwu_heavy": {
         "building_age_group": [
             1969,
             1978
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2862,12 +2888,12 @@
             }
         }
     },
-    "Floor_[1969, 1978]_light": {
+    "Floor_[1969, 1978]_iwu_light": {
         "building_age_group": [
             1969,
             1978
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2894,12 +2920,12 @@
             }
         }
     },
-    "Floor_[1979, 1983]_heavy": {
+    "Floor_[1979, 1983]_iwu_heavy": {
         "building_age_group": [
             1979,
             1983
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2926,12 +2952,12 @@
             }
         }
     },
-    "Floor_[1979, 1983]_light": {
+    "Floor_[1979, 1983]_iwu_light": {
         "building_age_group": [
             1979,
             1983
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2951,12 +2977,12 @@
             }
         }
     },
-    "Floor_[1984, 1994]_heavy": {
+    "Floor_[1984, 1994]_iwu_heavy": {
         "building_age_group": [
             1984,
             1994
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -2983,12 +3009,12 @@
             }
         }
     },
-    "Floor_[1984, 1994]_light": {
+    "Floor_[1984, 1994]_iwu_light": {
         "building_age_group": [
             1984,
             1994
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -3022,12 +3048,12 @@
             }
         }
     },
-    "Floor_[1995, 2015]_heavy": {
+    "Floor_[1995, 2015]_iwu_heavy": {
         "building_age_group": [
             1995,
             2015
         ],
-        "construction_type": "heavy",
+        "construction_data": "iwu_heavy",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -3054,12 +3080,12 @@
             }
         }
     },
-    "Floor_[1995, 2015]_light": {
+    "Floor_[1995, 2015]_iwu_light": {
         "building_age_group": [
             1995,
             2015
         ],
-        "construction_type": "light",
+        "construction_data": "iwu_light",
         "inner_radiation": 5.0,
         "inner_convection": 1.7000000000000002,
         "layer": {
@@ -3093,32 +3119,12 @@
             }
         }
     },
-    "OuterDoor_[0, 2015]_Typical": {
+    "Door_[0, 2015]_iwu_typical": {
         "building_age_group": [
             0,
             2015
         ],
-        "construction_type": "Typical",
-        "inner_radiation": 5.0,
-        "inner_convection": 2.7,
-        "outer_radiation": 5.0,
-        "outer_convection": 20.0,
-        "layer": {
-            "0": {
-                "thickness": 0.05,
-                "material": {
-                    "name": "Door0_2015Typical",
-                    "material_id": "0abb8aa3-83ff-11e6-bfa4-2cd444b2e705"
-                }
-            }
-        }
-    },
-    "InnerDoor_[0, 2015]_Typical": {
-        "building_age_group": [
-            0,
-            2015
-        ],
-        "construction_type": "Typical",
+        "construction_type": "typical",
         "inner_radiation": 5.0,
         "inner_convection": 2.7,
         "outer_radiation": 5.0,
@@ -3133,4 +3139,5 @@
             }
         }
     }
+
 }

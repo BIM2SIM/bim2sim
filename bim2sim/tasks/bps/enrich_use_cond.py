@@ -35,7 +35,8 @@ class EnrichUseConditions(ITask):
         else:
             # set heating and cooling based on sim settings configuration
             self.set_heating_cooling(tz_elements, self.playground.sim_settings)
-            custom_use_cond_path = self.playground.sim_settings.prj_use_conditions
+            custom_use_cond_path = (
+                self.playground.sim_settings.prj_use_conditions)
             custom_usage_path = \
                 self.playground.sim_settings.prj_custom_usages
 
@@ -56,6 +57,12 @@ class EnrichUseConditions(ITask):
                         self.use_conditions[usage]['heating_profile']
                     tz.cooling_profile = \
                         self.use_conditions[usage]['cooling_profile']
+                # set maintained illuminance from sim_setting
+                tz.use_maintained_illuminance = (
+                    self.playground.sim_settings.use_maintained_illuminance,
+                    AttributeDataSource.enrichment)
+                # reset lighting_power if it was calculated before
+                tz.reset('lighting_power')
                 self.enriched_tz.append(tz)
                 self.logger.info('Enrich ThermalZone from IfcSpace with '
                                  'original usage "%s" with usage "%s"',
@@ -83,9 +90,9 @@ class EnrichUseConditions(ITask):
                     AttributeDataSource.enrichment)
 
     @staticmethod
-    def set_heating_cooling(tz_elements: dict, sim_settings: BuildingSimSettings):
+    def set_heating_cooling(
+            tz_elements: dict, sim_settings: BuildingSimSettings):
         """set cooling and heating values based on simulation settings"""
-
         for tz in tz_elements.values():
             tz.with_cooling = sim_settings.cooling
             tz.with_heating = sim_settings.heating

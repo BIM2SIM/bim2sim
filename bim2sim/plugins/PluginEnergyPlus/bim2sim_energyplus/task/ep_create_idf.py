@@ -667,7 +667,8 @@ class CreateIdf(ITask):
                 Zone_or_ZoneList_Name=zone_name,
                 Schedule_Name=schedule_name,
                 Design_Level_Calculation_Method="Watts/Area",
-                Watts_per_Zone_Floor_Area=space.machines.to(ureg.watt).m
+                Watts_per_Zone_Floor_Area=space.machines.to(
+                    ureg.watt / ureg.meter ** 2).m
             )
         else:
             idf.newidfobject(
@@ -676,7 +677,8 @@ class CreateIdf(ITask):
                 Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
                 Schedule_Name=schedule_name,
                 Design_Level_Calculation_Method="Watts/Area",
-                Watts_per_Zone_Floor_Area=space.machines.to(ureg.watt).m
+                Watts_per_Zone_Floor_Area=space.machines.to(
+                    ureg.watt / ureg.meter ** 2).m
             )
 
     def set_lights(self, sim_settings: EnergyPlusSimSettings, idf: IDF, name: str,
@@ -699,7 +701,8 @@ class CreateIdf(ITask):
         self.set_day_week_year_schedule(idf, space.lighting_profile[:24],
                                         profile_name, schedule_name)
         mode = "Watts/Area"
-        watts_per_zone_floor_area = space.lighting_power.to(ureg.watt).m
+        watts_per_zone_floor_area = space.lighting_power.to(
+            ureg.watt / ureg.meter ** 2).m
         return_air_fraction = 0.0
         fraction_radiant = 0.42  # fraction radiant: cf. Table 1.28 in
         # InputOutputReference EnergyPlus (Version 9.4.0), p. 506
