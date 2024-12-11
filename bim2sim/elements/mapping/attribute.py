@@ -38,6 +38,7 @@ class Attribute:
         REQUESTED: Attribute was already requested via a decision??.
         AVAILABLE: Attribute exists and is available.
         NOT_AVAILABLE: No way was found to obtain the attributes value.
+        RESET: The Attribute was reset.
 
     To find more about Descriptor objects follow the explanations on
     https://rszalski.github.io/magicmethods/#descriptor
@@ -46,6 +47,7 @@ class Attribute:
     STATUS_REQUESTED = 'REQUESTED'
     STATUS_AVAILABLE = 'AVAILABLE'
     STATUS_NOT_AVAILABLE = 'NOT_AVAILABLE'
+    STATUS_RESET = 'RESET'
 
     def __init__(self,
                  description: str = "",
@@ -344,6 +346,11 @@ class Attribute:
         # Case 4: Value is available or already requested (no action needed)
         return
 
+    def reset(self, bind, data_source=AttributeDataSource.manual_overwrite):
+        """Reset attribute, set to None and STATUS_NOT_AVAILABLE."""
+        self._inner_set(
+            bind, None, Attribute.STATUS_RESET, data_source)
+
     def get_dependency_decisions(self, bind, external_decision=None):
         """Get dependency decisions"""
         status = Attribute.STATUS_REQUESTED
@@ -488,7 +495,8 @@ class Attribute:
         else:
             value = value_or_decision
 
-        if value is None and status == self.STATUS_UNKNOWN:
+        if (value is None and status
+                in [self.STATUS_UNKNOWN, self.STATUS_RESET]):
             value, data_source = self._get_value(bind)
             status = self.STATUS_AVAILABLE if value is not None \
                 else self.STATUS_NOT_AVAILABLE  # change for temperature
@@ -576,6 +584,16 @@ class AttributeManager(dict):
         for k, v in other.items():
             self.__setitem__(k, v)
 
+    def reset(self, name, data_source=AttributeDataSource.manual_overwrite):
+        """Reset attribute, set to None and STATUS_NOT_AVAILABLE."""
+        # TODO this has limitations when the corresponding attribute uses
+        #  functions to calculate the value, see #760 for more information
+        try:
+            attr = self.get_attribute(name)
+        except KeyError:
+            raise KeyError("%s has no Attribute '%s'" % (self.bind, name))
+        attr.reset(self.bind, data_source)
+
     def request(self, name: str, external_decision: Decision = None) \
             -> Union[None, Decision]:
         """Request attribute by name.
@@ -594,7 +612,7 @@ class AttributeManager(dict):
         except KeyError:
             raise KeyError("%s has no Attribute '%s'" % (self.bind, name))
         value, status, data_source = self[name]
-        if status == Attribute.STATUS_UNKNOWN:
+        if status in [Attribute.STATUS_UNKNOWN, Attribute.STATUS_RESET]:
             # make sure default methods are tried
             getattr(self.bind, name)
             value, status, data_source = self[name]
