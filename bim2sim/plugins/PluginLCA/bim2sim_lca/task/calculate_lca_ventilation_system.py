@@ -14,6 +14,8 @@ class CalculateEmissionVentilationSystem(ITask):
         total_gwp_ventilation_duct = 0
         total_gwp_ventilation_component = 0
 
+        self.lock = self.playground.sim_settings.lock
+
         if self.playground.sim_settings.calculate_lca_ventilation_system:
             supply_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_supply_system_material_xlsx)
             exhaust_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_exhaust_system_material_xlsx)
@@ -44,7 +46,9 @@ class CalculateEmissionVentilationSystem(ITask):
         return total_gwp_ventilation_duct, total_gwp_ventilation_component
 
     def load_pipe_data(self, data_path):
-        df = pd.read_excel(data_path)
+        with self.lock:
+            with open(data_path, "rb") as excel_file:
+                df = pd.read_excel(excel_file, engine="openpyxl")
         pipe_dict = {}
         for index, row in df.iterrows():
 
@@ -55,7 +59,9 @@ class CalculateEmissionVentilationSystem(ITask):
         return pipe_dict
 
     def load_component_data(self):
-        df = pd.read_excel(self.playground.sim_settings.hydraulic_system_material_xlsx, sheet_name="Components")
+        with self.lock:
+            with open(self.playground.sim_settings.hydraulic_system_material_xlsx, "rb") as excel_file:
+                df = pd.read_excel(excel_file, engine="openpyxl", sheet_name="Components")
         component_dict = {}
         for index, row in df.iterrows():
             if self.playground.sim_settings.heat_delivery_type == "Radiator":

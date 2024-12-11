@@ -9,7 +9,8 @@ from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 from bim2sim.utilities.common_functions import download_library
 
 
-def run_example_complex_building_teaser(project_path, weather_file_path,
+def run_example_complex_building_teaser(lock,
+                                        project_path, weather_file_path,
                                         heating_bool, cooling_bool, ahu_central_bool,
                                         ahu_heat_bool, ahu_cool_bool, ahu_hum_bool, building_standard,
                                         window_standard):
@@ -67,6 +68,8 @@ def run_example_complex_building_teaser(project_path, weather_file_path,
     project.sim_settings.ahu_heat_recovery = True
     project.sim_settings.ahu_heat_recovery_efficiency = 0.8
 
+    # Set Lock class
+    project.sim_settings.lock = lock
 
     # set weather file data
     project.sim_settings.weather_file_path = weather_file_path

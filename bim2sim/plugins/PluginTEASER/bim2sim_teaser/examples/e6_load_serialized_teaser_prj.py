@@ -273,8 +273,9 @@ def simulate_dymola_ebcpy(teaser_prj, prj_export_path, path_aixlib):
         script += f'writeTrajectory(outName, varNames, transpose(readTrajectory(resultFile, varNames, n)));'
 
         mos_file_path = bldg_result_dir / "edit_result_file.mos"
-        with open(mos_file_path, 'w') as file:
-            file.write(script)
+        with self.lock:
+            with open(mos_file_path, 'w') as file:
+                file.write(script)
 
         if isinstance(mos_file_path, Path):
             mos_file_path = str(mos_file_path)

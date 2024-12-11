@@ -8,7 +8,9 @@ from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain
 
 
-def run_example_complex_building_lca(project_path, weather_file_path, heat_delivery_type):
+def run_example_complex_building_lca(lock,
+                                     project_path, weather_file_path,
+                                     heat_delivery_type):
     """Generate output for an LCA analysis.
 
     This example generates output for an LCA analysis. Specifies project
@@ -38,6 +40,9 @@ def run_example_complex_building_lca(project_path, weather_file_path, heat_deliv
     # Create a project including the folder structure for the project with
     # LCA as backend and no specified workflow (default workflow is taken)
     project = Project.create(project_path, ifc_paths, 'lca')
+
+    # Set Lock class
+    project.sim_settings.lock = lock
 
     # set weather file data
     project.sim_settings.weather_file_path = weather_file_path

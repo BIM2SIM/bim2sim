@@ -1,5 +1,6 @@
 import tempfile
 from pathlib import Path
+import threading
 
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
@@ -56,6 +57,9 @@ def run_serialize_teaser_project_example():
     project.sim_settings.construction_class_walls = 'kfw_40'
     project.sim_settings.construction_class_windows = \
         'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
+
+    # Set Lock class
+    project.sim_settings.lock = threading.Lock()
 
     # set weather file data
     project.sim_settings.weather_file_path = fr"D:\dja-jho\Git\Dissertation_coding\outer_optimization\clustering\DEU_NW_Aachen.105010_TMYx.mos"

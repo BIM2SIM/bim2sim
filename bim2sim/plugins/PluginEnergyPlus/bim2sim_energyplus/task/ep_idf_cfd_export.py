@@ -166,8 +166,8 @@ class ExportIdfForCfd(ITask):
             stl_name: name of the stl file.
             paths: BIM2SIM paths
         """
-        sb_dict = pd.read_csv(paths.export / 'space_bound_list.csv').drop(
-            'Unnamed: 0', axis=1)
+        with open(paths.export / 'space_bound_list.csv', "r") as csv_file:
+            sb_dict = pd.read_csv(csv_file).drop('Unnamed: 0', axis=1)
         with open(paths.export / str(
                 stl_name + "_combined_STL.stl")) as output_file:
             output_data = output_file.read()

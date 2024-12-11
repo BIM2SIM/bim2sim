@@ -22,6 +22,8 @@ class ExportTEASER(ITask):
         """
         self.logger.info("Starting export TEASER model to Modelica")
 
+        self.lock = self.playground.sim_settings.lock
+
         export_vars = {
             "PHeater": ["*multizone.PHeater*"],
             "PCooler": ["*multizone.PCooler*"],
@@ -31,12 +33,13 @@ class ExportTEASER(ITask):
         }
 
         # silence output via redirect_stdout to not mess with bim2sim logs
-        with open(os.devnull, 'w') as devnull:
-            with contextlib.redirect_stdout(devnull):
-                teaser_prj.export_aixlib(
-                    path=self.paths.export / 'TEASER' / 'Model',
-                    use_postprocessing_calc=True,
-                    report=True,
-                    export_vars=export_vars)
+        with self.lock:
+            with open(os.devnull, 'w') as devnull:
+                with contextlib.redirect_stdout(devnull):
+                    teaser_prj.export_aixlib(
+                        path=self.paths.export / 'TEASER' / 'Model',
+                        use_postprocessing_calc=True,
+                        report=True,
+                        export_vars=export_vars)
 
         self.logger.info("Successfully created simulation model with TEASER.")

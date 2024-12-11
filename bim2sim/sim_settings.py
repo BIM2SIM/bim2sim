@@ -5,6 +5,7 @@ model generation process in bim2sim.
 import logging
 import ast
 import os.path
+import threading
 from pathlib import Path
 from typing import Union
 import sys
@@ -385,6 +386,13 @@ class BooleanSetting(Setting):
         else:
             return True
 
+class LockSetting(Setting):
+    def check_value(self, bound_simulation_settings, value):
+        if not isinstance(value, type(threading.Lock())):
+            raise ValueError(f"The provided value {value} is not a Lock")
+        else:
+            return True
+
 
 class BaseSimSettings(metaclass=AutoSettingNameMeta):
     """Specification of basic bim2sim simulation settings which are common for
@@ -553,6 +561,12 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         default=False,
         description='Close gaps in the set of space boundaries by adding '
                     'additional 2b space boundaries.',
+        for_frontend=True
+    )
+
+    lock = LockSetting(
+        default=None,
+        description='Lock of threading package for secure multithreading',
         for_frontend=True
     )
 

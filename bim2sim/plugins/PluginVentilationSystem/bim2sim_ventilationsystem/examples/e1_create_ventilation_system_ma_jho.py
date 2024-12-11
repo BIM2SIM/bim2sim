@@ -8,7 +8,7 @@ from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 
 
-def run_example_project_ventilation_system(project_path, weather_file_path, export_graphs):
+def run_example_project_ventilation_system(lock, project_path, weather_file_path, export_graphs):
     """
     """
 
@@ -32,6 +32,9 @@ def run_example_project_ventilation_system(project_path, weather_file_path, expo
 
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
+
+    # Set Lock class
+    project.sim_settings.lock = lock
 
     # set weather file data
     project.sim_settings.weather_file_path = weather_file_path

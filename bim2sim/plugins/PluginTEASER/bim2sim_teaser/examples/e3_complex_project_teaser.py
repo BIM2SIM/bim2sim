@@ -1,4 +1,5 @@
 import tempfile
+import threading
 from pathlib import Path
 
 import bim2sim
@@ -51,6 +52,9 @@ def run_example_complex_building_teaser():
     project.sim_settings.construction_class_walls = 'heavy'
     project.sim_settings.construction_class_windows = \
         'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
+
+    # Set Lock class
+    project.sim_settings.lock = threading.Lock
 
     # set weather file data
     project.sim_settings.weather_file_path = (

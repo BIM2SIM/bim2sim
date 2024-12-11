@@ -5054,8 +5054,8 @@ class CalculateDistributionSystem():
 
         return selected_model, min_mass, material, length, norm_heat_flow
 
-    @staticmethod
-    def read_radiator_material_excel(filename,
+    def read_radiator_material_excel(self,
+                                     filename,
                                      sheet_name,
                                      ):
         """
@@ -5067,7 +5067,8 @@ class CalculateDistributionSystem():
         Returns:
 
         """
-        data = pd.read_excel(filename, sheet_name=sheet_name)
+        with open(filename, "rb") as excel_file:
+            data = pd.read_excel(excel_file, engine="openpyxl", sheet_name=sheet_name)
         # Daten aus der Tabelle auslesen und verarbeiten
         model_dict = {}
         for index, row in data.iterrows():
@@ -5091,7 +5092,8 @@ class CalculateDistributionSystem():
                              filename,
                              sheet_name,
                              calc_inner_diameter: float = 11.5):
-        data = pd.read_excel(filename, sheet_name=sheet_name)
+        with open(filename, "rb") as excel_file:
+            data = pd.read_excel(excel_file, engine="openpyxl", sheet_name=sheet_name)
         inner_diameter_list = []
         inner_diameter_list = {}
         material = None
@@ -5140,7 +5142,8 @@ class CalculateDistributionSystem():
 
         """
 
-        data = pd.read_excel(filename, sheet_name=sheet_name)
+        with open(filename, "rb") as excel_file:
+            data = pd.read_excel(excel_file, engine="openpyxl", sheet_name=sheet_name)
         inner_diameter_list = []
         inner_diameter_list = {}
         material = None

@@ -14,6 +14,8 @@ class CalculateEmissionHydraulicSystem(ITask):
         total_gwp_hydraulic_pipe = 0
         total_gwp_hydraulic_component = 0
 
+        self.lock = self.playground.sim_settings.lock
+
         if self.playground.sim_settings.calculate_lca_hydraulic_system:
             pipe_dict = self.load_pipe_data()
 
@@ -33,9 +35,11 @@ class CalculateEmissionHydraulicSystem(ITask):
         return total_gwp_hydraulic_pipe, total_gwp_hydraulic_component
 
     def load_pipe_data(self):
-        df = pd.read_excel(self.playground.sim_settings.hydraulic_system_material_xlsx, sheet_name="Pipes")
+        with self.lock:
+            with open(self.playground.sim_settings.hydraulic_system_material_xlsx, "rb") as excel_file:
+                df = pd.read_excel(excel_file, engine="openpyxl", sheet_name="Pipes")
         pipe_dict = {}
-        for  index, row in df.iterrows():
+        for index, row in df.iterrows():
 
             pipe_dict[index] = {"Material": row["Material"],
                                 "Mass Pipe [kg]": row["Mass Pipe [kg]"],
@@ -45,7 +49,9 @@ class CalculateEmissionHydraulicSystem(ITask):
         return pipe_dict
 
     def load_component_data(self):
-        df = pd.read_excel(self.playground.sim_settings.hydraulic_system_material_xlsx, sheet_name="Components")
+        with self.lock:
+            with open(self.playground.sim_settings.hydraulic_system_material_xlsx, "rb") as excel_file:
+                df = pd.read_excel(excel_file, engine="openpyxl", sheet_name="Components")
         component_dict = {}
         for index, row in df.iterrows():
             if self.playground.sim_settings.heat_delivery_type == "Radiator":

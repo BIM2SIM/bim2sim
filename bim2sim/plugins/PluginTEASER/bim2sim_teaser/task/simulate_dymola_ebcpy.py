@@ -33,6 +33,8 @@ class SimulateModelEBCPy(ITask):
             sim_results_path: path where the sim results are stored, including
                 the subdirectory with the model name
         """
+        self.lock = self.playground.sim_settings.lock
+        
         if not self.playground.sim_settings.dymola_simulation:
             self.logger.warning(
                 f"Skipping task {self.name} as sim_setting 'dymola_simulation' "
@@ -201,8 +203,9 @@ class SimulateModelEBCPy(ITask):
         script += f'writeTrajectory(outName, varNames, transpose(readTrajectory(resultFile, varNames, n)));'
 
         mos_file_path = bldg_result_dir / "edit_result_file.mos"
-        with open(mos_file_path, 'w') as file:
-            file.write(script)
+        with self.lock:
+            with open(mos_file_path, 'w') as file:
+                file.write(script)
 
         if isinstance(mos_file_path, Path):
             mos_file_path = str(mos_file_path)

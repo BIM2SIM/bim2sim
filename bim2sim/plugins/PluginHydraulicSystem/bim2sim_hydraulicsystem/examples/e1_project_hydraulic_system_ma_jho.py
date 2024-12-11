@@ -10,7 +10,9 @@ from bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_medium_project_teas
     (run_medium_building_teaser)
 
 
-def run_example_project_hydraulic_system(project_path, weather_file_path, export_graphs, heat_delivery_type, t_forward, t_backward):
+def run_example_project_hydraulic_system(lock,
+                                         project_path, weather_file_path, export_graphs,
+                                         heat_delivery_type, t_forward, t_backward):
     """
     """
 
@@ -43,6 +45,8 @@ def run_example_project_hydraulic_system(project_path, weather_file_path, export
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
 
+    # Set Lock class
+    project.sim_settings.lock = lock
 
     # set weather file data
     project.sim_settings.weather_file_path = weather_file_path

@@ -52,6 +52,8 @@ class DesignExaustLCA(ITask):
 
     def run(self, elements, graph_ventilation_duct_length_supply_air, dict_steiner_tree_with_duct_cross_section):
 
+        self.lock = self.playground.sim_settings.lock
+
         self.elements = elements
         self.supply_graph = graph_ventilation_duct_length_supply_air
         self.dict_supply_graph_cross_section = dict_steiner_tree_with_duct_cross_section
@@ -456,8 +458,9 @@ class DesignExaustLCA(ITask):
 
         self.logger.info(f"Read {filename} Graph from file {filepath}")
         data = json_graph.node_link_data(graph)
-        with open(filepath / filename, 'w') as f:
-            json.dump(data, f, indent=4)
+        with self.lock:
+            with open(filepath / filename, 'w') as f:
+                json.dump(data, f, indent=4)
 
     def visualize_networkx(self,
                            graph,

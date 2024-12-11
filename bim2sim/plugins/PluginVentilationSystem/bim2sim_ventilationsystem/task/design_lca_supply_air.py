@@ -50,6 +50,8 @@ class DesignSupplyLCA(ITask):
 
     def run(self, elements):
 
+        self.lock = self.playground.sim_settings.lock
+
         self.elements = elements
         main_line = [(1.6, 8, -0.3), (41, 8, -0.3), (41, 2.8, -0.3),
                      (1.6, 8, 2.7), (41, 8, 2.7), (41, 2.8, 2.7),
@@ -450,8 +452,9 @@ class DesignSupplyLCA(ITask):
 
         self.logger.info(f"Read {filename} Graph from file {filepath}")
         data = json_graph.node_link_data(graph)
-        with open(filepath / filename, 'w') as f:
-            json.dump(data, f, indent=4)
+        with self.lock:
+            with open(filepath / filename, 'w') as f:
+                json.dump(data, f, indent=4)
 
     def visualization_graph(self,
                              G,

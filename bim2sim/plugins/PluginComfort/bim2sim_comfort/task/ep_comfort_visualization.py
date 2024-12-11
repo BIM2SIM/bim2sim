@@ -56,7 +56,8 @@ class ComfortVisualization(ITask):
     def run(self, elements=None):
         """Execute all methods to visualize comfort results."""
         logger.info("Visualization of Comfort Results started ...")
-        df_ep_res = pd.read_csv(self.paths.export / 'EP-results/eplusout.csv')
+        with open(self.paths.export / 'EP-results/eplusout.csv', "r") as csv_file:
+            df_ep_res = pd.read_csv(csv_file)
         # convert to date time index
         df_ep_res["Date/Time"] = df_ep_res["Date/Time"].apply(
             PostprocessingUtils._string_to_datetime)
