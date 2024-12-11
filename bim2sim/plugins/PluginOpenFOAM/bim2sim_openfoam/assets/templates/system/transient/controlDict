@@ -168,10 +168,6 @@ functions
 
         enabled		true;
 
-        executeControl		writeTime;
-
-        executeInterval		1;
-
         writeControl		writeTime;
 
         writeInterval		1;
@@ -248,6 +244,24 @@ functions
 
         writeInterval		1;
 
+    }
+
+    solverInfo
+    {
+        type            solverInfo;
+
+        libs
+        (
+            "libutilityFunctionObjects.so"
+        );
+
+        fields          (U h);
+
+        writeResidualFields no;
+
+        executeControl  timeStep;
+
+        executeInterval 10;
     }
 
 }
