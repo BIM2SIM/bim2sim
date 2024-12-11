@@ -83,7 +83,7 @@ class CalculateHydraulicSystem(ITask):
 
     def run(self, heating_graph, heat_demand_dict, elements):
 
-        self.lock = threading.Lock()
+        self.lock = self.playground.sim_settings.lock
 
         self.hydraulic_system_directory = Path(self.paths.export / 'hydraulic system')
         self.material_result_file = self.hydraulic_system_directory / "material_quantities_hydraulic_system.xlsx"
@@ -252,8 +252,9 @@ class CalculateHydraulicSystem(ITask):
         file = self.hydraulic_system_directory / filename
         self.logger.info(f"Save Networkx {graph} with type {type_grid} in {file}.")
         data = json_graph.node_link_data(graph)
-        with open(file, 'w') as f:
-            json.dump(data, f, indent=4)
+        with self.lock:
+            with open(file, 'w') as f:
+                json.dump(data, f, indent=4)
 
     def select_heating_model(self, model_dict: dict, calculated_heat_flow):
         """
@@ -301,8 +302,8 @@ class CalculateHydraulicSystem(ITask):
 
         return selected_model, min_mass, material, length, norm_heat_flow
 
-    @staticmethod
-    def read_radiator_material_excel(filename,
+    def read_radiator_material_excel(self,
+                                     filename,
                                      sheet_name,
                                      ):
         """
@@ -314,7 +315,9 @@ class CalculateHydraulicSystem(ITask):
         Returns:
 
         """
-        data = pd.read_excel(filename, sheet_name=sheet_name)
+        with self.lock:
+            with open(filename, "rb") as excel_file:
+                data = pd.read_excel(excel_file, engine="openpyxl", sheet_name=sheet_name)
         # Daten aus der Tabelle auslesen und verarbeiten
         model_dict = {}
         for index, row in data.iterrows():
@@ -338,13 +341,21 @@ class CalculateHydraulicSystem(ITask):
                              filename,
                              sheet_name,
                              calc_inner_diameter: float = 11.5):
-        data = pd.read_excel(filename, sheet_name=sheet_name)
+        with self.lock:
+            with open(filename, "rb") as excel_file:
+                data = pd.read_excel(excel_file, engine="openpyxl", sheet_name=sheet_name)
         inner_diameter_list = {}
         material = None
         density = None
         pipe_mass = None
         # calc_inner_diameter = calc_inner_diameter.magnitude
         for index, row in data.iterrows():
+            # TODO Delete after debugging is finished
+            if "Rohrgewicht [kg/m]" not in row:
+                print(data,
+                      index,
+                      row,
+                      inner_diameter_list)
 
             material = row['Material']
             mass = row["Rohrgewicht [kg/m]"] * (ureg.kilograms / ureg.meter)
@@ -2216,10 +2227,9 @@ class CalculateHydraulicSystem(ITask):
 
     def define_standard_indoor_temperature(self, usage):
         UseConditions_Path = Path(__file__).parent.parent / 'assets/UseConditions.json'
-        self.lock.acquire()
-        with open(UseConditions_Path, 'r') as file:
-            UseConditions = json.load(file)
-        self.lock.release()
+        with self.lock:
+            with open(UseConditions_Path, 'r') as file:
+                UseConditions = json.load(file)
 
         standard_indoor_temperature = 0
         for key, values in UseConditions.items():
@@ -2355,11 +2365,12 @@ class CalculateHydraulicSystem(ITask):
         # df_new_sheet = pd.DataFrame.from_dict(bom, orient='index', columns=['Anzahl'])
         df_components = pd.DataFrame.from_dict(bom, orient='index')
         df_components_quantities = pd.DataFrame.from_dict(bom_types_quantities, orient='index')
-        with pd.ExcelWriter(filename, mode='a', engine='openpyxl') as writer:
-            # Schreiben Sie das neue Sheet in die Excel-Datei
+        with self.lock:
+            with pd.ExcelWriter(filename, mode='a', engine='openpyxl') as writer:
+                # Schreiben Sie das neue Sheet in die Excel-Datei
 
-            df_components.to_excel(writer, sheet_name='Components', index_label='Node')
-            df_components_quantities.to_excel(writer, sheet_name='Component Quantities', index_label='Type')
+                df_components.to_excel(writer, sheet_name='Components', index_label='Node')
+                df_components_quantities.to_excel(writer, sheet_name='Component Quantities', index_label='Type')
 
         # Bestätigung, dass das Sheet hinzugefügt wurde
         self.logger.info(f"Das neue Sheet {filename} wurde erfolgreich zur Excel-Datei hinzugefügt.")

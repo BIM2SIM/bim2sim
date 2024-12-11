@@ -23,15 +23,14 @@ class InterfaceToPluginTeaser(ITask):
     def run(self, elements):
         self.logger.info("Load thermal zone data")
 
-        self.lock = threading.Lock()
+        self.lock = self.playground.sim_settings.lock
 
         if self.playground.sim_settings.disaggregate_heat_demand_thermal_zones:
             #pickle_path = self.paths.export / "serialized_elements.pickle"
             pickle_path = self.playground.sim_settings.serialized_elements_path
-            self.lock.acquire()
-            with open(pickle_path, 'rb') as file:
-                deserialized_elements = pickle.load(file)
-            self.lock.release()
+            with self.lock:
+                with open(pickle_path, 'rb') as file:
+                    deserialized_elements = pickle.load(file)
 
             zone_dict = CreateResultDF.map_zonal_results(
                 bim2sim_teaser_mapping, deserialized_elements)
@@ -84,10 +83,9 @@ class InterfaceToPluginTeaser(ITask):
 
     def read_thermal_zone_mapping_json(self):
         filepath = self.playground.sim_settings.thermal_zone_mapping_file_path
-        self.lock.acquire()
-        with open(filepath, "r") as file:
-            json_data = json.load(file)
-        self.lock.release()
+        with self.lock:
+            with open(filepath, "r") as file:
+                json_data = json.load(file)
 
         space_dict = {}
         i = 1

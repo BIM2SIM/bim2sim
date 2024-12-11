@@ -21,7 +21,7 @@ class GetIFCBuildingGeometry(ITask):
 
     def run(self, ifc_files):
 
-        self.lock = threading.Lock()
+        self.lock = self.playground.sim_settings.lock
 
         self.hydraulic_system_directory = Path(self.paths.export / 'hydraulic system')
         self.hydraulic_system_directory.mkdir(parents=True, exist_ok=True)
@@ -34,25 +34,22 @@ class GetIFCBuildingGeometry(ITask):
             floor_dict = self.sort_room_floor(spaces_dict=room)
             self.write_json(data=floor_dict, filename=f"ifc_building_floor.json")
         else:
-            self.lock.acquire()
             floor_dict = self.load_json(filename=f"ifc_building_floor.json")
-            self.lock.release()
-
 
         return floor_dict,
 
 
     def write_json(self, data: dict, filename):
         export_path = self.hydraulic_system_directory / filename
-
-        with open(export_path, "w") as f:
-            json.dump(data, f, indent=4)
+        with self.lock:
+            with open(export_path, "w") as f:
+                json.dump(data, f, indent=4)
 
     def load_json(self, filename):
         import_path = Path(self.paths.root).parent / filename
-
-        with open(import_path, "r") as f:
-            file = json.load(f)
+        with self.lock:
+            with open(import_path, "r") as f:
+                file = json.load(f)
         return file
 
     def get_geometry(self):
@@ -553,8 +550,9 @@ class GetIFCBuildingGeometry(ITask):
 
     def export_graph_json(self, G):
         data = nx.readwrite.json_graph.node_link_data(G)
-        with open("graph.json", "w") as f:
-            json.dump(data, f)
+        with self.lock:
+            with open("graph.json", "w") as f:
+                json.dump(data, f)
 
     def limit_neighbors(self, graph: nx.DiGraph):
         for node in graph.nodes():

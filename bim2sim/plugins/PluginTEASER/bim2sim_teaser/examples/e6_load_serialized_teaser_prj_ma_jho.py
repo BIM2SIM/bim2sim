@@ -22,7 +22,8 @@ from bim2sim.utilities.common_functions import download_library
 
 
 
-def load_serialized_teaser_project(project_path, serialized_teaser_path,
+def load_serialized_teaser_project(lock,
+                                   project_path, serialized_teaser_path,
                                    heating_bool, cooling_bool,
                                    ahu_central_bool, ahu_heat_bool, ahu_cool_bool, ahu_hum_bool,
                                    ahu_heat_recovery, ahu_efficiency, ahu_heat_recovery_efficiency,
@@ -40,7 +41,9 @@ def load_serialized_teaser_project(project_path, serialized_teaser_path,
     path_aixlib = path_aixlib / repo_name / 'package.mo'
 
     prj = Project()
-    prj.load_project(path=serialized_teaser_path)
+
+    with lock:
+        prj.load_project(path=serialized_teaser_path)
 
     prj.data = DataClass(construction_data=ConstructionData.kfw_40)
 
@@ -104,7 +107,8 @@ def load_serialized_teaser_project(project_path, serialized_teaser_path,
         report=True
     )
 
-    simulate_dymola_ebcpy(teaser_prj=prj,
+    simulate_dymola_ebcpy(lock=lock,
+                          teaser_prj=prj,
                           prj_export_path=prj_export_path,
                           path_aixlib=path_aixlib,
                           hvac_params=hvac_params)
@@ -191,7 +195,7 @@ def manipulate_teaser_model(teaser_prj,
                 door.load_type_element(year=construction_classes["year_of_construction"],
                                        construction=construction_classes["construction_class_doors"])
 
-def simulate_dymola_ebcpy(teaser_prj, prj_export_path, path_aixlib, hvac_params):
+def simulate_dymola_ebcpy(lock, teaser_prj, prj_export_path, path_aixlib, hvac_params):
     """Simulates the exported TEASER model by using ebcpy.
 
     The Modelica model that is created through TEASER is simulated by using
@@ -273,8 +277,9 @@ def simulate_dymola_ebcpy(teaser_prj, prj_export_path, path_aixlib, hvac_params)
         script += f'writeTrajectory(outName, varNames, transpose(readTrajectory(resultFile, varNames, n)));'
 
         mos_file_path = bldg_result_dir / "edit_result_file.mos"
-        with open(mos_file_path, 'w') as file:
-            file.write(script)
+        with lock:
+            with open(mos_file_path, 'w') as file:
+                file.write(script)
 
         if isinstance(mos_file_path, Path):
             mos_file_path = str(mos_file_path)
@@ -287,10 +292,7 @@ def simulate_dymola_ebcpy(teaser_prj, prj_export_path, path_aixlib, hvac_params)
 
         return mos_file_path
 
-    lock = threading.Lock()
-
     for bldg in teaser_prj.buildings:
-        lock.acquire()
         # needed because teaser removes special characters
         model_export_name = teaser_prj.name
         dir_model_package = Path(prj_export_path, "Model", model_export_name, "package.mo")
@@ -313,33 +315,32 @@ def simulate_dymola_ebcpy(teaser_prj, prj_export_path, path_aixlib, hvac_params)
         bldg_result_dir = sim_results_path / bldg.name
         bldg_result_dir.mkdir(parents=True, exist_ok=True)
 
-        try:
-            dym_api = DymolaAPI(
-                model_name=sim_model,
-                working_directory=bldg_result_dir,
-                packages=packages,
-                show_window=True,
-                n_restart=-1,
-                equidistant_output=True,
-                debug=True
-            )
-        except Exception:
-            raise Exception(
-                "Dymola API could not be initialized, there"
-                "are several possible reasons."
-                " One could be a missing Dymola license.")
+        with lock:
+            time.sleep(15)
+            try:
+                dym_api = DymolaAPI(
+                    model_name=sim_model,
+                    working_directory=bldg_result_dir,
+                    packages=packages,
+                    show_window=True,
+                    n_restart=-1,
+                    equidistant_output=True,
+                    debug=True
+                )
+            except Exception:
+                raise Exception(
+                    "Dymola API could not be initialized, there"
+                    "are several possible reasons."
+                    " One could be a missing Dymola license.")
 
-        dym_api.set_sim_setup(sim_setup=simulation_setup)
-        # activate spare solver as TEASER models are mostly sparse
-        dym_api.dymola.ExecuteCommand("Advanced.SparseActivate=true")
-
-        lock.release()
+            dym_api.set_sim_setup(sim_setup=simulation_setup)
+            # activate spare solver as TEASER models are mostly sparse
+            dym_api.dymola.ExecuteCommand("Advanced.SparseActivate=true")
 
         teaser_mat_result_path = dym_api.simulate(
             return_option="savepath",
             savepath=str(sim_results_path / bldg.name),
-            result_file_name="teaser_results"
-        )
+            result_file_name="teaser_results")
 
 
         mos_file_path = edit_mat_result_file(teaser_prj=teaser_prj,

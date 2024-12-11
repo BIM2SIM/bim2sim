@@ -37,7 +37,7 @@ class CreateBuildingAndHeatingGraph(ITask):
 
     def run(self, floor_dict, elements, heat_demand_dict):
 
-        self.lock = threading.Lock()
+        self.lock = self.playground.sim_settings.lock
 
         self.hydraulic_system_directory = Path(self.paths.export / 'hydraulic system')
 
@@ -92,19 +92,19 @@ class CreateBuildingAndHeatingGraph(ITask):
     def load_json_graph(self, filename: str):
         filepath = Path(self.paths.root).parent / filename
         self.logger.info(f"Read {filename} Graph from file {filepath}")
-        self.lock.acquire()
-        with open(filepath, "r") as file:
-            json_data = json.load(file)
-            graph = nx.node_link_graph(json_data)
-        self.lock.release()
+        with self.lock:
+            with open(filepath, "r") as file:
+                json_data = json.load(file)
+                graph = nx.node_link_graph(json_data)
         return graph
 
     def write_json_graph(self, graph, filename):
         filepath = self.hydraulic_system_directory / filename
         self.logger.info(f"Read {filename} Graph from file {filepath}")
         data = json_graph.node_link_data(graph)
-        with open(filepath, 'w') as f:
-            json.dump(data, f, indent=4)
+        with self.lock:
+            with open(filepath, 'w') as f:
+                json.dump(data, f, indent=4)
 
 
     def reduce_path_nodes(self, graph, color, start_nodes: list, end_nodes: list):
@@ -344,8 +344,8 @@ class CreateBuildingAndHeatingGraph(ITask):
                 assert KeyError(f"Not enough windows for radiators in room {room_id}")
         return window_dict
 
-    @staticmethod
-    def read_radiator_material_excel(filename,
+    def read_radiator_material_excel(self,
+                                     filename,
                                      sheet_name,
                                      ):
         """
@@ -357,7 +357,9 @@ class CreateBuildingAndHeatingGraph(ITask):
 		Returns:
 
 		"""
-        data = pd.read_excel(filename, sheet_name=sheet_name)
+        with self.lock:
+            with open(filename, "rb") as excel_file:
+                data = pd.read_excel(excel_file, engine="openpyxl", sheet_name=sheet_name)
         # Daten aus der Tabelle auslesen und verarbeiten
         model_dict = {}
         for index, row in data.iterrows():
@@ -389,10 +391,9 @@ class CreateBuildingAndHeatingGraph(ITask):
 
     def define_standard_indoor_temperature(self, usage):
         UseConditions_Path = Path(__file__).parent.parent / 'assets/UseConditions.json'
-        self.lock.acquire()
-        with open(UseConditions_Path, 'r') as file:
-            UseConditions = json.load(file)
-        self.lock.release()
+        with self.lock:
+            with open(UseConditions_Path, 'r') as file:
+                UseConditions = json.load(file)
 
         standard_indoor_temperature = 0
         for key, values in UseConditions.items():
