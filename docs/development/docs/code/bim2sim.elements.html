@@ -406,6 +406,7 @@ information</p>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.Attribute.STATUS_AVAILABLE"><code class="docutils literal notranslate"><span class="pre">Attribute.STATUS_AVAILABLE</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.Attribute.STATUS_NOT_AVAILABLE"><code class="docutils literal notranslate"><span class="pre">Attribute.STATUS_NOT_AVAILABLE</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.Attribute.STATUS_REQUESTED"><code class="docutils literal notranslate"><span class="pre">Attribute.STATUS_REQUESTED</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.Attribute.STATUS_RESET"><code class="docutils literal notranslate"><span class="pre">Attribute.STATUS_RESET</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.Attribute.STATUS_UNKNOWN"><code class="docutils literal notranslate"><span class="pre">Attribute.STATUS_UNKNOWN</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.Attribute.check_conditions"><code class="docutils literal notranslate"><span class="pre">Attribute.check_conditions()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.Attribute.create_decision"><code class="docutils literal notranslate"><span class="pre">Attribute.create_decision()</span></code></a></li>
@@ -419,6 +420,7 @@ information</p>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.Attribute.ifc_post_processing"><code class="docutils literal notranslate"><span class="pre">Attribute.ifc_post_processing()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.Attribute.initialize"><code class="docutils literal notranslate"><span class="pre">Attribute.initialize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.Attribute.request"><code class="docutils literal notranslate"><span class="pre">Attribute.request()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.Attribute.reset"><code class="docutils literal notranslate"><span class="pre">Attribute.reset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.Attribute.to_aggregation"><code class="docutils literal notranslate"><span class="pre">Attribute.to_aggregation()</span></code></a></li>
 </ul>
 </li>
@@ -428,6 +430,7 @@ information</p>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.AttributeManager.get_unit"><code class="docutils literal notranslate"><span class="pre">AttributeManager.get_unit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.AttributeManager.names"><code class="docutils literal notranslate"><span class="pre">AttributeManager.names</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.AttributeManager.request"><code class="docutils literal notranslate"><span class="pre">AttributeManager.request()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.AttributeManager.reset"><code class="docutils literal notranslate"><span class="pre">AttributeManager.reset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.attribute.AttributeManager.update"><code class="docutils literal notranslate"><span class="pre">AttributeManager.update()</span></code></a></li>
 </ul>
 </li>
@@ -645,6 +648,17 @@ all attributes functions are used to calculate the remaining attributes</p>
 external_decision: Decision to use instead of default decision</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.base_elements.Element.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">AttributeDataSource.manual_overwrite</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.base_elements.Element.reset" title="Permalink to this definition"></a></dt>
+<dd><p>Reset the attribute of the element.
+Args:</p>
+<blockquote>
+<div><p>name: attribute name
+data_source (object): data source of the attribute</p>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">
@@ -975,7 +989,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1016,7 +1031,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1032,7 +1048,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1048,7 +1065,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1064,7 +1082,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1284,7 +1303,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1317,7 +1337,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1385,7 +1406,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1401,7 +1423,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1417,7 +1440,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1433,7 +1457,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1449,7 +1474,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1465,7 +1491,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1481,7 +1508,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1497,7 +1525,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1523,7 +1552,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1549,7 +1579,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1565,7 +1596,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1581,7 +1613,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1597,7 +1630,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1613,7 +1647,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1659,7 +1694,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1675,7 +1711,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1696,7 +1733,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1712,7 +1750,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1733,7 +1772,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1749,7 +1789,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1765,7 +1806,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1786,7 +1828,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1802,7 +1845,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2007,7 +2051,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2079,7 +2124,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2183,7 +2229,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2209,7 +2256,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2225,7 +2273,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2247,7 +2296,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2268,7 +2318,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2289,7 +2340,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2305,7 +2357,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2327,7 +2380,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2343,7 +2397,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2448,7 +2503,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2587,7 +2643,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2603,7 +2660,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2624,7 +2682,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2640,7 +2699,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2656,7 +2716,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2672,7 +2733,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2698,7 +2760,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2714,7 +2777,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2730,7 +2794,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2746,7 +2811,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2768,7 +2834,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2784,7 +2851,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2800,7 +2868,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2816,7 +2885,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2832,7 +2902,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2848,7 +2919,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2864,7 +2936,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2887,7 +2960,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2953,7 +3027,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2969,7 +3044,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2985,7 +3061,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3001,7 +3078,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3029,7 +3107,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3045,7 +3124,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3073,7 +3153,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3089,7 +3170,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3105,7 +3187,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3121,7 +3204,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3137,7 +3221,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3153,7 +3238,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3169,7 +3255,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3185,7 +3272,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3201,7 +3289,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3217,7 +3306,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3233,7 +3323,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3249,7 +3340,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3265,7 +3357,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3281,7 +3374,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3297,7 +3391,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3313,7 +3408,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3329,7 +3425,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3345,7 +3442,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3361,7 +3459,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3377,7 +3476,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3404,7 +3504,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3420,7 +3521,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3436,7 +3538,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3452,7 +3555,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3468,7 +3572,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3504,7 +3609,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3520,7 +3626,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3536,7 +3643,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3552,7 +3660,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3568,7 +3677,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3584,7 +3694,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3600,7 +3711,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3616,7 +3728,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3632,7 +3745,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3648,7 +3762,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3670,7 +3785,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3686,7 +3802,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3702,7 +3819,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3718,7 +3836,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3734,7 +3853,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3750,7 +3870,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3793,7 +3914,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3809,7 +3931,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3830,7 +3953,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3846,7 +3970,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3867,7 +3992,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3883,7 +4009,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3904,7 +4031,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3920,7 +4048,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3936,7 +4065,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3958,7 +4088,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -3981,7 +4112,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4003,7 +4135,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4019,7 +4152,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4040,7 +4174,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4056,7 +4191,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4077,7 +4213,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4093,7 +4230,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4109,7 +4247,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4130,7 +4269,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4146,7 +4286,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4162,7 +4303,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4178,7 +4320,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4210,7 +4353,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4247,7 +4391,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4263,7 +4408,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4279,7 +4425,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4295,7 +4442,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4316,7 +4464,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4356,7 +4505,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4372,7 +4522,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4388,7 +4539,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4404,7 +4556,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4420,7 +4573,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4436,7 +4590,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4452,7 +4607,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4473,7 +4629,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4489,7 +4646,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4505,7 +4663,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4527,7 +4686,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4558,7 +4718,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4581,7 +4742,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4597,7 +4759,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4618,7 +4781,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4644,7 +4808,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4660,7 +4825,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4676,7 +4842,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4692,7 +4859,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4708,7 +4876,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4729,7 +4898,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4752,7 +4922,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4783,7 +4954,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4804,7 +4976,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4841,7 +5014,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4862,7 +5036,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4884,7 +5059,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4910,7 +5086,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4937,7 +5114,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -4963,7 +5141,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5167,7 +5346,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5198,7 +5378,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5219,7 +5400,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5242,7 +5424,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5273,7 +5456,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5294,7 +5478,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5336,7 +5521,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5389,7 +5575,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5423,7 +5610,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5444,7 +5632,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5460,7 +5649,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5476,7 +5666,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5492,7 +5683,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5519,7 +5711,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5564,7 +5757,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5585,7 +5779,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5601,7 +5796,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5617,7 +5813,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5639,7 +5836,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5670,7 +5868,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5691,7 +5890,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5707,7 +5907,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5723,7 +5924,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5739,7 +5941,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5755,7 +5958,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5771,7 +5975,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5787,7 +5992,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5809,7 +6015,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5825,7 +6032,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5846,7 +6054,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5862,7 +6071,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5878,7 +6088,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5909,7 +6120,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5925,7 +6137,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5941,7 +6154,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5957,7 +6171,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5978,7 +6193,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -5994,7 +6210,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -6010,7 +6227,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -6026,7 +6244,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -6053,7 +6272,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -6074,7 +6294,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -6100,7 +6321,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -6121,7 +6343,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -6137,7 +6360,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -6190,7 +6414,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -6221,7 +6446,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -6237,7 +6463,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -6253,7 +6480,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -6269,7 +6497,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -6290,7 +6519,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>

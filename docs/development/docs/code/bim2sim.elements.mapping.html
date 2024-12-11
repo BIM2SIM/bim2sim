@@ -120,7 +120,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -137,6 +138,11 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.STATUS_REQUESTED">
 <span class="sig-name descname"><span class="pre">STATUS_REQUESTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'REQUESTED'</span></em><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.STATUS_REQUESTED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.STATUS_RESET">
+<span class="sig-name descname"><span class="pre">STATUS_RESET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RESET'</span></em><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.STATUS_RESET" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -230,6 +236,12 @@ external_decision: Decision to use instead of default decision</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">AttributeDataSource.manual_overwrite</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.reset" title="Permalink to this definition"></a></dt>
+<dd><p>Reset attribute, set to None and STATUS_NOT_AVAILABLE.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.to_aggregation">
 <span class="sig-name descname"><span class="pre">to_aggregation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.to_aggregation" title="Permalink to this definition"></a></dt>
 <dd><p>Create new Attribute suited for aggregation.</p>
@@ -283,6 +295,12 @@ external_decision: custom decision to get attribute from</p>
 <dt>Returns:</dt><dd><p>A Decision to get the requested attributes value.</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.AttributeManager.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">AttributeDataSource.manual_overwrite</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.AttributeManager.reset" title="Permalink to this definition"></a></dt>
+<dd><p>Reset attribute, set to None and STATUS_NOT_AVAILABLE.</p>
 </dd></dl>
 
 <dl class="py method">
