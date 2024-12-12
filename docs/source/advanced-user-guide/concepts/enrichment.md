@@ -12,6 +12,11 @@ The data in UseConditions.json is a mixture of these two standards as some value
 The data is copied from [TEASER](https://github.com/RWTH-EBC/TEASER/tree/main/teaser/data/input/inputdata) and adjusted in some points 
 (e.g. `typical_length`and `typical_width` are currently not required for bim2sim). 
 
+For further information about the different entries in UseConditions.json and there
+units, please have a loko at the description of the corresponding attributes of
+[ThermalZone](ThermalZone) and the original documentation in
+[TEASER](https://github.com/RWTH-EBC/TEASER/blob/main/teaser/logic/buildingobjects/useconditions.py.
+
 You can also use your own UseConditions data, by using the `sim_settings` `prj_use_conditions` and `prj_custom_usages`. For more information we refer to the description of these `sim_settings`.
 
 ## Material and layer enrichment
