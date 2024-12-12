@@ -45,7 +45,7 @@ class RegressionTestEnergyPlus(RegressionTestBase):
         regression test for the passed project EnergyPlus simulation model
         export.
         """
-        passed_regression_test = True
+        passed_regression_test = False
 
         regex = re.compile("[^a-zA-z0-9]")
         model_export_name = regex.sub("", self.project.name)
@@ -79,8 +79,8 @@ class RegressionTestEnergyPlus(RegressionTestBase):
             os.path.join(regression_results_dir, 'math_diff_math.log'),
             os.path.join(regression_results_dir, 'summary_math.csv'),
         )
-        if csv_regression[0] == 'Big Diffs':
-            passed_regression_test = False  # only passes with small diffs
+        if csv_regression[0] in ['Small Diffs', 'All Equal']:
+            passed_regression_test = True  # only passes with small diffs
 
         htm_regression = table_diff.table_diff(
             # htm_regression returns message, #tables, #big_diff,
@@ -94,8 +94,8 @@ class RegressionTestEnergyPlus(RegressionTestBase):
             os.path.join(regression_results_dir, 'math_diff_table.log'),
             os.path.join(regression_results_dir, 'summary_table.csv'),
         )
-        if htm_regression[2] != 0:
-            passed_regression_test = False  # only passes without big diffs
+        if htm_regression[2] == 0:
+            passed_regression_test = True  # only passes without big diffs
 
         return passed_regression_test
 
