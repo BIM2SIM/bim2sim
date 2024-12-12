@@ -11,6 +11,9 @@ from bim2sim.utilities.types import AttributeDataSource
 
 
 class TestElement(ProductBased):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.x = 42
     ifc_types = {}
 
     attr1 = Attribute(
@@ -20,11 +23,10 @@ class TestElement(ProductBased):
     attr3 = Attribute()
     attr4 = Attribute()
     attr5 = Attribute(
-        functions=[lambda self, attr:42]
+        functions=[lambda self, attr:self.x]
     )
     attr6 = Attribute(attr_type=str)
     attr7 = Attribute(attr_type=bool)
-
 
 
 class TestAttribute(unittest.TestCase):
@@ -64,7 +66,8 @@ class TestAttribute(unittest.TestCase):
         """Test attribute manager"""
         self.assertIsNone(self.subject.attr1)
 
-        self.assertEqual(7, len(self.subject.attributes), "All Attributes should be registered in AttributeManager")
+        self.assertEqual(7, len(self.subject.attributes),
+                         "All Attributes should be registered in AttributeManager")
 
         self.assertEqual(7, len(list(self.subject.attributes.names)))
 
@@ -106,6 +109,63 @@ class TestAttribute(unittest.TestCase):
     def test_from_function(self):
         """test getting attribute from function"""
         self.assertEqual(42, self.subject.attr5)
+
+    def test_attribute_reset(self):
+        """test reset an attribute"""
+        self.assertIsNone(self.subject.attr1)
+
+        # set attribute and check if it is correctly set
+        self.subject.attr1 = 0.2
+        self.assertIs(type(0.2), type(self.subject.attr1.magnitude))
+
+        # reset attribute and check that it's correctly set
+        self.subject.reset('attr1')
+        self.assertIsNone(self.subject.attr1)
+        # status should be "NOT_AVAILABLE"
+        status = self.subject.attributes['attr1'][1]
+        self.assertEqual(status, "NOT_AVAILABLE")
+
+        # set attribute again and check if it is correctly set
+        self.subject.attr1 = 0.2
+        self.assertIs(type(0.2), type(self.subject.attr1.magnitude))
+
+    def test_attribute_by_function_reset(self):
+        """test reset an attribute that is calculated by a function."""
+        self.assertEqual(42, self.subject.attr5)
+        self.subject.reset('attr5')
+        self.assertEqual(42, self.subject.attr5)
+
+    def test_attribute_reset_with_function_change(self):
+        """test reset an attribute with a function change in meantime."""
+        # check that the attribute is correctly calculated
+        self.assertEqual(42, self.subject.attr5)
+        # change the value based on that the function calculates the attribute
+        self.subject.x = 10
+        # the calculated value still remains the same
+        self.assertEqual(42, self.subject.attr5)
+        # reset the attribute to make sure that is calculated again
+        self.subject.reset('attr5')
+        # check again that the new calculation returns the correct value
+        self.assertEqual(10, self.subject.attr5)
+
+    def test_attribute_reset(self):
+        """test reset an attribute"""
+        self.assertIsNone(self.subject.attr1)
+
+        # set attribute and check if it is correctly set
+        self.subject.attr1 = 0.2
+        self.assertIs(type(0.2), type(self.subject.attr1.magnitude))
+
+        # reset attribute and check that it's correctly set
+        self.subject.reset('attr1')
+        self.assertIsNone(self.subject.attr1)
+        # status should be "NOT_AVAILABLE"
+        status = self.subject.attributes['attr1'][1]
+        self.assertEqual(status, "NOT_AVAILABLE")
+
+        # set attribute again and check if it is correctly set
+        self.subject.attr1 = 0.2
+        self.assertIs(type(0.2), type(self.subject.attr1.magnitude))
 
 
 class TestAttributeDecisions(unittest.TestCase):

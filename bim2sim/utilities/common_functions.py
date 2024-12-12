@@ -216,9 +216,9 @@ def wildcard_match(pattern, text):
     return True
 
 
-def get_type_building_elements():
+def get_type_building_elements(data_file):
     type_building_elements_path = \
-        assets / 'enrichment/material/TypeBuildingElements.json'
+        assets / 'enrichment/material' / data_file
     if validateJSON(type_building_elements_path):
         with open(type_building_elements_path, 'r+') as file:
             type_building_elements = json.load(file)
@@ -227,7 +227,8 @@ def get_type_building_elements():
         raise ValueError(f"Invalid JSON file  {type_building_elements_path}")
     template_options = {}
     for i in type_building_elements:
-        i_name, i_years, i_template = i.split('_')
+        i_name, i_years = i.split('_')[0:2]
+        i_template = i.split(f'{i_years}_')[1]
         if i_name not in template_options:
             template_options[i_name] = {}
         if i_years not in template_options[i_name]:
@@ -247,19 +248,6 @@ def get_material_templates():
     else:
         raise ValueError(f"Invalid JSON file  {material_templates_path}")
     return material_templates
-
-
-def get_type_building_elements_hvac():
-    # todo: still needed?
-    type_building_elements_path = \
-        assets / 'enrichment/hvac/TypeHVACElements.json'
-    if validateJSON(type_building_elements_path):
-        with open(type_building_elements_path, 'r+') as file:
-            type_building_elements = json.load(file)
-            del type_building_elements['version']
-    else:
-        raise ValueError(f"Invalid JSON file  {type_building_elements_path}")
-    return type_building_elements
 
 
 def filter_elements(
@@ -379,102 +367,6 @@ def get_spaces_with_bounds(elements: dict):
     spaces_with_bounds = [s for s in spaces if s.space_boundaries]
 
     return spaces_with_bounds
-
-
-def download_file(url:str, target: Path):
-    """Download the file from url and put into target path.
-
-    Unzips the downloaded content if it is a zip.
-
-    Args:
-        url: str that holds url
-        target: pathlib path to target
-    """
-    with urlopen(url) as sciebo_website:
-        # Download from URL
-        content = sciebo_website.read()
-        # Save to file
-        with open(target, 'wb') as download:
-            download.write(content)
-        if str(target).lower().endswith('zip'):
-            # unzip files
-            with zipfile.ZipFile(target, 'r') as zip_ref:
-                zip_ref.extractall(target.parent)
-            # wait a second to prevent problems with deleting the file
-            sleep(1)
-            # remove zip file
-            Path.unlink(target)
-
-
-def download_test_resources(
-        domain: Union[str, IFCDomain],
-        with_regression: bool = False,
-        force_new: bool = False):
-    """Download test resources from Sciebo cloud.
-
-    This downloads additional resources in form of IFC files, regression results
-    and custom usages for BPS simulations for tests that should not be stored in
-    repository for size reasons.
-
-    domain: IFCDomain for that the content is wanted
-    with_regression: boolean that determines if regression results should be
-    downloaded as well.
-    force_new: bool to force update of resources even if folders already exist
-    """
-    # TODO #539: include hvac regression results here when implemented
-    if not isinstance(domain, IFCDomain):
-        try:
-            domain = IFCDomain[domain]
-        except ValueError:
-            raise ValueError(f"{domain} is not one of "
-                             f"{[domain.name for domain in IFCDomain]}, "
-                             f"please specify a valid download domain")
-    domain_name = domain.name
-
-    # check if already exists
-    test_rsrc_base_path = Path(__file__).parent.parent.parent / 'test/resources'
-    if Path.exists(test_rsrc_base_path / domain_name) and not force_new:
-        return
-    print(f"Downloading test resources for Domain {domain_name}")
-    if not Path.exists(test_rsrc_base_path / domain_name):
-        Path.mkdir(test_rsrc_base_path / domain_name)
-
-    sciebo_urls = {
-        'arch_ifc':
-            'https://rwth-aachen.sciebo.de/s/Imfggxwv8AKZ8T7/download',
-        'arch_regression_results':
-            'https://rwth-aachen.sciebo.de/s/ria5Zi9WdcjFr37/download',
-        'arch_custom_usages':
-            'https://rwth-aachen.sciebo.de/s/nzrGDLPAmHDQkBo/download',
-        'hydraulic_ifc':
-            'https://rwth-aachen.sciebo.de/s/fgMCUmFFEZSI9zU/download',
-        'hydraulic_regression_results':
-            'https://rwth-aachen.sciebo.de/s/IIBSoUseywtn66x/download',
-        'mixed_ifc':
-            'https://rwth-aachen.sciebo.de/s/SVldBrvVwWVz7db/download'
-    }
-
-    download_file(
-        url=sciebo_urls[domain_name+'_ifc'],
-        target=test_rsrc_base_path / domain_name / 'ifc.zip')
-    if domain == IFCDomain.arch:
-        download_file(
-            url=sciebo_urls[domain_name+'_custom_usages'],
-            target=test_rsrc_base_path / domain_name / 'custom_usages.zip')
-    if with_regression:
-        # TODO #1: remove these lines when implemented mixed regression
-        #  tests
-        if domain == IFCDomain.mixed:
-            raise NotImplementedError("Currently there are no regression"
-                                      " results for mixed simulations")
-        else:
-            download_file(
-                url=sciebo_urls[domain_name + '_regression_results'],
-                target=test_rsrc_base_path / domain_name /
-                       'regression_results.zip')
-    if domain not in [IFCDomain.arch, IFCDomain.hydraulic, IFCDomain.mixed]:
-        raise ValueError(f"For the domain {domain.name} currently no test "
-                         f"files exist.")
 
 
 def download_library(
