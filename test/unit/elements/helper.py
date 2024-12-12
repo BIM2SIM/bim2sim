@@ -347,7 +347,8 @@ class SetupHelperBPS(SetupHelper):
             **kwargs)
         return tz
 
-    def get_thermalzones_diff_usage(self, usages: list):
+    def get_thermalzones_diff_usage(
+            self, usages: list, gross_areas: list):
         """Returns a number of ThermalZones with different usage.
 
         The first ThermalZone has a usage that can be identified by regular
@@ -355,12 +356,16 @@ class SetupHelperBPS(SetupHelper):
         identified due to random names, but the third one is similar to the
         first). The fourth ThermalZone can again be identified.
 
+        Args:
+            usages: list of usage strings
+            gross_area: list of gross_areas
         Returns:
             list of the three ThermalZone elements
         """
         tz_elements = []
-        for usage in usages:
-            tz_elements.append(self.get_thermalzone(usage=usage))
+        for usage, gross_area in zip(usages, gross_areas):
+            tz_elements.append(self.get_thermalzone(
+                usage=usage, gross_area=gross_area))
 
         return tz_elements
 
