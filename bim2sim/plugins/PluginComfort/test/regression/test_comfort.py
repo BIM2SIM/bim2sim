@@ -45,7 +45,7 @@ class RegressionTestComfort(RegressionTestBase):
         regression test for the passed project EnergyPlus simulation model
         export.
         """
-        passed_regression_test = True
+        passed_regression_test = False
 
         regex = re.compile("[^a-zA-z0-9]")
         model_export_name = regex.sub("", self.project.name)
@@ -79,8 +79,8 @@ class RegressionTestComfort(RegressionTestBase):
             os.path.join(regression_results_dir, 'math_diff_math.log'),
             os.path.join(regression_results_dir, 'summary_math.csv'),
         )
-        if csv_regression[0] == 'Big Diffs':
-            passed_regression_test = False  # only passes with small diffs
+        if csv_regression[0] in ['Small Diffs', 'All Equal']:
+            passed_regression_test = True  # only passes with small diffs
 
         htm_regression = table_diff.table_diff(
             # htm_regression returns message, #tables, #big_diff,
@@ -94,8 +94,8 @@ class RegressionTestComfort(RegressionTestBase):
             os.path.join(regression_results_dir, 'math_diff_table.log'),
             os.path.join(regression_results_dir, 'summary_table.csv'),
         )
-        if htm_regression[2] != 0:
-            passed_regression_test = False  # only passes without big diffs
+        if htm_regression[2] == 0:
+            passed_regression_test = True  # only passes without big diffs
 
         return passed_regression_test
 
@@ -206,7 +206,6 @@ class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
         """Test DigitalHub IFC, includes regression test."""
         ifc_names = {IFCDomain.arch: 'FM_ARC_DigitalHub_with_SB89.ifc'}
         project = self.create_project(ifc_names, 'comfort')
-        project.sim_settings.zoning_setup = LOD.full
         project.sim_settings.create_external_elements = True
         project.sim_settings.cooling = True
         project.sim_settings.construction_class_windows = \
@@ -214,7 +213,7 @@ class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
         project.sim_settings.prj_use_conditions = Path(
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
-            "UseConditionsFM_ARC_DigitalHub_with_SB89.json"
+            "UseConditionsFM_ARC_DigitalHub.json"
         project.sim_settings.prj_custom_usages = Path(
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \

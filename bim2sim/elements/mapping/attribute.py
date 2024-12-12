@@ -1,12 +1,13 @@
+import inspect
 import logging
 from functools import partial
 from typing import Tuple, Iterable, Callable, Any, Union
 
 import pint
 
+from bim2sim.elements.mapping.units import ureg
 from bim2sim.kernel.decision import RealDecision, Decision, \
     DecisionBunch, BoolDecision, StringDecision
-from bim2sim.elements.mapping.units import ureg
 from bim2sim.utilities.types import AttributeDataSource
 
 logger = logging.getLogger(__name__)
@@ -38,6 +39,7 @@ class Attribute:
         REQUESTED: Attribute was already requested via a decision??.
         AVAILABLE: Attribute exists and is available.
         NOT_AVAILABLE: No way was found to obtain the attributes value.
+        RESET: The Attribute was reset.
 
     To find more about Descriptor objects follow the explanations on
     https://rszalski.github.io/magicmethods/#descriptor
@@ -46,6 +48,7 @@ class Attribute:
     STATUS_REQUESTED = 'REQUESTED'
     STATUS_AVAILABLE = 'AVAILABLE'
     STATUS_NOT_AVAILABLE = 'NOT_AVAILABLE'
+    STATUS_RESET = 'RESET'
 
     def __init__(self,
                  description: str = "",
@@ -127,28 +130,28 @@ class Attribute:
             if value is None and self.ifc_attr_name:
                 if hasattr(bind.ifc, self.ifc_attr_name):
                     raw_value = getattr(bind.ifc, self.ifc_attr_name)
-                    value = self.ifc_post_processing(raw_value)
+                    value = self.post_process_value(bind, raw_value)
                     if value is not None:
                         data_source = AttributeDataSource.ifc_attr
             # default property set
             if value is None and self.default_ps:
                 raw_value = self.get_from_default_propertyset(bind,
                                                               self.default_ps)
-                value = self.ifc_post_processing(raw_value)
+                value = self.post_process_value(bind, raw_value)
                 if value is not None:
                     data_source = AttributeDataSource.default_ps
 
             if value is None and self.default_association:
                 raw_value = self.get_from_default_propertyset(
                     bind, self.default_association)
-                value = self.ifc_post_processing(raw_value)
+                value = self.post_process_value(bind, raw_value)
                 if value is not None:
                     data_source = AttributeDataSource.default_association
 
             # tool specific properties (finder)
             if value is None:
                 raw_value = self.get_from_finder(bind, self.name)
-                value = self.ifc_post_processing(raw_value)
+                value = self.post_process_value(bind, raw_value)
                 if value is not None:
                     data_source = AttributeDataSource.finder
 
@@ -156,7 +159,7 @@ class Attribute:
             if value is None and self.patterns:
                 raw_value = self.get_from_patterns(bind, self.patterns,
                                                    self.name)
-                value = self.ifc_post_processing(raw_value)
+                value = self.post_process_value(bind, raw_value)
                 if value is not None:
                     data_source = AttributeDataSource.patterns
 
@@ -310,6 +313,33 @@ class Attribute:
             )
         return decision
 
+    def post_process_value(self, bind, raw_value):
+        """Post-process the raw_value.
+
+        If attribute is given an external ifc_postprocessing entry, this
+        function will be used. Otherwise, the pre implemented
+        ifc_post_processing of the attribute class will be used.
+        If an external ifc_postprocessing is give, this is checked for being
+        static or not, because if not static, the bind needs to be forwarded to
+        the method.
+        """
+        if raw_value is not None:
+            ifc_post_process_func_name = self.ifc_post_processing.__name__
+            # check if external ifc_post_processing method exists:
+            if hasattr(bind, ifc_post_process_func_name):
+                # check of the method is static or needs the bind
+                is_static = isinstance(inspect.getattr_static(
+                    bind, ifc_post_process_func_name), staticmethod)
+                if is_static:
+                    value = self.ifc_post_processing(raw_value)
+                else:
+                    value = self.ifc_post_processing(bind, raw_value)
+            else:
+                value = self.ifc_post_processing(raw_value)
+        else:
+            value = raw_value
+        return value
+
     @staticmethod
     def ifc_post_processing(value):
         """Function for post processing of ifc property values (e.g. diameter
@@ -343,6 +373,11 @@ class Attribute:
 
         # Case 4: Value is available or already requested (no action needed)
         return
+
+    def reset(self, bind, data_source=AttributeDataSource.manual_overwrite):
+        """Reset attribute, set to None and STATUS_NOT_AVAILABLE."""
+        self._inner_set(
+            bind, None, Attribute.STATUS_RESET, data_source)
 
     def get_dependency_decisions(self, bind, external_decision=None):
         """Get dependency decisions"""
@@ -488,7 +523,8 @@ class Attribute:
         else:
             value = value_or_decision
 
-        if value is None and status == self.STATUS_UNKNOWN:
+        if (value is None and status
+                in [self.STATUS_UNKNOWN, self.STATUS_RESET]):
             value, data_source = self._get_value(bind)
             status = self.STATUS_AVAILABLE if value is not None \
                 else self.STATUS_NOT_AVAILABLE  # change for temperature
@@ -576,6 +612,16 @@ class AttributeManager(dict):
         for k, v in other.items():
             self.__setitem__(k, v)
 
+    def reset(self, name, data_source=AttributeDataSource.manual_overwrite):
+        """Reset attribute, set to None and STATUS_NOT_AVAILABLE."""
+        # TODO this has limitations when the corresponding attribute uses
+        #  functions to calculate the value, see #760 for more information
+        try:
+            attr = self.get_attribute(name)
+        except KeyError:
+            raise KeyError("%s has no Attribute '%s'" % (self.bind, name))
+        attr.reset(self.bind, data_source)
+
     def request(self, name: str, external_decision: Decision = None) \
             -> Union[None, Decision]:
         """Request attribute by name.
@@ -594,7 +640,7 @@ class AttributeManager(dict):
         except KeyError:
             raise KeyError("%s has no Attribute '%s'" % (self.bind, name))
         value, status, data_source = self[name]
-        if status == Attribute.STATUS_UNKNOWN:
+        if status in [Attribute.STATUS_UNKNOWN, Attribute.STATUS_RESET]:
             # make sure default methods are tried
             getattr(self.bind, name)
             value, status, data_source = self[name]

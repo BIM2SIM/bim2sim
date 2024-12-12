@@ -14,7 +14,8 @@ class TestUsage(unittest.TestCase):
         except ImportError as err:
             self.fail("Unable to import bim2sim\nreason: %s"%(err))
         except Exception as err:
-            self.skipTest("bim2sim available but errors occured on import\ndetails: %s"%(err))
+            self.skipTest("bim2sim available but errors occured on "
+                          "import\ndetails: %s"%(err))
 
     def test_call_console(self):
         """Test calling bim2sim --version from console"""
@@ -24,8 +25,11 @@ class TestUsage(unittest.TestCase):
             self.fail("Unable to localize bim2sim")
         path = Path(bim2sim.__file__).parent
         cmd = '"%s" %s --version' % (Path(sys.executable), 'bim2sim')
-        ret = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=path.parent, shell=True)
-        self.assertIn(bim2sim.VERSION, ret.stdout.decode('utf-8'), 'unexpected output')
+        ret = subprocess.run(
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            cwd=path.parent, shell=True)
+        self.assertIn(bim2sim.__version__, ret.stdout.decode('utf-8'),
+                      'unexpected output')
 
         # for some reason the error code is 1 but code runs as expected without errors ...
         # if ret.returncode != 0:
