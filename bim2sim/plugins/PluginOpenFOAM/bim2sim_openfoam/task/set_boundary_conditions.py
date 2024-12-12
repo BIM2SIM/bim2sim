@@ -131,6 +131,8 @@ class SetOpenFOAMBoundaryConditions(ITask):
         # calculate volumetric flow rate in l/s according to
         # DIN EN 16798-1:2022-03, Table B.6/B.7 + Table NA.6/NA.7
         # building with high emissions, air quality cat 1: 2 l/s/m2
+        # building with low emissions, air quality cat 2: 0.7 l/s/m2
+        # building with very low emissions, air quality cat 2: 0.35 l/s/m2
         # volumetric flow per person, air quality cat 2: 7 l/s/person
         total_volumetric_flow_l_per_s = (openfoam_case.floor_area * 2.0 + 7 *
                                          len(people))

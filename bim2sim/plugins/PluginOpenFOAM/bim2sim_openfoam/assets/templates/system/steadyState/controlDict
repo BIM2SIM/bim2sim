@@ -32,7 +32,7 @@ writeControl		timeStep;
 
 writeInterval		1000;
 
-purgeWrite		0;
+purgeWrite		5;
 
 writeFormat		ascii;
 
@@ -48,61 +48,6 @@ runTimeModifiable		true;
 
 functions
 {
-    /*
-    fieldAverage1
-    {
-
-        type		fieldAverage;
-
-        libs		("libfieldFunctionObjects.dll" );
-
-        fields		(
-				T {
-				mean yes;
-				prime2Mean no;
-				base iteration;
-				log true;
-				}
-				U{
-				mean yes;
-				prime2Mean no;
-				base iteration;
-				}
-				G{
-				mean yes;
-				prime2Mean no;
-				base iteration;
-				}
-				qr{
-				mean yes;
-				prime2Mean no;
-				base iteration;
-				}
-				p_rgh{
-				mean yes;
-				prime2Mean no;
-				base iteration;
-				});
-        enabled		true;
-
-        useUserTime		false;
-
-        region		region0;
-
-        log		true;
-
-        timeStart		0;
-
-        executeControl		timeStep;
-
-        executeInterval		1;
-
-        writeControl		writeTime;
-
-        writeInterval		1;
-
-    }
-*/
     MinMax
     {
 
@@ -221,10 +166,6 @@ functions
         libs		( "libsolverFunctionObjects.dll" );
 
         enabled		true;
-
-        executeControl		writeTime;
-
-        executeInterval		1;
 
         writeControl		writeTime;
 

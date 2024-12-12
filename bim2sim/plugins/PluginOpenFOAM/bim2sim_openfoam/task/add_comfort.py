@@ -26,8 +26,6 @@ class AddOpenFOAMComfort(ITask):
                             + openfoam_case.current_zone.surround_clo_persons,
                 'metabolicRate':
                     openfoam_case.current_zone.activity_degree_persons,
-                'exexuteControl': 'writeTime',
-                'executeInterval': '1',
                 'writeControl': 'writeTime',
                 'writeInterval': '1'}}
         openfoam_case.controlDict.values['functions'].update(

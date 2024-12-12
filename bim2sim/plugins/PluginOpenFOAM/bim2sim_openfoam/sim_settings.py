@@ -122,7 +122,7 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         description='Set the mesh size of the blockMesh in [m]. Insert a '
                     'number between 0.001 and 0.2.',
         min_value=0.001,
-        max_value=0.2,
+        max_value=0.4,
         for_frontend=True,
     )
     mesh_max_global_cells = NumberSetting(
@@ -130,7 +130,7 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         description='Set the maximum number of global cells for meshing in '
                     'snappyHexMesh.',
         min_value=2000000,
-        max_value=20000000,
+        max_value=50000000,
         for_frontend=True,
     )
     adjust_refinements = BooleanSetting(
@@ -249,5 +249,18 @@ class OpenFOAMSimSettings(ComfortSimSettings):
     add_solar_radiation=BooleanSetting(
         default=True,
         description='Add solar radiation. Requires fvDOM as radiation model.',
+        for_frontend=True
+    )
+    scale_person_for_eval = NumberSetting(
+        default=0.05,
+        min_value=0.001,
+        max_value=0.2,
+        description='Scale shape of person for evaluation in paraview.',
+        for_frontend=True,
+    )
+    mesh_feature_snapping = BooleanSetting(
+        default=False,
+        description='Choose if explicit surface feature snapping should be '
+                    'applied in snappyHexMesh. ',
         for_frontend=True
     )

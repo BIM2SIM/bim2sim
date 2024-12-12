@@ -8,6 +8,8 @@ import numpy as np
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepAdaptor import BRepAdaptor_Surface
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
+from OCC.Core.BRepOffsetAPI import BRepOffsetAPI_MakeOffsetShape
+from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
 from scipy.spatial import KDTree
 from OCC.Core.BRepBndLib import brepbndlib_Add
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace, \
@@ -207,6 +209,31 @@ class PyOCCTools:
         return BRepBuilderAPI_Transform(shape, trsf).Shape()
 
     @staticmethod
+    def scale_shape_absolute(shape: TopoDS_Shape, scale_in_meters: float,
+                             predefined_center: gp_Pnt = None):
+        """
+        Scales the given shape by the given distance in all directions.
+        Using the center of mass of the shape as origin of the
+        transformation. If another center than the center of mass should be
+        used for the origin of the transformation,
+        set the predefined_center.
+        Args:
+            shape:
+            scale_in_meters: scale in meters, scaling is applied in each
+            direction.
+            predefined_center:
+
+        Returns:
+
+        """
+        (min_x, min_y, min_z), (max_x, max_y, max_z) = (
+            PyOCCTools.simple_bounding_box(shape))
+        original_size = min(max_x - min_x, max_y - min_y, max_z - min_z)
+        new_size = original_size + scale_in_meters*2
+        scaling_factor = new_size / original_size
+        return PyOCCTools.scale_shape(shape, scaling_factor)
+
+    @staticmethod
     def scale_edge(edge: TopoDS_Edge, factor: float) -> TopoDS_Shape:
         """
         Scales the given edge by the given factor, using the center of mass of
@@ -390,8 +417,9 @@ class PyOCCTools:
         return volume
 
     @staticmethod
-    def sew_shapes(shape_list: list[TopoDS_Shape]) -> TopoDS_Shape:
-        sew = BRepBuilderAPI_Sewing(0.0001)
+    def sew_shapes(shape_list: list[TopoDS_Shape], tolerance=0.0001) -> (
+            TopoDS_Shape):
+        sew = BRepBuilderAPI_Sewing(tolerance)
         for shp in shape_list:
             sew.Add(shp)
         sew.Perform()
@@ -828,6 +856,21 @@ class PyOCCTools:
         #print(f"Minimum distance: {min(distances)}")
         return min(distances)
 
+    @staticmethod
+    def create_offset_shape(shape, offset, tolerance=0.0001):
+        sewing = BRepBuilderAPI_Sewing()
+        sewing.SetTolerance(tolerance)
+        sewing.Add(shape)
+        sewing.Perform()
+        sewed_shell = sewing.SewedShape()
+        offset_builder = BRepOffsetAPI_MakeOffsetShape()
+        offset_builder.PerformBySimple(sewed_shell, offset)
+        return offset_builder.Shape()
 
-
+    @staticmethod
+    def unify_shape(shape):
+        unify = ShapeUpgrade_UnifySameDomain()
+        unify.Initialize(shape)
+        unify.Build()
+        return unify.Shape()
 
