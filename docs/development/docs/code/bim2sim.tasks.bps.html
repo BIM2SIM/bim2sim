@@ -403,6 +403,34 @@ sbs (list[SpaceBoundary]): List of space boundaries associated with</p>
 <dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
 <p>Enriches material properties that were recognized as invalid
 LOD.layers = Medium &amp; Full</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.ConstructionTemplate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ConstructionTemplate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walls</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.ConstructionTemplate" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Data class to hold construction template information.</p>
+<dl class="simple">
+<dt>Attributes:</dt><dd><p>walls: Path to wall construction data file
+windows: Path to window construction data file
+doors: Path to door construction data file</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.ConstructionTemplate.doors">
+<span class="sig-name descname"><span class="pre">doors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.ConstructionTemplate.doors" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.ConstructionTemplate.walls">
+<span class="sig-name descname"><span class="pre">walls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.ConstructionTemplate.walls" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.ConstructionTemplate.windows">
+<span class="sig-name descname"><span class="pre">windows</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.ConstructionTemplate.windows" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.create_layer_set_from_template">
 <span class="sig-name descname"><span class="pre">create_layer_set_from_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.LayerSet" title="bim2sim.elements.bps_elements.LayerSet"><span class="pre">LayerSet</span></a></span></span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.create_layer_set_from_template" title="Permalink to this definition"></a></dt>
@@ -427,9 +455,40 @@ data from the templates, like inner_convection etc.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.determine_construction_data_file">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">determine_construction_data_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">construction_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.determine_construction_data_file" title="Permalink to this definition"></a></dt>
+<dd><p>Determines the appropriate construction data file based on the data source.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>construction_type: Type of construction element (‘wall’, ‘window’, or ‘door’)
+data_source: Source of construction data (e.g., ‘iwu’, ‘kfw’, ‘tabula_de’)</p>
+</dd>
+<dt>Returns:</dt><dd><p>Path: Path to the construction data file</p>
+</dd>
+<dt>Raises:</dt><dd><p>ValueError: If the construction data source is unknown</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.enrich_element_data_from_template">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enrich_element_data_from_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_template</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.enrich_element_data_from_template" title="Permalink to this definition"></a></dt>
 <dd><p>Get all element level enrichment data from templates.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_element_template">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_element_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year_of_construction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">years_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">construction_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">logger</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Logger</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_element_template" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieves the template for a specific building element based on construction year.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>element_type: Type of building element
+year_of_construction: Year when the building was constructed
+years_dict: Dictionary containing templates for different year ranges
+construction_data: Construction data identifier
+logger: Logger instance for warnings</p>
+</dd>
+<dt>Returns:</dt><dd><p>dict: Template for the specified building element</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -461,13 +520,22 @@ attributes</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_templates_for_buildings">
-<span class="sig-name descname"><span class="pre">get_templates_for_buildings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">buildings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.html#bim2sim.sim_settings.BuildingSimSettings" title="bim2sim.sim_settings.BuildingSimSettings"><span class="pre">BuildingSimSettings</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_templates_for_buildings" title="Permalink to this definition"></a></dt>
-<dd><p>Return template for each building based on year of construction.</p>
+<span class="sig-name descname"><span class="pre">get_templates_for_buildings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">buildings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.html#bim2sim.sim_settings.BuildingSimSettings" title="bim2sim.sim_settings.BuildingSimSettings"><span class="pre">BuildingSimSettings</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.get_templates_for_buildings" title="Permalink to this definition"></a></dt>
+<dd><p>Generate templates for building elements based on construction year.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>buildings: List of building objects to process
+sim_settings: Settings object containing construction parameters</p>
+</dd>
+<dt>Returns:</dt><dd><p>Dict: Mapping of buildings to their construction templates</p>
+</dd>
+<dt>Raises:</dt><dd><p>ValueError: If no buildings are provided</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.enrich_material.EnrichMaterial.mapping_templates_bim2sim">
-<span class="sig-name descname"><span class="pre">mapping_templates_bim2sim</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'Floor':</span> <span class="pre">['InnerFloor',</span> <span class="pre">'InnerFloorDisaggregated'],</span> <span class="pre">'GroundFloor':</span> <span class="pre">['GroundFloor',</span> <span class="pre">'GroundFloorDisaggregated'],</span> <span class="pre">'InnerDoor':</span> <span class="pre">['InnerDoor',</span> <span class="pre">'InnerDoorDisaggregated'],</span> <span class="pre">'InnerWall':</span> <span class="pre">['InnerWall',</span> <span class="pre">'InnerWallDisaggregated'],</span> <span class="pre">'OuterDoor':</span> <span class="pre">['OuterDoor',</span> <span class="pre">'OuterDoorDisaggregated'],</span> <span class="pre">'OuterWall':</span> <span class="pre">['OuterWall',</span> <span class="pre">'OuterWallDisaggregated'],</span> <span class="pre">'Roof':</span> <span class="pre">['Roof'],</span> <span class="pre">'Window':</span> <span class="pre">['Window']}</span></em><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.mapping_templates_bim2sim" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">mapping_templates_bim2sim</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'Door':</span> <span class="pre">['OuterDoor',</span> <span class="pre">'InnerDoor',</span> <span class="pre">'OuterDoorDisaggregated',</span> <span class="pre">'InnerDoorDisaggregated'],</span> <span class="pre">'Floor':</span> <span class="pre">['InnerFloor',</span> <span class="pre">'InnerFloorDisaggregated'],</span> <span class="pre">'GroundFloor':</span> <span class="pre">['GroundFloor',</span> <span class="pre">'GroundFloorDisaggregated'],</span> <span class="pre">'InnerWall':</span> <span class="pre">['InnerWall',</span> <span class="pre">'InnerWallDisaggregated'],</span> <span class="pre">'OuterWall':</span> <span class="pre">['OuterWall',</span> <span class="pre">'OuterWallDisaggregated'],</span> <span class="pre">'Roof':</span> <span class="pre">['Roof'],</span> <span class="pre">'Window':</span> <span class="pre">['Window']}</span></em><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.mapping_templates_bim2sim" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -480,7 +548,7 @@ attributes</p>
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.bps.enrich_material.EnrichMaterial.run" title="Permalink to this definition"></a></dt>
 <dd><p>Enriches materials and layer sets of building elements.</p>
 <p>Enrichment data in the files MaterialTemplates.json and
-TypeBuildingElements.json is taken from TEASER. The underlying data
+TypeElements_IWU.json is taken from TEASER. The underlying data
 comes from IWU data. For more detailed information please review TEASER
 code documentation:
 <a class="reference external" href="https://rwth-ebc.github.io/TEASER//master/docs/index.html">https://rwth-ebc.github.io/TEASER//master/docs/index.html</a></p>
@@ -1161,7 +1229,7 @@ elements: dict[guid: element]</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries">
-<span class="sig-name descname"><span class="pre">instantiate_space_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">entities_dict:</span> <span class="pre">dict,</span> <span class="pre">elements:</span> <span class="pre">dict,</span> <span class="pre">finder:</span> <span class="pre">~bim2sim.elements.mapping.finder.TemplateFinder,</span> <span class="pre">create_external_elements:</span> <span class="pre">bool,</span> <span class="pre">ifc_units:</span> <span class="pre">dict[str,</span> <span class="pre">&lt;pint.registry.UnitRegistry</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7f58f05ad250&gt;]</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.RelationBased" title="bim2sim.elements.base_elements.RelationBased"><span class="pre">RelationBased</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">instantiate_space_boundaries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">entities_dict:</span> <span class="pre">dict,</span> <span class="pre">elements:</span> <span class="pre">dict,</span> <span class="pre">finder:</span> <span class="pre">~bim2sim.elements.mapping.finder.TemplateFinder,</span> <span class="pre">create_external_elements:</span> <span class="pre">bool,</span> <span class="pre">ifc_units:</span> <span class="pre">dict[str,</span> <span class="pre">&lt;pint.registry.UnitRegistry</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x7fa026109750&gt;]</span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.RelationBased" title="bim2sim.elements.base_elements.RelationBased"><span class="pre">RelationBased</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.instantiate_space_boundaries" title="Permalink to this definition"></a></dt>
 <dd><p>Instantiate space boundary ifc_entities.</p>
 <p>This function instantiates space boundaries using given element class.
 Result is a list with the resulting valid elements.</p>

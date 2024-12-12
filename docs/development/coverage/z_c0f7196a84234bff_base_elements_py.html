@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for bim2sim/elements/base_elements.py: 74%</title>
+    <title>Coverage for bim2sim/elements/base_elements.py: 76%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
     <link rel="stylesheet" href="style_cb_8e611ae1.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>bim2sim/elements/base_elements.py</b>:
-            <span class="pc_cov">74%</span>
+            <span class="pc_cov">76%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">455 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">338<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">117<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">344<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">111<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_c0f7196a84234bff_bps_elements_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.9">coverage.py v7.6.9</a>,
-            created at 2024-12-11 09:13 +0000
+            created at 2024-12-12 13:27 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -723,16 +723,16 @@
     <p class="run"><span class="n"><a id="t641" href="#t641">641</a></span><span class="t">    <span class="nam">name</span> <span class="op">=</span> <span class="str">''</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t642" href="#t642">642</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t643" href="#t643">643</a></span><span class="t">    <span class="key">def</span> <span class="nam">__init__</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="op">*</span><span class="nam">args</span><span class="op">,</span> <span class="op">**</span><span class="nam">kwargs</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t644" href="#t644">644</a></span><span class="t">        <span class="nam">super</span><span class="op">(</span><span class="op">)</span><span class="op">.</span><span class="nam">__init__</span><span class="op">(</span><span class="op">*</span><span class="nam">args</span><span class="op">,</span> <span class="op">**</span><span class="nam">kwargs</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t645" href="#t645">645</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">parents</span><span class="op">:</span> <span class="nam">List</span><span class="op">[</span><span class="nam">ProductBased</span><span class="op">]</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t644" href="#t644">644</a></span><span class="t">        <span class="nam">super</span><span class="op">(</span><span class="op">)</span><span class="op">.</span><span class="nam">__init__</span><span class="op">(</span><span class="op">*</span><span class="nam">args</span><span class="op">,</span> <span class="op">**</span><span class="nam">kwargs</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t645" href="#t645">645</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">parents</span><span class="op">:</span> <span class="nam">List</span><span class="op">[</span><span class="nam">ProductBased</span><span class="op">]</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t646" href="#t646">646</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t647" href="#t647">647</a></span><span class="t">    <span class="op">@</span><span class="nam">staticmethod</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t648" href="#t648">648</a></span><span class="t">    <span class="key">def</span> <span class="nam">get_id</span><span class="op">(</span><span class="nam">prefix</span><span class="op">=</span><span class="str">""</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t649" href="#t649">649</a></span><span class="t">        <span class="nam">prefix_length</span> <span class="op">=</span> <span class="nam">len</span><span class="op">(</span><span class="nam">prefix</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t650" href="#t650">650</a></span><span class="t">        <span class="key">if</span> <span class="nam">prefix_length</span> <span class="op">></span> <span class="num">10</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t649" href="#t649">649</a></span><span class="t">        <span class="nam">prefix_length</span> <span class="op">=</span> <span class="nam">len</span><span class="op">(</span><span class="nam">prefix</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t650" href="#t650">650</a></span><span class="t">        <span class="key">if</span> <span class="nam">prefix_length</span> <span class="op">></span> <span class="num">10</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t651" href="#t651">651</a></span><span class="t">            <span class="key">raise</span> <span class="nam">AttributeError</span><span class="op">(</span><span class="str">"Max prefix length is 10!"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t652" href="#t652">652</a></span><span class="t">        <span class="nam">ifcopenshell_guid</span> <span class="op">=</span> <span class="nam">guid</span><span class="op">.</span><span class="nam">new</span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="nam">prefix_length</span> <span class="op">+</span> <span class="num">1</span><span class="op">:</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t653" href="#t653">653</a></span><span class="t">        <span class="key">return</span> <span class="str">f"{prefix}{ifcopenshell_guid}"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t652" href="#t652">652</a></span><span class="t">        <span class="nam">ifcopenshell_guid</span> <span class="op">=</span> <span class="nam">guid</span><span class="op">.</span><span class="nam">new</span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="nam">prefix_length</span> <span class="op">+</span> <span class="num">1</span><span class="op">:</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t653" href="#t653">653</a></span><span class="t">        <span class="key">return</span> <span class="str">f"{prefix}{ifcopenshell_guid}"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t654" href="#t654">654</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t655" href="#t655">655</a></span><span class="t">    <span class="nam">conditions</span> <span class="op">=</span> <span class="op">[</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t656" href="#t656">656</a></span><span class="t">        <span class="nam">condition</span><span class="op">.</span><span class="nam">RangeCondition</span><span class="op">(</span><span class="str">'spec_heat_capacity'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -1033,7 +1033,7 @@
             <a class="nav" href="z_c0f7196a84234bff_bps_elements_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.9">coverage.py v7.6.9</a>,
-            created at 2024-12-11 09:13 +0000
+            created at 2024-12-12 13:27 +0000
         </p>
     </div>
 </footer>

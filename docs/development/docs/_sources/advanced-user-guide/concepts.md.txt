@@ -16,5 +16,6 @@
    concepts/finder
    concepts/aggregations
    concepts/decisions
+   concepts/enrichment
    concepts/logging
 ```
