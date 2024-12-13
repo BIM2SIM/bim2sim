@@ -160,14 +160,17 @@ class PlotComfortResults(PlotBEPSResults):
         logger.info(f"Plot DIN EN 16798 diagrams for zone {zone_guid} ...")
 
         cat_analysis = pd.DataFrame()
+        cat_analysis_occ = pd.DataFrame()
         for guid, room_name in zone_dict.items():
             if not guid == zone_guid:
                 continue
             temp_cat_analysis = None
-            temp_cat_analysis = self.plot_new_en16798_adaptive_count(
+            temp_cat_analysis_occ = None
+            temp_cat_analysis, temp_cat_analysis_occ = self.plot_new_en16798_adaptive_count(
                 df, guid, room_name, export_path)
             cat_analysis = pd.concat([cat_analysis, temp_cat_analysis])
-        return cat_analysis
+            cat_analysis_occ = pd.concat([cat_analysis_occ, temp_cat_analysis_occ])
+        return cat_analysis, cat_analysis_occ
 
     @staticmethod
     def plot_new_en16798_adaptive_count(df, guid, room_name, export_path):
