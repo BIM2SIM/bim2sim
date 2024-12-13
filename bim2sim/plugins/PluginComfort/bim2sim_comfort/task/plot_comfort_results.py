@@ -78,14 +78,18 @@ class PlotComfortResults(PlotBEPSResults):
             # generate DIN EN 16798-1 adaptive comfort scatter plot and
             # return analysis of comfort categories for further plots
             if not plot_single_guid:
-                cat_analysis = self.apply_en16798_to_all_zones(df, zone_dict,
-                                                               export_path)
+                cat_analysis, cat_analysis_occ = (
+                    self.apply_en16798_to_all_zones(df, zone_dict,
+                                                               export_path))
             else:
-                cat_analysis = self.apply_en16798_to_single_zone(
-                    df, zone_dict, export_path, plot_single_guid)
+                cat_analysis, cat_analysis_occ = (
+                    self.apply_en16798_to_single_zone(df, zone_dict,
+                                                      export_path,
+                                                      plot_single_guid))
             # plot a barplot combined with table of comfort categories from
             # DIN EN 16798.
             self.table_bar_plot_16798(cat_analysis, export_path)
+            self.table_bar_plot_16798(cat_analysis_occ, export_path, tag='occ')
 
             fanger_pmv = df[[col for col in df.columns if 'fanger_pmv' in col]]
             if plot_single_guid:
@@ -139,12 +143,17 @@ class PlotComfortResults(PlotBEPSResults):
         logger.info("Plot DIN EN 16798 diagrams for all zones ...")
 
         cat_analysis = pd.DataFrame()
+        cat_analysis_occ = pd.DataFrame()
         for guid, room_name in zone_dict.items():
             temp_cat_analysis = None
-            temp_cat_analysis = self.plot_new_en16798_adaptive_count(
-                df, guid, room_name, export_path)
+            temp_cat_analysis_occ = None
+            temp_cat_analysis, temp_cat_analysis_occ = (
+                self.plot_new_en16798_adaptive_count(
+                df, guid, room_name, export_path))
             cat_analysis = pd.concat([cat_analysis, temp_cat_analysis])
-        return cat_analysis
+            cat_analysis_occ = pd.concat([cat_analysis_occ,
+                                          temp_cat_analysis_occ])
+        return cat_analysis, cat_analysis_occ
 
     def apply_en16798_to_single_zone(self, df, zone_dict, export_path,
                                      zone_guid):
@@ -207,11 +216,71 @@ class PlotComfortResults(PlotBEPSResults):
             else:
                 return False
 
+        def plot_scatter_en16798(cat1_df, cat2_df, cat3_df, out_df,
+                                 path, name):
+            plt.figure(figsize=(13.2 / INCH, 8.3 / INCH))
+
+            plt.scatter(cat1_df.iloc[:, 0],
+                        cat1_df.iloc[:, 1],
+                        s=0.1,
+                        color='green', marker=".")
+            plt.scatter(cat2_df.iloc[:, 0],
+                        cat2_df.iloc[:, 1],
+                        s=0.1,
+                        color='orange', marker=".")
+            plt.scatter(cat3_df.iloc[:, 0],
+                        cat3_df.iloc[:, 1],
+                        s=0.1,
+                        color='red', marker=".")
+            plt.scatter(out_df.iloc[:, 0],
+                        out_df.iloc[:, 1],
+                        s=0.1, color='blue', label='OUT OF RANGE', marker=".")
+            coord_cat1_low = [[10, 0.33 * 10 + 18.8 - 3.0],
+                              [30, 0.33 * 30 + 18.8 - 3.0]]
+            coord_cat1_up = [[10, 0.33 * 10 + 18.8 + 2.0],
+                             [30, 0.33 * 30 + 18.8 + 2.0]]
+            cc1lx, cc1ly = zip(*coord_cat1_low)
+            cc1ux, cc1uy = zip(*coord_cat1_up)
+            plt.plot(cc1lx, cc1ly, linestyle='dashed', color='green',
+                     label='DIN EN 16798-1: Thresholds Category I')
+            plt.plot(cc1ux, cc1uy, linestyle='dashed', color='green')
+            coord_cat2_low = [[10, 0.33 * 10 + 18.8 - 4.0],
+                              [30, 0.33 * 30 + 18.8 - 4.0]]
+            coord_cat2_up = [[10, 0.33 * 10 + 18.8 + 3.0],
+                             [30, 0.33 * 30 + 18.8 + 3.0]]
+            cc2lx, cc2ly = zip(*coord_cat2_low)
+            cc2ux, cc2uy = zip(*coord_cat2_up)
+            plt.plot(cc2lx, cc2ly, linestyle='dashed', color='orange',
+                     label='DIN EN 16798-1: Thresholds Category II')
+            plt.plot(cc2ux, cc2uy, linestyle='dashed', color='orange')
+
+            coord_cat3_low = [[10, 0.33 * 10 + 18.8 - 5.0],
+                              [30, 0.33 * 30 + 18.8 - 5.0]]
+            coord_cat3_up = [[10, 0.33 * 10 + 18.8 + 4.0],
+                             [30, 0.33 * 30 + 18.8 + 4.0]]
+            cc3lx, cc3ly = zip(*coord_cat3_low)
+            cc3ux, cc3uy = zip(*coord_cat3_up)
+            plt.plot(cc3lx, cc3ly, linestyle='dashed', color='red',
+                     label='DIN EN 16798-1: Thresholds Category III')
+            plt.plot(cc3ux, cc3uy, linestyle='dashed', color='red')
+
+            # Customize plot
+            plt.xlabel('Running Mean Outdoor Temperature (\u00B0C)',
+                       fontsize=8)
+            plt.ylabel('Operative Temperature (\u00B0C)', fontsize=8)
+            plt.xlim([lim_min, lim_max])
+            plt.ylim([16.5, 35.5])
+            plt.grid()
+            lgnd = plt.legend(loc="upper left", scatterpoints=1, fontsize=8)
+            plt.savefig(
+                path / str('DIN_EN_16798_new_' + name + '.pdf'))
+
         lim_min = 10
         lim_max = 30
 
         ot = df['operative_air_temp_rooms_' + guid]
         out_temp = df['site_outdoor_air_temp']
+        n_persons_df = df['n_persons_rooms_'+guid]
 
         merged_df = pd.merge(out_temp, ot, left_index=True, right_index=True)
         merged_df = merged_df.map(lambda x: x.m)
@@ -227,6 +296,23 @@ class PlotComfortResults(PlotBEPSResults):
         filtered_df_outside = merged_df[
             merged_df.apply(is_outside_thresholds_16798,
                             axis=1)]
+        common_index_c1 = filtered_df_cat1.index.intersection(
+            n_persons_df.index)
+        common_index_c2 = filtered_df_cat2.index.intersection(
+            n_persons_df.index)
+        common_index_c3 = filtered_df_cat3.index.intersection(
+            n_persons_df.index)
+        common_index_out = filtered_df_outside.index.intersection(
+            n_persons_df.index)
+
+        filter_occ_cat1 = filtered_df_cat1.loc[common_index_c1][
+            n_persons_df.loc[common_index_c1] > 0]
+        filter_occ_cat2 = filtered_df_cat2.loc[common_index_c2][
+            n_persons_df.loc[common_index_c2] > 0]
+        filter_occ_cat3 = filtered_df_cat3.loc[common_index_c3][
+            n_persons_df.loc[common_index_c3] > 0]
+        filter_occ_out = filtered_df_outside.loc[common_index_out][
+            n_persons_df.loc[common_index_out] > 0]
         cat_analysis_dict = {
             'ROOM': room_name,
             'CAT1': len(filtered_df_cat1),
@@ -235,68 +321,31 @@ class PlotComfortResults(PlotBEPSResults):
             'OUT': len(filtered_df_outside)
         }
         cat_analysis_df = pd.DataFrame(cat_analysis_dict, index=[0])
+        cat_analysis_occ_dict = {
+            'ROOM': room_name,
+            'CAT1': len(filter_occ_cat1),
+            'CAT2': len(filter_occ_cat2),
+            'CAT3': len(filter_occ_cat3),
+            'OUT': len(filter_occ_out)
+        }
+        cat_analysis_occ_df = pd.DataFrame(cat_analysis_occ_dict, index=[0])
 
         analysis_file = export_path / 'DIN_EN_16798_analysis.csv'
         cat_analysis_df.to_csv(analysis_file, mode='a+', header=False, sep=';')
+        analysis_occ_file = export_path / 'DIN_EN_16798_analysis_occ.csv'
+        cat_analysis_occ_df.to_csv(analysis_occ_file, mode='a+', header=False,
+                                   sep=';')
 
-        plt.figure(figsize=(13.2 / INCH, 8.3 / INCH))
-
-        plt.scatter(filtered_df_cat1.iloc[:, 0], filtered_df_cat1.iloc[:, 1],
-                    s=0.1,
-                    color='green', marker=".")
-        plt.scatter(filtered_df_cat2.iloc[:, 0], filtered_df_cat2.iloc[:, 1],
-                    s=0.1,
-                    color='orange', marker=".")
-        plt.scatter(filtered_df_cat3.iloc[:, 0], filtered_df_cat3.iloc[:, 1],
-                    s=0.1,
-                    color='red', marker=".")
-        plt.scatter(filtered_df_outside.iloc[:, 0],
-                    filtered_df_outside.iloc[:, 1],
-                    s=0.1, color='blue', label='OUT OF RANGE', marker=".")
-        coord_cat1_low = [[10, 0.33 * 10 + 18.8 - 3.0],
-                          [30, 0.33 * 30 + 18.8 - 3.0]]
-        coord_cat1_up = [[10, 0.33 * 10 + 18.8 + 2.0],
-                         [30, 0.33 * 30 + 18.8 + 2.0]]
-        cc1lx, cc1ly = zip(*coord_cat1_low)
-        cc1ux, cc1uy = zip(*coord_cat1_up)
-        plt.plot(cc1lx, cc1ly, linestyle='dashed', color='green',
-                 label='DIN EN 16798-1: Thresholds Category I')
-        plt.plot(cc1ux, cc1uy, linestyle='dashed', color='green')
-        coord_cat2_low = [[10, 0.33 * 10 + 18.8 - 4.0],
-                          [30, 0.33 * 30 + 18.8 - 4.0]]
-        coord_cat2_up = [[10, 0.33 * 10 + 18.8 + 3.0],
-                         [30, 0.33 * 30 + 18.8 + 3.0]]
-        cc2lx, cc2ly = zip(*coord_cat2_low)
-        cc2ux, cc2uy = zip(*coord_cat2_up)
-        plt.plot(cc2lx, cc2ly, linestyle='dashed', color='orange',
-                 label='DIN EN 16798-1: Thresholds Category II')
-        plt.plot(cc2ux, cc2uy, linestyle='dashed', color='orange')
-
-        coord_cat3_low = [[10, 0.33 * 10 + 18.8 - 5.0],
-                          [30, 0.33 * 30 + 18.8 - 5.0]]
-        coord_cat3_up = [[10, 0.33 * 10 + 18.8 + 4.0],
-                         [30, 0.33 * 30 + 18.8 + 4.0]]
-        cc3lx, cc3ly = zip(*coord_cat3_low)
-        cc3ux, cc3uy = zip(*coord_cat3_up)
-        plt.plot(cc3lx, cc3ly, linestyle='dashed', color='red',
-                 label='DIN EN 16798-1: Thresholds Category III')
-        plt.plot(cc3ux, cc3uy, linestyle='dashed', color='red')
-
-        # Customize plot
-        plt.xlabel('Running Mean Outdoor Temperature (\u00B0C)',
-                   fontsize=8)
-        plt.ylabel('Operative Temperature (\u00B0C)', fontsize=8)
-        plt.xlim([lim_min, lim_max])
-        plt.ylim([16.5, 35.5])
-        plt.grid()
-        lgnd = plt.legend(loc="upper left", scatterpoints=1, fontsize=8)
-        plt.savefig(
-            export_path / str('DIN_EN_16798_new_' + room_name + '.pdf'))
-
-        return cat_analysis_df
+        plot_scatter_en16798(filtered_df_cat1, filtered_df_cat2,
+                             filtered_df_cat3, filtered_df_outside,
+                             export_path, room_name)
+        plot_scatter_en16798(filter_occ_cat1, filter_occ_cat2, filter_occ_cat3,
+                             filtered_df_outside, export_path,
+                             room_name+'_occupancy')
+        return cat_analysis_df, cat_analysis_occ_df
 
     @staticmethod
-    def table_bar_plot_16798(df, export_path):
+    def table_bar_plot_16798(df, export_path, tag=''):
         """Create bar plot with a table below for EN 16798 thermal comfort.
 
         This function creates a bar plot with a table below along with the
@@ -306,7 +355,8 @@ class PlotComfortResults(PlotBEPSResults):
         """
         # with columns: 'ROOM', 'CAT1', 'CAT2', 'CAT3', 'OUT'
         logger.info(f"Plot DIN EN 16798 table bar plot all zones.")
-
+        if tag:
+            tag = '_' + tag
         rename_columns = {
             'CAT1': 'CAT I',
             'CAT2': 'CAT II',
@@ -358,7 +408,7 @@ class PlotComfortResults(PlotBEPSResults):
         table.set_fontsize(7)
         table.scale(1.0, 1.2)  # Adjust the table size as needed
         plt.tight_layout()
-        plt.savefig(export_path / 'DIN_EN_16798_all_zones_bar_table.pdf',
+        plt.savefig(export_path / f'DIN_EN_16798{tag}_all_zones_bar_table.pdf',
                     bbox_inches='tight',
                     bbox_extra_artists=(lgnd, table))
 
