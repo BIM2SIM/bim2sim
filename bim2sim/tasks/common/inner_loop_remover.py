@@ -140,7 +140,7 @@ def _iterate_edges(polygon: List[Vertex], directed: bool = False):
         yield (v1, v2) if directed else _normalize((v1, v2))
 
 
-def _get_inside_outside_edges(triangulation: Triangulation, must_equal=True) \
+def _get_inside_outside_edges(triangulation: Triangulation, must_equal=False) \
         -> (Tuple)[List[Edge], List[Edge]]:
     """
     Partitions all edges of the triangulation into two lists, edges that lay
