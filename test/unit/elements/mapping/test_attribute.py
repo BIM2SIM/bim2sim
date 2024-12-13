@@ -17,7 +17,7 @@ class TestElement(ProductBased):
     ifc_types = {}
 
     def _func1(self, name):
-        return 42
+        return self.x
 
     attr1 = Attribute(
         unit=ureg.meter
@@ -26,11 +26,10 @@ class TestElement(ProductBased):
     attr3 = Attribute()
     attr4 = Attribute()
     attr5 = Attribute(
-        functions=[lambda self, attr:self.x]
+        functions=[_func1]
     )
     attr6 = Attribute(attr_type=str)
     attr7 = Attribute(attr_type=bool)
-
 
 
 class TestElementInherited(TestElement):
