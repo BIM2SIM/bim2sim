@@ -324,6 +324,7 @@ class Project:
         self._user_logger_set = False
         self._log_thread_filters: List[log.ThreadLogFilter] = []
         self._log_handlers = {}
+        self._default_handlers = []
         self._setup_logger()  # setup project specific handlers
 
     def _get_plugin(self, plugin):
@@ -391,10 +392,14 @@ class Project:
         # tear down existing handlers (just in case)
         self._teardown_logger()
 
-
         thread_name = threading.current_thread().name
-        log.default_logging_setup(prj_log_path=self.paths.log)
-        # quality logger
+        # Default Handler mit thread_name aufsetzen
+        self._default_handlers = log.default_logging_setup(
+            prj_log_path=self.paths.log,
+            thread_name=thread_name
+        )
+
+        # Quality Logger setup
         quality_logger = logging.getLogger('bim2sim.QualityReport')
         quality_handler = logging.FileHandler(
             os.path.join(self.paths.log, "IFCQualityReport.log"))
@@ -402,19 +407,7 @@ class Project:
         quality_handler.setFormatter(log.quality_formatter)
         quality_logger.addHandler(quality_handler)
 
-        general_logger = logging.getLogger('bim2sim')
-
-        # dev logger
-        dev_handler = logging.StreamHandler()
-        dev_thread_filter = log.ThreadLogFilter(thread_name)
-        dev_handler.addFilter(dev_thread_filter)
-        dev_handler.addFilter(log.AudienceFilter(None))
-        dev_handler.setFormatter(log.dev_formatter)
-        general_logger.addHandler(dev_handler)
-
         self._log_handlers['bim2sim.QualityReport'] = [quality_handler]
-        self._log_handlers['bim2sim'] = [dev_handler]
-        self._log_thread_filters.append(dev_thread_filter)
 
     def _update_logging_thread_filters(self):
         """Update thread filters to current thread."""
@@ -448,12 +441,19 @@ class Project:
         self._log_thread_filters.append(user_thread_filter)
 
     def _teardown_logger(self):
+        # Close project-specific handlers
         for name, handlers in self._log_handlers.items():
             _logger = logging.getLogger(name)
             for handler in handlers:
                 _logger.removeHandler(handler)
                 handler.close()
+
+        # Close default handlers
+        for handler in self._default_handlers:
+            handler.close()
+        self._log_handlers.clear()
         self._log_thread_filters.clear()
+        self._default_handlers.clear()
 
     @property
     def config(self):
@@ -510,8 +510,8 @@ class Project:
         try:
             # First update log filters in case Project was created from
             # different tread.
-            # Then update log filters for each iteration, which might get called
-            # by a different thread.
+            # Then update log filters for each iteration, which might get
+            # called by a different thread.
             # Deeper down multithreading is currently not supported for logging
             # and will result in a mess of log messages.
             self._update_logging_thread_filters()

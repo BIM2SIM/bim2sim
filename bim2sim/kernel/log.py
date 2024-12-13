@@ -35,7 +35,10 @@ def get_user_logger(name):
     return logging.LoggerAdapter(logging.getLogger(name), user)
 
 
-def default_logging_setup(verbose=False, prj_log_path: Path = None):
+def default_logging_setup(
+        verbose=False,
+        prj_log_path: Path = None,
+        thread_name=None):
     """Setup for logging module
 
     This creates the following:
@@ -45,15 +48,19 @@ def default_logging_setup(verbose=False, prj_log_path: Path = None):
     of existing information of the BIM model
     """
     general_logger = logging.getLogger('bim2sim')
+    handlers = []
 
-    log_filter = AudienceFilter(audience=None)
-
+    # Nur einen StreamHandler erstellen, wenn verbose=True
     if verbose:
         stream_handler = logging.StreamHandler()
         stream_handler.setFormatter(dev_formatter)
-        stream_handler.addFilter(log_filter)
+        stream_handler.addFilter(AudienceFilter(audience=None))
+        if thread_name:
+            stream_handler.addFilter(ThreadLogFilter(thread_name))
         general_logger.addHandler(stream_handler)
+        handlers.append(stream_handler)
 
+    # File Handler für Logging
     log_name = "bim2sim.log"
     if prj_log_path is not None:
         general_log_path = prj_log_path / log_name
@@ -61,15 +68,14 @@ def default_logging_setup(verbose=False, prj_log_path: Path = None):
         general_log_path = log_name
     general_log_handler = logging.FileHandler(general_log_path)
     general_log_handler.setFormatter(dev_formatter)
-    general_log_handler.addFilter(log_filter)
+    general_log_handler.addFilter(AudienceFilter(audience=None))
+    if thread_name:
+        general_log_handler.addFilter(ThreadLogFilter(thread_name))
     general_logger.addHandler(general_log_handler)
-
-    quality_logger = logging.getLogger('bim2sim.QualityReport')
-    quality_logger.propagate = False
+    handlers.append(general_log_handler)
 
     general_logger.setLevel(logging.DEBUG if verbose else logging.INFO)
-
-    general_logger.debug("Default logging setup done.")
+    return handlers
 
 
 class CustomFormatter(logging.Formatter):
