@@ -151,9 +151,6 @@ class UseConditions(TEASER, UseConditions_Teaser):
         """
         self.usage = None
 
-        self.typical_length = None
-        self.typical_width = None
-
         self.with_heating = True
         self.with_cooling = False
         self.T_threshold_heating = None
@@ -209,8 +206,6 @@ class UseConditions(TEASER, UseConditions_Teaser):
         self.request_param("heating_profile", None)
         self.request_param("cooling_profile", None)
         self.request_param("persons", None)
-        self.request_param("typical_length", None)
-        self.request_param("typical_width", None)
         self.request_param("T_threshold_heating", None)
         self.request_param("activity_degree_persons", None)
         self.request_param("fixed_heat_flow_rate_persons", None,
@@ -218,9 +213,11 @@ class UseConditions(TEASER, UseConditions_Teaser):
         self.request_param("internal_gains_moisture_no_people", None)
         self.request_param("T_threshold_cooling", None)
         self.request_param("ratio_conv_rad_persons", None)
-        self.request_param("machines", None, export_unit=ureg.W)
+        self.request_param("machines", None,
+                           export_unit=ureg.W/ureg.m**2)
         self.request_param("ratio_conv_rad_machines", None)
-        self.request_param("lighting_power", None, export_unit=ureg.W)
+        self.request_param("lighting_power",
+                           None, export_unit=ureg.W/ureg.m**2)
         self.request_param("ratio_conv_rad_lighting", None)
         self.request_param("use_constant_infiltration", None)
         self.request_param("infiltration_rate", None)
@@ -242,6 +239,8 @@ class ElementWithLayers(TEASER):
     def __init__(self, element):
         self.add_layers_to_element(element)
         super().__init__(element)
+        self.name = self.element.guid
+
 
     def add_layers_to_element(self, element):
         if element.layerset:

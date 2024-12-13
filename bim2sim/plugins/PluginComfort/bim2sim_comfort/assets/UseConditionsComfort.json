@@ -1,81 +1,83 @@
 {
-    "version":{
-        "typical_length":0.7,
-        "typical_width":0.7,
-        "with_heating":0.7,
-        "T_threshold_heating":0.7,
-        "with_cooling":0.7,
-        "persons":0.7,
-        "activity_degree_persons":"ComfortExtension_V002",
-        "fixed_heat_flow_rate_persons":"ComfortExtension_V002",
-        "internal_gains_moisture_no_people":0.7,
-        "T_threshold_cooling":0.7,
-        "ratio_conv_rad_persons":0.7,
-        "machines":0.7,
-        "ratio_conv_rad_machines":0.7,
-        "lighting_power":0.7,
-        "ratio_conv_rad_lighting":0.7,
-        "use_constant_infiltration":0.7,
-        "infiltration_rate":0.7,
-        "max_user_infiltration":0.7,
-        "max_overheating_infiltration":0.7,
-        "max_summer_infiltration":0.7,
-        "winter_reduction_infiltration":0.7,
-        "min_ahu":0.7,
-        "max_ahu":0.7,
-        "with_ahu":0.7,
-        "with_ideal_thresholds":0.7,
-        "heating_profile":0.7,
-        "cooling_profile":0.7,
-        "persons_profile":0.7,
-        "machines_profile":0.7,
-        "lighting_profile":0.7,
-        "clothing_persons":"ComfortExtension_V002",
-        "surround_clo_persons":"ComfortExtension_V002"
+    "version": {
+        "with_heating": "TEASER-v1.0.1",
+        "T_threshold_heating": "TEASER-v1.0.1",
+        "with_cooling": "TEASER-v1.0.1",
+        "persons": "TEASER-v1.0.1",
+        "activity_degree_persons": "ComfortExtension_V002",
+        "fixed_heat_flow_rate_persons": "ComfortExtension_V002",
+        "internal_gains_moisture_no_people": "TEASER-v1.0.1",
+        "T_threshold_cooling": "TEASER-v1.0.1",
+        "ratio_conv_rad_persons": "TEASER-v1.0.1",
+        "machines": "TEASER-v1.0.1",
+        "ratio_conv_rad_machines": "TEASER-v1.0.1",
+        "use_maintained_illuminance": "TEASER-v1.0.1",
+        "fixed_lighting_power": "TEASER-v1.0.1",
+        "maintained_illuminance": "TEASER-v1.0.1",
+        "lighting_efficiency_lumen": "TEASER-v1.0.1",
+        "ratio_conv_rad_lighting": "TEASER-v1.0.1",
+        "use_constant_infiltration": "TEASER-v1.0.1",
+        "infiltration_rate": "TEASER-v1.0.1",
+        "max_user_infiltration": "TEASER-v1.0.1",
+        "max_overheating_infiltration": "TEASER-v1.0.1",
+        "max_summer_infiltration": "TEASER-v1.0.1",
+        "winter_reduction_infiltration": "TEASER-v1.0.1",
+        "min_ahu": "TEASER-v1.0.1",
+        "max_ahu": "TEASER-v1.0.1",
+        "with_ahu": "TEASER-v1.0.1",
+        "with_ideal_thresholds": "TEASER-v1.0.1",
+        "heating_profile": "TEASER-v1.0.1",
+        "cooling_profile": "TEASER-v1.0.1",
+        "persons_profile": "TEASER-v1.0.1",
+        "machines_profile": "TEASER-v1.0.1",
+        "lighting_profile": "TEASER-v1.0.1",
+        "clothing_persons": "ComfortExtension_V002",
+        "surround_clo_persons": "ComfortExtension_V002"
     },
-    "Single office":{
-        "typical_length":3.0,
-        "typical_width":6.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Single office": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 14
             ]
         },
-        "activity_degree_persons":1.2,
-        "fixed_heat_flow_rate_persons":125.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":7.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":15.9,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.2,
+        "fixed_heat_flow_rate_persons": 125.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 7.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 15.9,
+        "maintained_illuminance": 500.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":2.6,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 2.6,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -101,7 +103,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -127,7 +129,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -153,7 +155,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -179,7 +181,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -205,52 +207,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.15
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.15
     },
-    "Group Office (between 2 and 6 employees)":{
-        "typical_length":6.0,
-        "typical_width":6.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Group Office (between 2 and 6 employees)": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 14
             ]
         },
-        "activity_degree_persons":1.2,
-        "fixed_heat_flow_rate_persons":125.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":7.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":12.5,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.2,
+        "fixed_heat_flow_rate_persons": 125.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 7.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 12.5,
+        "ratio_conv_rad_lighting": 0.9,
+        "maintained_illuminance": 500.0,
+        "lighting_efficiency_lumen": 150,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":2.6,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 2.6,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -276,7 +279,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -302,7 +305,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -328,7 +331,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -354,7 +357,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -380,52 +383,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.1
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.1
     },
-    "Open-plan Office (7 or more employees)":{
-        "typical_length":12.0,
-        "typical_width":12.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Open-plan Office (7 or more employees)": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 10
             ]
         },
-        "activity_degree_persons":1.2,
-        "fixed_heat_flow_rate_persons":125.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":10.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":12.5,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.2,
+        "fixed_heat_flow_rate_persons": 125.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 10.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 12.5,
+        "maintained_illuminance": 500.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":3.6,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 3.6,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -451,7 +455,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -477,7 +481,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -503,7 +507,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -529,7 +533,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -555,52 +559,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.1
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.1
     },
-    "Meeting, Conference, seminar":{
-        "typical_length":6.0,
-        "typical_width":6.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Meeting, Conference, seminar": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 3
             ]
         },
-        "activity_degree_persons":1.2,
-        "fixed_heat_flow_rate_persons":125.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":2.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":15.9,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.2,
+        "fixed_heat_flow_rate_persons": 125.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 2.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 15.9,
+        "maintained_illuminance": 500.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":12.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 12.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -626,7 +631,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -652,7 +657,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -678,7 +683,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -704,7 +709,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -730,52 +735,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.83,
-        "surround_clo_persons":0.01
+        "clothing_persons": 0.83,
+        "surround_clo_persons": 0.01
     },
-    "Main Hall, Reception":{
-        "typical_length":10.0,
-        "typical_width":10.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Main Hall, Reception": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 12
             ]
         },
-        "activity_degree_persons":1.7,
-        "fixed_heat_flow_rate_persons":178.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":4.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":4.4,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.7,
+        "fixed_heat_flow_rate_persons": 178.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 4.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 4.4,
+        "maintained_illuminance": 300.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":2.5,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 2.5,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -801,7 +807,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -827,7 +833,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -853,7 +859,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -879,7 +885,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -905,52 +911,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.98,
-        "surround_clo_persons":0.1
+        "clothing_persons": 0.98,
+        "surround_clo_persons": 0.1
     },
-    "Retail, department store":{
-        "typical_length":20.0,
-        "typical_width":20.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Retail, department store": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 8
             ]
         },
-        "activity_degree_persons":1.5,
-        "fixed_heat_flow_rate_persons":157.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":2.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":9.3,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.5,
+        "fixed_heat_flow_rate_persons": 157.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 2.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 9.3,
+        "maintained_illuminance": 300.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -976,7 +983,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -1002,7 +1009,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -1028,7 +1035,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -1054,7 +1061,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -1080,52 +1087,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":1.01,
-        "surround_clo_persons":0.0
+        "clothing_persons": 1.01,
+        "surround_clo_persons": 0.0
     },
-    "Retail with cooling":{
-        "typical_length":20.0,
-        "typical_width":20.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Retail with cooling": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 8
             ]
         },
-        "activity_degree_persons":1.5,
-        "fixed_heat_flow_rate_persons":157.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":5.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":9.3,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.5,
+        "fixed_heat_flow_rate_persons": 157.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 5.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 9.3,
+        "maintained_illuminance": 300.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -1151,7 +1159,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -1177,7 +1185,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -1203,7 +1211,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -1229,7 +1237,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -1255,52 +1263,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":1.01,
-        "surround_clo_persons":0.0
+        "clothing_persons": 1.01,
+        "surround_clo_persons": 0.0
     },
-    "Class room (school), group room (kindergarden)":{
-        "typical_length":10.0,
-        "typical_width":10.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Class room (school), group room (kindergarden)": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 3
             ]
         },
-        "activity_degree_persons":1.2,
-        "fixed_heat_flow_rate_persons":125.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":4.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":14.0,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.2,
+        "fixed_heat_flow_rate_persons": 125.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 4.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 14.0,
+        "maintained_illuminance": 300.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -1326,7 +1335,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -1352,7 +1361,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -1378,7 +1387,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -1404,7 +1413,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -1430,52 +1439,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.01
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.01
     },
-    "Lecture hall, auditorium":{
-        "typical_length":20.0,
-        "typical_width":10.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Lecture hall, auditorium": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 2
             ]
         },
-        "activity_degree_persons":1.2,
-        "fixed_heat_flow_rate_persons":125.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":4.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":12.5,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.2,
+        "fixed_heat_flow_rate_persons": 125.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 4.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 12.5,
+        "maintained_illuminance": 500.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":15.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 15.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -1501,7 +1511,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -1527,7 +1537,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -1553,7 +1563,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -1579,7 +1589,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -1605,52 +1615,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.01
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.01
     },
-    "Bed room":{
-        "typical_length":4.0,
-        "typical_width":4.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Bed room": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 10
             ]
         },
-        "activity_degree_persons":0.8,
-        "fixed_heat_flow_rate_persons":84.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":4.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":4.5,
-        "ratio_conv_rad_lighting":0.5,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 0.8,
+        "fixed_heat_flow_rate_persons": 84.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 4.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 4.5,
+        "maintained_illuminance": 300.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.5,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             295.15,
             295.15,
             295.15,
@@ -1676,7 +1687,7 @@
             295.15,
             295.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             295.15,
             295.15,
             295.15,
@@ -1702,7 +1713,7 @@
             295.15,
             295.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             1.0,
             1.0,
             1.0,
@@ -1728,7 +1739,7 @@
             1.0,
             1.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.2,
             0.2,
             0.2,
@@ -1754,7 +1765,7 @@
             0.2,
             0.2
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -1780,52 +1791,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.33,
-        "surround_clo_persons":2.0
+        "clothing_persons": 0.33,
+        "surround_clo_persons": 2.0
     },
-    "Hotel room":{
-        "typical_length":4.0,
-        "typical_width":4.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Hotel room": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 15
             ]
         },
-        "activity_degree_persons":0.8,
-        "fixed_heat_flow_rate_persons":84.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":4.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":2.9,
-        "ratio_conv_rad_lighting":0.5,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 0.8,
+        "fixed_heat_flow_rate_persons": 84.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 4.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 2.9,
+        "maintained_illuminance": 200.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.5,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -1851,7 +1863,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -1877,7 +1889,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             1.0,
             1.0,
             1.0,
@@ -1903,7 +1915,7 @@
             0.8,
             1.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             1.0,
             0.4,
             0.4,
@@ -1929,7 +1941,7 @@
             0.8,
             1.0
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -1955,52 +1967,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.33,
-        "surround_clo_persons":2.0
+        "clothing_persons": 0.33,
+        "surround_clo_persons": 2.0
     },
-    "Canteen":{
-        "typical_length":20.0,
-        "typical_width":20.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Canteen": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 2
             ]
         },
-        "activity_degree_persons":1.2,
-        "fixed_heat_flow_rate_persons":125.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":2.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":6.1,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.2,
+        "fixed_heat_flow_rate_persons": 125.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 2.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 6.1,
+        "maintained_illuminance": 200.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":18.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 18.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -2026,7 +2039,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -2052,7 +2065,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -2078,7 +2091,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -2104,7 +2117,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -2130,52 +2143,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.01
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.01
     },
-    "Restaurant":{
-        "typical_length":12.0,
-        "typical_width":12.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Restaurant": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 2
             ]
         },
-        "activity_degree_persons":1.2,
-        "fixed_heat_flow_rate_persons":125.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":2.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":6.9,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.2,
+        "fixed_heat_flow_rate_persons": 125.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 2.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 6.9,
+        "maintained_illuminance": 200.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -2201,7 +2215,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -2227,7 +2241,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -2253,7 +2267,7 @@
             0.2,
             0.2
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -2279,7 +2293,7 @@
             0.8,
             0.4
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -2305,52 +2319,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.01
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.01
     },
-    "Kitchen in non-residential buildings":{
-        "typical_length":6.0,
-        "typical_width":6.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Kitchen in non-residential buildings": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 2
             ]
         },
-        "activity_degree_persons":1.9,
-        "fixed_heat_flow_rate_persons":199.0,
-        "internal_gains_moisture_no_people":10.0,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":300.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":12.5,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.9,
+        "fixed_heat_flow_rate_persons": 199.0,
+        "internal_gains_moisture_no_people": 10.0,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 300.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 12.5,
+        "maintained_illuminance": 500.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":70.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 70.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -2376,7 +2391,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -2402,7 +2417,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -2428,7 +2443,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -2454,7 +2469,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -2480,52 +2495,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.81,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.81,
+        "surround_clo_persons": 0.0
     },
-    "Kitchen - preparations, storage":{
-        "typical_length":6.0,
-        "typical_width":6.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Kitchen - preparations, storage": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 5
             ]
         },
-        "activity_degree_persons":1.9,
-        "fixed_heat_flow_rate_persons":199.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":30.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":15.9,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.9,
+        "fixed_heat_flow_rate_persons": 199.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 30.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 15.9,
+        "maintained_illuminance": 300.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -2551,7 +2567,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -2577,7 +2593,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -2603,7 +2619,7 @@
             0.2,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -2629,7 +2645,7 @@
             0.2,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -2655,47 +2671,48 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.81,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.81,
+        "surround_clo_persons": 0.0
     },
-    "WC and sanitary rooms in non-residential buildings":{
-        "typical_length":3.0,
-        "typical_width":6.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":0.0,
-        "activity_degree_persons":1.0,
-        "fixed_heat_flow_rate_persons":105.0,
-        "internal_gains_moisture_no_people":10,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":0.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":11.1,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+    "WC and sanitary rooms in non-residential buildings": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "T_threshold_cooling": 295.15,
+        "with_cooling": false,
+        "persons": 0.0,
+        "activity_degree_persons": 1.0,
+        "fixed_heat_flow_rate_persons": 105.0,
+        "internal_gains_moisture_no_people": 10,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 0.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 11.1,
+        "maintained_illuminance": 200.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":8.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 8.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -2721,7 +2738,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -2747,7 +2764,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -2773,7 +2790,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -2799,7 +2816,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -2825,52 +2842,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.0
     },
-    "Further common rooms":{
-        "typical_length":6.0,
-        "typical_width":6.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Further common rooms": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 3
             ]
         },
-        "activity_degree_persons":1.2,
-        "fixed_heat_flow_rate_persons":125.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":2.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":6.3,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.2,
+        "fixed_heat_flow_rate_persons": 125.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 2.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 6.3,
+        "maintained_illuminance": 300.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -2896,7 +2914,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -2922,7 +2940,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -2948,7 +2966,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -2974,7 +2992,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -3000,47 +3018,48 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.01
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.01
     },
-    "Auxiliary areas (without common rooms)":{
-        "typical_length":3.0,
-        "typical_width":6.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":0.0,
-        "activity_degree_persons":1.7,
-        "fixed_heat_flow_rate_persons":178.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":0.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":6.3,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+    "Auxiliary areas (without common rooms)": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "T_threshold_cooling": 295.15,
+        "with_cooling": false,
+        "persons": 0.0,
+        "activity_degree_persons": 1.7,
+        "fixed_heat_flow_rate_persons": 178.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 0.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 6.3,
+        "maintained_illuminance": 100.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -3066,7 +3085,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -3092,7 +3111,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -3118,7 +3137,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -3144,7 +3163,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -3170,47 +3189,48 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.0
     },
-    "Traffic area":{
-        "typical_length":2.0,
-        "typical_width":12.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":0.0,
-        "activity_degree_persons":1.8,
-        "fixed_heat_flow_rate_persons":188.0,
-        "internal_gains_moisture_no_people":0.0,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":0.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":7.0,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+    "Traffic area": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "T_threshold_cooling": 295.15,
+        "with_cooling": false,
+        "persons": 0.0,
+        "activity_degree_persons": 1.8,
+        "fixed_heat_flow_rate_persons": 188.0,
+        "internal_gains_moisture_no_people": 0.0,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 0.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 7.0,
+        "maintained_illuminance": 100.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":2.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 2.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -3236,7 +3256,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -3262,7 +3282,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -3288,7 +3308,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -3314,7 +3334,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -3340,52 +3360,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.0
     },
-    "Stock, technical equipment, archives":{
-        "typical_length":6.0,
-        "typical_width":6.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Stock, technical equipment, archives": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 40
             ]
         },
-        "activity_degree_persons":1.5,
-        "fixed_heat_flow_rate_persons":157.0,
-        "internal_gains_moisture_no_people":0.0,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":0.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":11.3,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.5,
+        "fixed_heat_flow_rate_persons": 157.0,
+        "internal_gains_moisture_no_people": 0.0,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 0.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 11.3,
+        "maintained_illuminance": 100.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.5,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.5,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -3411,7 +3432,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -3437,7 +3458,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.2,
             0.2,
             0.2,
@@ -3463,7 +3484,7 @@
             0.2,
             0.2
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.2,
             0.2,
             0.2,
@@ -3489,7 +3510,7 @@
             0.2,
             0.2
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -3515,47 +3536,48 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.0
     },
-    "Data center":{
-        "typical_length":6.0,
-        "typical_width":6.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":0.0,
-        "activity_degree_persons":1.5,
-        "fixed_heat_flow_rate_persons":157.0,
-        "internal_gains_moisture_no_people":0.0,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":150.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":7.1,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+    "Data center": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": 0.0,
+        "activity_degree_persons": 1.5,
+        "fixed_heat_flow_rate_persons": 157.0,
+        "internal_gains_moisture_no_people": 0.0,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 150.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 7.1,
+        "maintained_illuminance": 500.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":130.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 130.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -3581,7 +3603,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -3607,7 +3629,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             1.0,
             1.0,
             1.0,
@@ -3633,7 +3655,7 @@
             1.0,
             1.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             1.0,
             1.0,
             1.0,
@@ -3659,7 +3681,7 @@
             1.0,
             1.0
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -3685,52 +3707,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.0
     },
-    "Commercial and industrial Halls - heavy work, standing activity":{
-        "typical_length":20.0,
-        "typical_width":20.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Commercial and industrial Halls - heavy work, standing activity": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 15
             ]
         },
-        "activity_degree_persons":3.7,
-        "fixed_heat_flow_rate_persons":387.0,
-        "internal_gains_moisture_no_people":0.0,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":35.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":10.8,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 3.7,
+        "fixed_heat_flow_rate_persons": 387.0,
+        "internal_gains_moisture_no_people": 0.0,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 35.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 10.8,
+        "maintained_illuminance": 300.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":10.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 10.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             288.15,
             288.15,
             288.15,
@@ -3756,7 +3779,7 @@
             288.15,
             288.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             288.15,
             288.15,
             288.15,
@@ -3782,7 +3805,7 @@
             288.15,
             288.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.2,
             0.2,
             0.2,
@@ -3808,7 +3831,7 @@
             0.2,
             0.2
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.2,
             0.2,
             0.2,
@@ -3834,7 +3857,7 @@
             0.2,
             0.2
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -3860,52 +3883,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.64,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.64,
+        "surround_clo_persons": 0.0
     },
-    "Commercial and industrial Halls - medium work, standing activity":{
-        "typical_length":20.0,
-        "typical_width":20.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Commercial and industrial Halls - medium work, standing activity": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 15
             ]
         },
-        "activity_degree_persons":2.1,
-        "fixed_heat_flow_rate_persons":220.0,
-        "internal_gains_moisture_no_people":0.0,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":35.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":10.8,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 2.1,
+        "fixed_heat_flow_rate_persons": 220.0,
+        "internal_gains_moisture_no_people": 0.0,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 35.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 10.8,
+        "maintained_illuminance": 400.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":10.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 10.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             290.15,
             290.15,
             290.15,
@@ -3931,7 +3955,7 @@
             290.15,
             290.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             290.15,
             290.15,
             290.15,
@@ -3957,7 +3981,7 @@
             290.15,
             290.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.2,
             0.2,
             0.2,
@@ -3983,7 +4007,7 @@
             0.2,
             0.2
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.2,
             0.2,
             0.2,
@@ -4009,7 +4033,7 @@
             0.2,
             0.2
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -4035,52 +4059,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.64,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.64,
+        "surround_clo_persons": 0.0
     },
-    "Commercial and industrial Halls - light work, standing activity":{
-        "typical_length":20.0,
-        "typical_width":20.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Commercial and industrial Halls - light work, standing activity": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 15
             ]
         },
-        "activity_degree_persons":1.7,
-        "fixed_heat_flow_rate_persons":178.0,
-        "internal_gains_moisture_no_people":0.0,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":35.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":14.7,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.7,
+        "fixed_heat_flow_rate_persons": 178.0,
+        "internal_gains_moisture_no_people": 0.0,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 35.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 14.7,
+        "maintained_illuminance": 500.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":10.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 10.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             293.15,
             293.15,
             293.15,
@@ -4106,7 +4131,7 @@
             293.15,
             293.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             293.15,
             293.15,
             293.15,
@@ -4132,7 +4157,7 @@
             293.15,
             293.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.2,
             0.2,
             0.2,
@@ -4158,7 +4183,7 @@
             0.2,
             0.2
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.2,
             0.2,
             0.2,
@@ -4184,7 +4209,7 @@
             0.2,
             0.2
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -4210,52 +4235,51 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.64,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.64,
+        "surround_clo_persons": 0.0
     },
-    "Spectator area (theater and event venues)":{
-        "typical_length":20.0,
-        "typical_width":10.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Spectator area (theater and event venues)": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 3
             ]
         },
-        "activity_degree_persons":1.1,
-        "fixed_heat_flow_rate_persons":115.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":0.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":10.8,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.1,
+        "fixed_heat_flow_rate_persons": 115.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 0.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 10.8,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -4281,7 +4305,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -4307,7 +4331,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -4333,7 +4357,7 @@
             0.6,
             0.2
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -4359,7 +4383,7 @@
             0.6,
             0.2
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -4385,52 +4409,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.83,
-        "surround_clo_persons":0.01
+        "clothing_persons": 0.83,
+        "surround_clo_persons": 0.01
     },
-    "Foyer (theater and event venues)":{
-        "typical_length":12.0,
-        "typical_width":12.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Foyer (theater and event venues)": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 12
             ]
         },
-        "activity_degree_persons":1.4,
-        "fixed_heat_flow_rate_persons":146.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":0.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":4.4,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.4,
+        "fixed_heat_flow_rate_persons": 146.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 0.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 4.4,
+        "maintained_illuminance": 300.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -4456,7 +4481,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -4482,7 +4507,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -4508,7 +4533,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -4534,7 +4559,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -4560,52 +4585,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.83,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.83,
+        "surround_clo_persons": 0.0
     },
-    "Stage (theater and event venues)":{
-        "typical_length":10.0,
-        "typical_width":5.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Stage (theater and event venues)": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 5
             ]
         },
-        "activity_degree_persons":2.8,
-        "fixed_heat_flow_rate_persons":293.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":0.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":10.8,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 2.8,
+        "fixed_heat_flow_rate_persons": 293.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 0.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 10.8,
+        "maintained_illuminance": 1000.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -4631,7 +4657,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -4657,7 +4683,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -4683,7 +4709,7 @@
             0.6,
             0.2
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -4709,7 +4735,7 @@
             0.6,
             0.2
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -4735,52 +4761,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.0
     },
-    "Exhibition, congress":{
-        "typical_length":40.0,
-        "typical_width":20.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Exhibition, congress": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 3
             ]
         },
-        "activity_degree_persons":1.5,
-        "fixed_heat_flow_rate_persons":157.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":2.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":10.8,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.5,
+        "fixed_heat_flow_rate_persons": 157.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 2.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 10.8,
+        "maintained_illuminance": 300.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -4806,7 +4833,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -4832,7 +4859,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -4858,7 +4885,7 @@
             0.2,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -4884,7 +4911,7 @@
             0.2,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -4910,52 +4937,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.83,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.83,
+        "surround_clo_persons": 0.0
     },
-    "Exhibition room and museum conservational demands":{
-        "typical_length":20.0,
-        "typical_width":20.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Exhibition room and museum conservational demands": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 3
             ]
         },
-        "activity_degree_persons":1.4,
-        "fixed_heat_flow_rate_persons":146.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":0.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":10.8,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.4,
+        "fixed_heat_flow_rate_persons": 146.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 0.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 10.8,
+        "maintained_illuminance": 200.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -4981,7 +5009,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -5007,7 +5035,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -5033,7 +5061,7 @@
             0.2,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -5059,7 +5087,7 @@
             0.2,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -5085,52 +5113,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.83,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.83,
+        "surround_clo_persons": 0.0
     },
-    "Library - reading room":{
-        "typical_length":20.0,
-        "typical_width":20.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Library - reading room": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 5
             ]
         },
-        "activity_degree_persons":1.1,
-        "fixed_heat_flow_rate_persons":115.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":0.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":6.9,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.1,
+        "fixed_heat_flow_rate_persons": 115.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 0.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 6.9,
+        "maintained_illuminance": 500.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -5156,7 +5185,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -5182,7 +5211,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -5208,7 +5237,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -5234,7 +5263,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -5260,52 +5289,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.01
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.01
     },
-    "Library - open stacks":{
-        "typical_length":6.0,
-        "typical_width":6.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Library - open stacks": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 5
             ]
         },
-        "activity_degree_persons":1.5,
-        "fixed_heat_flow_rate_persons":157.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":0.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":6.9,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.5,
+        "fixed_heat_flow_rate_persons": 157.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 0.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 6.9,
+        "maintained_illuminance": 200.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -5331,7 +5361,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -5357,7 +5387,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -5383,7 +5413,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -5409,7 +5439,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -5435,52 +5465,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.0
     },
-    "Library - magazine and depot":{
-        "typical_length":6.0,
-        "typical_width":6.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Library - magazine and depot": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 5
             ]
         },
-        "activity_degree_persons":1.5,
-        "fixed_heat_flow_rate_persons":157.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":0.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":6.9,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.5,
+        "fixed_heat_flow_rate_persons": 157.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 0.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 6.9,
+        "maintained_illuminance": 100.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -5506,7 +5537,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -5532,7 +5563,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -5558,7 +5589,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -5584,7 +5615,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -5610,52 +5641,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.0
     },
-    "Gym (without spectator area)":{
-        "typical_length":40.0,
-        "typical_width":20.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Gym (without spectator area)": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 20
             ]
         },
-        "activity_degree_persons":3.5,
-        "fixed_heat_flow_rate_persons":366.0,
-        "internal_gains_moisture_no_people":0.0,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":0.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":10.5,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 3.5,
+        "fixed_heat_flow_rate_persons": 366.0,
+        "internal_gains_moisture_no_people": 0.0,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 0.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 10.5,
+        "maintained_illuminance": 300.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -5681,7 +5713,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -5707,7 +5739,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -5733,7 +5765,7 @@
             0.5,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -5759,7 +5791,7 @@
             0.5,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -5785,47 +5817,48 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.43,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.43,
+        "surround_clo_persons": 0.0
     },
-    "Parking garages (office and private usage)":{
-        "typical_length":50.0,
-        "typical_width":50.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":0.0,
-        "activity_degree_persons":1.8,
-        "fixed_heat_flow_rate_persons":188.0,
-        "internal_gains_moisture_no_people":0.0,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":0.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":2.9,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+    "Parking garages (office and private usage)": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": 0.0,
+        "activity_degree_persons": 1.8,
+        "fixed_heat_flow_rate_persons": 188.0,
+        "internal_gains_moisture_no_people": 0.0,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 0.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 2.9,
+        "maintained_illuminance": 75.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -5851,7 +5884,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -5877,7 +5910,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -5903,7 +5936,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -5929,7 +5962,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -5955,47 +5988,48 @@
             0.0,
             0.0
         ],
-        "clothing_persons":1.01,
-        "surround_clo_persons":0.0
+        "clothing_persons": 1.01,
+        "surround_clo_persons": 0.0
     },
-    "Parking garages (public usage)":{
-        "typical_length":100.0,
-        "typical_width":50.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":0.0,
-        "activity_degree_persons":1.8,
-        "fixed_heat_flow_rate_persons":188.0,
-        "internal_gains_moisture_no_people":0.0,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":0.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":2.9,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+    "Parking garages (public usage)": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "T_threshold_cooling": 295.15,
+        "with_cooling": false,
+        "persons": 0.0,
+        "activity_degree_persons": 1.8,
+        "fixed_heat_flow_rate_persons": 188.0,
+        "internal_gains_moisture_no_people": 0.0,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 0.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 2.9,
+        "maintained_illuminance": 75.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -6021,7 +6055,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -6047,7 +6081,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -6073,7 +6107,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -6099,7 +6133,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -6125,52 +6159,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":1.01,
-        "surround_clo_persons":0.0
+        "clothing_persons": 1.01,
+        "surround_clo_persons": 0.0
     },
-    "Sauna area":{
-        "typical_length":1.0,
-        "typical_width":1.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Sauna area": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 10
             ]
         },
-        "activity_degree_persons":1.0,
-        "fixed_heat_flow_rate_persons":105.0,
-        "internal_gains_moisture_no_people":10.0,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":50.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":11.3,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.0,
+        "fixed_heat_flow_rate_persons": 105.0,
+        "internal_gains_moisture_no_people": 10.0,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 50.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 11.3,
+        "maintained_illuminance": 200.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             297.15,
             297.15,
             297.15,
@@ -6196,7 +6231,7 @@
             297.15,
             297.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             297.15,
             297.15,
             297.15,
@@ -6222,7 +6257,7 @@
             297.15,
             297.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -6248,7 +6283,7 @@
             0.5,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -6274,7 +6309,7 @@
             0.5,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -6300,52 +6335,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.0,
-        "surround_clo_persons":0.01
+        "clothing_persons": 0.0,
+        "surround_clo_persons": 0.01
     },
-    "Exercise room":{
-        "typical_length":10.0,
-        "typical_width":10.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Exercise room": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 10
             ]
         },
-        "activity_degree_persons":1.0,
-        "fixed_heat_flow_rate_persons":105.0,
-        "internal_gains_moisture_no_people":0.0,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":2.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":9.9,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.0,
+        "fixed_heat_flow_rate_persons": 105.0,
+        "internal_gains_moisture_no_people": 0.0,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 2.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 9.9,
+        "maintained_illuminance": 300.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             293.15,
             293.15,
             293.15,
@@ -6371,7 +6407,7 @@
             293.15,
             293.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             293.15,
             293.15,
             293.15,
@@ -6397,7 +6433,7 @@
             293.15,
             293.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -6423,7 +6459,7 @@
             0.5,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -6449,7 +6485,7 @@
             0.5,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -6475,52 +6511,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.01
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.01
     },
-    "Laboratory":{
-        "typical_length":6.0,
-        "typical_width":6.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Laboratory": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 15
             ]
         },
-        "activity_degree_persons":1.2,
-        "fixed_heat_flow_rate_persons":125.0,
-        "internal_gains_moisture_no_people":0.0,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":18.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":14.0,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.2,
+        "fixed_heat_flow_rate_persons": 125.0,
+        "internal_gains_moisture_no_people": 0.0,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 18.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 14.0,
+        "maintained_illuminance": 500.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":24.0,
-        "max_ahu":48.0,
-        "with_ahu":true,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 24.0,
+        "max_ahu": 48.0,
+        "with_ahu": true,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             295.15,
             295.15,
             295.15,
@@ -6546,7 +6583,7 @@
             295.15,
             295.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             295.15,
             295.15,
             295.15,
@@ -6572,7 +6609,7 @@
             295.15,
             295.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -6598,7 +6635,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -6624,7 +6661,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -6650,52 +6687,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.81,
-        "surround_clo_persons":0.01
+        "clothing_persons": 0.81,
+        "surround_clo_persons": 0.01
     },
-    "Examination- or treatment room":{
-        "typical_length":3.0,
-        "typical_width":6.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Examination- or treatment room": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 5
             ]
         },
-        "activity_degree_persons":1.5,
-        "fixed_heat_flow_rate_persons":157.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":7.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":15.9,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.5,
+        "fixed_heat_flow_rate_persons": 157.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 7.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 15.9,
+        "maintained_illuminance": 500.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             295.15,
             295.15,
             295.15,
@@ -6721,7 +6759,7 @@
             295.15,
             295.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             295.15,
             295.15,
             295.15,
@@ -6747,7 +6785,7 @@
             295.15,
             295.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -6773,7 +6811,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -6799,7 +6837,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -6825,52 +6863,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.81,
-        "surround_clo_persons":0.01
+        "clothing_persons": 0.81,
+        "surround_clo_persons": 0.01
     },
-    "Special care area":{
-        "typical_length":6.0,
-        "typical_width":6.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Special care area": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 3
             ]
         },
-        "activity_degree_persons":2.1,
-        "fixed_heat_flow_rate_persons":220.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":10.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":14.0,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 2.1,
+        "fixed_heat_flow_rate_persons": 220.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 10.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 14.0,
+        "maintained_illuminance": 300.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             297.15,
             297.15,
             297.15,
@@ -6896,7 +6935,7 @@
             297.15,
             297.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             297.15,
             297.15,
             297.15,
@@ -6922,7 +6961,7 @@
             297.15,
             297.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -6948,7 +6987,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -6974,7 +7013,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -7000,47 +7039,48 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.81,
-        "surround_clo_persons":2.0
+        "clothing_persons": 0.81,
+        "surround_clo_persons": 2.0
     },
-    "Corridors in the general care area":{
-        "typical_length":2.0,
-        "typical_width":12.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":0.0,
-        "activity_degree_persons":1.8,
-        "fixed_heat_flow_rate_persons":188.0,
-        "internal_gains_moisture_no_people":0.0,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":0.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":14.1,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+    "Corridors in the general care area": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "T_threshold_cooling": 295.15,
+        "with_cooling": false,
+        "persons": 0.0,
+        "activity_degree_persons": 1.8,
+        "fixed_heat_flow_rate_persons": 188.0,
+        "internal_gains_moisture_no_people": 0.0,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 0.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 14.1,
+        "maintained_illuminance": 125.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             295.15,
             295.15,
             295.15,
@@ -7066,7 +7106,7 @@
             295.15,
             295.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             295.15,
             295.15,
             295.15,
@@ -7092,7 +7132,7 @@
             295.15,
             295.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -7118,7 +7158,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -7144,7 +7184,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -7170,52 +7210,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.81,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.81,
+        "surround_clo_persons": 0.0
     },
-    "Medical and therapeutic practices":{
-        "typical_length":6.0,
-        "typical_width":6.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Medical and therapeutic practices": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 5
             ]
         },
-        "activity_degree_persons":1.4,
-        "fixed_heat_flow_rate_persons":146.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":5.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":15.9,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.4,
+        "fixed_heat_flow_rate_persons": 146.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 5.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 15.9,
+        "maintained_illuminance": 500.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             295.15,
             295.15,
             295.15,
@@ -7241,7 +7282,7 @@
             295.15,
             295.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             295.15,
             295.15,
             295.15,
@@ -7267,7 +7308,7 @@
             295.15,
             295.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.2,
             0.2,
             0.2,
@@ -7293,7 +7334,7 @@
             0.2,
             0.2
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.2,
             0.2,
             0.2,
@@ -7319,7 +7360,7 @@
             0.2,
             0.2
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -7345,52 +7386,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.81,
-        "surround_clo_persons":0.01
+        "clothing_persons": 0.81,
+        "surround_clo_persons": 0.01
     },
-    "Storehouse, logistics building":{
-        "typical_length":20.0,
-        "typical_width":20.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Storehouse, logistics building": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 40
             ]
         },
-        "activity_degree_persons":2.1,
-        "fixed_heat_flow_rate_persons":220.0,
-        "internal_gains_moisture_no_people":0.0,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":0.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":11.3,
-        "ratio_conv_rad_lighting":0.9,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 2.1,
+        "fixed_heat_flow_rate_persons": 220.0,
+        "internal_gains_moisture_no_people": 0.0,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 0.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 11.3,
+        "maintained_illuminance": 150.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.9,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.0,
-        "max_ahu":0.0,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.0,
+        "max_ahu": 0.0,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             285.15,
             285.15,
             285.15,
@@ -7416,7 +7458,7 @@
             285.15,
             285.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             285.15,
             285.15,
             285.15,
@@ -7442,7 +7484,7 @@
             285.15,
             285.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.2,
             0.2,
             0.2,
@@ -7468,7 +7510,7 @@
             0.2,
             0.2
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.2,
             0.2,
             0.2,
@@ -7494,7 +7536,7 @@
             0.2,
             0.2
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -7520,52 +7562,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.71,
-        "surround_clo_persons":0.0
+        "clothing_persons": 0.71,
+        "surround_clo_persons": 0.0
     },
-    "Living":{
-        "typical_length":3.0,
-        "typical_width":6.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Living": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 50
             ]
         },
-        "activity_degree_persons":1.1,
-        "fixed_heat_flow_rate_persons":115.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":2.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":7.0,
-        "ratio_conv_rad_lighting":0.5,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.1,
+        "fixed_heat_flow_rate_persons": 115.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 2.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 10,
+        "maintained_illuminance": 75.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.5,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.3,
-        "max_ahu":0.6,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.3,
+        "max_ahu": 0.6,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -7591,33 +7634,33 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15,
-            294.15
+        "cooling_profile": [
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15,
+            298.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             1.0,
             1.0,
             1.0,
@@ -7643,7 +7686,7 @@
             1.0,
             1.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -7669,7 +7712,7 @@
             0.5,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -7695,52 +7738,53 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.15
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.15
     },
-    "Classroom":{
-        "typical_length":10.0,
-        "typical_width":7.0,
-        "with_heating":true,
-        "T_threshold_heating":288.15,
-        "with_cooling":false,
-        "persons":{
-            "\/":[
+    "Classroom": {
+        "with_heating": true,
+        "T_threshold_heating": 288.15,
+        "with_cooling": false,
+        "persons": {
+            "/": [
                 1,
                 3
             ]
         },
-        "activity_degree_persons":1.1,
-        "fixed_heat_flow_rate_persons":115.0,
-        "internal_gains_moisture_no_people":0.5,
-        "T_threshold_cooling":295.15,
-        "ratio_conv_rad_persons":0.5,
-        "machines":2.0,
-        "ratio_conv_rad_machines":0.75,
-        "lighting_power":10.3,
-        "ratio_conv_rad_lighting":0.5,
-        "use_constant_infiltration":false,
-        "infiltration_rate":0.2,
-        "max_user_infiltration":1.0,
-        "max_overheating_infiltration":[
+        "activity_degree_persons": 1.1,
+        "fixed_heat_flow_rate_persons": 115.0,
+        "internal_gains_moisture_no_people": 0.5,
+        "T_threshold_cooling": 295.15,
+        "ratio_conv_rad_persons": 0.5,
+        "machines": 2.0,
+        "ratio_conv_rad_machines": 0.75,
+        "use_maintained_illuminance": false,
+        "fixed_lighting_power": 10.3,
+        "maintained_illuminance": 500.0,
+        "lighting_efficiency_lumen": 150,
+        "ratio_conv_rad_lighting": 0.5,
+        "use_constant_infiltration": false,
+        "infiltration_rate": 0.2,
+        "max_user_infiltration": 1.0,
+        "max_overheating_infiltration": [
             3.0,
             2.0
         ],
-        "max_summer_infiltration":[
+        "max_summer_infiltration": [
             1.0,
             283.15,
             290.15
         ],
-        "winter_reduction_infiltration":[
+        "winter_reduction_infiltration": [
             0.2,
             273.15,
             283.15
         ],
-        "min_ahu":0.3,
-        "max_ahu":0.6,
-        "with_ahu":false,
-        "with_ideal_thresholds":false,
-        "heating_profile":[
+        "min_ahu": 0.3,
+        "max_ahu": 0.6,
+        "with_ahu": false,
+        "with_ideal_thresholds": false,
+        "heating_profile": [
             294.15,
             294.15,
             294.15,
@@ -7766,7 +7810,7 @@
             294.15,
             294.15
         ],
-        "cooling_profile":[
+        "cooling_profile": [
             294.15,
             294.15,
             294.15,
@@ -7792,7 +7836,7 @@
             294.15,
             294.15
         ],
-        "persons_profile":[
+        "persons_profile": [
             0.0,
             0.0,
             0.0,
@@ -7818,7 +7862,7 @@
             0.0,
             0.0
         ],
-        "machines_profile":[
+        "machines_profile": [
             0.1,
             0.1,
             0.1,
@@ -7844,7 +7888,7 @@
             0.1,
             0.1
         ],
-        "lighting_profile":[
+        "lighting_profile": [
             0.0,
             0.0,
             0.0,
@@ -7870,7 +7914,7 @@
             0.0,
             0.0
         ],
-        "clothing_persons":0.66,
-        "surround_clo_persons":0.01
+        "clothing_persons": 0.66,
+        "surround_clo_persons": 0.01
     }
 }

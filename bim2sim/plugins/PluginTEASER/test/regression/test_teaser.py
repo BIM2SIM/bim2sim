@@ -9,7 +9,7 @@ import buildingspy.development.regressiontest as u
 import bim2sim
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import RegressionTestBase
-from bim2sim.utilities.types import IFCDomain
+from bim2sim.utilities.types import IFCDomain, ZoningCriteria
 
 logger = logging.getLogger(__name__)
 
@@ -130,14 +130,43 @@ class RegressionTestTEASER(RegressionTestBase):
 
 class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
     def test_run_kitfzkhaus(self):
-        """Run TEASER export with AC20-FZK-Haus.ifc and predefined materials
-        and one zone model export"""
+        """Run TEASER regression test with AC20-FZK-Haus.ifc and one zone model
+         export"""
         ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
-        # FZK Haus as correct IFC types but wrong SB external/internal
-        # information
-        project.sim_settings.fix_type_mismatches_with_sb = False
+        project.sim_settings.zoning_criteria = (
+            ZoningCriteria.combined_single_zone)
         answers = ()
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+        self.assertEqual(0, handler.return_value,
+                         "Project export did not finish successfully.")
+        self.create_regression_setup(tolerance=1E-3, batch_mode=True)
+        reg_test_res = self.run_regression_test()
+        if reg_test_res == 3:
+            logger.error("Can't run dymola Simulation as no Dymola executable "
+                         "found")
+        self.assertEqual(0, reg_test_res,
+                         "Regression test with simulation did not finish"
+                         " successfully or created deviations.")
+
+    def test_run_digitalhub(self):
+        """Run TEASER regression test with FM_ARC_DigitalHub_with_SB_neu and
+        one zone model export"""
+        ifc_names = {IFCDomain.arch:  'FM_ARC_DigitalHub_with_SB_neu.ifc'}
+        project = self.create_project(ifc_names, 'TEASER')
+        project.sim_settings.zoning_criteria = (
+            ZoningCriteria.combined_single_zone)
+        project.sim_settings.prj_use_conditions = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "UseConditionsFM_ARC_DigitalHub.json"
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "customUsagesFM_ARC_DigitalHub_with_SB_neu.json"
+        answers = ('Other', *(None,)*12, 2015)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer

@@ -35,7 +35,7 @@ version of [mamba](https://github.com/mamba-org/mamba)) is used.
 
 We will guide you through the process now.
 ```shell
-# create fresh python environment with conda (python 3.9 to 3.11 are supported currently)
+# create fresh python environment with conda (python 3.10 to 3.11 are supported currently)
 micromamba create -n bim2sim python=3.11 -c conda-forge
 # activate your environment
 micromamba activate bim2sim
@@ -163,9 +163,6 @@ To include bim2sim in your scripts start with something like this:
 
 ```python
 from bim2sim import Project
-from bim2sim.log import default_logging_setup
-
-default_logging_setup()  # call this first or do a custom logging setup
 
 project_path = 'path/to/project'
 ifc_path = 'path/to/ifc'

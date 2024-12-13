@@ -8,15 +8,12 @@ from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain, LOD
 
 
-def run_example_complex_building_teaser():
-    """Run a building performance simulation with the TEASER backend.
+def run_example_complex_building_energyplus():
+    """Run a building performance simulation with PluginEnergyPlus.
 
-    ...
+    This example creates a BEPS simulation model and performs the simulation
+    in Dymola based on the DigitalHub IFC using PluginTEASER.
     """
-    # Create the default logging to for quality log and bim2sim main log
-    # (see logging documentation for more information)
-    default_logging_setup()
-
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
@@ -49,7 +46,7 @@ def run_example_complex_building_teaser():
     # overwrite existing layer structures and materials based on templates
     project.sim_settings.layers_and_materials = LOD.low
     # specify templates for the layer and material overwrite
-    project.sim_settings.construction_class_walls = 'heavy'
+    project.sim_settings.construction_class_walls = 'iwu_heavy'
     project.sim_settings.construction_class_windows = \
         'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
 
@@ -74,7 +71,7 @@ def run_example_complex_building_teaser():
     project.sim_settings.prj_use_conditions = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
-            "UseConditionsFM_ARC_DigitalHub_with_SB89.json")
+            "UseConditionsFM_ARC_DigitalHub.json")
     project.sim_settings.prj_custom_usages = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
@@ -94,4 +91,4 @@ def run_example_complex_building_teaser():
 
 
 if __name__ == '__main__':
-    run_example_complex_building_teaser()
+    run_example_complex_building_energyplus()

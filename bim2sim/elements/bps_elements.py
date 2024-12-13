@@ -34,7 +34,7 @@ from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.common.inner_loop_remover import remove_inner_loops
 from bim2sim.utilities.common_functions import vector_angle, angle_equivalent
 from bim2sim.utilities.pyocc_tools import PyOCCTools
-from bim2sim.utilities.types import IFCDomain
+from bim2sim.utilities.types import IFCDomain, BoundaryOrientation
 
 logger = logging.getLogger(__name__)
 
@@ -333,7 +333,7 @@ class ThermalZone(BPSProduct):
         """get all horizonal SBs in a zone and convert them into a dict with
          key z-height in room and the SB as value."""
         # todo: use only bottom when TOP bottom is working correctly
-        valid = ['TOP', 'BOTTOM']
+        valid = [BoundaryOrientation.top, BoundaryOrientation.bottom]
         leveled_sbs = {}
         for sb in self.sbs_without_corresponding:
             if sb.top_bottom in valid:
@@ -343,6 +343,9 @@ class ThermalZone(BPSProduct):
                 leveled_sbs[pos].append(sb)
 
         return leveled_sbs
+
+    def _area_specific_post_processing(self, value):
+        return value / self.net_area
 
     def _get_heating_profile(self, name) -> list:
         """returns a heating profile using the heat temperature in the IFC"""
@@ -535,10 +538,6 @@ class ThermalZone(BPSProduct):
     )
     with_heating = attribute.Attribute(
     )
-    typical_length = attribute.Attribute(
-    )
-    typical_width = attribute.Attribute(
-    )
     T_threshold_heating = attribute.Attribute(
     )
     activity_degree_persons = attribute.Attribute(
@@ -561,15 +560,52 @@ class ThermalZone(BPSProduct):
         default=0.5,
     )
     machines = attribute.Attribute(
+        description="Specific internal gains through machines, if taken from"
+                    " IFC property set a division by thermal zone area is"
+                    " needed.",
         default_ps=("Pset_SpaceThermalLoad", "EquipmentSensible"),
-        unit=ureg.watt,
+        ifc_postprocessing=_area_specific_post_processing,
+        unit=ureg.W / (ureg.meter ** 2),
     )
+
+    def _calc_lighting_power(self, name) -> float:
+        if self.use_maintained_illuminance:
+            return self.maintained_illuminance / self.lighting_efficiency_lumen
+        else:
+            return self.fixed_lighting_power
+
     lighting_power = attribute.Attribute(
+        description="Specific lighting power in W/m2. If taken from IFC"
+                    " property set a division by thermal zone area is needed.",
         default_ps=("Pset_SpaceThermalLoad", "Lighting"),
-        unit=ureg.W,
+        ifc_postprocessing=_area_specific_post_processing,
+        functions=[_calc_lighting_power],
+        unit=ureg.W / (ureg.meter ** 2),
+
     )
-    use_constant_infiltration = attribute.Attribute(
+    fixed_lighting_power = attribute.Attribute(
+        description="Specific fixed electrical power for lighting in W/m2. "
+                    "This value is taken from SIA 2024.",
+        unit=ureg.W / (ureg.meter ** 2)
     )
+    maintained_illuminance = attribute.Attribute(
+        description="Maintained illuminance value for lighting. This value is"
+                    " taken from SIA 2024.",
+        unit=ureg.lumen / (ureg.meter ** 2)
+    )
+    use_maintained_illuminance = attribute.Attribute(
+        description="Decision variable to determine if lighting_power will"
+                    " be given by fixed_lighting_power or by calculation "
+                    "using the variables maintained_illuminance and "
+                    "lighting_efficiency_lumen. This is not available in IFC "
+                    "and can be set through the sim_setting with equivalent "
+                    "name. "
+    )
+    lighting_efficiency_lumen = attribute.Attribute(
+        description="Lighting efficiency in lm/W_el, in german: Lichtausbeute.",
+        unit=ureg.lumen / ureg.W
+    )
+    use_constant_infiltration = attribute.Attribute()
     infiltration_rate = attribute.Attribute(
     )
     max_user_infiltration = attribute.Attribute(
@@ -623,20 +659,20 @@ class SpaceBoundary(RelationBased):
         self.parent_bound = None
         self.opening_bounds = []
 
-    def calc_orientation(self):
-        """
-        calculates the orientation of the spaceboundary, using the relative
-        position of resultant disaggregation
-        """
-        if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement,
-                   'BasisSurface'):
-            axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
-                BasisSurface.Position.Axis.DirectionRatios
-        else:
-            axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
-                Position.Axis.DirectionRatios
-
-        return vector_angle(axis)
+    # def calc_orientation(self):
+    #     """
+    #     calculates the orientation of the spaceboundary, using the relative
+    #     position of resultant disaggregation
+    #     """
+    #     if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement,
+    #                'BasisSurface'):
+    #         axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
+    #             BasisSurface.Position.Axis.DirectionRatios
+    #     else:
+    #         axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
+    #             Position.Axis.DirectionRatios
+    #
+    #     return vector_angle(axis)
 
     def calc_position(self):
         """
@@ -708,58 +744,31 @@ class SpaceBoundary(RelationBased):
 
     def _get_top_bottom(self, name) -> str:
         """
-        This function computes, if the center of a space boundary
-        is below (bottom) or above (top) the center of a space.
-        This function is used to distinguish floors and ceilings (IfcSlab).
+        Determines if a boundary is a top (ceiling/roof) or bottom (floor/slab)
+         element based solely on its normal vector orientation.
 
-        If the SB is vertical (Walls etc.) VERTICAL will be returned.
-        :return: top_bottom ("TOP", "BOTTOM", "VERTICAL")
+        Classification is based on the dot product between the boundary's
+        normal vector and the vertical vector (0, 0, 1):
+        - TOP: when normal points upward (dot product > cos(89°))
+        - BOTTOM: when normal points downward (dot product < cos(91°))
+        - VERTICAL: when normal is perpendicular to vertical (dot product ≈ 0)
+
+        Returns:
+            BoundaryOrientation: Enumerated orientation classification
         """
-        top_bottom = None
-        vertical = gp_XYZ(0.0, 0.0, 1.0)
-        # only assign top and bottom for elements, whose
-        # surface normals are not perpendicular to a vertical
-        if -1e-3 < self.bound_normal.Dot(vertical) < 1e-3:
-            top_bottom = "VERTICAL"
-        # is related bounds z-coordinate below current bound(self) then
-        # current bound is a floor (BOTTOM), otherwise a ceiling (TOP)
-        elif self.related_bound != None:
-            if (self.bound_center.Z() - self.related_bound.bound_center.Z()) \
-                    > 1e-2:
-                top_bottom = "BOTTOM"
-            elif (self.bound_center.Z() - self.related_bound.bound_center.Z()) \
-                    < -1e-2:
-                top_bottom = "TOP"
-            else:
-                # caution, this relies on correct surface normals
-                if vertical.Dot(self.bound_normal) < -0.8:
-                    top_bottom = "BOTTOM"
-                elif vertical.Dot(self.bound_normal) > 0.8:
-                    top_bottom = "TOP"
-        # for adiabatic bounds we need no tolerance
-        elif self.related_adb_bound is not None:
-            if self.bound_center.Z() > self.related_adb_bound.bound_center.Z():
-                top_bottom = "BOTTOM"
-            else:
-                top_bottom = "TOP"
-        # if no relating bound exists (exterior boundaries), we use the space
-        # center instead.
-        # TODO: This might fail for multi storey spaces.
-        else:
-            if (self.bound_center.Z() - self.bound_thermal_zone.space_center.Z()) \
-                    > 1e-2:
-                top_bottom = "TOP"
-            elif (self.bound_center.Z() - self.bound_thermal_zone.space_center.Z()) \
-                    < -1e-2:
-                top_bottom = "BOTTOM"
-            else:
-                # caution, this relies on correct surface normals
-                if vertical.Dot(self.bound_normal) < -0.8:
-                    top_bottom = "BOTTOM"
-                elif vertical.Dot(self.bound_normal) > 0.8:
-                    top_bottom = "TOP"
-        return top_bottom
+        vertical_vector = gp_XYZ(0.0, 0.0, 1.0)
+        cos_angle_top = math.cos(math.radians(89))
+        cos_angle_bottom = math.cos(math.radians(91))
 
+        normal_dot_vertical = vertical_vector.Dot(self.bound_normal)
+
+        # Classify based on dot product
+        if normal_dot_vertical > cos_angle_top:
+            return BoundaryOrientation.top
+        elif normal_dot_vertical < cos_angle_bottom:
+            return BoundaryOrientation.bottom
+
+        return BoundaryOrientation.vertical
     # TODO #639 @Veronika
     # def get_bound_center(self):
     #     """ compute center of the bounding box of a space boundary"""

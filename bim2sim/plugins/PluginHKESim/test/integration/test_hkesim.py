@@ -68,7 +68,6 @@ class TestIntegrationHKESIM(IntegrationBaseHKESIM, unittest.TestCase):
             'ParallelPump',
             'ConsumerHeatingDistributorModule',
         ]
-        default_logging_setup()
         answers = (None, 'HVAC-PipeFitting', 'HVAC-Distributor',
                    'HVAC-ThreeWayValve',
                    # 7x dead ends

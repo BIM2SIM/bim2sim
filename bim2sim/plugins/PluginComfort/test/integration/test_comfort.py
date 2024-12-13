@@ -202,7 +202,7 @@ class TestComfortIntegration(IntegrationBaseComfort, unittest.TestCase):
         project.sim_settings.prj_use_conditions = Path(
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
-            "UseConditionsFM_ARC_DigitalHub_with_SB89.json"
+            "UseConditionsFM_ARC_DigitalHub.json"
         project.sim_settings.prj_custom_usages = Path(
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
@@ -234,7 +234,7 @@ class TestComfortIntegration(IntegrationBaseComfort, unittest.TestCase):
         project.sim_settings.prj_use_conditions = Path(
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
-            "UseConditionsFM_ARC_DigitalHub_fixed002.json"
+            "UseConditionsFM_ARC_DigitalHub.json"
         project.sim_settings.prj_custom_usages = Path(
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
