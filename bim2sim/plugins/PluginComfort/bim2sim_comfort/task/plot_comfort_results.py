@@ -149,7 +149,7 @@ class PlotComfortResults(PlotBEPSResults):
             temp_cat_analysis_occ = None
             temp_cat_analysis, temp_cat_analysis_occ = (
                 self.plot_new_en16798_adaptive_count(
-                df, guid, room_name, export_path))
+                df, guid, room_name+'_'+guid, export_path))
             cat_analysis = pd.concat([cat_analysis, temp_cat_analysis])
             cat_analysis_occ = pd.concat([cat_analysis_occ,
                                           temp_cat_analysis_occ])
@@ -167,7 +167,7 @@ class PlotComfortResults(PlotBEPSResults):
             temp_cat_analysis = None
             temp_cat_analysis_occ = None
             temp_cat_analysis, temp_cat_analysis_occ = self.plot_new_en16798_adaptive_count(
-                df, guid, room_name, export_path)
+                df, guid, room_name+'_'+guid, export_path)
             cat_analysis = pd.concat([cat_analysis, temp_cat_analysis])
             cat_analysis_occ = pd.concat([cat_analysis_occ, temp_cat_analysis_occ])
         return cat_analysis, cat_analysis_occ
