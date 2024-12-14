@@ -378,40 +378,79 @@ class PlotComfortResults(PlotBEPSResults):
         # sums
         normalized_df = df.div(row_sums, axis=0)
         normalized_df = normalized_df * 100
-        fig, ax = plt.subplots(figsize=(13.2 / INCH, 8 / INCH))
+        fig, ax = plt.subplots(
+            figsize=(15, 12))  # Adjust figure size to allow more space
+
         x_pos = np.arange(len(normalized_df.index))
         bar_width = 0.35
         bottom = np.zeros(len(normalized_df.index))
 
+        # Create the bar chart
         for i, col in enumerate(normalized_df.columns):
             ax.bar(x_pos, normalized_df[col], width=bar_width, label=col,
                    bottom=bottom)
             bottom += normalized_df[col]
 
-        ax.set_ylabel(u'% of hours per category')
-        # plt.xticks(x_pos, df.index)
-        plt.xticks([])
+        # Set consistent font size for all elements
+        common_fontsize = 11
+        ax.set_ylabel(u'% of hours per category', fontsize=common_fontsize)
+        ax.tick_params(axis='y',
+                       labelsize=common_fontsize)  # Match font size for y-axis ticks
+        plt.xticks([])  # Remove x-ticks for table
         plt.ylim([0, 100])
-        lgnd = plt.legend(framealpha=0.0, ncol=1,
-                          prop={'size': 6}, bbox_to_anchor=[0.5, -0.5],
-                          loc="center",
-                          ncols=4)
-        formatted_df = normalized_df.map(lambda x: f'{x:.0f}'+u'%')
-        # Create a table below the bar plot with column names as row labels
-        cell_text = []
-        for column in formatted_df.columns:
-            cell_text.append(formatted_df[column])
 
-        # Transpose the DataFrame for the table
+        # Format data for the table
+        formatted_df = normalized_df.applymap(lambda x: f'{x:.0f}' + u'%')
+        cell_text = [formatted_df[column] for column in formatted_df.columns]
+
+        # Create the table
         table = plt.table(cellText=cell_text, rowLabels=formatted_df.columns,
                           colLabels=formatted_df.index,
                           cellLoc='center',
                           loc='bottom')
+
+        # Ensure consistent font size for the table
         table.auto_set_font_size(False)
-        table.set_fontsize(7)
-        table.scale(1.0, 1.2)  # Adjust the table size as needed
-        plt.tight_layout()
-        plt.savefig(export_path / f'DIN_EN_16798{tag}_all_zones_bar_table.pdf',
+        table.set_fontsize(common_fontsize)
+
+        # Dynamically calculate the required height for rotated text
+        renderer = fig.canvas.get_renderer()
+        max_text_height = 0  # Track the maximum height
+        table.scale(1.0, 5.0)  # Adjust scaling for overall table size
+
+        for i, key in enumerate(formatted_df.index):
+            cell = table[(0, i)]  # Access header cells
+            text = cell.get_text()
+            text.set_rotation(90)  # Rotate the text by 90 degrees
+
+            # Measure text size dynamically
+            fig.canvas.draw()  # Update layout for accurate text size
+            bbox = text.get_window_extent(renderer=renderer)
+            text_height = bbox.height / 200  # Convert
+            # height
+            # to figure-relative units
+            max_text_height = max(max_text_height, text_height)
+
+        # Apply a uniform height to all header cells
+        for i, key in enumerate(formatted_df.index):
+            cell = table[(0, i)]
+            cell.set_height(max_text_height * 1.1)  # Add a slight margin factor
+
+        # Scale table rows and columns
+
+        # Adjust the layout to fit the table properly
+        fig.subplots_adjust(
+            bottom=0.7)  # Allocate space below the plot for the table
+
+        # Adjust the legend placement BELOW the table
+        legend_y_offset = -0.7 - max_text_height  # Dynamically calculate offset
+        lgnd = plt.legend(framealpha=0.0, prop={'size': common_fontsize},
+                          loc='lower center',
+                          bbox_to_anchor=(0.5, legend_y_offset),
+                          ncol=4)  # Adjust legend position
+
+        # Save the figure
+        fig.savefig(export_path / f'DIN_EN_16798{tag}_all_zones_bar_table.pdf',
                     bbox_inches='tight',
                     bbox_extra_artists=(lgnd, table))
 
