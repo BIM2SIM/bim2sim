@@ -379,15 +379,16 @@ class PlotComfortResults(PlotBEPSResults):
         normalized_df = df.div(row_sums, axis=0)
         normalized_df = normalized_df * 100
         fig, ax = plt.subplots(
-            figsize=(15, 12))  # Adjust figure size to allow more space
+            figsize=(24, 12))  # Adjust figure size to allow more space
 
-        x_pos = np.arange(len(normalized_df.index))
+        x_pos = np.arange(len(set(normalized_df.index))) * 0.8
         bar_width = 0.35
         bottom = np.zeros(len(normalized_df.index))
 
         # Create the bar chart
         for i, col in enumerate(normalized_df.columns):
-            ax.bar(x_pos, normalized_df[col], width=bar_width, label=col,
+            ax.bar(normalized_df.index, normalized_df[col], width=-bar_width,
+                   label=col, align='edge',
                    bottom=bottom)
             bottom += normalized_df[col]
 
@@ -396,15 +397,18 @@ class PlotComfortResults(PlotBEPSResults):
         ax.set_ylabel(u'% of hours per category', fontsize=common_fontsize)
         ax.tick_params(axis='y',
                        labelsize=common_fontsize)  # Match font size for y-axis ticks
-        plt.xticks([])  # Remove x-ticks for table
+        ax.tick_params(axis='x', labelrotation=90)
         plt.ylim([0, 100])
+        plt.xlim([-bar_width / 2 - 0.5,
+                  len(normalized_df.index) - bar_width / 2 - 0.5])
+        plt.xticks([])  # Remove x-ticks for table
 
-        # Format data for the table
-        formatted_df = normalized_df.applymap(lambda x: f'{x:.0f}' + u'%')
+        formatted_df = normalized_df.applymap(lambda x: f'{x:.0f}')
         cell_text = [formatted_df[column] for column in formatted_df.columns]
 
         # Create the table
-        table = plt.table(cellText=cell_text, rowLabels=formatted_df.columns,
+        table = plt.table(cellText=cell_text,
+                          rowLabels=formatted_df.columns + u' / %',
                           colLabels=formatted_df.index,
                           cellLoc='center',
                           loc='bottom')
@@ -434,7 +438,8 @@ class PlotComfortResults(PlotBEPSResults):
         # Apply a uniform height to all header cells
         for i, key in enumerate(formatted_df.index):
             cell = table[(0, i)]
-            cell.set_height(max_text_height * 1.1)  # Add a slight margin factor
+            cell.set_height(
+                max_text_height * 1.05)  # Add a slight margin factor
 
         # Scale table rows and columns
 
@@ -443,7 +448,7 @@ class PlotComfortResults(PlotBEPSResults):
             bottom=0.7)  # Allocate space below the plot for the table
 
         # Adjust the legend placement BELOW the table
-        legend_y_offset = -0.7 - max_text_height  # Dynamically calculate offset
+        legend_y_offset = -0.8 - max_text_height  # Dynamically calculate offset
         lgnd = plt.legend(framealpha=0.0, prop={'size': common_fontsize},
                           loc='lower center',
                           bbox_to_anchor=(0.5, legend_y_offset),
