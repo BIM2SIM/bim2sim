@@ -50,29 +50,35 @@ def default_logging_setup(
     general_logger = logging.getLogger('bim2sim')
     handlers = []
 
-    # Nur einen StreamHandler erstellen, wenn verbose=True
     if verbose:
-        stream_handler = logging.StreamHandler()
-        stream_handler.setFormatter(dev_formatter)
-        stream_handler.addFilter(AudienceFilter(audience=None))
+        general_log_stream_handler = logging.StreamHandler()
+        general_log_stream_handler.setFormatter(dev_formatter)
+        general_log_stream_handler.addFilter(AudienceFilter(audience=None))
         if thread_name:
-            stream_handler.addFilter(ThreadLogFilter(thread_name))
-        general_logger.addHandler(stream_handler)
-        handlers.append(stream_handler)
+            general_log_stream_handler.addFilter(ThreadLogFilter(thread_name))
+        general_logger.addHandler(general_log_stream_handler)
+        handlers.append(general_log_stream_handler)
 
-    # File Handler für Logging
     log_name = "bim2sim.log"
     if prj_log_path is not None:
         general_log_path = prj_log_path / log_name
     else:
         general_log_path = log_name
-    general_log_handler = logging.FileHandler(general_log_path)
-    general_log_handler.setFormatter(dev_formatter)
-    general_log_handler.addFilter(AudienceFilter(audience=None))
+    general_log_file_handler = logging.FileHandler(general_log_path)
+    general_log_file_handler.setFormatter(dev_formatter)
+    general_log_file_handler.addFilter(AudienceFilter(audience=None))
     if thread_name:
-        general_log_handler.addFilter(ThreadLogFilter(thread_name))
-    general_logger.addHandler(general_log_handler)
-    handlers.append(general_log_handler)
+        general_log_file_handler.addFilter(ThreadLogFilter(thread_name))
+    general_logger.addHandler(general_log_file_handler)
+    handlers.append(general_log_file_handler)
+
+    quality_logger = logging.getLogger('bim2sim.QualityReport')
+    quality_handler = logging.FileHandler(
+        Path(prj_log_path / "IFCQualityReport.log"))
+    quality_handler.addFilter(ThreadLogFilter(thread_name))
+    quality_handler.setFormatter(quality_formatter)
+    quality_logger.addHandler(quality_handler)
+    handlers.append(quality_handler)
 
     general_logger.setLevel(logging.DEBUG if verbose else logging.INFO)
     return handlers

@@ -323,7 +323,6 @@ class Project:
 
         self._user_logger_set = False
         self._log_thread_filters: List[log.ThreadLogFilter] = []
-        self._log_handlers = {}
         self._default_handlers = []
         self._setup_logger()  # setup project specific handlers
 
@@ -400,14 +399,8 @@ class Project:
         )
 
         # Quality Logger setup
-        quality_logger = logging.getLogger('bim2sim.QualityReport')
-        quality_handler = logging.FileHandler(
-            os.path.join(self.paths.log, "IFCQualityReport.log"))
-        quality_handler.addFilter(log.ThreadLogFilter(thread_name))
-        quality_handler.setFormatter(log.quality_formatter)
-        quality_logger.addHandler(quality_handler)
 
-        self._log_handlers['bim2sim.QualityReport'] = [quality_handler]
+
 
     def _update_logging_thread_filters(self):
         """Update thread filters to current thread."""
@@ -437,21 +430,16 @@ class Project:
 
         self._user_logger_set = True
 
-        self._log_handlers.setdefault('bim2sim', []).append(user_handler)
         self._log_thread_filters.append(user_thread_filter)
 
     def _teardown_logger(self):
-        # Close project-specific handlers
-        for name, handlers in self._log_handlers.items():
-            _logger = logging.getLogger(name)
-            for handler in handlers:
-                _logger.removeHandler(handler)
-                handler.close()
+        # clear project
+        logging.getLogger('bim2sim').handlers.clear()
+        logging.getLogger(__name__).handlers.clear()
 
         # Close default handlers
         for handler in self._default_handlers:
             handler.close()
-        self._log_handlers.clear()
         self._log_thread_filters.clear()
         self._default_handlers.clear()
 
