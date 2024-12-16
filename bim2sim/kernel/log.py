@@ -73,6 +73,7 @@ def default_logging_setup(
     handlers.append(general_log_file_handler)
 
     quality_logger = logging.getLogger('bim2sim.QualityReport')
+    quality_logger.propagate = False
     quality_handler = logging.FileHandler(
         Path(prj_log_path / "IFCQualityReport.log"))
     quality_handler.addFilter(ThreadLogFilter(thread_name))
