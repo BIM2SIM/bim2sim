@@ -1,3 +1,4 @@
+import bim2sim.sim_settings
 from bim2sim.elements import bps_elements as bps_elements, hvac_elements as hvac_elements
 from bim2sim.elements.base_elements import Material
 from bim2sim.plugins.PluginComfort.bim2sim_comfort import ComfortSimSettings
@@ -262,5 +263,47 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         default=False,
         description='Choose if explicit surface feature snapping should be '
                     'applied in snappyHexMesh. ',
+        for_frontend=True
+    )
+    cluster_jobname = ChoiceSetting(
+        default="newJob",
+        choices={"fullRun": "Specify content", "Job1234": "Enumerate"},
+        description='Jobname that is used when running the simulation via a '
+                    'batch script on the RWTH Compute Cluster.',
+        for_frontend=True,
+        any_string=True
+    )
+    cluster_compute_account = ChoiceSetting(
+        default=None,
+        choices={"thes1234": "Define thesis account", "rwth5678": "Define "
+                                                                  "user "
+                                                                  "account"},
+        description=r'Specify the compute account that is used for running '
+                    r'the simulation on the RWTH Compute Cluster. Specify as '
+                    r'"thes1234".',
+        for_frontend=True,
+        any_string=True
+    )
+    cluster_max_runtime_simulation = ChoiceSetting(
+        default="23:59:00",
+        choices={"11:59:00": "12 hours", "06:00:00": "6 hours"},
+        description=r'Max runtime for a full simulation in the format of '
+                    r'"D:HH:MM:SS".',
+        for_frontend=True,
+        any_string=True
+    )
+    cluster_max_runtime_meshing = ChoiceSetting(
+        default="00:59:00",
+        choices={"00:30:00": "30 minutes", "00:15:00": "15 minutes"},
+        description='Max runtime for meshing in the format of '
+                    'D:HH:MM:SS .',
+        for_frontend=True,
+        any_string=True
+    )
+    cluster_cpu_per_node = NumberSetting(
+        default=96,
+        min_value=1,
+        max_value=1024,
+        description='Number of physical cores per node.',
         for_frontend=True
     )
