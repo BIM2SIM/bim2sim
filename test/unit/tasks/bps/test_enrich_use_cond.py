@@ -161,6 +161,21 @@ class TestEnrichUseConditions(TestTask):
         self.assertTrue(bldg.ahu_heat_recovery)
         self.assertEqual(bldg.ahu_heat_recovery_efficiency, 0.8)
 
+    def test_infiltration_sim_setting_overwrite(self):
+        """Test if enrichment of infiltration on tz level works."""
+        self.playground.sim_settings.use_constant_infiltration_overwrite = True
+        self.playground.sim_settings.base_infiltration_rate_overwrite = 0.5
+
+        elements = self.helper.get_setup_simple_house()
+
+        answers = ()
+        reads = (elements,)
+        test_res = self.run_task(answers, reads)
+        bldg = elements['bldg001']
+        tz = elements['tz001']
+        self.assertTrue(tz.use_constant_infiltration)
+        self.assertEqual(tz.base_infiltration, 0.5)
+
     def test_with_five_different_zones(self):
         """Tests if usages get set correctly for five ThermalZone elements.
 

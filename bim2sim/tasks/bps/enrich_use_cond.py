@@ -98,6 +98,14 @@ class EnrichUseConditions(ITask):
             if sim_settings.ahu_tz_overwrite is not None:
                 tz.with_ahu = (sim_settings.ahu_tz_overwrite,
                                AttributeDataSource.enrichment)
+            if sim_settings.base_infiltration_rate_overwrite is not None:
+                tz.base_infiltration = (
+                    sim_settings.base_infiltration_rate_overwrite,
+                    AttributeDataSource.enrichment)
+            if sim_settings.use_constant_infiltration_overwrite is not None:
+                tz.use_constant_infiltration = (
+                    sim_settings.use_constant_infiltration_overwrite,
+                    AttributeDataSource.enrichment)
 
         # overwrite building AHU settings if sim_settings are used
         for building in bldg_elements:
@@ -125,6 +133,7 @@ class EnrichUseConditions(ITask):
                 building.ahu_heat_recovery_efficiency = (
                     sim_settings.ahu_heat_recovery_efficiency_overwrite,
                     AttributeDataSource.enrichment)
+
             # reset with_ahu on building level to make sure that _check_tz_ahu
             #  is performed again
             building.reset('with_ahu')

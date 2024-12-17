@@ -1103,8 +1103,20 @@ class BuildingSimSettings(BaseSimSettings):
         description="Choose if the central AHU should zuse heat recovery."
     )
     ahu_heat_recovery_efficiency_overwrite = NumberSetting(
-        default=0.65,
+        default=None,
         min_value=0.5,
         max_value=0.99,
         description="Choose the heat recovery efficiency of the central AHU."
+    )
+    use_constant_infiltration_overwrite = BooleanSetting(
+        default=None,
+        description="If only constant base infiltration should be used and no "
+                    "dynamic ventilation through e.g. windows."
+    )
+    base_infiltration_rate_overwrite = NumberSetting(
+        default=None,
+        min_value=0.001,
+        max_value=5,
+        description="Overwrite base value for the natural infiltration without"
+                    " window openings"
     )
