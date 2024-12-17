@@ -5,7 +5,6 @@ from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.export.modelica import ModelicaElement
 from bim2sim.elements.aggregation.hvac_aggregations \
     import ConsumerHeatingDistributorModule
-from bim2sim.kernel.log import project_logging_setup
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.utilities.types import IFCDomain
 
