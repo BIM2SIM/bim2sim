@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+from typing import List
 
 USER = 'user'
 
@@ -59,18 +60,9 @@ def default_logging_setup(
         general_logger.addHandler(general_log_stream_handler)
         handlers.append(general_log_stream_handler)
 
-    log_name = "bim2sim.log"
     if prj_log_path is not None:
-        general_log_path = prj_log_path / log_name
-    else:
-        general_log_path = log_name
-    general_log_file_handler = logging.FileHandler(general_log_path)
-    general_log_file_handler.setFormatter(dev_formatter)
-    general_log_file_handler.addFilter(AudienceFilter(audience=None))
-    if thread_name:
-        general_log_file_handler.addFilter(ThreadLogFilter(thread_name))
-    general_logger.addHandler(general_log_file_handler)
-    handlers.append(general_log_file_handler)
+        handlers = add_file_handler(
+            prj_log_path, handlers, thread_name, general_logger)
 
     quality_logger = logging.getLogger('bim2sim.QualityReport')
     quality_logger.propagate = False
@@ -83,6 +75,45 @@ def default_logging_setup(
 
     general_logger.setLevel(logging.DEBUG if verbose else logging.INFO)
     return handlers
+
+
+def add_file_handler(
+        prj_log_path: Path,
+        handlers: List,
+        thread_name: str,
+        general_logger: logging.Logger):
+    """Adds a file handler to the logger with specific filters and formatting.
+
+    This function creates and configures a file handler for logging, adding it
+     to the specified logger. This is used as with project FoderStructure
+     initialization we already want logging but don't have a project directory
+     and therefore no place to store the log file
+
+    Args:
+        prj_log_path: Path object representing the directory where log file
+         will be created.
+        handlers: List of existing handlers to which the new handler will
+         be appended.
+        thread_name: Optional thread name for thread-specific filtering.
+         If None, no thread filter will be applied.
+        general_logger: Logger instance to which the file handler will be
+         added.
+
+    Returns:
+        List[logging.Handler]: Updated list of handlers including the newly
+         added file handler.
+    """
+    log_name = "bim2sim.log"
+    general_log_path = prj_log_path / log_name
+    general_log_file_handler = logging.FileHandler(general_log_path)
+    general_log_file_handler.setFormatter(dev_formatter)
+    general_log_file_handler.addFilter(AudienceFilter(audience=None))
+    if thread_name:
+        general_log_file_handler.addFilter(ThreadLogFilter(thread_name))
+    general_logger.addHandler(general_log_file_handler)
+    handlers.append(general_log_file_handler)
+    return handlers
+
 
 
 class CustomFormatter(logging.Formatter):

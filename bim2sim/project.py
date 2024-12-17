@@ -20,8 +20,10 @@ from bim2sim.utilities.common_functions import all_subclasses
 from bim2sim.sim_settings import BaseSimSettings
 from bim2sim.utilities.types import LOD
 
-logger = logging.getLogger(__name__)
-user_logger = log.get_user_logger(__name__)
+# logger = logging.getLogger(__name__)
+# user_logger = log.get_user_logger(__name__)
+
+handlers = log.default_logging_setup()
 
 
 def open_config(path):
