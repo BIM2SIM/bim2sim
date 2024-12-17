@@ -134,6 +134,33 @@ class TestEnrichUseConditions(TestTask):
         self.assertFalse(tz.with_ahu)
         self.assertFalse(bldg.with_ahu)
 
+    def test_bldg_ahu_enrichment_complete(self):
+        """Test if enrichment of AHU on tz level sets AHU on bldg level"""
+        self.playground.sim_settings.ahu_tz_overwrite = True
+        self.playground.sim_settings.ahu_heating_overwrite = True
+        self.playground.sim_settings.ahu_cooling_overwrite = True
+        self.playground.sim_settings.ahu_dehumidification_overwrite = True
+        self.playground.sim_settings.ahu_humidification_overwrite = True
+        self.playground.sim_settings.ahu_heat_recovery_overwrite = True
+        self.playground.sim_settings.ahu_heat_recovery_efficiency_overwrite = \
+            0.8
+
+        elements = self.helper.get_setup_simple_house()
+
+        answers = ()
+        reads = (elements,)
+        test_res = self.run_task(answers, reads)
+        bldg = elements['bldg001']
+        tz = elements['tz001']
+        self.assertTrue(tz.with_ahu)
+        self.assertTrue(bldg.with_ahu)
+        self.assertTrue(bldg.ahu_heating)
+        self.assertTrue(bldg.ahu_cooling)
+        self.assertTrue(bldg.ahu_dehumidification)
+        self.assertTrue(bldg.ahu_humidification)
+        self.assertTrue(bldg.ahu_heat_recovery)
+        self.assertEqual(bldg.ahu_heat_recovery_efficiency, 0.8)
+
     def test_with_five_different_zones(self):
         """Tests if usages get set correctly for five ThermalZone elements.
 

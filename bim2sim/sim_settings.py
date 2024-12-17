@@ -887,6 +887,7 @@ class BuildingSimSettings(BaseSimSettings):
     heating_tz_overwrite = BooleanSetting(
         default=None,
         description='If True, all thermal zones will be provided with heating,'
+                    'if False no heating for thermal zones is provided, '
                     'regardless of information in the IFC or in the use '
                     'condition file.',
         for_frontend=True
@@ -894,6 +895,7 @@ class BuildingSimSettings(BaseSimSettings):
     cooling_tz_overwrite = BooleanSetting(
         default=None,
         description='If True, all thermal zones will be provided with cooling,'
+                    'if False no cooling for thermal zones is provided, '
                     'regardless of information in the IFC or in the use '
                     'condition file.',
         for_frontend=True
@@ -901,6 +903,7 @@ class BuildingSimSettings(BaseSimSettings):
     ahu_tz_overwrite = BooleanSetting(
         default=None,
         description='If True, all thermal zones will be provided with AHU,'
+                    'if False no AHU for thermal zones is provided, '
                     'regardless of information in the IFC or in the use '
                     'condition file.',
         for_frontend=True

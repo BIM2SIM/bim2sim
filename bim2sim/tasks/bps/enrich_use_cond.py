@@ -102,27 +102,27 @@ class EnrichUseConditions(ITask):
         # overwrite building AHU settings if sim_settings are used
         for building in bldg_elements:
             if sim_settings.ahu_heating_overwrite is not None:
-                building.ahu_heating_overwrite = (
+                building.ahu_heating = (
                     sim_settings.ahu_heating_overwrite,
                     AttributeDataSource.enrichment)
             if sim_settings.ahu_cooling_overwrite is not None:
-                building.ahu_cooling_overwrite = (
+                building.ahu_cooling = (
                     sim_settings.ahu_cooling_overwrite,
                     AttributeDataSource.enrichment)
             if sim_settings.ahu_humidification_overwrite is not None:
-                building.ahu_humidification_overwrite = (
+                building.ahu_humidification = (
                     sim_settings.ahu_humidification_overwrite,
                     AttributeDataSource.enrichment)
             if sim_settings.ahu_dehumidification_overwrite is not None:
-                building.ahu_dehumidification_overwrite = (
+                building.ahu_dehumidification = (
                     sim_settings.ahu_dehumidification_overwrite,
                     AttributeDataSource.enrichment)
             if sim_settings.ahu_heat_recovery_overwrite is not None:
-                building.ahu_heat_recovery_overwrite = (
+                building.ahu_heat_recovery = (
                     sim_settings.ahu_heat_recovery_overwrite,
                     AttributeDataSource.enrichment)
             if sim_settings.ahu_heat_recovery_efficiency_overwrite is not None:
-                building.ahu_heat_recovery_efficiency_overwrite = (
+                building.ahu_heat_recovery_efficiency = (
                     sim_settings.ahu_heat_recovery_efficiency_overwrite,
                     AttributeDataSource.enrichment)
             # reset with_ahu on building level to make sure that _check_tz_ahu
