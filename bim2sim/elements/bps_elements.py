@@ -5,11 +5,10 @@ import math
 import re
 import sys
 from datetime import date
-from typing import Set, List
+from typing import Set, List, Union
 
 import ifcopenshell
 import ifcopenshell.geom
-from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBndLib import brepbndlib_Add
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
@@ -19,15 +18,10 @@ from OCC.Core.Bnd import Bnd_Box
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.GProp import GProp_GProps
 from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
-from OCC.Core.TopAbs import TopAbs_FACE
-from OCC.Core.TopExp import TopExp_Explorer
-from OCC.Core.TopoDS import topods_Face
-from OCC.Core._Geom import Handle_Geom_Plane_DownCast
-from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt, \
+from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Pnt, \
     gp_Mat, gp_Quaternion
 from ifcopenshell import guid
 
-from bim2sim.kernel.decorators import cached_property
 from bim2sim.elements.mapping import condition, attribute
 from bim2sim.elements.base_elements import ProductBased, RelationBased
 from bim2sim.elements.mapping.units import ureg
@@ -37,9 +31,6 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 from bim2sim.utilities.types import IFCDomain, BoundaryOrientation
 
 logger = logging.getLogger(__name__)
-
-# todo @ veronika: convert all attributes regarding SB
-#  which can't come from ifc to cached_property
 
 
 class BPSProduct(ProductBased):
@@ -717,18 +708,6 @@ class SpaceBoundary(RelationBased):
             return True
         return False
 
-    # def get_bound_area(self):
-    #     """compute area of a space boundary"""
-    #     bound_prop = GProp_GProps()
-    #     brepgprop_SurfaceProperties(self.bound_shape, bound_prop)
-    #     area = bound_prop.Mass()
-    #     return area * ureg.meter ** 2
-
-    # @cached_property
-    # def bound_area(self) -> ureg.Quantity:
-    #     return self.get_bound_area()
-
-    # TODO #639
     def get_bound_area(self, name) -> ureg.Quantity:
         """compute area of a space boundary"""
         bound_prop = GProp_GProps()
@@ -742,7 +721,7 @@ class SpaceBoundary(RelationBased):
         functions=[get_bound_area]
     )
 
-    def _get_top_bottom(self, name) -> str:
+    def _get_top_bottom(self, name) -> BoundaryOrientation:
         """
         Determines if a boundary is a top (ceiling/roof) or bottom (floor/slab)
          element based solely on its normal vector orientation.
@@ -769,23 +748,13 @@ class SpaceBoundary(RelationBased):
             return BoundaryOrientation.bottom
 
         return BoundaryOrientation.vertical
-    # TODO #639 @Veronika
-    # def get_bound_center(self):
-    #     """ compute center of the bounding box of a space boundary"""
-    #     p = GProp_GProps()
-    #     brepgprop_SurfaceProperties(self.bound_shape, p)
-    #     return p.CentreOfMass().XYZ()
 
-    # @cached_property
-    # def bound_center(self):
     def _get_bound_center(self, name):
         """ compute center of the bounding box of a space boundary"""
         p = GProp_GProps()
         brepgprop_SurfaceProperties(self.bound_shape, p)
         return p.CentreOfMass().XYZ()
 
-    # @cached_property
-    # def related_bound(self):
     def _get_related_bound(self, name):
         """
         Get corresponding space boundary in another space,
@@ -899,8 +868,6 @@ class SpaceBoundary(RelationBased):
         else:
             return None
 
-    # @cached_property
-    # def related_adb_bound(self):
     def _get_related_adb_bound(self, name):
         adb_bound = None
         if self.bound_element is None:
@@ -1042,11 +1009,19 @@ class SpaceBoundary(RelationBased):
         """
         return self.ifc.Description
 
-    def _get_is_external(self, name) -> bool:
+    def _get_is_external(self, name) -> Union[None, bool]:
         """
         This function returns True if the spaceboundary is external
         """
-        return not self.ifc.InternalOrExternalBoundary.lower() == 'internal'
+        if self.ifc.InternalOrExternalBoundary is not None:
+            ifc_ext_internal = self.ifc.InternalOrExternalBoundary.lower()
+            if ifc_ext_internal == 'internal':
+                return False
+            elif 'external' in ifc_ext_internal:
+                return True
+        else:
+            return None
+        # return not self.ifc.InternalOrExternalBoundary.lower() == 'internal'
 
     def _get_opening_area(self, name):
         """
@@ -1107,23 +1082,16 @@ class SpaceBoundary(RelationBased):
         description="Normal vector of the Space Boundary.",
         functions=[_get_bound_normal]
     )
-    # TODO #639 @Veronika
-    # @cached_property
-    # def bound_normal(self):
-    #     """
-    #     This function returns the normal vector of the spaceboundary
-    #     """
-    #     return PyOCCTools.simple_face_normal(self.bound_shape)
 
     level_description = attribute.Attribute(
         functions=[get_level_description],
         # Todo this should be removed in near future. We should either 
-        # find # a way to distinguish the level of SB by something 
-        # different or should check this during the creation of SBs 
-        # and throw an error if the level is not defined.
+        #  find # a way to distinguish the level of SB by something
+        #  different or should check this during the creation of SBs
+        #  and throw an error if the level is not defined.
         default='2a'
         # HACK: Rou's Model has 2a boundaries but, the description is None,
-        # default set to 2a to temporary solve this problem
+        #  default set to 2a to temporary solve this problem
     )
 
 
