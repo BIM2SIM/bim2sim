@@ -1,0 +1,18 @@
+bim2sim.elements.graphs package
+===============================
+
+.. automodule:: bim2sim.elements.graphs
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+bim2sim.elements.graphs.hvac\_graph module
+------------------------------------------
+
+.. automodule:: bim2sim.elements.graphs.hvac_graph
+   :members:
+   :undoc-members:
+   :show-inheritance:
