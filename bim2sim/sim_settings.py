@@ -1117,6 +1117,6 @@ class BuildingSimSettings(BaseSimSettings):
         default=None,
         min_value=0.001,
         max_value=5,
-        description="Overwrite base value for the natural infiltration without"
-                    " window openings"
+        description="Overwrite base value for the natural infiltration in 1/h "
+                    " without window openings"
     )
