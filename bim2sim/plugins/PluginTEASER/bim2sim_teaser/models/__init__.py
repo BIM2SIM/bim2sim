@@ -220,7 +220,7 @@ class UseConditions(TEASER, UseConditions_Teaser):
                            None, export_unit=ureg.W/ureg.m**2)
         self.request_param("ratio_conv_rad_lighting", None)
         self.request_param("use_constant_infiltration", None)
-        self.request_param("base_infiltration ", None)
+        self.request_param("base_infiltration", None)
         self.request_param("max_user_infiltration", None)
         self.request_param("max_overheating_infiltration", None)
         self.request_param("max_summer_infiltration", None)
