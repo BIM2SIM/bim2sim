@@ -8,7 +8,7 @@ import threading
 from distutils.dir_util import copy_tree
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Type, Union
+from typing import Dict, Type, Union
 
 import configparser
 
@@ -19,12 +19,6 @@ from bim2sim.plugins import Plugin, load_plugin
 from bim2sim.utilities.common_functions import all_subclasses
 from bim2sim.sim_settings import BaseSimSettings
 from bim2sim.utilities.types import LOD
-
-# logger = logging.getLogger(__name__)
-# user_logger = log.get_user_logger(__name__)
-
-# handlers = log.default_logging_setup()
-general_logger = log.initial_logging_setup()
 
 
 def open_config(path):
@@ -208,7 +202,7 @@ class FolderStructure:
             plugin: the target Plugin
             open_conf: flag to open the config file in default application
         """
-
+        general_logger = log.initial_logging_setup()
         # set rootpath
         self = cls(rootpath)
         if isinstance(plugin, str):
@@ -294,7 +288,6 @@ class Project:
     Raises:
         AssertionError: on invalid path. E.g. if not existing
     """
-    formatter = log.CustomFormatter('[%(levelname)s] %(name)s: %(message)s')
     _active_project = None  # lock to prevent multiple interfering projects
 
     def __init__(
@@ -326,11 +319,6 @@ class Project:
         self.playground = Playground(self)
         # link sim_settings to project to make set of settings easier
         self.sim_settings = self.playground.sim_settings
-
-        # self._user_logger_set = False
-        # self._log_thread_filters: List[log.ThreadLogFilter] = []
-        # self._default_handlers = []
-        # self._setup_logger()  # setup project specific handlers
 
     def _get_plugin(self, plugin):
         if plugin and isinstance(plugin, str):
@@ -387,67 +375,11 @@ class Project:
         """Return True if current project is active, False otherwise."""
         return Project._active_project is self
 
-    # def _setup_logger(self):
-    #     # we assume only one project per thread and time is active.
-    #     # Thou we can use the thread name to filter project specific log
-    #     # messages.
-    #     # BUT! this assumption is not enforced and multiple active projects
-    #     # per thread will result in a mess of log messages.
-    #
-    #     # tear down existing handlers (just in case)
-    #     self._teardown_logger()
-    #
-    #     thread_name = threading.current_thread().name
-    #     # Default Handler mit thread_name aufsetzen
-    #     self._default_handlers = log.project_logging_setup(
-    #         prj_log_path=self.paths.log,
-    #         thread_name=thread_name
-    #     )
-
-        # Quality Logger setup
-
-
-
     def _update_logging_thread_filters(self):
         """Update thread filters to current thread."""
         thread_name = threading.current_thread().name
         for thread_filter in self._log_thread_filters:
             thread_filter.thread_name = thread_name
-
-    # def set_user_logging_handler(self, user_handler: logging.Handler,
-    #                              set_formatter=True):
-    #     """Set a project specific logging Handler for user loggers.
-    #
-    #     Args:
-    #         user_handler: the handler instance to use for this project
-    #         set_formatter: if True, the user_handlers formatter is set
-    #     """
-    #     general_logger = logging.getLogger('bim2sim')
-    #     thread_name = threading.current_thread().name
-    #
-    #     # if self._user_logger_set:
-    #         self._setup_logger()
-    #     user_thread_filter = log.ThreadLogFilter(thread_name)
-    #     user_handler.addFilter(user_thread_filter)
-    #     user_handler.addFilter(log.AudienceFilter(log.USER))
-    #     if set_formatter:
-    #         user_handler.setFormatter(log.user_formatter)
-    #     general_logger.addHandler(user_handler)
-    #
-    #     self._user_logger_set = True
-    #
-    #     self._log_thread_filters.append(user_thread_filter)
-
-    def _teardown_loggers(self):
-        # clear project
-        # logging.getLogger('bim2sim').handlers.clear()
-        # logging.getLogger(__name__).handlers.clear()
-
-        # Close default handlers
-        for handler in self.log_handlers:
-            handler.close()
-        self._log_thread_filters.clear()
-        # self._default_handlers.clear()
 
     @property
     def config(self):
@@ -489,12 +421,6 @@ class Project:
         if not self.paths.is_project_folder():
             raise AssertionError("Project ist not set correctly!")
 
-        # if not self._user_logger_set:
-        #     self.logger.info("Set user logger to default Stream. "
-        #                 "Call project.set_user_logging_handler(your_handler) "
-        #                 "with your own handler prior to "
-        #                 "project.run() to change this.")
-        #     self.set_user_logging_handler(logging.StreamHandler())
         self.sim_settings.check_mandatory()
         success = False
         if interactive:
@@ -570,9 +496,8 @@ class Project:
                              f'{self.paths.export}')
             self.logger.info(f'Project "{self.name}" finished successful')
 
-        # clean up init relics
-        #  clean logger
-        self._teardown_loggers()
+        # clean logger
+        log.teardown_loggers()
 
     def delete(self):
         """Delete the project."""
