@@ -3,7 +3,7 @@ from pathlib import Path
 
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
+from bim2sim.kernel.log import project_logging_setup
 from bim2sim.utilities.types import IFCDomain
 
 

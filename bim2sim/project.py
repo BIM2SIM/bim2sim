@@ -23,7 +23,8 @@ from bim2sim.utilities.types import LOD
 # logger = logging.getLogger(__name__)
 # user_logger = log.get_user_logger(__name__)
 
-handlers = log.default_logging_setup()
+# handlers = log.default_logging_setup()
+general_logger = log.initial_logging_setup()
 
 
 def open_config(path):
@@ -218,7 +219,7 @@ class FolderStructure:
             raise ValueError(f"{plugin} is not a subclass of Plugin or a str.")
 
         if self.is_project_folder():
-            logger.info(
+            general_logger.info(
                 "Given path is already a project folder ('%s')" % self.root)
         else:
             self.create_project_folder()
@@ -254,7 +255,7 @@ class FolderStructure:
         if open_conf:
             # open config for user interaction
             open_config(self.config)
-        logger.info("Project folder created.")
+        general_logger.info("Project folder created.")
         return self
 
     def delete(self, confirm=True):
@@ -303,12 +304,15 @@ class Project:
     ):
         """Load existing project"""
         self.paths = FolderStructure(path)
+        self.thread_name = threading.current_thread().name
+        self.log_handlers, self._log_thread_filters = log.project_logging_setup(self)
+        self.logger = logging.getLogger('bim2sim')
         # try to get name of project from ifc name
         try:
             self.name = list(
                 filter(Path.is_file, self.paths.ifc_base.glob('**/*')))[0].stem
         except:
-            logger.warning(
+            self.logger.warning(
                 'Could not set correct project name, using "Project"!')
             self.name = "Project"
 
@@ -323,10 +327,10 @@ class Project:
         # link sim_settings to project to make set of settings easier
         self.sim_settings = self.playground.sim_settings
 
-        self._user_logger_set = False
-        self._log_thread_filters: List[log.ThreadLogFilter] = []
-        self._default_handlers = []
-        self._setup_logger()  # setup project specific handlers
+        # self._user_logger_set = False
+        # self._log_thread_filters: List[log.ThreadLogFilter] = []
+        # self._default_handlers = []
+        # self._setup_logger()  # setup project specific handlers
 
     def _get_plugin(self, plugin):
         if plugin and isinstance(plugin, str):
@@ -383,22 +387,22 @@ class Project:
         """Return True if current project is active, False otherwise."""
         return Project._active_project is self
 
-    def _setup_logger(self):
-        # we assume only one project per thread and time is active.
-        # Thou we can use the thread name to filter project specific log
-        # messages.
-        # BUT! this assumption is not enforced and multiple active projects
-        # per thread will result in a mess of log messages.
-
-        # tear down existing handlers (just in case)
-        self._teardown_logger()
-
-        thread_name = threading.current_thread().name
-        # Default Handler mit thread_name aufsetzen
-        self._default_handlers = log.default_logging_setup(
-            prj_log_path=self.paths.log,
-            thread_name=thread_name
-        )
+    # def _setup_logger(self):
+    #     # we assume only one project per thread and time is active.
+    #     # Thou we can use the thread name to filter project specific log
+    #     # messages.
+    #     # BUT! this assumption is not enforced and multiple active projects
+    #     # per thread will result in a mess of log messages.
+    #
+    #     # tear down existing handlers (just in case)
+    #     self._teardown_logger()
+    #
+    #     thread_name = threading.current_thread().name
+    #     # Default Handler mit thread_name aufsetzen
+    #     self._default_handlers = log.project_logging_setup(
+    #         prj_log_path=self.paths.log,
+    #         thread_name=thread_name
+    #     )
 
         # Quality Logger setup
 
@@ -410,40 +414,40 @@ class Project:
         for thread_filter in self._log_thread_filters:
             thread_filter.thread_name = thread_name
 
-    def set_user_logging_handler(self, user_handler: logging.Handler,
-                                 set_formatter=True):
-        """Set a project specific logging Handler for user loggers.
+    # def set_user_logging_handler(self, user_handler: logging.Handler,
+    #                              set_formatter=True):
+    #     """Set a project specific logging Handler for user loggers.
+    #
+    #     Args:
+    #         user_handler: the handler instance to use for this project
+    #         set_formatter: if True, the user_handlers formatter is set
+    #     """
+    #     general_logger = logging.getLogger('bim2sim')
+    #     thread_name = threading.current_thread().name
+    #
+    #     # if self._user_logger_set:
+    #         self._setup_logger()
+    #     user_thread_filter = log.ThreadLogFilter(thread_name)
+    #     user_handler.addFilter(user_thread_filter)
+    #     user_handler.addFilter(log.AudienceFilter(log.USER))
+    #     if set_formatter:
+    #         user_handler.setFormatter(log.user_formatter)
+    #     general_logger.addHandler(user_handler)
+    #
+    #     self._user_logger_set = True
+    #
+    #     self._log_thread_filters.append(user_thread_filter)
 
-        Args:
-            user_handler: the handler instance to use for this project
-            set_formatter: if True, the user_handlers formatter is set
-        """
-        general_logger = logging.getLogger('bim2sim')
-        thread_name = threading.current_thread().name
-
-        if self._user_logger_set:
-            self._setup_logger()
-        user_thread_filter = log.ThreadLogFilter(thread_name)
-        user_handler.addFilter(user_thread_filter)
-        user_handler.addFilter(log.AudienceFilter(log.USER))
-        if set_formatter:
-            user_handler.setFormatter(log.user_formatter)
-        general_logger.addHandler(user_handler)
-
-        self._user_logger_set = True
-
-        self._log_thread_filters.append(user_thread_filter)
-
-    def _teardown_logger(self):
+    def _teardown_loggers(self):
         # clear project
-        logging.getLogger('bim2sim').handlers.clear()
-        logging.getLogger(__name__).handlers.clear()
+        # logging.getLogger('bim2sim').handlers.clear()
+        # logging.getLogger(__name__).handlers.clear()
 
         # Close default handlers
-        for handler in self._default_handlers:
+        for handler in self.log_handlers:
             handler.close()
         self._log_thread_filters.clear()
-        self._default_handlers.clear()
+        # self._default_handlers.clear()
 
     @property
     def config(self):
@@ -485,12 +489,12 @@ class Project:
         if not self.paths.is_project_folder():
             raise AssertionError("Project ist not set correctly!")
 
-        if not self._user_logger_set:
-            logger.info("Set user logger to default Stream. "
-                        "Call project.set_user_logging_handler(your_handler) "
-                        "with your own handler prior to "
-                        "project.run() to change this.")
-            self.set_user_logging_handler(logging.StreamHandler())
+        # if not self._user_logger_set:
+        #     self.logger.info("Set user logger to default Stream. "
+        #                 "Call project.set_user_logging_handler(your_handler) "
+        #                 "with your own handler prior to "
+        #                 "project.run() to change this.")
+        #     self.set_user_logging_handler(logging.StreamHandler())
         self.sim_settings.check_mandatory()
         success = False
         if interactive:
@@ -499,7 +503,7 @@ class Project:
             run = self._run_default
         try:
             # First update log filters in case Project was created from
-            # different tread.
+            # different thread.
             # Then update log filters for each iteration, which might get
             # called by a different thread.
             # Deeper down multithreading is currently not supported for logging
@@ -516,7 +520,7 @@ class Project:
                 self._made_decisions.validate_global_keys()
             success = True
         except Exception as ex:
-            logger.exception(f"Something went wrong!: {ex}")
+            self.logger.exception(f"Something went wrong!: {ex}")
         finally:
             if cleanup:
                 self.finalize(success=success)
@@ -555,30 +559,30 @@ class Project:
         if not success:
             pth = self.paths.root / 'decisions_backup.json'
             save(self._made_decisions, pth)
-            user_logger.warning("Decisions are saved in '%s'. Rename file to "
+            self.logger.warning("Decisions are saved in '%s'. Rename file to "
                                 "'decisions.json' to reuse them.", pth)
-            user_logger.error(f'Project "{self.name}" '
+            self.logger.error(f'Project "{self.name}" '
                                 f'finished, but not successful')
 
         else:
             save(self._made_decisions, self.paths.decisions)
-            user_logger.info(f'Project Exports can be found under '
+            self.logger.info(f'Project Exports can be found under '
                              f'{self.paths.export}')
-            user_logger.info(f'Project "{self.name}" finished successful')
+            self.logger.info(f'Project "{self.name}" finished successful')
 
         # clean up init relics
         #  clean logger
-        self._teardown_logger()
+        self._teardown_loggers()
 
     def delete(self):
         """Delete the project."""
         self.finalize(True)
         self.paths.delete(False)
-        user_logger.info("Project deleted")
+        self.logger.info("Project deleted")
 
     def reset(self):
         """Reset the current project."""
-        user_logger.info("Project reset")
+        self.logger.info("Project reset")
         self.playground.state.clear()
         self.playground.history.clear()
         self._made_decisions.clear()

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
+from bim2sim.kernel.log import project_logging_setup
 from bim2sim.plugins.PluginComfort.bim2sim_comfort.examples.e1_simple_project_comfort_energyplus import \
     run_example_1
 from bim2sim.tasks import bps, common

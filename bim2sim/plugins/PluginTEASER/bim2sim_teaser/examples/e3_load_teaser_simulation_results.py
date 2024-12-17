@@ -2,7 +2,7 @@ from pathlib import Path
 
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
+from bim2sim.kernel.log import project_logging_setup
 from bim2sim.tasks import bps, common
 import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
 from e1_simple_project_bps_teaser import run_example_simple_building_teaser

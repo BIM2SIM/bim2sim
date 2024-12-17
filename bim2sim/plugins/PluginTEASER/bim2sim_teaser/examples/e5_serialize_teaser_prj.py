@@ -4,7 +4,7 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
+from bim2sim.kernel.log import project_logging_setup
 from bim2sim.tasks import common, bps
 from bim2sim.utilities.common_functions import download_library
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
@@ -15,7 +15,7 @@ import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
 
 def run_serialize_teaser_project_example():
     """Serialize a TEASER Project for further use."""
-    default_logging_setup()
+    project_logging_setup()
     # Create the default logging to for quality log and bim2sim main log
     # (see logging documentation for more information)
     project_path = Path(
