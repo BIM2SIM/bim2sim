@@ -30,12 +30,6 @@ class TestStandardLibraryExports(TestTask):
     def helper(cls):
         return SetupHelperHVAC()
 
-    # test_task = None
-    # loaded_libs = None
-    # helper = None
-    # export_path = None
-    # playground = None
-
     @classmethod
     def setUpClass(cls) -> None:
         super().setUpClass()
@@ -43,41 +37,6 @@ class TestStandardLibraryExports(TestTask):
         lib_msl = LoadLibrariesStandardLibrary(cls.playground)
         cls.loaded_libs = lib_msl.run()[0]
 
-
-
-# class TestStandardLibraryExports(unittest.TestCase):
-#     test_task = None
-#     loaded_libs = None
-#     helper = None
-#     export_path = None
-#     playground = None
-#
-#     @classmethod
-#     def setUpClass(cls) -> None:
-#         # Set up playground, project and paths via mocks
-#         cls.playground = mock.Mock()
-#         project = mock.Mock()
-#         paths = mock.Mock()
-#         cls.playground.project = project
-#
-#         # Load libraries as these are required for export
-#         lib_msl = LoadLibrariesStandardLibrary(cls.playground)
-#         cls.loaded_libs = lib_msl.run()[0]
-#
-#         # Instantiate export task and set required values via mocks
-#         cls.test_task = Export(cls.playground)
-#         cls.test_task.prj_name = 'TestStandardLibrary'
-#         cls.test_task.paths = paths
-#
-#         cls.helper = SetupHelperHVAC()
-#
-#     def setUp(self) -> None:
-#         # Set export path to temporary path
-#         self.export_path = tempfile.TemporaryDirectory(prefix='bim2sim')
-#         self.test_task.paths.export = self.export_path.name
-
-    # def tearDown(self) -> None:
-    #     self.helper.reset()
 
     def run_parameter_test(self, graph: HvacGraph, modelica_model: list,
                            parameters: List[Tuple[str, str]],
