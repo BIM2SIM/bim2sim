@@ -54,8 +54,8 @@
             </div>
         </aside>
         <h2>
-            <span class="text">236 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">210<span class="text"> run</span></button>
+            <span class="text">238 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">212<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">26<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_53528d53daaeb401___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.9">coverage.py v7.6.9</a>,
-            created at 2024-12-17 15:08 +0000
+            created at 2024-12-17 16:30 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -1185,11 +1185,23 @@
     <p class="pln"><span class="n"><a id="t1103" href="#t1103">1103</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"Choose if the central AHU should zuse heat recovery."</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1104" href="#t1104">1104</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1105" href="#t1105">1105</a></span><span class="t">    <span class="nam">ahu_heat_recovery_efficiency_overwrite</span> <span class="op">=</span> <span class="nam">NumberSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1106" href="#t1106">1106</a></span><span class="t">        <span class="nam">default</span><span class="op">=</span><span class="num">0.65</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1106" href="#t1106">1106</a></span><span class="t">        <span class="nam">default</span><span class="op">=</span><span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1107" href="#t1107">1107</a></span><span class="t">        <span class="nam">min_value</span><span class="op">=</span><span class="num">0.5</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1108" href="#t1108">1108</a></span><span class="t">        <span class="nam">max_value</span><span class="op">=</span><span class="num">0.99</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1109" href="#t1109">1109</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"Choose the heat recovery efficiency of the central AHU."</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1110" href="#t1110">1110</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1111" href="#t1111">1111</a></span><span class="t">    <span class="nam">use_constant_infiltration_overwrite</span> <span class="op">=</span> <span class="nam">BooleanSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1112" href="#t1112">1112</a></span><span class="t">        <span class="nam">default</span><span class="op">=</span><span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1113" href="#t1113">1113</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"If only constant base infiltration should be used and no "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1114" href="#t1114">1114</a></span><span class="t">                    <span class="str">"dynamic ventilation through e.g. windows."</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1115" href="#t1115">1115</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1116" href="#t1116">1116</a></span><span class="t">    <span class="nam">base_infiltration_rate_overwrite</span> <span class="op">=</span> <span class="nam">NumberSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1117" href="#t1117">1117</a></span><span class="t">        <span class="nam">default</span><span class="op">=</span><span class="key">None</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1118" href="#t1118">1118</a></span><span class="t">        <span class="nam">min_value</span><span class="op">=</span><span class="num">0.001</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1119" href="#t1119">1119</a></span><span class="t">        <span class="nam">max_value</span><span class="op">=</span><span class="num">5</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1120" href="#t1120">1120</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">"Overwrite base value for the natural infiltration without"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1121" href="#t1121">1121</a></span><span class="t">                    <span class="str">" window openings"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1122" href="#t1122">1122</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -1199,7 +1211,7 @@
             <a class="nav" href="z_53528d53daaeb401___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.9">coverage.py v7.6.9</a>,
-            created at 2024-12-17 15:08 +0000
+            created at 2024-12-17 16:30 +0000
         </p>
     </div>
 </footer>

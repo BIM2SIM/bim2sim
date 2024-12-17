@@ -127,6 +127,7 @@ information</p>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.T_threshold_heating"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.T_threshold_heating</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.activity_degree_persons"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.activity_degree_persons</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.aggregatable_elements"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.aggregatable_elements</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.base_infiltration"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.base_infiltration</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.bind_elements"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.bind_elements()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.bind_tz_to_building"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.bind_tz_to_building()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.bind_tz_to_storeys"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.bind_tz_to_storeys()</span></code></a></li>
@@ -139,7 +140,6 @@ information</p>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.gross_volume"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.gross_volume</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.heating_profile"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.heating_profile</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.height"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.height</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.infiltration_rate"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.infiltration_rate</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.internal_gains_moisture_no_people"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.internal_gains_moisture_no_people</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.key"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.key</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.lighting_efficiency_lumen"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.lighting_efficiency_lumen</span></code></a></li>
@@ -2896,6 +2896,23 @@ RESET: The Attribute was reset.</p>
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.bps_elements.ThermalZone.base_infiltration">
+<span class="sig-name descname"><span class="pre">base_infiltration</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.ThermalZone.base_infiltration" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.bps_elements.ThermalZone.central_ahu">
 <span class="sig-name descname"><span class="pre">central_ahu</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.ThermalZone.central_ahu" title="Permalink to this definition"></a></dt>
 <dd><p>Descriptor of element attribute to get its value from various sources.</p>
@@ -3116,23 +3133,6 @@ key z-height in room and the SB as value.</p>
 <dt class="sig sig-object py" id="bim2sim.elements.bps_elements.ThermalZone.ifc_types">
 <span class="sig-name descname"><span class="pre">ifc_types</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'IfcSpace':</span> <span class="pre">['*',</span> <span class="pre">'SPACE',</span> <span class="pre">'PARKING',</span> <span class="pre">'GFA',</span> <span class="pre">'INTERNAL',</span> <span class="pre">'EXTERNAL']}</span></em><a class="headerlink" href="#bim2sim.elements.bps_elements.ThermalZone.ifc_types" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.elements.bps_elements.ThermalZone.infiltration_rate">
-<span class="sig-name descname"><span class="pre">infiltration_rate</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.ThermalZone.infiltration_rate" title="Permalink to this definition"></a></dt>
-<dd><p>Descriptor of element attribute to get its value from various sources.</p>
-<p>value and status of attribute are stored in __dict__ of bound instance.
-Possible statuses are:</p>
-<blockquote>
-<div><p>UNKNOWN: default status at the beginning.
-REQUESTED: Attribute was already requested via a decision??.
-AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.
-RESET: The Attribute was reset.</p>
-</div></blockquote>
-<p>To find more about Descriptor objects follow the explanations on
-<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
-</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.bps_elements.ThermalZone.internal_gains_moisture_no_people">
