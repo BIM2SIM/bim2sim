@@ -1,7 +1,7 @@
+from bim2sim.elements.mapping.units import ureg
 from bim2sim.sim_settings import BuildingSimSettings
 from bim2sim.tasks.bps import EnrichMaterial
 from test.unit.elements.helper import SetupHelperBPS
-from bim2sim.elements.mapping.units import ureg
 from test.unit.tasks import TestTask
 
 
