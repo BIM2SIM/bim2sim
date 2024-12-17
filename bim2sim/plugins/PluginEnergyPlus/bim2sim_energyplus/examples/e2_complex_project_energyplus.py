@@ -39,7 +39,7 @@ def run_example_complex_building_energyplus():
 
     # combine spaces to thermal zones based on their usage
     # use cooling
-    project.sim_settings.cooling = True
+    project.sim_settings.cooling_tz_overwrite = True
     project.sim_settings.setpoints_from_template = True
     project.sim_settings.run_full_simulation = True
 

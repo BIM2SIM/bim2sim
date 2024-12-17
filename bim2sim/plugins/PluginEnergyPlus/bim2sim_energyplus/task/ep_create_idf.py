@@ -180,7 +180,7 @@ class CreateIdf(ITask):
             self.set_infiltration(
                 idf, name=zone.Name, zone_name=zone.Name, space=space,
                 ep_version=sim_settings.ep_version)
-            if (not self.playground.sim_settings.cooling and
+            if (not self.playground.sim_settings.cooling_tz_overwrite and
                     self.playground.sim_settings.add_natural_ventilation):
                 self.set_natural_ventilation(
                     idf, name=zone.Name, zone_name=zone.Name, space=space,

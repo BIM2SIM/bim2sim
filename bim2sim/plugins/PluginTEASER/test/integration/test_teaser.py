@@ -238,7 +238,3 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
-
-
-class TestIntegrationAixLib(unittest.TestCase):
-    pass

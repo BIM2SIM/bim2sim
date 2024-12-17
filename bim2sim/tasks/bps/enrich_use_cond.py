@@ -33,8 +33,6 @@ class EnrichUseConditions(ITask):
         if len(tz_elements) == 0:
             self.logger.warning("Found no spaces to enrich")
         else:
-            # set heating and cooling based on sim settings configuration
-            self.set_heating_cooling(tz_elements, self.playground.sim_settings)
             custom_use_cond_path = (
                 self.playground.sim_settings.prj_use_conditions)
             custom_usage_path = \
@@ -67,37 +65,71 @@ class EnrichUseConditions(ITask):
                 self.logger.info('Enrich ThermalZone from IfcSpace with '
                                  'original usage "%s" with usage "%s"',
                                  orig_usage, usage)
-        building_elements = filter_elements(elements, 'Building')
-        if self.playground.sim_settings.overwrite_ahu_by_settings:
-            for building in building_elements:
-                building.ahu_heating = (
-                    self.playground.sim_settings.ahu_heating,
-                    AttributeDataSource.enrichment)
-                building.ahu_cooling = (
-                    self.playground.sim_settings.ahu_cooling,
-                    AttributeDataSource.enrichment)
-                building.ahu_humidification = (
-                    self.playground.sim_settings.ahu_humidification,
-                    AttributeDataSource.enrichment)
-                building.ahu_dehumidification = (
-                    self.playground.sim_settings.ahu_dehumidification,
-                    AttributeDataSource.enrichment)
-                building.ahu_heat_recovery = (
-                    self.playground.sim_settings.ahu_heat_recovery,
-                    AttributeDataSource.enrichment)
-                building.ahu_heat_recovery_efficiency = (
-                    self.playground.sim_settings.ahu_heat_recovery_efficiency,
-                    AttributeDataSource.enrichment)
+            # set heating and cooling based on sim settings configuration
+            building_elements = filter_elements(elements, 'Building')
+            self.overwrite_heating_cooling_ahu_by_settings(
+                tz_elements, building_elements, self.playground.sim_settings)
+
+
 
     @staticmethod
-    def set_heating_cooling(
-            tz_elements: dict, sim_settings: BuildingSimSettings):
-        """set cooling and heating values based on simulation settings"""
+    def overwrite_heating_cooling_ahu_by_settings(
+            tz_elements: dict,
+            bldg_elements: list,
+            sim_settings: BuildingSimSettings) -> None:
+        """Set HVAC settings for thermal zones based on simulation settings.
+
+        Updates heating, cooling, and AHU usage for all thermal zones
+         according to the provided simulation settings.
+
+        Args:
+            tz_elements: Dictionary of thermal zone elements
+            bldg_elements: List of building elements
+            sim_settings: Building simulation settings
+        """
+        # Apply settings to all thermal zones
         for tz in tz_elements.values():
-            tz.with_cooling = sim_settings.cooling
-            tz.with_heating = sim_settings.heating
-            if sim_settings.deactivate_ahu:
-                tz.with_ahu = False
+            if sim_settings.heating_tz_overwrite is not None:
+                tz.with_heating = (sim_settings.heating_tz_overwrite,
+                                   AttributeDataSource.enrichment)
+            if sim_settings.cooling_tz_overwrite is not None:
+                tz.with_cooling = (sim_settings.cooling_tz_overwrite,
+                                   AttributeDataSource.enrichment)
+            if sim_settings.ahu_tz_overwrite is not None:
+                tz.with_ahu = (sim_settings.ahu_tz_overwrite,
+                               AttributeDataSource.enrichment)
+
+        # overwrite building AHU settings if sim_settings are used
+        for building in bldg_elements:
+            if sim_settings.ahu_heating_overwrite is not None:
+                building.ahu_heating_overwrite = (
+                    sim_settings.ahu_heating_overwrite,
+                    AttributeDataSource.enrichment)
+            if sim_settings.ahu_cooling_overwrite is not None:
+                building.ahu_cooling_overwrite = (
+                    sim_settings.ahu_cooling_overwrite,
+                    AttributeDataSource.enrichment)
+            if sim_settings.ahu_humidification_overwrite is not None:
+                building.ahu_humidification_overwrite = (
+                    sim_settings.ahu_humidification_overwrite,
+                    AttributeDataSource.enrichment)
+            if sim_settings.ahu_dehumidification_overwrite is not None:
+                building.ahu_dehumidification_overwrite = (
+                    sim_settings.ahu_dehumidification_overwrite,
+                    AttributeDataSource.enrichment)
+            if sim_settings.ahu_heat_recovery_overwrite is not None:
+                building.ahu_heat_recovery_overwrite = (
+                    sim_settings.ahu_heat_recovery_overwrite,
+                    AttributeDataSource.enrichment)
+            if sim_settings.ahu_heat_recovery_efficiency_overwrite is not None:
+                building.ahu_heat_recovery_efficiency_overwrite = (
+                    sim_settings.ahu_heat_recovery_efficiency_overwrite,
+                    AttributeDataSource.enrichment)
+            # reset with_ahu on building level to make sure that _check_tz_ahu
+            #  is performed again
+            building.reset('with_ahu')
+
+
 
     @staticmethod
     def list_decision_usage(tz: ThermalZone, choices: list) -> ListDecision:

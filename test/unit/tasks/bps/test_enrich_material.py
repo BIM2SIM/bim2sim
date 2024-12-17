@@ -1,39 +1,23 @@
-import tempfile
-import unittest
-from unittest import mock
-
-from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.sim_settings import BuildingSimSettings
 from bim2sim.tasks.bps import EnrichMaterial
 from test.unit.elements.helper import SetupHelperBPS
 from bim2sim.elements.mapping.units import ureg
+from test.unit.tasks import TestTask
 
 
-class TestEnrichMaterial(unittest.TestCase):
+class TestEnrichMaterial(TestTask):
 
     @classmethod
-    def setUpClass(cls) -> None:
-        # Set up playground, project and paths via mocks
-        cls.playground = mock.Mock()
-        project = mock.Mock()
-        paths = mock.Mock()
-        cls.playground.project = project
-        cls.playground.sim_settings = BuildingSimSettings()
+    def simSettingsClass(cls):
+        return BuildingSimSettings()
 
-        # Instantiate export task and set required values via mocks
-        cls.enrich_task = EnrichMaterial(cls.playground)
-        cls.enrich_task.prj_name = 'TestEnrichMaterial'
-        cls.enrich_task.paths = paths
+    @classmethod
+    def testTask(cls):
+        return EnrichMaterial(cls.playground)
 
-        cls.helper = SetupHelperBPS()
-
-    def setUp(self) -> None:
-        # Set export path to temporary path
-        self.export_path = tempfile.TemporaryDirectory(prefix='bim2sim')
-        self.enrich_task.paths.export = self.export_path.name
-
-    def tearDown(self) -> None:
-        self.helper.reset()
+    @classmethod
+    def helper(cls):
+        return SetupHelperBPS()
 
     def test_enrichment_LOD_low_iwu_heavy_window_dreifach_2010(self):
         """Tests layer and material enrichment for specified sim_settings."""
@@ -42,8 +26,9 @@ class TestEnrichMaterial(unittest.TestCase):
             'Waermeschutzverglasung, dreifach'
         self.playground.sim_settings.year_of_construction = 2010
         elements = self.helper.get_setup_simple_house()
-        test_res = DebugDecisionHandler(()).handle(
-            self.enrich_task.run(elements, ))
+        answers = ()
+        reads = (elements, )
+        test_res = self.run_task(answers, reads)
         # OuterWall layer and material
         ow_layer_1_thickness_exp = 0.175 * ureg.m
         ow_layer_2_thickness_exp = 0.07 * ureg.m
@@ -139,8 +124,9 @@ class TestEnrichMaterial(unittest.TestCase):
             'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
         self.playground.sim_settings.year_of_construction = 2010
         elements = self.helper.get_setup_simple_house()
-        test_res = DebugDecisionHandler(()).handle(
-            self.enrich_task.run(elements, ))
+        answers = ()
+        reads = (elements, )
+        test_res = self.run_task(answers, reads)
 
         # OuterWall layer and material expected values
         ow_layer_1_thickness_exp = 0.01 * ureg.m

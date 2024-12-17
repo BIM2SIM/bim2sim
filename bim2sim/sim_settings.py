@@ -884,20 +884,25 @@ class BuildingSimSettings(BaseSimSettings):
         description="Select the most fitting construction class type for"
                     " the windows of the selected building.",
     )
-    heating = BooleanSetting(
-        default=True,
-        description='Whether the building should be supplied with heating.',
+    heating_tz_overwrite = BooleanSetting(
+        default=None,
+        description='If True, all thermal zones will be provided with heating,'
+                    'regardless of information in the IFC or in the use '
+                    'condition file.',
         for_frontend=True
     )
-    cooling = BooleanSetting(
-        default=False,
-        description='Whether the building should be supplied with cooling.',
+    cooling_tz_overwrite = BooleanSetting(
+        default=None,
+        description='If True, all thermal zones will be provided with cooling,'
+                    'regardless of information in the IFC or in the use '
+                    'condition file.',
         for_frontend=True
     )
-    deactivate_ahu = BooleanSetting(
-        default=False,
-        description='If True the AHU unit will be deactivated for all thermal'
-                    ' zones, even if the fitting use condition uses an AHU.',
+    ahu_tz_overwrite = BooleanSetting(
+        default=None,
+        description='If True, all thermal zones will be provided with AHU,'
+                    'regardless of information in the IFC or in the use '
+                    'condition file.',
         for_frontend=True
     )
     prj_use_conditions = PathSetting(
@@ -1072,48 +1077,31 @@ class BuildingSimSettings(BaseSimSettings):
                     "should be plotted.",
         any_string=True
     )
-    # Due to issue #722 this is currently the only way to set AHU values.
-    overwrite_ahu_by_settings = BooleanSetting(
-        default=True,
-        description='Overwrite central AHU settings with the following '
-                    'settings.',
-    )
-    ahu_heating = BooleanSetting(
-        default=False,
+    ahu_heating_overwrite = BooleanSetting(
+        default=None,
         description="Choose if the central AHU should provide heating. "
-                    "Set overwrite_ahu_by_settings to True, "
-                    "otherwise this has no effect. "
     )
-    ahu_cooling = BooleanSetting(
-        default=False,
+    ahu_cooling_overwrite = BooleanSetting(
+        default=None,
         description="Choose if the central AHU should provide cooling."
-                    "Set overwrite_ahu_by_settings to True, "
-                    "otherwise this has no effect. "
     )
-    ahu_dehumidification = BooleanSetting(
-        default=False,
+    ahu_dehumidification_overwrite = BooleanSetting(
+        default=None,
         description="Choose if the central AHU should provide "
                     "dehumidification."
-                    "Set overwrite_ahu_by_settings to True, "
-                    "otherwise this has no effect. "
     )
-    ahu_humidification = BooleanSetting(
-        default=False,
+    ahu_humidification_overwrite = BooleanSetting(
+        default=None,
         description="Choose if the central AHU should provide humidification."
-                    "Set overwrite_ahu_by_settings to True, "
                     "otherwise this has no effect. "
     )
-    ahu_heat_recovery = BooleanSetting(
-        default=False,
+    ahu_heat_recovery_overwrite = BooleanSetting(
+        default=None,
         description="Choose if the central AHU should zuse heat recovery."
-                    "Set overwrite_ahu_by_settings to True, "
-                    "otherwise this has no effect. "
     )
-    ahu_heat_recovery_efficiency = NumberSetting(
+    ahu_heat_recovery_efficiency_overwrite = NumberSetting(
         default=0.65,
         min_value=0.5,
         max_value=0.99,
         description="Choose the heat recovery efficiency of the central AHU."
-                    "Set overwrite_ahu_by_settings to True, "
-                    "otherwise this has no effect. "
     )
