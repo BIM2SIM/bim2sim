@@ -6,7 +6,6 @@ from bim2sim import Project
 from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone
 from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
 from bim2sim.tasks import common, bps
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
