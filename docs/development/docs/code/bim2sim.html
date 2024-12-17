@@ -952,6 +952,11 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.log.AudienceFilter.filter"><code class="docutils literal notranslate"><span class="pre">AudienceFilter.filter()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.log.BufferedHandler"><code class="docutils literal notranslate"><span class="pre">BufferedHandler</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.log.BufferedHandler.emit"><code class="docutils literal notranslate"><span class="pre">BufferedHandler.emit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.log.BufferedHandler.flush_buffer"><code class="docutils literal notranslate"><span class="pre">BufferedHandler.flush_buffer()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.log.CustomFormatter"><code class="docutils literal notranslate"><span class="pre">CustomFormatter</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.log.CustomFormatter.format"><code class="docutils literal notranslate"><span class="pre">CustomFormatter.format()</span></code></a></li>
 </ul>
@@ -960,8 +965,10 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.log.ThreadLogFilter.filter"><code class="docutils literal notranslate"><span class="pre">ThreadLogFilter.filter()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.log.default_logging_setup"><code class="docutils literal notranslate"><span class="pre">default_logging_setup()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.log.get_user_logger"><code class="docutils literal notranslate"><span class="pre">get_user_logger()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.log.initial_logging_setup"><code class="docutils literal notranslate"><span class="pre">initial_logging_setup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.log.project_logging_setup"><code class="docutils literal notranslate"><span class="pre">project_logging_setup()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.log.teardown_loggers"><code class="docutils literal notranslate"><span class="pre">teardown_loggers()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1450,11 +1457,6 @@ updated from config</p>
 <dd><p>cleanup method</p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.project.Project.formatter">
-<span class="sig-name descname"><span class="pre">formatter</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;bim2sim.kernel.log.CustomFormatter</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#bim2sim.project.Project.formatter" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.project.Project.is_active">
 <span class="sig-name descname"><span class="pre">is_active</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#bim2sim.project.Project.is_active" title="Permalink to this definition"></a></dt>
@@ -1490,17 +1492,6 @@ updated from config</p>
 </dl>
 </dd>
 <dt>Raises:</dt><dd><p>AssertionError: if project setup is broken or on invalid Decisions</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.project.Project.set_user_logging_handler">
-<span class="sig-name descname"><span class="pre">set_user_logging_handler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Handler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">set_formatter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.project.Project.set_user_logging_handler" title="Permalink to this definition"></a></dt>
-<dd><p>Set a project specific logging Handler for user loggers.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>user_handler: the handler instance to use for this project
-set_formatter: if True, the user_handlers formatter is set</p>
 </dd>
 </dl>
 </dd></dl>
