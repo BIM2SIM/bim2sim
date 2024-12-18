@@ -10,7 +10,6 @@ from ifcopenshell import guid
 
 from bim2sim.elements.aggregation import AggregationMixin
 from bim2sim.kernel.decision import Decision, DecisionBunch
-from bim2sim.kernel.decorators import cached_property
 from bim2sim.kernel import IFCDomainError
 from bim2sim.elements.mapping import condition, attribute, ifc2python
 from bim2sim.elements.mapping.finder import TemplateFinder, SourceTool
@@ -83,12 +82,12 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         """Returns position (calculation may be expensive)"""
         return None
 
-    @cached_property
+    @property
     def position(self) -> np.array:
         """Position calculated only once by calling calc_position"""
         return self.calc_position()
 
-    @cached_property
+    @property
     def orientation(self) -> np.array:
         return self.calc_orientation()
 
@@ -270,7 +269,7 @@ class IFCBased(Element):
         # angle between 0 and 360
         return angle_equivalent(ang_sum)
 
-    @cached_property
+    @property
     def name(self):
         ifc_name = self.get_ifc_attribute('Name')
         if ifc_name:
@@ -581,6 +580,19 @@ class ProductBased(IFCBased):
             except:
                 logger.warning(f"No calculation of geometric volume possible "
                                f"for {self.ifc}.")
+
+        def _get_volume(self, name):
+            if hasattr(self, "net_volume"):
+                if self.net_volume:
+                    vol = self.net_volume
+                    return vol
+            vol = self.calc_volume_from_ifc_shape()
+            return vol
+
+        volume = attribute.Attribute(
+            description="Volume of the attribute",
+            functions=[_get_volume],
+        )
 
     def __str__(self):
         return "<%s>" % (self.__class__.__name__)

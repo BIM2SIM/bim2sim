@@ -13,7 +13,6 @@ from bim2sim.elements.hvac_elements import HVACPort
 from bim2sim.elements.mapping import attribute
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.kernel.decision import BoolDecision, DecisionBunch
-from bim2sim.kernel.decorators import cached_property
 
 
 def verify_edge_ports(func):
@@ -650,8 +649,7 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
                 mapping[original] = port
         return mapping
 
-
-    @cached_property
+    @property
     def pump_elements(self) -> list:
         """list of pump-like elements present on the aggregation"""
         return [ele for ele in self.elements if isinstance(ele, hvac.Pump)]
@@ -706,7 +704,7 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
         dependant_elements='pump_elements'
     )
 
-    @cached_property
+    @property
     def not_pump_elements(self) -> list:
         """list of not-pump-like elements present on the aggregation"""
         return [ele for ele in self.elements if not isinstance(ele, hvac.Pump)]
@@ -800,12 +798,12 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         metas = [{} for x in matches_graphs]
         return matches_graphs, metas
 
-    @cached_property
+    @property
     def pump_elements(self) -> list:
         """ List of pump-like elements present on the aggregation."""
         return [ele for ele in self.elements if isinstance(ele, hvac.Pump)]
 
-    @cached_property
+    @property
     def not_pump_elements(self) -> list:
         """ List of not-pump-like elements present on the aggregation."""
         return [ele for ele in self.elements if not isinstance(ele, hvac.Pump)]
@@ -813,7 +811,7 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
     def _calc_TControl(self, name):
         return any([isinstance(ele, hvac.ThreeWayValve) for ele in self.elements])
 
-    @cached_property
+    @property
     def whitelist_elements(self) -> list:
         """ List of whitelist_classes elements present on the aggregation."""
         return [ele for ele in self.elements
@@ -1109,7 +1107,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
         functions=[_calc_avg]
     )
 
-    @cached_property
+    @property
     def whitelist_elements(self) -> list:
         """list of whitelist_classes elements present on the aggregation"""
         return [ele for ele in self.elements if type(ele) in self.whitelist_classes]
@@ -1430,13 +1428,13 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         self.has_bypass = has_bypass
         return has_bypass
 
-    @cached_property
+    @property
     def whitelist_elements(self) -> list:
         """ List of whitelist_classes elements present on the aggregation"""
         return [ele for ele in self.elements if type(ele)
                 in self.whitelist_classes]
 
-    @cached_property
+    @property
     def not_whitelist_elements(self) -> list:
         """ List of not-whitelist_classes elements present on the aggregation"""
         return [ele for ele in self.elements if type(ele) not
@@ -1542,7 +1540,7 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         functions=[HVACAggregationMixin._calc_has_pump]
     )
 
-    @cached_property
+    @property
     def pump_elements(self) -> list:
         """ List of pump-like elements present on the aggregation"""
         return [ele for ele in self.elements if isinstance(ele, hvac.Pump)]

@@ -130,14 +130,6 @@ class BPSProduct(ProductBased):
         """get sum of opening areas of the element"""
         return sum(sb.opening_area for sb in self.sbs_without_corresponding)
 
-    def _get_volume(self, name):
-        if hasattr(self, "net_volume"):
-            if self.net_volume:
-                vol = self.net_volume
-                return vol
-        vol = self.calc_volume_from_ifc_shape()
-        return vol
-
     gross_area = attribute.Attribute(
         functions=[get_bound_area],
         unit=ureg.meter ** 2
@@ -156,11 +148,6 @@ class BPSProduct(ProductBased):
     opening_area = attribute.Attribute(
         description="Sum of opening areas of the element",
         functions=[_get_opening_area]
-    )
-
-    volume = attribute.Attribute(
-        description="Volume of the attribute",
-        functions=[_get_volume],
     )
 
 
