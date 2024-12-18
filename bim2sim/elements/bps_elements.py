@@ -650,21 +650,6 @@ class SpaceBoundary(RelationBased):
         self.parent_bound = None
         self.opening_bounds = []
 
-    # def calc_orientation(self):
-    #     """
-    #     calculates the orientation of the spaceboundary, using the relative
-    #     position of resultant disaggregation
-    #     """
-    #     if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement,
-    #                'BasisSurface'):
-    #         axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
-    #             BasisSurface.Position.Axis.DirectionRatios
-    #     else:
-    #         axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
-    #             Position.Axis.DirectionRatios
-    #
-    #     return vector_angle(axis)
-
     def calc_position(self):
         """
         calculates the position of the spaceboundary, using the relative
@@ -683,25 +668,6 @@ class SpaceBoundary(RelationBased):
     @classmethod
     def pre_validate(cls, ifc) -> bool:
         return True
-
-    @staticmethod
-    def move_bound_in_direction_of_normal(shape, normal, move_dist,
-                                          reversed=False):
-        prod_vec = []
-        move_dir = normal.Coord()
-        if reversed:
-            move_dir = normal.Reversed().Coord()
-        for i in move_dir:
-            prod_vec.append(move_dist * i)
-
-        # move bound in direction of bound normal by move_dist
-        trsf = gp_Trsf()
-        coord = gp_XYZ(*prod_vec)
-        vec = gp_Vec(coord)
-        trsf.SetTranslation(vec)
-        moved_shape = BRepBuilderAPI_Transform(shape, trsf).Shape()
-
-        return moved_shape
 
     def validate_creation(self) -> bool:
         if self.bound_area and self.bound_area < 1e-2 * ureg.meter ** 2:
