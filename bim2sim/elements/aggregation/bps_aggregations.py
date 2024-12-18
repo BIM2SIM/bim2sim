@@ -136,7 +136,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
          'ratio_conv_rad_machines', 'lighting_power',
         'ratio_conv_rad_machines', 'lighting_power', 'fixed_lighting_power',
         'ratio_conv_rad_lighting', 'maintained_illuminance',
-        'lighting_efficiency_lumen', infiltration_rate',
+        'lighting_efficiency_lumen', base_infiltration',
         'max_user_infiltration', 'min_ahu', 'max_ahu', 'persons']"""
         prop_sum = sum(
             getattr(tz, name) * tz.net_volume for tz in self.elements if
@@ -318,7 +318,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         functions=[_bool_calc],
         dependant_elements='elements'
     )
-    infiltration_rate = attribute.Attribute(
+    base_infiltration = attribute.Attribute(
         functions=[_intensive_calc],
         dependant_elements='elements'
     )
