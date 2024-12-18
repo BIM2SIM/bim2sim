@@ -489,6 +489,7 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.T_threshold_cooling"><code class="docutils literal notranslate"><span class="pre">ThermalZone.T_threshold_cooling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.T_threshold_heating"><code class="docutils literal notranslate"><span class="pre">ThermalZone.T_threshold_heating</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.activity_degree_persons"><code class="docutils literal notranslate"><span class="pre">ThermalZone.activity_degree_persons</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.base_infiltration"><code class="docutils literal notranslate"><span class="pre">ThermalZone.base_infiltration</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.central_ahu"><code class="docutils literal notranslate"><span class="pre">ThermalZone.central_ahu</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.clothing_persons"><code class="docutils literal notranslate"><span class="pre">ThermalZone.clothing_persons</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.cooling_profile"><code class="docutils literal notranslate"><span class="pre">ThermalZone.cooling_profile</span></code></a></li>
@@ -508,7 +509,6 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.height"><code class="docutils literal notranslate"><span class="pre">ThermalZone.height</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.horizontal_sbs"><code class="docutils literal notranslate"><span class="pre">ThermalZone.horizontal_sbs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.ifc_types"><code class="docutils literal notranslate"><span class="pre">ThermalZone.ifc_types</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.infiltration_rate"><code class="docutils literal notranslate"><span class="pre">ThermalZone.infiltration_rate</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.internal_gains_moisture_no_people"><code class="docutils literal notranslate"><span class="pre">ThermalZone.internal_gains_moisture_no_people</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.is_external"><code class="docutils literal notranslate"><span class="pre">ThermalZone.is_external</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone.key"><code class="docutils literal notranslate"><span class="pre">ThermalZone.key</span></code></a></li>
@@ -1679,33 +1679,43 @@ value: value that should be checked for correctness</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.ahu_cooling">
-<span class="sig-name descname"><span class="pre">ahu_cooling</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.ahu_cooling" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.ahu_cooling_overwrite">
+<span class="sig-name descname"><span class="pre">ahu_cooling_overwrite</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.ahu_cooling_overwrite" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.ahu_dehumidification">
-<span class="sig-name descname"><span class="pre">ahu_dehumidification</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.ahu_dehumidification" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.ahu_dehumidification_overwrite">
+<span class="sig-name descname"><span class="pre">ahu_dehumidification_overwrite</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.ahu_dehumidification_overwrite" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.ahu_heat_recovery">
-<span class="sig-name descname"><span class="pre">ahu_heat_recovery</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.ahu_heat_recovery" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.ahu_heat_recovery_efficiency_overwrite">
+<span class="sig-name descname"><span class="pre">ahu_heat_recovery_efficiency_overwrite</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.ahu_heat_recovery_efficiency_overwrite" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.ahu_heat_recovery_efficiency">
-<span class="sig-name descname"><span class="pre">ahu_heat_recovery_efficiency</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.ahu_heat_recovery_efficiency" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.ahu_heat_recovery_overwrite">
+<span class="sig-name descname"><span class="pre">ahu_heat_recovery_overwrite</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.ahu_heat_recovery_overwrite" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.ahu_heating">
-<span class="sig-name descname"><span class="pre">ahu_heating</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.ahu_heating" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.ahu_heating_overwrite">
+<span class="sig-name descname"><span class="pre">ahu_heating_overwrite</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.ahu_heating_overwrite" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.ahu_humidification">
-<span class="sig-name descname"><span class="pre">ahu_humidification</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.ahu_humidification" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.ahu_humidification_overwrite">
+<span class="sig-name descname"><span class="pre">ahu_humidification_overwrite</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.ahu_humidification_overwrite" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.ahu_tz_overwrite">
+<span class="sig-name descname"><span class="pre">ahu_tz_overwrite</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.ahu_tz_overwrite" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.base_infiltration_rate_overwrite">
+<span class="sig-name descname"><span class="pre">base_infiltration_rate_overwrite</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.base_infiltration_rate_overwrite" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1729,8 +1739,8 @@ value: value that should be checked for correctness</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.cooling">
-<span class="sig-name descname"><span class="pre">cooling</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.cooling" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.cooling_tz_overwrite">
+<span class="sig-name descname"><span class="pre">cooling_tz_overwrite</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.cooling_tz_overwrite" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1744,23 +1754,13 @@ value: value that should be checked for correctness</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.deactivate_ahu">
-<span class="sig-name descname"><span class="pre">deactivate_ahu</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.deactivate_ahu" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.heating">
-<span class="sig-name descname"><span class="pre">heating</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.heating" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.heating_tz_overwrite">
+<span class="sig-name descname"><span class="pre">heating_tz_overwrite</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.heating_tz_overwrite" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.layers_and_materials">
 <span class="sig-name descname"><span class="pre">layers_and_materials</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.layers_and_materials" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.overwrite_ahu_by_settings">
-<span class="sig-name descname"><span class="pre">overwrite_ahu_by_settings</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.overwrite_ahu_by_settings" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1821,6 +1821,11 @@ value: value that should be checked for correctness</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.split_shadings">
 <span class="sig-name descname"><span class="pre">split_shadings</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.split_shadings" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BuildingSimSettings.use_constant_infiltration_overwrite">
+<span class="sig-name descname"><span class="pre">use_constant_infiltration_overwrite</span></span><a class="headerlink" href="#bim2sim.sim_settings.BuildingSimSettings.use_constant_infiltration_overwrite" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
