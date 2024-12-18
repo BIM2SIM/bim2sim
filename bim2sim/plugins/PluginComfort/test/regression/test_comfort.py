@@ -157,7 +157,7 @@ class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
         project.sim_settings.create_external_elements = True
         project.sim_settings.setpoints_from_template = True
         project.sim_settings.add_window_shading = 'Exterior'
-        project.sim_settings.cooling = False
+        project.sim_settings.cooling_tz_overwrite = False
         project.sim_settings.rename_plot_keys = True
         project.sim_settings.add_natural_ventilation = True
         project.sim_settings.add_shadings = True
@@ -183,7 +183,7 @@ class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
         project.sim_settings.create_external_elements = True
         project.sim_settings.setpoints_from_template = True
         project.sim_settings.add_window_shading = 'Exterior'
-        project.sim_settings.cooling = False
+        project.sim_settings.cooling_tz_overwrite = False
         project.sim_settings.rename_plot_keys = True
         project.sim_settings.add_natural_ventilation = True
         project.sim_settings.add_shadings = True
@@ -207,7 +207,7 @@ class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
         ifc_names = {IFCDomain.arch: 'FM_ARC_DigitalHub_with_SB89.ifc'}
         project = self.create_project(ifc_names, 'comfort')
         project.sim_settings.create_external_elements = True
-        project.sim_settings.cooling = True
+        project.sim_settings.cooling_tz_overwrite = True
         project.sim_settings.construction_class_windows = \
             'Waermeschutzverglasung, dreifach'
         project.sim_settings.prj_use_conditions = Path(
@@ -224,7 +224,7 @@ class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
         construction_year = 2015
         project.sim_settings.setpoints_from_template = True
         project.sim_settings.add_window_shading = 'Exterior'
-        project.sim_settings.cooling = False
+        project.sim_settings.cooling_tz_overwrite = False
         project.sim_settings.rename_plot_keys = True
 
         answers = (space_boundary_genenerator,

@@ -574,7 +574,7 @@ class ThermalZone(BPSProduct):
     ratio_conv_rad_lighting = attribute.Attribute(
         default=0.5,
     )
-    
+
     machines = attribute.Attribute(
         description="Specific internal gains through machines, if taken from"
                     " IFC property set a division by thermal zone area is"
@@ -628,7 +628,7 @@ class ThermalZone(BPSProduct):
     use_constant_infiltration = attribute.Attribute(
     )
 
-    infiltration_rate = attribute.Attribute(
+    base_infiltration = attribute.Attribute(
     )
 
     max_user_infiltration = attribute.Attribute(

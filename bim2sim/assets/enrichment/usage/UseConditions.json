@@ -1,36 +1,36 @@
 {
     "version":{
-        "with_heating": "TEASER-v1.0.1",
-        "T_threshold_heating": "TEASER-v1.0.1",
-        "with_cooling": "TEASER-v1.0.1",
-        "persons": "TEASER-v1.0.1",
-        "activity_degree_persons": "TEASER-v1.0.1",
-        "fixed_heat_flow_rate_persons": "TEASER-v1.0.1",
-        "internal_gains_moisture_no_people": "TEASER-v1.0.1",
-        "T_threshold_cooling": "TEASER-v1.0.1",
-        "ratio_conv_rad_persons": "TEASER-v1.0.1",
-        "machines": "TEASER-v1.0.1",
-        "ratio_conv_rad_machines": "TEASER-v1.0.1",
-        "use_maintained_illuminance": "TEASER-v1.0.1",
-        "fixed_lighting_power": "TEASER-v1.0.1",
-        "maintained_illuminance": "TEASER-v1.0.1",
-        "lighting_efficiency_lumen": "TEASER-v1.0.1",
-        "ratio_conv_rad_lighting": "TEASER-v1.0.1",
-        "use_constant_infiltration": "TEASER-v1.0.1",
-        "infiltration_rate": "TEASER-v1.0.1",
-        "max_user_infiltration": "TEASER-v1.0.1",
-        "max_overheating_infiltration": "TEASER-v1.0.1",
-        "max_summer_infiltration": "TEASER-v1.0.1",
-        "winter_reduction_infiltration": "TEASER-v1.0.1",
-        "min_ahu": "TEASER-v1.0.1",
-        "max_ahu": "TEASER-v1.0.1",
-        "with_ahu": "TEASER-v1.0.1",
-        "with_ideal_thresholds": "TEASER-v1.0.1",
-        "heating_profile": "TEASER-v1.0.1",
-        "cooling_profile": "TEASER-v1.0.1",
-        "persons_profile": "TEASER-v1.0.1",
-        "machines_profile": "TEASER-v1.0.1",
-        "lighting_profile": "TEASER-v1.0.1"
+        "with_heating": "TEASER-v1.1.0",
+        "T_threshold_heating": "TEASER-v1.1.0",
+        "with_cooling": "TEASER-v1.1.0",
+        "persons": "TEASER-v1.1.0",
+        "activity_degree_persons": "TEASER-v1.1.0",
+        "fixed_heat_flow_rate_persons": "TEASER-v1.1.0",
+        "internal_gains_moisture_no_people": "TEASER-v1.1.0",
+        "T_threshold_cooling": "TEASER-v1.1.0",
+        "ratio_conv_rad_persons": "TEASER-v1.1.0",
+        "machines": "TEASER-v1.1.0",
+        "ratio_conv_rad_machines": "TEASER-v1.1.0",
+        "use_maintained_illuminance": "TEASER-v1.1.0",
+        "fixed_lighting_power": "TEASER-v1.1.0",
+        "maintained_illuminance": "TEASER-v1.1.0",
+        "lighting_efficiency_lumen": "TEASER-v1.1.0",
+        "ratio_conv_rad_lighting": "TEASER-v1.1.0",
+        "use_constant_infiltration": "TEASER-v1.1.0",
+        "base_infiltration": "TEASER-v1.1.0",
+        "max_user_infiltration": "TEASER-v1.1.0",
+        "max_overheating_infiltration": "TEASER-v1.1.0",
+        "max_summer_infiltration": "TEASER-v1.1.0",
+        "winter_reduction_infiltration": "TEASER-v1.1.0",
+        "min_ahu": "TEASER-v1.1.0",
+        "max_ahu": "TEASER-v1.1.0",
+        "with_ahu": "TEASER-v1.1.0",
+        "with_ideal_thresholds": "TEASER-v1.1.0",
+        "heating_profile": "TEASER-v1.1.0",
+        "cooling_profile": "TEASER-v1.1.0",
+        "persons_profile": "TEASER-v1.1.0",
+        "machines_profile": "TEASER-v1.1.0",
+        "lighting_profile": "TEASER-v1.1.0"
     },
     "Single office": {
         "with_heating": true,
@@ -50,7 +50,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -219,7 +219,7 @@
         "maintained_illuminance": 500.0,
         "lighting_efficiency_lumen": 150,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -388,7 +388,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -557,7 +557,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -726,7 +726,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -895,7 +895,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -1064,7 +1064,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -1233,7 +1233,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -1402,7 +1402,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -1571,7 +1571,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.5,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -1740,7 +1740,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.5,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -1909,7 +1909,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -2078,7 +2078,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -2247,7 +2247,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -2416,7 +2416,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -2585,7 +2585,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -2754,7 +2754,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -2923,7 +2923,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -3092,7 +3092,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -3261,7 +3261,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -3430,7 +3430,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -3599,7 +3599,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -3768,7 +3768,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -3937,7 +3937,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -4105,7 +4105,7 @@
         "maintained_illuminance": 200.0,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -4274,7 +4274,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -4443,7 +4443,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -4612,7 +4612,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -4781,7 +4781,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -4950,7 +4950,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -5119,7 +5119,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -5288,7 +5288,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -5457,7 +5457,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -5626,7 +5626,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -5795,7 +5795,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -5964,7 +5964,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -6133,7 +6133,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -6302,7 +6302,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -6471,7 +6471,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -6640,7 +6640,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -6809,7 +6809,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -6978,7 +6978,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -7147,7 +7147,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.9,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -7316,7 +7316,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.5,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,
@@ -7485,7 +7485,7 @@
         "lighting_efficiency_lumen": 150,
         "ratio_conv_rad_lighting": 0.5,
         "use_constant_infiltration": false,
-        "infiltration_rate": 0.2,
+        "base_infiltration": 0.2,
         "max_user_infiltration": 1.0,
         "max_overheating_infiltration": [
             3.0,

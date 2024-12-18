@@ -47,7 +47,7 @@ def run_example_1():
     project.sim_settings.run_full_simulation = True
     project.sim_settings.setpoints_from_template = True
     project.sim_settings.add_window_shading = 'Exterior'
-    project.sim_settings.cooling = False
+    project.sim_settings.cooling_tz_overwrite = False
     project.sim_settings.rename_plot_keys = True
     project.sim_settings.create_plots = True
 
