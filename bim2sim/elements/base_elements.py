@@ -74,22 +74,14 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         """Check if attributes are valid"""
         return {}
 
-    def calc_position(self) -> np.array:
+    def _calc_position(self, name) -> np.array:
         """Returns position (calculation may be expensive)"""
         return None
 
-    def calc_orientation(self) -> np.array:
-        """Returns position (calculation may be expensive)"""
-        return None
-
-    @property
-    def position(self) -> np.array:
-        """Position calculated only once by calling calc_position"""
-        return self.calc_position()
-
-    @property
-    def orientation(self) -> np.array:
-        return self.calc_orientation()
+    position = attribute.Attribute(
+        description='Position of element',
+        functions=[_calc_position]
+    )
 
     @staticmethod
     def get_id(prefix=""):
@@ -220,7 +212,7 @@ class IFCBased(Element):
         """Check if ifc meets conditions to create element from it"""
         raise NotImplementedError
 
-    def calc_position(self):
+    def _calc_position(self, name):
         """returns absolute position"""
         if hasattr(self.ifc, 'ObjectPlacement'):
             absolute = np.array(self.ifc.ObjectPlacement.RelativePlacement.Location.Coordinates)
@@ -233,7 +225,7 @@ class IFCBased(Element):
 
         return absolute
 
-    def calc_orientation(self) -> np.array:
+    def _calc_teaser_orientation(self, name) -> np.array:
         """Tries to calculate the orientation of based on DirectionRatio.
 
         This generic orientation calculation uses the DirectionRatios which in
@@ -269,11 +261,22 @@ class IFCBased(Element):
         # angle between 0 and 360
         return angle_equivalent(ang_sum)
 
-    @property
-    def name(self):
+    teaser_orientation = attribute.Attribute(
+        description="Orientation of element in TEASER conventions. 0-360 for "
+                    "orientation of vertical elements and -1 for roofs and "
+                    "ceiling, -2 for groundfloors and floors.",
+        functions=[_calc_teaser_orientation],
+    )
+
+    def _get_name_from_ifc(self, name):
         ifc_name = self.get_ifc_attribute('Name')
         if ifc_name:
             return remove_umlaut(ifc_name)
+
+    name = attribute.Attribute(
+        description="Name of element based on IFC attribute.",
+        functions=[_get_name_from_ifc]
+    )
 
     def get_ifc_attribute(self, attribute):
         """
@@ -581,18 +584,18 @@ class ProductBased(IFCBased):
                 logger.warning(f"No calculation of geometric volume possible "
                                f"for {self.ifc}.")
 
-        def _get_volume(self, name):
-            if hasattr(self, "net_volume"):
-                if self.net_volume:
-                    vol = self.net_volume
-                    return vol
-            vol = self.calc_volume_from_ifc_shape()
-            return vol
+    def _get_volume(self, name):
+        if hasattr(self, "net_volume"):
+            if self.net_volume:
+                vol = self.net_volume
+                return vol
+        vol = self.calc_volume_from_ifc_shape()
+        return vol
 
-        volume = attribute.Attribute(
-            description="Volume of the attribute",
-            functions=[_get_volume],
-        )
+    volume = attribute.Attribute(
+        description="Volume of the attribute",
+        functions=[_get_volume],
+    )
 
     def __str__(self):
         return "<%s>" % (self.__class__.__name__)

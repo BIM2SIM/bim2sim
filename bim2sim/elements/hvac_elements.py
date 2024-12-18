@@ -66,7 +66,7 @@ class HVACPort(Port):
         kwargs['flow_direction'] = flow_direction
         return args, kwargs
 
-    def calc_position(self) -> np.array:
+    def _calc_position(self, name) -> np.array:
         """returns absolute position as np.array"""
         try:
             relative_placement = \

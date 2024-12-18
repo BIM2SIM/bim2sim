@@ -83,7 +83,7 @@ class BPSProduct(ProductBased):
         """Default cost group for building elements is 300"""
         return 300
 
-    def calc_orientation(self) -> float:
+    def calc_teaser_orientation(self) -> float:
         """Calculate the orientation of the bps product based on SB direction.
 
         For buildings elements we can use the more reliable space boundaries
@@ -187,7 +187,7 @@ class ThermalZone(BPSProduct):
         """determines the orientation of the thermal zone based on its elements
         it can be a corner (list of 2 angles) or an edge (1 angle)"""
         if self.is_external is True:
-            orientations = [ele.orientation for ele in self.outer_walls]
+            orientations = [ele.teaser_orientation for ele in self.outer_walls]
             calc_temp = list(set(orientations))
             sum_or = sum(calc_temp)
             if 0 in calc_temp:
@@ -678,7 +678,7 @@ class SpaceBoundary(RelationBased):
         self.parent_bound = None
         self.opening_bounds = []
 
-    def calc_position(self):
+    def _calc_position(self, name):
         """
         calculates the position of the spaceboundary, using the relative
         position of resultant disaggregation
@@ -1618,8 +1618,8 @@ class Slab(BPSProductWithLayers):
         """slab __init__ function"""
         super().__init__(*args, **kwargs)
 
-    def calc_orientation(self) -> float:
-        """Returns the orientation of the slab"""
+    def calc_teaser_orientation(self) -> float:
+        """Returns the orientation of the slab in TEASER convention."""
         return -1
 
     net_area = attribute.Attribute(
@@ -1708,6 +1708,9 @@ class GroundFloor(Slab):
         "IfcSlab": ['BASESLAB']
     }
 
+    def calc_teaser_orientation(self) -> float:
+        """Returns the orientation of the groundfloor in TEASER convention."""
+        return -2
     def calc_cost_group(self) -> int:
         """Calc cost group for groundfloors
 
@@ -1715,6 +1718,7 @@ class GroundFloor(Slab):
         """
 
         return 322
+
 
     # pattern_ifc_type = [
     #     re.compile('Bodenplatte', flags=re.IGNORECASE),

@@ -68,7 +68,7 @@ class HVACAggregationPort(HVACPort):
                 else:
                     return originals.flow_direction
 
-    def calc_position(self):
+    def _calc_position(self, name):
         """Position of original port"""
         return self.originals.position
 
