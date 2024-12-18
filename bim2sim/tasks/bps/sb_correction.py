@@ -428,8 +428,6 @@ class CorrectSpaceBoundaries(ITask):
                         opening.parent_bound = new_bound
             # check and fix surface normal if needed
             if not all([abs(i) < 1e-3 for i in (
-                    # TODO bound normal is delete in function call in line 409 and does
-                    #  not exist here. Why check? this fails with new attributes
                     (new_bound.bound_normal - bound.bound_normal).Coord())]):
                 new_bound.bound_shape = PyOCCTools.flip_orientation_of_face(
                     new_bound.bound_shape)
