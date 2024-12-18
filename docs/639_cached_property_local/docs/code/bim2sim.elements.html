@@ -122,11 +122,11 @@ information</p>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.elements.aggregation.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.elements.aggregation.html#module-bim2sim.elements.aggregation.bps_aggregations">bim2sim.elements.aggregation.bps_aggregations module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.AreaPerOccupant"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.AreaPerOccupant</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.T_threshold_cooling"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.T_threshold_cooling</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.T_threshold_heating"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.T_threshold_heating</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.activity_degree_persons"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.activity_degree_persons</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.aggregatable_elements"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.aggregatable_elements</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.area_per_occupant"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.area_per_occupant</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.bind_elements"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.bind_elements()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.bind_tz_to_building"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.bind_tz_to_building()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.aggregation.html#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.bind_tz_to_storeys"><code class="docutils literal notranslate"><span class="pre">AggregatedThermalZone.bind_tz_to_storeys()</span></code></a></li>
@@ -2627,11 +2627,6 @@ RESET: The Attribute was reset.</p>
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.elements.bps_elements.SpaceBoundary.move_bound_in_direction_of_normal">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">move_bound_in_direction_of_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_dist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reversed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.bps_elements.SpaceBoundary.move_bound_in_direction_of_normal" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.bps_elements.SpaceBoundary.net_bound_area">
 <span class="sig-name descname"><span class="pre">net_bound_area</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.SpaceBoundary.net_bound_area" title="Permalink to this definition"></a></dt>
@@ -2974,23 +2969,6 @@ RESET: The Attribute was reset.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.bps_elements.</span></span><span class="sig-name descname"><span class="pre">ThermalZone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.bps_elements.ThermalZone" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.bps_elements.BPSProduct" title="bim2sim.elements.bps_elements.BPSProduct"><code class="xref py py-class docutils literal notranslate"><span class="pre">BPSProduct</span></code></a></p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.elements.bps_elements.ThermalZone.AreaPerOccupant">
-<span class="sig-name descname"><span class="pre">AreaPerOccupant</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.ThermalZone.AreaPerOccupant" title="Permalink to this definition"></a></dt>
-<dd><p>Descriptor of element attribute to get its value from various sources.</p>
-<p>value and status of attribute are stored in __dict__ of bound instance.
-Possible statuses are:</p>
-<blockquote>
-<div><p>UNKNOWN: default status at the beginning.
-REQUESTED: Attribute was already requested via a decision??.
-AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.
-RESET: The Attribute was reset.</p>
-</div></blockquote>
-<p>To find more about Descriptor objects follow the explanations on
-<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.bps_elements.ThermalZone.T_threshold_cooling">
 <span class="sig-name descname"><span class="pre">T_threshold_cooling</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.ThermalZone.T_threshold_cooling" title="Permalink to this definition"></a></dt>
 <dd><p>Descriptor of element attribute to get its value from various sources.</p>
@@ -3027,6 +3005,23 @@ RESET: The Attribute was reset.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.bps_elements.ThermalZone.activity_degree_persons">
 <span class="sig-name descname"><span class="pre">activity_degree_persons</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.ThermalZone.activity_degree_persons" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.bps_elements.ThermalZone.area_per_occupant">
+<span class="sig-name descname"><span class="pre">area_per_occupant</span></span><a class="headerlink" href="#bim2sim.elements.bps_elements.ThermalZone.area_per_occupant" title="Permalink to this definition"></a></dt>
 <dd><p>Descriptor of element attribute to get its value from various sources.</p>
 <p>value and status of attribute are stored in __dict__ of bound instance.
 Possible statuses are:</p>
