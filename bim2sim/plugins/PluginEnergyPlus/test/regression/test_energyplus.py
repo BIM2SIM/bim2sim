@@ -158,7 +158,7 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         project.sim_settings.split_shadings = True
         project.sim_settings.run_full_simulation = True
         project.sim_settings.use_maintained_illuminance = False
-        project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         handler = DebugDecisionHandler(())
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
