@@ -441,8 +441,6 @@ class CorrectSpaceBoundaries(ITask):
                 distance = BRepExtrema_DistShapeShape(
                     bound.bound_shape, related_bound.bound_shape,
                     Extrema_ExtFlag_MIN).Value()
-
-
                 related_bound.non_convex_guid = related_bound.guid
                 # move shape of the current bound to the position of the
                 # related bound if they have not been at the same position
