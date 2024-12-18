@@ -142,18 +142,22 @@ class BPSProduct(ProductBased):
         functions=[get_bound_area],
         unit=ureg.meter ** 2
     )
+
     net_area = attribute.Attribute(
         functions=[get_net_bound_area],
         unit=ureg.meter ** 2
     )
+
     sbs_without_corresponding = attribute.Attribute(
         description="A list with only not duplicated space boundaries",
         functions=[_get_sbs_without_corresponding]
     )
+
     opening_area = attribute.Attribute(
         description="Sum of opening areas of the element",
         functions=[_get_opening_area]
     )
+
     volume = attribute.Attribute(
         description="Volume of the attribute",
         functions=[_get_volume],
@@ -351,8 +355,8 @@ class ThermalZone(BPSProduct):
             return [self.t_set_cool.to(ureg.kelvin).m] * 24
 
     def _get_persons(self, name):
-        if self.AreaPerOccupant:
-            return 1 / self.AreaPerOccupant
+        if self.area_per_occupant:
+            return 1 / self.area_per_occupant
 
     external_orientation = attribute.Attribute(
         description="Orientation of the thermal zone, either 'Internal' or a "
@@ -367,19 +371,23 @@ class ThermalZone(BPSProduct):
                     " 0%-30%: 15, 30%-50%: 40, 50%-70%: 60, 70%-100%: 85.",
         functions=[_get_glass_percentage]
     )
+
     space_neighbors = attribute.Attribute(
         description="Determines the neighbors of the thermal zone.",
         functions=[_get_space_neighbors]
     )
+
     space_shape = attribute.Attribute(
         description="Returns topods shape of the IfcSpace.",
         functions=[_get_space_shape]
     )
+
     space_center = attribute.Attribute(
         description="Returns the center of the bounding box of an ifc space "
                     "shape.",
         functions=[_get_space_center]
     )
+
     footprint_shape = attribute.Attribute(
         description="Returns the footprint of a space shape, which can be "
                     "used e.g., to visualize floor plans.",
@@ -458,6 +466,7 @@ class ThermalZone(BPSProduct):
         functions=[get_bound_floor_area],
         unit=ureg.meter ** 2
     )
+
     net_area = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "NetFloorArea"),
         functions=[get_net_bound_floor_area],
@@ -484,19 +493,23 @@ class ThermalZone(BPSProduct):
         functions=[_get_volume_geometric],
         unit=ureg.meter ** 3,
     )
+
     height = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "Height"),
         unit=ureg.meter,
     )
+
     length = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "Length"),
         unit=ureg.meter,
     )
+
     width = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "Width"),
         unit=ureg.m
     )
-    AreaPerOccupant = attribute.Attribute(
+
+    area_per_occupant = attribute.Attribute(
         default_ps=("Pset_SpaceOccupancyRequirements", "AreaPerOccupant"),
         unit=ureg.meter ** 2
     )
@@ -517,6 +530,7 @@ class ThermalZone(BPSProduct):
     heating_profile = attribute.Attribute(
         functions=[_get_heating_profile],
     )
+
     cooling_profile = attribute.Attribute(
         functions=[_get_cooling_profile],
     )
@@ -524,32 +538,43 @@ class ThermalZone(BPSProduct):
     persons = attribute.Attribute(
         functions=[_get_persons],
     )
+
     # use conditions
     with_cooling = attribute.Attribute(
     )
+
     with_heating = attribute.Attribute(
     )
+
     T_threshold_heating = attribute.Attribute(
     )
+
     activity_degree_persons = attribute.Attribute(
     )
+
     fixed_heat_flow_rate_persons = attribute.Attribute(
         default_ps=("Pset_SpaceThermalLoad", "People"),
         unit=ureg.W,
     )
+
     internal_gains_moisture_no_people = attribute.Attribute(
     )
+
     T_threshold_cooling = attribute.Attribute(
     )
+
     ratio_conv_rad_persons = attribute.Attribute(
         default=0.5,
     )
+
     ratio_conv_rad_machines = attribute.Attribute(
         default=0.5,
     )
+
     ratio_conv_rad_lighting = attribute.Attribute(
         default=0.5,
     )
+    
     machines = attribute.Attribute(
         description="Specific internal gains through machines, if taken from"
                     " IFC property set a division by thermal zone area is"
@@ -572,18 +597,20 @@ class ThermalZone(BPSProduct):
         ifc_postprocessing=_area_specific_post_processing,
         functions=[_calc_lighting_power],
         unit=ureg.W / (ureg.meter ** 2),
-
     )
+
     fixed_lighting_power = attribute.Attribute(
         description="Specific fixed electrical power for lighting in W/m2. "
                     "This value is taken from SIA 2024.",
         unit=ureg.W / (ureg.meter ** 2)
     )
+
     maintained_illuminance = attribute.Attribute(
         description="Maintained illuminance value for lighting. This value is"
                     " taken from SIA 2024.",
         unit=ureg.lumen / (ureg.meter ** 2)
     )
+
     use_maintained_illuminance = attribute.Attribute(
         description="Decision variable to determine if lighting_power will"
                     " be given by fixed_lighting_power or by calculation "
@@ -592,33 +619,47 @@ class ThermalZone(BPSProduct):
                     "and can be set through the sim_setting with equivalent "
                     "name. "
     )
+
     lighting_efficiency_lumen = attribute.Attribute(
         description="Lighting efficiency in lm/W_el, in german: Lichtausbeute.",
         unit=ureg.lumen / ureg.W
     )
-    use_constant_infiltration = attribute.Attribute()
+
+    use_constant_infiltration = attribute.Attribute(
+    )
+
     infiltration_rate = attribute.Attribute(
     )
+
     max_user_infiltration = attribute.Attribute(
     )
+
     max_overheating_infiltration = attribute.Attribute(
     )
+
     max_summer_infiltration = attribute.Attribute(
     )
+
     winter_reduction_infiltration = attribute.Attribute(
     )
+
     min_ahu = attribute.Attribute(
     )
+
     max_ahu = attribute.Attribute(
         default_ps=("Pset_AirSideSystemInformation", "TotalAirflow"),
         unit=ureg.meter ** 3 / ureg.s
     )
+
     with_ideal_thresholds = attribute.Attribute(
     )
+
     persons_profile = attribute.Attribute(
     )
+
     machines_profile = attribute.Attribute(
     )
+
     lighting_profile = attribute.Attribute(
     )
 
@@ -650,21 +691,6 @@ class SpaceBoundary(RelationBased):
         self.parent_bound = None
         self.opening_bounds = []
 
-    # def calc_orientation(self):
-    #     """
-    #     calculates the orientation of the spaceboundary, using the relative
-    #     position of resultant disaggregation
-    #     """
-    #     if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement,
-    #                'BasisSurface'):
-    #         axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
-    #             BasisSurface.Position.Axis.DirectionRatios
-    #     else:
-    #         axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
-    #             Position.Axis.DirectionRatios
-    #
-    #     return vector_angle(axis)
-
     def calc_position(self):
         """
         calculates the position of the spaceboundary, using the relative
@@ -683,25 +709,6 @@ class SpaceBoundary(RelationBased):
     @classmethod
     def pre_validate(cls, ifc) -> bool:
         return True
-
-    @staticmethod
-    def move_bound_in_direction_of_normal(shape, normal, move_dist,
-                                          reversed=False):
-        prod_vec = []
-        move_dir = normal.Coord()
-        if reversed:
-            move_dir = normal.Reversed().Coord()
-        for i in move_dir:
-            prod_vec.append(move_dist * i)
-
-        # move bound in direction of bound normal by move_dist
-        trsf = gp_Trsf()
-        coord = gp_XYZ(*prod_vec)
-        vec = gp_Vec(coord)
-        trsf.SetTranslation(vec)
-        moved_shape = BRepBuilderAPI_Transform(shape, trsf).Shape()
-
-        return moved_shape
 
     def validate_creation(self) -> bool:
         if self.bound_area and self.bound_area < 1e-2 * ureg.meter ** 2:
@@ -893,10 +900,12 @@ class SpaceBoundary(RelationBased):
                     gp_Pnt(self.bound_center)) < 0.4:
                 adb_bound = bound
         return adb_bound
+
     related_adb_bound = attribute.Attribute(
         description="Related adiabatic boundary.",
         functions=[_get_related_adb_bound]
     )
+
     def _get_is_physical(self, name) -> bool:
         """
         This function returns True if the spaceboundary is physical
@@ -946,8 +955,6 @@ class SpaceBoundary(RelationBased):
                 face = PyOCCTools.remove_coincident_and_collinear_points_from_face(
                     face)
                 shape = face
-
-
         except:
             try:
                 sore = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement
@@ -1031,6 +1038,7 @@ class SpaceBoundary(RelationBased):
             return sum(opening_boundary.bound_area for opening_boundary
                        in self.opening_bounds)
         return 0
+
     def _get_net_bound_area(self, name):
         """
         This function returns the net bound area of the spaceboundary
@@ -1041,10 +1049,12 @@ class SpaceBoundary(RelationBased):
         description="True if the Space Boundary is external",
         functions=[_get_is_external]
     )
+
     bound_shape = attribute.Attribute(
         description="Bound shape element of the SB.",
         functions=[_get_bound_shape]
     )
+
     top_bottom = attribute.Attribute(
         description="Info if the SB is top "
                     "(ceiling etc.) or bottom (floor etc.).",
@@ -1055,18 +1065,22 @@ class SpaceBoundary(RelationBased):
         description="The center of the space boundary.",
         functions=[_get_bound_center]
     )
+
     related_bound = attribute.Attribute(
         description="Related space boundary.",
         functions=[_get_related_bound]
     )
+
     physical = attribute.Attribute(
         description="If the Space Boundary is physical or not.",
         functions=[_get_is_physical]
     )
+
     opening_area = attribute.Attribute(
         description="Opening area of the Space Boundary.",
         functions = [_get_opening_area]
     )
+
     net_bound_area = attribute.Attribute(
         description="Net bound area of the Space Boundary",
         functions=[_get_net_bound_area]
@@ -1093,7 +1107,6 @@ class SpaceBoundary(RelationBased):
         # HACK: Rou's Model has 2a boundaries but, the description is None,
         #  default set to 2a to temporary solve this problem
     )
-
 
     internal_external_type = attribute.Attribute(
         description="Defines, whether the Space Boundary is internal"
@@ -1203,11 +1216,13 @@ class Wall(BPSProductWithLayers):
         functions=[BPSProduct.get_net_bound_area],
         unit=ureg.meter ** 2
     )
+
     gross_area = attribute.Attribute(
         default_ps=("Qto_WallBaseQuantities", "GrossSideArea"),
         functions=[BPSProduct.get_bound_area],
         unit=ureg.meter ** 2
     )
+
     tilt = attribute.Attribute(
         default=90
     )
@@ -1217,11 +1232,13 @@ class Wall(BPSProductWithLayers):
         unit=ureg.W / ureg.K / ureg.meter ** 2,
         functions=[BPSProductWithLayers.get_u_value],
     )
+
     width = attribute.Attribute(
         default_ps=("Qto_WallBaseQuantities", "Width"),
         functions=[BPSProductWithLayers.get_thickness_by_layers],
         unit=ureg.m
     )
+
     inner_convection = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
         default=0.6
@@ -1230,6 +1247,7 @@ class Wall(BPSProductWithLayers):
     is_load_bearing = attribute.Attribute(
         default_ps=("Pset_WallCommon", "LoadBearing"),
     )
+
     net_volume = attribute.Attribute(
         default_ps=("Qto_WallBaseQuantities", "NetVolume"),
         unit=ureg.meter ** 3
@@ -1462,14 +1480,17 @@ class Window(BPSProductWithLayers):
         functions=[get_glazing_area],
         unit=ureg.meter ** 2,
     )
+
     gross_area = attribute.Attribute(
         default_ps=("Qto_WindowBaseQuantities", "Area"),
         functions=[BPSProduct.get_bound_area],
         unit=ureg.meter ** 2
     )
+
     glazing_ratio = attribute.Attribute(
         default_ps=("Pset_WindowCommon", "GlazingAreaFraction"),
     )
+
     width = attribute.Attribute(
         default_ps=("Qto_WindowBaseQuantities", "Depth"),
         functions=[BPSProductWithLayers.get_thickness_by_layers],
@@ -1480,23 +1501,31 @@ class Window(BPSProductWithLayers):
         unit=ureg.W / ureg.K / ureg.meter ** 2,
         functions=[BPSProductWithLayers.get_u_value],
     )
+
     g_value = attribute.Attribute(  # material
     )
+
     a_conv = attribute.Attribute(
     )
+
     shading_g_total = attribute.Attribute(
     )
+
     shading_max_irr = attribute.Attribute(
     )
+
     inner_convection = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
     )
+
     inner_radiation = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
     )
+
     outer_radiation = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
     )
+
     outer_convection = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
     )
@@ -1529,11 +1558,13 @@ class Door(BPSProductWithLayers):
         functions=[get_net_area, ],
         unit=ureg.meter ** 2,
     )
+
     gross_area = attribute.Attribute(
         default_ps=("Qto_DoorBaseQuantities", "Area"),
         functions=[BPSProduct.get_bound_area],
         unit=ureg.meter ** 2
     )
+
     glazing_ratio = attribute.Attribute(
         default_ps=("Pset_DoorCommon", "GlazingAreaFraction"),
     )
@@ -1543,20 +1574,25 @@ class Door(BPSProductWithLayers):
         functions=[BPSProductWithLayers.get_thickness_by_layers],
         unit=ureg.m
     )
+
     u_value = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
         functions=[BPSProductWithLayers.get_u_value],
     )
+
     inner_convection = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
         default=0.6
     )
+
     inner_radiation = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
     )
+
     outer_radiation = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
     )
+
     outer_convection = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
     )
@@ -1604,25 +1640,30 @@ class Slab(BPSProductWithLayers):
         functions=[BPSProduct.get_net_bound_area],
         unit=ureg.meter ** 2
     )
+
     gross_area = attribute.Attribute(
         default_ps=("Qto_SlabBaseQuantities", "GrossArea"),
         functions=[BPSProduct.get_bound_area],
         unit=ureg.meter ** 2
     )
+
     width = attribute.Attribute(
         default_ps=("Qto_SlabBaseQuantities", "Width"),
         functions=[BPSProductWithLayers.get_thickness_by_layers],
         unit=ureg.m
     )
+
     u_value = attribute.Attribute(
         default_ps=("Pset_SlabCommon", "ThermalTransmittance"),
         unit=ureg.W / ureg.K / ureg.meter ** 2,
         functions=[BPSProductWithLayers.get_u_value],
     )
+
     net_volume = attribute.Attribute(
         default_ps=("Qto_SlabBaseQuantities", "NetVolume"),
         unit=ureg.meter ** 3
     )
+
     is_load_bearing = attribute.Attribute(
         default_ps=("Pset_SlabCommon", "LoadBearing"),
     )
@@ -1779,47 +1820,60 @@ class Building(BPSProduct):
     bldg_name = attribute.Attribute(
         functions=[_get_building_name],
     )
+
     year_of_construction = attribute.Attribute(
         default_ps=("Pset_BuildingCommon", "YearOfConstruction"),
         unit=ureg.year
     )
+
     gross_area = attribute.Attribute(
         default_ps=("Qto_BuildingBaseQuantities", "GrossFloorArea"),
         unit=ureg.meter ** 2
     )
+
     net_area = attribute.Attribute(
         default_ps=("Qto_BuildingBaseQuantities", "NetFloorArea"),
         unit=ureg.meter ** 2
     )
+
     number_of_storeys = attribute.Attribute(
         unit=ureg.dimensionless,
         functions=[_get_number_of_storeys]
     )
+
     occupancy_type = attribute.Attribute(
         default_ps=("Pset_BuildingCommon", "OccupancyType"),
     )
+
     avg_storey_height = attribute.Attribute(
         unit=ureg.meter,
         functions=[_get_avg_storey_height]
     )
+
     with_ahu = attribute.Attribute(
         functions=[_check_tz_ahu]
     )
+
     ahu_heating = attribute.Attribute(
         attr_type=bool
     )
+
     ahu_cooling = attribute.Attribute(
         attr_type=bool
     )
+
     ahu_dehumidification = attribute.Attribute(
         attr_type=bool
     )
+
     ahu_humidification = attribute.Attribute(
         attr_type=bool
     )
+
     ahu_heat_recovery = attribute.Attribute(
         attr_type=bool
     )
+
     ahu_heat_recovery_efficiency = attribute.Attribute(
     )
 
@@ -1869,15 +1923,18 @@ class Storey(BPSProduct):
         default_ps=("Qto_BuildingStoreyBaseQuantities", "GrossFloorArea"),
         unit=ureg.meter ** 2
     )
+
     # todo make the lookup for height hierarchical
     net_height = attribute.Attribute(
         default_ps=("Qto_BuildingStoreyBaseQuantities", "NetHeight"),
         unit=ureg.meter
     )
+
     gross_height = attribute.Attribute(
         default_ps=("Qto_BuildingStoreyBaseQuantities", "GrossHeight"),
         unit=ureg.meter
     )
+
     height = attribute.Attribute(
         default_ps=("Qto_BuildingStoreyBaseQuantities", "Height"),
         unit=ureg.meter

@@ -56,7 +56,7 @@ class AddSpaceBoundaries2B(ITask):
                 total_area_after_split += sb.bound_area
             rel_dif_per = (abs(total_area_before_split-total_area_after_split)/
                        total_area_before_split * 100)
-            if rel_dif_per > 1:
+            if rel_dif_per > 1e-3:
                 self.logger.warning(
                     f"Difference of {rel_dif_per.m} between total 2B area "
                     f"before and after splitting.")
