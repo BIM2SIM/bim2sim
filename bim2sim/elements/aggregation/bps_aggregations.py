@@ -228,7 +228,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         unit=ureg.meter,
         dependant_elements='elements'
     )
-    AreaPerOccupant = attribute.Attribute(
+    area_per_occupant = attribute.Attribute(
         functions=[_intensive_calc],
         unit=ureg.meter ** 2,
         dependant_elements='elements'

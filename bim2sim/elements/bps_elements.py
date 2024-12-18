@@ -355,8 +355,8 @@ class ThermalZone(BPSProduct):
             return [self.t_set_cool.to(ureg.kelvin).m] * 24
 
     def _get_persons(self, name):
-        if self.AreaPerOccupant:
-            return 1 / self.AreaPerOccupant
+        if self.area_per_occupant:
+            return 1 / self.area_per_occupant
 
     external_orientation = attribute.Attribute(
         description="Orientation of the thermal zone, either 'Internal' or a "
@@ -509,7 +509,7 @@ class ThermalZone(BPSProduct):
         unit=ureg.m
     )
 
-    AreaPerOccupant = attribute.Attribute(
+    area_per_occupant = attribute.Attribute(
         default_ps=("Pset_SpaceOccupancyRequirements", "AreaPerOccupant"),
         unit=ureg.meter ** 2
     )
