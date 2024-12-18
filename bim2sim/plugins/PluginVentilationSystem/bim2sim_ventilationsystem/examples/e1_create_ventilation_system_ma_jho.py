@@ -11,44 +11,46 @@ from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 def run_example_project_ventilation_system(lock, project_path, weather_file_path, export_graphs):
     """
     """
+    with lock:
+        # Create the default logging to for quality log and bim2sim main log
+        # (see logging documentation for more information)
+        default_logging_setup()
 
-    # Create the default logging to for quality log and bim2sim main log
-    # (see logging documentation for more information)
-    default_logging_setup()
+        # Create a temp directory for the project, feel free to use a "normal"
+        # directory
+        #project_path = Path(r"D:\dja-jho\Testing\SystemTest")
 
-    # Create a temp directory for the project, feel free to use a "normal"
-    # directory
-    #project_path = Path(r"D:\dja-jho\Testing\SystemTest")
+        # Set the ifc path to use and define which domain the IFC belongs to
+        ifc_paths = {
+            IFCDomain.arch:
+                Path(bim2sim.__file__).parent.parent /
+                'test/resources/arch/ifc/AC20-Institute-Var-2.ifc',
+        }
 
-    # Set the ifc path to use and define which domain the IFC belongs to
-    ifc_paths = {
-        IFCDomain.arch:
-            Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/AC20-Institute-Var-2.ifc',
-    }
+        # Create a project including the folder structure for the project
+        project = Project.create(project_path, ifc_paths, 'VentilationSystem')
 
-    # Create a project including the folder structure for the project
-    project = Project.create(project_path, ifc_paths, 'VentilationSystem')
-
-    # specify simulation settings (please have a look at the documentation of
-    # all under concepts/sim_settings
-
-    # Set Lock class
-    project.sim_settings.lock = lock
-
-    # set weather file data
-    project.sim_settings.weather_file_path = weather_file_path
+        # specify simulation settings (please have a look at the documentation of
+        # all under concepts/sim_settings
 
 
-    # Define if ventilation plots should be exported
-    project.sim_settings.export_graphs = export_graphs
+        # Set Lock class
+        project.sim_settings.lock = lock
+
+        # set weather file data
+        project.sim_settings.weather_file_path = weather_file_path
 
 
-    project.sim_settings.prj_use_conditions = (Path(bim2sim.__file__).parent.parent /
-                                               "bim2sim/assets/enrichment/usage/UseConditions.json")
-    project.sim_settings.prj_custom_usages = (Path(bim2sim.__file__).parent.parent /
-                                                  "test/resources/arch/custom_usages/"
-                                                  "customUsagesFM_ARC_DigitalHub_with_SB89.json")
+        # Define if ventilation plots should be exported
+        project.sim_settings.export_graphs = export_graphs
+
+
+        project.sim_settings.prj_use_conditions = (Path(bim2sim.__file__).parent.parent /
+                                                   "bim2sim/assets/enrichment/usage/UseConditions.json")
+        project.sim_settings.prj_custom_usages = (Path(bim2sim.__file__).parent.parent /
+                                                      "test/resources/arch/custom_usages/"
+                                                      "customUsagesFM_ARC_DigitalHub_with_SB89.json")
+
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     construction_year = 2015
     answers = (construction_year,)

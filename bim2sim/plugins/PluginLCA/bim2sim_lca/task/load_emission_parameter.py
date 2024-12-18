@@ -12,7 +12,7 @@ class LoadMaterialEmissionParameter(ITask):
 
     def run(self):
 
-        self.logger.info("###### Load material emission data from Ökobaudat! ######")
+        self.logger.info("Load material emission data")
 
         self.lock = self.playground.sim_settings.lock
 
@@ -40,8 +40,9 @@ class LoadMaterialEmissionParameter(ITask):
 
 
         #### Distribution emission data ####
-        material_emissions_file_path = Path(
-            Path(bim2sim.__file__).parent, r"assets/enrichment/material/MaterialEmissions.json")
+        material_emissions_file_path = Path(Path(bim2sim.__file__).parent, r"assets/enrichment/material/MaterialEmissions.json")
+
+
         with self.lock:
             with open(material_emissions_file_path,'r') as json_file:
                 material_emission_parameter_dict = json.load(json_file)

@@ -318,45 +318,36 @@ class CalculateHydraulicSystem(ITask):
         with self.lock:
             with open(filename, "rb") as excel_file:
                 data = pd.read_excel(excel_file, engine="openpyxl", sheet_name=sheet_name)
-        # Daten aus der Tabelle auslesen und verarbeiten
-        model_dict = {}
-        for index, row in data.iterrows():
-            data_dict = {}
-            if not pd.isnull(row['Typ']):
-                data_dict["typ"] = row['Typ']
-            if not pd.isnull(row['Normwärmeleistung ((75/65/20 °C) in W/m']):
-                data_dict["Normwärmeleistung"] = row['Normwärmeleistung ((75/65/20 °C) in W/m'] * (
-                            ureg.watt / ureg.meter)
-            if not pd.isnull(row['Wasserinhalt in l/m']):
-                data_dict["Wasserinhalt"] = row['Wasserinhalt in l/m'] * (ureg.liter / ureg.meter)
-            if not pd.isnull(row['Masse in kg/m']):
-                data_dict["Masse"] = row['Masse in kg/m'] * (ureg.kilogram / ureg.meter)
-            if not pd.isnull(row['Material']):
-                data_dict["Material"] = row['Material']
-            # Weiterverarbeitung der Daten (hier nur Ausgabe als Beispiel)
-            model_dict[index] = data_dict
+
+            # Daten aus der Tabelle auslesen und verarbeiten
+            model_dict = {}
+            for index, row in data.iterrows():
+                data_dict = {}
+                if not pd.isnull(row['Typ']):
+                    data_dict["typ"] = row['Typ']
+                if not pd.isnull(row['Normwärmeleistung ((75/65/20 °C) in W/m']):
+                    data_dict["Normwärmeleistung"] = row['Normwärmeleistung ((75/65/20 °C) in W/m'] * (
+                                ureg.watt / ureg.meter)
+                if not pd.isnull(row['Wasserinhalt in l/m']):
+                    data_dict["Wasserinhalt"] = row['Wasserinhalt in l/m'] * (ureg.liter / ureg.meter)
+                if not pd.isnull(row['Masse in kg/m']):
+                    data_dict["Masse"] = row['Masse in kg/m'] * (ureg.kilogram / ureg.meter)
+                if not pd.isnull(row['Material']):
+                    data_dict["Material"] = row['Material']
+                # Weiterverarbeitung der Daten (hier nur Ausgabe als Beispiel)
+                model_dict[index] = data_dict
         return model_dict
 
-    def read_pipe_data_excel(self,
-                             filename,
-                             sheet_name,
-                             calc_inner_diameter: float = 11.5):
-        with self.lock:
-            with open(filename, "rb") as excel_file:
-                data = pd.read_excel(excel_file, engine="openpyxl", sheet_name=sheet_name)
+    def get_pipe(self,
+                 data,
+                 calc_inner_diameter: float = 11.5):
+
         inner_diameter_list = {}
         material = None
         density = None
         pipe_mass = None
         # calc_inner_diameter = calc_inner_diameter.magnitude
         for index, row in data.iterrows():
-            # TODO Delete after debugging is finished
-            if "Rohrgewicht [kg/m]" not in row:
-                print(data,
-                      index,
-                      row,
-                      inner_diameter_list)
-
             material = row['Material']
             mass = row["Rohrgewicht [kg/m]"] * (ureg.kilograms / ureg.meter)
             density = row['Dichte kg/m³'] * (ureg.kilograms / ureg.meter ** 3)
@@ -1287,6 +1278,9 @@ class CalculateHydraulicSystem(ITask):
         Returns:
         """
         self.logger.info("Calculate Inner diameter")
+        with self.lock:
+            with open(self.playground.sim_settings.hydraulic_components_data_file_path, "rb") as excel_file:
+                pipe_data = pd.read_excel(excel_file, engine="openpyxl", sheet_name=self.playground.sim_settings.hydraulic_components_data_file_pipe_sheet)
         # list(nx.topological_sort(graph))
         for node in graph.nodes():
             successors = list(graph.successors(node))
@@ -1306,11 +1300,8 @@ class CalculateHydraulicSystem(ITask):
                 calc_inner_diameter = self.calculate_pipe_inner_diameter(m_flow=m_flow_out,
                                                                          v_mittel=v_mittel,
                                                                          security_factor=security_factor)
-
-                inner_diameter, outer_diameter, material, density, pipe_mass = self.read_pipe_data_excel(
-                        filename=self.playground.sim_settings.hydraulic_components_data_file_path,
-                        calc_inner_diameter=calc_inner_diameter,
-                        sheet_name=self.playground.sim_settings.hydraulic_components_data_file_pipe_sheet)
+                inner_diameter, outer_diameter, material, density, pipe_mass = self.get_pipe(data=pipe_data,
+                                                                                             calc_inner_diameter=calc_inner_diameter)
                 graph.edges[node, succ]['inner_diameter'] = inner_diameter
                 graph.edges[node, succ]['outer_diameter'] = outer_diameter
                 graph.edges[node, succ]['material'] = material

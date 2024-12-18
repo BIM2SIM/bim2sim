@@ -79,13 +79,13 @@ class HydraulicSystemSimSettings(BuildingSimSettings):
         mandatory=False
     )
     hydraulic_components_data_file_radiator_sheet = StringSetting(
-        default="Stahlrohre",
+        default="Profilierte Flachheizkörper",
         description='Name of sheet in hydraulic components data file'
                     'which holds data about the desired radiators',
         for_frontend=True
     )
     hydraulic_components_data_file_pipe_sheet = StringSetting(
-        default="Profilierte Flachheizkörper",
+        default="Stahlrohre",
         description='Name of sheet in hydraulic components data file'
                     'which holds data about the desired hydraulic pipes',
         for_frontend=True
