@@ -29,6 +29,7 @@ from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements, \
     get_spaces_with_bounds, all_subclasses
 from bim2sim.utilities.pyocc_tools import PyOCCTools
+from bim2sim.utilities.types import BoundaryOrientation
 
 if TYPE_CHECKING:
     from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
@@ -666,7 +667,8 @@ class CreateIdf(ITask):
                 Zone_or_ZoneList_Name=zone_name,
                 Schedule_Name=schedule_name,
                 Design_Level_Calculation_Method="Watts/Area",
-                Watts_per_Zone_Floor_Area=space.machines.to(ureg.watt).m
+                Watts_per_Zone_Floor_Area=space.machines.to(
+                    ureg.watt / ureg.meter ** 2).m
             )
         else:
             idf.newidfobject(
@@ -675,7 +677,8 @@ class CreateIdf(ITask):
                 Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
                 Schedule_Name=schedule_name,
                 Design_Level_Calculation_Method="Watts/Area",
-                Watts_per_Zone_Floor_Area=space.machines.to(ureg.watt).m
+                Watts_per_Zone_Floor_Area=space.machines.to(
+                    ureg.watt / ureg.meter ** 2).m
             )
 
     def set_lights(self, sim_settings: EnergyPlusSimSettings, idf: IDF, name: str,
@@ -698,7 +701,8 @@ class CreateIdf(ITask):
         self.set_day_week_year_schedule(idf, space.lighting_profile[:24],
                                         profile_name, schedule_name)
         mode = "Watts/Area"
-        watts_per_zone_floor_area = space.lighting_power.to(ureg.watt).m
+        watts_per_zone_floor_area = space.lighting_power.to(
+            ureg.watt / ureg.meter ** 2).m
         return_air_fraction = 0.0
         fraction_radiant = 0.42  # fraction radiant: cf. Table 1.28 in
         # InputOutputReference EnergyPlus (Version 9.4.0), p. 506
@@ -1757,11 +1761,11 @@ class IdfObject:
                     surface_type = "Floor"
                 elif any([isinstance(elem, floor) for floor in all_subclasses(
                         InnerFloor, include_self=True)]):
-                    if inst_obj.top_bottom == "BOTTOM":
+                    if inst_obj.top_bottom == BoundaryOrientation.bottom:
                         surface_type = "Floor"
-                    elif inst_obj.top_bottom == "TOP":
+                    elif inst_obj.top_bottom == BoundaryOrientation.top:
                         surface_type = "Ceiling"
-                    elif inst_obj.top_bottom == "VERTICAL":
+                    elif inst_obj.top_bottom == BoundaryOrientation.vertical:
                         surface_type = "Wall"
                         logger.warning(f"InnerFloor with vertical orientation "
                                        f"found, exported as wall, "
@@ -1780,21 +1784,21 @@ class IdfObject:
             #             surface_type = 'Ceiling'
             #     elif elem.ifc.is_a('IfcColumn'):
             #         surface_type = 'Wall'
-            elif inst_obj.top_bottom == "BOTTOM":
+            elif inst_obj.top_bottom == BoundaryOrientation.bottom:
                 surface_type = "Floor"
-            elif inst_obj.top_bottom == "TOP":
+            elif inst_obj.top_bottom == BoundaryOrientation.top:
                 surface_type = "Ceiling"
                 if inst_obj.related_bound is None or inst_obj.is_external:
                     surface_type = "Roof"
-            elif inst_obj.top_bottom == "VERTICAL":
+            elif inst_obj.top_bottom == BoundaryOrientation.vertical:
                 surface_type = "Wall"
             else:
                 if not PyOCCTools.compare_direction_of_normals(
                         inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
                     surface_type = 'Wall'
-                elif inst_obj.top_bottom == "BOTTOM":
+                elif inst_obj.top_bottom == BoundaryOrientation.bottom:
                     surface_type = "Floor"
-                elif inst_obj.top_bottom == "TOP":
+                elif inst_obj.top_bottom == BoundaryOrientation.top:
                     surface_type = "Ceiling"
                     if inst_obj.related_bound is None or inst_obj.is_external:
                         surface_type = "Roof"
@@ -1805,9 +1809,9 @@ class IdfObject:
                     inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
                 surface_type = 'Wall'
             else:
-                if inst_obj.top_bottom == "BOTTOM":
+                if inst_obj.top_bottom == BoundaryOrientation.bottom:
                     surface_type = "Floor"
-                elif inst_obj.top_bottom == "TOP":
+                elif inst_obj.top_bottom == BoundaryOrientation.top:
                     surface_type = "Ceiling"
         else:
             logger.warning(f"No surface type matched for {inst_obj}!")

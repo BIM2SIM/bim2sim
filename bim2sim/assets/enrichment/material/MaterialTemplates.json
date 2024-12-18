@@ -1,4 +1,5 @@
 {
+    "version": "TEASER-v1.0.1",
     "244edc8c-3a43-11e7-8ed1-2cd444b2e704": {
         "name": "anti_must_plaster",
         "density": 465.4663,
@@ -7077,7 +7078,7 @@
     },
     "0abb8aa3-83ff-11e6-bfa4-2cd444b2e704": {
         "name": "Glas0_1978Holzfenstereinfach",
-        "density": 2500.0,
+        "density": 0.0,
         "thermal_conduc": 0.8,
         "heat_capac": 0.0,
         "thickness_default": 0.0,
@@ -7086,7 +7087,7 @@
     },
     "0abbb194-83ff-11e6-a326-2cd444b2e704": {
         "name": "Glas0_1978Holzfensterzweifach",
-        "density": 2500.0,
+        "density": 0.0,
         "thermal_conduc": 0.12,
         "heat_capac": 0.0,
         "thickness_default": 0.0,
@@ -7095,7 +7096,7 @@
     },
     "0abbb195-83ff-11e6-9ec6-2cd444b2e704": {
         "name": "Glas0_1978KunststofffensterIsolierverglasung",
-        "density": 2500.0,
+        "density": 0.0,
         "thermal_conduc": 0.147,
         "heat_capac": 0.0,
         "thickness_default": 0.0,
@@ -7104,7 +7105,7 @@
     },
     "0abbb196-83ff-11e6-8079-2cd444b2e704": {
         "name": "Glas0_1978AluoderStahlfensterIsolierverglasung",
-        "density": 2500.0,
+        "density": 0.0,
         "thermal_conduc": 0.384,
         "heat_capac": 0.0,
         "thickness_default": 0.0,
@@ -7113,7 +7114,7 @@
     },
     "0abbb197-83ff-11e6-a5ea-2cd444b2e704": {
         "name": "Glas1979_1983Holzfensterzweifach",
-        "density": 2500.0,
+        "density": 0.0,
         "thermal_conduc": 0.12,
         "heat_capac": 0.0,
         "thickness_default": 0.0,
@@ -7122,7 +7123,7 @@
     },
     "0abbb198-83ff-11e6-a1b0-2cd444b2e704": {
         "name": "Glas1979_1983KunststofffensterIsolierverglasung",
-        "density": 2500.0,
+        "density": 0.0,
         "thermal_conduc": 0.147,
         "heat_capac": 0.0,
         "thickness_default": 0.0,
@@ -7131,7 +7132,7 @@
     },
     "0abbb199-83ff-11e6-96ec-2cd444b2e704": {
         "name": "Glas1979_1983AluoderStahlfensterIsolierverglasung",
-        "density": 2500.0,
+        "density": 0.0,
         "thermal_conduc": 0.384,
         "heat_capac": 0.0,
         "thickness_default": 0.0,
@@ -7140,7 +7141,7 @@
     },
     "0abbb19a-83ff-11e6-bace-2cd444b2e704": {
         "name": "Glas1984_1994Holzfensterzweifach",
-        "density": 2500.0,
+        "density": 0.0,
         "thermal_conduc": 0.12,
         "heat_capac": 0.0,
         "thickness_default": 0.0,
@@ -7149,7 +7150,7 @@
     },
     "0abbb19b-83ff-11e6-95f9-2cd444b2e704": {
         "name": "Glas1984_1994KunststofffensterIsolierverglasung",
-        "density": 2500.0,
+        "density": 0.0,
         "thermal_conduc": 0.147,
         "heat_capac": 0.0,
         "thickness_default": 0.0,
@@ -7158,7 +7159,7 @@
     },
     "0abbb19c-83ff-11e6-a925-2cd444b2e704": {
         "name": "Glas1984_1994AluoderStahlfensterIsolierverglasung",
-        "density": 2500.0,
+        "density": 0.0,
         "thermal_conduc": 0.168,
         "heat_capac": 0.0,
         "thickness_default": 0.0,
@@ -7167,7 +7168,7 @@
     },
     "0abbb19d-83ff-11e6-b8bb-2cd444b2e704": {
         "name": "Glas1995_2015Holzfensterzweifach",
-        "density": 2500.0,
+        "density": 0.0,
         "thermal_conduc": 0.053,
         "heat_capac": 0.0,
         "thickness_default": 0.0,
@@ -7176,7 +7177,7 @@
     },
     "0abbb19e-83ff-11e6-968a-2cd444b2e704": {
         "name": "Glas1995_2015KunststofffensterIsolierverglasung",
-        "density": 2500.0,
+        "density": 0.0,
         "thermal_conduc": 0.067,
         "heat_capac": 0.0,
         "thickness_default": 0.0,
@@ -7185,7 +7186,7 @@
     },
     "0abbb19f-83ff-11e6-986f-2cd444b2e704": {
         "name": "Glas1995_2015EnEv",
-        "density": 2500.0,
+        "density": 0.0,
         "thermal_conduc": 0.04,
         "heat_capac": 0.0,
         "thickness_default": 0.0,
@@ -7194,7 +7195,7 @@
     },
     "36eb3906-855e-11e6-a498-2cd444b2e704": {
         "name": "Glas1995_2015EnEV",
-        "density": 2500.0,
+        "density": 0.0,
         "thermal_conduc": 0.04,
         "heat_capac": 0.0,
         "thickness_default": 0.0,
@@ -7203,7 +7204,7 @@
     },
     "0abbb1a0-83ff-11e6-9986-2cd444b2e704": {
         "name": "Glas1995_2015AluoderStahlfensterIsolierverglasung",
-        "density": 2500.0,
+        "density": 0.0,
         "thermal_conduc": 0.067,
         "heat_capac": 0.0,
         "thickness_default": 0.0,
@@ -7212,7 +7213,7 @@
     },
     "0abbb1a1-83ff-11e6-b229-2cd444b2e704": {
         "name": "Glas1995_2015AluoderStahlfensterWaermeschutzverglasungzweifach",
-        "density": 2500.0,
+        "density": 0.0,
         "thermal_conduc": 0.038,
         "heat_capac": 0.0,
         "thickness_default": 0.0,
@@ -7221,7 +7222,7 @@
     },
     "0abbb1a2-83ff-11e6-946a-2cd444b2e704": {
         "name": "Glas1995_2015Waermeschutzverglasungdreifach",
-        "density": 2500.0,
+        "density": 0.0,
         "thermal_conduc": 0.0222,
         "heat_capac": 0.0,
         "thickness_default": 0.0,
@@ -7230,7 +7231,7 @@
     },
     "0abbb19a-83ff-11e6-bacd-2cd444b2e704": {
         "name": "glas_generic",
-        "density": 2500.0,
+        "density": 0.0,
         "thermal_conduc": 0.76,
         "heat_capac": 0.0,
         "thickness_default": 0.0,
@@ -7780,5 +7781,19 @@
             0.18
         ],
         "solar_absorp": 0.5
-    }
+    },
+    "0abb8aa3-83ff-11e6-bfa4-2cd444b2e705": {
+    "name": "Door0_2015Typical",
+    "density": 650.0,
+    "thermal_conduc": 0.08,
+    "heat_capac": 1.5,
+    "thickness_default": 0.05,
+    "thickness_list": [
+        0.02,
+        0.03,
+        0.035,
+        0.04
+    ],
+    "solar_absorp": 0.5
+}
 }

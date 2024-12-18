@@ -5,7 +5,6 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 from bim2sim.utilities.common_functions import download_library
 
@@ -35,7 +34,6 @@ def run_example_complex_building_teaser():
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
     # combine spaces to thermal zones based on their usage
-    project.sim_settings.zoning_setup = LOD.medium
     project.sim_settings.zoning_criteria = ZoningCriteria.usage
     # use cooling
     project.sim_settings.cooling = True
@@ -49,7 +47,7 @@ def run_example_complex_building_teaser():
     # overwrite existing layer structures and materials based on templates
     project.sim_settings.layers_and_materials = LOD.low
     # specify templates for the layer and material overwrite
-    project.sim_settings.construction_class_walls = 'heavy'
+    project.sim_settings.construction_class_walls = 'iwu_heavy'
     project.sim_settings.construction_class_windows = \
         'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
 
@@ -86,7 +84,7 @@ def run_example_complex_building_teaser():
     project.sim_settings.prj_use_conditions = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
-            "UseConditionsFM_ARC_DigitalHub_with_SB89.json")
+            "UseConditionsFM_ARC_DigitalHub.json")
     project.sim_settings.prj_custom_usages = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"

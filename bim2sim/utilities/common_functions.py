@@ -219,7 +219,6 @@ def wildcard_match(pattern, text):
 def get_type_building_elements(data_file):
     type_building_elements_path = \
         assets / 'enrichment/material' / data_file
-
     if validateJSON(type_building_elements_path):
         with open(type_building_elements_path, 'r+') as file:
             type_building_elements = json.load(file)
@@ -247,19 +246,6 @@ def get_material_templates():
     else:
         raise ValueError(f"Invalid JSON file  {material_templates_path}")
     return material_templates
-
-
-def get_type_building_elements_hvac():
-    # todo: still needed?
-    type_building_elements_path = \
-        assets / 'enrichment/hvac/TypeHVACElements.json'
-    if validateJSON(type_building_elements_path):
-        with open(type_building_elements_path, 'r+') as file:
-            type_building_elements = json.load(file)
-            del type_building_elements['version']
-    else:
-        raise ValueError(f"Invalid JSON file  {type_building_elements_path}")
-    return type_building_elements
 
 
 def filter_elements(

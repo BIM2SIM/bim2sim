@@ -1,4 +1,5 @@
 {
+    "version": "TEASER-v1.0.1",
     "OuterWall_[0, 1918]_iwu_heavy": {
         "building_age_group": [
             0,
@@ -1245,7 +1246,7 @@
             "2": {
                 "thickness": 0.14,
                 "material": {
-                    "name": "wood_fibreboard_iwu_light_200",
+                    "name": "wood_fibreboard_light_200",
                     "material_id": "2b23145c-3a43-11e7-ad60-2cd444b2e704"
                 }
             }
@@ -3117,5 +3118,26 @@
                 }
             }
         }
+    },
+    "Door_[0, 2015]_iwu_typical": {
+        "building_age_group": [
+            0,
+            2015
+        ],
+        "construction_type": "typical",
+        "inner_radiation": 5.0,
+        "inner_convection": 2.7,
+        "outer_radiation": 5.0,
+        "outer_convection": 20.0,
+        "layer": {
+            "0": {
+                "thickness": 0.05,
+                "material": {
+                    "name": "Door0_2015Typical",
+                    "material_id": "0abb8aa3-83ff-11e6-bfa4-2cd444b2e705"
+                }
+            }
+        }
     }
+
 }
