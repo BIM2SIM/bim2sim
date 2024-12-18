@@ -168,7 +168,6 @@ class CorrectSpaceBoundaries(ITask):
                         opening_obj.bound_shape = BRepBuilderAPI_Transform(
                             opening_obj.bound_shape, trsf).Shape()
                     opening_obj.reset('bound_center')
-                    print(opening_obj)
 
     @staticmethod
     def fix_surface_orientation(elements: dict):

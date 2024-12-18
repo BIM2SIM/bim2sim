@@ -47,14 +47,12 @@ class AddSpaceBoundaries2B(ITask):
             inst_2b = self._compute_2b_bound_gaps(elements)
             for sb in inst_2b.values():
                 total_area_before_split += sb.bound_area
-            print(total_area_before_split)
             CorrectSpaceBoundaries.split_non_convex_bounds(
                 CorrectSpaceBoundaries(self.playground),
                 inst_2b,
                 self.playground.sim_settings.split_bounds)
             total_area_after_split = 0
             for sb in inst_2b.values():
-                print(f"{sb.guid}: {sb.bound_area}")
                 total_area_after_split += sb.bound_area
             rel_dif_per = (abs(total_area_before_split-total_area_after_split)/
                        total_area_before_split * 100)
