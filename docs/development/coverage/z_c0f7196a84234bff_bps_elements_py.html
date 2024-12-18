@@ -55,8 +55,8 @@
         </aside>
         <h2>
             <span class="text">913 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">418<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">495<span class="text"> missing</span></button>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">424<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">489<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_7bb0873fb2223d01___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.9">coverage.py v7.6.9</a>,
-            created at 2024-12-17 14:36 +0000
+            created at 2024-12-18 10:03 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -653,7 +653,7 @@
     <p class="pln"><span class="n"><a id="t571" href="#t571">571</a></span><span class="t">        <span class="nam">unit</span><span class="op">=</span><span class="nam">ureg</span><span class="op">.</span><span class="nam">lumen</span> <span class="op">/</span> <span class="nam">ureg</span><span class="op">.</span><span class="nam">W</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t572" href="#t572">572</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t573" href="#t573">573</a></span><span class="t">    <span class="nam">use_constant_infiltration</span> <span class="op">=</span> <span class="nam">attribute</span><span class="op">.</span><span class="nam">Attribute</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t574" href="#t574">574</a></span><span class="t">    <span class="nam">infiltration_rate</span> <span class="op">=</span> <span class="nam">attribute</span><span class="op">.</span><span class="nam">Attribute</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t574" href="#t574">574</a></span><span class="t">    <span class="nam">base_infiltration</span> <span class="op">=</span> <span class="nam">attribute</span><span class="op">.</span><span class="nam">Attribute</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t575" href="#t575">575</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t576" href="#t576">576</a></span><span class="t">    <span class="nam">max_user_infiltration</span> <span class="op">=</span> <span class="nam">attribute</span><span class="op">.</span><span class="nam">Attribute</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t577" href="#t577">577</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -1892,12 +1892,12 @@
     <p class="pln"><span class="n"><a id="t1810" href="#t1810">1810</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1811" href="#t1811">1811</a></span><span class="t">    <span class="key">def</span> <span class="nam">_check_tz_ahu</span><span class="op">(</span><span class="nam">self</span><span class="op">,</span> <span class="nam">name</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1812" href="#t1812">1812</a></span><span class="t">        <span class="str">"""Check if any TZs have AHU, then the building has one as well."""</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1813" href="#t1813">1813</a></span><span class="t">        <span class="nam">with_ahu</span> <span class="op">=</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1814" href="#t1814">1814</a></span><span class="t">        <span class="key">for</span> <span class="nam">tz</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">thermal_zones</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1815" href="#t1815">1815</a></span><span class="t">            <span class="key">if</span> <span class="nam">tz</span><span class="op">.</span><span class="nam">with_ahu</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1816" href="#t1816">1816</a></span><span class="t">                <span class="nam">with_ahu</span> <span class="op">=</span> <span class="key">True</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1817" href="#t1817">1817</a></span><span class="t">                <span class="key">break</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t1818" href="#t1818">1818</a></span><span class="t">        <span class="key">return</span> <span class="nam">with_ahu</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1813" href="#t1813">1813</a></span><span class="t">        <span class="nam">with_ahu</span> <span class="op">=</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1814" href="#t1814">1814</a></span><span class="t">        <span class="key">for</span> <span class="nam">tz</span> <span class="key">in</span> <span class="nam">self</span><span class="op">.</span><span class="nam">thermal_zones</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1815" href="#t1815">1815</a></span><span class="t">            <span class="key">if</span> <span class="nam">tz</span><span class="op">.</span><span class="nam">with_ahu</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1816" href="#t1816">1816</a></span><span class="t">                <span class="nam">with_ahu</span> <span class="op">=</span> <span class="key">True</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1817" href="#t1817">1817</a></span><span class="t">                <span class="key">break</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1818" href="#t1818">1818</a></span><span class="t">        <span class="key">return</span> <span class="nam">with_ahu</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1819" href="#t1819">1819</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t1820" href="#t1820">1820</a></span><span class="t">    <span class="nam">bldg_name</span> <span class="op">=</span> <span class="nam">attribute</span><span class="op">.</span><span class="nam">Attribute</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1821" href="#t1821">1821</a></span><span class="t">        <span class="nam">functions</span><span class="op">=</span><span class="op">[</span><span class="nam">_get_building_name</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -2037,7 +2037,7 @@
             <a class="nav" href="z_7bb0873fb2223d01___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.9">coverage.py v7.6.9</a>,
-            created at 2024-12-17 14:36 +0000
+            created at 2024-12-18 10:03 +0000
         </p>
     </div>
 </footer>
