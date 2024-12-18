@@ -136,6 +136,7 @@ class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
         project = self.create_project(ifc_names, 'TEASER')
         project.sim_settings.zoning_criteria = (
             ZoningCriteria.combined_single_zone)
+        project.sim_settings.ahu_tz_overwrite = False
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -156,6 +157,7 @@ class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
         one zone model export"""
         ifc_names = {IFCDomain.arch:  'FM_ARC_DigitalHub_with_SB_neu.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
+        project.sim_settings.ahu_tz_overwrite = False
         project.sim_settings.zoning_criteria = (
             ZoningCriteria.combined_single_zone)
         project.sim_settings.prj_use_conditions = Path(

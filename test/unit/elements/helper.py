@@ -386,12 +386,18 @@ class SetupHelperBPS(SetupHelper):
         tz_1 = self.get_thermalzone(
             net_area=100,
             gross_area=110,
-            usage='Living')
+            usage='Living',
+            guid='tz001')
         tz_1.bound_elements = [out_wall_1, window_1]
-        build_1 = self.element_generator(bps.Building,
-                                         bldg_name='simpleTestBuilding', year_of_construction=2010)
-            # bps.ThermalZone, bound_elements=[out_wall_1])
-
+        build_1 = self.element_generator(
+            bps.Building,
+            bldg_name='simpleTestBuilding',
+            year_of_construction=2010,
+            guid='bldg001'
+        )
+        # set relations
+        build_1.thermal_zones.append(tz_1)
+        tz_1.bound_elements.extend([out_wall_1, window_1])
         elements = {
             out_wall_1.guid: out_wall_1,
             window_1.guid: window_1,

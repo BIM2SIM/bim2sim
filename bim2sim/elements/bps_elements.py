@@ -571,7 +571,7 @@ class ThermalZone(BPSProduct):
         unit=ureg.lumen / ureg.W
     )
     use_constant_infiltration = attribute.Attribute()
-    infiltration_rate = attribute.Attribute(
+    base_infiltration = attribute.Attribute(
     )
     max_user_infiltration = attribute.Attribute(
     )
