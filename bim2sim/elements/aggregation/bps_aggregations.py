@@ -442,7 +442,7 @@ class SBDisaggregationMixin:
         self.layerset = disagg_parent.layerset
         self.material = disagg_parent.material
         self.material_set = disagg_parent.material_set
-        self.orientation = disagg_parent.teaser_orientation
+        self.ifc = disagg_parent.ifc
         self.storeys = disagg_parent.storeys
 
     @staticmethod
