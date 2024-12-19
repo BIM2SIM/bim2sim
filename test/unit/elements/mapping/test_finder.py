@@ -10,8 +10,10 @@ from bim2sim.elements.mapping import ifc2python
 from bim2sim.elements import hvac_elements as hvac
 from bim2sim.elements.mapping.finder import TemplateFinder
 
-IFC_PATH = Path(__file__).parent.parent.parent.parent / \
-           'resources/hydraulic/ifc/KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'
+IFC_PATH = (Path(
+    __file__).parent.parent.parent.parent /
+            'resources/hydraulic/ifc'
+            '/KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc')
 
 
 class TestTemplateFinder(unittest.TestCase):
@@ -57,6 +59,12 @@ class TestTemplateFinder(unittest.TestCase):
         d2 = self.finder.find(self.pipe2, 'diameter')
         l3 = self.finder.find(self.pipefitting1, 'length')
         d3 = self.finder.find(self.pipefitting1, 'diameter')
+        self.assertEqual(l1, 118.000000000006)
+        self.assertEqual(l2, 157.999999999979)
+        self.assertEqual(l3, 12.0)
+        self.assertEqual(d1, 10.66)
+        self.assertEqual(d2, 10.66)
+        self.assertEqual(d3, 15.0)
 
     def test_save_load(self):
         tool = self.finder.default_source_tool.templ_name

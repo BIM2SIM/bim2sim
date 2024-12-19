@@ -15,8 +15,27 @@
   },
   "Boiler":  {
     "default_ps": {
-      "rated_power": ["CarF", "eff.Leistung"],
-      "nominal_efficiency":  ["CarF", "Wirkungsgrad"]
+      "rated_power" : [
+        ["CarF", "eff.Leistung"],
+        ["VDI 700-Wärmeerzeuger", "Nennleistung"]
+      ],
+      "nominal_efficiency":  ["CarF", "Wirkungsgrad"],
+      "flow_temperature":
+      ["VDI 710.01-Basisdaten", "Maximale Vorlauftemperatur"],
+      "water_volume": ["VDI 700-Wärmeerzeuger", "Wasserinhalt"],
+      "dry_mass": ["VDI 700-Wärmeerzeuger", "Netto-Gesamtmasse"],
+      "minimal_part_load_ratio":
+        ["VDI 700-Wärmeerzeuger", "untere Modulationsgrenze"]
+    }
+  },
+  "HeatPump": {
+    "default_ps": {
+      "rated_power": ["VDI 700-Produktelementdaten", "Heizleistung (kW)"],
+      "is_reversible": ["VDI 700-Produktelementdaten", "Kühlfunktion"],
+      "rated_cooling_power": ["VDI 700-Produktelementdaten", "Kühlleistung"],
+      "COP": ["VDI 700-Produktelementdaten", "Leistungszahl"],
+      "internal_pump": ["VDI 710.05-Luft-Wasser-Wärmepumpe", "Heizkreispumpe intern"],
+      "vdi_performance_data_table": ["VDI-Tables", "Leistungsdaten"]
     }
   }
 }
