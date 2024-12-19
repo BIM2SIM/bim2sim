@@ -1,4 +1,5 @@
 import inspect
+import functools
 import logging
 from functools import partial
 from typing import Tuple, Iterable, Callable, Any, Union
@@ -172,8 +173,9 @@ class Attribute:
         # logger value none
         if value is None:
             quality_logger.warning(
-                "Attribute '%s' of %s %s was not found in default PropertySet, "
-                "default  Association, finder, patterns or functions",
+                "Attribute '%s' of %s %s was not found in default "
+                "PropertySet, default  Association, finder, patterns or "
+                "functions",
                 self.name, bind.ifc_type, bind.guid)
 
         # default value
@@ -234,14 +236,23 @@ class Attribute:
         return value
 
     @staticmethod
-    def get_from_functions(bind, functions, name):
+    def get_from_functions(bind, functions: list, name: str):
         """Get value from functions.
 
-        First successful function calls return value is used"""
+        First successful function calls return value is used. As we want to
+        allow to overwrite functions in inherited classes, we use
+        getattr(bind, func.__name__) to get the function from the bind.
+
+        Args:
+            bind: the bind object
+            functions: a list of functions
+            name: the name of the attribute
+        """
         value = None
         for func in functions:
+            func_inherited = getattr(bind, func.__name__)
             try:
-                value = func(bind, name)
+                value = func_inherited(name)
             except Exception as ex:
                 logger.error("Function '%s' of %s.%s raised %s",
                              func.__name__, bind, name, ex)
@@ -686,8 +697,13 @@ class AttributeManager(dict):
 
 
 def multi_calc(func):
-    """Decorator for calculation of multiple Attribute values"""
+    """Decorator for calculation of multiple Attribute values.
 
+    Decorator functools.wraps is needed to return the real function name
+    for get_from_functions method.
+    """
+
+    @functools.wraps(func)
     def wrapper(bind, name):
         # inner function call
         result = func(bind)

@@ -39,12 +39,28 @@ class AggregationMixin:
             if ProductBased not in inspect.getmro(cls):
                 logger.error("%s only supports sub classes of ProductBased", cls)
 
-    def calc_position(self):
-        """Position based on first and last element"""
+    def _calc_position(self, name):
+        """Calculate the position based on first and last element."""
+        if not self.elements:
+            logger.debug(
+                f"No elements found for {self.__class__.__name__}"
+                f" ({self.guid})")
+            return None
         try:
-            return (self.elements[0].position + self.elements[-1].position) / 2
-            # return sum(ele.position for ele in self.elements) / len(self.elements)
-        except:
+            first_pos = self.elements[0].position
+            last_pos = self.elements[-1].position
+            return (first_pos + last_pos) / 2
+        except AttributeError:
+            logger.warning(
+                f"Elements missing 'position' attribute in"
+                f" {self.__class__.__name__} ({self.guid})"
+            )
+            return None
+        except Exception as ex:
+            logger.warning(
+                f"Position calculation failed for {self.__class__.__name__}"
+                f" ({self.guid}): {ex}"
+            )
             return None
 
     # def request(self, name):

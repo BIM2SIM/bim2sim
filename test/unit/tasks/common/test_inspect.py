@@ -123,7 +123,7 @@ class TestInspectMethods(unittest.TestCase):
         parent = ProductBased()
         for pos in positions:
             port = Port(parent)
-            port.calc_position = MagicMock(return_value=np.array(pos))
+            port._calc_position = MagicMock(return_value=np.array(pos))
             parent.ports.append(port)
         return parent
 

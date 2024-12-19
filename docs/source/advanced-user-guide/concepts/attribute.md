@@ -58,3 +58,76 @@ final tasks before exporting to a simulation model should always trigger the
 [](get_pending_attribute_decisions) function of [element](element). This
 implementation was made to bundle the decisions at the end of the process if 
 possible. 
+
+## When to use `attributes`?
+
+There are multiple ways to calculate and store information in a bim2sim
+`element`. Following you will find some guidelines when to use which way.
+
+### bim2sim `attribute`
+The specialized bim2sim `attribute` system should be used when:
+
+* Values need to be obtained from different sources (IFC attributes, IFC PropertySets, enrichment data, etc.)
+* Physical units (via pint) need to be managed
+* Automatic validation and type checking is required
+* Values need to be traceable (status, data source)
+* Missing values should be supplemented via user interaction (Decisions)
+
+### Python properties
+Python properties are created using the inbuilt decorator `@property`. Properties should be used when:
+
+* None of the features by the bim2sim `attribute` system is needed
+* Computed values should be determined on-demand
+* Getter/setter logic is needed
+* Attribute-like access to methods is desired
+* Validation or transformation is necessary when reading/writing
+
+Example for the usage of property:
+```python
+class Circle:
+    def __init__(self, radius):
+        self._radius = radius
+    
+    @property
+    def area(self):
+        return 3.14 * self._radius ** 2
+    
+    @property
+    def radius(self):
+        return self._radius
+        
+    @radius.setter
+    def radius(self, value):
+        if value < 0:
+            raise ValueError("Radius must be positive")
+        self._radius = value
+```
+
+### Class attributes
+* When every instance of the class has the same value 
+* When you want to share the value of this attribute through all instances of this class
+
+An example would be the counter of created instances of this class:
+```python
+class MyClass:
+    instance_count = 0
+
+    def __init__(self):
+        MyClass.instance_count += 1
+```
+
+### Instance attributes
+* If every instance of the class should have it's own value
+* If the value is always needed and will stay the same for the lifetime of the 
+object
+The most common way is to put information into instance attributes by add a 
+value or the link to a method to calculate this value to the `__init__` function:
+```python
+class MyElement(element):
+    def __init__(self, value):
+        self.value = value  # constant instance attribute
+        self.value_2 = self.calc_valuve_2()
+
+    def calc_value_2(self):
+        return 1+2
+```
