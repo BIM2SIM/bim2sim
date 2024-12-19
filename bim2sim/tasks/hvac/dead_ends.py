@@ -156,6 +156,8 @@ class DeadEnds(ITask):
                         playground.update_graph(graph)
                 else:
                     raise NotImplementedError()
+                    # TODO connect elements that are open but not dead ends
+                    #  (missing connections) #769
                     # TODO: handle consumers
                     # dead end identification with guid decision
                     #  (see issue97 add_gui_decision)

@@ -580,6 +580,12 @@ class PlantSimSettings(BaseSimSettings):
         min_value=1
     )
 
+    verify_connection_by_position = BooleanSetting(
+        description="Choose if connection of elements via IfcDistributionPorts"
+                    " should be validated by the geometric position of the "
+                    "ports.",
+        default=True
+    )
 
 class BuildingSimSettings(BaseSimSettings):
 

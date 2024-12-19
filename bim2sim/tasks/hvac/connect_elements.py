@@ -57,9 +57,22 @@ class ConnectElements(ITask):
         self.logger.info(" - Found %d potential connections.",
                          len(rel_connections))
         # Check connections
-        self.logger.info(" - Checking positions of connections ...")
-        confirmed, unconfirmed, rejected = self.confirm_connections_position(
-            rel_connections)
+        pos_connect_tol = (self.playground.sim_settings.
+                           tolerance_connect_by_position)
+        if self.playground.sim_settings.verify_connection_by_position:
+            self.logger.info(" - Checking positions of connections via "
+                             "geometric distance ...")
+            confirmed, unconfirmed, rejected =\
+                self.confirm_connections_position(
+                    rel_connections, eps=pos_connect_tol)
+        else:
+            self.logger.info(
+                "Geometric distance check for port connections is deactived by"
+                " sim_setting 'tolerance_connect_by_position'. All found ports"
+                " are confirmed without check.")
+            confirmed = rel_connections
+            rejected = []
+            unconfirmed = []
         self.logger.info(
             " - %d connections are confirmed and %d rejected. %d can't be "
             "confirmed.",
@@ -72,8 +85,7 @@ class ConnectElements(ITask):
         unconnected_ports = (port for port in all_ports if
                              not port.is_connected())
         self.logger.info(" - Connecting remaining ports by position ...")
-        pos_connect_tol = (self.playground.sim_settings.
-                           tolerance_connect_by_position)
+
         pos_connections = self.connections_by_position(
             unconnected_ports, eps=pos_connect_tol)
         self.logger.info(" - Found %d additional connections.",
