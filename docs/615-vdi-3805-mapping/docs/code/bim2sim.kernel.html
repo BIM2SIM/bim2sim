@@ -316,6 +316,26 @@ If deemed appropriate, the record may be modified in-place.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.kernel.log.BufferedHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">BufferedHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.BufferedHandler" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Handler</span></code></p>
+<p>Handler to buffer messages and don’t loose them.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.kernel.log.BufferedHandler.emit">
+<span class="sig-name descname"><span class="pre">emit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.BufferedHandler.emit" title="Permalink to this definition"></a></dt>
+<dd><p>Do whatever it takes to actually log the specified logging record.</p>
+<p>This version is intended to be implemented by subclasses and so
+raises a NotImplementedError.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.kernel.log.BufferedHandler.flush_buffer">
+<span class="sig-name descname"><span class="pre">flush_buffer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_handler</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.BufferedHandler.flush_buffer" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.kernel.log.CustomFormatter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">CustomFormatter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fmt</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.CustomFormatter" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Formatter</span></code></p>
@@ -354,20 +374,43 @@ If deemed appropriate, the record may be modified in-place.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="bim2sim.kernel.log.default_logging_setup">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">default_logging_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prj_log_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.default_logging_setup" title="Permalink to this definition"></a></dt>
-<dd><p>Setup for logging module</p>
-<p>This creates the following:
-* the general logger with name bim2sim as default logger
-* the file output file bim2sim.log where the logs are stored
-* the logger quality_logger which stores all information about the quality
-of existing information of the BIM model</p>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.kernel.log.get_user_logger">
 <span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">get_user_logger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.get_user_logger" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.kernel.log.initial_logging_setup">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">initial_logging_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.initial_logging_setup" title="Permalink to this definition"></a></dt>
+<dd><p>Initial setup before project folder exists.</p>
+<p>This is the first of the two-step logging setup. It makes sure that logging
+messages before project folder creation are still prompted to stream
+handler and saved to BufferHandler to get complete log files later.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.kernel.log.project_logging_setup">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">project_logging_setup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Handler</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#bim2sim.kernel.log.ThreadLogFilter" title="bim2sim.kernel.log.ThreadLogFilter"><span class="pre">ThreadLogFilter</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.kernel.log.project_logging_setup" title="Permalink to this definition"></a></dt>
+<dd><p>Setup project logging</p>
+<p>This is the second step of the two-step logging setup. After project folder
+creation this step adds completes the setup and adds the filder handlers
+that store the logs.</p>
+<p>This creates the following:
+* the file output file bim2sim.log where the logs are stored
+* the logger quality_logger which stores all information about the quality
+of existing information of the BIM model. This logger is only on file to
+keep the logs cleaner</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.kernel.log.teardown_loggers">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.log.</span></span><span class="sig-name descname"><span class="pre">teardown_loggers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.log.teardown_loggers" title="Permalink to this definition"></a></dt>
+<dd><p>Closes and removes all handlers from loggers in the ‘bim2sim’ hierarchy.</p>
+<p>Iterates through all existing loggers and cleans up those that start
+with ‘bim2sim’.
+For each matching logger, all handlers are properly closed and removed.
+Errors during file handler closure (e.g., due to already deleted l
+og files) are silently ignored.</p>
+</dd></dl>
 
 </section>
 </section>

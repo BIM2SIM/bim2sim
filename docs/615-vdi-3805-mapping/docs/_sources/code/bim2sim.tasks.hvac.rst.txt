@@ -73,14 +73,6 @@ bim2sim.tasks.hvac.make\_graph module
    :undoc-members:
    :show-inheritance:
 
-bim2sim.tasks.hvac.obsolete module
-----------------------------------
-
-.. automodule:: bim2sim.tasks.hvac.obsolete
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 bim2sim.tasks.hvac.reduce module
 --------------------------------
 
