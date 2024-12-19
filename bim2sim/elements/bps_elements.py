@@ -83,7 +83,7 @@ class BPSProduct(ProductBased):
         """Default cost group for building elements is 300"""
         return 300
 
-    def calc_teaser_orientation(self) -> float:
+    def _calc_teaser_orientation(self) -> float:
         """Calculate the orientation of the bps product based on SB direction.
 
         For buildings elements we can use the more reliable space boundaries
@@ -1618,7 +1618,7 @@ class Slab(BPSProductWithLayers):
         """slab __init__ function"""
         super().__init__(*args, **kwargs)
 
-    def calc_teaser_orientation(self) -> float:
+    def _calc_teaser_orientation(self) -> float:
         """Returns the orientation of the slab in TEASER convention."""
         return -1
 
@@ -1708,9 +1708,10 @@ class GroundFloor(Slab):
         "IfcSlab": ['BASESLAB']
     }
 
-    def calc_teaser_orientation(self) -> float:
+    def _calc_teaser_orientation(self) -> float:
         """Returns the orientation of the groundfloor in TEASER convention."""
         return -2
+
     def calc_cost_group(self) -> int:
         """Calc cost group for groundfloors
 
