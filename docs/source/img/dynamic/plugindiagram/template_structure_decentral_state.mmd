@@ -35,39 +35,21 @@ stateCheckIfc -- ifc_files --> tCheckIfc
 direction RL
 end
     
-subgraph taskCreateElements["task CreateElements"]
+subgraph taskCreateElementsOnIfcTypes["task CreateElementsOnIfcTypes"]
  subgraph "" 
 
-  tCreateElements["bim2sim > tasks > common >  
- CreateElements"]
-  extCreateElements(" Create bim2sim elements based on information in
-IFC. " )
+  tCreateElementsOnIfcTypes["bim2sim > tasks > common >  
+ CreateElementsOnIfcTypes"]
+  extCreateElementsOnIfcTypes(" Create bim2sim elements based on information of
+IFC types. " )
  end
 
-stateCreateElements[("state
+stateCreateElementsOnIfcTypes[("state
  (reads/touches)")]
     
-stateCreateElements -- ifc_files --> tCreateElements
+stateCreateElementsOnIfcTypes -- ifc_files --> tCreateElementsOnIfcTypes
 
-tCreateElements -- elements, ifc_files --> stateCreateElements
-
-end
-    
-subgraph taskFilterTZ["task FilterTZ"]
- subgraph "" 
-
-  tFilterTZ["bim2sim > tasks > bps >  
- FilterTZ"]
-  extFilterTZ(" Filters the thermal zones for later usage and
-stores them in state. " )
- end
-
-stateFilterTZ[("state
- (reads/touches)")]
-    
-stateFilterTZ -- elements --> tFilterTZ
-
-tFilterTZ -- tz_elements --> stateFilterTZ
+tCreateElementsOnIfcTypes -- elements, _initial_elements, ifc_files --> stateCreateElementsOnIfcTypes
 
 end
     
@@ -83,9 +65,7 @@ stateCreateSpaceBoundaries[("state
  (reads/touches)")]
     
 stateCreateSpaceBoundaries -- ifc_files, elements --> tCreateSpaceBoundaries
-
-tCreateSpaceBoundaries -- space_boundaries --> stateCreateSpaceBoundaries
-
+direction RL
 end
     
 subgraph taskEnrichUseConditions["task EnrichUseConditions"]
@@ -100,27 +80,24 @@ decisions and translation of zone names. " )
 stateEnrichUseConditions[("state
  (reads/touches)")]
     
-stateEnrichUseConditions -- tz_elements --> tEnrichUseConditions
-
-tEnrichUseConditions -- enriched_tz --> stateEnrichUseConditions
-
+stateEnrichUseConditions -- elements --> tEnrichUseConditions
+direction RL
 end
     
-subgraph taskBindStoreys["task BindStoreys"]
+subgraph taskCreateRelations["task CreateRelations"]
  subgraph "" 
 
-  tBindStoreys["bim2sim > tasks > common >  
- BindStoreys"]
-  extBindStoreys(" None. " )
+  tCreateRelations["bim2sim > tasks > common >  
+ CreateRelations"]
+  extCreateRelations(" Relations of elements, run() method holds detailed
+information. " )
  end
 
-stateBindStoreys[("state
+stateCreateRelations[("state
  (reads/touches)")]
     
-stateBindStoreys -- elements --> tBindStoreys
-
-tBindStoreys -- elements --> stateBindStoreys
-
+stateCreateRelations -- elements --> tCreateRelations
+direction RL
 end
     
 subgraph taskWeather["task Weather"]
@@ -140,9 +117,8 @@ tWeather -- weather_file --> stateWeather
 
 end
     taskLoadIFC --> taskCheckIfc 
-taskCheckIfc --> taskCreateElements 
-taskCreateElements --> taskFilterTZ 
-taskFilterTZ --> taskCreateSpaceBoundaries 
+taskCheckIfc --> taskCreateElementsOnIfcTypes 
+taskCreateElementsOnIfcTypes --> taskCreateSpaceBoundaries 
 taskCreateSpaceBoundaries --> taskEnrichUseConditions 
-taskEnrichUseConditions --> taskBindStoreys 
-taskBindStoreys --> taskWeather 
+taskEnrichUseConditions --> taskCreateRelations 
+taskCreateRelations --> taskWeather 
