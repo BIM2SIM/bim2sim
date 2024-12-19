@@ -225,49 +225,6 @@ class IFCBased(Element):
 
         return absolute
 
-    def _calc_teaser_orientation(self, name) -> np.array:
-        """Tries to calculate the orientation of based on DirectionRatio.
-
-        This generic orientation calculation uses the DirectionRatios which in
-        most cases return the correct orientation of the element. But this
-        depends on the modeller and the BIM author software and is not failsafe.
-        Orientation is mostly important for BPSProducts where we can use
-        Space Boundaries for failsafe orientation calculation.
-
-        Returns:
-            Orientation angle between 0 and 360.
-            (0 : north, 90: east, 180: south, 270: west)
-        """
-        # ToDO: check if true north angle is taken into account
-        #  (should be with while loop)
-        ang_sum = 0
-        placementrel = self.ifc.ObjectPlacement
-        while placementrel is not None:
-            if placementrel.RelativePlacement.RefDirection is not None:
-                vector = placementrel.RelativePlacement.RefDirection.DirectionRatios
-                ang_sum += vector_angle(vector)
-            placementrel = placementrel.PlacementRelTo
-
-        # relative vector + absolute vector
-        # if len(list_angles) == 1:
-        #     if list_angles[next(iter(list_angles))] is None:
-        #         return -90
-        #         # return 0
-
-        # windows DirectionRatios are mostly facing inwards the building
-        if self.ifc_type == 'IfcWindow':
-            ang_sum += 180
-
-        # angle between 0 and 360
-        return angle_equivalent(ang_sum)
-
-    teaser_orientation = attribute.Attribute(
-        description="Orientation of element in TEASER conventions. 0-360 for "
-                    "orientation of vertical elements and -1 for roofs and "
-                    "ceiling, -2 for groundfloors and floors.",
-        functions=[_calc_teaser_orientation],
-    )
-
     def _get_name_from_ifc(self, name):
         ifc_name = self.get_ifc_attribute('Name')
         if ifc_name:

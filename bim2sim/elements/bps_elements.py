@@ -83,7 +83,7 @@ class BPSProduct(ProductBased):
         """Default cost group for building elements is 300"""
         return 300
 
-    def _calc_teaser_orientation(self) -> float:
+    def _calc_teaser_orientation(self, name) -> Union[int, None]:
         """Calculate the orientation of the bps product based on SB direction.
 
         For buildings elements we can use the more reliable space boundaries
@@ -129,6 +129,13 @@ class BPSProduct(ProductBased):
     def _get_opening_area(self, name):
         """get sum of opening areas of the element"""
         return sum(sb.opening_area for sb in self.sbs_without_corresponding)
+
+    teaser_orientation = attribute.Attribute(
+        description="Orientation of element in TEASER conventions. 0-360 for "
+                    "orientation of vertical elements and -1 for roofs and "
+                    "ceiling, -2 for groundfloors and floors.",
+        functions=[_calc_teaser_orientation],
+    )
 
     gross_area = attribute.Attribute(
         functions=[get_bound_area],
@@ -1618,7 +1625,7 @@ class Slab(BPSProductWithLayers):
         """slab __init__ function"""
         super().__init__(*args, **kwargs)
 
-    def _calc_teaser_orientation(self) -> float:
+    def _calc_teaser_orientation(self, name) -> int:
         """Returns the orientation of the slab in TEASER convention."""
         return -1
 
@@ -1708,7 +1715,7 @@ class GroundFloor(Slab):
         "IfcSlab": ['BASESLAB']
     }
 
-    def _calc_teaser_orientation(self) -> float:
+    def _calc_teaser_orientation(self, name) -> int:
         """Returns the orientation of the groundfloor in TEASER convention."""
         return -2
 
