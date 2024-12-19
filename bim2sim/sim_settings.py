@@ -573,7 +573,7 @@ class PlantSimSettings(BaseSimSettings):
     )
 
     tolerance_connect_by_position = NumberSetting(
-        default=1,
+        default=10,
         description="Tolerance for distance for which ports should be "
                     "connected. Based on there position in IFC.",
         for_frontend=True,
