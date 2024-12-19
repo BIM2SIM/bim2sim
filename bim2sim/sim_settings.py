@@ -1,6 +1,6 @@
 """Module for defining simulation model specific process settings.
-This targets both, settings to set for the later simulation and settings for the
-model generation process in bim2sim.
+This targets both, settings to set for the later simulation and settings for
+the model generation process in bim2sim.
 """
 import logging
 import ast
@@ -12,7 +12,7 @@ import sys
 from bim2sim.utilities import types
 from bim2sim.utilities.types import LOD
 from bim2sim.elements.base_elements import Material
-from bim2sim.elements import bps_elements as bps_elements,\
+from bim2sim.elements import bps_elements as bps_elements, \
     hvac_elements as hvac_elements
 
 logger = logging.getLogger(__name__)
@@ -32,7 +32,8 @@ class AutoSettingNameMeta(type):
         ...     def __init__(self):
         ...         super().__init__()
 
-        >>> # create a new simulation setting, name will be taken automatic from
+        >>> # create a new simulation setting, name will be taken automatic
+        from
         >>> # instance name
         >>> make_simulation_extra_fast = Setting(
         ...     default=True,
@@ -95,8 +96,9 @@ class SettingsManager(dict):
         """Returns a generator object with all settings that the
          bound_simulation_settings owns."""
         return (name for name in dir(type(self.bound_simulation_settings))
-                if isinstance(getattr(type(self.bound_simulation_settings), name),
-                              Setting))
+                if
+                isinstance(getattr(type(self.bound_simulation_settings), name),
+                           Setting))
 
 
 class Setting:
@@ -268,7 +270,8 @@ class ChoiceSetting(Setting):
             if isinstance(choice, str) and '.' in choice:
                 if '.' in choice:
                     raise AttributeError(
-                        f"Provided setting {choice} has a choice with character"
+                        f"Provided setting {choice} has a choice with "
+                        f"character"
                         f" '.', this is prohibited.")
         return True
 
@@ -330,7 +333,8 @@ class PathSetting(Setting):
         return True
 
     def __set__(self, bound_simulation_settings, value):
-        """This is the set function that sets the value in the simulation setting
+        """This is the set function that sets the value in the simulation
+        setting
         when calling sim_settings.<setting_name> = <value>"""
         if not isinstance(value, Path):
             if value is not None:
@@ -375,7 +379,8 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
             setting.load_default()
 
     def update_from_config(self, config):
-        """Updates the simulation settings specification from the config file"""
+        """Updates the simulation settings specification from the config
+        file"""
         n_loaded_settings = 0
         for cat, settings in config.items():
             # don't load settings which are not simulation relevant
@@ -408,7 +413,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                             if os.path.isfile(set_from_cfg):
                                 val = set_from_cfg
                             # handle Enums (will not be found by literal_eval)
-                            elif isinstance(set_from_cfg, str) and\
+                            elif isinstance(set_from_cfg, str) and \
                                     '.' in set_from_cfg:
                                 enum_type, enum_val = set_from_cfg.split('.')
                                 # convert str to enum
@@ -471,8 +476,10 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
             'name': 'Only group elements with exact same name'
         },
         description='To reduce the number of decisions by user to identify '
-                    'elements which can not be identified automatically by the '
-                    'system, you can either use simple grouping by same name of'
+                    'elements which can not be identified automatically by '
+                    'the '
+                    'system, you can either use simple grouping by same name '
+                    'of'
                     ' IFC element or fuzzy search to group based on'
                     ' similarities in name.',
         for_frontend=True
@@ -481,9 +488,12 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         default=0.7,
         min_value=0.5,
         max_value=0.9,
-        description='If you want to use fuzzy search in the group_unidentified '
-                    'setting, you can set the threshold here. A low threshold means'
-                    ' a small similarity is required for grouping. A too low value '
+        description='If you want to use fuzzy search in the '
+                    'group_unidentified '
+                    'setting, you can set the threshold here. A low '
+                    'threshold means'
+                    ' a small similarity is required for grouping. A too low '
+                    'value '
                     'might result in grouping elements which do not represent '
                     'the same IFC type.'
     )
@@ -501,7 +511,8 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
     weather_file_path = PathSetting(
         default=None,
         description='Path to the weather file that should be used for the '
-                    'simulation. If no path is provided, we will try to get the'
+                    'simulation. If no path is provided, we will try to get '
+                    'the'
                     'location from the IFC and download a fitting weather'
                     ' file. For Modelica provide .mos files, for EnergyPlus '
                     '.epw files. If the format does not fit, we will try to '
@@ -587,16 +598,6 @@ class BuildingSimSettings(BaseSimSettings):
                     'be treated.',
         for_frontend=True
     )
-    construction_class_walls = ChoiceSetting(
-        default='heavy',
-        choices={
-            'heavy': 'Heavy wall structures.',
-            'light': 'Light wall structures.'
-        },
-        description="Select the most fitting type of construction class for"
-                    " the walls of the selected building.",
-        for_frontend=True
-    )
     year_of_construction_overwrite = NumberSetting(
         default=None,
         min_value=0,
@@ -604,6 +605,127 @@ class BuildingSimSettings(BaseSimSettings):
         description="Force an overwrite of the year of construction as a "
                     "base for the selected construction set.",
         for_frontend=True,
+    )
+    construction_class_walls = ChoiceSetting(
+        default='iwu_heavy',
+        choices={
+            'iwu_heavy': 'Wall structures according to iwu heavy standard',
+            'iwu_light': 'Wall structures according to iwu light standard',
+            'kfw_40': 'Wall structures according to kfw 40 standard',
+            'kfw_55': 'Wall structures according to kfw 55 standard',
+            'kfw_70': 'Wall structures according to kfw 70 standard',
+            'kfw_85': 'Wall structures according to kfw 85 standard',
+            'kfw_100': 'Wall structures according to kfw 100 standard',
+            'tabula_de_standard_1_SFH': 'Wall structures according to german '
+                                        'tabula standard 1 for single family '
+                                        'houses',
+            'tabula_de_standard_2_SFH': 'Wall structures according to german '
+                                        'tabula standard 2 for single family '
+                                        'houses',
+            'tabula_de_retrofit_1_SFH': 'Wall structures according to german '
+                                        'tabula retrofit 1 for single family '
+                                        'houses',
+            'tabula_de_retrofit_2_SFH': 'Wall structures according to german '
+                                        'tabula retrofit 2 for single family '
+                                        'houses',
+            'tabula_de_adv_retrofit_1_SFH': 'Wall structures according to '
+                                            'german tabula advanced retrofit '
+                                            '1 for single '
+                                            'family houses',
+            'tabula_de_adv_retrofit_2_SFH': 'Wall structures according to '
+                                            'german tabula advanced retrofit '
+                                            '2 for '
+                                            'single family houses',
+            'tabula_de_standard_1_TH': 'Wall structures according to german '
+                                       'tabula standard 1 for terraced houses',
+            'tabula_de_standard_2_TH': 'Wall structures according to german '
+                                       'tabula standard 2 for terraced houses',
+            'tabula_de_retrofit_1_TH': 'Wall structures according to german '
+                                       'tabula retrofit 1 for terraced houses',
+            'tabula_de_retrofit_2_TH': 'Wall structures according to german '
+                                       'tabula retrofit 2 for terraced houses',
+            'tabula_de_standard_1_MFH': 'Wall structures according to german '
+                                        'tabula standard 1 for multi family '
+                                        'houses',
+            'tabula_de_retrofit_1_MFH': 'Wall structures according to german '
+                                        'tabula retrofit 1 for multi family '
+                                        'houses',
+            'tabula_de_adv_retrofit_1_MFH': 'Wall structures according to '
+                                            'german tabula advanced retrofit '
+                                            '1 for multi '
+                                            'family houses',
+            'tabula_de_standard_1_AB': 'Wall structures according to german '
+                                       'tabula standard 1 for apartment '
+                                       'blocks',
+            'tabula_de_adv_retrofit_1_AB': 'Wall structures according to '
+                                           'german tabula advanced retrofit '
+                                           '1 for '
+                                           'apartment blocks',
+            'tabula_de_standard': 'Wall structures according to german '
+                                  'tabula standard',
+            'tabula_dk_standard_1_SFH': 'Wall structures according to danish '
+                                        'tabula standard 1 for single family '
+                                        'houses',
+            'tabula_dk_standard_2_SFH': 'Wall structures according to danish '
+                                        'tabula standard 2 for single family '
+                                        'houses',
+            'tabula_dk_retrofit_1_SFH': 'Wall structures according to danish '
+                                        'tabula retrofit 1 for single family '
+                                        'houses',
+            'tabula_dk_retrofit_2_SFH': 'Wall structures according to danish '
+                                        'tabula retrofit 2 for single family '
+                                        'houses',
+            'tabula_dk_adv_retrofit_1_SFH': 'Wall structures according to '
+                                            'danish tabula advanced retrofit '
+                                            '1 for single '
+                                            'family houses',
+            'tabula_dk_adv_retrofit_2_SFH': 'Wall structures according to '
+                                            'danish tabula advanced retrofit '
+                                            '2 for single '
+                                            'family houses',
+            'tabula_dk_standard_1_TH': 'Wall structures according to danish '
+                                       'tabula standard 1 for terraced houses',
+            'tabula_dk_standard_2_TH': 'Wall structures according to danish '
+                                       'tabula standard 2 for terraced houses',
+            'tabula_dk_retrofit_1_TH': 'Wall structures according to danish '
+                                       'tabula retrofit 1 for terraced houses',
+            'tabula_dk_retrofit_2_TH': 'Wall structures according to danish '
+                                       'tabula retrofit 1 for terraced houses',
+            'tabula_dk_adv_retrofit_1_TH': 'Wall structures according to '
+                                           'danish tabula advanced retrofit '
+                                           '1 for '
+                                           'terraced houses',
+            'tabula_dk_adv_retrofit_2_TH': 'Wall structures according to '
+                                           'danish tabula advanced retrofit '
+                                           '1 for '
+                                           'terraced houses',
+            'tabula_dk_standard_1_AB': 'Wall structures according to danish '
+                                       'tabula standard 1 for apartment '
+                                       'blocks',
+            'tabula_dk_standard_2_AB': 'Wall structures according to danish '
+                                       'tabula standard 2 for apartment '
+                                       'blocks',
+            'tabula_dk_retrofit_1_AB': 'Wall structures according to danish '
+                                       'tabula retrofit 1 for apartment '
+                                       'blocks',
+            'tabula_dk_retrofit_2_AB': 'Wall structures according to danish '
+                                       'tabula retrofit 2 for apartment '
+                                       'blocks',
+            'tabula_dk_adv_retrofit_1_AB': 'Wall structures according to '
+                                           'danish tabula advanced retrofit '
+                                           '1 for '
+                                           'apartment blocks',
+            'tabula_dk_adv_retrofit_2_AB': 'Wall structures according to '
+                                           'danish tabula advanced retrofit '
+                                           '2 for '
+                                           'apartment blocks',
+            'tabula_dk_standard': 'Wall structures according to danish '
+                                  'tabula standard'
+        },
+        description="Select the most fitting construction class type for"
+                    "the walls of the selected building. For all settings but "
+                    "kfw_* the  year of construction is required.",
+        for_frontend=True
     )
     construction_class_windows = ChoiceSetting(
         default='Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
@@ -619,37 +741,187 @@ class BuildingSimSettings(BaseSimSettings):
                 'Stahlfenstern',
             'Waermeschutzverglasung, dreifach':
                 'Wärmeschutzverglasung (dreifach)',
+            'tabula_de_standard_1_SFH': 'Windows according to german tabula '
+                                        'standard 1 for single family '
+                                        'houses',
+            'tabula_de_standard_2_SFH': 'Windows according to german tabula '
+                                        'standard 2 for single family '
+                                        'houses',
+            'tabula_de_retrofit_1_SFH': 'Windows according to german tabula '
+                                        'retrofit 1 for single family '
+                                        'houses',
+            'tabula_de_retrofit_2_SFH': 'Windows according to german tabula '
+                                        'retrofit 2 for single family '
+                                        'houses',
+            'tabula_de_adv_retrofit_1_SFH': 'Windows according to german '
+                                            'tabula advanced retrofit 1 for '
+                                            'single '
+                                            'family houses',
+            'tabula_de_adv_retrofit_2_SFH': 'Windows according to german '
+                                            'tabula advanced retrofit 2 for '
+                                            'single family houses',
+            'tabula_de_standard_1_TH': 'Windows according to german tabula '
+                                       'standard 1 for terraced houses',
+            'tabula_de_standard_2_TH': 'Windows according to german tabula '
+                                       'standard 2 for terraced houses',
+            'tabula_de_retrofit_1_TH': 'Windows according to german tabula '
+                                       'retrofit 1 for terraced houses',
+            'tabula_de_retrofit_2_TH': 'Windows according to german tabula '
+                                       'retrofit 2 for terraced houses',
+            'tabula_de_standard_1_MFH': 'Windows according to german tabula '
+                                        'standard 1 for multi family houses',
+            'tabula_de_retrofit_1_MFH': 'Windows according to german tabula '
+                                        'retrofit 1 for multi family houses',
+            'tabula_de_adv_retrofit_1_MFH': 'Windows according to german '
+                                            'tabula advanced retrofit 1 for '
+                                            'multi '
+                                            'family houses',
+            'tabula_de_standard_1_AB': 'Windows according to german tabula '
+                                       'standard 1 for apartment blocks',
+            'tabula_de_adv_retrofit_1_AB': 'Windows according to german '
+                                           'tabula advanced retrofit 1 for '
+                                           'apartment blocks',
+            'tabula_de_standard': 'Windows according to german tabula '
+                                  'standard',
+            'tabula_dk_standard_1_SFH': 'Windows according to danish tabula '
+                                        'standard 1 for single family '
+                                        'houses',
+            'tabula_dk_standard_2_SFH': 'Windows according to danish tabula '
+                                        'standard 2 for single family '
+                                        'houses',
+            'tabula_dk_retrofit_1_SFH': 'Windows according to danish tabula '
+                                        'retrofit 1 for single family '
+                                        'houses',
+            'tabula_dk_retrofit_2_SFH': 'Windows according to danish tabula '
+                                        'retrofit 2 for single family '
+                                        'houses',
+            'tabula_dk_adv_retrofit_1_SFH': 'Windows according to danish '
+                                            'tabula advanced retrofit 1 for '
+                                            'single '
+                                            'family houses',
+            'tabula_dk_adv_retrofit_2_SFH': 'Windows according to danish '
+                                            'tabula advanced retrofit 2 for '
+                                            'single '
+                                            'family houses',
+            'tabula_dk_standard_1_TH': 'Windows according to danish tabula '
+                                       'standard 1 for terraced houses',
+            'tabula_dk_standard_2_TH': 'Windows according to danish tabula '
+                                       'standard 2 for terraced houses',
+            'tabula_dk_retrofit_1_TH': 'Windows according to danish tabula '
+                                       'retrofit 1 for terraced houses',
+            'tabula_dk_retrofit_2_TH': 'Windows according to danish tabula '
+                                       'retrofit 1 for terraced houses',
+            'tabula_dk_adv_retrofit_1_TH': 'Windows according to danish '
+                                           'tabula advanced retrofit 1 for '
+                                           'terraced houses',
+            'tabula_dk_adv_retrofit_2_TH': 'Windows according to danish '
+                                           'tabula advanced retrofit 1 for '
+                                           'terraced houses',
+            'tabula_dk_standard_1_AB': 'Windows according to danish tabula '
+                                       'standard 1 for apartment blocks',
+            'tabula_dk_standard_2_AB': 'Windows according to danish tabula '
+                                       'standard 2 for apartment blocks',
+            'tabula_dk_retrofit_1_AB': 'Windows according to danish tabula '
+                                       'retrofit 1 for apartment blocks',
+            'tabula_dk_retrofit_2_AB': 'Windows according to danish tabula '
+                                       'retrofit 2 for apartment blocks',
+            'tabula_dk_adv_retrofit_1_AB': 'Windows according to danish '
+                                           'tabula advanced retrofit 1 for '
+                                           'apartment blocks',
+            'tabula_dk_adv_retrofit_2_AB': 'Windows according to danish '
+                                           'tabula advanced retrofit 2 for '
+                                           'apartment blocks',
+            'tabula_dk_standard': 'Windows according to danish tabula standard'
         },
-        description="Select the most fitting type of construction class for"
+        description="Select the most fitting construction class type for"
                     " the windows of the selected building.",
     )
-    heating = BooleanSetting(
-        default=True,
-        description='Whether the building should be supplied with heating.',
+    construction_class_doors = ChoiceSetting(
+        default='iwu_typical',
+        choices={
+            'iwu_typical': 'Typical door data based',
+            'kfw_40': 'Doors according to kfw 40 standard',
+            'kfw_55': 'Doors according to kfw 55 standard',
+            'kfw_70': 'Doors according to kfw 70 standard',
+            'kfw_85': 'Doors according to kfw 85 standard',
+            'kfw_100': 'Doors according to kfw 100 standard',
+            'tabula_de_standard_1_SFH': 'Windows according to german tabula '
+                                        'standard 1 for single family '
+                                        'houses',
+            'tabula_de_retrofit_1_SFH': 'Windows according to german tabula '
+                                        'retrofit 1 for single family '
+                                        'houses',
+            'tabula_de_adv_retrofit_1_SFH': 'Windows according to german '
+                                            'tabula advanced retrofit 1 for '
+                                            'single '
+                                            'family houses',
+            'tabula_de_standard_1_TH': 'Windows according to german tabula '
+                                       'standard 1 for terraced houses',
+            'tabula_de_retrofit_1_TH': 'Windows according to german tabula '
+                                       'retrofit 1 for terraced houses',
+            'tabula_de_adv_retrofit_1_TH': 'Windows according to german '
+                                           'tabula advanced retrofit 1 for '
+                                           'terraced houses',
+            'tabula_de_standard_1_MFH': 'Windows according to german tabula '
+                                        'standard 1 for multi family houses',
+            'tabula_de_retrofit_1_MFH': 'Windows according to german tabula '
+                                        'retrofit 1 for multi family houses',
+            'tabula_de_adv_retrofit_1_MFH': 'Windows according to german '
+                                            'tabula advanced retrofit 1 for '
+                                            'multi '
+                                            'family houses',
+            'tabula_de_standard_1_AB': 'Windows according to german tabula '
+                                       'standard 1 for apartment blocks',
+            'tabula_de_retrofit_1_AB': 'Windows according to german tabula '
+                                       'retrofit 1 for apartment blocks',
+            'tabula_de_adv_retrofit_1_AB': 'Windows according to german '
+                                           'tabula advanced retrofit 1 for '
+                                           'apartment blocks',
+            'tabula_dk_standard_1_SFH': 'Windows according to danish tabula '
+                                        'standard 1 for single family '
+                                        'houses'
+        },
+        description="Select the most fitting construction class type for"
+                    " the windows of the selected building.",
+    )
+    heating_tz_overwrite = BooleanSetting(
+        default=None,
+        description='If True, all thermal zones will be provided with heating,'
+                    'if False no heating for thermal zones is provided, '
+                    'regardless of information in the IFC or in the use '
+                    'condition file.',
         for_frontend=True
     )
-    cooling = BooleanSetting(
-        default=False,
-        description='Whether the building should be supplied with cooling.',
+    cooling_tz_overwrite = BooleanSetting(
+        default=None,
+        description='If True, all thermal zones will be provided with cooling,'
+                    'if False no cooling for thermal zones is provided, '
+                    'regardless of information in the IFC or in the use '
+                    'condition file.',
         for_frontend=True
     )
-    deactivate_ahu = BooleanSetting(
-        default=False,
-        description='If True the AHU unit will be deactivated for all thermal'
-                    ' zones, even if the fitting use condition uses an AHU.',
+    ahu_tz_overwrite = BooleanSetting(
+        default=None,
+        description='If True, all thermal zones will be provided with AHU,'
+                    'if False no AHU for thermal zones is provided, '
+                    'regardless of information in the IFC or in the use '
+                    'condition file.',
         for_frontend=True
     )
     prj_use_conditions = PathSetting(
         default=None,
         description="Path to a custom UseConditions.json for the specific "
                     "project, that holds custom usage conditions for this "
-                    "project.",
+                    "project. If this is used, this use_conditions file have "
+                    "to hold all information. The basic UseConditions.json "
+                    "file is ignored in this case.",
         for_frontend=True
     )
     prj_custom_usages = PathSetting(
         default=None,
         description="Path to a custom customUsages.json for the specific "
-                    "project, that holds mappings between space names from IFC "
+                    "project, that holds mappings between space names from "
+                    "IFC "
                     "and usage conditions from UseConditions.json.",
         for_frontend=True
     )
@@ -659,6 +931,13 @@ class BuildingSimSettings(BaseSimSettings):
                     "setpoints from IFC. Defaults to False, i.e., "
                     "use original data source. Set to True, "
                     "if template-based values should be used instead.",
+        for_frontend=True
+    )
+    use_maintained_illuminance = BooleanSetting(
+        default=True,
+        description="Use maintained illuminance required per zone based on "
+                    "DIN V EN 18599 information to calculate internal loads"
+                    "through lighting.",
         for_frontend=True
     )
     sim_results = ChoiceSetting(
@@ -673,7 +952,7 @@ class BuildingSimSettings(BaseSimSettings):
             "infiltration_rooms", "mech_ventilation_rooms",
             "heat_set_rooms", "cool_set_rooms"
 
-                 ],
+        ],
         choices={
             "heat_demand_total":
                 "Total heating demand (power) as time series data",
@@ -756,13 +1035,13 @@ class BuildingSimSettings(BaseSimSettings):
                     'finished.',
         for_frontend=True
     )
-    set_run_period=BooleanSetting(
+    set_run_period = BooleanSetting(
         default=False,
         description="Choose whether run period for simulation execution "
                     "should be set manually instead of running annual "
                     "simulation."
     )
-    run_period_start_month=NumberSetting(
+    run_period_start_month = NumberSetting(
         default=1,
         min_value=1,
         max_value=12,
@@ -770,7 +1049,7 @@ class BuildingSimSettings(BaseSimSettings):
                     "set_run_period==True for activation.",
         for_frontend=True
     )
-    run_period_start_day=NumberSetting(
+    run_period_start_day = NumberSetting(
         default=1,
         min_value=1,
         max_value=31,
@@ -778,7 +1057,7 @@ class BuildingSimSettings(BaseSimSettings):
                     "set_run_period==True for activation.",
         for_frontend=True
     )
-    run_period_end_month=NumberSetting(
+    run_period_end_month = NumberSetting(
         default=12,
         min_value=1,
         max_value=12,
@@ -786,7 +1065,7 @@ class BuildingSimSettings(BaseSimSettings):
                     "set_run_period==True for activation.",
         for_frontend=True
     )
-    run_period_end_day=NumberSetting(
+    run_period_end_day = NumberSetting(
         default=31,
         min_value=1,
         max_value=31,
@@ -801,48 +1080,43 @@ class BuildingSimSettings(BaseSimSettings):
                     "should be plotted.",
         any_string=True
     )
-    # Due to issue #722 this is currently the only way to set AHU values.
-    overwrite_ahu_by_settings = BooleanSetting(
-        default=True,
-        description='Overwrite central AHU settings with the following '
-                    'settings.',
-    )
-    ahu_heating = BooleanSetting(
-        default=False,
+    ahu_heating_overwrite = BooleanSetting(
+        default=None,
         description="Choose if the central AHU should provide heating. "
-                    "Set overwrite_ahu_by_settings to True, "
-                    "otherwise this has no effect. "
     )
-    ahu_cooling = BooleanSetting(
-        default=False,
+    ahu_cooling_overwrite = BooleanSetting(
+        default=None,
         description="Choose if the central AHU should provide cooling."
-                    "Set overwrite_ahu_by_settings to True, "
-                    "otherwise this has no effect. "
     )
-    ahu_dehumidification = BooleanSetting(
-        default=False,
+    ahu_dehumidification_overwrite = BooleanSetting(
+        default=None,
         description="Choose if the central AHU should provide "
                     "dehumidification."
-                    "Set overwrite_ahu_by_settings to True, "
-                    "otherwise this has no effect. "
     )
-    ahu_humidification = BooleanSetting(
-        default=False,
+    ahu_humidification_overwrite = BooleanSetting(
+        default=None,
         description="Choose if the central AHU should provide humidification."
-                    "Set overwrite_ahu_by_settings to True, "
                     "otherwise this has no effect. "
     )
-    ahu_heat_recovery = BooleanSetting(
-        default=False,
+    ahu_heat_recovery_overwrite = BooleanSetting(
+        default=None,
         description="Choose if the central AHU should zuse heat recovery."
-                    "Set overwrite_ahu_by_settings to True, "
-                    "otherwise this has no effect. "
     )
-    ahu_heat_recovery_efficiency = NumberSetting(
-        default=0.65,
-        min_value= 0.5,
+    ahu_heat_recovery_efficiency_overwrite = NumberSetting(
+        default=None,
+        min_value=0.5,
         max_value=0.99,
         description="Choose the heat recovery efficiency of the central AHU."
-                    "Set overwrite_ahu_by_settings to True, "
-                    "otherwise this has no effect. "
+    )
+    use_constant_infiltration_overwrite = BooleanSetting(
+        default=None,
+        description="If only constant base infiltration should be used and no "
+                    "dynamic ventilation through e.g. windows."
+    )
+    base_infiltration_rate_overwrite = NumberSetting(
+        default=None,
+        min_value=0.001,
+        max_value=5,
+        description="Overwrite base value for the natural infiltration in 1/h "
+                    " without window openings"
     )

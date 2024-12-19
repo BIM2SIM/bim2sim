@@ -341,15 +341,14 @@ class SetupHelperBPS(SetupHelper):
         element.orientation = orient
         return element
 
-    def get_thermalzone(self, usage='Living'):
+    def get_thermalzone(self, **kwargs):
         tz = self.element_generator(
             bps.ThermalZone,
-            net_area=100,
-            gross_area=110,
-            usage=usage)
+            **kwargs)
         return tz
 
-    def get_thermalzones_diff_usage(self, usages: list):
+    def get_thermalzones_diff_usage(
+            self, usages: list, gross_areas: list):
         """Returns a number of ThermalZones with different usage.
 
         The first ThermalZone has a usage that can be identified by regular
@@ -357,12 +356,16 @@ class SetupHelperBPS(SetupHelper):
         identified due to random names, but the third one is similar to the
         first). The fourth ThermalZone can again be identified.
 
+        Args:
+            usages: list of usage strings
+            gross_area: list of gross_areas
         Returns:
             list of the three ThermalZone elements
         """
         tz_elements = []
-        for usage in usages:
-            tz_elements.append(self.get_thermalzone(usage=usage))
+        for usage, gross_area in zip(usages, gross_areas):
+            tz_elements.append(self.get_thermalzone(
+                usage=usage, gross_area=gross_area))
 
         return tz_elements
 
@@ -372,13 +375,33 @@ class SetupHelperBPS(SetupHelper):
             net_area=20,
             gross_area=21,
             width=0.2,
-            orientation=90
+            orientation=90,
+            guid='outerWall001'
         )
-        window_1 = self.element_generator(bps.Window, net_area=2, width=0.1)
-        tz_1 = self.get_thermalzone()
+        window_1 = self.element_generator(
+            bps.Window,
+            net_area=2,
+            width=0.1,
+            guid='window001')
+        tz_1 = self.get_thermalzone(
+            net_area=100,
+            gross_area=110,
+            usage='Living',
+            guid='tz001')
         tz_1.bound_elements = [out_wall_1, window_1]
-        build_1 = self.element_generator(bps.Building,
-                                         bldg_name='simpleTestBuilding', year_of_construction=2010)
-            # bps.ThermalZone, bound_elements=[out_wall_1])
-        elements = [out_wall_1, window_1, tz_1, build_1]
+        build_1 = self.element_generator(
+            bps.Building,
+            bldg_name='simpleTestBuilding',
+            year_of_construction=2010,
+            guid='bldg001'
+        )
+        # set relations
+        build_1.thermal_zones.append(tz_1)
+        tz_1.bound_elements.extend([out_wall_1, window_1])
+        elements = {
+            out_wall_1.guid: out_wall_1,
+            window_1.guid: window_1,
+            tz_1.guid: tz_1,
+            build_1.guid: build_1
+        }
         return elements

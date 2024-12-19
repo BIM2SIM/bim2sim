@@ -18,6 +18,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-Institute-Var-2.ifc"""
         ifc_names = {IFCDomain.arch: 'AC20-Institute-Var-2.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
+        project.sim_settings.ahu_tz_overwrite = False
         project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         answers = (2015,)
         handler = DebugDecisionHandler(answers)
@@ -30,6 +31,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-Institute-Var-2.ifc"""
         ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
+        project.sim_settings.ahu_tz_overwrite = False
         answers = (2015, )
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -41,11 +43,12 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Test DigitalHub IFC"""
         ifc_names = {IFCDomain.arch:  'FM_ARC_DigitalHub_with_SB_neu.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
+        project.sim_settings.ahu_tz_overwrite = False
         project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
         project.sim_settings.prj_use_conditions = Path(
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
-            "UseConditionsFM_ARC_DigitalHub_with_SB_neu.json"
+            "UseConditionsFM_ARC_DigitalHub.json"
         project.sim_settings.prj_custom_usages = Path(
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
@@ -62,6 +65,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Run project with AC20-FZK-Haus.ifc"""
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
+        project.sim_settings.ahu_tz_overwrite = False
         project.sim_settings.zoning_criteria = ZoningCriteria.combined_single_zone
         answers = ()
         handler = DebugDecisionHandler(answers)
@@ -75,6 +79,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Test ERC Main Building"""
         ifc_names = {IFCDomain.arch:  'ERC_Mainbuilding_Arch.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
+        project.sim_settings.ahu_tz_overwrite = False
         project.sim_settings.zoning_criteria = ZoningCriteria.individual_spaces
         project.sim_settings.layers_and_materials = LOD.full
         answers = ("Kitchen in non-residential buildings",
@@ -110,6 +115,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         """Test ERC Main Building"""
         ifc_names = {IFCDomain.arch:  'ERC_Mainbuilding_Arch.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
+        project.sim_settings.ahu_tz_overwrite = False
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -238,7 +244,3 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
-
-
-class TestIntegrationAixLib(unittest.TestCase):
-    pass

@@ -151,9 +151,6 @@ class UseConditions(TEASER, UseConditions_Teaser):
         """
         self.usage = None
 
-        self.typical_length = None
-        self.typical_width = None
-
         self.with_heating = True
         self.with_cooling = False
         self.T_threshold_heating = None
@@ -172,7 +169,7 @@ class UseConditions(TEASER, UseConditions_Teaser):
         self.ratio_conv_rad_lighting = None
 
         self.use_constant_infiltration = None
-        self.infiltration_rate = None
+        self.base_infiltration = None
         self.max_user_infiltration = None
         self.max_overheating_infiltration = []
         self.max_summer_infiltration = []
@@ -209,8 +206,6 @@ class UseConditions(TEASER, UseConditions_Teaser):
         self.request_param("heating_profile", None)
         self.request_param("cooling_profile", None)
         self.request_param("persons", None)
-        self.request_param("typical_length", None)
-        self.request_param("typical_width", None)
         self.request_param("T_threshold_heating", None)
         self.request_param("activity_degree_persons", None)
         self.request_param("fixed_heat_flow_rate_persons", None,
@@ -218,12 +213,14 @@ class UseConditions(TEASER, UseConditions_Teaser):
         self.request_param("internal_gains_moisture_no_people", None)
         self.request_param("T_threshold_cooling", None)
         self.request_param("ratio_conv_rad_persons", None)
-        self.request_param("machines", None, export_unit=ureg.W)
+        self.request_param("machines", None,
+                           export_unit=ureg.W/ureg.m**2)
         self.request_param("ratio_conv_rad_machines", None)
-        self.request_param("lighting_power", None, export_unit=ureg.W)
+        self.request_param("lighting_power",
+                           None, export_unit=ureg.W/ureg.m**2)
         self.request_param("ratio_conv_rad_lighting", None)
         self.request_param("use_constant_infiltration", None)
-        self.request_param("infiltration_rate", None)
+        self.request_param("base_infiltration", None)
         self.request_param("max_user_infiltration", None)
         self.request_param("max_overheating_infiltration", None)
         self.request_param("max_summer_infiltration", None)
