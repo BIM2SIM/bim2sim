@@ -573,13 +573,19 @@ class PlantSimSettings(BaseSimSettings):
     )
 
     tolerance_connect_by_position = NumberSetting(
-        default=10,
+        default=1,
         description="Tolerance for distance for which ports should be "
                     "connected. Based on there position in IFC.",
         for_frontend=True,
         min_value=1
     )
 
+    verify_connection_by_position = BooleanSetting(
+        description="Choose if connection of elements via IfcDistributionPorts"
+                    " should be validated by the geometric position of the "
+                    "ports.",
+        default=True
+    )
 
 class BuildingSimSettings(BaseSimSettings):
 
