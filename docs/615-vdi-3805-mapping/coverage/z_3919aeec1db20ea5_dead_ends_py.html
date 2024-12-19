@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_3919aeec1db20ea5_expansiontanks_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.9">coverage.py v7.6.9</a>,
-            created at 2024-12-19 12:25 +0000
+            created at 2024-12-19 17:10 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -238,13 +238,15 @@
     <p class="mis show_mis"><span class="n"><a id="t156" href="#t156">156</a></span><span class="t">                        <span class="nam">playground</span><span class="op">.</span><span class="nam">update_graph</span><span class="op">(</span><span class="nam">graph</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t157" href="#t157">157</a></span><span class="t">                <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t158" href="#t158">158</a></span><span class="t">                    <span class="key">raise</span> <span class="nam">NotImplementedError</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t">                    <span class="com"># TODO: handle consumers</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t">                    <span class="com"># dead end identification with guid decision</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t">                    <span class="com">#  (see issue97 add_gui_decision)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t">                    <span class="com"># build clusters with position for the rest of open ports</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t">                    <span class="com"># decision to to group these open ports to consumers</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t">                    <span class="com"># delete the rest of open ports afterwards</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t">        <span class="key">return</span> <span class="nam">graph</span><span class="op">,</span> <span class="nam">n_removed</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t159" href="#t159">159</a></span><span class="t">                    <span class="com"># TODO connect elements that are open but not dead ends</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t">                    <span class="com">#  (missing connections) #769</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t">                    <span class="com"># TODO: handle consumers</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t">                    <span class="com"># dead end identification with guid decision</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t">                    <span class="com">#  (see issue97 add_gui_decision)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t">                    <span class="com"># build clusters with position for the rest of open ports</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t">                    <span class="com"># decision to to group these open ports to consumers</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t">                    <span class="com"># delete the rest of open ports afterwards</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t">        <span class="key">return</span> <span class="nam">graph</span><span class="op">,</span> <span class="nam">n_removed</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -254,7 +256,7 @@
             <a class="nav" href="z_3919aeec1db20ea5_expansiontanks_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.6.9">coverage.py v7.6.9</a>,
-            created at 2024-12-19 12:25 +0000
+            created at 2024-12-19 17:10 +0000
         </p>
     </div>
 </footer>
