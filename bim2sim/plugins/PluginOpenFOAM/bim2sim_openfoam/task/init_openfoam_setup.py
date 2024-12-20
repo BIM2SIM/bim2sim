@@ -1,3 +1,4 @@
+import math
 import pathlib
 import shutil
 
@@ -33,6 +34,7 @@ class InitializeOpenFOAMSetup(ITask):
         self.create_radiationProperties(openfoam_case)
         self.create_thermophysicalProperties(openfoam_case)
         self.create_turbulenceProperties(openfoam_case)
+        self.create_jobscripts(openfoam_case, self.playground.sim_settings)
 
         return openfoam_case,
 
@@ -183,3 +185,27 @@ class InitializeOpenFOAMSetup(ITask):
                 openfoam_case.default_templates_dir / 'constant' /
                 'turbulenceProperties'))
         openfoam_case.turbulenceProperties.save(openfoam_case.openfoam_dir)
+
+    @staticmethod
+    def create_jobscripts(openfoam_case, simsettings):
+        openfoam_case.openfoam_scripts_dir = openfoam_case.openfoam_dir
+        openfoam_case.openfoam_scripts_dir.mkdir(exist_ok=True)
+        script_files = ['fullRun.sh', 'runMeshing.sh', 'runSimulation.sh']
+        comp_acct = "" if simsettings.cluster_compute_account is None else (
+            "#SBATCH --account=" + simsettings.cluster_compute_account)
+        replacements = {"JOBNAME": simsettings.cluster_jobname,
+                        "STIME": simsettings.cluster_max_runtime_simulation,
+                        "MTIME": simsettings.cluster_max_runtime_meshing,
+                        "COMP_ACCOUNT": comp_acct,
+                        "NNODES": str(math.ceil(
+                            openfoam_case.n_procs/simsettings.cluster_cpu_per_node)),
+                        "NPROCS": str(openfoam_case.n_procs)}
+        for script_file in script_files:
+            src = openfoam_case.default_templates_dir / 'scripts' / script_file
+            with open(src, 'r') as file:
+                content = file.read()
+            for key, value in replacements.items():
+                content = content.replace(key, value)
+            dst = openfoam_case.openfoam_scripts_dir / script_file
+            with open(dst, 'w') as file:
+                file.write(content)
