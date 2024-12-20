@@ -509,6 +509,7 @@ information</p>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.elements.mapping.html#module-bim2sim.elements.mapping.ifc2python">bim2sim.elements.mapping.ifc2python module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.ifc2python.BoundedValue"><code class="docutils literal notranslate"><span class="pre">BoundedValue</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.ifc2python.checkIfcElementType"><code class="docutils literal notranslate"><span class="pre">checkIfcElementType()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.ifc2python.convertToSI"><code class="docutils literal notranslate"><span class="pre">convertToSI()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.ifc2python.getBuilding"><code class="docutils literal notranslate"><span class="pre">getBuilding()</span></code></a></li>
@@ -4735,8 +4736,8 @@ RESET: The Attribute was reset.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.Boiler.nominal_efficiency">
-<span class="sig-name descname"><span class="pre">nominal_efficiency</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.Boiler.nominal_efficiency" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.Boiler.minimal_part_load_ratio">
+<span class="sig-name descname"><span class="pre">minimal_part_load_ratio</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.Boiler.minimal_part_load_ratio" title="Permalink to this definition"></a></dt>
 <dd><p>Descriptor of element attribute to get its value from various sources.</p>
 <p>value and status of attribute are stored in __dict__ of bound instance.
 Possible statuses are:</p>
@@ -4752,8 +4753,8 @@ RESET: The Attribute was reset.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.Boiler.nominal_partial_ratio">
-<span class="sig-name descname"><span class="pre">nominal_partial_ratio</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.Boiler.nominal_partial_ratio" title="Permalink to this definition"></a></dt>
+<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.Boiler.nominal_efficiency">
+<span class="sig-name descname"><span class="pre">nominal_efficiency</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.Boiler.nominal_efficiency" title="Permalink to this definition"></a></dt>
 <dd><p>Descriptor of element attribute to get its value from various sources.</p>
 <p>value and status of attribute are stored in __dict__ of bound instance.
 Possible statuses are:</p>
@@ -4788,6 +4789,23 @@ RESET: The Attribute was reset.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.Boiler.operating_mode">
 <span class="sig-name descname"><span class="pre">operating_mode</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.Boiler.operating_mode" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.Boiler.part_load_ratio_range">
+<span class="sig-name descname"><span class="pre">part_load_ratio_range</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.Boiler.part_load_ratio_range" title="Permalink to this definition"></a></dt>
 <dd><p>Descriptor of element attribute to get its value from various sources.</p>
 <p>value and status of attribute are stored in __dict__ of bound instance.
 Possible statuses are:</p>
@@ -5609,6 +5627,23 @@ RESET: The Attribute was reset.</p>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.hvac_elements.HVACProduct" title="bim2sim.elements.hvac_elements.HVACProduct"><code class="xref py py-class docutils literal notranslate"><span class="pre">HVACProduct</span></code></a></p>
 <p>“HeatPump</p>
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatPump.COP">
+<span class="sig-name descname"><span class="pre">COP</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.HeatPump.COP" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatPump.efficiency">
 <span class="sig-name descname"><span class="pre">efficiency</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.HeatPump.efficiency" title="Permalink to this definition"></a></dt>
 <dd><p>Descriptor of element attribute to get its value from various sources.</p>
@@ -5634,6 +5669,40 @@ RESET: The Attribute was reset.</p>
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatPump.ifc_types">
 <span class="sig-name descname"><span class="pre">ifc_types</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'IfcUnitaryEquipment':</span> <span class="pre">['*']}</span></em><a class="headerlink" href="#bim2sim.elements.hvac_elements.HeatPump.ifc_types" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatPump.internal_pump">
+<span class="sig-name descname"><span class="pre">internal_pump</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.HeatPump.internal_pump" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatPump.is_reversible">
+<span class="sig-name descname"><span class="pre">is_reversible</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.HeatPump.is_reversible" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatPump.key">
@@ -5663,8 +5732,42 @@ RESET: The Attribute was reset.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatPump.rated_cooling_power">
+<span class="sig-name descname"><span class="pre">rated_cooling_power</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.HeatPump.rated_cooling_power" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatPump.rated_power">
 <span class="sig-name descname"><span class="pre">rated_power</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.HeatPump.rated_power" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HeatPump.vdi_performance_data_table">
+<span class="sig-name descname"><span class="pre">vdi_performance_data_table</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.HeatPump.vdi_performance_data_table" title="Permalink to this definition"></a></dt>
 <dd><p>Descriptor of element attribute to get its value from various sources.</p>
 <p>value and status of attribute are stored in __dict__ of bound instance.
 Possible statuses are:</p>
