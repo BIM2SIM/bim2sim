@@ -222,6 +222,7 @@ def get_type_building_elements(data_file):
     if validateJSON(type_building_elements_path):
         with open(type_building_elements_path, 'r+') as file:
             type_building_elements = json.load(file)
+            del type_building_elements['version']
     else:
         raise ValueError(f"Invalid JSON file  {type_building_elements_path}")
     template_options = {}
@@ -243,6 +244,7 @@ def get_material_templates():
     if validateJSON(material_templates_path):
         with open(material_templates_path, 'r+') as f:
             material_templates = json.load(f)
+            del material_templates['version']
     else:
         raise ValueError(f"Invalid JSON file  {material_templates_path}")
     return material_templates

@@ -218,7 +218,7 @@ class CalculateHydraulicSystem(ITask):
                                          bottleneck_point=bottleneck_node,
                                          viewpoint="design")
         # TODO Graph cannot be saved yet cause of Quantity attributes in graph, which arent json serializable
-        # self.save_hydraulic_system_graph_json(graph=graph, filename="hydraulic_system_network.json", type_grid="Calculate Heating Graph")
+        # self.save_hydraulic_system_graph_json(graph=graph, filepath="hydraulic_system_network.json", type_grid="Calculate Heating Graph")
         # plt.show()
         nodes = ["radiator_forward"]
         radiator_nodes = [n for n, attr in graph.nodes(data=True) if
@@ -229,7 +229,7 @@ class CalculateHydraulicSystem(ITask):
                               sheet_name="Pipes",
                               viewpoint="design")
         bom, bom_types_quantities = self.write_component_list(graph=composed_graph)
-        self.write_xlsx(graph=graph, filename=self.material_result_file, bom=bom, bom_types_quantities=bom_types_quantities)
+        self.write_result_files(filepath=self.material_result_file, bom=bom, bom_types_quantities=bom_types_quantities)
         #plt.show()
 
     def calc_pipe_friction_resistance(self,
@@ -2352,19 +2352,25 @@ class CalculateHydraulicSystem(ITask):
             graph.edges[edge]["capacity"] = 0 * ureg.meter * (ureg.kilogram / ureg.seconds)
         return graph
 
-    def write_xlsx(self, graph, filename, bom, bom_types_quantities):
-        # df_new_sheet = pd.DataFrame.from_dict(bom, orient='index', columns=['Anzahl'])
+    def write_result_files(self, filepath, bom, bom_types_quantities):
+
         df_components = pd.DataFrame.from_dict(bom, orient='index')
         df_components_quantities = pd.DataFrame.from_dict(bom_types_quantities, orient='index')
         with self.lock:
-            with pd.ExcelWriter(filename, mode='a', engine='openpyxl') as writer:
-                # Schreiben Sie das neue Sheet in die Excel-Datei
+            with open(Path(filepath, "hydraulic_components.json"), 'w') as json_file:
+                json.dump(df_components, json_file, indent=4)
 
-                df_components.to_excel(writer, sheet_name='Components', index_label='Node')
-                df_components_quantities.to_excel(writer, sheet_name='Component Quantities', index_label='Type')
+            with open(Path(filepath, "hydraulic_pipes.json"), 'w') as json_file:
+                json.dump(df_components_quantities, json_file, indent=4)
+
+            # with pd.ExcelWriter(filepath, mode='a', engine='openpyxl') as writer:
+            #     # Schreiben Sie das neue Sheet in die Excel-Datei
+            #
+            #     df_components.to_excel(writer, sheet_name='Components', index_label='Node')
+            #     df_components_quantities.to_excel(writer, sheet_name='Component Quantities', index_label='Type')
 
         # Bestätigung, dass das Sheet hinzugefügt wurde
-        self.logger.info(f"Das neue Sheet {filename} wurde erfolgreich zur Excel-Datei hinzugefügt.")
+        self.logger.info(f"Das neue Sheet {filepath} wurde erfolgreich zur Excel-Datei hinzugefügt.")
 
 
 

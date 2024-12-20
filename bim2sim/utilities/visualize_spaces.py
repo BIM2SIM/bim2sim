@@ -60,7 +60,7 @@ def visualize_zones(
     Args:
         thermal_zones: list of ThermalZone and AggregatedThermalZone instances
         path: pathlib Path where image is exported to
-        filename: str of filename
+        filename: str of filepath
 
     Returns:
         No return value, image is saved directly.

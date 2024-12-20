@@ -3438,13 +3438,13 @@ class DesignExaustLCA(ITask):
 
 
         # Export
-        dataframe_distribution_network_exhaust_air.to_excel(
-            self.paths.export / 'ventilation system' / 'exhaust air' / 'dataframe_exhaust_air.xlsx', index=False)
+        # dataframe_distribution_network_exhaust_air.to_excel(
+        #     self.paths.export / 'ventilation system' / 'exhaust air' / 'dataframe_exhaust_air.xlsx', index=False)
 
         # Pfad für Speichern
         pipes_excel_pfad = self.paths.export / 'ventilation system' / 'exhaust air' / "pressure_loss.xlsx"
 
-        dataframe_pipes.to_excel(pipes_excel_pfad)
+        # dataframe_pipes.to_excel(pipes_excel_pfad)
 
         with pd.ExcelWriter(pipes_excel_pfad) as writer:
             dataframe_pipes.to_excel(writer, sheet_name="Pipes")
@@ -3784,8 +3784,11 @@ class DesignExaustLCA(ITask):
         #     "CO2 Duct Isolation"] = list_dataframe_distribution_network_exhaust_air_CO2_duct_isolation
 
         # Export to Excel
-        dataframe_distribution_network_exhaust_air.to_excel(
-            self.paths.export / 'ventilation system' / 'exhaust air' / 'dataframe_exhaust_air.xlsx', index=False)
+        export_path = Path(self.paths.export, 'ventilation system', 'exhaust air')
+        dataframe_distribution_network_exhaust_air.to_excel(export_path / 'dataframe_exhaust_air.xlsx', index=False)
+
+        with open(Path(export_path, 'dataframe_exhaust_air.json'), 'w') as json_file:
+            json.dump(dataframe_distribution_network_exhaust_air, json_file, indent=4)
 
         """
         Berechnung des CO2 für die room_connection

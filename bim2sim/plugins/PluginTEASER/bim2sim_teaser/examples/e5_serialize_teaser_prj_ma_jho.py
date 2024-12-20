@@ -1,10 +1,10 @@
 import tempfile
 from pathlib import Path
+import threading
 
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
 from bim2sim.tasks import common, bps
 from bim2sim.utilities.common_functions import download_library
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
@@ -13,10 +13,8 @@ from bim2sim.plugins.PluginTEASER.bim2sim_teaser import PluginTEASER, \
 import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
 
 
-def run_serialize_teaser_project_example(lock,
-                                         project_path, weather_file_path):
+def run_serialize_teaser_project_example(project_path, weather_file_path):
     """Serialize a TEASER Project for further use."""
-    default_logging_setup()
     # Create the default logging to for quality log and bim2sim main log
     # (see logging documentation for more information)
 
@@ -59,7 +57,7 @@ def run_serialize_teaser_project_example(lock,
     project.sim_settings.ahu_heat_recovery_efficiency = 0.8
 
     # Set Lock class
-    project.sim_settings.lock = lock
+    project.sim_settings.lock = threading.Lock()
 
     # set weather file data
     project.sim_settings.weather_file_path = weather_file_path

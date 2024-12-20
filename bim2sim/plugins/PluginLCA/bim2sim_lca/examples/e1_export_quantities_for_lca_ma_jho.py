@@ -4,7 +4,6 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain
 
 
@@ -25,9 +24,6 @@ def run_example_complex_building_lca(lock,
     about all elements separately and their materials.
     """
     with lock:
-        # Create the default logging to for quality log and bim2sim main log (
-        # see logging documentation for more information
-        default_logging_setup()
 
         # Get path of the IFC Building model that is used for this example
         # In this case the mainbuilding of EBC at Aachen which has mostly correct
@@ -57,9 +53,9 @@ def run_example_complex_building_lca(lock,
         project.sim_settings.heat_delivery_type = heat_delivery_type
         project.sim_settings.ufh_pipe_type = "PEX"
 
-        project.sim_settings.hydraulic_system_material_xlsx = Path(project_path, "export", "hydraulic system", "material_quantities_hydraulic_system.xlsx")
-        project.sim_settings.ventilation_supply_system_material_xlsx = Path(project_path / "export" / "ventilation system" / "supply air" / "dataframe_supply_air.xlsx")
-        project.sim_settings.ventilation_exhaust_system_material_xlsx = Path(project_path / "export" / "ventilation system" / "exhaust air" / "dataframe_exhaust_air.xlsx")
+        project.sim_settings.hydraulic_system_material_path = Path(project_path, "export", "hydraulic system")
+        project.sim_settings.ventilation_supply_system_material_json = Path(project_path / "export" / "ventilation system" / "supply air" / "dataframe_supply_air.json")
+        project.sim_settings.ventilation_exhaust_system_material_json = Path(project_path / "export" / "ventilation system" / "exhaust air" / "dataframe_exhaust_air.json")
 
     answers = (2015,)
     handler = DebugDecisionHandler(answers)

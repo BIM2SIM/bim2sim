@@ -17,8 +17,8 @@ class CalculateEmissionVentilationSystem(ITask):
         self.lock = self.playground.sim_settings.lock
 
         if self.playground.sim_settings.calculate_lca_ventilation_system:
-            supply_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_supply_system_material_xlsx)
-            exhaust_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_exhaust_system_material_xlsx)
+            supply_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_supply_system_material_json)
+            exhaust_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_exhaust_system_material_json)
 
             #component_dict = self.load_component_data()
             # component_material_emission, pump_component, total_gwp_hydraulic_component = self.calulcate_emission_components(
@@ -47,8 +47,8 @@ class CalculateEmissionVentilationSystem(ITask):
 
     def load_pipe_data(self, data_path):
         with self.lock:
-            with open(data_path, "rb") as excel_file:
-                df = pd.read_excel(excel_file, engine="openpyxl")
+            with open(data_path, "r") as file:
+                df = pd.read_json(file)
         pipe_dict = {}
         for index, row in df.iterrows():
 
@@ -59,8 +59,9 @@ class CalculateEmissionVentilationSystem(ITask):
         return pipe_dict
 
     def load_component_data(self):
+        # TODO Change excel to json file
         with self.lock:
-            with open(self.playground.sim_settings.hydraulic_system_material_xlsx, "rb") as excel_file:
+            with open(self.playground.sim_settings.hydraulic_system_material_path, "rb") as excel_file:
                 df = pd.read_excel(excel_file, engine="openpyxl", sheet_name="Components")
         component_dict = {}
         for index, row in df.iterrows():

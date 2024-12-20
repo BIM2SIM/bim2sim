@@ -2816,15 +2816,15 @@ class DesignSupplyLCA(ITask):
             database_distribution_network.loc[database_distribution_network['edge'] == duct, "p_from_pa"] = p_from_pa
             database_distribution_network.loc[database_distribution_network['edge'] == duct, "p_to_pa"] = p_to_pa
 
-        database_distribution_network.to_excel(self.paths.export / 'ventilation system' / 'supply air' /
-                                               'dataframe_supply_air.xlsx', index=False)
+        # database_distribution_network.to_excel(self.paths.export / 'ventilation system' / 'supply air' /
+        #                                        'dataframe_supply_air.xlsx', index=False)
 
         # path für Speichern
         pipes_excel_pfad = self.paths.export / 'ventilation system' / 'supply air' / 'pressure_loss.xlsx'
 
 
         # Export
-        dataframe_pipes.to_excel(pipes_excel_pfad)
+        # dataframe_pipes.to_excel(pipes_excel_pfad)
 
         with pd.ExcelWriter(pipes_excel_pfad) as writer:
             dataframe_pipes.to_excel(writer, sheet_name="Pipes")
@@ -3198,8 +3198,11 @@ class DesignSupplyLCA(ITask):
 
 
         # Export to Excel
-        dataframe_distribution_network_supply_air.to_excel(
-            self.paths.export / 'ventilation system' / 'supply air' / 'dataframe_supply_air.xlsx', index=False)
+        export_path = Path(self.paths.export, 'ventilation system', 'supply air')
+        dataframe_distribution_network_supply_air.to_excel(export_path / 'dataframe_supply_air.xlsx', index=False)
+
+        with open(Path(export_path, 'dataframe_supply_air.json'), 'w') as json_file:
+            json.dump(dataframe_distribution_network_supply_air, json_file, indent=4)
 
         """
         Berechnung des CO2 für die room_connection

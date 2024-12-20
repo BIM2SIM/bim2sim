@@ -4,7 +4,6 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 from bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_medium_project_teaser import \
     (run_medium_building_teaser)
@@ -16,9 +15,6 @@ def run_example_project_hydraulic_system(lock,
     """
     """
     with lock:
-        # Create the default logging to for quality log and bim2sim main log
-        # (see logging documentation for more information)
-        default_logging_setup()
 
         load_existing_project = False
 

@@ -36,11 +36,12 @@ class CalculateEmissionHydraulicSystem(ITask):
 
     def load_pipe_data(self):
         with self.lock:
-            with open(self.playground.sim_settings.hydraulic_system_material_xlsx, "rb") as excel_file:
-                df = pd.read_excel(excel_file, engine="openpyxl", sheet_name="Pipes")
+            filepath = Path(self.playground.sim_settings.hydraulic_system_material_path, "hydraulic_pipes.json")
+            with open(filepath, "r") as file:
+                df = pd.read_json(file)
+
         pipe_dict = {}
         for index, row in df.iterrows():
-
             pipe_dict[index] = {"Material": row["Material"],
                                 "Mass Pipe [kg]": row["Mass Pipe [kg]"],
                                 "Mass Isolation [kg]": row["Mass Isolation [kg]"]}
@@ -50,8 +51,10 @@ class CalculateEmissionHydraulicSystem(ITask):
 
     def load_component_data(self):
         with self.lock:
-            with open(self.playground.sim_settings.hydraulic_system_material_xlsx, "rb") as excel_file:
-                df = pd.read_excel(excel_file, engine="openpyxl", sheet_name="Components")
+            filepath = Path(self.playground.sim_settings.hydraulic_system_material_path, "hydraulic_components.json")
+            with open(filepath, "r") as file:
+                df = pd.read_json(file)
+
         component_dict = {}
         for index, row in df.iterrows():
             if self.playground.sim_settings.heat_delivery_type == "Radiator":
