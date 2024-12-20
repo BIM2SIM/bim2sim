@@ -169,7 +169,7 @@ class UseConditions(TEASER, UseConditions_Teaser):
         self.ratio_conv_rad_lighting = None
 
         self.use_constant_infiltration = None
-        self.infiltration_rate = None
+        self.base_infiltration = None
         self.max_user_infiltration = None
         self.max_overheating_infiltration = []
         self.max_summer_infiltration = []
@@ -220,7 +220,7 @@ class UseConditions(TEASER, UseConditions_Teaser):
                            None, export_unit=ureg.W/ureg.m**2)
         self.request_param("ratio_conv_rad_lighting", None)
         self.request_param("use_constant_infiltration", None)
-        self.request_param("infiltration_rate", None)
+        self.request_param("base_infiltration", None)
         self.request_param("max_user_infiltration", None)
         self.request_param("max_overheating_infiltration", None)
         self.request_param("max_summer_infiltration", None)
@@ -264,7 +264,7 @@ class InnerWall(ElementWithLayers, InnerWall_Teaser):
         ElementWithLayers.__init__(self, element)
 
     def request_params(self):
-        self.orientation = self.element.orientation
+        self.orientation = self.element.teaser_orientation
         self.request_param("net_area",
                            self.check_numeric(min_value=0 * ureg.m ** 2),
                            "area")
@@ -283,7 +283,7 @@ class OuterWall(ElementWithLayers, OuterWall_Teaser):
         ElementWithLayers.__init__(self, element)
 
     def request_params(self):
-        self.orientation = self.element.orientation
+        self.orientation = self.element.teaser_orientation
         self.request_param("net_area",
                            self.check_numeric(min_value=0 * ureg.m ** 2),
                            "area")
@@ -350,7 +350,7 @@ class Window(ElementWithLayers, Window_Teaser):
         ElementWithLayers.__init__(self, element)
 
     def request_params(self):
-        self.orientation = self.element.orientation
+        self.orientation = self.element.teaser_orientation
         self.request_param("gross_area",
                            self.check_numeric(min_value=0 * ureg.m ** 2),
                            "area")
@@ -376,7 +376,7 @@ class Door(ElementWithLayers, Door_Teaser):
         ElementWithLayers.__init__(self, element)
 
     def request_params(self):
-        self.orientation = self.element.orientation
+        self.orientation = self.element.teaser_orientation
         self.request_param("gross_area",
                            self.check_numeric(min_value=0 * ureg.m ** 2),
                            "area")

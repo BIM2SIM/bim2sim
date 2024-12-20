@@ -3,7 +3,6 @@ from pathlib import Path
 
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 from bim2sim.plugins.PluginTEASER.bim2sim_teaser import PluginTEASER
 
@@ -36,7 +35,7 @@ def run_example_simple_building_teaser():
     # combine spaces to thermal zones based on their usage
     project.sim_settings.zoning_criteria = ZoningCriteria.individual_spaces
     # use cooling
-    project.sim_settings.cooling = True
+    project.sim_settings.cooling_tz_overwrite = True
     # use set points for heating and cooling from templates
     project.sim_settings.setpoints_from_template = True
     # overwrite existing layer structures and materials based on templates

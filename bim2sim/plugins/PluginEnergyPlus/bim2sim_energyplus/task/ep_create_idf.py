@@ -180,7 +180,7 @@ class CreateIdf(ITask):
             self.set_infiltration(
                 idf, name=zone.Name, zone_name=zone.Name, space=space,
                 ep_version=sim_settings.ep_version)
-            if (not self.playground.sim_settings.cooling and
+            if (not self.playground.sim_settings.cooling_tz_overwrite and
                     self.playground.sim_settings.add_natural_ventilation):
                 self.set_natural_ventilation(
                     idf, name=zone.Name, zone_name=zone.Name, space=space,
@@ -757,7 +757,7 @@ class CreateIdf(ITask):
                 Zone_or_ZoneList_Name=zone_name,
                 Schedule_Name="Continuous",
                 Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-                Air_Changes_per_Hour=space.infiltration_rate
+                Air_Changes_per_Hour=space.base_infiltration
             )
         else:
             idf.newidfobject(
@@ -766,7 +766,7 @@ class CreateIdf(ITask):
                 Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
                 Schedule_Name="Continuous",
                 Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-                Air_Changes_per_Hour=space.infiltration_rate
+                Air_Changes_per_Hour=space.base_infiltration
             )
 
     @staticmethod

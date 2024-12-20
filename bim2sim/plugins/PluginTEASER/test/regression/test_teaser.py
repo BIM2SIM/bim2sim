@@ -40,7 +40,8 @@ class RegressionTestTEASER(RegressionTestBase):
                 source = reg_dir / log_file
                 if not self.is_ci:
                     destination = self.project.paths.log / log_file
-                    source.replace(destination)
+                    if source.exists():
+                        shutil.move(str(source), str(destination))
 
         super().tearDown()
 
@@ -136,10 +137,17 @@ class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
         project = self.create_project(ifc_names, 'TEASER')
         project.sim_settings.zoning_criteria = (
             ZoningCriteria.combined_single_zone)
+        project.sim_settings.ahu_tz_overwrite = False
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
+        orientation_dict = {}
+        elements = project.playground.state['elements']
+        for ele in elements.values():
+            if hasattr(ele, 'teaser_orientation'):
+                if ele.teaser_orientation:
+                    orientation_dict[ele] = ele.teaser_orientation
         self.assertEqual(0, handler.return_value,
                          "Project export did not finish successfully.")
         self.create_regression_setup(tolerance=1E-3, batch_mode=True)
@@ -156,6 +164,7 @@ class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
         one zone model export"""
         ifc_names = {IFCDomain.arch:  'FM_ARC_DigitalHub_with_SB_neu.ifc'}
         project = self.create_project(ifc_names, 'TEASER')
+        project.sim_settings.ahu_tz_overwrite = False
         project.sim_settings.zoning_criteria = (
             ZoningCriteria.combined_single_zone)
         project.sim_settings.prj_use_conditions = Path(

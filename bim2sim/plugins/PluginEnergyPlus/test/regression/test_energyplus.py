@@ -152,7 +152,7 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
-        project.sim_settings.cooling = True
+        project.sim_settings.cooling_tz_overwrite = True
         project.sim_settings.split_bounds = True
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
@@ -165,6 +165,7 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         self.assertEqual(0, handler.return_value,
                          "Project export and simulation did not finish "
                          "successfully.")
+        self.assertEqual(len(project.playground.elements), 213)
         reg_test_res = self.run_regression_test()
         self.assertEqual(True, reg_test_res,
                          "EnergyPlus Regression test did not finish "
@@ -175,7 +176,7 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         ifc_names = {IFCDomain.arch: 'FM_ARC_DigitalHub_with_SB89.ifc'}
         project = self.create_project(ifc_names, 'energyplus')
         project.sim_settings.create_external_elements = True
-        project.sim_settings.cooling = True
+        project.sim_settings.cooling_tz_overwrite = True
         project.sim_settings.construction_class_windows = \
             'Waermeschutzverglasung, dreifach'
         project.sim_settings.prj_use_conditions = Path(

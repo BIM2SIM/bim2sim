@@ -136,7 +136,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
          'ratio_conv_rad_machines', 'lighting_power',
         'ratio_conv_rad_machines', 'lighting_power', 'fixed_lighting_power',
         'ratio_conv_rad_lighting', 'maintained_illuminance',
-        'lighting_efficiency_lumen', infiltration_rate',
+        'lighting_efficiency_lumen', base_infiltration',
         'max_user_infiltration', 'min_ahu', 'max_ahu', 'persons']"""
         prop_sum = sum(
             getattr(tz, name) * tz.net_volume for tz in self.elements if
@@ -228,7 +228,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         unit=ureg.meter,
         dependant_elements='elements'
     )
-    AreaPerOccupant = attribute.Attribute(
+    area_per_occupant = attribute.Attribute(
         functions=[_intensive_calc],
         unit=ureg.meter ** 2,
         dependant_elements='elements'
@@ -318,7 +318,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         functions=[_bool_calc],
         dependant_elements='elements'
     )
-    infiltration_rate = attribute.Attribute(
+    base_infiltration = attribute.Attribute(
         functions=[_intensive_calc],
         dependant_elements='elements'
     )
@@ -442,7 +442,7 @@ class SBDisaggregationMixin:
         self.layerset = disagg_parent.layerset
         self.material = disagg_parent.material
         self.material_set = disagg_parent.material_set
-        self.orientation = disagg_parent.orientation
+        self.ifc = disagg_parent.ifc
         self.storeys = disagg_parent.storeys
 
     @staticmethod

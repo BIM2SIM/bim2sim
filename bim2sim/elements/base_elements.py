@@ -10,7 +10,6 @@ from ifcopenshell import guid
 
 from bim2sim.elements.aggregation import AggregationMixin
 from bim2sim.kernel.decision import Decision, DecisionBunch
-from bim2sim.kernel.decorators import cached_property
 from bim2sim.kernel import IFCDomainError
 from bim2sim.elements.mapping import condition, attribute, ifc2python
 from bim2sim.elements.mapping.finder import TemplateFinder, SourceTool
@@ -75,22 +74,14 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         """Check if attributes are valid"""
         return {}
 
-    def calc_position(self) -> np.array:
+    def _calc_position(self, name) -> np.array:
         """Returns position (calculation may be expensive)"""
         return None
 
-    def calc_orientation(self) -> np.array:
-        """Returns position (calculation may be expensive)"""
-        return None
-
-    @cached_property
-    def position(self) -> np.array:
-        """Position calculated only once by calling calc_position"""
-        return self.calc_position()
-
-    @cached_property
-    def orientation(self) -> np.array:
-        return self.calc_orientation()
+    position = attribute.Attribute(
+        description='Position of element',
+        functions=[_calc_position]
+    )
 
     @staticmethod
     def get_id(prefix=""):
@@ -121,10 +112,12 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
 
     def reset(self, name, data_source=AttributeDataSource.manual_overwrite):
         """Reset the attribute of the element.
+
         Args:
             name: attribute name
             data_source (object): data source of the attribute
         """
+
         return self.attributes.reset(name, data_source)
 
     def source_info(self) -> str:
@@ -219,7 +212,7 @@ class IFCBased(Element):
         """Check if ifc meets conditions to create element from it"""
         raise NotImplementedError
 
-    def calc_position(self):
+    def _calc_position(self, name):
         """returns absolute position"""
         if hasattr(self.ifc, 'ObjectPlacement'):
             absolute = np.array(self.ifc.ObjectPlacement.RelativePlacement.Location.Coordinates)
@@ -232,47 +225,15 @@ class IFCBased(Element):
 
         return absolute
 
-    def calc_orientation(self) -> np.array:
-        """Tries to calculate the orientation of based on DirectionRatio.
-
-        This generic orientation calculation uses the DirectionRatios which in
-        most cases return the correct orientation of the element. But this
-        depends on the modeller and the BIM author software and is not failsafe.
-        Orientation is mostly important for BPSProducts where we can use
-        Space Boundaries for failsafe orientation calculation.
-
-        Returns:
-            Orientation angle between 0 and 360.
-            (0 : north, 90: east, 180: south, 270: west)
-        """
-        # ToDO: check if true north angle is taken into account
-        #  (should be with while loop)
-        ang_sum = 0
-        placementrel = self.ifc.ObjectPlacement
-        while placementrel is not None:
-            if placementrel.RelativePlacement.RefDirection is not None:
-                vector = placementrel.RelativePlacement.RefDirection.DirectionRatios
-                ang_sum += vector_angle(vector)
-            placementrel = placementrel.PlacementRelTo
-
-        # relative vector + absolute vector
-        # if len(list_angles) == 1:
-        #     if list_angles[next(iter(list_angles))] is None:
-        #         return -90
-        #         # return 0
-
-        # windows DirectionRatios are mostly facing inwards the building
-        if self.ifc_type == 'IfcWindow':
-            ang_sum += 180
-
-        # angle between 0 and 360
-        return angle_equivalent(ang_sum)
-
-    @cached_property
-    def name(self):
+    def _get_name_from_ifc(self, name):
         ifc_name = self.get_ifc_attribute('Name')
         if ifc_name:
             return remove_umlaut(ifc_name)
+
+    name = attribute.Attribute(
+        description="Name of element based on IFC attribute.",
+        functions=[_get_name_from_ifc]
+    )
 
     def get_ifc_attribute(self, attribute):
         """
@@ -492,6 +453,7 @@ class ProductBased(IFCBased):
         self.ports = self.get_ports()
         self.material = None
         self.material_set = {}
+        self.cost_group = self.calc_cost_group()
 
     def __init_subclass__(cls, **kwargs):
         # set key for each class
@@ -589,9 +551,20 @@ class ProductBased(IFCBased):
             except:
                 logger.warning(f"No calculation of geometric volume possible "
                                f"for {self.ifc}.")
-    @cached_property
-    def cost_group(self) -> int:
-        return self.calc_cost_group()
+
+    def _get_volume(self, name):
+        if hasattr(self, "net_volume"):
+            if self.net_volume:
+                vol = self.net_volume
+                return vol
+        vol = self.calc_volume_from_ifc_shape()
+        return vol
+
+    volume = attribute.Attribute(
+        description="Volume of the attribute",
+        functions=[_get_volume],
+    )
+
     def __str__(self):
         return "<%s>" % (self.__class__.__name__)
 
