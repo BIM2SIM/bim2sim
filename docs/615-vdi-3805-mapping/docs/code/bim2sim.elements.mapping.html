@@ -201,9 +201,17 @@ calculate said attribute</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.get_from_functions">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_from_functions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">functions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.get_from_functions" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_from_functions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.get_from_functions" title="Permalink to this definition"></a></dt>
 <dd><p>Get value from functions.</p>
-<p>First successful function calls return value is used</p>
+<p>First successful function calls return value is used. As we want to
+allow to overwrite functions in inherited classes, we use
+getattr(bind, func.__name__) to get the function from the bind.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>bind: the bind object
+functions: a list of functions
+name: the name of the attribute</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -335,7 +343,9 @@ In either case, this is followed by: for k in F:  D[k] = F[k]</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.multi_calc">
 <span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.attribute.</span></span><span class="sig-name descname"><span class="pre">multi_calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.multi_calc" title="Permalink to this definition"></a></dt>
-<dd><p>Decorator for calculation of multiple Attribute values</p>
+<dd><p>Decorator for calculation of multiple Attribute values.</p>
+<p>Decorator functools.wraps is needed to return the real function name
+for get_from_functions method.</p>
 </dd></dl>
 
 </section>

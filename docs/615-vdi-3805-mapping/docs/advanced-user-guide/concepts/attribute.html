@@ -61,6 +61,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#which-problem-is-addressed-by-attributes">Which problem is addressed by attributes?</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#concept-how-does-it-work">Concept / How does it work?</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#how-are-the-attributes-managed">How are the attributes managed?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#when-to-use-attributes">When to use <code class="docutils literal notranslate"><span class="pre">attributes</span></code>?</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="finder.html">Finder</a></li>
@@ -166,6 +167,87 @@ final tasks before exporting to a simulation model should always trigger the
 <a class="reference internal" href="../../code/bim2sim.elements.html#bim2sim.elements.base_elements.Element.get_pending_attribute_decisions" title="bim2sim.elements.base_elements.Element.get_pending_attribute_decisions"><code class="xref myst py py-meth docutils literal notranslate"><span class="pre">get_pending_attribute_decisions</span></code></a> function of <a class="reference internal" href="#element"><span class="xref myst">element</span></a>. This
 implementation was made to bundle the decisions at the end of the process if
 possible.</p>
+</section>
+<section id="when-to-use-attributes">
+<h2>When to use <code class="docutils literal notranslate"><span class="pre">attributes</span></code>?<a class="headerlink" href="#when-to-use-attributes" title="Permalink to this heading"></a></h2>
+<p>There are multiple ways to calculate and store information in a bim2sim
+<code class="docutils literal notranslate"><span class="pre">element</span></code>. Following you will find some guidelines when to use which way.</p>
+<section id="bim2sim-attribute">
+<h3>bim2sim <code class="docutils literal notranslate"><span class="pre">attribute</span></code><a class="headerlink" href="#bim2sim-attribute" title="Permalink to this heading"></a></h3>
+<p>The specialized bim2sim <code class="docutils literal notranslate"><span class="pre">attribute</span></code> system should be used when:</p>
+<ul class="simple">
+<li><p>Values need to be obtained from different sources (IFC attributes, IFC PropertySets, enrichment data, etc.)</p></li>
+<li><p>Physical units (via pint) need to be managed</p></li>
+<li><p>Automatic validation and type checking is required</p></li>
+<li><p>Values need to be traceable (status, data source)</p></li>
+<li><p>Missing values should be supplemented via user interaction (Decisions)</p></li>
+</ul>
+</section>
+<section id="python-properties">
+<h3>Python properties<a class="headerlink" href="#python-properties" title="Permalink to this heading"></a></h3>
+<p>Python properties are created using the inbuilt decorator <code class="docutils literal notranslate"><span class="pre">&#64;property</span></code>. Properties should be used when:</p>
+<ul class="simple">
+<li><p>None of the features by the bim2sim <code class="docutils literal notranslate"><span class="pre">attribute</span></code> system is needed</p></li>
+<li><p>Computed values should be determined on-demand</p></li>
+<li><p>Getter/setter logic is needed</p></li>
+<li><p>Attribute-like access to methods is desired</p></li>
+<li><p>Validation or transformation is necessary when reading/writing</p></li>
+</ul>
+<p>Example for the usage of property:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Circle</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radius</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_radius</span> <span class="o">=</span> <span class="n">radius</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mf">3.14</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_radius</span> <span class="o">**</span> <span class="mi">2</span>
+    
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_radius</span>
+        
+    <span class="nd">@radius</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Radius must be positive&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_radius</span> <span class="o">=</span> <span class="n">value</span>
+</pre></div>
+</div>
+</section>
+<section id="class-attributes">
+<h3>Class attributes<a class="headerlink" href="#class-attributes" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>When every instance of the class has the same value</p></li>
+<li><p>When you want to share the value of this attribute through all instances of this class</p></li>
+</ul>
+<p>An example would be the counter of created instances of this class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyClass</span><span class="p">:</span>
+    <span class="n">instance_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">MyClass</span><span class="o">.</span><span class="n">instance_count</span> <span class="o">+=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</section>
+<section id="instance-attributes">
+<h3>Instance attributes<a class="headerlink" href="#instance-attributes" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>If every instance of the class should have it’s own value</p></li>
+<li><p>If the value is always needed and will stay the same for the lifetime of the
+object
+The most common way is to put information into instance attributes by add a
+value or the link to a method to calculate this value to the <code class="docutils literal notranslate"><span class="pre">__init__</span></code> function:</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyElement</span><span class="p">(</span><span class="n">element</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>  <span class="c1"># constant instance attribute</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value_2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calc_valuve_2</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">calc_value_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="o">+</span><span class="mi">2</span>
+</pre></div>
+</div>
+</section>
 </section>
 </section>
 
