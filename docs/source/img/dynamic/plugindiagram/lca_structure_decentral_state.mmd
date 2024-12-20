@@ -18,57 +18,38 @@ tLoadIFC -- ifc_files --> stateLoadIFC
 
 end
     
-subgraph taskCreateElements["task CreateElements"]
+subgraph taskCreateElementsOnIfcTypes["task CreateElementsOnIfcTypes"]
  subgraph "" 
 
-  tCreateElements["bim2sim > tasks > common >  
- CreateElements"]
-  extCreateElements(" Create bim2sim elements based on information in
-IFC. " )
+  tCreateElementsOnIfcTypes["bim2sim > tasks > common >  
+ CreateElementsOnIfcTypes"]
+  extCreateElementsOnIfcTypes(" Create bim2sim elements based on information of
+IFC types. " )
  end
 
-stateCreateElements[("state
+stateCreateElementsOnIfcTypes[("state
  (reads/touches)")]
     
-stateCreateElements -- ifc_files --> tCreateElements
+stateCreateElementsOnIfcTypes -- ifc_files --> tCreateElementsOnIfcTypes
 
-tCreateElements -- elements, ifc_files --> stateCreateElements
+tCreateElementsOnIfcTypes -- elements, _initial_elements, ifc_files --> stateCreateElementsOnIfcTypes
 
 end
     
-subgraph taskBindStoreys["task BindStoreys"]
+subgraph taskCreateRelations["task CreateRelations"]
  subgraph "" 
 
-  tBindStoreys["bim2sim > tasks > common >  
- BindStoreys"]
-  extBindStoreys(" None. " )
+  tCreateRelations["bim2sim > tasks > common >  
+ CreateRelations"]
+  extCreateRelations(" Relations of elements, run() method holds detailed
+information. " )
  end
 
-stateBindStoreys[("state
+stateCreateRelations[("state
  (reads/touches)")]
     
-stateBindStoreys -- elements --> tBindStoreys
-
-tBindStoreys -- elements --> stateBindStoreys
-
-end
-    
-subgraph taskVerifyLayersMaterials["task VerifyLayersMaterials"]
- subgraph "" 
-
-  tVerifyLayersMaterials["bim2sim > tasks > bps >  
- VerifyLayersMaterials"]
-  extVerifyLayersMaterials(" Verifies if layers and materials and their
-properties are meaningful. " )
- end
-
-stateVerifyLayersMaterials[("state
- (reads/touches)")]
-    
-stateVerifyLayersMaterials -- elements --> tVerifyLayersMaterials
-
-tVerifyLayersMaterials -- invalid --> stateVerifyLayersMaterials
-
+stateCreateRelations -- elements --> tCreateRelations
+direction RL
 end
     
 subgraph taskEnrichMaterial["task EnrichMaterial"]
@@ -83,10 +64,8 @@ as invalid LOD. " )
 stateEnrichMaterial[("state
  (reads/touches)")]
     
-stateEnrichMaterial -- elements, invalid --> tEnrichMaterial
-
-tEnrichMaterial -- elements --> stateEnrichMaterial
-
+stateEnrichMaterial -- elements --> tEnrichMaterial
+direction RL
 end
     
 subgraph taskExportLCA["task ExportLCA"]
@@ -105,8 +84,7 @@ stateExportLCA[("state
 stateExportLCA -- ifc_files, elements --> tExportLCA
 direction RL
 end
-    taskLoadIFC --> taskCreateElements 
-taskCreateElements --> taskBindStoreys 
-taskBindStoreys --> taskVerifyLayersMaterials 
-taskVerifyLayersMaterials --> taskEnrichMaterial 
+    taskLoadIFC --> taskCreateElementsOnIfcTypes 
+taskCreateElementsOnIfcTypes --> taskCreateRelations 
+taskCreateRelations --> taskEnrichMaterial 
 taskEnrichMaterial --> taskExportLCA 

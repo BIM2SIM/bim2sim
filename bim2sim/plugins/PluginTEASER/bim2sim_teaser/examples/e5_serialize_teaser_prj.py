@@ -4,7 +4,6 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
 from bim2sim.tasks import common, bps
 from bim2sim.utilities.common_functions import download_library
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
@@ -15,7 +14,6 @@ import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
 
 def run_serialize_teaser_project_example():
     """Serialize a TEASER Project for further use."""
-    default_logging_setup()
     # Create the default logging to for quality log and bim2sim main log
     # (see logging documentation for more information)
     project_path = Path(
@@ -39,13 +37,12 @@ def run_serialize_teaser_project_example():
 
     project.sim_settings.zoning_criteria = ZoningCriteria.usage
     # use cooling
-    project.sim_settings.cooling = False
+    project.sim_settings.cooling_tz_overwrite = False
     project.sim_settings.setpoints_from_template = True
 
-    project.sim_settings.overwrite_ahu_by_settings = True
-    project.sim_settings.ahu_heating = True
-    project.sim_settings.ahu_cooling = True
-    project.sim_settings.ahu_heat_recovery = True
+    project.sim_settings.ahu_heating_overwrite = True
+    project.sim_settings.ahu_cooling_overwrite = True
+    project.sim_settings.ahu_heat_recovery_overwrite = True
 
     # overwrite existing layer structures and materials based on templates
     project.sim_settings.layers_and_materials = LOD.low

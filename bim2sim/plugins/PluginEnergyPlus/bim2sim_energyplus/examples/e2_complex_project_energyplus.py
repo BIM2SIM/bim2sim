@@ -4,7 +4,6 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain, LOD
 
 
@@ -39,7 +38,7 @@ def run_example_complex_building_energyplus():
 
     # combine spaces to thermal zones based on their usage
     # use cooling
-    project.sim_settings.cooling = True
+    project.sim_settings.cooling_tz_overwrite = True
     project.sim_settings.setpoints_from_template = True
     project.sim_settings.run_full_simulation = True
 
