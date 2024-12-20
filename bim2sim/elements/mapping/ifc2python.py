@@ -16,6 +16,8 @@ from bim2sim.elements.mapping.units import parse_ifc
 if TYPE_CHECKING:
     from bim2sim.elements.base_elements import ProductBased
 
+logger = logging.getLogger(__name__)
+
 
 def load_ifc(path: Path) -> file:
     """loads the ifc file using ifcopenshell and returns the ifcopenshell
@@ -526,7 +528,9 @@ def get_true_north(ifcElement: entity_instance):
     project = getProject(ifcElement)
     try:
         true_north = project.RepresentationContexts[0].TrueNorth.DirectionRatios
-    except AttributeError:
+    except AttributeError as er:
+        logger.warning(f"Not able to calculate true north of IFC element "
+                       f"{ifcElement} due to error: {er}")
         true_north = [0, 1]
     angle_true_north = math.degrees(math.atan(true_north[0] / true_north[1]))
     return angle_true_north

@@ -338,7 +338,7 @@ class SetupHelperBPS(SetupHelper):
         # with mock.patch.object(bps.BPSProduct, 'get_ports', return_value=[]):
         orient = kwargs.pop('orientation', None)  # TODO WORKAROUND,
         element = element_cls(**kwargs)
-        element.orientation = orient
+        element.teaser_orientation = orient
         return element
 
     def get_thermalzone(self, **kwargs):
