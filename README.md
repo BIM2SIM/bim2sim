@@ -14,7 +14,7 @@ The focus of the currently released tool is on BPS and HVAC but we already provi
 ![Toolchain](docs/source/img/static/bim2sim_framework_overview.png)
 
 ## Installation and Usage
-You can find detailed documentation and description how to install and to use in our [documentation](https://bim2sim.github.io/bim2sim//development/docs/overview.html). We recommend reading at least:
+You can find detailed documentation and description how to install and to use in our [documentation](https://bim2sim.github.io/bim2sim//development/docs/index.html). We recommend reading at least:
 * [Big Picture](https://bim2sim.github.io/bim2sim//development/docs/big-picture.html) to understand the concepts of bim2sim
 * [PluginTemplate - How to install?](https://bim2sim.github.io/bim2sim//development/docs/user-guide/PluginTemplate.html#how-to-install) to understand how to install the Base of the framework.
 

@@ -6,7 +6,6 @@ from bim2sim import Project
 from bim2sim.elements.aggregation.bps_aggregations import AggregatedThermalZone
 from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
 from bim2sim.tasks import common, bps
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
@@ -20,7 +19,6 @@ def visualize_zoning_of_complex_building():
     """
     # The following is the same as in the example e2, look their if you want to
     # know what happens here
-    default_logging_setup()
     project_path = Path(
         tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
     ifc_paths = {
@@ -34,7 +32,6 @@ def visualize_zoning_of_complex_building():
 
     # we use LOD.medium that means that zones are merged based on
     # zoning_criteria sim_setting
-    project.sim_settings.zoning_setup = LOD.medium
 
     # We don't need a full bim2sim run with simulation to demonstrate this, so
     # we will just run the needed tasks:
@@ -55,7 +52,7 @@ def visualize_zoning_of_complex_building():
     project.sim_settings.prj_use_conditions = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
-            "UseConditionsFM_ARC_DigitalHub_with_SB89.json")
+            "UseConditionsFM_ARC_DigitalHub.json")
     project.sim_settings.prj_custom_usages = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
