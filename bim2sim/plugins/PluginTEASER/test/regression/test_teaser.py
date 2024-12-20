@@ -40,7 +40,8 @@ class RegressionTestTEASER(RegressionTestBase):
                 source = reg_dir / log_file
                 if not self.is_ci:
                     destination = self.project.paths.log / log_file
-                    source.replace(destination)
+                    if source.exists():
+                        shutil.move(str(source), str(destination))
 
         super().tearDown()
 
@@ -141,6 +142,12 @@ class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
+        orientation_dict = {}
+        elements = project.playground.state['elements']
+        for ele in elements.values():
+            if hasattr(ele, 'teaser_orientation'):
+                if ele.teaser_orientation:
+                    orientation_dict[ele] = ele.teaser_orientation
         self.assertEqual(0, handler.return_value,
                          "Project export did not finish successfully.")
         self.create_regression_setup(tolerance=1E-3, batch_mode=True)

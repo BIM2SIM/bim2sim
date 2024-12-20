@@ -10,7 +10,6 @@ from typing import Set, List, Tuple, Generator, Union, Type
 import numpy as np
 
 from bim2sim.kernel.decision import ListDecision, DecisionBunch
-from bim2sim.kernel.decorators import cached_property
 from bim2sim.elements.mapping import condition, attribute
 from bim2sim.elements.base_elements import Port, ProductBased, IFCBased
 from bim2sim.elements.mapping.ifc2python import get_ports as ifc2py_get_ports
@@ -67,7 +66,7 @@ class HVACPort(Port):
         kwargs['flow_direction'] = flow_direction
         return args, kwargs
 
-    def calc_position(self) -> np.array:
+    def _calc_position(self, name) -> np.array:
         """returns absolute position as np.array"""
         try:
             relative_placement = \
@@ -204,19 +203,10 @@ class HVACProduct(ProductBased):
         self.inner_connections: List[Tuple[HVACPort, HVACPort]] \
             = self.get_inner_connections()
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         raise NotImplementedError(f"Please define the expected number of ports "
                                   f"for the class {self.__class__.__name__} ")
-
-    @cached_property
-    def volume(self):
-        if hasattr(self, "net_volume"):
-            if self.net_volume:
-                vol = self.net_volume
-                return vol
-        vol = self.calc_volume_from_ifc_shape()
-        return vol
 
     def get_ports(self) -> list:
         """Returns a list of ports of this product."""
@@ -388,7 +378,7 @@ class HeatPump(HVACProduct):
         description="The COP of the heatpump, definition based on VDI 3805-22",
     )
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 4
 
@@ -457,7 +447,7 @@ class Chiller(HVACProduct):
         unit=ureg.kilowatt,
     )
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 4
 
@@ -494,7 +484,7 @@ class CoolingTower(HVACProduct):
         unit=ureg.dimensionless,
     )
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 2
 
@@ -524,7 +514,7 @@ class HeatExchanger(HVACProduct):
         unit=ureg.dimensionless,
     )
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 4
 
@@ -539,7 +529,7 @@ class Boiler(HVACProduct):
         re.compile('Boiler', flags=re.IGNORECASE),
     ]
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 2
 
@@ -726,7 +716,7 @@ class Pipe(HVACProduct):
              'SPOOL']
     }
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 2
 
@@ -834,7 +824,7 @@ class PipeFitting(HVACProduct):
         re.compile('Bend', flags=re.IGNORECASE),
     ]
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return (2, 3)
 
@@ -905,7 +895,7 @@ class Junction(PipeFitting):
         re.compile('Kreuzst(ü|ue)ck', flags=re.IGNORECASE)
     ]
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 3
 
@@ -923,7 +913,7 @@ class SpaceHeater(HVACProduct):
         re.compile('Space.?heater', flags=re.IGNORECASE)
     ]
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 2
 
@@ -1019,7 +1009,7 @@ class ExpansionTank(HVACProduct):
         re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
     ]
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 1
 
@@ -1042,7 +1032,7 @@ class Storage(HVACProduct):
                                  math.inf * ureg.liter)
     ]
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return float('inf')
 
@@ -1095,7 +1085,7 @@ class Distributor(HVACProduct):
     }
     # TODO why is pipefitting for DH found as Pipefitting and not distributor
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return (2, float('inf'))
 
@@ -1128,7 +1118,7 @@ class Pump(HVACProduct):
              'VERTICALTURBINE']
     }
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 2
 
@@ -1208,7 +1198,7 @@ class Valve(HVACProduct):
              'STOPCOCK']
     }
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 2
 
@@ -1275,7 +1265,7 @@ class ThreeWayValve(Valve):
         re.compile('3-Wege.*?ventil', flags=re.IGNORECASE)
     ]
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 3
 
@@ -1341,7 +1331,7 @@ class Medium(HVACProduct):
         re.compile('Medium', flags=re.IGNORECASE)
     ]
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 0
 
@@ -1349,7 +1339,7 @@ class Medium(HVACProduct):
 class CHP(HVACProduct):
     ifc_types = {'IfcElectricGenerator': ['CHP']}
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 2
 

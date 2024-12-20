@@ -16,6 +16,9 @@ class TestElement(ProductBased):
         self.x = 42
     ifc_types = {}
 
+    def _func1(self, name):
+        return self.x
+
     attr1 = Attribute(
         unit=ureg.meter
     )
@@ -23,10 +26,15 @@ class TestElement(ProductBased):
     attr3 = Attribute()
     attr4 = Attribute()
     attr5 = Attribute(
-        functions=[lambda self, attr:self.x]
+        functions=[_func1]
     )
     attr6 = Attribute(attr_type=str)
     attr7 = Attribute(attr_type=bool)
+
+
+class TestElementInherited(TestElement):
+    def _func1(self, name):
+        return 43
 
 
 class TestAttribute(unittest.TestCase):
@@ -35,6 +43,8 @@ class TestAttribute(unittest.TestCase):
 
     def setUp(self):
         self.subject = self.helper.element_generator(TestElement)
+        self.subject_inherited = self.helper.element_generator(
+            TestElementInherited)
 
     def tearDown(self):
         self.helper.reset()
@@ -66,10 +76,10 @@ class TestAttribute(unittest.TestCase):
         """Test attribute manager"""
         self.assertIsNone(self.subject.attr1)
 
-        self.assertEqual(7, len(self.subject.attributes),
+        self.assertEqual(10, len(self.subject.attributes),
                          "All Attributes should be registered in AttributeManager")
 
-        self.assertEqual(7, len(list(self.subject.attributes.names)))
+        self.assertEqual(10, len(list(self.subject.attributes.names)))
 
         self.assertIn('attr1', self.subject.attributes)
 
@@ -91,7 +101,8 @@ class TestAttribute(unittest.TestCase):
     def test_attribute_manager_names(self):
         """test names of manager"""
 
-        target = {'attr1', 'attr2', 'attr3', 'attr4', 'attr5', 'attr6', 'attr7'
+        target = {'attr1', 'attr2', 'attr3', 'attr4', 'attr5', 'attr6',
+                  'attr7', 'name', 'volume', 'position'
                   }
         found = set(self.subject.attributes.names)
         self.assertEqual(target, found)
@@ -166,6 +177,9 @@ class TestAttribute(unittest.TestCase):
         # set attribute again and check if it is correctly set
         self.subject.attr1 = 0.2
         self.assertIs(type(0.2), type(self.subject.attr1.magnitude))
+
+    def test_from_function_inheritance(self):
+        self.assertEqual(43, self.subject_inherited.attr5)
 
 
 class TestAttributeDecisions(unittest.TestCase):

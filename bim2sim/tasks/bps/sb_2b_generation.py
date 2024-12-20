@@ -43,11 +43,23 @@ class AddSpaceBoundaries2B(ITask):
         if not self.playground.sim_settings.close_space_boundary_gaps:
             return elements,
         try:
+            total_area_before_split = 0
             inst_2b = self._compute_2b_bound_gaps(elements)
+            for sb in inst_2b.values():
+                total_area_before_split += sb.bound_area
             CorrectSpaceBoundaries.split_non_convex_bounds(
                 CorrectSpaceBoundaries(self.playground),
                 inst_2b,
                 self.playground.sim_settings.split_bounds)
+            total_area_after_split = 0
+            for sb in inst_2b.values():
+                total_area_after_split += sb.bound_area
+            rel_dif_per = (abs(total_area_before_split-total_area_after_split)/
+                       total_area_before_split * 100)
+            if rel_dif_per > 1e-3:
+                self.logger.warning(
+                    f"Difference of {rel_dif_per.m} between total 2B area "
+                    f"before and after splitting.")
         except Exception as ex:
             logger.warning(f"Unexpected {ex=}. No 2b Space Boundaries added."
                            f" {type(ex)=}")
