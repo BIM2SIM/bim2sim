@@ -339,7 +339,7 @@ class HeatPump(HVACProduct):
     }
     # IFC Schema does not support Heatpumps directly, but default of unitary
     # equipment is set to HeatPump now and expected ports to 4 to try to
-    # identify heatpumps
+    # identify heat pumps
 
     pattern_ifc_type = [
         re.compile('Heat.?pump', flags=re.IGNORECASE),
@@ -347,15 +347,15 @@ class HeatPump(HVACProduct):
     ]
 
     min_power = attribute.Attribute(
-        description='Minimum power that HeatPump operates at.',
+        description='Minimum power that heat pump operates at.',
         unit=ureg.kilowatt,
     )
     rated_power = attribute.Attribute(
-        description='Rated power of HeatPump.',
+        description='Rated power of heat pump.',
         unit=ureg.kilowatt,
     )
     efficiency = attribute.Attribute(
-        description='Efficiency of HeatPump provided as list with pairs of '
+        description='Efficiency of heat pump provided as list with pairs of '
                     '[percentage_of_rated_power,efficiency]',
         unit=ureg.dimensionless
     )
@@ -363,19 +363,19 @@ class HeatPump(HVACProduct):
         description="temp dummy to test vdi table export",
     )
     is_reversible = attribute.Attribute(
-        description="Does the heatpump support cooling as well?",
+        description="Does the heat pump support cooling as well?",
         unit=ureg.dimensionless
     )
     rated_cooling_power = attribute.Attribute(
-        description='Rated power of HeatPump in cooling mode.',
+        description='Rated power of heat pump in cooling mode.',
         unit=ureg.kilowatt,
     )
     COP = attribute.Attribute(
-        description="The COP of the heatpump, definition based on VDI 3805-22",
+        description="The COP of the heat pump, definition based on VDI 3805-22",
         unit=ureg.dimensionless
     )
     internal_pump = attribute.Attribute(
-        description="The COP of the heatpump, definition based on VDI 3805-22",
+        description="The COP of the heat pump, definition based on VDI 3805-22",
     )
 
     @property
