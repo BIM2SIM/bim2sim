@@ -1,3 +1,6 @@
+import json
+import logging
+import re
 import unittest
 from pathlib import Path
 
@@ -7,10 +10,82 @@ from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.utilities.types import LOD, IFCDomain, ZoningCriteria
 
+logger = logging.getLogger(__name__)
+
 
 class IntegrationBaseTEASER(IntegrationBase):
     def model_domain_path(self) -> str:
         return 'arch'
+
+    def compare_teaser_models(self):
+        ref_serialized_teaser_json = Path(bim2sim.__file__).parent.parent \
+                                    / "test/resources/arch/regression_results" \
+                                    / self.project.name / 'TEASER'
+        if not list(ref_serialized_teaser_json.rglob("*.json")):
+            logger.error(
+                f"No Serialized .json fiels to compare TEASER models found in"
+                f" {self.ref_results_src_path}.")
+        # ref_serialized_teaser_json = Path(bim2sim.__file__).parent.parent /
+        #     'test/resources/arch/regression
+
+    def compare_json_files(self, file_path1, file_path2):
+        # Read JSON files
+        with open(file_path1, 'r') as f1, open(file_path2, 'r') as f2:
+            data1 = json.load(f1)
+            data2 = json.load(f2)
+
+        return self.compare_structures(data1, data2)
+
+    def compare_structures(self, obj1, obj2):
+        # If objects are of different types, they're not equal
+        if type(obj1) != type(obj2):
+            return False
+
+        # Handle dictionaries
+        if isinstance(obj1, dict):
+            if len(obj1) != len(obj2):
+                return False
+
+            # Create maps of normalized keys to values
+            map1 = self.normalize_keys(obj1)
+            map2 = self.normalize_keys(obj2)
+
+            # Compare normalized keys
+            if set(map1.keys()) != set(map2.keys()):
+                return False
+
+            # Recursively compare values
+            for key in map1:
+                if not self.compare_structures(map1[key], map2[key]):
+                    return False
+            return True
+
+        # Handle lists
+        elif isinstance(obj1, list):
+            if len(obj1) != len(obj2):
+                return False
+
+            # Compare each element
+            for item1, item2 in zip(obj1, obj2):
+                if not self.compare_structures(item1, item2):
+                    return False
+            return True
+
+        # Handle primitive types
+        else:
+            return obj1 == obj2
+
+    @staticmethod
+    def normalize_keys(dictionary):
+        normalized = {}
+        for key, value in dictionary.items():
+            # Replace DisAgg_<random> with DisAgg_normalized
+            if re.match(r'^DisAgg_', key):
+                normalized_key = 'DisAgg_normalized'
+            else:
+                normalized_key = key
+            normalized[normalized_key] = value
+        return normalized
 
 
 class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
@@ -26,6 +101,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
+        self.compare_teaser_models()
 
     def test_run_kitoffice_spaces_low_layers_low(self):
         """Run project with AC20-Institute-Var-2.ifc"""
