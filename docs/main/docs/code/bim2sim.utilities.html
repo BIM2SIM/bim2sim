@@ -219,12 +219,7 @@ those spaces that hold space boundaries.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.utilities.common_functions.get_type_building_elements">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.common_functions.</span></span><span class="sig-name descname"><span class="pre">get_type_building_elements</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.common_functions.get_type_building_elements" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="bim2sim.utilities.common_functions.get_type_building_elements_hvac">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.common_functions.</span></span><span class="sig-name descname"><span class="pre">get_type_building_elements_hvac</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.common_functions.get_type_building_elements_hvac" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.common_functions.</span></span><span class="sig-name descname"><span class="pre">get_type_building_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.common_functions.get_type_building_elements" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
@@ -873,6 +868,31 @@ space_boundary: Attributes derived from space boundary definitions.</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.BoundaryOrientation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.types.</span></span><span class="sig-name descname"><span class="pre">BoundaryOrientation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.types.BoundaryOrientation" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Enumeration for boundary orientations.</p>
+<p>top: Ceilings, roofs (normal points upward)
+bottom: Floors, slabs (normal points downward)
+vertical: Walls (normal perpendicular to vertical)</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.BoundaryOrientation.bottom">
+<span class="sig-name descname"><span class="pre">bottom</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#bim2sim.utilities.types.BoundaryOrientation.bottom" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.BoundaryOrientation.top">
+<span class="sig-name descname"><span class="pre">top</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#bim2sim.utilities.types.BoundaryOrientation.top" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.BoundaryOrientation.vertical">
+<span class="sig-name descname"><span class="pre">vertical</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">3</span></em><a class="headerlink" href="#bim2sim.utilities.types.BoundaryOrientation.vertical" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.utilities.types.IFCDomain">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.types.</span></span><span class="sig-name descname"><span class="pre">IFCDomain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.types.IFCDomain" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
@@ -941,9 +961,45 @@ on the specific simulation settings.</p>
 <dt class="sig sig-object py" id="bim2sim.utilities.types.ZoningCriteria">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.types.</span></span><span class="sig-name descname"><span class="pre">ZoningCriteria</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.types.ZoningCriteria" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Criteria for grouping thermal zones within a building.</p>
+<p>This enum defines different strategies for combining thermal zones based on
+various architectural and functional characteristics.</p>
+<dl>
+<dt>Attributes:</dt><dd><p>external: Groups zones based on their contact with the building
+exterior. Separates zones with exterior contact from</p>
+<blockquote>
+<div><p>interior-only zones.</p>
+</div></blockquote>
+<dl class="simple">
+<dt>usage: Groups zones based on their functional usage/purpose within the</dt><dd><p>building.</p>
+</dd>
+<dt>external_orientation: Groups zones based on both exterior contact and</dt><dd><p>facade orientation (North, East, South, West).</p>
+</dd>
+</dl>
+<p>external_orientation_usage: Combines grouping based on exterior contact
+, orientation, and usage.</p>
+<dl class="simple">
+<dt>all_criteria: Most comprehensive grouping that considers:</dt><dd><ul class="simple">
+<li><p>Exterior contact</p></li>
+<li><p>Facade orientation</p></li>
+<li><p>Usage</p></li>
+<li><p>Glass percentage</p></li>
+<li><p>Physical adjacency between zones</p></li>
+</ul>
+</dd>
+</dl>
+<p>individual_spaces: Every space is converted into a thermal zone.</p>
+<p>combined_single_zone: All spaces are converted into a single thermal zone.</p>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.utilities.types.ZoningCriteria.all_criteria">
 <span class="sig-name descname"><span class="pre">all_criteria</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">5</span></em><a class="headerlink" href="#bim2sim.utilities.types.ZoningCriteria.all_criteria" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.ZoningCriteria.combined_single_zone">
+<span class="sig-name descname"><span class="pre">combined_single_zone</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">7</span></em><a class="headerlink" href="#bim2sim.utilities.types.ZoningCriteria.combined_single_zone" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -959,6 +1015,11 @@ on the specific simulation settings.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.utilities.types.ZoningCriteria.external_orientation_usage">
 <span class="sig-name descname"><span class="pre">external_orientation_usage</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">4</span></em><a class="headerlink" href="#bim2sim.utilities.types.ZoningCriteria.external_orientation_usage" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.utilities.types.ZoningCriteria.individual_spaces">
+<span class="sig-name descname"><span class="pre">individual_spaces</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">6</span></em><a class="headerlink" href="#bim2sim.utilities.types.ZoningCriteria.individual_spaces" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">

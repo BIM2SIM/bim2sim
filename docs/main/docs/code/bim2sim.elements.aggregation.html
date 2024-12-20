@@ -114,12 +114,6 @@ E.g. multiple thermal zones into one thermal zone</p>
 <span class="sig-name descname"><span class="pre">aggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.ProductBased" title="bim2sim.elements.base_elements.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.AggregationMixin.aggregatable_classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.elements.aggregation.AggregationMixin.calc_position">
-<span class="sig-name descname"><span class="pre">calc_position</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.aggregation.AggregationMixin.calc_position" title="Permalink to this definition"></a></dt>
-<dd><p>Position based on first and last element</p>
-</dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.AggregationMixin.guid_prefix">
 <span class="sig-name descname"><span class="pre">guid_prefix</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Agg'</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.AggregationMixin.guid_prefix" title="Permalink to this definition"></a></dt>
@@ -148,22 +142,6 @@ E.g. multiple thermal zones into one thermal zone</p>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.aggregation.AggregationMixin" title="bim2sim.elements.aggregation.AggregationMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">AggregationMixin</span></code></a>, <a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone" title="bim2sim.elements.bps_elements.ThermalZone"><code class="xref py py-class docutils literal notranslate"><span class="pre">ThermalZone</span></code></a></p>
 <p>Aggregates thermal zones</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.AreaPerOccupant">
-<span class="sig-name descname"><span class="pre">AreaPerOccupant</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.AreaPerOccupant" title="Permalink to this definition"></a></dt>
-<dd><p>Descriptor of element attribute to get its value from various sources.</p>
-<p>value and status of attribute are stored in __dict__ of bound instance.
-Possible statuses are:</p>
-<blockquote>
-<div><p>UNKNOWN: default status at the beginning.
-REQUESTED: Attribute was already requested via a decision??.
-AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
-</div></blockquote>
-<p>To find more about Descriptor objects follow the explanations on
-<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.T_threshold_cooling">
 <span class="sig-name descname"><span class="pre">T_threshold_cooling</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.T_threshold_cooling" title="Permalink to this definition"></a></dt>
 <dd><p>Descriptor of element attribute to get its value from various sources.</p>
@@ -173,7 +151,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -189,7 +168,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -205,7 +185,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -215,6 +196,40 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.aggregatable_elements">
 <span class="sig-name descname"><span class="pre">aggregatable_elements</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.ThermalZone'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.aggregatable_elements" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.area_per_occupant">
+<span class="sig-name descname"><span class="pre">area_per_occupant</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.area_per_occupant" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.base_infiltration">
+<span class="sig-name descname"><span class="pre">base_infiltration</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.base_infiltration" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.bind_elements">
@@ -242,7 +257,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -270,7 +286,25 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.fixed_lighting_power">
+<span class="sig-name descname"><span class="pre">fixed_lighting_power</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.fixed_lighting_power" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -286,7 +320,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -302,7 +337,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -318,7 +354,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -334,23 +371,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
-</div></blockquote>
-<p>To find more about Descriptor objects follow the explanations on
-<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.infiltration_rate">
-<span class="sig-name descname"><span class="pre">infiltration_rate</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.infiltration_rate" title="Permalink to this definition"></a></dt>
-<dd><p>Descriptor of element attribute to get its value from various sources.</p>
-<p>value and status of attribute are stored in __dict__ of bound instance.
-Possible statuses are:</p>
-<blockquote>
-<div><p>UNKNOWN: default status at the beginning.
-REQUESTED: Attribute was already requested via a decision??.
-AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -366,7 +388,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -378,6 +401,23 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <dd></dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.lighting_efficiency_lumen">
+<span class="sig-name descname"><span class="pre">lighting_efficiency_lumen</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.lighting_efficiency_lumen" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.lighting_power">
 <span class="sig-name descname"><span class="pre">lighting_power</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.lighting_power" title="Permalink to this definition"></a></dt>
 <dd><p>Descriptor of element attribute to get its value from various sources.</p>
@@ -387,7 +427,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -403,7 +444,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -419,7 +461,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -435,7 +478,25 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.maintained_illuminance">
+<span class="sig-name descname"><span class="pre">maintained_illuminance</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.maintained_illuminance" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -451,7 +512,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -467,7 +529,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -483,7 +546,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -499,7 +563,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -515,7 +580,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -531,7 +597,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -547,7 +614,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -563,7 +631,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -579,7 +648,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -595,7 +665,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -611,7 +682,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -627,7 +699,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -643,7 +716,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -659,7 +733,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -675,39 +750,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
-</div></blockquote>
-<p>To find more about Descriptor objects follow the explanations on
-<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.typical_length">
-<span class="sig-name descname"><span class="pre">typical_length</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.typical_length" title="Permalink to this definition"></a></dt>
-<dd><p>Descriptor of element attribute to get its value from various sources.</p>
-<p>value and status of attribute are stored in __dict__ of bound instance.
-Possible statuses are:</p>
-<blockquote>
-<div><p>UNKNOWN: default status at the beginning.
-REQUESTED: Attribute was already requested via a decision??.
-AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
-</div></blockquote>
-<p>To find more about Descriptor objects follow the explanations on
-<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.typical_width">
-<span class="sig-name descname"><span class="pre">typical_width</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.typical_width" title="Permalink to this definition"></a></dt>
-<dd><p>Descriptor of element attribute to get its value from various sources.</p>
-<p>value and status of attribute are stored in __dict__ of bound instance.
-Possible statuses are:</p>
-<blockquote>
-<div><p>UNKNOWN: default status at the beginning.
-REQUESTED: Attribute was already requested via a decision??.
-AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -723,7 +767,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -739,7 +784,25 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.use_maintained_illuminance">
+<span class="sig-name descname"><span class="pre">use_maintained_illuminance</span></span><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone.use_maintained_illuminance" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -755,7 +818,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -771,7 +835,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -787,7 +852,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -803,7 +869,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -819,7 +886,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -833,7 +901,7 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.aggregation.bps_aggregations.SBDisaggregationMixin" title="bim2sim.elements.aggregation.bps_aggregations.SBDisaggregationMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">SBDisaggregationMixin</span></code></a>, <a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.GroundFloor" title="bim2sim.elements.bps_elements.GroundFloor"><code class="xref py py-class docutils literal notranslate"><span class="pre">GroundFloor</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.GroundFloorDisaggregated.disaggregatable_classes">
-<span class="sig-name descname"><span class="pre">disaggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'BPSProduct'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerFloor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Roof'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.GroundFloor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Slab'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.GroundFloorDisaggregated.disaggregatable_classes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">disaggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'BPSProduct'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.GroundFloor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerFloor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Roof'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Slab'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.GroundFloorDisaggregated.disaggregatable_classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -849,7 +917,7 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.aggregation.bps_aggregations.SBDisaggregationMixin" title="bim2sim.elements.aggregation.bps_aggregations.SBDisaggregationMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">SBDisaggregationMixin</span></code></a>, <a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.InnerDoor" title="bim2sim.elements.bps_elements.InnerDoor"><code class="xref py py-class docutils literal notranslate"><span class="pre">InnerDoor</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.InnerDoorDisaggregated.disaggregatable_classes">
-<span class="sig-name descname"><span class="pre">disaggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'BPSProduct'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerDoor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Door'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.OuterDoor'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.InnerDoorDisaggregated.disaggregatable_classes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">disaggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'BPSProduct'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.OuterDoor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerDoor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Door'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.InnerDoorDisaggregated.disaggregatable_classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -865,7 +933,7 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.aggregation.bps_aggregations.SBDisaggregationMixin" title="bim2sim.elements.aggregation.bps_aggregations.SBDisaggregationMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">SBDisaggregationMixin</span></code></a>, <a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.InnerFloor" title="bim2sim.elements.bps_elements.InnerFloor"><code class="xref py py-class docutils literal notranslate"><span class="pre">InnerFloor</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.InnerFloorDisaggregated.disaggregatable_classes">
-<span class="sig-name descname"><span class="pre">disaggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'BPSProduct'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerFloor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Roof'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.GroundFloor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Slab'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.InnerFloorDisaggregated.disaggregatable_classes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">disaggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'BPSProduct'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.GroundFloor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerFloor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Roof'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Slab'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.InnerFloorDisaggregated.disaggregatable_classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -881,7 +949,7 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.aggregation.bps_aggregations.SBDisaggregationMixin" title="bim2sim.elements.aggregation.bps_aggregations.SBDisaggregationMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">SBDisaggregationMixin</span></code></a>, <a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.InnerWall" title="bim2sim.elements.bps_elements.InnerWall"><code class="xref py py-class docutils literal notranslate"><span class="pre">InnerWall</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.InnerWallDisaggregated.disaggregatable_classes">
-<span class="sig-name descname"><span class="pre">disaggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'BPSProduct'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Wall'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.OuterWall'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerWall'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.InnerWallDisaggregated.disaggregatable_classes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">disaggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'BPSProduct'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.OuterWall'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerWall'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Wall'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.InnerWallDisaggregated.disaggregatable_classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -897,7 +965,7 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.aggregation.bps_aggregations.SBDisaggregationMixin" title="bim2sim.elements.aggregation.bps_aggregations.SBDisaggregationMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">SBDisaggregationMixin</span></code></a>, <a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.OuterDoor" title="bim2sim.elements.bps_elements.OuterDoor"><code class="xref py py-class docutils literal notranslate"><span class="pre">OuterDoor</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.OuterDoorDisaggregated.disaggregatable_classes">
-<span class="sig-name descname"><span class="pre">disaggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'BPSProduct'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerDoor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Door'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.OuterDoor'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.OuterDoorDisaggregated.disaggregatable_classes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">disaggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'BPSProduct'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.OuterDoor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerDoor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Door'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.OuterDoorDisaggregated.disaggregatable_classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -913,7 +981,7 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.aggregation.bps_aggregations.SBDisaggregationMixin" title="bim2sim.elements.aggregation.bps_aggregations.SBDisaggregationMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">SBDisaggregationMixin</span></code></a>, <a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.OuterWall" title="bim2sim.elements.bps_elements.OuterWall"><code class="xref py py-class docutils literal notranslate"><span class="pre">OuterWall</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.OuterWallDisaggregated.disaggregatable_classes">
-<span class="sig-name descname"><span class="pre">disaggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'BPSProduct'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerFloor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Wall'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.OuterWall'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerWall'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.OuterWallDisaggregated.disaggregatable_classes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">disaggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'BPSProduct'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.OuterWall'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerFloor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerWall'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Wall'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.OuterWallDisaggregated.disaggregatable_classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -929,7 +997,7 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.aggregation.bps_aggregations.SBDisaggregationMixin" title="bim2sim.elements.aggregation.bps_aggregations.SBDisaggregationMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">SBDisaggregationMixin</span></code></a>, <a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Roof" title="bim2sim.elements.bps_elements.Roof"><code class="xref py py-class docutils literal notranslate"><span class="pre">Roof</span></code></a></p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.bps_aggregations.RoofDisaggregated.disaggregatable_classes">
-<span class="sig-name descname"><span class="pre">disaggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'BPSProduct'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerFloor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Roof'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.GroundFloor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Slab'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.RoofDisaggregated.disaggregatable_classes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">disaggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'BPSProduct'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.GroundFloor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerFloor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Roof'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Slab'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.bps_aggregations.RoofDisaggregated.disaggregatable_classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1012,12 +1080,12 @@ Consumer.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.hvac_aggregations.Consumer.aggregatable_classes">
-<span class="sig-name descname"><span class="pre">aggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'ProductBased'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.ThreeWayValve'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.UnderfloorHeating'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Pump'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Junction'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.PipeFitting'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Pipe'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Valve'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.PipeStrand'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.SpaceHeater'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.Consumer.aggregatable_classes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">aggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'ProductBased'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.UnderfloorHeating'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.ThreeWayValve'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.SpaceHeater'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Junction'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.PipeFitting'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Pipe'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.PipeStrand'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Valve'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Pump'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.Consumer.aggregatable_classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.hvac_aggregations.Consumer.blacklist_classes">
-<span class="sig-name descname"><span class="pre">blacklist_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.CHP'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.CoolingTower'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Boiler'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Storage'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Chiller'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.HeatPump'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.Consumer.blacklist_classes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">blacklist_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.CHP'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Chiller'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Boiler'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Storage'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.CoolingTower'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.HeatPump'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.Consumer.blacklist_classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1035,7 +1103,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1051,7 +1120,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1067,7 +1137,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1083,7 +1154,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1125,7 +1197,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1141,7 +1214,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1157,7 +1231,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1195,7 +1270,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1211,7 +1287,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1227,7 +1304,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1243,7 +1321,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1259,7 +1338,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1275,7 +1355,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1291,7 +1372,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1299,7 +1381,7 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.hvac_aggregations.Consumer.whitelist_classes">
-<span class="sig-name descname"><span class="pre">whitelist_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.UnderfloorHeating'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.SpaceHeater'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.Consumer.whitelist_classes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">whitelist_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.SpaceHeater'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.UnderfloorHeating'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.Consumer.whitelist_classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -1332,12 +1414,12 @@ aggregatable_classes: A dict of element classes that can be</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule.aggregatable_classes">
-<span class="sig-name descname"><span class="pre">aggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'ProductBased'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.ThreeWayValve'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Distributor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Junction'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.PipeFitting'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Pipe'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.PipeStrand'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.SpaceHeater'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.Consumer'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule.aggregatable_classes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">aggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'ProductBased'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.ThreeWayValve'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.SpaceHeater'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Junction'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.PipeFitting'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Pipe'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.PipeStrand'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Distributor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.Consumer'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule.aggregatable_classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule.blacklist_classes">
-<span class="sig-name descname"><span class="pre">blacklist_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.CoolingTower'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Boiler'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Chiller'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule.blacklist_classes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">blacklist_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Chiller'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Boiler'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.CoolingTower'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule.blacklist_classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1355,7 +1437,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1378,7 +1461,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1394,7 +1478,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1443,7 +1528,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1459,7 +1545,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1475,7 +1562,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1491,7 +1579,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1512,7 +1601,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1533,7 +1623,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1549,7 +1640,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1565,7 +1657,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1581,7 +1674,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1597,7 +1691,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1613,7 +1708,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1621,7 +1717,7 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule.whitelist_classes">
-<span class="sig-name descname"><span class="pre">whitelist_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.UnderfloorHeating'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.SpaceHeater'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.Consumer'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule.whitelist_classes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">whitelist_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.SpaceHeater'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.UnderfloorHeating'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.Consumer'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule.whitelist_classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -1641,7 +1737,7 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <p>Not for Chillers or Heat-pumps!</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.hvac_aggregations.GeneratorOneFluid.aggregatable_classes">
-<span class="sig-name descname"><span class="pre">aggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'ProductBased'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.ThreeWayValve'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Distributor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Pump'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Junction'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.PipeFitting'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Pipe'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Boiler'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Valve'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Storage'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.PipeStrand'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.Consumer'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.ParallelPump'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.GeneratorOneFluid.aggregatable_classes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">aggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'ProductBased'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.ParallelPump'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Boiler'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.ThreeWayValve'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Junction'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Storage'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.PipeFitting'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Pipe'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.ConsumerHeatingDistributorModule'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.PipeStrand'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Valve'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Pump'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Distributor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.Consumer'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.GeneratorOneFluid.aggregatable_classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1659,7 +1755,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1675,7 +1772,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1691,7 +1789,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1752,7 +1851,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1768,7 +1868,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1789,7 +1890,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1805,7 +1907,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1821,7 +1924,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1854,7 +1958,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1870,7 +1975,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1886,7 +1992,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1902,7 +2009,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1918,7 +2026,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1934,7 +2043,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -1942,7 +2052,7 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.hvac_aggregations.GeneratorOneFluid.whitelist_classes">
-<span class="sig-name descname"><span class="pre">whitelist_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.CHP'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Boiler'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.GeneratorOneFluid.whitelist_classes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">whitelist_classes</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Boiler'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.CHP'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.GeneratorOneFluid.whitelist_classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
@@ -2020,12 +2130,6 @@ metas: List of dict with metas information. One element for each</p>
 <dd><p>Bases: <a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.hvac_elements.HVACPort" title="bim2sim.elements.hvac_elements.HVACPort"><code class="xref py py-class docutils literal notranslate"><span class="pre">HVACPort</span></code></a></p>
 <p>Port for Aggregation</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.elements.aggregation.hvac_aggregations.HVACAggregationPort.calc_position">
-<span class="sig-name descname"><span class="pre">calc_position</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.HVACAggregationPort.calc_position" title="Permalink to this definition"></a></dt>
-<dd><p>Position of original port</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.hvac_aggregations.HVACAggregationPort.flow_direction_from_original">
 <span class="sig-name descname"><span class="pre">flow_direction_from_original</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.HVACAggregationPort.flow_direction_from_original" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -2044,7 +2148,7 @@ metas: List of dict with metas information. One element for each</p>
 <p>Aggregates pumps in parallel.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.hvac_aggregations.ParallelPump.aggregatable_classes">
-<span class="sig-name descname"><span class="pre">aggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'ProductBased'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.PipeStrand'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.PipeFitting'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Pump'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Pipe'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.ParallelPump.aggregatable_classes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">aggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'ProductBased'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.hvac_aggregations.PipeStrand'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.PipeFitting'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Pipe'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Pump'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.ParallelPump.aggregatable_classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -2057,7 +2161,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2073,7 +2178,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2119,7 +2225,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2152,7 +2259,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2168,7 +2276,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2184,7 +2293,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2208,7 +2318,7 @@ a medium diameter are calculated based on the aggregated elements to
 maintain meaningful parameters for pressure loss calculations.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.aggregation.hvac_aggregations.PipeStrand.aggregatable_classes">
-<span class="sig-name descname"><span class="pre">aggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'ProductBased'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.PipeFitting'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Pipe'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Valve'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.PipeStrand.aggregatable_classes" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">aggregatable_classes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'ProductBased'</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.PipeFitting'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Valve'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.hvac_elements.Pipe'&gt;}</span></em><a class="headerlink" href="#bim2sim.elements.aggregation.hvac_aggregations.PipeStrand.aggregatable_classes" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -2221,7 +2331,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2264,7 +2375,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2475,7 +2587,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2501,7 +2614,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2517,7 +2631,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2533,7 +2648,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -2549,7 +2665,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>

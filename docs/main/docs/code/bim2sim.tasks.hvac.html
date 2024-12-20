@@ -601,64 +601,6 @@ It logs the creation of the graph and returns the graph.</p>
 </dd></dl>
 
 </section>
-<section id="module-bim2sim.tasks.hvac.obsolete">
-<span id="bim2sim-tasks-hvac-obsolete-module"></span><h2>bim2sim.tasks.hvac.obsolete module<a class="headerlink" href="#module-bim2sim.tasks.hvac.obsolete" title="Permalink to this heading"></a></h2>
-<p>This module holds currently not used tasks related to hvac</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.tasks.hvac.obsolete.DetectCycles">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.hvac.obsolete.</span></span><span class="sig-name descname"><span class="pre">DetectCycles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.obsolete.DetectCycles" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
-<p>Detect cycles in graph</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.hvac.obsolete.DetectCycles.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('graph',)</span></em><a class="headerlink" href="#bim2sim.tasks.hvac.obsolete.DetectCycles.reads" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.hvac.obsolete.DetectCycles.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.graphs.html#bim2sim.elements.graphs.hvac_graph.HvacGraph" title="bim2sim.elements.graphs.hvac_graph.HvacGraph"><span class="pre">HvacGraph</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#bim2sim.tasks.hvac.obsolete.DetectCycles.run" title="Permalink to this definition"></a></dt>
-<dd><p>Run tasks.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="bim2sim.tasks.hvac.obsolete.DetectCycles.touches">
-<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('cycles',)</span></em><a class="headerlink" href="#bim2sim.tasks.hvac.obsolete.DetectCycles.touches" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.tasks.hvac.obsolete.Enrich">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.hvac.obsolete.</span></span><span class="sig-name descname"><span class="pre">Enrich</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.Playground" title="bim2sim.tasks.base.Playground"><span class="pre">Playground</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.obsolete.Enrich" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.hvac.obsolete.Enrich.enrich_instance">
-<span class="sig-name descname"><span class="pre">enrich_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.obsolete.Enrich.enrich_instance" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.hvac.obsolete.Enrich.load_element_class">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_element_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataclass</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.obsolete.Enrich.load_element_class" title="Permalink to this definition"></a></dt>
-<dd><p>this function fills a data class object, with the information found in
-the enrichment data, based on the class, parameter and parameter value.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.hvac.obsolete.Enrich.load_element_ifc">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_element_ifc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ele_ifc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enrich_parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataclass</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.obsolete.Enrich.load_element_ifc" title="Permalink to this definition"></a></dt>
-<dd><p>this function fills a data class object, with the information found in
-the enrichment data, based on the ifc type and year.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.tasks.hvac.obsolete.Enrich.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.hvac.obsolete.Enrich.run" title="Permalink to this definition"></a></dt>
-<dd><p>Run tasks.</p>
-</dd></dl>
-
-</dd></dl>
-
-</section>
 <section id="module-bim2sim.tasks.hvac.reduce">
 <span id="bim2sim-tasks-hvac-reduce-module"></span><h2>bim2sim.tasks.hvac.reduce module<a class="headerlink" href="#module-bim2sim.tasks.hvac.reduce" title="Permalink to this heading"></a></h2>
 <dl class="py class">

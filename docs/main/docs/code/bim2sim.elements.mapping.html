@@ -120,7 +120,8 @@ Possible statuses are:</p>
 <div><p>UNKNOWN: default status at the beginning.
 REQUESTED: Attribute was already requested via a decision??.
 AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
 </div></blockquote>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
@@ -137,6 +138,11 @@ NOT_AVAILABLE: No way was found to obtain the attributes value.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.STATUS_REQUESTED">
 <span class="sig-name descname"><span class="pre">STATUS_REQUESTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'REQUESTED'</span></em><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.STATUS_REQUESTED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.STATUS_RESET">
+<span class="sig-name descname"><span class="pre">STATUS_RESET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RESET'</span></em><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.STATUS_RESET" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -195,9 +201,17 @@ calculate said attribute</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.get_from_functions">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_from_functions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">functions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.get_from_functions" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_from_functions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.get_from_functions" title="Permalink to this definition"></a></dt>
 <dd><p>Get value from functions.</p>
-<p>First successful function calls return value is used</p>
+<p>First successful function calls return value is used. As we want to
+allow to overwrite functions in inherited classes, we use
+getattr(bind, func.__name__) to get the function from the bind.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>bind: the bind object
+functions: a list of functions
+name: the name of the attribute</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -219,6 +233,18 @@ list -&gt; diameter)by default this function does nothing</p>
 <dd></dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.post_process_value">
+<span class="sig-name descname"><span class="pre">post_process_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.post_process_value" title="Permalink to this definition"></a></dt>
+<dd><p>Post-process the raw_value.</p>
+<p>If attribute is given an external ifc_postprocessing entry, this
+function will be used. Otherwise, the pre implemented
+ifc_post_processing of the attribute class will be used.
+If an external ifc_postprocessing is give, this is checked for being
+static or not, because if not static, the bind needs to be forwarded to
+the method.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.request">
 <span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_decision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.request" title="Permalink to this definition"></a></dt>
 <dd><p>Request attribute via decision.</p>
@@ -227,6 +253,12 @@ list -&gt; diameter)by default this function does nothing</p>
 external_decision: Decision to use instead of default decision</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">AttributeDataSource.manual_overwrite</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.reset" title="Permalink to this definition"></a></dt>
+<dd><p>Reset attribute, set to None and STATUS_NOT_AVAILABLE.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -286,6 +318,12 @@ external_decision: custom decision to get attribute from</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.AttributeManager.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">AttributeDataSource.manual_overwrite</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.AttributeManager.reset" title="Permalink to this definition"></a></dt>
+<dd><p>Reset attribute, set to None and STATUS_NOT_AVAILABLE.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.AttributeManager.update">
 <span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param"><span class="n"><span class="pre">E</span></span></em>, <span class="optional">]</span><em class="sig-param"><span class="n"><span class="pre">**F</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None.</span>&#160; <span class="pre">Update</span> <span class="pre">D</span> <span class="pre">from</span> <span class="pre">dict/iterable</span> <span class="pre">E</span> <span class="pre">and</span> <span class="pre">F.</span></span></span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.AttributeManager.update" title="Permalink to this definition"></a></dt>
 <dd><p>If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
@@ -305,7 +343,9 @@ In either case, this is followed by: for k in F:  D[k] = F[k]</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.multi_calc">
 <span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.attribute.</span></span><span class="sig-name descname"><span class="pre">multi_calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.multi_calc" title="Permalink to this definition"></a></dt>
-<dd><p>Decorator for calculation of multiple Attribute values</p>
+<dd><p>Decorator for calculation of multiple Attribute values.</p>
+<p>Decorator functools.wraps is needed to return the real function name
+for get_from_functions method.</p>
 </dd></dl>
 
 </section>
@@ -630,6 +670,12 @@ filtered_tools = filter_source_tools(source_tools)</p>
 <section id="module-bim2sim.elements.mapping.ifc2python">
 <span id="bim2sim-elements-mapping-ifc2python-module"></span><h2>bim2sim.elements.mapping.ifc2python module<a class="headerlink" href="#module-bim2sim.elements.mapping.ifc2python" title="Permalink to this heading"></a></h2>
 <p>Module to convert ifc data from to python data</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.BoundedValue">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">BoundedValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.BoundedValue" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.checkIfcElementType">
 <span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">checkIfcElementType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcElement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifcType</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.checkIfcElementType" title="Permalink to this definition"></a></dt>
