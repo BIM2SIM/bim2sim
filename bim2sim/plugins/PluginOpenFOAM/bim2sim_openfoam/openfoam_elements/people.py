@@ -172,6 +172,7 @@ class BodyPart(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.area = PyOCCTools.get_shape_area(self.tri_geom)
         self.scaled_surface = PyOCCTools.scale_shape_absolute(self.tri_geom,
                                                               person.scale_surface_factor)
+        self.hr_hc = body_part_boundary_conditions[key]['hr_hc']
         self.heat_flux = body_part_boundary_conditions[key][
                              'hr_hc']*(self.temperature-21)
         # todo: remove hardcoded 21 degC and replace with actual

@@ -158,6 +158,22 @@ class SetOpenFOAMBoundaryConditions(ITask):
             person.set_boundary_conditions()
             for body_part in person.body_parts_dict.values():
                 body_part.set_boundary_conditions()
+        if people:
+            # export person dataframe for documentation of surface
+            # temperatures and surface area.
+            person_df = pd.DataFrame(
+                [[key,
+                  part.area,
+                  part.temperature,
+                  part.hr_hc,
+                  part.heat_flux,
+                  part.area * part.heat_flux]
+                 for key, part in people[0].body_parts_dict.items()],
+                columns=['PartName', 'Area', 'Temperature', 'hr_hc',
+                         'HeatFlux', 'Power'])
+            person_df.to_csv(
+                openfoam_case.openfoam_dir / str(people[0].solid_name + '.csv'))
+
         # todo: move initial boundary condition settings to OpenFOAM element
         #  classes.
         self.create_alphat(openfoam_case, openfoam_elements)
