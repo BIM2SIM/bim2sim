@@ -152,17 +152,40 @@ class PlotComfortResults(PlotBEPSResults):
                     5, space_temperature))
             print(f'SPACE USAGE "{space.usage}": {space.guid}')
             if not min_wall_df.empty:
-                print("MIN WALL", min_wall_df)
+                num_min_wall, hours_min_wall = (
+                    self.calc_exceeded_temperature_hours(
+                        min_wall_df, space_temperature, 10))
+                print("MIN WALL:", num_min_wall, hours_min_wall)
             if not max_wall_df.empty:
-                print("MAX WALL", min_wall_df)
+                num_max_wall, hours_max_wall = (
+                    self.calc_exceeded_temperature_hours(
+                        max_wall_df, space_temperature, 23))
+                print("MAX WALL:", num_max_wall, hours_max_wall)
             if not min_floor_df.empty:
-                print("MIN FLOOR", min_floor_df)
+                num_min_floor, hours_min_floor = (
+                    self.calc_exceeded_temperature_hours(
+                        min_floor_df, 0, 19))
+                print("MIN FLOOR:", num_min_floor, hours_min_floor)
             if not max_floor_df.empty:
-                print("MAX FLOOR", max_floor_df)
+                num_max_floor, hours_max_floor = (
+                    self.calc_exceeded_temperature_hours(
+                        max_floor_df, 0, 29))
+                print("MAX FLOOR:", num_max_floor, hours_max_floor)
             if not min_ceiling_df.empty:
-                print("MIN TOP", min_ceiling_df)
+                num_min_ceiling, hours_min_ceiling = (
+                    self.calc_exceeded_temperature_hours(
+                        min_ceiling_df, 0, 14))
+                print("MIN CEILING:", num_min_ceiling, hours_min_ceiling)
             if not max_ceiling_df.empty:
-                print("MAX TOP", max_ceiling_df)
+                num_max_ceiling, hours_max_ceiling = (
+                    self.calc_exceeded_temperature_hours(
+                        max_ceiling_df, 0, 5))
+                print("MAX CEILING:", num_max_ceiling, hours_max_ceiling)
+            print('DONE')
+
+    def calc_exceeded_temperature_hours(self, df, reference, limit):
+        value_over_reference = abs(df.sub(reference, axis=0).dropna())-limit
+        return len(value_over_reference), value_over_reference.values.sum()
 
     def get_exceeded_temperature_hours(self, df, min_limit, max_limit,
                                        ref_value):
@@ -172,7 +195,8 @@ class PlotComfortResults(PlotBEPSResults):
         mask_max = df.sub(ref_value, axis=0) > max_limit
         if mask_max.values.any():
             max_values = np.where(mask_max.any(axis=1),
-                                  np.nanmax(np.where(mask_max, array, np.nan),
+                                  np.nanmax(np.where(mask_max,
+                                                     array, np.nan),
                                             axis=1),
                                   np.nan)
             max_indices = np.where(~np.isnan(max_values))[0]
@@ -182,7 +206,9 @@ class PlotComfortResults(PlotBEPSResults):
         mask_min = df.sub(ref_value, axis=0) < -min_limit
         if mask_min.values.any():
             min_values = np.where(mask_min.any(axis=1),
-                                  np.nanmin(np.where(mask_min, array, np.nan),
+                                  np.nanmin(np.where(mask_min,
+                                                     array,
+                                                     np.nan),
                                             axis=1),
                                   np.nan)
             min_indices = np.where(~np.isnan(min_values))[0]
