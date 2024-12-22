@@ -194,23 +194,28 @@ class PlotComfortResults(PlotBEPSResults):
         array = df.values
         mask_max = df.sub(ref_value, axis=0) > max_limit
         if mask_max.values.any():
-            max_values = np.where(mask_max.any(axis=1),
-                                  np.nanmax(np.where(mask_max,
-                                                     array, np.nan),
-                                            axis=1),
-                                  np.nan)
+            filtered_array = np.where(mask_max, array, np.nan)
+            max_values = []
+            for row in filtered_array:
+                if not np.isnan(row).all():
+                    max_values.append(np.nanmax(row))
+                else:
+                    max_values.append(np.nan)
+            max_values = np.array(max_values)
             max_indices = np.where(~np.isnan(max_values))[0]
             df_max = pd.DataFrame(max_values[max_indices],
                                   index=df.index[max_indices],
                                   columns=['MaxValue'])
         mask_min = df.sub(ref_value, axis=0) < -min_limit
         if mask_min.values.any():
-            min_values = np.where(mask_min.any(axis=1),
-                                  np.nanmin(np.where(mask_min,
-                                                     array,
-                                                     np.nan),
-                                            axis=1),
-                                  np.nan)
+            filtered_array = np.where(mask_min, array, np.nan)
+            min_values = []
+            for row in filtered_array:
+                if not np.isnan(row).all():
+                    min_values.append(np.nanmin(row))
+                else:
+                    min_values.append(np.nan)
+            min_values = np.array(min_values)
             min_indices = np.where(~np.isnan(min_values))[0]
             df_min = pd.DataFrame(min_values[min_indices],
                                   index=df.index[min_indices],
