@@ -115,6 +115,7 @@ class PlotComfortResults(PlotBEPSResults):
     def limited_local_comfort_DIN16798_NA(self, df, elements, export_path):
         spaces = filter_elements(elements, 'ThermalZone')
         for space in spaces:
+            self.logger.info(f"Space: {space.usage}, GUID: {space.guid}")
             space_temperature = df[f"air_temp_rooms_{space.guid}"].apply(
                 lambda x: x.magnitude)
             wall_df = pd.DataFrame()
@@ -150,7 +151,6 @@ class PlotComfortResults(PlotBEPSResults):
                     ceiling_df,
                     14,
                     5, space_temperature))
-            print(f'SPACE USAGE "{space.usage}": {space.guid}')
             if not min_wall_df.empty:
                 num_min_wall, hours_min_wall = (
                     self.calc_exceeded_temperature_hours(
@@ -181,7 +181,7 @@ class PlotComfortResults(PlotBEPSResults):
                     self.calc_exceeded_temperature_hours(
                         max_ceiling_df, 0, 5))
                 print("MAX CEILING:", num_max_ceiling, hours_max_ceiling)
-            print('DONE')
+            # print('DONE')
 
     def calc_exceeded_temperature_hours(self, df, reference, limit):
         value_over_reference = abs(df.sub(reference, axis=0).dropna())-limit
