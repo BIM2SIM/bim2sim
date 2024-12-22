@@ -1,6 +1,7 @@
 import json
 import logging
 from pathlib import Path
+from typing import List
 
 import matplotlib as mpl
 import numpy as np
@@ -10,6 +11,8 @@ from matplotlib import pyplot as plt
 from matplotlib.colors import ListedColormap, Normalize
 
 from bim2sim.tasks.bps import PlotBEPSResults
+from bim2sim.utilities.common_functions import filter_elements
+from bim2sim.utilities.types import BoundaryOrientation
 
 INCH = 2.54
 
@@ -34,10 +37,11 @@ plt.rcParams.update({
 })
 
 class PlotComfortResults(PlotBEPSResults):
-    reads = ('df_finals', 'sim_results_path', 'ifc_files')
+    reads = ('df_finals', 'sim_results_path', 'ifc_files', 'elements')
     final = True
 
-    def run(self, df_finals, sim_results_path, ifc_files):
+    def run(self, df_finals: dict, sim_results_path: Path,
+            ifc_files: List[Path], elements: dict):
         """Plots the results for BEPS simulations.
 
          This holds pre configured functions to plot the results of the BEPS
@@ -48,6 +52,7 @@ class PlotComfortResults(PlotBEPSResults):
               value is the dataframe holding the results for this building
              sim_results_path: base path where to store the plots
              ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc instance
+             elements (dict): Dictionary of building elements.
          """
         if not self.playground.sim_settings.create_plots:
             logger.info("Visualization of Comfort Results is skipped ...")
