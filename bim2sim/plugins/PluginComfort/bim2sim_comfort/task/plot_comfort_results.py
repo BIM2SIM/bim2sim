@@ -82,6 +82,8 @@ class PlotComfortResults(PlotBEPSResults):
                 export_path.mkdir(parents=False, exist_ok=False)
             # generate DIN EN 16798-1 adaptive comfort scatter plot and
             # return analysis of comfort categories for further plots
+            self.limited_local_comfort_DIN16798_NA(df, elements, export_path)
+
             if not plot_single_guid:
                 cat_analysis, cat_analysis_occ = (
                     self.apply_en16798_to_all_zones(df, zone_dict,
@@ -109,6 +111,86 @@ class PlotComfortResults(PlotBEPSResults):
                                         add_title=True,
                                         color_only=True, figsize=[11, 12],
                                         zone_dict=zone_dict)
+
+    def limited_local_comfort_DIN16798_NA(self, df, elements, export_path):
+        spaces = filter_elements(elements, 'ThermalZone')
+        for space in spaces:
+            space_temperature = df[f"air_temp_rooms_{space.guid}"].apply(
+                lambda x: x.magnitude)
+            wall_df = pd.DataFrame()
+            floor_df = pd.DataFrame()
+            ceiling_df = pd.DataFrame()
+
+            for bound in space.space_boundaries:
+                bound_temperature = df.filter(like=bound.guid)
+                if bound_temperature.empty or bound.bound_element is None:
+                    continue
+                bound_temperature = bound_temperature.iloc[:, 0].apply(
+                    lambda x: x.magnitude)
+                if 'WALL' in bound.bound_element.key.upper():
+                    wall_df = pd.concat([wall_df, bound_temperature], axis=1)
+                if (('FLOOR' in bound.bound_element.key.upper() and
+                     bound.top_bottom == BoundaryOrientation.top) or ('ROOF' in
+                                                                      bound.bound_element.key.upper())):
+                    ceiling_df = pd.concat([ceiling_df, bound_temperature],
+                                           axis=1)
+                if (
+                        'FLOOR' in bound.bound_element.key.upper() and bound.top_bottom ==
+                        BoundaryOrientation.bottom):
+                    floor_df = pd.concat([floor_df, bound_temperature], axis=1)
+            min_wall_df, max_wall_df = self.get_exceeded_temperature_hours(
+                wall_df,
+                10, 23,
+                space_temperature)
+            min_floor_df, max_floor_df = self.get_exceeded_temperature_hours(
+                floor_df, 19,
+                29, 0)
+            min_ceiling_df, max_ceiling_df = (
+                self.get_exceeded_temperature_hours(
+                    ceiling_df,
+                    14,
+                    5, space_temperature))
+            print(f'SPACE USAGE "{space.usage}": {space.guid}')
+            if not min_wall_df.empty:
+                print("MIN WALL", min_wall_df)
+            if not max_wall_df.empty:
+                print("MAX WALL", min_wall_df)
+            if not min_floor_df.empty:
+                print("MIN FLOOR", min_floor_df)
+            if not max_floor_df.empty:
+                print("MAX FLOOR", max_floor_df)
+            if not min_ceiling_df.empty:
+                print("MIN TOP", min_ceiling_df)
+            if not max_ceiling_df.empty:
+                print("MAX TOP", max_ceiling_df)
+
+    def get_exceeded_temperature_hours(self, df, min_limit, max_limit,
+                                       ref_value):
+        df_min = pd.DataFrame()
+        df_max = pd.DataFrame()
+        array = df.values
+        mask_max = df.sub(ref_value, axis=0) > max_limit
+        if mask_max.values.any():
+            max_values = np.where(mask_max.any(axis=1),
+                                  np.nanmax(np.where(mask_max, array, np.nan),
+                                            axis=1),
+                                  np.nan)
+            max_indices = np.where(~np.isnan(max_values))[0]
+            df_max = pd.DataFrame(max_values[max_indices],
+                                  index=df.index[max_indices],
+                                  columns=['MaxValue'])
+        mask_min = df.sub(ref_value, axis=0) < -min_limit
+        if mask_min.values.any():
+            min_values = np.where(mask_min.any(axis=1),
+                                  np.nanmin(np.where(mask_min, array, np.nan),
+                                            axis=1),
+                                  np.nan)
+            min_indices = np.where(~np.isnan(min_values))[0]
+            df_min = pd.DataFrame(min_values[min_indices],
+                                  index=df.index[min_indices],
+                                  columns=['MinValue'])
+
+        return df_min, df_max
 
     @staticmethod
     def rename_duplicates(dictionary):
