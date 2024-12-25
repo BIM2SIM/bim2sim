@@ -50,6 +50,7 @@ unit_mapping = {
     "heat_energy": ureg.joule,
     "cool_energy": ureg.joule,
     "operative_temp": ureg.degree_Celsius,
+    "surf_inside_temp": ureg.degree_Celsius,
     "air_temp": ureg.degree_Celsius,
     "heat_set": ureg.degree_Celsius,
     "cool_set": ureg.degree_Celsius,
