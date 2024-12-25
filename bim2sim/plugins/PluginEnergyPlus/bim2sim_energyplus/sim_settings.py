@@ -157,3 +157,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
                     'ventilation is not available when cooling is activated.',
         for_frontend=True
     )
+    hvac_off_at_night = BooleanSetting(
+        default=False, description='Disable all HVAC systems at night from '
+                                   '10pm to 6am.'
+    )

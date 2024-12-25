@@ -524,10 +524,30 @@ class CreateIdf(ITask):
         cooling_availability = "Off"
         heating_availability = "Off"
 
+        if self.playground.sim_settings.hvac_off_at_night and idf.getobject(
+                "SCHEDULE:COMPACT", "On_except_10pm_to_6am") is None:
+            idf.newidfobject(
+                "SCHEDULE:COMPACT",
+                Name='On_except_10pm_to_6am',
+                Schedule_Type_Limits_Name='on/off',
+                Field_1='Through: 12/31',
+                Field_2='For: AllDays',
+                Field_3='Until: 06:00',
+                Field_4='0',
+                Field_5='Until: 22:00',
+                Field_6='1',
+                Field_7='Until: 24:00',
+                Field_8='0'
+            )
+
         if space.with_cooling:
             cooling_availability = "On"
+            if self.playground.sim_settings.hvac_off_at_night:
+                cooling_availability = 'On_except_10pm_to_6am'
         if space.with_heating:
             heating_availability = "On"
+            if self.playground.sim_settings.hvac_off_at_night:
+                heating_availability = 'On_except_10pm_to_6am'
 
         idf.newidfobject(
             "HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM",
