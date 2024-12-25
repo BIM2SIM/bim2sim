@@ -26,7 +26,8 @@ plt.style.use(['science', 'no-latex'])
 plt.rcParams.update({
     'font.size': 20,
     'font.family': 'sans-serif',  # Use sans-serif font
-    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans', 'sans-serif'],  # Specify sans-serif fonts
+    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans', 'sans-serif'],
+    # Specify sans-serif fonts
     'legend.frameon': True,
     'legend.facecolor': 'white',
     'legend.framealpha': 0.5,
@@ -35,6 +36,7 @@ plt.rcParams.update({
     "text.usetex": False,  # use inline math for ticks
     "pgf.rcfonts": True,
 })
+
 
 class PlotComfortResults(PlotBEPSResults):
     reads = ('df_finals', 'sim_results_path', 'ifc_files', 'elements')
@@ -60,7 +62,6 @@ class PlotComfortResults(PlotBEPSResults):
         logger.info("Visualization of Comfort Results started ...")
         plot_single_guid = self.playground.sim_settings.plot_singe_zone_guid
 
-
         zone_dict_path = sim_results_path / self.prj_name / 'zone_dict.json'
         with open(zone_dict_path) as j:
             zone_dict = json.load(j)
@@ -75,7 +76,6 @@ class PlotComfortResults(PlotBEPSResults):
                 rename_keys = json.load(rk)
             zone_dict = self.rename_zone_usage(zone_dict, rename_keys)
 
-
         for bldg_name, df in df_finals.items():
             export_path = sim_results_path / bldg_name / 'plots'
             if not export_path.exists():
@@ -87,7 +87,7 @@ class PlotComfortResults(PlotBEPSResults):
             if not plot_single_guid:
                 cat_analysis, cat_analysis_occ = (
                     self.apply_en16798_to_all_zones(df, zone_dict,
-                                                               export_path))
+                                                    export_path))
             else:
                 cat_analysis, cat_analysis_occ = (
                     self.apply_en16798_to_single_zone(df, zone_dict,
@@ -114,8 +114,41 @@ class PlotComfortResults(PlotBEPSResults):
 
     def limited_local_comfort_DIN16798_NA(self, df, elements, export_path):
         spaces = filter_elements(elements, 'ThermalZone')
+        local_discomfort_dict = {}
+        local_discomfort_overview = pd.DataFrame(columns=['space',
+                                                          'wall_min',
+                                                          'wall_max',
+                                                          'floor_min',
+                                                          'floor_max',
+                                                          'ceiling_min',
+                                                          'ceiling_max'])
+        initial_row = {col: True for col in local_discomfort_overview.columns if
+                       col != 'space'}
+
         for space in spaces:
             self.logger.info(f"Space: {space.usage}, GUID: {space.guid}")
+            local_discomfort_dict.update({
+                space.guid:
+                {
+                    'wall': {'min': {'count': 0,
+                                     'hours': 0},
+                             'max': {'count': 0,
+                                     'hours': 0}},
+                    'floor': {'min': {'count': 0,
+                                      'hours': 0},
+                              'max': {'count': 0,
+                                      'hours': 0}},
+                    'ceiling':
+                        {'min': {'count': 0,
+                                 'hours': 0},
+                         'max': {'count': 0,
+                                 'hours': 0}},
+                }})
+            new_row = {**initial_row, 'space': space.guid}
+            local_discomfort_overview = pd.concat(
+                [local_discomfort_overview, pd.DataFrame([new_row])],
+                ignore_index=True)
+
             space_temperature = df[f"air_temp_rooms_{space.guid}"].apply(
                 lambda x: x.magnitude)
             wall_df = pd.DataFrame()
@@ -155,36 +188,84 @@ class PlotComfortResults(PlotBEPSResults):
                 num_min_wall, hours_min_wall = (
                     self.calc_exceeded_temperature_hours(
                         min_wall_df, space_temperature, 10))
-                print("MIN WALL:", num_min_wall, hours_min_wall)
+                local_discomfort_dict.update({space.guid:{
+                    'wall': {'min': {'count': num_min_wall,
+                                     'hours': hours_min_wall}}}})
+                local_discomfort_overview.iloc[
+                    -1, local_discomfort_overview.columns.get_loc(
+                        'wall_min')] = False
             if not max_wall_df.empty:
                 num_max_wall, hours_max_wall = (
                     self.calc_exceeded_temperature_hours(
                         max_wall_df, space_temperature, 23))
-                print("MAX WALL:", num_max_wall, hours_max_wall)
+                local_discomfort_dict.update({space.guid:{
+                    'wall': {'max': {'count': num_max_wall,
+                                     'hours': num_max_wall}}}})
+                local_discomfort_overview.iloc[
+                    -1, local_discomfort_overview.columns.get_loc(
+                        'wall_max')] = False
             if not min_floor_df.empty:
                 num_min_floor, hours_min_floor = (
                     self.calc_exceeded_temperature_hours(
                         min_floor_df, 0, 19))
-                print("MIN FLOOR:", num_min_floor, hours_min_floor)
+                local_discomfort_dict.update({space.guid:{
+                    'floor': {'min': {'count': num_min_floor,
+                                      'hours': hours_min_floor}}}})
+                local_discomfort_overview.iloc[
+                    -1, local_discomfort_overview.columns.get_loc(
+                        'floor_min')] = False
             if not max_floor_df.empty:
                 num_max_floor, hours_max_floor = (
                     self.calc_exceeded_temperature_hours(
                         max_floor_df, 0, 29))
-                print("MAX FLOOR:", num_max_floor, hours_max_floor)
+                local_discomfort_dict.update({space.guid:{
+                    'floor': {'max': {'count': num_max_floor,
+                                      'hours': hours_max_floor}}}})
+                local_discomfort_overview.iloc[
+                    -1, local_discomfort_overview.columns.get_loc(
+                        'floor_max')] = False
             if not min_ceiling_df.empty:
                 num_min_ceiling, hours_min_ceiling = (
                     self.calc_exceeded_temperature_hours(
                         min_ceiling_df, 0, 14))
-                print("MIN CEILING:", num_min_ceiling, hours_min_ceiling)
+                local_discomfort_dict.update({space.guid:{
+                    'ceiling': {'min': {'count': num_min_ceiling,
+                                        'hours': hours_min_ceiling}}}})
+                local_discomfort_overview.iloc[
+                    -1, local_discomfort_overview.columns.get_loc(
+                        'ceiling_min')] = False
             if not max_ceiling_df.empty:
                 num_max_ceiling, hours_max_ceiling = (
                     self.calc_exceeded_temperature_hours(
                         max_ceiling_df, 0, 5))
-                print("MAX CEILING:", num_max_ceiling, hours_max_ceiling)
-            # print('DONE')
+                local_discomfort_dict.update({space.guid:{
+                    'ceiling': {'max': {'count': num_max_ceiling,
+                                        'hours': hours_max_ceiling}}}})
+                local_discomfort_overview.iloc[
+                    -1, local_discomfort_overview.columns.get_loc(
+                        'ceiling_max')] = False
+            last_row_values = local_discomfort_overview.iloc[-1]
+            all_true_except_space = all(
+                last_row_values[col] for col in last_row_values.index if
+                col != 'space')
+            if all_true_except_space:
+                self.logger.info(f'DIN EN 16798-1 NA (GER), '
+                                 f'limited local comfort check passed for space '
+                                 f'usage "{space.usage}" with '
+                                 f'guid "{space.guid}". ')
+            else:
+                self.logger.warning(f'DIN EN 16798-1 NA (GER), limited local '
+                                    f'comfort check FAILED for space usage '
+                                    f'"{space.usage}" with '
+                                    f'guid "{space.guid}". Please check '
+                                    f'beps_local_discomfort.json for details.')
+        with open(export_path / 'beps_local_discomfort.json', 'w+') as file:
+            json.dump(local_discomfort_dict, file, indent=4)
+        local_discomfort_overview.to_csv(
+            export_path/'local_discomfort_overview.csv')
 
     def calc_exceeded_temperature_hours(self, df, reference, limit):
-        value_over_reference = abs(df.sub(reference, axis=0).dropna())-limit
+        value_over_reference = abs(df.sub(reference, axis=0).dropna()) - limit
         return len(value_over_reference), value_over_reference.values.sum()
 
     def get_exceeded_temperature_hours(self, df, min_limit, max_limit,
@@ -253,7 +334,6 @@ class PlotComfortResults(PlotBEPSResults):
                                        x_axis_title="Date",
                                        y_axis_title="PMV")
 
-
     def apply_en16798_to_all_zones(self, df, zone_dict, export_path):
         """Generate EN 16798 diagrams for all thermal zones.
 
@@ -267,7 +347,7 @@ class PlotComfortResults(PlotBEPSResults):
             temp_cat_analysis_occ = None
             temp_cat_analysis, temp_cat_analysis_occ = (
                 self.plot_new_en16798_adaptive_count(
-                df, guid, room_name+'_'+guid, export_path))
+                    df, guid, room_name + '_' + guid, export_path))
             cat_analysis = pd.concat([cat_analysis, temp_cat_analysis])
             cat_analysis_occ = pd.concat([cat_analysis_occ,
                                           temp_cat_analysis_occ])
@@ -285,9 +365,10 @@ class PlotComfortResults(PlotBEPSResults):
             temp_cat_analysis = None
             temp_cat_analysis_occ = None
             temp_cat_analysis, temp_cat_analysis_occ = self.plot_new_en16798_adaptive_count(
-                df, guid, room_name+'_'+guid, export_path)
+                df, guid, room_name + '_' + guid, export_path)
             cat_analysis = pd.concat([cat_analysis, temp_cat_analysis])
-            cat_analysis_occ = pd.concat([cat_analysis_occ, temp_cat_analysis_occ])
+            cat_analysis_occ = pd.concat(
+                [cat_analysis_occ, temp_cat_analysis_occ])
         return cat_analysis, cat_analysis_occ
 
     @staticmethod
@@ -401,7 +482,7 @@ class PlotComfortResults(PlotBEPSResults):
 
         ot = df['operative_air_temp_rooms_' + guid]
         out_temp = df['site_outdoor_air_temp']
-        n_persons_df = df['n_persons_rooms_'+guid]
+        n_persons_df = df['n_persons_rooms_' + guid]
 
         merged_df = pd.merge(out_temp, ot, left_index=True, right_index=True)
         merged_df = merged_df.map(lambda x: x.m)
@@ -462,7 +543,7 @@ class PlotComfortResults(PlotBEPSResults):
                              export_path, room_name)
         plot_scatter_en16798(filter_occ_cat1, filter_occ_cat2, filter_occ_cat3,
                              filtered_df_outside, export_path,
-                             room_name+'_occupancy')
+                             room_name + '_occupancy')
         return cat_analysis_df, cat_analysis_occ_df
 
     @staticmethod
@@ -585,9 +666,11 @@ class PlotComfortResults(PlotBEPSResults):
                            add_title=False, figsize=[7.6, 8], zone_dict=None):
 
         logger.info(f"Plot PMV calendar plot for zone {calendar_df.columns[0]}")
+
         def visualize(zone_dict):
 
-            fig, ax = plt.subplots(figsize=(figsize[0]/INCH, figsize[1]/INCH))
+            fig, ax = plt.subplots(
+                figsize=(figsize[0] / INCH, figsize[1] / INCH))
             daily_mean = calendar_df.resample('D').mean()
             calendar_heatmap(ax, daily_mean, color_only)
             title_name = calendar_df.columns[0]
@@ -598,12 +681,12 @@ class PlotComfortResults(PlotBEPSResults):
                 plt.title(str(year) + ' ' + title_name)
             if save:
                 plt.savefig(export_path / str(construction +
-                                                        save_as + title_name
-                                                               + '.pdf'),
+                                              save_as + title_name
+                                              + '.pdf'),
                             bbox_inches='tight')
                 if skip_legend:
                     plt.savefig(export_path / 'subplots' / str(construction +
-                                                        save_as + title_name
+                                                               save_as + title_name
                                                                + '.pdf'),
                                 bbox_inches='tight')
             plt.draw()
@@ -614,7 +697,7 @@ class PlotComfortResults(PlotBEPSResults):
             i = np.array(i) - min(i)
             j = np.array(j) - 1
             ni = max(i) + 1
-            calendar = np.empty([ni, 12])#, dtype='S10')
+            calendar = np.empty([ni, 12])  # , dtype='S10')
             calendar[:] = np.nan
             calendar[i, j] = data
             return i, j, calendar
@@ -626,7 +709,7 @@ class PlotComfortResults(PlotBEPSResults):
             # Labels and their corresponding indices
             labels = ['-3 to -2', '-2 to -1', '-1 to 0',
                       '0 to 1', '1 to 2', '2 to 3']
-            label_indices = np.arange(len(labels)+1) - 3
+            label_indices = np.arange(len(labels) + 1) - 3
 
             # Create a ListedColormap from the color schema
             cmap = ListedColormap(color_schema)
@@ -646,14 +729,15 @@ class PlotComfortResults(PlotBEPSResults):
                 cbar = ax.figure.colorbar(im, ticks=label_indices)
             # Minor ticks
             ax.set_xticks(np.arange(-.5, len(calendar[0]), 1), minor=True)
-            ax.set_yticks(np.arange(-.5, len(calendar[:,0]), 1), minor=True)
+            ax.set_yticks(np.arange(-.5, len(calendar[:, 0]), 1), minor=True)
 
             ax.grid(False)
             # Gridlines based on minor ticks
             ax.grid(which='minor', color='w', linestyle='-', linewidth=0.5)
 
             # Remove minor ticks
-            ax.tick_params(which='minor', bottom=False, left=False)            # ax.get_yaxis().set_ticks(label_indices)
+            ax.tick_params(which='minor', bottom=False,
+                           left=False)  # ax.get_yaxis().set_ticks(label_indices)
             # ax.get_yaxis().set_ticklabels(labels)
 
         def label_data(ax, calendar):
@@ -661,7 +745,7 @@ class PlotComfortResults(PlotBEPSResults):
                 if type(data) == str:
                     ax.text(j, i, data, ha='center', va='center')
                 elif np.isfinite(data):
-                    ax.text(j, i, round(data,1), ha='center', va='center')
+                    ax.text(j, i, round(data, 1), ha='center', va='center')
 
         def label_days(ax, dates, i, j, calendar):
             ni, nj = calendar.shape
@@ -669,22 +753,23 @@ class PlotComfortResults(PlotBEPSResults):
             day_of_month[i, j] = [d.day for d in dates]
 
             yticks = np.arange(31)
-            yticklabels = [i+1 for i in yticks]
+            yticklabels = [i + 1 for i in yticks]
             ax.set_yticks(yticks)
             ax.set_yticklabels(yticklabels, fontsize=6)
             # ax.set(yticks=yticks,
             #        yticklabels=yticklabels)
 
-
         def label_months(ax, dates, i, j, calendar):
-            month_labels = np.array(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
-                                     'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
+            month_labels = np.array(
+                ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+                 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
             months = np.array([d.month for d in dates])
             uniq_months = sorted(set(months))
             # xticks = [i[months == m].mean() for m in uniq_months]
-            xticks = [i-1 for i in uniq_months]
+            xticks = [i - 1 for i in uniq_months]
             labels = [month_labels[m - 1] for m in uniq_months]
             ax.set(xticks=xticks)
             ax.set_xticklabels(labels, fontsize=6, rotation=90)
             ax.xaxis.tick_top()
+
         visualize(zone_dict)
