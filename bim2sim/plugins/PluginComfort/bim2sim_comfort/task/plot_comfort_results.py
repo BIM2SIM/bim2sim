@@ -159,8 +159,11 @@ class PlotComfortResults(PlotBEPSResults):
                 bound_temperature = df.filter(like=bound.guid)
                 if bound_temperature.empty or bound.bound_element is None:
                     continue
-                bound_temperature = bound_temperature.iloc[:, 0].apply(
-                    lambda x: x.magnitude)
+                try:
+                    bound_temperature = bound_temperature.iloc[:, 0].apply(
+                        lambda x: x.magnitude)
+                except AttributeError:
+                    self.logger.warning(f"object has no attribute 'magnitude'")
                 if 'WALL' in bound.bound_element.key.upper():
                     wall_df = pd.concat([wall_df, bound_temperature], axis=1)
                 if (('FLOOR' in bound.bound_element.key.upper() and
