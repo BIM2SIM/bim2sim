@@ -792,13 +792,13 @@ class PlotComfortResults(PlotBEPSResults):
         filtered_df_out_above_NA_hours = (
             filtered_df_out_above_NA.apply(is_out_above_thresholds_16798_NA,
                                            calc_K_hours=True, axis=1))
-        filtered_df_below_NA_hours =(
+        filtered_df_below_NA_hours = (
             filtered_df_below_NA.apply(is_below_thresholds_16798_NA,
                                        calc_K_hours=True, axis=1))
         filtered_df_out_below_NA_hours = (
-        filtered_df_out_below_NA.apply(is_out_below_thresholds_16798_NA,
-                                       calc_K_hours=True,
-                            axis=1))
+            filtered_df_out_below_NA.apply(is_out_below_thresholds_16798_NA,
+                                           calc_K_hours=True,
+                                           axis=1))
         common_index_within = filtered_df_within_NA.index.intersection(
             n_persons_df.index)
         common_index_above = filtered_df_above_NA.index.intersection(
@@ -852,6 +852,33 @@ class PlotComfortResults(PlotBEPSResults):
             'out above': filtered_df_out_above_NA_hours.sum(),
             'out below': filtered_df_out_below_NA_hours.sum()
         }
+        # acceptable over-temperature hours
+        occupied_2K_hours = {
+            'ROOM': room_name,
+            'within': 8760 * 2,
+            # random choice, over-temperature hours are zero
+            'above': len(n_persons_df[n_persons_df > 0]) * 2,
+            'below': len(n_persons_df[n_persons_df > 0]) * 2,
+            'out above': 0,
+            'out below': 0
+        }
+        failed = False
+        failing_reasons = dict()
+        for key, value in occupied_2K_hours.items():
+            if key == 'ROOM':
+                continue
+            if (0.01 * occupied_2K_hours[key] - cat_analysis_hours_dict[key]) < 0:
+                failed = True
+                if occupied_2K_hours[key] > 0:
+                    failing_reasons.update(
+                        {key: str(round(100*(cat_analysis_hours_dict[key] /
+                              occupied_2K_hours[key]), 2))+' %'})
+                else:
+                    failing_reasons.update({key: '100 %'})
+        if failed:
+            logger.warning(f'Adaptive thermal comfort test failed for space'
+                           f'{room_name} due to exceeded limits in '
+                           f'{failing_reasons}.')
         cat_analysis_df = pd.DataFrame(cat_analysis_dict, index=[0])
         cat_analysis_hours_df = pd.DataFrame(cat_analysis_hours_dict, index=[0])
         cat_analysis_occ_dict = {
@@ -877,7 +904,8 @@ class PlotComfortResults(PlotBEPSResults):
         analysis_file = export_path / 'DIN_EN_16798_NA_analysis.csv'
         cat_analysis_df.to_csv(analysis_file, mode='a+', header=False, sep=';')
         analysis_hours_file = export_path / 'DIN_EN_16798_NA_hours_analysis.csv'
-        cat_analysis_hours_df.to_csv(analysis_hours_file, mode='a+', header=False,
+        cat_analysis_hours_df.to_csv(analysis_hours_file, mode='a+',
+                                     header=False,
                                      sep=';')
         analysis_occ_file = export_path / 'DIN_EN_16798_NA_analysis_occ.csv'
         cat_analysis_occ_df.to_csv(analysis_occ_file, mode='a+', header=False,
