@@ -130,21 +130,21 @@ class PlotComfortResults(PlotBEPSResults):
             self.logger.info(f"Space: {space.usage}, GUID: {space.guid}")
             local_discomfort_dict.update({
                 space.guid:
-                {
-                    'wall': {'min': {'count': 0,
+                    {
+                        'wall': {'min': {'count': 0,
+                                         'hours': 0},
+                                 'max': {'count': 0,
+                                         'hours': 0}},
+                        'floor': {'min': {'count': 0,
+                                          'hours': 0},
+                                  'max': {'count': 0,
+                                          'hours': 0}},
+                        'ceiling':
+                            {'min': {'count': 0,
                                      'hours': 0},
                              'max': {'count': 0,
                                      'hours': 0}},
-                    'floor': {'min': {'count': 0,
-                                      'hours': 0},
-                              'max': {'count': 0,
-                                      'hours': 0}},
-                    'ceiling':
-                        {'min': {'count': 0,
-                                 'hours': 0},
-                         'max': {'count': 0,
-                                 'hours': 0}},
-                }})
+                    }})
             new_row = {**initial_row, 'space': space.guid}
             local_discomfort_overview = pd.concat(
                 [local_discomfort_overview, pd.DataFrame([new_row])],
@@ -201,7 +201,7 @@ class PlotComfortResults(PlotBEPSResults):
                 num_min_wall, hours_min_wall = (
                     self.calc_exceeded_temperature_hours(
                         min_wall_df, space_temperature, 10))
-                local_discomfort_dict.update({space.guid:{
+                local_discomfort_dict.update({space.guid: {
                     'wall': {'min': {'count': num_min_wall,
                                      'hours': hours_min_wall}}}})
                 local_discomfort_overview.iloc[
@@ -211,7 +211,7 @@ class PlotComfortResults(PlotBEPSResults):
                 num_max_wall, hours_max_wall = (
                     self.calc_exceeded_temperature_hours(
                         max_wall_df, space_temperature, 23))
-                local_discomfort_dict.update({space.guid:{
+                local_discomfort_dict.update({space.guid: {
                     'wall': {'max': {'count': num_max_wall,
                                      'hours': num_max_wall}}}})
                 local_discomfort_overview.iloc[
@@ -221,7 +221,7 @@ class PlotComfortResults(PlotBEPSResults):
                 num_min_floor, hours_min_floor = (
                     self.calc_exceeded_temperature_hours(
                         min_floor_df, 0, 19))
-                local_discomfort_dict.update({space.guid:{
+                local_discomfort_dict.update({space.guid: {
                     'floor': {'min': {'count': num_min_floor,
                                       'hours': hours_min_floor}}}})
                 local_discomfort_overview.iloc[
@@ -231,7 +231,7 @@ class PlotComfortResults(PlotBEPSResults):
                 num_max_floor, hours_max_floor = (
                     self.calc_exceeded_temperature_hours(
                         max_floor_df, 0, 29))
-                local_discomfort_dict.update({space.guid:{
+                local_discomfort_dict.update({space.guid: {
                     'floor': {'max': {'count': num_max_floor,
                                       'hours': hours_max_floor}}}})
                 local_discomfort_overview.iloc[
@@ -241,7 +241,7 @@ class PlotComfortResults(PlotBEPSResults):
                 num_min_ceiling, hours_min_ceiling = (
                     self.calc_exceeded_temperature_hours(
                         min_ceiling_df, 0, 14))
-                local_discomfort_dict.update({space.guid:{
+                local_discomfort_dict.update({space.guid: {
                     'ceiling': {'min': {'count': num_min_ceiling,
                                         'hours': hours_min_ceiling}}}})
                 local_discomfort_overview.iloc[
@@ -251,7 +251,7 @@ class PlotComfortResults(PlotBEPSResults):
                 num_max_ceiling, hours_max_ceiling = (
                     self.calc_exceeded_temperature_hours(
                         max_ceiling_df, 0, 5))
-                local_discomfort_dict.update({space.guid:{
+                local_discomfort_dict.update({space.guid: {
                     'ceiling': {'max': {'count': num_max_ceiling,
                                         'hours': hours_max_ceiling}}}})
                 local_discomfort_overview.iloc[
@@ -275,7 +275,7 @@ class PlotComfortResults(PlotBEPSResults):
         with open(export_path / 'beps_local_discomfort.json', 'w+') as file:
             json.dump(local_discomfort_dict, file, indent=4)
         local_discomfort_overview.to_csv(
-            export_path/'local_discomfort_overview.csv')
+            export_path / 'local_discomfort_overview.csv')
 
     def calc_exceeded_temperature_hours(self, df, reference, limit):
         value_over_reference = abs(df.sub(reference, axis=0).dropna()) - limit
@@ -589,78 +589,96 @@ class PlotComfortResults(PlotBEPSResults):
         logger.info(f"Plot DIN EN 16798 diagram (NA) for zone {guid}:"
                     f" {room_name}.")
 
-        def is_within_thresholds_16798_NA(row):
+        def is_within_thresholds_16798_NA(row, calc_K_hours=False):
             if 16 <= row.iloc[0] <= 32:
                 y_threshold1 = 18 + 0.25 * row.iloc[0] - 2
                 y_threshold2 = 18 + 0.25 * row.iloc[0] + 2
-                return y_threshold1 <= row.iloc[1] <= y_threshold2
-            if row.iloc[0] > 32:
+            elif row.iloc[0] > 32:
                 y_threshold1 = 26 - 2
                 y_threshold2 = 26 + 2
-                return y_threshold1 <= row.iloc[1] <= y_threshold2
-            if row.iloc[0] < 16:
+            elif row.iloc[0] < 16:
                 y_threshold1 = 22 - 2
                 y_threshold2 = 22 + 2
-                return y_threshold1 <= row.iloc[1] <= y_threshold2
             else:
                 return False
+            if not calc_K_hours:
+                return y_threshold1 <= row.iloc[1] <= y_threshold2
+            else:
+                return 0
 
-        def is_above_thresholds_16798_NA(row):
+        def is_above_thresholds_16798_NA(row, calc_K_hours=False):
             if 16 <= row.iloc[0] <= 32:
                 y_threshold1 = 18 + 0.25 * row.iloc[0] + 2
                 y_threshold2 = 18 + 0.25 * row.iloc[0] + 4
-                return y_threshold1 < row.iloc[1] <= y_threshold2
-            if row.iloc[0] > 32:
+            elif row.iloc[0] > 32:
                 y_threshold1 = 26 + 2
                 y_threshold2 = 26 + 4
-                return y_threshold1 < row.iloc[1] <= y_threshold2
-            if row.iloc[0] < 16:
+            elif row.iloc[0] < 16:
                 y_threshold1 = 22 + 2
                 y_threshold2 = 22 + 4
-                return y_threshold1 < row.iloc[1] <= y_threshold2
             else:
                 return False
-        def is_below_thresholds_16798_NA(row):
+            if not calc_K_hours:
+                return y_threshold1 < row.iloc[1] <= y_threshold2
+            else:
+                if y_threshold1 < row.iloc[1] <= y_threshold2:
+                    return abs(y_threshold1 - row.iloc[1])
+                else:
+                    return 0
+
+        def is_below_thresholds_16798_NA(row, calc_K_hours=False):
             if 16 <= row.iloc[0] <= 32:
                 y_threshold1 = 18 + 0.25 * row.iloc[0] - 2
                 y_threshold2 = 18 + 0.25 * row.iloc[0] - 4
-                return y_threshold1 > row.iloc[1] >= y_threshold2
-            if row.iloc[0] > 32:
+            elif row.iloc[0] > 32:
                 y_threshold1 = 26 - 2
                 y_threshold2 = 26 - 4
-                return y_threshold1 > row.iloc[1] >= y_threshold2
-            if row.iloc[0] < 16:
+            elif row.iloc[0] < 16:
                 y_threshold1 = 22 - 2
                 y_threshold2 = 22 - 4
+            else:
+                return False
+            if not calc_K_hours:
                 return y_threshold1 > row.iloc[1] >= y_threshold2
             else:
-                return False
+                if y_threshold1 > row.iloc[1] >= y_threshold2:
+                    return abs(y_threshold1 - row.iloc[1])
+                else:
+                    return 0
 
-        def is_out_above_thresholds_16798_NA(row):
+        def is_out_above_thresholds_16798_NA(row, calc_K_hours=False):
             if 16 <= row.iloc[0] <= 32:
                 y_threshold2 = 18 + 0.25 * row.iloc[0] + 4
-                return row.iloc[1] > y_threshold2
-            if row.iloc[0] > 32:
+            elif row.iloc[0] > 32:
                 y_threshold2 = 26 + 4
-                return row.iloc[1] > y_threshold2
-            if row.iloc[0] < 16:
+            elif row.iloc[0] < 16:
                 y_threshold2 = 22 + 4
-                return row.iloc[1] > y_threshold2
             else:
                 return False
+            if not calc_K_hours:
+                return row.iloc[1] > y_threshold2
+            else:
+                if row.iloc[1] > y_threshold2:
+                    return abs(y_threshold2 - row.iloc[1])
+                else:
+                    return 0
 
-        def is_out_below_thresholds_16798_NA(row):
+        def is_out_below_thresholds_16798_NA(row, calc_K_hours=False):
             if 16 <= row.iloc[0] <= 32:
                 y_threshold2 = 18 + 0.25 * row.iloc[0] - 4
-                return row.iloc[1] < y_threshold2
-            if row.iloc[0] > 32:
+            elif row.iloc[0] > 32:
                 y_threshold2 = 26 - 4
-                return row.iloc[1] < y_threshold2
-            if row.iloc[0] < 16:
+            elif row.iloc[0] < 16:
                 y_threshold2 = 22 - 4
-                return row.iloc[1] < y_threshold2
             else:
                 return False
+            if not calc_K_hours:
+                return row.iloc[1] < y_threshold2
+            else:
+                if row.iloc[1] < y_threshold2:
+                    return abs(y_threshold2 - row.iloc[1])
+                else:
+                    return 0
 
         def plot_scatter_en16798(in_df, above_df, below_df, out_above_df,
                                  out_below_df,
@@ -677,7 +695,7 @@ class PlotComfortResults(PlotBEPSResults):
                         above_df.iloc[:, 1],
                         s=0.1,
                         color='orange', marker=".", label='above range of DIN '
-                                                         'EN 16798-1 NA ('
+                                                          'EN 16798-1 NA ('
                                                           'GER), within 2K '
                                                           'range')
             plt.scatter(out_above_df.iloc[:, 0],
@@ -690,13 +708,13 @@ class PlotComfortResults(PlotBEPSResults):
                         below_df.iloc[:, 1],
                         s=0.1,
                         color='cyan', marker=".", label='below range of DIN '
-                                                         'EN 16798-1 NA ('
+                                                        'EN 16798-1 NA ('
                                                         'GER), within 2K range')
             plt.scatter(out_below_df.iloc[:, 0],
                         out_below_df.iloc[:, 1],
                         s=0.1,
                         color='blue', marker=".", label='below range of DIN '
-                                                         'EN 16798-1 NA ('
+                                                        'EN 16798-1 NA ('
                                                         'GER), out of 2K range')
             coord_cat1_low = [
                 [10, 22 - 2],
@@ -759,13 +777,28 @@ class PlotComfortResults(PlotBEPSResults):
         filtered_df_out_above_NA = merged_df[
             merged_df.apply(is_out_above_thresholds_16798_NA,
                             axis=1)]
-
         filtered_df_below_NA = merged_df[
             merged_df.apply(is_below_thresholds_16798_NA,
                             axis=1)]
         filtered_df_out_below_NA = merged_df[
             merged_df.apply(is_out_below_thresholds_16798_NA,
                             axis=1)]
+        filtered_df_within_NA_hours = (
+            filtered_df_within_NA.apply(is_within_thresholds_16798_NA,
+                                        calc_K_hours=True, axis=1))
+        filtered_df_above_NA_hours = (
+            filtered_df_above_NA.apply(is_above_thresholds_16798_NA,
+                                       calc_K_hours=True, axis=1))
+        filtered_df_out_above_NA_hours = (
+            filtered_df_out_above_NA.apply(is_out_above_thresholds_16798_NA,
+                                           calc_K_hours=True, axis=1))
+        filtered_df_below_NA_hours =(
+            filtered_df_below_NA.apply(is_below_thresholds_16798_NA,
+                                       calc_K_hours=True, axis=1))
+        filtered_df_out_below_NA_hours = (
+        filtered_df_out_below_NA.apply(is_out_below_thresholds_16798_NA,
+                                       calc_K_hours=True,
+                            axis=1))
         common_index_within = filtered_df_within_NA.index.intersection(
             n_persons_df.index)
         common_index_above = filtered_df_above_NA.index.intersection(
@@ -782,35 +815,77 @@ class PlotComfortResults(PlotBEPSResults):
         filtered_df_above_NA_occ = filtered_df_above_NA.loc[common_index_above][
             n_persons_df.loc[common_index_above] > 0]
         filtered_df_out_above_NA_occ = filtered_df_out_above_NA.loc[
-            common_index_out_above][n_persons_df.loc[common_index_out_above] > 0]
+            common_index_out_above][
+            n_persons_df.loc[common_index_out_above] > 0]
         filtered_df_below_NA_occ = filtered_df_below_NA.loc[common_index_below][
             n_persons_df.loc[common_index_below] > 0]
         filtered_df_out_below_NA_occ = filtered_df_out_below_NA.loc[
-            common_index_out_below][n_persons_df.loc[common_index_out_below] > 0]
+            common_index_out_below][
+            n_persons_df.loc[common_index_out_below] > 0]
+        filtered_df_within_NA_hours_occ = filtered_df_within_NA_hours.loc[
+            common_index_within][n_persons_df.loc[common_index_within] > 0]
+        filtered_df_above_NA_hours_occ = filtered_df_above_NA_hours.loc[
+            common_index_above][
+            n_persons_df.loc[common_index_above] > 0]
+        filtered_df_out_above_NA_hours_occ = filtered_df_out_above_NA_hours.loc[
+            common_index_out_above][
+            n_persons_df.loc[common_index_out_above] > 0]
+        filtered_df_below_NA_hours_occ = filtered_df_below_NA_hours.loc[
+            common_index_below][
+            n_persons_df.loc[common_index_below] > 0]
+        filtered_df_out_below_NA_hours_occ = filtered_df_out_below_NA_hours.loc[
+            common_index_out_below][
+            n_persons_df.loc[common_index_out_below] > 0]
         cat_analysis_dict = {
             'ROOM': room_name,
             'within': len(filtered_df_within_NA),
             'above': len(filtered_df_above_NA),
-            'out above': len(filtered_df_out_above_NA),
             'below': len(filtered_df_below_NA),
+            'out above': len(filtered_df_out_above_NA),
             'out below': len(filtered_df_out_below_NA)
         }
+        cat_analysis_hours_dict = {
+            'ROOM': room_name,
+            'within': filtered_df_within_NA_hours.sum(),
+            'above': filtered_df_above_NA_hours.sum(),
+            'below': filtered_df_below_NA_hours.sum(),
+            'out above': filtered_df_out_above_NA_hours.sum(),
+            'out below': filtered_df_out_below_NA_hours.sum()
+        }
         cat_analysis_df = pd.DataFrame(cat_analysis_dict, index=[0])
+        cat_analysis_hours_df = pd.DataFrame(cat_analysis_hours_dict, index=[0])
         cat_analysis_occ_dict = {
             'ROOM': room_name,
             'within': len(filtered_df_within_NA_occ),
             'above': len(filtered_df_above_NA_occ),
-            'out above': len(filtered_df_out_above_NA_occ),
             'below': len(filtered_df_below_NA_occ),
+            'out above': len(filtered_df_out_above_NA_occ),
             'out below': len(filtered_df_out_below_NA_occ)
         }
+        cat_analysis_occ_hours_dict = {
+            'ROOM': room_name,
+            'within': filtered_df_within_NA_hours_occ.sum(),
+            'above': filtered_df_above_NA_hours_occ.sum(),
+            'below': filtered_df_below_NA_hours_occ.sum(),
+            'out above': filtered_df_out_above_NA_hours_occ.sum(),
+            'out below': filtered_df_out_below_NA_hours_occ.sum()
+        }
         cat_analysis_occ_df = pd.DataFrame(cat_analysis_occ_dict, index=[0])
+        cat_analysis_hours_occ_df = pd.DataFrame(cat_analysis_occ_hours_dict,
+                                                 index=[0])
 
         analysis_file = export_path / 'DIN_EN_16798_NA_analysis.csv'
         cat_analysis_df.to_csv(analysis_file, mode='a+', header=False, sep=';')
+        analysis_hours_file = export_path / 'DIN_EN_16798_NA_hours_analysis.csv'
+        cat_analysis_hours_df.to_csv(analysis_hours_file, mode='a+', header=False,
+                                     sep=';')
         analysis_occ_file = export_path / 'DIN_EN_16798_NA_analysis_occ.csv'
         cat_analysis_occ_df.to_csv(analysis_occ_file, mode='a+', header=False,
                                    sep=';')
+        analysis_hours_occ_file = (export_path /
+                                   'DIN_EN_16798_NA_hours_analysis_occ.csv')
+        cat_analysis_hours_occ_df.to_csv(analysis_hours_occ_file, mode='a+',
+                                         header=False, sep=';')
 
         plot_scatter_en16798(filtered_df_within_NA, filtered_df_above_NA,
                              filtered_df_below_NA, filtered_df_out_above_NA,
@@ -900,7 +975,7 @@ class PlotComfortResults(PlotBEPSResults):
                   len(normalized_df.index) - bar_width / 2 - 0.5])
         plt.xticks([])  # Remove x-ticks for table
 
-        formatted_df = normalized_df.applymap(lambda x: f'{x:.0f}')
+        formatted_df = normalized_df.applymap(lambda x: f'{x:.1f}')
         cell_text = [formatted_df[column] for column in formatted_df.columns]
 
         # Create the table
