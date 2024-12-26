@@ -607,31 +607,63 @@ class PlotComfortResults(PlotBEPSResults):
 
         def is_above_thresholds_16798_NA(row):
             if 16 <= row.iloc[0] <= 32:
-                y_threshold2 = 18 + 0.25 * row.iloc[0] + 2
-                return row.iloc[1] > y_threshold2
+                y_threshold1 = 18 + 0.25 * row.iloc[0] + 2
+                y_threshold2 = 18 + 0.25 * row.iloc[0] + 4
+                return y_threshold1 < row.iloc[1] <= y_threshold2
             if row.iloc[0] > 32:
-                y_threshold2 = 26 + 2
-                return row.iloc[1] > y_threshold2
+                y_threshold1 = 26 + 2
+                y_threshold2 = 26 + 4
+                return y_threshold1 < row.iloc[1] <= y_threshold2
             if row.iloc[0] < 16:
-                y_threshold2 = 22 + 2
-                return row.iloc[1] > y_threshold2
+                y_threshold1 = 22 + 2
+                y_threshold2 = 22 + 4
+                return y_threshold1 < row.iloc[1] <= y_threshold2
             else:
                 return False
-
         def is_below_thresholds_16798_NA(row):
             if 16 <= row.iloc[0] <= 32:
-                y_threshold2 = 18 + 0.25 * row.iloc[0] - 2
+                y_threshold1 = 18 + 0.25 * row.iloc[0] - 2
+                y_threshold2 = 18 + 0.25 * row.iloc[0] - 4
+                return y_threshold1 > row.iloc[1] >= y_threshold2
+            if row.iloc[0] > 32:
+                y_threshold1 = 26 - 2
+                y_threshold2 = 26 - 4
+                return y_threshold1 > row.iloc[1] >= y_threshold2
+            if row.iloc[0] < 16:
+                y_threshold1 = 22 - 2
+                y_threshold2 = 22 - 4
+                return y_threshold1 > row.iloc[1] >= y_threshold2
+            else:
+                return False
+
+        def is_out_above_thresholds_16798_NA(row):
+            if 16 <= row.iloc[0] <= 32:
+                y_threshold2 = 18 + 0.25 * row.iloc[0] + 4
+                return row.iloc[1] > y_threshold2
+            if row.iloc[0] > 32:
+                y_threshold2 = 26 + 4
+                return row.iloc[1] > y_threshold2
+            if row.iloc[0] < 16:
+                y_threshold2 = 22 + 4
+                return row.iloc[1] > y_threshold2
+            else:
+                return False
+
+        def is_out_below_thresholds_16798_NA(row):
+            if 16 <= row.iloc[0] <= 32:
+                y_threshold2 = 18 + 0.25 * row.iloc[0] - 4
                 return row.iloc[1] < y_threshold2
             if row.iloc[0] > 32:
-                y_threshold2 = 26 - 2
+                y_threshold2 = 26 - 4
                 return row.iloc[1] < y_threshold2
             if row.iloc[0] < 16:
-                y_threshold2 = 22 - 2
+                y_threshold2 = 22 - 4
                 return row.iloc[1] < y_threshold2
             else:
                 return False
 
-        def plot_scatter_en16798(in_df, above_df, below_df,
+        def plot_scatter_en16798(in_df, above_df, below_df, out_above_df,
+                                 out_below_df,
                                  path, name):
             plt.figure(figsize=(13.2 / INCH, 8.3 / INCH))
 
@@ -644,15 +676,28 @@ class PlotComfortResults(PlotBEPSResults):
             plt.scatter(above_df.iloc[:, 0],
                         above_df.iloc[:, 1],
                         s=0.1,
-                        color='red', marker=".", label='below range of DIN '
-                                                         'EN '
-                                                         '16798-1 NA (GER)')
+                        color='orange', marker=".", label='above range of DIN '
+                                                         'EN 16798-1 NA ('
+                                                          'GER), within 2K '
+                                                          'range')
+            plt.scatter(out_above_df.iloc[:, 0],
+                        out_above_df.iloc[:, 1],
+                        s=0.1,
+                        color='red', marker=".", label='above range of '
+                                                       'DIN EN 16798-1 NA ('
+                                                       'GER), out of 2K range')
             plt.scatter(below_df.iloc[:, 0],
                         below_df.iloc[:, 1],
                         s=0.1,
-                        color='blue', marker=".", label='above range of DIN '
-                                                         'EN '
-                                                         '16798-1 NA (GER)')
+                        color='cyan', marker=".", label='below range of DIN '
+                                                         'EN 16798-1 NA ('
+                                                        'GER), within 2K range')
+            plt.scatter(out_below_df.iloc[:, 0],
+                        out_below_df.iloc[:, 1],
+                        s=0.1,
+                        color='blue', marker=".", label='below range of DIN '
+                                                         'EN 16798-1 NA ('
+                                                        'GER), out of 2K range')
             coord_cat1_low = [
                 [10, 22 - 2],
                 [16, 18 + 0.25 * 16 - 2],
@@ -665,9 +710,25 @@ class PlotComfortResults(PlotBEPSResults):
                 [36, 26 + 2]]
             cc1lx, cc1ly = zip(*coord_cat1_low)
             cc1ux, cc1uy = zip(*coord_cat1_up)
-            plt.plot(cc1lx, cc1ly, linestyle='dashed', color='green',
+            plt.plot(cc1lx, cc1ly, linestyle='dashed', color='black',
                      label='DIN EN 16798-1 NA (GER): Acceptability range')
-            plt.plot(cc1ux, cc1uy, linestyle='dashed', color='green')
+            plt.plot(cc1ux, cc1uy, linestyle='dashed', color='black')
+            coord_2Kmax_low = [
+                [10, 22 - 4],
+                [16, 18 + 0.25 * 16 - 4],
+                [32, 18 + 0.25 * 32 - 4],
+                [36, 26 - 4]]
+            coord_2Kmax_up = [
+                [10, 22 + 4],
+                [16, 18 + 0.25 * 16 + 4],
+                [32, 18 + 0.25 * 32 + 4],
+                [36, 26 + 4]]
+            cc2lx, cc2ly = zip(*coord_2Kmax_low)
+            cc2ux, cc2uy = zip(*coord_2Kmax_up)
+            plt.plot(cc2lx, cc2ly, linestyle='dashed', color='purple',
+                     label='DIN EN 16798-1 NA (GER): Limit for additional 2K '
+                           'range')
+            plt.plot(cc2ux, cc2uy, linestyle='dashed', color='purple')
 
             # Customize plot
             plt.xlabel('Hourly Mean Outdoor Temperature (\u00B0C)',
@@ -695,34 +756,53 @@ class PlotComfortResults(PlotBEPSResults):
         filtered_df_above_NA = merged_df[
             merged_df.apply(is_above_thresholds_16798_NA,
                             axis=1)]
+        filtered_df_out_above_NA = merged_df[
+            merged_df.apply(is_out_above_thresholds_16798_NA,
+                            axis=1)]
+
         filtered_df_below_NA = merged_df[
             merged_df.apply(is_below_thresholds_16798_NA,
+                            axis=1)]
+        filtered_df_out_below_NA = merged_df[
+            merged_df.apply(is_out_below_thresholds_16798_NA,
                             axis=1)]
         common_index_within = filtered_df_within_NA.index.intersection(
             n_persons_df.index)
         common_index_above = filtered_df_above_NA.index.intersection(
             n_persons_df.index)
+        common_index_out_above = filtered_df_out_above_NA.index.intersection(
+            n_persons_df.index)
         common_index_below = filtered_df_below_NA.index.intersection(
+            n_persons_df.index)
+        common_index_out_below = filtered_df_out_below_NA.index.intersection(
             n_persons_df.index)
 
         filtered_df_within_NA_occ = filtered_df_within_NA.loc[
             common_index_within][n_persons_df.loc[common_index_within] > 0]
         filtered_df_above_NA_occ = filtered_df_above_NA.loc[common_index_above][
             n_persons_df.loc[common_index_above] > 0]
+        filtered_df_out_above_NA_occ = filtered_df_out_above_NA.loc[
+            common_index_out_above][n_persons_df.loc[common_index_out_above] > 0]
         filtered_df_below_NA_occ = filtered_df_below_NA.loc[common_index_below][
             n_persons_df.loc[common_index_below] > 0]
+        filtered_df_out_below_NA_occ = filtered_df_out_below_NA.loc[
+            common_index_out_below][n_persons_df.loc[common_index_out_below] > 0]
         cat_analysis_dict = {
             'ROOM': room_name,
             'within': len(filtered_df_within_NA),
             'above': len(filtered_df_above_NA),
-            'below': len(filtered_df_below_NA)
+            'out above': len(filtered_df_out_above_NA),
+            'below': len(filtered_df_below_NA),
+            'out below': len(filtered_df_out_below_NA)
         }
         cat_analysis_df = pd.DataFrame(cat_analysis_dict, index=[0])
         cat_analysis_occ_dict = {
             'ROOM': room_name,
             'within': len(filtered_df_within_NA_occ),
             'above': len(filtered_df_above_NA_occ),
-            'below': len(filtered_df_below_NA_occ)
+            'out above': len(filtered_df_out_above_NA_occ),
+            'below': len(filtered_df_below_NA_occ),
+            'out below': len(filtered_df_out_below_NA_occ)
         }
         cat_analysis_occ_df = pd.DataFrame(cat_analysis_occ_dict, index=[0])
 
@@ -733,11 +813,14 @@ class PlotComfortResults(PlotBEPSResults):
                                    sep=';')
 
         plot_scatter_en16798(filtered_df_within_NA, filtered_df_above_NA,
-                             filtered_df_below_NA,
+                             filtered_df_below_NA, filtered_df_out_above_NA,
+                             filtered_df_out_below_NA,
                              export_path, room_name)
         plot_scatter_en16798(filtered_df_within_NA_occ,
                              filtered_df_above_NA_occ,
                              filtered_df_below_NA_occ,
+                             filtered_df_out_above_NA_occ,
+                             filtered_df_out_below_NA_occ,
                              export_path,
                              room_name + '_occupancy')
         return cat_analysis_df, cat_analysis_occ_df
@@ -782,9 +865,28 @@ class PlotComfortResults(PlotBEPSResults):
 
         # Create the bar chart
         for i, col in enumerate(normalized_df.columns):
+            color = 'purple'
+            if col == 'CAT I':
+                color = 'green'
+            elif col == 'CAT II':
+                color = 'blue'
+            elif col == 'CAT III':
+                color = 'orange'
+            elif col == u'> CAT III':
+                color = 'red'
+            elif col == 'within':
+                color = 'green'
+            elif col == 'above':
+                color = 'orange'
+            elif col == 'below':
+                color = 'cyan'
+            elif col == 'out above':
+                color = 'red'
+            elif col == 'out below':
+                color = 'blue'
             ax.bar(normalized_df.index, normalized_df[col], width=-bar_width,
                    label=col, align='edge',
-                   bottom=bottom)
+                   bottom=bottom, color=color)
             bottom += normalized_df[col]
 
         # Set consistent font size for all elements
@@ -847,7 +949,8 @@ class PlotComfortResults(PlotBEPSResults):
         lgnd = plt.legend(framealpha=0.0, prop={'size': common_fontsize},
                           loc='lower center',
                           bbox_to_anchor=(0.5, legend_y_offset),
-                          ncol=4)  # Adjust legend position
+                          ncol=len(normalized_df.columns))  # Adjust legend
+        # position
 
         # Save the figure
         fig.savefig(export_path / f'DIN_EN_16798{tag}_all_zones_bar_table.pdf',
