@@ -112,7 +112,8 @@ class PlotComfortResults(PlotBEPSResults):
                                         color_only=True, figsize=[11, 12],
                                         zone_dict=zone_dict)
 
-    def limited_local_comfort_DIN16798_NA(self, df, elements, export_path):
+    def limited_local_comfort_DIN16798_NA(self, df, elements, export_path,
+                                          occupied=True):
         spaces = filter_elements(elements, 'ThermalZone')
         local_discomfort_dict = {}
         local_discomfort_overview = pd.DataFrame(columns=['space',
@@ -148,9 +149,16 @@ class PlotComfortResults(PlotBEPSResults):
             local_discomfort_overview = pd.concat(
                 [local_discomfort_overview, pd.DataFrame([new_row])],
                 ignore_index=True)
+            if occupied:
+                n_persons_df = df['n_persons_rooms_' + space.guid]
 
             space_temperature = df[f"air_temp_rooms_{space.guid}"].apply(
                 lambda x: x.magnitude)
+            if occupied:
+                common_index = space_temperature.index.intersection(
+                    n_persons_df.index)
+                space_temperature = space_temperature.loc[common_index][
+                    n_persons_df.loc[common_index] > 0]
             wall_df = pd.DataFrame()
             floor_df = pd.DataFrame()
             ceiling_df = pd.DataFrame()
@@ -164,6 +172,11 @@ class PlotComfortResults(PlotBEPSResults):
                         lambda x: x.magnitude)
                 except AttributeError:
                     self.logger.warning(f"object has no attribute 'magnitude'")
+                if occupied:
+                    common_index = bound_temperature.index.intersection(
+                        n_persons_df.index)
+                    bound_temperature = bound_temperature.loc[common_index][
+                        n_persons_df.loc[common_index] > 0]
                 if 'WALL' in bound.bound_element.key.upper():
                     wall_df = pd.concat([wall_df, bound_temperature], axis=1)
                 if (('FLOOR' in bound.bound_element.key.upper() and
