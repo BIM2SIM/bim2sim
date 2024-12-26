@@ -149,12 +149,10 @@ class PlotComfortResults(PlotBEPSResults):
             local_discomfort_overview = pd.concat(
                 [local_discomfort_overview, pd.DataFrame([new_row])],
                 ignore_index=True)
-            if occupied:
-                n_persons_df = df['n_persons_rooms_' + space.guid]
-
             space_temperature = df[f"air_temp_rooms_{space.guid}"].apply(
                 lambda x: x.magnitude)
             if occupied:
+                n_persons_df = df['n_persons_rooms_' + space.guid]
                 common_index = space_temperature.index.intersection(
                     n_persons_df.index)
                 space_temperature = space_temperature.loc[common_index][
@@ -180,13 +178,12 @@ class PlotComfortResults(PlotBEPSResults):
                 if 'WALL' in bound.bound_element.key.upper():
                     wall_df = pd.concat([wall_df, bound_temperature], axis=1)
                 if (('FLOOR' in bound.bound_element.key.upper() and
-                     bound.top_bottom == BoundaryOrientation.top) or ('ROOF' in
-                                                                      bound.bound_element.key.upper())):
+                     bound.top_bottom == BoundaryOrientation.top) or
+                        ('ROOF' in bound.bound_element.key.upper())):
                     ceiling_df = pd.concat([ceiling_df, bound_temperature],
                                            axis=1)
-                if (
-                        'FLOOR' in bound.bound_element.key.upper() and bound.top_bottom ==
-                        BoundaryOrientation.bottom):
+                if ('FLOOR' in bound.bound_element.key.upper()
+                        and bound.top_bottom == BoundaryOrientation.bottom):
                     floor_df = pd.concat([floor_df, bound_temperature], axis=1)
             min_wall_df, max_wall_df = self.get_exceeded_temperature_hours(
                 wall_df,
@@ -350,28 +347,44 @@ class PlotComfortResults(PlotBEPSResults):
                                        x_axis_title="Date",
                                        y_axis_title="PMV")
 
-    def apply_en16798_to_all_zones(self, df, zone_dict, export_path):
+    def apply_en16798_to_all_zones(self, df, zone_dict, export_path,
+                                   use_NA=True):
         """Generate EN 16798 diagrams for all thermal zones.
 
         """
-        logger.info("Plot DIN EN 16798 diagrams for all zones ...")
+        if use_NA:
+            add_NA_str = ' NA (GER)'
+        else:
+            add_NA_str = ''
+        logger.info(f"Plot DIN EN 16798{add_NA_str} diagrams for all zones ...")
 
         cat_analysis = pd.DataFrame()
         cat_analysis_occ = pd.DataFrame()
         for guid, room_name in zone_dict.items():
             temp_cat_analysis = None
             temp_cat_analysis_occ = None
-            temp_cat_analysis, temp_cat_analysis_occ = (
-                self.plot_new_en16798_adaptive_count(
-                    df, guid, room_name + '_' + guid, export_path))
+            if use_NA:
+                temp_cat_analysis, temp_cat_analysis_occ = (
+                    self.plot_en16798_adaptive_count_NA(
+                        df, guid, room_name + '_' + guid, export_path))
+            else:
+                temp_cat_analysis, temp_cat_analysis_occ = (
+                    self.plot_new_en16798_adaptive_count(
+                        df, guid, room_name + '_' + guid, export_path))
             cat_analysis = pd.concat([cat_analysis, temp_cat_analysis])
             cat_analysis_occ = pd.concat([cat_analysis_occ,
                                           temp_cat_analysis_occ])
         return cat_analysis, cat_analysis_occ
 
     def apply_en16798_to_single_zone(self, df, zone_dict, export_path,
-                                     zone_guid):
-        logger.info(f"Plot DIN EN 16798 diagrams for zone {zone_guid} ...")
+                                     zone_guid, use_NA=True):
+        if use_NA:
+            add_NA_str = ' NA (GER)'
+        else:
+            add_NA_str = ''
+
+        logger.info(f"Plot DIN EN 16798{add_NA_str} diagram "
+                    f"for zone {zone_guid} ...")
 
         cat_analysis = pd.DataFrame()
         cat_analysis_occ = pd.DataFrame()
@@ -380,8 +393,16 @@ class PlotComfortResults(PlotBEPSResults):
                 continue
             temp_cat_analysis = None
             temp_cat_analysis_occ = None
-            temp_cat_analysis, temp_cat_analysis_occ = self.plot_new_en16798_adaptive_count(
-                df, guid, room_name + '_' + guid, export_path)
+            if use_NA:
+                temp_cat_analysis, temp_cat_analysis_occ = (
+                    self.plot_en16798_adaptive_count_NA(df, guid,
+                                                        room_name + '_' + guid,
+                                                        export_path))
+            else:
+                temp_cat_analysis, temp_cat_analysis_occ = (
+                    self.plot_new_en16798_adaptive_count(df, guid, room_name
+                                                         + '_' + guid,
+                                                         export_path))
             cat_analysis = pd.concat([cat_analysis, temp_cat_analysis])
             cat_analysis_occ = pd.concat(
                 [cat_analysis_occ, temp_cat_analysis_occ])
@@ -559,6 +580,165 @@ class PlotComfortResults(PlotBEPSResults):
                              export_path, room_name)
         plot_scatter_en16798(filter_occ_cat1, filter_occ_cat2, filter_occ_cat3,
                              filtered_df_outside, export_path,
+                             room_name + '_occupancy')
+        return cat_analysis_df, cat_analysis_occ_df
+
+    @staticmethod
+    def plot_en16798_adaptive_count_NA(df, guid, room_name, export_path):
+        """Plot EN 16798 German National Appendix for a single thermal zone. """
+        logger.info(f"Plot DIN EN 16798 diagram (NA) for zone {guid}:"
+                    f" {room_name}.")
+
+        def is_within_thresholds_16798_NA(row):
+            if 16 <= row.iloc[0] <= 32:
+                y_threshold1 = 18 + 0.25 * row.iloc[0] - 2
+                y_threshold2 = 18 + 0.25 * row.iloc[0] + 2
+                return y_threshold1 <= row.iloc[1] <= y_threshold2
+            if row.iloc[0] > 32:
+                y_threshold1 = 26 - 2
+                y_threshold2 = 26 + 2
+                return y_threshold1 <= row.iloc[1] <= y_threshold2
+            if row.iloc[0] < 16:
+                y_threshold1 = 22 - 2
+                y_threshold2 = 22 + 2
+                return y_threshold1 <= row.iloc[1] <= y_threshold2
+            else:
+                return False
+
+        def is_above_thresholds_16798_NA(row):
+            if 16 <= row.iloc[0] <= 32:
+                y_threshold2 = 18 + 0.25 * row.iloc[0] + 2
+                return row.iloc[1] > y_threshold2
+            if row.iloc[0] > 32:
+                y_threshold2 = 26 + 2
+                return row.iloc[1] > y_threshold2
+            if row.iloc[0] < 16:
+                y_threshold2 = 22 + 2
+                return row.iloc[1] > y_threshold2
+            else:
+                return False
+
+        def is_below_thresholds_16798_NA(row):
+            if 16 <= row.iloc[0] <= 32:
+                y_threshold2 = 18 + 0.25 * row.iloc[0] - 2
+                return row.iloc[1] < y_threshold2
+            if row.iloc[0] > 32:
+                y_threshold2 = 26 - 2
+                return row.iloc[1] < y_threshold2
+            if row.iloc[0] < 16:
+                y_threshold2 = 22 - 2
+                return row.iloc[1] < y_threshold2
+            else:
+                return False
+
+        def plot_scatter_en16798(in_df, above_df, below_df,
+                                 path, name):
+            plt.figure(figsize=(13.2 / INCH, 8.3 / INCH))
+
+            plt.scatter(in_df.iloc[:, 0],
+                        in_df.iloc[:, 1],
+                        s=0.1,
+                        color='green', marker=".", label='within range of DIN '
+                                                         'EN '
+                                                         '16798-1 NA (GER)')
+            plt.scatter(above_df.iloc[:, 0],
+                        above_df.iloc[:, 1],
+                        s=0.1,
+                        color='red', marker=".", label='below range of DIN '
+                                                         'EN '
+                                                         '16798-1 NA (GER)')
+            plt.scatter(below_df.iloc[:, 0],
+                        below_df.iloc[:, 1],
+                        s=0.1,
+                        color='blue', marker=".", label='above range of DIN '
+                                                         'EN '
+                                                         '16798-1 NA (GER)')
+            coord_cat1_low = [
+                [10, 22 - 2],
+                [16, 18 + 0.25 * 16 - 2],
+                [32, 18 + 0.25 * 32 - 2],
+                [36, 26 - 2]]
+            coord_cat1_up = [
+                [10, 22 + 2],
+                [16, 18 + 0.25 * 16 + 2],
+                [32, 18 + 0.25 * 32 + 2],
+                [36, 26 + 2]]
+            cc1lx, cc1ly = zip(*coord_cat1_low)
+            cc1ux, cc1uy = zip(*coord_cat1_up)
+            plt.plot(cc1lx, cc1ly, linestyle='dashed', color='green',
+                     label='DIN EN 16798-1 NA (GER): Acceptability range')
+            plt.plot(cc1ux, cc1uy, linestyle='dashed', color='green')
+
+            # Customize plot
+            plt.xlabel('Hourly Mean Outdoor Temperature (\u00B0C)',
+                       fontsize=8)
+            plt.ylabel('Operative Temperature (\u00B0C)', fontsize=8)
+            plt.xlim([lim_min, lim_max])
+            plt.ylim([18, 34])
+            plt.grid()
+            lgnd = plt.legend(loc="upper left", scatterpoints=1, fontsize=8)
+            plt.savefig(
+                path / str('DIN_EN_16798_NA_' + name + '.pdf'))
+
+        lim_min = 10
+        lim_max = 36
+
+        ot = df['operative_air_temp_rooms_' + guid]
+        out_temp = df['site_outdoor_air_temp']
+        n_persons_df = df['n_persons_rooms_' + guid]
+
+        merged_df = pd.merge(out_temp, ot, left_index=True, right_index=True)
+        merged_df = merged_df.map(lambda x: x.m)
+        filtered_df_within_NA = merged_df[
+            merged_df.apply(is_within_thresholds_16798_NA,
+                            axis=1)]
+        filtered_df_above_NA = merged_df[
+            merged_df.apply(is_above_thresholds_16798_NA,
+                            axis=1)]
+        filtered_df_below_NA = merged_df[
+            merged_df.apply(is_below_thresholds_16798_NA,
+                            axis=1)]
+        common_index_within = filtered_df_within_NA.index.intersection(
+            n_persons_df.index)
+        common_index_above = filtered_df_above_NA.index.intersection(
+            n_persons_df.index)
+        common_index_below = filtered_df_below_NA.index.intersection(
+            n_persons_df.index)
+
+        filtered_df_within_NA_occ = filtered_df_within_NA.loc[
+            common_index_within][n_persons_df.loc[common_index_within] > 0]
+        filtered_df_above_NA_occ = filtered_df_above_NA.loc[common_index_above][
+            n_persons_df.loc[common_index_above] > 0]
+        filtered_df_below_NA_occ = filtered_df_below_NA.loc[common_index_below][
+            n_persons_df.loc[common_index_below] > 0]
+        cat_analysis_dict = {
+            'ROOM': room_name,
+            'within': len(filtered_df_within_NA),
+            'above': len(filtered_df_above_NA),
+            'below': len(filtered_df_below_NA)
+        }
+        cat_analysis_df = pd.DataFrame(cat_analysis_dict, index=[0])
+        cat_analysis_occ_dict = {
+            'ROOM': room_name,
+            'within': len(filtered_df_within_NA_occ),
+            'above': len(filtered_df_above_NA_occ),
+            'below': len(filtered_df_below_NA_occ)
+        }
+        cat_analysis_occ_df = pd.DataFrame(cat_analysis_occ_dict, index=[0])
+
+        analysis_file = export_path / 'DIN_EN_16798_NA_analysis.csv'
+        cat_analysis_df.to_csv(analysis_file, mode='a+', header=False, sep=';')
+        analysis_occ_file = export_path / 'DIN_EN_16798_NA_analysis_occ.csv'
+        cat_analysis_occ_df.to_csv(analysis_occ_file, mode='a+', header=False,
+                                   sep=';')
+
+        plot_scatter_en16798(filtered_df_within_NA, filtered_df_above_NA,
+                             filtered_df_below_NA,
+                             export_path, room_name)
+        plot_scatter_en16798(filtered_df_within_NA_occ,
+                             filtered_df_above_NA_occ,
+                             filtered_df_below_NA_occ,
+                             export_path,
                              room_name + '_occupancy')
         return cat_analysis_df, cat_analysis_occ_df
 
