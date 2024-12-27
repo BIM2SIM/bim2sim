@@ -523,18 +523,15 @@ class CreateIdf(ITask):
             self.set_day_week_year_schedule(idf, space.cooling_profile[:24],
                                             'cooling_profile',
                                             clg_schedule_name)
-            if idf.getobject('THERMOSTATSETPOINT:SINGLECOOLING',
-                              clg_schedule_name) is None:
+            if idf.getobject('THERMOSTATSETPOINT:DUALSETPOINT',
+                             htg_schedule_name + ' ' + clg_schedule_name) is None:
                 idf.newidfobject(
-                    'THERMOSTATSETPOINT:SINGLECOOLING',
-                    Name=clg_schedule_name,
-                    Setpoint_Temperature_Schedule_Name=clg_schedule_name)
-            if idf.getobject('THERMOSTATSETPOINT:SINGLEHEATING',
-                             htg_schedule_name) is None:
-                idf.newidfobject(
-                    'THERMOSTATSETPOINT:SINGLEHEATING',
-                    Name=htg_schedule_name,
-                    Setpoint_Temperature_Schedule_Name=htg_schedule_name)
+                    'THERMOSTATSETPOINT:DUALSETPOINT',
+                    Name=htg_schedule_name + ' ' + clg_schedule_name,
+                    Heating_Setpoint_Temperature_Schedule_Name
+                    =htg_schedule_name,
+                    Cooling_Setpoint_Temperature_Schedule_Name=clg_schedule_name
+                )
             if idf.getobject("ZONECONTROL:THERMOSTAT:OPERATIVETEMPERATURE",
                              zone_name + ' ' + operative_stats_name) is None:
                 idf.newidfobject(
@@ -550,10 +547,8 @@ class CreateIdf(ITask):
                     Name=operative_stats_name,
                     Zone_or_ZoneList_Name=space.usage.replace(',', ''),
                     Control_Type_Schedule_Name='Zone Control Type Sched',
-                    Control_1_Object_Type='ThermostatSetpoint:SingleHeating',
-                    Control_1_Name=htg_schedule_name,
-                    Control_2_Object_Type='ThermostatSetpoint:SingleCooling',
-                    Control_2_Name=clg_schedule_name,
+                    Control_1_Object_Type='ThermostatSetpoint:DualSetpoint',
+                    Control_1_Name=htg_schedule_name + ' ' + clg_schedule_name,
                 )
             else:
                 stat = idf.getobject('ZONECONTROL:THERMOSTAT',
@@ -563,18 +558,10 @@ class CreateIdf(ITask):
                 idf.newidfobject("SCHEDULE:COMPACT",
                                  Name='Zone Control Type Sched',
                                  Schedule_Type_Limits_Name='Control Type',
-                                 Field_1='Through: 4/30',
+                                 Field_1='Through: 12/31',
                                  Field_2='For: AllDays',
                                  Field_3='Until: 24:00',
-                                 Field_4='1',
-                                 Field_5='Through: 09/30',
-                                 Field_6='For: AllDays',
-                                 Field_7='Until: 24:00',
-                                 Field_8='2',
-                                 Field_9='Through: 12/31',
-                                 Field_10='For: AllDays',
-                                 Field_11='Until: 24:00',
-                                 Field_12='1',
+                                 Field_4='4',
                                  )
             if idf.getobject("SCHEDULETYPELIMITS", 'Control Type') is None:
                 idf.newidfobject('SCHEDULETYPELIMITS',
