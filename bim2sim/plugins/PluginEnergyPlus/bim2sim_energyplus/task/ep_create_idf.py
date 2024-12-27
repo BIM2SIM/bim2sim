@@ -84,7 +84,6 @@ class CreateIdf(ITask):
                                               self.paths, weather_file,
                                               self.prj_name)
         self.init_zone(self.playground.sim_settings, elements, idf)
-        self.init_zonelist(idf)
         self.init_zonegroups(elements, idf)
         self.get_preprocessed_materials_and_constructions(
             self.playground.sim_settings, elements, idf)
@@ -241,22 +240,18 @@ class CreateIdf(ITask):
             idf: idf file object
         """
         spaces = get_spaces_with_bounds(elements)
-        # assign storeys to spaces (ThermalZone)
+        space_usage_dict = {}
         for space in spaces:
-            if space.storeys:
-                space.storey = space.storeys[0]  # Zone can only have one storey
+            if space.usage.replace(',', '') not in space_usage_dict.keys():
+                space_usage_dict.update({space.usage.replace(',',
+                                                             ''): [space.guid]})
             else:
-                space.storey = None
-        # add zonelist per storey
-        storeys = filter_elements(elements, Storey)
-        for st in storeys:
-            space_ids = []
-            for space in st.thermal_zones:
-                if not space in spaces:
-                    continue
-                space_ids.append(space.guid)
-            self.init_zonelist(idf, name=st.ifc.Name, zones_in_list=space_ids)
+                space_usage_dict[space.usage.replace(',', '')].append(
+                    space.guid)
 
+        for key, value in space_usage_dict.items():
+            if not idf.getobject('ZONELIST', key):
+                self.init_zonelist(idf, name=key, zones_in_list=value)
         # add zonelist for All_Zones
         zone_lists = [zlist for zlist in idf.idfobjects["ZONELIST"]
                       if zlist.Name != "All_Zones"]
@@ -516,10 +511,84 @@ class CreateIdf(ITask):
             space: ThermalZone instance
         """
         stat_name = "STATS " + space.usage.replace(',', '')
-        if idf.getobject("HVACTEMPLATE:THERMOSTAT", stat_name) is None:
+        if self.playground.sim_settings.control_operative_temperature:
+            operative_stats_name = space.usage.replace(',', '') + ' THERMOSTAT'
+            htg_schedule_name = "Schedule " + "Heating " + space.usage.replace(
+                ',', '')
+            self.set_day_week_year_schedule(idf, space.heating_profile[:24],
+                                            'heating_profile',
+                                            htg_schedule_name)
+            clg_schedule_name = "Schedule " + "Cooling " + space.usage.replace(
+                ',', '')
+            self.set_day_week_year_schedule(idf, space.cooling_profile[:24],
+                                            'cooling_profile',
+                                            clg_schedule_name)
+            if idf.getobject('THERMOSTATSETPOINT:SINGLECOOLING',
+                              clg_schedule_name) is None:
+                idf.newidfobject(
+                    'THERMOSTATSETPOINT:SINGLECOOLING',
+                    Name=clg_schedule_name,
+                    Setpoint_Temperature_Schedule_Name=clg_schedule_name)
+            if idf.getobject('THERMOSTATSETPOINT:SINGLEHEATING',
+                             htg_schedule_name) is None:
+                idf.newidfobject(
+                    'THERMOSTATSETPOINT:SINGLEHEATING',
+                    Name=htg_schedule_name,
+                    Setpoint_Temperature_Schedule_Name=htg_schedule_name)
+            if idf.getobject("ZONECONTROL:THERMOSTAT:OPERATIVETEMPERATURE",
+                             zone_name + ' ' + operative_stats_name) is None:
+                idf.newidfobject(
+                    "ZONECONTROL:THERMOSTAT:OPERATIVETEMPERATURE",
+                    Thermostat_Name=zone_name + ' ' + operative_stats_name,
+                    Radiative_Fraction_Input_Mode='constant',
+                    Fixed_Radiative_Fraction=0.5
+                )
+            if idf.getobject("ZONECONTROL:THERMOSTAT",
+                             operative_stats_name) is None:
+                stat = idf.newidfobject(
+                    "ZONECONTROL:THERMOSTAT",
+                    Name=operative_stats_name,
+                    Zone_or_ZoneList_Name=space.usage.replace(',', ''),
+                    Control_Type_Schedule_Name='Zone Control Type Sched',
+                    Control_1_Object_Type='ThermostatSetpoint:SingleHeating',
+                    Control_1_Name=htg_schedule_name,
+                    Control_2_Object_Type='ThermostatSetpoint:SingleCooling',
+                    Control_2_Name=clg_schedule_name,
+                )
+            else:
+                stat = idf.getobject('ZONECONTROL:THERMOSTAT',
+                                     operative_stats_name)
+            if idf.getobject("SCHEDULE:COMPACT",
+                             'Zone Control Type Sched') is None:
+                idf.newidfobject("SCHEDULE:COMPACT",
+                                 Name='Zone Control Type Sched',
+                                 Schedule_Type_Limits_Name='Control Type',
+                                 Field_1='Through: 4/30',
+                                 Field_2='For: AllDays',
+                                 Field_3='Until: 24:00',
+                                 Field_4='1',
+                                 Field_5='Through: 09/30',
+                                 Field_6='For: AllDays',
+                                 Field_7='Until: 24:00',
+                                 Field_8='2',
+                                 Field_9='Through: 12/31',
+                                 Field_10='For: AllDays',
+                                 Field_11='Until: 24:00',
+                                 Field_12='1',
+                                 )
+            if idf.getobject("SCHEDULETYPELIMITS", 'Control Type') is None:
+                idf.newidfobject('SCHEDULETYPELIMITS',
+                                 Name='Control Type',
+                                 Lower_Limit_Value=0,
+                                 Upper_Limit_Value=4,
+                                 Numeric_Type='DISCRETE')
+            template_thermostat_name = ''
+        elif idf.getobject("HVACTEMPLATE:THERMOSTAT", stat_name) is None:
             stat = self.set_day_hvac_template(idf, space, stat_name)
+            template_thermostat_name = stat.Name
         else:
             stat = idf.getobject("HVACTEMPLATE:THERMOSTAT", stat_name)
+            template_thermostat_name = stat.Name
 
         cooling_availability = "Off"
         heating_availability = "Off"
@@ -552,7 +621,7 @@ class CreateIdf(ITask):
         idf.newidfobject(
             "HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM",
             Zone_Name=zone_name,
-            Template_Thermostat_Name=stat.Name,
+            Template_Thermostat_Name=template_thermostat_name,
             Heating_Availability_Schedule_Name=heating_availability,
             Cooling_Availability_Schedule_Name=cooling_availability
         )
