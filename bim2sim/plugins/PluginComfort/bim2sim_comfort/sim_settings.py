@@ -32,3 +32,7 @@ class ComfortSimSettings(EnergyPlusSimSettings):
                     "to a json file with pairs of current keys and new keys. ",
         for_frontend=True
     )
+    comfort_occupancy_weighting = BooleanSetting(
+        default=False, description='Weight the comfort rating by occupancy '
+                                   'schedules.'
+    )
