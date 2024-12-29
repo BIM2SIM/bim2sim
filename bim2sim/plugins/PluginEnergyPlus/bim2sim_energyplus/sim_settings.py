@@ -161,3 +161,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         default=False, description='Disable all HVAC systems at night from '
                                    '10pm to 6am.'
     )
+    control_operative_temperature = BooleanSetting(
+        default=False, description='Use operative temperature instead of air '
+                                   'temperature for zonal temperature control.'
+    )
