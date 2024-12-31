@@ -85,11 +85,11 @@ class PlotComfortResults(PlotBEPSResults):
             self.limited_local_comfort_DIN16798_NA(df, elements, export_path)
 
             if not plot_single_guid:
-                cat_analysis, cat_analysis_occ = (
+                cat_analysis, cat_analysis_occ, cat_analysis_occ_hours = (
                     self.apply_en16798_to_all_zones(df, zone_dict,
                                                     export_path))
             else:
-                cat_analysis, cat_analysis_occ = (
+                cat_analysis, cat_analysis_occ, cat_analysis_occ_hours = (
                     self.apply_en16798_to_single_zone(df, zone_dict,
                                                       export_path,
                                                       plot_single_guid))
@@ -97,6 +97,9 @@ class PlotComfortResults(PlotBEPSResults):
             # DIN EN 16798.
             self.table_bar_plot_16798(cat_analysis, export_path)
             self.table_bar_plot_16798(cat_analysis_occ, export_path, tag='occ')
+            self.table_bar_plot_16798(cat_analysis_occ_hours, export_path,
+                                      tag='occ_hours', normalize=False,
+                                      unit=u'degree hours', y_scale='log')
 
             fanger_pmv = df[[col for col in df.columns if 'fanger_pmv' in col]]
             if plot_single_guid:
@@ -360,13 +363,18 @@ class PlotComfortResults(PlotBEPSResults):
 
         cat_analysis = pd.DataFrame()
         cat_analysis_occ = pd.DataFrame()
+        cat_analysis_occ_hours = pd.DataFrame()
         for guid, room_name in zone_dict.items():
             temp_cat_analysis = None
             temp_cat_analysis_occ = None
+            temp_cat_analysis_occ_hours = None
             if use_NA:
-                temp_cat_analysis, temp_cat_analysis_occ = (
+                (temp_cat_analysis, temp_cat_analysis_occ,
+                 temp_cat_analysis_occ_hours) = (
                     self.plot_en16798_adaptive_count_NA(
                         df, guid, room_name + '_' + guid, export_path))
+                cat_analysis_occ_hours = pd.concat([cat_analysis_occ_hours,
+                                                    temp_cat_analysis_occ_hours])
             else:
                 temp_cat_analysis, temp_cat_analysis_occ = (
                     self.plot_new_en16798_adaptive_count(
@@ -374,7 +382,7 @@ class PlotComfortResults(PlotBEPSResults):
             cat_analysis = pd.concat([cat_analysis, temp_cat_analysis])
             cat_analysis_occ = pd.concat([cat_analysis_occ,
                                           temp_cat_analysis_occ])
-        return cat_analysis, cat_analysis_occ
+        return cat_analysis, cat_analysis_occ, cat_analysis_occ_hours
 
     def apply_en16798_to_single_zone(self, df, zone_dict, export_path,
                                      zone_guid, use_NA=True):
@@ -388,16 +396,20 @@ class PlotComfortResults(PlotBEPSResults):
 
         cat_analysis = pd.DataFrame()
         cat_analysis_occ = pd.DataFrame()
+        cat_analysis_occ_hours = pd.DataFrame()
         for guid, room_name in zone_dict.items():
             if not guid == zone_guid:
                 continue
             temp_cat_analysis = None
             temp_cat_analysis_occ = None
             if use_NA:
-                temp_cat_analysis, temp_cat_analysis_occ = (
+                (temp_cat_analysis, temp_cat_analysis_occ,
+                 temp_cat_analysis_occ_hours) = (
                     self.plot_en16798_adaptive_count_NA(df, guid,
                                                         room_name + '_' + guid,
                                                         export_path))
+                cat_analysis_occ_hours = pd.concat([cat_analysis_occ_hours,
+                                                    temp_cat_analysis_occ_hours])
             else:
                 temp_cat_analysis, temp_cat_analysis_occ = (
                     self.plot_new_en16798_adaptive_count(df, guid, room_name
@@ -406,7 +418,7 @@ class PlotComfortResults(PlotBEPSResults):
             cat_analysis = pd.concat([cat_analysis, temp_cat_analysis])
             cat_analysis_occ = pd.concat(
                 [cat_analysis_occ, temp_cat_analysis_occ])
-        return cat_analysis, cat_analysis_occ
+        return cat_analysis, cat_analysis_occ, cat_analysis_occ_hours
 
     @staticmethod
     def plot_new_en16798_adaptive_count(df, guid, room_name, export_path):
@@ -856,6 +868,7 @@ class PlotComfortResults(PlotBEPSResults):
 
         cat_analysis_dict = {
             'ROOM': room_name,
+            'total': 8760,
             'within': len(filtered_df_within_NA),
             'above': len(filtered_df_above_NA),
             'below': len(filtered_df_below_NA),
@@ -864,6 +877,7 @@ class PlotComfortResults(PlotBEPSResults):
         }
         cat_analysis_hours_dict = {
             'ROOM': room_name,
+            'total': 8760*2,
             'within': filtered_df_within_NA_hours.sum(),
             'above': filtered_df_above_NA_hours.sum(),
             'below': filtered_df_below_NA_hours.sum(),
@@ -873,6 +887,7 @@ class PlotComfortResults(PlotBEPSResults):
         # acceptable over-temperature hours
         occupied_2K_hours = {
             'ROOM': room_name,
+            'total': len(n_persons_df[n_persons_df > 0]),
             'within': 8760 * 2,
             # random choice, over-temperature hours are zero
             'above': len(n_persons_df[n_persons_df > 0]) * 2,
@@ -885,6 +900,7 @@ class PlotComfortResults(PlotBEPSResults):
         cat_analysis_hours_df = pd.DataFrame(cat_analysis_hours_dict, index=[0])
         cat_analysis_occ_dict = {
             'ROOM': room_name,
+            'total': len(n_persons_df[n_persons_df > 0]),
             'within': len(filtered_df_within_NA_occ),
             'above': len(filtered_df_above_NA_occ),
             'below': len(filtered_df_below_NA_occ),
@@ -893,6 +909,7 @@ class PlotComfortResults(PlotBEPSResults):
         }
         cat_analysis_occ_hours_dict = {
             'ROOM': room_name,
+            'total': len(n_persons_df[n_persons_df > 0]),
             'within': filtered_df_within_NA_hours_occ.sum(),
             'above': filtered_df_above_NA_hours_occ.sum(),
             'below': filtered_df_below_NA_hours_occ.sum(),
@@ -905,7 +922,7 @@ class PlotComfortResults(PlotBEPSResults):
         failed = False
         failing_reasons = dict()
         for key, value in occupied_2K_hours.items():
-            if key == 'ROOM':
+            if key in ['ROOM', 'total']:
                 continue
             if (0.01 * occupied_2K_hours[key] - cat_analysis_occ_hours_dict[
                 key]) < -1e-4:
@@ -945,10 +962,11 @@ class PlotComfortResults(PlotBEPSResults):
                              filtered_df_out_below_NA_occ,
                              export_path,
                              room_name + '_occupancy')
-        return cat_analysis_df, cat_analysis_occ_df
+        return cat_analysis_df, cat_analysis_occ_df, cat_analysis_hours_occ_df
 
     @staticmethod
-    def table_bar_plot_16798(df, export_path, tag=''):
+    def table_bar_plot_16798(df, export_path, tag='', normalize=True,
+                             unit='', y_scale='linear'):
         """Create bar plot with a table below for EN 16798 thermal comfort.
 
         This function creates a bar plot with a table below along with the
@@ -973,11 +991,14 @@ class PlotComfortResults(PlotBEPSResults):
 
         # Set 'ROOM' column as the index
         df.set_index('ROOM', inplace=True)
-        row_sums = df.sum(axis=1)
-        # Create a new DataFrame by dividing the original DataFrame by the row
-        # sums
-        normalized_df = df.div(row_sums, axis=0)
-        normalized_df = normalized_df * 100
+        if normalize:
+            row_sums = df.loc[:, df.columns != 'total'].sum(axis=1)
+            # Create a new DataFrame by dividing the original DataFrame by the row
+            # sums
+            normalized_df = df.loc[:, df.columns != 'total'].div(row_sums, axis=0)
+            normalized_df = normalized_df * 100
+        else:
+            normalized_df = df.loc[:, df.columns != 'total']
         fig, ax = plt.subplots(
             figsize=(24, 12))  # Adjust figure size to allow more space
 
@@ -987,6 +1008,8 @@ class PlotComfortResults(PlotBEPSResults):
 
         # Create the bar chart
         for i, col in enumerate(normalized_df.columns):
+            if col == 'total':
+                continue
             color = 'purple'
             if col == 'CAT I':
                 color = 'green'
@@ -1013,24 +1036,49 @@ class PlotComfortResults(PlotBEPSResults):
 
         # Set consistent font size for all elements
         common_fontsize = 11
-        ax.set_ylabel(u'% of hours per category', fontsize=common_fontsize)
+        if normalize:
+            ax.set_ylabel(u'% of hours per category', fontsize=common_fontsize)
+        else:
+            ax.set_ylabel(unit, fontsize=common_fontsize)
+
         ax.tick_params(axis='y',
                        labelsize=common_fontsize)  # Match font size for y-axis ticks
         ax.tick_params(axis='x', labelrotation=90)
-        plt.ylim([0, 100])
+        if normalize:
+            plt.ylim([0, 100])
+        else:
+            # Set the y-axis to logarithmic scale
+            ax.set_yscale(y_scale)
         plt.xlim([-bar_width / 2 - 0.5,
                   len(normalized_df.index) - bar_width / 2 - 0.5])
         plt.xticks([])  # Remove x-ticks for table
+        if normalize:
+            formatted_df = normalized_df.applymap(lambda x: f'{x:.1f}')
+        else:
+            def format_value(x, index):
+                total = df.loc[index, "total"]
+                return f'{x:.1f} ({(x / (total * 2)) * 100:.1f} %)'
 
-        formatted_df = normalized_df.applymap(lambda x: f'{x:.1f}')
+            formatted_df = normalized_df.apply(
+                lambda row: row.apply(lambda x: format_value(x, row.name)),
+                axis=1)
         cell_text = [formatted_df[column] for column in formatted_df.columns]
 
+        if normalize:
         # Create the table
-        table = plt.table(cellText=cell_text,
-                          rowLabels=formatted_df.columns + u' / %',
-                          colLabels=formatted_df.index,
-                          cellLoc='center',
-                          loc='bottom')
+            table = plt.table(cellText=cell_text,
+                              rowLabels=formatted_df.columns + u' / %',
+                              colLabels=formatted_df.index,
+                              cellLoc='center',
+                              loc='bottom')
+        else:
+            cell_text.insert(0, df['total'])
+            table = plt.table(cellText=cell_text,
+                              rowLabels=['occupied hours / hours'] + list(
+                                  formatted_df.columns + f' / {unit}'),
+                              colLabels=formatted_df.index,
+                              cellLoc='center',
+                              loc='bottom')
 
         # Ensure consistent font size for the table
         table.auto_set_font_size(False)
@@ -1041,7 +1089,7 @@ class PlotComfortResults(PlotBEPSResults):
         max_text_height = 0  # Track the maximum height
         table.scale(1.0, 5.0)  # Adjust scaling for overall table size
 
-        for i, key in enumerate(formatted_df.index):
+        for i in range(len(cell_text[0])):
             cell = table[(0, i)]  # Access header cells
             text = cell.get_text()
             text.set_rotation(90)  # Rotate the text by 90 degrees
@@ -1055,7 +1103,7 @@ class PlotComfortResults(PlotBEPSResults):
             max_text_height = max(max_text_height, text_height)
 
         # Apply a uniform height to all header cells
-        for i, key in enumerate(formatted_df.index):
+        for i in range(len(cell_text[0])):
             cell = table[(0, i)]
             cell.set_height(
                 max_text_height * 1.05)  # Add a slight margin factor

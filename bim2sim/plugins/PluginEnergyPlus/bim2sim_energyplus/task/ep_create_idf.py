@@ -213,16 +213,22 @@ class CreateIdf(ITask):
             # assign all zones to one list unless the total number of zones
             # is larger than 20.
             idf_zones = idf.idfobjects["ZONE"]
-            if len(idf_zones) > 20:
-                return
+            if len(idf_zones) > 99:
+                logger.warning("Trying to assign more than 99 zones to a "
+                               "single zone list. May require changes in "
+                               "Energy+.idd to successfully execute "
+                               "simulation.")
         else:
             # assign all zones with the zone names that are included in
             # zones_in_list to the zonelist.
             all_idf_zones = idf.idfobjects["ZONE"]
             idf_zones = [zone for zone in all_idf_zones if zone.Name
                          in zones_in_list]
-            if len(idf_zones) > 20:
-                return
+            if len(idf_zones) > 99:
+                logger.warning("Trying to assign more than 99 zones to a "
+                               "single zone list. May require changes in "
+                               "Energy+.idd to successfully execute "
+                               "simulation.")
             if len(idf_zones) == 0:
                 return
         if name is None:
@@ -865,20 +871,36 @@ class CreateIdf(ITask):
 
         """
         if ep_version in ["9-2-0", "9-4-0"]:
+            space_volume = space.space_shape_volume.m
+            max_user_airflow_per_second = ((space.max_user_infiltration *
+                                           space_volume) / 3600 /
+                                           (space.net_area.m*space.persons))
             idf.newidfobject(
                 "ZONEVENTILATION:DESIGNFLOWRATE",
-                Name=name + '_winter',
+                Name=name + '_user_reduced_in_winter',
                 Zone_or_ZoneList_Name=zone_name,
                 Schedule_Name="Continuous",
                 Ventilation_Type="Natural",
-                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-                Air_Changes_per_Hour=space.winter_reduction_infiltration[0],
+                Design_Flow_Rate_Calculation_Method="Flow/Person",
+                Flow_Rate_per_Person=max_user_airflow_per_second*space.winter_reduction_infiltration[0],
+                Maximum_Outdoor_Temperature=
+                space.winter_reduction_infiltration[1] - 273.15,
+                Minimum_Indoor_Temperature=max(space.heating_profile)-273.15,
+                Delta_Temperature=2
+            )
+            idf.newidfobject(
+                "ZONEVENTILATION:DESIGNFLOWRATE",
+                Name=name + '_user_not_reduced',
+                Zone_or_ZoneList_Name=zone_name,
+                Schedule_Name="Continuous",
+                Ventilation_Type="Natural",
+                Design_Flow_Rate_Calculation_Method="Flow/Person",
+                Flow_Rate_per_Person=max_user_airflow_per_second,
                 Minimum_Outdoor_Temperature=
                 space.winter_reduction_infiltration[1] - 273.15,
-                Maximum_Outdoor_Temperature=
-                space.winter_reduction_infiltration[2] - 273.15,
+                Minimum_Indoor_Temperature=max(space.heating_profile)-273.15,
+                Delta_Temperature=2
             )
-
             idf.newidfobject(
                 "ZONEVENTILATION:DESIGNFLOWRATE",
                 Name=name + '_summer',
@@ -891,6 +913,8 @@ class CreateIdf(ITask):
                 =space.max_summer_infiltration[1] - 273.15,
                 Maximum_Outdoor_Temperature
                 =space.max_summer_infiltration[2] - 273.15,
+                Minimum_Indoor_Temperature=max(space.heating_profile)-273.15,
+                Delta_Temperature=2
             )
 
             idf.newidfobject(
@@ -905,8 +929,9 @@ class CreateIdf(ITask):
                 # dynamically computes thresholds for overheating infiltration
                 # based on the zone temperature and additional factors.
                 Air_Changes_per_Hour=space.max_overheating_infiltration[0],
-                Minimum_Outdoor_Temperature
-                =space.max_summer_infiltration[2] - 273.15,
+                Minimum_Indoor_Temperature
+                =max(space.heating_profile) - 273.15 + 3,
+                Delta_Temperature=2
             )
         else:
             idf.newidfobject(
@@ -1361,6 +1386,11 @@ class CreateIdf(ITask):
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
                 Variable_Name="Zone Lights Total Heating Rate",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Total Internal Total Heating Rate",
                 Reporting_Frequency="Hourly",
             )
         if 'output_zone' in sim_settings.output_keys:
