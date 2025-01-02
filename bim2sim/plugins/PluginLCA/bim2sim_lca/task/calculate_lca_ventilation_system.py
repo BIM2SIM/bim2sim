@@ -20,10 +20,6 @@ class CalculateEmissionVentilationSystem(ITask):
             supply_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_supply_system_material_json)
             exhaust_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_exhaust_system_material_json)
 
-            #component_dict = self.load_component_data()
-            # component_material_emission, pump_component, total_gwp_hydraulic_component = self.calulcate_emission_components(
-            #         component_dict=component_dict, material_emission_dict=material_emission_dict)
-
             supply_dict, total_gwp_supply, total_pipe_mass_supply, total_isolation_mass_supply = self.calulcate_emission_pipe(
                                                                         duct_dict=supply_dict,
                                                                         material_emission_dict=material_emission_dict)
@@ -58,36 +54,6 @@ class CalculateEmissionVentilationSystem(ITask):
 
         return pipe_dict
 
-    def load_component_data(self):
-        # TODO Change excel to json file
-        with self.lock:
-            with open(self.playground.sim_settings.hydraulic_system_material_path, "rb") as excel_file:
-                df = pd.read_excel(excel_file, engine="openpyxl", sheet_name="Components")
-        component_dict = {}
-        for index, row in df.iterrows():
-            if self.playground.sim_settings.heat_delivery_type == "Radiator":
-                if "radiator_forward" in row["Type"] and not "ground" in row["Type"]:
-                    component_dict[index] = {"Type": row["Type"],
-                                             "Material": row["Material"],
-                                             "Mass [kg]": row["Mass [kg]"],
-                                             "Power [kW]": row["Power [kW]"]}
-                if "Pumpe" in row["Type"]:
-                    component_dict[index] = {"Type": row["Type"],
-                                             "Power [kW]": row["Power [kW]"]}
-            elif self.playground.sim_settings.heat_delivery_type == "UFH":
-                if "radiator_forward" in row["Type"] and not "extra" in row["Type"]:
-                    component_dict[index] = {"Type": row["Type"],
-                                             "UFH Area [m²]": row["UFH area [m²]"],
-                                             "UFH Laying Distance [mm]": row["UFH Laying Distance [mm]"]}
-                elif "radiator_forward_extra" in row["Type"] and not "ground" in row["Type"]:
-                    component_dict[index] = {"Type": row["Type"],
-                                             "Material": row["Material"],
-                                             "Mass [kg]": row["Mass [kg]"],
-                                             "Power [kW]": row["Power [kW]"]}
-                elif "Pumpe" in row["Type"]:
-                    component_dict[index] = {"Type": row["Type"],
-                                             "Power [kW]": row["Power [kW]"]}
-        return component_dict
 
     def calulcate_emission_pipe(self,
                                 duct_dict:dict,

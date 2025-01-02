@@ -31,7 +31,6 @@ def run_serialize_teaser_project_example(project_path, weather_file_path):
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
     # combine spaces to thermal zones based on their usage
-    project.sim_settings.zoning_setup = LOD.medium
     project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
     project.sim_settings.setpoints_from_template = True
 
