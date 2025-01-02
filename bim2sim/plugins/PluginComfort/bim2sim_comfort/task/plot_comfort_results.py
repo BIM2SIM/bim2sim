@@ -80,6 +80,28 @@ class PlotComfortResults(PlotBEPSResults):
             export_path = sim_results_path / bldg_name / 'plots'
             if not export_path.exists():
                 export_path.mkdir(parents=False, exist_ok=False)
+            if self.playground.sim_settings.plot_zone_usages:
+                spaces = filter_elements(elements, 'ThermalZone')
+                exclude_guids = []
+                for space in spaces:
+                    if not any(key.lower() in space.usage.lower() for key in
+                               self.playground.sim_settings.plot_zone_usages)\
+                            and not space.guid.lower() == plot_single_guid:
+                        exclude_guids.append(space.guid)
+                        logger.info(f'Exclude space {space.usage} '
+                                    f'{space.guid} and its space boundaries '
+                                    f'from further evaluation due to '
+                                    f'sim_setting.')
+                        for bound in space.space_boundaries:
+                            exclude_guids.append(bound.guid)
+                filtered_columns = [
+                    col for col in df.columns
+                    if not any(
+                        exclude_guid.lower() in col.lower() for exclude_guid in
+                        exclude_guids)
+                ]
+                filtered_df = df[filtered_columns]
+                df = filtered_df
             # generate DIN EN 16798-1 adaptive comfort scatter plot and
             # return analysis of comfort categories for further plots
             self.limited_local_comfort_DIN16798_NA(df, elements, export_path)
@@ -130,6 +152,8 @@ class PlotComfortResults(PlotBEPSResults):
                        col != 'space'}
 
         for space in spaces:
+            if not any(df.filter(like=space.guid)):
+                continue
             self.logger.info(f"Space: {space.usage}, GUID: {space.guid}")
             local_discomfort_dict.update({
                 space.guid:
@@ -365,6 +389,8 @@ class PlotComfortResults(PlotBEPSResults):
         cat_analysis_occ = pd.DataFrame()
         cat_analysis_occ_hours = pd.DataFrame()
         for guid, room_name in zone_dict.items():
+            if not any(df.filter(like=guid)):
+                continue
             temp_cat_analysis = None
             temp_cat_analysis_occ = None
             temp_cat_analysis_occ_hours = None
@@ -1000,7 +1026,7 @@ class PlotComfortResults(PlotBEPSResults):
         else:
             normalized_df = df.loc[:, df.columns != 'total']
         fig, ax = plt.subplots(
-            figsize=(24, 12))  # Adjust figure size to allow more space
+            figsize=(36, 12))  # Adjust figure size to allow more space
 
         x_pos = np.arange(len(set(normalized_df.index))) * 0.8
         bar_width = 0.35
