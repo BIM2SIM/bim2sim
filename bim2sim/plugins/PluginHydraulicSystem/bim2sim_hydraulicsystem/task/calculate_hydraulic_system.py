@@ -2357,20 +2357,11 @@ class CalculateHydraulicSystem(ITask):
         df_components = pd.DataFrame.from_dict(bom, orient='index')
         df_components_quantities = pd.DataFrame.from_dict(bom_types_quantities, orient='index')
         with self.lock:
-            with open(Path(filepath, "hydraulic_components.json"), 'w') as json_file:
-                json.dump(df_components, json_file, indent=4)
+            with pd.ExcelWriter(filepath, mode='a', engine='openpyxl') as writer:
+                # Schreiben Sie das neue Sheet in die Excel-Datei
 
-            with open(Path(filepath, "hydraulic_pipes.json"), 'w') as json_file:
-                json.dump(df_components_quantities, json_file, indent=4)
-
-            # with pd.ExcelWriter(filepath, mode='a', engine='openpyxl') as writer:
-            #     # Schreiben Sie das neue Sheet in die Excel-Datei
-            #
-            #     df_components.to_excel(writer, sheet_name='Components', index_label='Node')
-            #     df_components_quantities.to_excel(writer, sheet_name='Component Quantities', index_label='Type')
-
-        # Bestätigung, dass das Sheet hinzugefügt wurde
-        self.logger.info(f"Das neue Sheet {filepath} wurde erfolgreich zur Excel-Datei hinzugefügt.")
+                df_components.to_excel(writer, sheet_name='Components', index_label='Node')
+                df_components_quantities.to_excel(writer, sheet_name='Component Quantities', index_label='Type')
 
 
 

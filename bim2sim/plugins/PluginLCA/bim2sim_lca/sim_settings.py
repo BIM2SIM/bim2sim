@@ -62,21 +62,21 @@ class LCAExportSettings(BuildingSimSettings):
         description='Choose pipe material of under floor heating',
         for_frontend=True
     )
-    hydraulic_system_material_path = PathSetting(
+    hydraulic_system_material_xlsx = PathSetting(
         default=None,
         description='Path to the excel file which holds information'
                     'about used material in hydraulic system'
                     '(Output of PluginHydraulicSystem)',
         for_frontend=True
     )
-    ventilation_supply_system_material_json = PathSetting(
+    ventilation_supply_system_material_xlsx = PathSetting(
         default=None,
         description='Path to the excel file which holds information'
                     'about used material in ventilation supply system'
                     '(Output of PluginVentilationSystem)',
         for_frontend=True
     )
-    ventilation_exhaust_system_material_json = PathSetting(
+    ventilation_exhaust_system_material_xlsx = PathSetting(
         default=None,
         description='Path to the excel file which holds information'
                     'about used material in ventilation exhaust system'

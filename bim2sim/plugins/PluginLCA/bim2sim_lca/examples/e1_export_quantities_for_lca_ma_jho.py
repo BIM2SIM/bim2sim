@@ -53,9 +53,9 @@ def run_example_complex_building_lca(lock,
         project.sim_settings.heat_delivery_type = heat_delivery_type
         project.sim_settings.ufh_pipe_type = "PEX"
 
-        project.sim_settings.hydraulic_system_material_path = Path(project_path, "export", "hydraulic system")
-        project.sim_settings.ventilation_supply_system_material_json = Path(project_path / "export" / "ventilation system" / "supply air" / "dataframe_supply_air.json")
-        project.sim_settings.ventilation_exhaust_system_material_json = Path(project_path / "export" / "ventilation system" / "exhaust air" / "dataframe_exhaust_air.json")
+        project.sim_settings.hydraulic_system_material_xlsx = Path(project_path, "export", "hydraulic system", "material_quantities_hydraulic_system.xlsx")
+        project.sim_settings.ventilation_supply_system_material_xlsx = Path(project_path / "export" / "ventilation system" / "supply air" / "dataframe_supply_air.xlsx")
+        project.sim_settings.ventilation_exhaust_system_material_xlsx = Path(project_path / "export" / "ventilation system" / "exhaust air" / "dataframe_exhaust_air.xlsx")
 
     answers = (2015,)
     handler = DebugDecisionHandler(answers)

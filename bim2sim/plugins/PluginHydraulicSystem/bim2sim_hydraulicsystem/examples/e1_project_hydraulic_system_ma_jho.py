@@ -59,8 +59,8 @@ def run_example_project_hydraulic_system(lock,
         project.sim_settings.startpoint_heating_graph_y_axis = 2.8
         project.sim_settings.startpoint_heating_graph_z_axis = -3
 
-        project.sim_settings.heat_demand_mat_file_path = fr"{project_path}\export\TEASER\SimResults\AC20InstituteVar2\Buerogebaeude\teaser_results_edited.mat"
-        project.sim_settings.serialized_elements_path = Path(Path(project_path.parent), "SerializedTEASER", "export", "serialized_elements.pickle")
+        project.sim_settings.heat_demand_mat_file_path = fr"{project_path}\export\TEASER_2025\SimResults\AC20InstituteVar2\Buerogebaeude\teaser_results_edited.mat"
+        project.sim_settings.serialized_elements_path = Path(Path(project_path.parent), "SerializedTEASER_2025", "export", "serialized_elements.pickle")
 
         project.sim_settings.heat_delivery_type = heat_delivery_type # UFH or Radiator
 

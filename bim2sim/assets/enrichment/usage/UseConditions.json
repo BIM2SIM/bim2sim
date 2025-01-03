@@ -68,7 +68,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 2.6,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -237,7 +237,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 2.6,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -406,7 +406,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 3.6,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -575,7 +575,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 12.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -744,7 +744,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 2.5,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -913,7 +913,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -1082,7 +1082,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -1251,7 +1251,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -1420,7 +1420,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 15.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -1589,7 +1589,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             295.15,
@@ -1758,7 +1758,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -1927,7 +1927,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 18.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -2096,7 +2096,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -2265,7 +2265,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 70.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -2434,7 +2434,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -2603,7 +2603,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 8.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -2772,7 +2772,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -2941,7 +2941,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -3279,7 +3279,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.5,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -3448,7 +3448,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 130.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -3617,7 +3617,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 10.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             288.15,
@@ -3786,7 +3786,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 10.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             290.15,
@@ -3955,7 +3955,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 10.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             293.15,
@@ -4123,7 +4123,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -4292,7 +4292,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -4461,7 +4461,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -4630,7 +4630,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -4799,7 +4799,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -4968,7 +4968,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -5137,7 +5137,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -5306,7 +5306,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -5475,7 +5475,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -5644,7 +5644,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -5813,7 +5813,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -5982,7 +5982,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             297.15,
@@ -6151,7 +6151,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             293.15,
@@ -6489,7 +6489,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             295.15,
@@ -6658,7 +6658,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             297.15,
@@ -6827,7 +6827,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             295.15,
@@ -6996,7 +6996,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             295.15,
@@ -7165,7 +7165,7 @@
         ],
         "min_ahu": 0.0,
         "max_ahu": 0.0,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             285.15,
@@ -7334,7 +7334,7 @@
         ],
         "min_ahu": 0.3,
         "max_ahu": 0.6,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,
@@ -7503,7 +7503,7 @@
         ],
         "min_ahu": 0.3,
         "max_ahu": 0.6,
-        "with_ahu": false,
+        "with_ahu": true,
         "with_ideal_thresholds": false,
         "heating_profile": [
             294.15,

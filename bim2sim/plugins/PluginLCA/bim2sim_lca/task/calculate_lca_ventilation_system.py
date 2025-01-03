@@ -17,8 +17,9 @@ class CalculateEmissionVentilationSystem(ITask):
         self.lock = self.playground.sim_settings.lock
 
         if self.playground.sim_settings.calculate_lca_ventilation_system:
-            supply_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_supply_system_material_json)
-            exhaust_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_exhaust_system_material_json)
+            with self.lock:
+                supply_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_supply_system_material_xlsx)
+                exhaust_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_exhaust_system_material_xlsx)
 
             supply_dict, total_gwp_supply, total_pipe_mass_supply, total_isolation_mass_supply = self.calulcate_emission_pipe(
                                                                         duct_dict=supply_dict,
@@ -42,9 +43,8 @@ class CalculateEmissionVentilationSystem(ITask):
         return total_gwp_ventilation_duct, total_gwp_ventilation_component
 
     def load_pipe_data(self, data_path):
-        with self.lock:
-            with open(data_path, "r") as file:
-                df = pd.read_json(file)
+        with open(data_path, "rb") as excel_file:
+            df = pd.read_excel(excel_file, engine="openpyxl")
         pipe_dict = {}
         for index, row in df.iterrows():
 

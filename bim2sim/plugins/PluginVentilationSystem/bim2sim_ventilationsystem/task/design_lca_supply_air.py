@@ -3201,9 +3201,6 @@ class DesignSupplyLCA(ITask):
         export_path = Path(self.paths.export, 'ventilation system', 'supply air')
         dataframe_distribution_network_supply_air.to_excel(export_path / 'dataframe_supply_air.xlsx', index=False)
 
-        with open(Path(export_path, 'dataframe_supply_air.json'), 'w') as json_file:
-            json.dump(dataframe_distribution_network_supply_air, json_file, indent=4)
-
         """
         Berechnung des CO2 für die room_connection
         """

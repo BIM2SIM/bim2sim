@@ -17,9 +17,10 @@ class CalculateEmissionHydraulicSystem(ITask):
         self.lock = self.playground.sim_settings.lock
 
         if self.playground.sim_settings.calculate_lca_hydraulic_system:
-            pipe_dict = self.load_pipe_data()
+            with self.lock:
+                pipe_dict = self.load_pipe_data()
+                component_dict = self.load_component_data()
 
-            component_dict = self.load_component_data()
             component_material_emission, pump_component, total_gwp_hydraulic_component = self.calulcate_emission_components(
                     component_dict=component_dict, material_emission_dict=material_emission_dict)
 
@@ -35,10 +36,8 @@ class CalculateEmissionHydraulicSystem(ITask):
         return total_gwp_hydraulic_pipe, total_gwp_hydraulic_component
 
     def load_pipe_data(self):
-        with self.lock:
-            filepath = Path(self.playground.sim_settings.hydraulic_system_material_path, "hydraulic_pipes.json")
-            with open(filepath, "r") as file:
-                df = pd.read_json(file)
+        with open(self.playground.sim_settings.hydraulic_system_material_xlsx, "rb") as excel_file:
+            df = pd.read_excel(excel_file, engine="openpyxl", sheet_name="Pipes")
 
         pipe_dict = {}
         for index, row in df.iterrows():
@@ -50,10 +49,8 @@ class CalculateEmissionHydraulicSystem(ITask):
         return pipe_dict
 
     def load_component_data(self):
-        with self.lock:
-            filepath = Path(self.playground.sim_settings.hydraulic_system_material_path, "hydraulic_components.json")
-            with open(filepath, "r") as file:
-                df = pd.read_json(file)
+        with open(self.playground.sim_settings.hydraulic_system_material_xlsx, "rb") as excel_file:
+            df = pd.read_excel(excel_file, engine="openpyxl", sheet_name="Components")
 
         component_dict = {}
         for index, row in df.iterrows():

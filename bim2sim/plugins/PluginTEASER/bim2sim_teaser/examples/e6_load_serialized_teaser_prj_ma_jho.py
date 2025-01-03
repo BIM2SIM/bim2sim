@@ -18,19 +18,15 @@ from bim2sim.plugins.PluginTEASER.bim2sim_teaser.task import CreateTEASER
 import bim2sim
 from bim2sim.utilities.common_functions import download_library
 
-
-
-
-
 def load_serialized_teaser_project(lock,
-                                   project_path, serialized_teaser_path,
+                                   project_path, year, serialized_teaser_path,
                                    heating_bool, cooling_bool,
                                    ahu_central_bool, ahu_heat_bool, ahu_cool_bool, ahu_hum_bool,
                                    ahu_heat_recovery, ahu_efficiency, ahu_heat_recovery_efficiency,
                                    building_standard, window_standard):
 
     """This function demonstrates different loading options of TEASER"""
-    prj_export_path = Path(project_path, "export", "TEASER")
+    prj_export_path = Path(project_path, "export", f"TEASER_{year}")
     prj_model_path = Path(prj_export_path, "Model")
 
     repo_url = "https://github.com/RWTH-EBC/AixLib.git"

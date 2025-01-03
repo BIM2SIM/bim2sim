@@ -3787,9 +3787,6 @@ class DesignExaustLCA(ITask):
         export_path = Path(self.paths.export, 'ventilation system', 'exhaust air')
         dataframe_distribution_network_exhaust_air.to_excel(export_path / 'dataframe_exhaust_air.xlsx', index=False)
 
-        with open(Path(export_path, 'dataframe_exhaust_air.json'), 'w') as json_file:
-            json.dump(dataframe_distribution_network_exhaust_air, json_file, indent=4)
-
         """
         Berechnung des CO2 für die room_connection
         """
