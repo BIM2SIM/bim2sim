@@ -885,7 +885,7 @@ class CreateIdf(ITask):
                 Flow_Rate_per_Person=max_user_airflow_per_second*space.winter_reduction_infiltration[0],
                 Maximum_Outdoor_Temperature=
                 space.winter_reduction_infiltration[1] - 273.15,
-                Minimum_Indoor_Temperature=max(space.heating_profile)-273.15,
+                Minimum_Indoor_Temperature=max(space.heating_profile)-273.15+1,
                 Delta_Temperature=2
             )
             idf.newidfobject(
@@ -898,24 +898,24 @@ class CreateIdf(ITask):
                 Flow_Rate_per_Person=max_user_airflow_per_second,
                 Minimum_Outdoor_Temperature=
                 space.winter_reduction_infiltration[1] - 273.15,
-                Minimum_Indoor_Temperature=max(space.heating_profile)-273.15,
+                Minimum_Indoor_Temperature=max(space.heating_profile)-273.15+1,
                 Delta_Temperature=2
             )
-            idf.newidfobject(
-                "ZONEVENTILATION:DESIGNFLOWRATE",
-                Name=name + '_summer',
-                Zone_or_ZoneList_Name=zone_name,
-                Schedule_Name="Continuous",
-                Ventilation_Type="Natural",
-                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-                Air_Changes_per_Hour=space.max_summer_infiltration[0],
-                Minimum_Outdoor_Temperature
-                =space.max_summer_infiltration[1] - 273.15,
-                Maximum_Outdoor_Temperature
-                =space.max_summer_infiltration[2] - 273.15,
-                Minimum_Indoor_Temperature=max(space.heating_profile)-273.15,
-                Delta_Temperature=2
-            )
+            # idf.newidfobject(
+            #     "ZONEVENTILATION:DESIGNFLOWRATE",
+            #     Name=name + '_summer',
+            #     Zone_or_ZoneList_Name=zone_name,
+            #     Schedule_Name="Continuous",
+            #     Ventilation_Type="Natural",
+            #     Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+            #     Air_Changes_per_Hour=space.max_summer_infiltration[0],
+            #     Minimum_Outdoor_Temperature
+            #     =space.max_summer_infiltration[1] - 273.15,
+            #     Maximum_Outdoor_Temperature
+            #     =space.max_summer_infiltration[2] - 273.15,
+            #     Minimum_Indoor_Temperature=max(space.heating_profile)-273.15,
+            #     Delta_Temperature=2
+            # )
 
             idf.newidfobject(
                 "ZONEVENTILATION:DESIGNFLOWRATE",
@@ -1179,16 +1179,15 @@ class CreateIdf(ITask):
             obj.setcoords(obj_coords)
 
     def add_shading_control(self, shading_type, elements,
-                            idf, outdoor_temp=22, solar=40):
+                            idf, solar=150):
         """Add a default shading control to IDF.
         Two criteria must be met such that the window shades are set: the
-        outdoor temperature must exceed a certain temperature and the solar
+        indoor air temperature must exceed a certain temperature and the solar
         radiation [W/m²] must be greater than a certain heat flow.
         Args:
             shading_type: shading type, 'Interior' or 'Exterior'
             elements: elements
             idf: idf
-            outdoor_temp: outdoor temperature [°C]
             solar: solar radiation on window surface [W/m²]
         """
         zones = filter_elements(elements, ThermalZone)
@@ -1214,14 +1213,17 @@ class CreateIdf(ITask):
                 continue
             if not idf.getobject(
                 "WINDOWSHADINGCONTROL", shade_control_name):
+                # temperature setpoint for indoor air temperature [°C], set to
+                # 2K higher than the maximum heating profile temperature within
+                # the current thermal zone.
                 idf.newidfobject("WINDOWSHADINGCONTROL",
                                  Name=shade_control_name,
                                  Zone_Name=zone_name,
                                  Shading_Type=shading_type+"Shade",
                                  Construction_with_Shading_Name=construction_name,
                                  Shading_Control_Type=
-                                 'OnIfHighOutdoorAirTempAndHighSolarOnWindow',
-                                 Setpoint=outdoor_temp,
+                                 'OnIfHighZoneAirTempAndHighSolarOnWindow',
+                                 Setpoint=max(zone.heating_profile)+2 - 273.15,
                                  Setpoint_2=solar,
                                  Multiple_Surface_Control_Type='Group',
                                  **fenestration_dict
