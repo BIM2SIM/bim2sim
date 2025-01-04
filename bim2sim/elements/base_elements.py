@@ -882,14 +882,64 @@ class SerializedElement:
             if self.is_picklable(value):
                 setattr(self, attr_name, value)
             else:
-                logger.info(
-                    f"Attribute {attr_name} will not be serialized, as it's "
-                    f"not pickleable")
-        if hasattr(element, "space_boundaries"):
-            self.space_boundaries = [bound.guid for bound in
-                                     element.space_boundaries]
-        if hasattr(element, "storeys"):
-            self.storeys = [storey.guid for storey in element.storeys]
+                try:
+                    logger.info(
+                        f"Attribute {attr_name} will not be serialized, as it's "
+                        f"not pickleable, trying to add alternative "
+                        f"information instead.")
+                    if isinstance(value, (list, tuple)):
+                        temp_list = []
+                        for val in value:
+                            if hasattr(val, 'guid'):
+                                temp_list.append(val.guid)
+                        setattr(self, attr_name, temp_list)
+                        logger.info(f"Successfully linked a list of guids.")
+                    elif isinstance(value, str):
+                        setattr(self, attr_name, value)
+                        logger.info(f"Successfully linked value as string.")
+                    elif hasattr(value, 'guid'):
+                        setattr(self, attr_name, value.guid)
+                        logger.info(f"Successfully linked a single guid.")
+                    elif hasattr(value, 'Coord'):
+                        setattr(self, attr_name, value.Coord())
+                        logger.info(f"Successfully linked a coordinate tuple.")
+                    elif value is None:
+                        setattr(self, attr_name, None)
+                        logger.info(f"Successfully set attribute value to "
+                                    f"None.")
+                    else:
+                        logger.info("Linking alternative pickleable attributes "
+                                    "failed.")
+                except AttributeError:
+                    logger.info(f"Linking attribute failed.")
+        for attr_name, attr_val in vars(element).items():
+            if hasattr(self, attr_name) or attr_name == 'attributes':
+                continue
+            else:
+                logger.info(f"Try to add attribute data for attribute "
+                            f"'{attr_name}' that is not in AttributeManager.")
+                value = attr_val
+                if isinstance(value, (list, tuple)):
+                    temp_list = []
+                    for val in value:
+                        if hasattr(val, 'guid'):
+                            temp_list.append(val.guid)
+                    setattr(self, attr_name, temp_list)
+                    logger.info(
+                        f"Successfully linked a list of guids.")
+                elif hasattr(value, 'guid'):
+                    setattr(self, attr_name, value.guid)
+                    logger.info(f"Successfully linked a single guid.")
+                elif hasattr(value, 'Coord'):
+                    setattr(self, attr_name, value.Coord())
+                    logger.info(f"Successfully linked a coordinate tuple.")
+                elif value is None:
+                    setattr(self, attr_name, None)
+                    logger.info(f"Successfully set attribute value to "
+                                f"None.")
+                else:
+                    logger.info("Linking alternative pickleable attributes "
+                                "failed.")
         if issubclass(element.__class__, AggregationMixin):
             self.elements = [ele.guid for ele in element.elements]
 
