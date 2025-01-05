@@ -9,6 +9,7 @@ import pandas as pd
 from RWTHColors import ColorManager
 from matplotlib import pyplot as plt
 from matplotlib.colors import ListedColormap, Normalize
+import seaborn as sns
 
 from bim2sim.tasks.bps import PlotBEPSResults
 from bim2sim.utilities.common_functions import filter_elements
@@ -130,12 +131,125 @@ class PlotComfortResults(PlotBEPSResults):
                 self.pmv_plot(fanger_pmv, export_path,
                               f"pmv_{plot_single_guid}")
             for col in fanger_pmv.columns:
+                self.visualize_heatmap(fanger_pmv, col, export_path,
+                                       save_as='heatmap_',
+                                       zone_dict=zone_dict,
+                                       color_categories='PMV')
                 # generate calendar plot for daily mean pmv results
                 self.visualize_calendar(pd.DataFrame(fanger_pmv[col]),
                                         export_path, save_as='calendar_',
                                         add_title=True,
                                         color_only=True, figsize=[11, 12],
                                         zone_dict=zone_dict)
+
+    @staticmethod
+    def visualize_heatmap(df, col, export_path, save_as='',
+                          add_title=True, save=True, zone_dict='', year='',
+                          color_categories=''):
+        def color_mapper_pmv(value):
+            if -0.2 <= value <= 0.2:
+                return 'green'  # CAT I
+            elif -0.5 < value < -0.2:
+                return 'lightblue'  # CAT II low
+            elif 0.2 < value < 0.5:
+                return 'yellow'  # CAT II high
+            elif -0.7 < value <= -0.5:
+                return 'mediumblue'  # CAT III low
+            elif 0.5 < value <= 0.7:
+                return 'orange'  # CAT III high
+            elif value < -0.7:
+                return 'darkblue'  # CAT IV low
+            elif value > 0.7:
+                return 'red'  # CAT IV high
+
+        def color_mapper_ppd(value):
+            if value < 6:
+                return 'green'  # CAT I
+            elif 6 <= value < 10:
+                return 'yellow'  # CAT II
+            elif 10 <= value < 15:
+                return 'orange'  # CAT III
+            elif 15 <= value < 25:
+                return 'red'  # CAT IV
+            elif value >= 25:
+                return 'purple'  # out of range
+
+        series = pd.Series(df[col], index=df.index)
+        # Create a MultiIndex for day and hour
+        series.index = pd.MultiIndex.from_arrays(
+            [series.index.date, series.index.hour],
+            names=['Month', 'Hour']
+        )
+
+        # Aggregate the data (for example, taking the mean)
+        heatmap_data = series.unstack(level='Hour')
+        plt.figure(figsize=(12, 6))
+
+        plt.title('Heatmap of Hourly Data')
+
+        if color_categories == 'PMV':
+            color_data = heatmap_data.apply(
+                lambda col: col.map(color_mapper_pmv))
+            sns.heatmap(heatmap_data.T, cmap=sns.color_palette(
+                color_data.values.flatten()), cbar=False)
+            labels = {
+                'CAT I': 'green',
+                'CAT II low': 'lightblue',
+                'CAT II high': 'yellow',
+                'CAT III low': 'mediumblue',
+                'CAT III high': 'orange',
+                'CAT IV low': 'darkblue',
+                'CAT IV high': 'red'
+            }
+        if color_categories == 'PPD':
+            color_data = heatmap_data.apply(
+                lambda col: col.map(color_mapper_ppd))
+            sns.heatmap(heatmap_data.T, cmap=sns.color_palette(
+                color_data.values.flatten()), cbar=False)
+            labels = {
+                'CAT I': 'green',
+                'CAT II': 'yellow',
+                'CAT III': 'orange',
+                'CAT IV': 'red',
+                'Out of range': 'purple',
+            }
+        if color_categories:
+            handles = [plt.Line2D([0], [0], marker='o', color='w', label=label,
+                                  markerfacecolor=color, markersize=10) for
+                       label, color in labels.items()]
+            plt.legend(handles=handles, title='Categories', bbox_to_anchor=(1, 1),
+                       loc='upper left')
+        else:
+            sns.heatmap(heatmap_data.T, cmap='viridis', cbar=True)
+
+        # Customize x-ticks to show month abbreviations
+        month_labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+        # Extract unique days from columns and convert them back to datetime
+        # objects for labeling
+        days = pd.to_datetime(heatmap_data.T.columns)
+
+        # Set x-ticks with abbreviated month names and day numbers
+        # Filter for ticks where day.day == 1 and create corresponding labels
+        filtered_ticks = [i for i, day in enumerate(days) if day.day == 1]
+        filtered_labels = [f"{month_labels[day.month - 1]}" for day in
+                           days if day.day == 1]
+
+        # Set x-ticks with abbreviated month names only at desired positions
+        plt.xticks(ticks=filtered_ticks, labels=filtered_labels, rotation=45)
+
+        title_name = col
+        for key, item in zone_dict.items():
+            if key in title_name:
+                title_name = title_name.replace(key, item)
+        if add_title:
+            plt.title(str(year) + ' ' + title_name)
+        if save:
+            plt.savefig(export_path / str(save_as + title_name + str(year)
+                                          + color_categories +'.pdf'),
+                        bbox_inches='tight')
+
 
     def limited_local_comfort_DIN16798_NA(self, df, elements, export_path,
                                           occupied=True):
@@ -1079,7 +1193,8 @@ class PlotComfortResults(PlotBEPSResults):
                   len(normalized_df.index) - bar_width / 2 - 0.5])
         plt.xticks([])  # Remove x-ticks for table
         if normalize:
-            formatted_df = normalized_df.applymap(lambda x: f'{x:.1f}')
+            formatted_df = normalized_df.apply(
+                lambda x: x.map(lambda y: f'{y:.1f}'))
         else:
             def format_value(x, index):
                 total = df.loc[index, "total"]
@@ -1158,16 +1273,25 @@ class PlotComfortResults(PlotBEPSResults):
                            color_only=False, save=True,
                            save_as='',
                            construction='', skip_legend=False,
-                           add_title=False, figsize=[7.6, 8], zone_dict=None):
+                           add_title=False, figsize=[7.6, 8], zone_dict=None,
+                           resample_type='mean'):
 
         logger.info(f"Plot PMV calendar plot for zone {calendar_df.columns[0]}")
 
         def visualize(zone_dict):
-
+            resampled_df = pd.DataFrame()
             fig, ax = plt.subplots(
                 figsize=(figsize[0] / INCH, figsize[1] / INCH))
-            daily_mean = calendar_df.resample('D').mean()
-            calendar_heatmap(ax, daily_mean, color_only)
+            if resample_type == 'mean':
+                resampled_df = calendar_df.resample('D').mean()
+            elif resample_type == 'sum':
+                resampled_df = calendar_df.resample('D').sum()
+            elif resample_type == 'max':
+                resampled_df = calendar_df.resample('D').max()
+            elif resample_type == 'min':
+                resampled_df = calendar_df.resample('D').min()
+
+            calendar_heatmap(ax, resampled_df, color_only)
             title_name = calendar_df.columns[0]
             for key, item in zone_dict.items():
                 if key in title_name:

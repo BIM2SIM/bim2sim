@@ -335,7 +335,10 @@ class PlotBEPSResults(ITask):
                     if guid == space_guid:
                         # TODO use all storeys for aggregated zones
                         if isinstance(ele, SerializedElement):
-                            storey_guid = ele.storeys[0]
+                            if isinstance(ele.storeys[0], str):
+                                storey_guid = ele.storeys[0]
+                            else:
+                                storey_guid = ele.storeys[0].guid
                         else:
                             storey_guid = ele.storeys[0].guid
                         space_area = ele.net_area

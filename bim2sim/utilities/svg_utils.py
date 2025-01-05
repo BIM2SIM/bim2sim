@@ -17,7 +17,7 @@ def create_svg_floor_plan_plot(
         target_path: Path,
         svg_adjust_dict: dict,
         result_str: str,
-        result_processing: str):
+        result_processing: str='mean'):
     """Creates an SVG floor plan plot for every storey and adjust its design.
 
     This function first creates an SVG floor plan for the provided IFC file
@@ -34,7 +34,8 @@ def create_svg_floor_plan_plot(
         ifc_file_class_inst: bim2sim IfcFileClass instance
         target_path: Path to store the SVG files
         result_str (str): name of the results plotted (used for file naming)
-        result_processing (str): result postprocessing choice (mean, max, sum)
+        result_processing (str): result postprocessing choice (mean, max,
+        sum), defaults to mean
 
     Example:
         # create nested dict, where "2eyxpyOx95m90jmsXLOuR0" is the storey guid
