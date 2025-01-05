@@ -316,14 +316,14 @@ class PlotComfortResults(PlotBEPSResults):
                         n_persons_df.index)
                     bound_temperature = bound_temperature.loc[common_index][
                         n_persons_df.loc[common_index] > 0]
-                if 'WALL' in bound.bound_element.key.upper():
+                if 'WALL' in bound.bound_element.element_type.upper():
                     wall_df = pd.concat([wall_df, bound_temperature], axis=1)
-                if (('FLOOR' in bound.bound_element.key.upper() and
+                if (('FLOOR' in bound.bound_element.element_type.upper() and
                      bound.top_bottom == BoundaryOrientation.top) or
-                        ('ROOF' in bound.bound_element.key.upper())):
+                        ('ROOF' in bound.bound_element.element_type.upper())):
                     ceiling_df = pd.concat([ceiling_df, bound_temperature],
                                            axis=1)
-                if ('FLOOR' in bound.bound_element.key.upper()
+                if ('FLOOR' in bound.bound_element.element_type.upper()
                         and bound.top_bottom == BoundaryOrientation.bottom):
                     floor_df = pd.concat([floor_df, bound_temperature], axis=1)
             min_wall_df, max_wall_df = self.get_exceeded_temperature_hours(
