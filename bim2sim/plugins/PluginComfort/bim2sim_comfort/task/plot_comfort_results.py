@@ -9,6 +9,7 @@ import pandas as pd
 from RWTHColors import ColorManager
 from matplotlib import pyplot as plt
 from matplotlib.colors import ListedColormap, Normalize
+import seaborn as sns
 
 from bim2sim.tasks.bps import PlotBEPSResults
 from bim2sim.utilities.common_functions import filter_elements
@@ -130,12 +131,64 @@ class PlotComfortResults(PlotBEPSResults):
                 self.pmv_plot(fanger_pmv, export_path,
                               f"pmv_{plot_single_guid}")
             for col in fanger_pmv.columns:
+                self.visualize_heatmap(fanger_pmv, col, export_path,
+                                       save_as='heatmap_', zone_dict=zone_dict)
                 # generate calendar plot for daily mean pmv results
                 self.visualize_calendar(pd.DataFrame(fanger_pmv[col]),
                                         export_path, save_as='calendar_',
                                         add_title=True,
                                         color_only=True, figsize=[11, 12],
                                         zone_dict=zone_dict)
+
+    @staticmethod
+    def visualize_heatmap(df, col, export_path, save_as='',
+                          add_title=True, save=True, zone_dict='', year=''):
+
+        series = pd.Series(df[col], index=df.index)
+        # Create a MultiIndex for day and hour
+        series.index = pd.MultiIndex.from_arrays(
+            [series.index.date, series.index.hour],
+            names=['Day', 'Hour']
+        )
+
+        # Aggregate the data (for example, taking the mean)
+        heatmap_data = series.unstack(level='Hour')
+
+        plt.figure(figsize=(12, 6))
+        sns.heatmap(heatmap_data.T, cmap='viridis', cbar=True)
+
+        # Setting labels and title
+        plt.title('Heatmap of Hourly Data')
+        plt.xlabel('Day of Year')
+        plt.ylabel('Hour of Day')
+
+        # Customize x-ticks to show month abbreviations
+        month_labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+        # Extract unique days from columns and convert them back to datetime
+        # objects for labeling
+        days = pd.to_datetime(heatmap_data.T.columns)
+
+        # Create tick positions based on unique days in heatmap_data's columns
+        x_ticks_positions = range(len(days))
+
+        # Set x-ticks with abbreviated month names and day numbers
+        plt.xticks(ticks=x_ticks_positions,
+                   labels=[
+                       f"{month_labels[day.month - 1] if day.day == 1 else ''}"
+                       for day in days], rotation=45)
+        title_name = col
+        for key, item in zone_dict.items():
+            if key in title_name:
+                title_name = title_name.replace(key, item)
+        if add_title:
+            plt.title(str(year) + ' ' + title_name)
+        if save:
+            plt.savefig(export_path / str(save_as + title_name + str(year) +
+                        '.pdf'),
+                        bbox_inches='tight')
+
 
     def limited_local_comfort_DIN16798_NA(self, df, elements, export_path,
                                           occupied=True):
