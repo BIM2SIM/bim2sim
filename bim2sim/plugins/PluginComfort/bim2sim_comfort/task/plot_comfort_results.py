@@ -1211,16 +1211,25 @@ class PlotComfortResults(PlotBEPSResults):
                            color_only=False, save=True,
                            save_as='',
                            construction='', skip_legend=False,
-                           add_title=False, figsize=[7.6, 8], zone_dict=None):
+                           add_title=False, figsize=[7.6, 8], zone_dict=None,
+                           resample_type='mean'):
 
         logger.info(f"Plot PMV calendar plot for zone {calendar_df.columns[0]}")
 
         def visualize(zone_dict):
-
+            resampled_df = pd.DataFrame()
             fig, ax = plt.subplots(
                 figsize=(figsize[0] / INCH, figsize[1] / INCH))
-            daily_mean = calendar_df.resample('D').mean()
-            calendar_heatmap(ax, daily_mean, color_only)
+            if resample_type == 'mean':
+                resampled_df = calendar_df.resample('D').mean()
+            elif resample_type == 'sum':
+                resampled_df = calendar_df.resample('D').sum()
+            elif resample_type == 'max':
+                resampled_df = calendar_df.resample('D').max()
+            elif resample_type == 'min':
+                resampled_df = calendar_df.resample('D').min()
+
+            calendar_heatmap(ax, resampled_df, color_only)
             title_name = calendar_df.columns[0]
             for key, item in zone_dict.items():
                 if key in title_name:
