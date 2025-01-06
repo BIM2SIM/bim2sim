@@ -1613,7 +1613,7 @@ class IdfObject:
         if inst_obj.parent_bound:
             self.building_surface_name = inst_obj.parent_bound.guid
         self.map_surface_types(inst_obj)
-        self.map_boundary_conditions(inst_obj)
+        self.map_boundary_conditions(inst_obj, sim_settings)
         self.set_preprocessed_construction_name()
         # only set a construction name if this construction is available
         if not self.construction_name \
@@ -1848,8 +1848,9 @@ class IdfObject:
 
         self.surface_type = surface_type
 
-    def map_boundary_conditions(self, inst_obj: Union[SpaceBoundary,
-                                                      SpaceBoundary2B]):
+    def map_boundary_conditions(
+            self, inst_obj: Union[SpaceBoundary, SpaceBoundary2B],
+            sim_settings: EnergyPlusSimSettings):
         """Map boundary conditions.
 
         This function maps the boundary conditions of a SpaceBoundary instance
@@ -1857,6 +1858,7 @@ class IdfObject:
 
         Args:
             inst_obj: SpaceBoundary instance
+            sim_settings: bim2sim EnergyPlus simulation settings
         """
         if inst_obj.level_description == '2b' \
                 or inst_obj.related_adb_bound is not None:
@@ -1888,8 +1890,12 @@ class IdfObject:
         elif inst_obj.related_bound is not None \
                 and not inst_obj.related_bound.ifc.RelatingSpace.is_a(
             'IfcExternalSpatialElement'):
-            self.out_bound_cond = 'Surface'
-            self.out_bound_cond_obj = inst_obj.related_bound.guid
+            if sim_settings.deactivate_interzonal_heat_transfer:
+                self.out_bound_cond = 'Adiabatic'
+                self.out_bound_cond_obj = ''
+            else:
+                self.out_bound_cond = 'Surface'
+                self.out_bound_cond_obj = inst_obj.related_bound.guid
             self.sun_exposed = 'NoSun'
             self.wind_exposed = 'NoWind'
         elif self.key == "FENESTRATIONSURFACE:DETAILED":

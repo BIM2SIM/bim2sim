@@ -146,3 +146,10 @@ class EnergyPlusSimSettings(BuildingSimSettings):
                     'ventilation is not available when cooling is activated.',
         for_frontend=True
     )
+    deactivate_interzonal_heat_transfer = BooleanSetting(
+        default=False,
+        description='Deactivates the heat transfer between thermal zones by '
+                    'setting all interior surfaces between zones to '
+                    'adiabatic.',
+        for_frontend=True
+    )
