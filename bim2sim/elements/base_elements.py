@@ -55,6 +55,7 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         self.guid = guid or self.get_id(self.guid_prefix)
         # self.related_decisions: List[Decision] = []
         self.attributes = attribute.AttributeManager(bind=self)
+        self.element_type = self.__class__.__name__
 
         # set attributes based on kwargs
         for kw, arg in kwargs.items():
@@ -938,6 +939,10 @@ class SerializedElement:
                     setattr(self, attr_name, temp_list)
                     logger.info(
                         f"Successfully linked a list of guids.")
+                elif isinstance(value, str):
+                    setattr(self, attr_name, value)
+                    logger.info(
+                        f"Successfully added {attr_name} as string.")
                 elif hasattr(value, 'guid'):
                     setattr(self, attr_name, value.guid)
                     logger.info(f"Successfully linked a single guid.")
