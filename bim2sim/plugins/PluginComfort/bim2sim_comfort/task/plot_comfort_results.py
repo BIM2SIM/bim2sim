@@ -151,20 +151,22 @@ class PlotComfortResults(PlotBEPSResults):
                           add_title=True, save=True, zone_dict='', year='',
                           color_categories='', guid=''):
         def color_mapper_pmv(value):
-            if -0.2 <= value <= 0.2:
+            if -0.2 < value < 0.2:
                 return 'green'  # CAT I
-            elif -0.5 < value < -0.2:
+            elif -0.5 < value <= -0.2:
                 return 'lightblue'  # CAT II low
-            elif 0.2 < value < 0.5:
+            elif 0.2 <= value < 0.5:
                 return 'yellow'  # CAT II high
             elif -0.7 < value <= -0.5:
                 return 'mediumblue'  # CAT III low
-            elif 0.5 < value <= 0.7:
+            elif 0.5 <= value < 0.7:
                 return 'orange'  # CAT III high
-            elif value < -0.7:
+            elif value <= -0.7:
                 return 'darkblue'  # CAT IV low
-            elif value > 0.7:
+            elif value >= 0.7:
                 return 'red'  # CAT IV high
+            else:
+                return 'black'
 
         def color_mapper_ppd(value):
             if value < 6:
@@ -177,6 +179,8 @@ class PlotComfortResults(PlotBEPSResults):
                 return 'red'  # CAT IV
             elif value >= 25:
                 return 'purple'  # out of range
+            else:
+                return 'black'
 
         series = pd.Series(df[col], index=df.index)
         # Create a MultiIndex for day and hour
