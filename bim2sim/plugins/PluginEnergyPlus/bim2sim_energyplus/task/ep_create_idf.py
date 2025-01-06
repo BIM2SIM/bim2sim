@@ -533,8 +533,18 @@ class CreateIdf(ITask):
             "HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM",
             Zone_Name=zone_name,
             Template_Thermostat_Name=stat.Name,
+            Maximum_Heating_Supply_Air_Temperature=50,
+            Minimum_Cooling_Supply_Air_Temperature=13,
+            Heating_Limit="NoLimit",
+            Cooling_Limit="NoLimit",
             Heating_Availability_Schedule_Name=heating_availability,
-            Cooling_Availability_Schedule_Name=cooling_availability
+            Cooling_Availability_Schedule_Name=cooling_availability,
+            Dehumidification_Control_Type="None",
+            Humidification_Control_Type="None",
+            Outdoor_Air_Method="None",
+            Demand_Controlled_Ventilation_Type="None",
+            Outdoor_Air_Economizer_Type="NoEconomizer",
+            Heat_Recovery_Type="None"
         )
 
     def set_people(self, sim_settings: EnergyPlusSimSettings, idf: IDF, name: str,
@@ -757,7 +767,11 @@ class CreateIdf(ITask):
                 Zone_or_ZoneList_Name=zone_name,
                 Schedule_Name="Continuous",
                 Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-                Air_Changes_per_Hour=space.base_infiltration
+                Air_Changes_per_Hour=space.base_infiltration,
+                Constant_Term_Coefficient=1.0,      # Only use constant term
+                Temperature_Term_Coefficient=0.0,    # Disable temperature dependence
+                Velocity_Term_Coefficient=0.0,       # Disable wind velocity dependence
+                Velocity_Squared_Term_Coefficient=0.0  # Disable wind velocity squared dependence
             )
         else:
             idf.newidfobject(
@@ -766,7 +780,11 @@ class CreateIdf(ITask):
                 Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
                 Schedule_Name="Continuous",
                 Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-                Air_Changes_per_Hour=space.base_infiltration
+                Air_Changes_per_Hour=space.base_infiltration.m,
+                Constant_Term_Coefficient=1.0,      # Only use constant term
+                Temperature_Term_Coefficient=0.0,    # Disable temperature dependence
+                Velocity_Term_Coefficient=0.0,       # Disable wind velocity dependence
+                Velocity_Squared_Term_Coefficient=0.0  # Disable wind velocity squared dependence
             )
 
     @staticmethod
