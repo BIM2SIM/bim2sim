@@ -45,13 +45,24 @@ def run_example_complex_building_lca(lock,
         project.sim_settings.weather_file_path = weather_file_path
 
         project.sim_settings.update_emission_parameter_from_oekobdauat = False
+
         project.sim_settings.calculate_lca_building = True
         project.sim_settings.calculate_lca_hydraulic_system = True
         project.sim_settings.calculate_lca_ventilation_system = True
-        project.sim_settings.pipe_type = "Stahlrohr"
 
+        project.sim_settings.calculate_costs_building = True
+        project.sim_settings.calculate_costs_hydraulic_system = True
+        project.sim_settings.calculate_costs_ventilation_system = True
+
+        project.sim_settings.pipe_type = "Stahlrohr"
+        project.sim_settings.hydraulic_components_data_file_radiator_sheet = "Profilierte Flachheizkörper"
         project.sim_settings.heat_delivery_type = heat_delivery_type
         project.sim_settings.ufh_pipe_type = "PEX"
+
+        project.sim_settings.ufh_costs = 130 # €/m²
+        project.sim_settings.hydraulic_pipe_costs = 50 # €/m
+        project.sim_settings.ventilation_duct_costs = 80 # €/m²
+        project.sim_settings.ventilation_isolation_costs = 10 # €/m²
 
         project.sim_settings.hydraulic_system_material_xlsx = Path(project_path, "export", "hydraulic system", "material_quantities_hydraulic_system.xlsx")
         project.sim_settings.ventilation_supply_system_material_xlsx = Path(project_path / "export" / "ventilation system" / "supply air" / "dataframe_supply_air.xlsx")

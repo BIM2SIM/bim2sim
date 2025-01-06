@@ -1,7 +1,7 @@
 from bim2sim.elements import bps_elements as bps_elements, hvac_elements as hvac_elements
 from bim2sim.elements.base_elements import Material
-from bim2sim.sim_settings import BuildingSimSettings, BooleanSetting, ChoiceSetting, PathSetting
-
+from bim2sim.sim_settings import BuildingSimSettings, BooleanSetting, ChoiceSetting, PathSetting, NumberSetting, StringSetting
+from pathlib import Path
 
 class LCAExportSettings(BuildingSimSettings):
     """Life Cycle Assessment analysis with CSV Export of the selected BIM Model
@@ -31,6 +31,25 @@ class LCAExportSettings(BuildingSimSettings):
         description='Whether to calculate lca of ventilation system or not',
         for_frontend=True
     )
+    calculate_costs_building = BooleanSetting(
+        default=True,
+        description='Whether to calculate costs of building or not',
+        for_frontend=True
+    )
+    calculate_costs_hydraulic_system = BooleanSetting(
+        default=True,
+        description='Whether to calculate costs of hydraulic system or not',
+        for_frontend=True
+    )
+    calculate_costs_ventilation_system = BooleanSetting(
+        default=True,
+        description='Whether to calculate costs of ventilation system or not',
+        for_frontend=True
+    )
+
+    # Building Settings
+
+    # Hydraulic Settings
     pipe_type = ChoiceSetting(
         default='Stahlrohr',
         choices={
@@ -62,6 +81,34 @@ class LCAExportSettings(BuildingSimSettings):
         description='Choose pipe material of under floor heating',
         for_frontend=True
     )
+    ufh_costs = NumberSetting(
+        default=130,
+        min_value=0,
+        max_value=300,
+        description="Costs of ufh (material + installation) in €/m²",
+        for_frontend=True
+    )
+    hydraulic_pipe_costs = NumberSetting(
+        default=50,
+        min_value=0,
+        max_value=300,
+        description="Costs of hydraulic pipes (material + installation) in €/m",
+        for_frontend=True
+    )
+    hydraulic_components_data_file_path = PathSetting(
+        default=Path(__file__).parent /
+                'assets/hydraulic_components.xlsx',
+        description='Path to the data file which holds information'
+                    'about possible hydraulic system components',
+        for_frontend=True,
+        mandatory=False
+    )
+    hydraulic_components_data_file_radiator_sheet = StringSetting(
+        default="Profilierte Flachheizkörper",
+        description='Name of sheet in hydraulic components data file'
+                    'which holds data about the desired radiators',
+        for_frontend=True
+    )
     hydraulic_system_material_xlsx = PathSetting(
         default=None,
         description='Path to the excel file which holds information'
@@ -69,6 +116,8 @@ class LCAExportSettings(BuildingSimSettings):
                     '(Output of PluginHydraulicSystem)',
         for_frontend=True
     )
+
+    # Ventilation Settings
     ventilation_supply_system_material_xlsx = PathSetting(
         default=None,
         description='Path to the excel file which holds information'
@@ -81,5 +130,19 @@ class LCAExportSettings(BuildingSimSettings):
         description='Path to the excel file which holds information'
                     'about used material in ventilation exhaust system'
                     '(Output of PluginVentilationSystem)',
+        for_frontend=True
+    )
+    ventilation_duct_costs = NumberSetting(
+        default=80,
+        min_value=0,
+        max_value=300,
+        description="Costs of ventilation ducts (material + installation) in €/m²",
+        for_frontend=True
+    )
+    ventilation_isolation_costs = NumberSetting(
+        default=10,
+        min_value=0,
+        max_value=300,
+        description="Costs of ventilation duct isolation (material + installation) in €/m",
         for_frontend=True
     )
