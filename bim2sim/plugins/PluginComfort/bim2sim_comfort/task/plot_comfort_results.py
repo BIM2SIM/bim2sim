@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from RWTHColors import ColorManager
 from matplotlib import pyplot as plt
-from matplotlib.colors import ListedColormap, Normalize
+from matplotlib.colors import ListedColormap, Normalize, BoundaryNorm
 import seaborn as sns
 
 from bim2sim.tasks.bps import PlotBEPSResults
@@ -122,7 +122,7 @@ class PlotComfortResults(PlotBEPSResults):
             self.table_bar_plot_16798(cat_analysis_occ, export_path, tag='occ')
             self.table_bar_plot_16798(cat_analysis_occ_hours, export_path,
                                       tag='occ_hours', normalize=False,
-                                      unit=u'degree hours', y_scale='log')
+                                      unit=u'degree hours', y_scale='linear')
 
             fanger_pmv = df[[col for col in df.columns if 'fanger_pmv' in col]]
             if plot_single_guid:
@@ -194,34 +194,54 @@ class PlotComfortResults(PlotBEPSResults):
         plt.figure(figsize=(12, 6))
 
         plt.title('Heatmap of Hourly Data')
-
-        if color_categories == 'PMV':
-            color_data = heatmap_data.apply(
-                lambda col: col.map(color_mapper_pmv))
-            sns.heatmap(heatmap_data.T, cmap=sns.color_palette(
-                color_data.values.flatten()), cbar=False)
-            labels = {
-                'CAT I': 'green',
-                'CAT II low': 'lightblue',
-                'CAT II high': 'yellow',
-                'CAT III low': 'mediumblue',
-                'CAT III high': 'orange',
-                'CAT IV low': 'darkblue',
-                'CAT IV high': 'red'
-            }
-        if color_categories == 'PPD':
-            color_data = heatmap_data.apply(
-                lambda col: col.map(color_mapper_ppd))
-            sns.heatmap(heatmap_data.T, cmap=sns.color_palette(
-                color_data.values.flatten()), cbar=False)
-            labels = {
-                'CAT I': 'green',
-                'CAT II': 'yellow',
-                'CAT III': 'orange',
-                'CAT IV': 'red',
-                'Out of range': 'purple',
-            }
         if color_categories:
+            if color_categories == 'PMV':
+                color_data = heatmap_data.apply(
+                    lambda col: col.map(color_mapper_pmv))
+                color_counts_absolute = color_data.stack().value_counts()
+                color_counts_relative = (
+                        round(color_counts_absolute/color_counts_absolute.sum(
+                            ),3))
+                unique_colors = ['green', 'lightblue', 'yellow', 'mediumblue',
+                                 'orange', 'darkblue', 'red', 'black']
+                for color in unique_colors:
+                    if color not in color_counts_relative.index:
+                        color_counts_relative[color] = 0
+                labels = {
+                    f'CAT I ({color_counts_relative["green"]})':
+                        'green',
+                    f'CAT II low ({color_counts_relative["lightblue"]})': 'lightblue',
+                    f'CAT II high ({color_counts_relative["yellow"]})': 'yellow',
+                    f'CAT III low ({color_counts_relative["mediumblue"]})': 'mediumblue',
+                    f'CAT III high ({color_counts_relative["orange"]})': 'orange',
+                    f'CAT IV low ({color_counts_relative["darkblue"]})': 'darkblue',
+                    f'CAT IV high ({color_counts_relative["red"]})': 'red'
+                }
+            if color_categories == 'PPD':
+                color_data = heatmap_data.apply(
+                    lambda col: col.map(color_mapper_ppd))
+                color_counts_absolute = color_data.stack().value_counts()
+                color_counts_relative = (
+                    round(color_counts_absolute / color_counts_absolute.sum(
+                    ), 3))
+                unique_colors = ['green', 'yellow', 'orange', 'red', 'purple',
+                                 'black']
+                for color in unique_colors:
+                    if color not in color_counts_relative.index:
+                        color_counts_relative[color] = 0
+                labels = {
+                    f'CAT I ({color_counts_relative["green"]})': 'green',
+                    f'CAT II ({color_counts_relative["yellow"]})': 'yellow',
+                    f'CAT III ({color_counts_relative["orange"]})': 'orange',
+                    f'CAT IV ({color_counts_relative["red"]})': 'red',
+                    f'Out of range ({color_counts_relative["purple"]})': 'purple',
+                }
+            cmap = ListedColormap(unique_colors)
+            color_to_num = {color: num for num, color in
+                            enumerate(unique_colors)}
+            numeric_data = color_data.apply(lambda col: col.map(color_to_num))
+            norm = BoundaryNorm(range(len(unique_colors) + 1), cmap.N)
+            sns.heatmap(numeric_data.T, cmap=cmap, norm=norm, cbar=False)
             handles = [plt.Line2D([0], [0], marker='o', color='w', label=label,
                                   markerfacecolor=color, markersize=10) for
                        label, color in labels.items()]
@@ -1147,8 +1167,15 @@ class PlotComfortResults(PlotBEPSResults):
             normalized_df = normalized_df * 100
         else:
             normalized_df = df.loc[:, df.columns != 'total']
-        fig, ax = plt.subplots(
-            figsize=(36, 12))  # Adjust figure size to allow more space
+        if normalize:
+            fig, ax = plt.subplots(
+                figsize=(0.5*len(normalized_df.index)+2, 12))  # Adjust figure
+            # size
+        else:
+            fig, ax = plt.subplots(
+                figsize=(1*len(normalized_df.index)+2, 12))  # Adjust figure
+            # size
+        # to allow more space
 
         x_pos = np.arange(len(set(normalized_df.index))) * 0.8
         bar_width = 0.35
