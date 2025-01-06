@@ -81,8 +81,8 @@ class PlotComfortResults(PlotBEPSResults):
             export_path = sim_results_path / bldg_name / 'plots'
             if not export_path.exists():
                 export_path.mkdir(parents=False, exist_ok=False)
+            spaces = filter_elements(elements, 'ThermalZone')
             if self.playground.sim_settings.plot_zone_usages:
-                spaces = filter_elements(elements, 'ThermalZone')
                 exclude_guids = []
                 for space in spaces:
                     if not any(key.lower() in space.usage.lower() for key in
@@ -130,37 +130,43 @@ class PlotComfortResults(PlotBEPSResults):
                                          plot_single_guid in col]]
                 self.pmv_plot(fanger_pmv, export_path,
                               f"pmv_{plot_single_guid}")
-            for col in fanger_pmv.columns:
+            for space in spaces:
+                if not any(fanger_pmv.filter(like=space.guid)):
+                    continue
+                self.logger.info(f"Space: {space.usage}, GUID: {space.guid}")
+                col = fanger_pmv.filter(like=space.guid).columns[0]
                 self.visualize_heatmap(fanger_pmv, col, export_path,
                                        save_as='heatmap_',
                                        zone_dict=zone_dict,
-                                       color_categories='PMV')
+                                       color_categories='PMV', guid=space.guid)
                 # generate calendar plot for daily mean pmv results
                 self.visualize_calendar(pd.DataFrame(fanger_pmv[col]),
                                         export_path, save_as='calendar_',
                                         add_title=True,
                                         color_only=True, figsize=[11, 12],
-                                        zone_dict=zone_dict)
+                                        zone_dict=zone_dict, guid=space.guid)
 
     @staticmethod
     def visualize_heatmap(df, col, export_path, save_as='',
                           add_title=True, save=True, zone_dict='', year='',
-                          color_categories=''):
+                          color_categories='', guid=''):
         def color_mapper_pmv(value):
-            if -0.2 <= value <= 0.2:
+            if -0.2 < value < 0.2:
                 return 'green'  # CAT I
-            elif -0.5 < value < -0.2:
+            elif -0.5 < value <= -0.2:
                 return 'lightblue'  # CAT II low
-            elif 0.2 < value < 0.5:
+            elif 0.2 <= value < 0.5:
                 return 'yellow'  # CAT II high
             elif -0.7 < value <= -0.5:
                 return 'mediumblue'  # CAT III low
-            elif 0.5 < value <= 0.7:
+            elif 0.5 <= value < 0.7:
                 return 'orange'  # CAT III high
-            elif value < -0.7:
+            elif value <= -0.7:
                 return 'darkblue'  # CAT IV low
-            elif value > 0.7:
+            elif value >= 0.7:
                 return 'red'  # CAT IV high
+            else:
+                return 'black'
 
         def color_mapper_ppd(value):
             if value < 6:
@@ -173,6 +179,8 @@ class PlotComfortResults(PlotBEPSResults):
                 return 'red'  # CAT IV
             elif value >= 25:
                 return 'purple'  # out of range
+            else:
+                return 'black'
 
         series = pd.Series(df[col], index=df.index)
         # Create a MultiIndex for day and hour
@@ -242,11 +250,11 @@ class PlotComfortResults(PlotBEPSResults):
         title_name = col
         for key, item in zone_dict.items():
             if key in title_name:
-                title_name = title_name.replace(key, item)
+                title_name = title_name.replace(key, item) + '_' + guid
         if add_title:
             plt.title(str(year) + ' ' + title_name)
         if save:
-            plt.savefig(export_path / str(save_as + title_name + str(year)
+            plt.savefig(export_path / str(save_as + title_name + f"_{year}_"
                                           + color_categories +'.pdf'),
                         bbox_inches='tight')
 
@@ -1274,7 +1282,7 @@ class PlotComfortResults(PlotBEPSResults):
                            save_as='',
                            construction='', skip_legend=False,
                            add_title=False, figsize=[7.6, 8], zone_dict=None,
-                           resample_type='mean'):
+                           resample_type='mean', guid=''):
 
         logger.info(f"Plot PMV calendar plot for zone {calendar_df.columns[0]}")
 
@@ -1295,7 +1303,7 @@ class PlotComfortResults(PlotBEPSResults):
             title_name = calendar_df.columns[0]
             for key, item in zone_dict.items():
                 if key in title_name:
-                    title_name = title_name.replace(key, item)
+                    title_name = title_name.replace(key, item) + '_' + guid
             if add_title:
                 plt.title(str(year) + ' ' + title_name)
             if save:
