@@ -165,3 +165,8 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         default=False, description='Use operative temperature instead of air '
                                    'temperature for zonal temperature control.'
     )
+    residential = BooleanSetting(
+        default=False, description='Choose True to use residential settings '
+                                   'for natural ventilation, False for '
+                                   'non-residential houses.'
+    )
