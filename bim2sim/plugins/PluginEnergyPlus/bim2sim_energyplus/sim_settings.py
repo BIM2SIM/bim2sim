@@ -140,17 +140,6 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         multiple_choice=True,
         for_frontend=True
     )
-    correct_space_boundaries = BooleanSetting(
-        default=True,
-        description='Apply geometric correction to space boundaries.',
-        for_frontend=True
-    )
-    close_space_boundary_gaps = BooleanSetting(
-        default=True,
-        description='Close gaps in the set of space boundaries by adding '
-                    'additional 2b space boundaries.',
-        for_frontend=True
-    )
     add_natural_ventilation = BooleanSetting(
         default=True,
         description='Add natural ventilation to the building. Natural '
