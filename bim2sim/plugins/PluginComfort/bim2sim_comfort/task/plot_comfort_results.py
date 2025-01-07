@@ -292,8 +292,14 @@ class PlotComfortResults(PlotBEPSResults):
                                                           'ceiling_max'])
         initial_row = {col: True for col in local_discomfort_overview.columns if
                        col != 'space'}
-
+        if not any(df.filter(like='surf_inside_temp')):
+            self.logger.warning("No surface temperatures found. Set "
+                                "sim_setting cfd_export to True to enable "
+                                "local limited comfort analysis using "
+                                "EnergyPlus.")
+            return
         for space in spaces:
+            bound_temperatures_found = False
             if not any(df.filter(like=space.guid)):
                 continue
             self.logger.info(f"Space: {space.usage}, GUID: {space.guid}")
@@ -334,6 +340,8 @@ class PlotComfortResults(PlotBEPSResults):
                 bound_temperature = df.filter(like=bound.guid)
                 if bound_temperature.empty or bound.bound_element is None:
                     continue
+                else:
+                    bound_temperatures_found = True
                 try:
                     bound_temperature = bound_temperature.iloc[:, 0].apply(
                         lambda x: x.magnitude)
@@ -354,6 +362,11 @@ class PlotComfortResults(PlotBEPSResults):
                 if ('FLOOR' in bound.bound_element.element_type.upper()
                         and bound.top_bottom == BoundaryOrientation.bottom):
                     floor_df = pd.concat([floor_df, bound_temperature], axis=1)
+            if not bound_temperatures_found:
+                self.logger.warning(f"No bound temperatures found in space "
+                                    f"{space.usage} {space.guid}. No limited "
+                                    f"local comfort analyzed.")
+                continue
             min_wall_df, max_wall_df = self.get_exceeded_temperature_hours(
                 wall_df,
                 10, 23,
