@@ -966,8 +966,8 @@ class CreateIdf(ITask):
                 Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
                 Air_Changes_per_Hour=occupied_increased_exchange-occupied_air_exchange,
                 Minimum_Indoor_Temperature=23,
-                Maximum_Indoor_Temperature=25,
-                Minimum_Outdoor_Temperature=18,
+                Maximum_Indoor_Temperature=26,
+                Minimum_Outdoor_Temperature=12,
                 Delta_Temperature=0,
             )
             idf.newidfobject(
@@ -978,7 +978,7 @@ class CreateIdf(ITask):
                 Ventilation_Type="Natural",
                 Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
                 Air_Changes_per_Hour=occupied_increased_exchange-occupied_air_exchange,
-                Minimum_Indoor_Temperature=25,
+                Minimum_Indoor_Temperature=26,
                 Delta_Temperature=0,
             )
             idf.newidfobject(
@@ -999,7 +999,7 @@ class CreateIdf(ITask):
                 Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
                 Air_Changes_per_Hour=unoccupied_increased_exchange-unoccupied_air_exchange,
                 Minimum_Indoor_Temperature=23,
-                Maximum_Indoor_Temperature=25,
+                Maximum_Indoor_Temperature=26,
                 Minimum_Outdoor_Temperature=15,
                 Delta_Temperature=0,
             )
@@ -1011,8 +1011,8 @@ class CreateIdf(ITask):
                 Ventilation_Type="Natural",
                 Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
                 Air_Changes_per_Hour=unoccupied_increased_exchange-unoccupied_air_exchange,
-                Minimum_Indoor_Temperature=25,
-                Minimum_Outdoor_Temperature=10,
+                Minimum_Indoor_Temperature=26,
+                # Minimum_Outdoor_Temperature=10,
                 Delta_Temperature=0,
             )
         else:
