@@ -9,7 +9,8 @@ from bim2sim.utilities.types import IFCDomain
 
 def run_example_complex_building_lca(lock,
                                      project_path, weather_file_path,
-                                     heat_delivery_type):
+                                     building_standard, heat_delivery_type):
+
     """Generate output for an LCA analysis.
 
     This example generates output for an LCA analysis. Specifies project
@@ -54,15 +55,11 @@ def run_example_complex_building_lca(lock,
         project.sim_settings.calculate_costs_hydraulic_system = True
         project.sim_settings.calculate_costs_ventilation_system = True
 
+        project.sim_settings.building_standard = building_standard
         project.sim_settings.pipe_type = "Stahlrohr"
         project.sim_settings.hydraulic_components_data_file_radiator_sheet = "Profilierte Flachheizkörper"
         project.sim_settings.heat_delivery_type = heat_delivery_type
         project.sim_settings.ufh_pipe_type = "PEX"
-
-        project.sim_settings.ufh_costs = 130 # €/m²
-        project.sim_settings.hydraulic_pipe_costs = 50 # €/m
-        project.sim_settings.ventilation_duct_costs = 80 # €/m²
-        project.sim_settings.ventilation_isolation_costs = 10 # €/m²
 
         project.sim_settings.hydraulic_system_material_xlsx = Path(project_path, "export", "hydraulic system", "material_quantities_hydraulic_system.xlsx")
         project.sim_settings.ventilation_supply_system_material_xlsx = Path(project_path / "export" / "ventilation system" / "supply air" / "dataframe_supply_air.xlsx")
@@ -88,7 +85,15 @@ def run_example_complex_building_lca(lock,
     total_gwp_ventilation_duct = project.playground.state['total_gwp_ventilation_duct']
     total_gwp_ventilation_component = project.playground.state['total_gwp_ventilation_component']
 
-    return total_gwp_building, total_gwp_hydraulic_pipe, total_gwp_hydraulic_component, total_gwp_ventilation_duct, total_gwp_ventilation_component
+    total_cost_building = project.playground.state['total_cost_building']
+    total_cost_hydraulic_pipe = project.playground.state['total_cost_hydraulic_pipe']
+    total_cost_hydraulic_component = project.playground.state['total_cost_hydraulic_component']
+    total_cost_ventilation_duct = project.playground.state['total_cost_ventilation_duct']
+    total_cost_ventilation_component = project.playground.state['total_cost_ventilation_component']
+
+    return (total_gwp_building, total_gwp_hydraulic_pipe, total_gwp_hydraulic_component, total_gwp_ventilation_duct, total_gwp_ventilation_component,
+            total_cost_building, total_cost_hydraulic_pipe, total_cost_hydraulic_component, total_cost_ventilation_duct, total_cost_ventilation_component)
+
 
 if __name__ == '__main__':
     run_example_complex_building_lca()

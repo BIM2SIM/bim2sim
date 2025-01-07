@@ -48,6 +48,19 @@ class LCAExportSettings(BuildingSimSettings):
     )
 
     # Building Settings
+    building_standard = ChoiceSetting(
+        default='kfw_40',
+        choices={
+            'kfw_40': 'Building according to kfw 40 standard',
+            'kfw_55': 'Building according to kfw 55 standard',
+            'kfw_70': 'Building according to kfw 70 standard',
+            'kfw_85': 'Building according to kfw 85 standard',
+            'kfw_100': 'Building according to kfw 100 standard'
+        },
+        description="Select the most fitting building standard"
+                    "for the selected building.",
+        for_frontend=True
+    )
 
     # Hydraulic Settings
     pipe_type = ChoiceSetting(
@@ -79,20 +92,6 @@ class LCAExportSettings(BuildingSimSettings):
             'PP': 'PP',
         },
         description='Choose pipe material of under floor heating',
-        for_frontend=True
-    )
-    ufh_costs = NumberSetting(
-        default=130,
-        min_value=0,
-        max_value=300,
-        description="Costs of ufh (material + installation) in €/m²",
-        for_frontend=True
-    )
-    hydraulic_pipe_costs = NumberSetting(
-        default=50,
-        min_value=0,
-        max_value=300,
-        description="Costs of hydraulic pipes (material + installation) in €/m",
         for_frontend=True
     )
     hydraulic_components_data_file_path = PathSetting(
@@ -132,17 +131,5 @@ class LCAExportSettings(BuildingSimSettings):
                     '(Output of PluginVentilationSystem)',
         for_frontend=True
     )
-    ventilation_duct_costs = NumberSetting(
-        default=80,
-        min_value=0,
-        max_value=300,
-        description="Costs of ventilation ducts (material + installation) in €/m²",
-        for_frontend=True
-    )
-    ventilation_isolation_costs = NumberSetting(
-        default=10,
-        min_value=0,
-        max_value=300,
-        description="Costs of ventilation duct isolation (material + installation) in €/m",
-        for_frontend=True
-    )
+
+

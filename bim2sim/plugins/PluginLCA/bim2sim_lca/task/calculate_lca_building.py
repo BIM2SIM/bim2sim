@@ -133,8 +133,8 @@ KG_names = {
 
 class CalculateEmissionBuilding(ITask):
     """Exports a CSV file with all relevant quantities of the BIM model"""
-    reads = ('ifc_files', 'elements', 'material_emission_dict')
-    touches = ('total_gwp_building',)
+    reads = ('ifc_files', 'elements', 'material_emission_dict', 'material_cost_dict')
+    touches = ('total_gwp_building', 'total_cost_building')
 
     def __init__(self, playground):
         super().__init__(playground)
@@ -152,22 +152,31 @@ class CalculateEmissionBuilding(ITask):
             Layer
         )
 
-    def run(self, ifc_files, elements, material_emission_dict):
+    def run(self, ifc_files, elements, material_emission_dict, material_cost_dict):
         total_gwp_building = 0
+        total_cost_building = 0
+
         if self.playground.sim_settings.calculate_lca_building:
             self.logger.info("Exporting material quantities to CSV")
 
             building_material_dict = self.export_materials(elements)
             self.export_overview(elements)
 
-            self.logger.info("Calculate building lca and export to csv")
+            self.logger.info("Calculate building lca & lcc and export to csv")
             building_material_dict = self.calculate_building_emissions(material_emission=material_emission_dict,
                                                                        building_material=building_material_dict)
             total_gwp_building = self.total_sum_emission(building_material=building_material_dict)
-            self.export_material_data_and_lca(building_material=building_material_dict,
-                                              total_gwp=total_gwp_building)
 
-        return total_gwp_building,
+            building_standard = self.playground.sim_settings.building_standard
+            total_cost_building = self.calculate_building_cost(elements=elements,
+                                                               material_cost_dict=material_cost_dict,
+                                                               building_standard=building_standard)
+
+            self.export_material_data_and_lca(building_material=building_material_dict,
+                                              total_gwp=total_gwp_building,
+                                              total_cost=total_cost_building)
+
+        return total_gwp_building, total_cost_building
 
     def export_materials(self, elements):
         """Exports only the materials and its total volume and mass if density
@@ -392,14 +401,39 @@ class CalculateEmissionBuilding(ITask):
                 total_gwp += (building_material[key]["GWP [kg CO2-eq]"])
         return total_gwp
 
+    def calculate_building_cost(self,
+                                elements,
+                                material_cost_dict,
+                                building_standard):
+        total_cost = 0
+        thermal_zones = filter_elements(elements, "ThermalZone")
+
+        building_net_volume = 0
+        building_net_area = 0
+        for tz in thermal_zones:
+            building_net_volume += tz.net_volume.magnitude
+            building_net_area += tz.net_area.magnitude
+
+        building_cost_volume = material_cost_dict[building_standard]
+        building_cost_area = material_cost_dict[building_standard]
+
+        total_cost = building_net_volume * building_cost_volume
+        total_cost = building_net_area * building_cost_area
+
+        return total_cost
+
     def export_material_data_and_lca(self,
-                   building_material,
-                   total_gwp):
+                                     building_material,
+                                     total_gwp,
+                                     total_cost):
 
-        building_material["Total"] = {"Density [kg/m³]": "", "Total Volume [m³]": "", "Total Mass [kg]": "",
-                                      "GWP [kg CO2-eq]": total_gwp}
+        building_material["Total"] = {"Density [kg/m³]": "",
+                                      "Volume [m³]": "",
+                                      "Mass [kg]": "",
+                                      "GWP [kg CO2-eq]": total_gwp,
+                                      "Cost [€]": total_cost}
 
-        with pd.ExcelWriter(self.paths.export / "lca_building.xlsx") as writer:
+        with pd.ExcelWriter(self.paths.export / "lca_lcc_building.xlsx") as writer:
             df = pd.DataFrame.from_dict(building_material, orient="index")
             df.to_excel(writer, index=True, index_label="Material", sheet_name="Materials")
 

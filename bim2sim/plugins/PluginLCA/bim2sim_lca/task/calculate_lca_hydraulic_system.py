@@ -7,11 +7,11 @@ from bim2sim.elements.mapping.units import ureg
 
 class CalculateEmissionHydraulicSystem(ITask):
 
-    reads = ('material_emission_dict',)
+    reads = ('material_emission_dict', 'material_cost_dict')
     touches = ('total_gwp_hydraulic_pipe', 'total_gwp_hydraulic_component',
                'total_cost_hydraulic_pipe', 'total_cost_hydraulic_component')
 
-    def run(self, material_emission_dict):
+    def run(self, material_emission_dict, material_cost_dict):
         total_gwp_hydraulic_pipe = 0
         total_gwp_hydraulic_component = 0
 
@@ -29,11 +29,14 @@ class CalculateEmissionHydraulicSystem(ITask):
              total_gwp_hydraulic_component, total_cost_hydraulic_component) = self.calulcate_components(
                                                                                     component_dict=component_dict,
                                                                                     material_emission_dict=material_emission_dict,
-                                                                                    radiator_dict=radiator_dict)
+                                                                                    radiator_dict=radiator_dict,
+                                                                                    material_cost_dict=material_cost_dict)
 
             (pipe_dict, total_gwp_hydraulic_pipe, total_cost_hydraulic_pipe,
              total_pipe_mass, total_isolation_mass) = self.calulcate_pipe(pipe_dict=pipe_dict,
-                                                                          material_emission_dict=material_emission_dict)
+                                                                          material_emission_dict=material_emission_dict,
+                                                                          material_cost_dict=material_cost_dict)
+
             self.write_xlsx(pipe_dict=pipe_dict,
                             component_material_emission_cost=component_material_emission_cost,
                             pump_component=pump_component,
@@ -129,14 +132,19 @@ class CalculateEmissionHydraulicSystem(ITask):
 
     def calulcate_pipe(self,
                        pipe_dict:dict,
-                       material_emission_dict:dict):
+                       material_emission_dict:dict,
+                       material_cost_dict:dict):
 
         total_pipe_mass = 0
         total_isolation_mass = 0
+        total_pipe_length = 0
         total_gwp = 0
         total_cost = 0
         emission_pipe = material_emission_dict[self.playground.sim_settings.pipe_type]
         emission_isolation = material_emission_dict["Rohrisolierung"]
+        cost_pipe = material_cost_dict[self.playground.sim_settings.pipe_type]["Pipe"]
+        cost_isolation = material_cost_dict[self.playground.sim_settings.pipe_type]["Isolation"]
+        cost_installation = material_cost_dict[self.playground.sim_settings.pipe_type]["Installation"]
 
         copy_pipe_dict = pipe_dict.copy()
         for pipe in copy_pipe_dict:
@@ -145,16 +153,19 @@ class CalculateEmissionHydraulicSystem(ITask):
             mass_isolation = copy_pipe_dict[pipe]["Mass Isolation [kg]"]
             pipe_length = copy_pipe_dict[pipe]["Pipe Length [m]"]
 
-            emissions = round(mass_pipe * emission_pipe + mass_isolation * emission_isolation, 4)
-            cost = round(pipe_length * self.playground.sim_settings.hydraulic_pipe_costs,4)
+            emissions = round(mass_pipe * emission_pipe + mass_isolation * emission_isolation, 2)
+            cost = round((mass_pipe * cost_pipe + mass_isolation * cost_isolation +
+                          pipe_length * cost_installation),2)
 
             pipe_dict[pipe]["GWP [kg CO2-eq]"] = emissions
             pipe_dict[pipe]["Cost [€]"] = cost
             pipe_dict[pipe]["Mass Pipe [kg]"] = mass_pipe
             pipe_dict[pipe]["Mass Isolation [kg]"] = mass_isolation
+            pipe_dict[pipe]["Pipe Length [m]"] = pipe_length
 
             total_pipe_mass += mass_pipe
             total_isolation_mass += mass_isolation
+            total_pipe_length += pipe_length
             total_gwp += emissions
             total_cost += cost
 
@@ -163,6 +174,7 @@ class CalculateEmissionHydraulicSystem(ITask):
     def calulcate_components(self,
                              component_dict: dict,
                              material_emission_dict: dict,
+                             material_cost_dict: dict,
                              radiator_dict: dict):
 
         if self.playground.sim_settings.heat_delivery_type == "Radiator":
@@ -187,7 +199,7 @@ class CalculateEmissionHydraulicSystem(ITask):
                                 mapping[key] = (f"Fussbodenheizung_{ufh_pipe_type}_"
                                                 f"{int(material_value['UFH Laying Distance [mm]'])}mm_m2")
                                 material_amount = material_value["UFH Area [m²]"]
-                                cost = material_value["UFH Area [m²]"] * self.playground.sim_settings.ufh_cost
+                                cost = material_amount * material_cost_dict[mapping[key]]
                             else:
                                 mapping[key] = "Heizkoerper"
                                 material_amount = material_value["Mass [kg]"]
@@ -200,7 +212,7 @@ class CalculateEmissionHydraulicSystem(ITask):
                             radiator = radiator_dict[int(material_value["Model"])]
                             cost = length * radiator["Trendlinie a"] * ((length * 1000) ** radiator["Trendlinie e"])
                         gwp = material_emission_dict[mapping[key]]
-                        emissions = round(material_amount * gwp,4)
+                        emissions = round(material_amount * gwp,2)
                         total_gwp_component += emissions
                         cost = round(cost, 2)
                         total_cost_component += cost
