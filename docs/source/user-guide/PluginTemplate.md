@@ -52,7 +52,8 @@ cd bim2sim
 
 # install pip requirements
 pip install -e '.'
-
+# or (depends on which shell (eg. cmd, powershell, bash, zsh ...) you use)
+pip install -e . 
 ```
 
 Now the base library installation is done. First check is to call the help
