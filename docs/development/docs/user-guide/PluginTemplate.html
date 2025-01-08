@@ -269,7 +269,7 @@ your project.</p>
 <section id="script">
 <h3>Script<a class="headerlink" href="#script" title="Permalink to this heading"></a></h3>
 <p>To include bim2sim in your scripts start with something like this:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bim2sim</span> <span class="kn">import</span> <span class="n">Project</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bim2sim</span><span class="w"> </span><span class="kn">import</span> <span class="n">Project</span>
 
 <span class="n">project_path</span> <span class="o">=</span> <span class="s1">&#39;path/to/project&#39;</span>
 <span class="n">ifc_path</span> <span class="o">=</span> <span class="s1">&#39;path/to/ifc&#39;</span>
@@ -290,7 +290,7 @@ your project.</p>
         <span class="n">decision</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">42</span>  <span class="c1"># your logic goes here</span>
 
 <span class="c1"># Option 2: handle decisions via console input</span>
-<span class="kn">from</span> <span class="nn">bim2sim</span> <span class="kn">import</span> <span class="n">run_project</span><span class="p">,</span> <span class="n">ConsoleDecisionHandler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bim2sim</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_project</span><span class="p">,</span> <span class="n">ConsoleDecisionHandler</span>
 <span class="n">run_project</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">ConsoleDecisionHandler</span><span class="p">())</span>
 
 <span class="c1"># Option 3: write your own DecisionHandler and use it as in Option 2</span>

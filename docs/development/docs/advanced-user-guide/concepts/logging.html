@@ -123,8 +123,8 @@ Having multiple <code class="docutils literal notranslate"><span class="pre">Pro
 <section id="user-logging">
 <h2>User logging<a class="headerlink" href="#user-logging" title="Permalink to this heading"></a></h2>
 <p>By default, the user logger writes to stdout. You can change the user logger per <code class="docutils literal notranslate"><span class="pre">Project</span></code> by setting it on a <code class="docutils literal notranslate"><span class="pre">Project</span></code> instance:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">bim2sim</span> <span class="kn">import</span> <span class="n">Project</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bim2sim</span><span class="w"> </span><span class="kn">import</span> <span class="n">Project</span>
 
 <span class="n">project</span> <span class="o">=</span> <span class="n">Project</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 <span class="n">my_stream_handler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">()</span>
