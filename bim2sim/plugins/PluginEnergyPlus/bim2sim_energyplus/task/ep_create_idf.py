@@ -1454,7 +1454,6 @@ class CreateIdf(ITask):
         # remove erroneous fenestration surfaces which do may crash
         # EnergyPlus simulation
         fenestrations = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
-        removed_fenestrations = []
 
         # Create a list of fenestrations to remove
         to_remove = []
@@ -1476,7 +1475,6 @@ class CreateIdf(ITask):
 
             if should_remove:
                 to_remove.append(fenestration)
-                removed_fenestrations.append(fenestration.Name)
 
         # Remove the collected fenestrations
         for fenestration in to_remove:
