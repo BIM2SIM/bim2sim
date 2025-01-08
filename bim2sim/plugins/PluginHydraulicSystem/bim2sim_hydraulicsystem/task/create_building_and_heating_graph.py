@@ -781,6 +781,21 @@ class CreateBuildingAndHeatingGraph(ITask):
                 x_positions = [positions[node1][0], positions[node2][0]]
                 y_positions = [positions[node1][1], positions[node2][1]]
                 # Find the intersections of these projections
+
+                # Add further intersection points in between nodes
+                # def intersection_intervall(new_positions, intervall):
+                #     new_positions = sorted(new_positions)
+                #     n_intersections = math.ceil((new_positions[1] - new_positions[0]) / intervall)
+                #     if n_intersections > 1:
+                #         n_step = (new_positions[1] - new_positions[0]) / (n_intersections + 1)
+                #         new_values = [round(new_positions[0] + i * n_step,4) for i in range(1, n_intersections + 1)]
+                #         new_positions = sorted(new_positions + new_values)
+                #     intersection = list(set(new_positions))
+                #     return intersection
+                #
+                # x_intersection = intersection_intervall(x_positions, 2)
+                # y_intersection = intersection_intervall(y_positions, 2)
+
                 x_intersection = list(set(x_positions))
                 y_intersection = list(set(y_positions))
                 z = positions[node1][2]
@@ -1011,11 +1026,15 @@ class CreateBuildingAndHeatingGraph(ITask):
                 bool: True if the entire edge is inside the shape or on its boundary, False otherwise.
             """
             edge_length = euclidean_distance(point1, point2)
-            num_points = int(edge_length / iteration)
+            num_points = math.ceil(edge_length / iteration)
             x1, y1, z1 = point1
             x2, y2, z2 = point2
+
             for i in range(num_points):
-                t = i / (num_points - 1)
+                if num_points != 1:
+                    t = i / (num_points - 1)
+                else:
+                    t = i
                 x = x1 * (1 - t) + x2 * t
                 y = y1 * (1 - t) + y2 * t
                 z = z1 * (1 - t) + z2 * t
