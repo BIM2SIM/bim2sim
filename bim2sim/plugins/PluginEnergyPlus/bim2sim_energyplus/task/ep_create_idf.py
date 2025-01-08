@@ -179,7 +179,7 @@ class CreateIdf(ITask):
             self.set_infiltration(
                 idf, name=zone.Name, zone_name=zone.Name, space=space,
                 ep_version=sim_settings.ep_version)
-            if (not self.playground.sim_settings.cooling_tz_overwrite and
+            if (not space.with_cooling and
                     self.playground.sim_settings.add_natural_ventilation):
                 self.set_natural_ventilation(
                     idf, name=zone.Name, zone_name=zone.Name, space=space,
@@ -586,6 +586,18 @@ class CreateIdf(ITask):
 
         cooling_availability = "Off"
         heating_availability = "Off"
+        heating_limit = 'NoLimit'
+        cooling_limit = 'NoLimit'
+        maximum_cooling_capacity = 'autosize'
+        maximum_cooling_rate = 'autosize'
+        outdoor_air_method = 'None'
+        outdoor_air_person = 0.007  # Category II according to DIN EN 16798-3
+        outdoor_air_area = 0.0007  # Category II low emission building
+        ventilation_demand_control = 'None'
+        outdoor_air_economizer = 'NoEconomizer'
+        heat_recovery_type = 'None'
+        heat_recovery_sensible = 0.8
+        heat_recovery_latent = 0.7
 
         if self.playground.sim_settings.hvac_off_at_night and idf.getobject(
                 "SCHEDULE:COMPACT", "On_except_10pm_to_6am") is None:
@@ -607,17 +619,38 @@ class CreateIdf(ITask):
             cooling_availability = "On"
             if self.playground.sim_settings.hvac_off_at_night:
                 cooling_availability = 'On_except_10pm_to_6am'
+            cooling_limit = 'LimitFlowRateAndCapacity'
+
         if space.with_heating:
             heating_availability = "On"
             if self.playground.sim_settings.hvac_off_at_night:
                 heating_availability = 'On_except_10pm_to_6am'
+
+        if space.with_cooling or \
+            not self.playground.sim_settings.add_natural_ventilation:
+            outdoor_air_method = 'Sum'
+            ventilation_demand_control = 'OccupancySchedule'
+            outdoor_air_economizer = 'DifferentialDryBulb'
+            heat_recovery_type = 'Enthalpy'
 
         idf.newidfobject(
             "HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM",
             Zone_Name=zone_name,
             Template_Thermostat_Name=template_thermostat_name,
             Heating_Availability_Schedule_Name=heating_availability,
-            Cooling_Availability_Schedule_Name=cooling_availability
+            Cooling_Availability_Schedule_Name=cooling_availability,
+            Heating_Limit=heating_limit,
+            Cooling_Limit=cooling_limit,
+            Maximum_Cooling_Air_Flow_Rate=maximum_cooling_rate,
+            Maximum_Total_Cooling_Capacity=maximum_cooling_capacity,
+            Outdoor_Air_Method=outdoor_air_method,
+            Outdoor_Air_Flow_Rate_per_Person=outdoor_air_person,
+            Outdoor_Air_Flow_Rate_per_Zone_Floor_Area=outdoor_air_area,
+            Demand_Controlled_Ventilation_Type=ventilation_demand_control,
+            Outdoor_Air_Economizer_Type=outdoor_air_economizer,
+            Heat_Recovery_Type=heat_recovery_type,
+            Sensible_Heat_Recovery_Effectiveness=heat_recovery_sensible,
+            Latent_Heat_Recovery_Effectiveness=heat_recovery_latent,
         )
 
     def set_people(self, sim_settings: EnergyPlusSimSettings, idf: IDF, name: str,
@@ -1561,7 +1594,8 @@ class CreateIdf(ITask):
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Ventilation Standard Density Volume Flow Rate",
+                Variable_Name="Zone Ventilation Standard Density Volume Flow "
+                              "Rate",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
@@ -1574,6 +1608,19 @@ class CreateIdf(ITask):
                 Variable_Name="Zone Ventilation Total Heat Loss Energy",
                 Reporting_Frequency="Hourly",
             )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Mechanical Ventilation Air Changes per "
+                              "Hour",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Mechanical Ventilation Standard Density "
+                              "Volume Flow Rate",
+                Reporting_Frequency="Hourly",
+            )
+
 
         if 'output_meters' in sim_settings.output_keys:
             idf.newidfobject(
