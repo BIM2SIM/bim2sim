@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from bim2sim.sim_settings import BuildingSimSettings, BooleanSetting, \
-    ChoiceSetting, PathSetting
+    ChoiceSetting, PathSetting, NumberSetting
 
 
 class EnergyPlusSimSettings(BuildingSimSettings):
@@ -170,6 +170,58 @@ class EnergyPlusSimSettings(BuildingSimSettings):
     control_operative_temperature = BooleanSetting(
         default=False, description='Use operative temperature instead of air '
                                    'temperature for zonal temperature control.'
+    )
+    ventilation_demand_control = ChoiceSetting(
+        default='None',
+        choices={'None': 'No demand control for mechanical ventilation.',
+                 'OccupancySchedule': 'Demand control based on occupancy '
+                                      'schedule.'},
+        description='Choose if mechanical ventilation should be demand '
+                    'controlled. Default is None. '
+    )
+    outdoor_air_economizer = ChoiceSetting(
+        default='NoEconomizer',
+        choices={'NoEconomizer': 'No outdoor air economizer is applied.',
+                 'DifferentialDryBulb': 'The outdoor air economizer is '
+                                        'applied based on the differential '
+                                        'dry bulb temperature.',
+                 'DifferentialEnthalpy': 'The outdoor air economizer is '
+                                        'applied based on the differential '
+                                        'enthalpy.'},
+        description='Choose which type of outdoor air economizer should be '
+                    'applied to reduce cooling loads by an increased outdoor '
+                    'air flow if cooling loads can be reduced. Default is '
+                    '"NoEconomizer".'
+    )
+    heat_recovery_type = ChoiceSetting(
+        default='Enthalpy',
+        choices={'Enthalpy': 'Use Enthalpy Heat Recovery.',
+                 'Sensible': 'Use Sensible Heat Recovery.',
+                 'None': 'No Heat Recovery'},
+        description='Choose which type of heat recovery should be applied for '
+                    'mechanical ventilation.'
+    )
+    heat_recovery_sensible = NumberSetting(
+        default=0.8, min_value=0, max_value=1,
+        description='Choose the sensible heat recovery effectiveness. '
+                    'Default: 0.8.'
+    )
+    heat_recovery_latent = NumberSetting(
+        default=0.7, min_value=0, max_value=1,
+        description='Choose the latent heat recovery effectiveness. Only '
+                    'applicable if heat_recovery_type="Enthalpy". Default: 0.7.'
+    )
+    outdoor_air_per_person = NumberSetting(
+        default=7,
+        min_value=0, max_value=25,
+        description='Outdoor air per person in l/s. Defaults to 7 l/s '
+                    'according to DIN EN 16798-1, Category II.'
+    )
+    outdoor_air_per_area = NumberSetting(
+        default=0.7, min_value=0, max_value=10,
+        description='Outdoor air per floor area in l/s. Defaults to 0.7 l/(s '
+                    'm2) according to DIN EN 16798-1, Category II for low '
+                    'emission buildings.'
     )
     residential = BooleanSetting(
         default=False, description='Choose True to use residential settings '

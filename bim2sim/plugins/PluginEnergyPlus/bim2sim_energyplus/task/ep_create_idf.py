@@ -608,13 +608,17 @@ class CreateIdf(ITask):
         maximum_cooling_capacity = 'autosize'
         maximum_cooling_rate = 'autosize'
         outdoor_air_method = 'None'
-        outdoor_air_person = 0.007  # Category II according to DIN EN 16798-3
-        outdoor_air_area = 0.0007  # Category II low emission building
+        # convert from l/s to m3/s
+        outdoor_air_person = (
+            self.playground.sim_settings.outdoor_air_per_person) / 1000
+        outdoor_air_area = (
+            self.playground.sim_settings.outdoor_air_per_area) / 1000
         ventilation_demand_control = 'None'
         outdoor_air_economizer = 'NoEconomizer'
         heat_recovery_type = 'None'
-        heat_recovery_sensible = 0.8
-        heat_recovery_latent = 0.7
+        heat_recovery_sensible = (
+            self.playground.sim_settings.heat_recovery_sensible)
+        heat_recovery_latent = self.playground.sim_settings.heat_recovery_latent
 
         if self.playground.sim_settings.hvac_off_at_night and idf.getobject(
                 "SCHEDULE:COMPACT", "On_except_10pm_to_6am") is None:
@@ -646,9 +650,11 @@ class CreateIdf(ITask):
         if space.with_cooling or \
             not self.playground.sim_settings.add_natural_ventilation:
             outdoor_air_method = 'Sum'
-            ventilation_demand_control = 'OccupancySchedule'
-            outdoor_air_economizer = 'DifferentialDryBulb'
-            heat_recovery_type = 'Enthalpy'
+            ventilation_demand_control = (
+                self.playground.sim_settings.ventilation_demand_control)
+            outdoor_air_economizer = (
+                self.playground.sim_settings.outdoor_air_economizer)
+            heat_recovery_type = self.playground.sim_settings.heat_recovery_type
 
         idf.newidfobject(
             "HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM",
