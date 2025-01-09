@@ -140,11 +140,11 @@ class PlotComfortResults(PlotBEPSResults):
                                        zone_dict=zone_dict,
                                        color_categories='PMV', guid=space.guid)
                 # generate calendar plot for daily mean pmv results
-                self.visualize_calendar(pd.DataFrame(fanger_pmv[col]),
-                                        export_path, save_as='calendar_',
-                                        add_title=True,
-                                        color_only=True, figsize=[11, 12],
-                                        zone_dict=zone_dict, guid=space.guid)
+                # self.visualize_calendar(pd.DataFrame(fanger_pmv[col]),
+                #                         export_path, save_as='calendar_',
+                #                         add_title=True,
+                #                         color_only=True, figsize=[11, 12],
+                #                         zone_dict=zone_dict, guid=space.guid)
 
     @staticmethod
     def visualize_heatmap(df, col, export_path, save_as='',
