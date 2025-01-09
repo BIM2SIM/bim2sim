@@ -1453,23 +1453,33 @@ class CreateIdf(ITask):
 
         # remove erroneous fenestration surfaces which do may crash
         # EnergyPlus simulation
-        fenestration = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
-        for f in fenestration:
-            if not f.Building_Surface_Name:
-                logger.info('Removed Fenestration: %s' % f.Name)
-                idf.removeidfobject(f)
-            fbco = f.Building_Surface_Name
-            bs = idf.getobject('BUILDINGSURFACE:DETAILED', fbco)
-            if bs.Outside_Boundary_Condition == 'Adiabatic':
-                logger.info('Removed Fenestration: %s' % f.Name)
-                idf.removeidfobject(f)
-        for f in fenestration:
-            fbco = f.Building_Surface_Name
-            bs = idf.getobject('BUILDINGSURFACE:DETAILED', fbco)
-            if bs.Outside_Boundary_Condition == 'Adiabatic':
-                logger.info(
-                    'Removed Fenestration in second try: %s' % f.Name)
-                idf.removeidfobject(f)
+        fenestrations = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
+
+        # Create a list of fenestrations to remove
+        to_remove = []
+
+        for fenestration in fenestrations:
+            should_remove = False
+
+            # Check for missing building surface reference
+            if not fenestration.Building_Surface_Name:
+                should_remove = True
+            else:
+                # Check if the referenced surface is adiabatic
+                building_surface = idf.getobject(
+                    'BUILDINGSURFACE:DETAILED',
+                    fenestration.Building_Surface_Name
+                )
+                if building_surface and building_surface.Outside_Boundary_Condition == 'Adiabatic':
+                    should_remove = True
+
+            if should_remove:
+                to_remove.append(fenestration)
+
+        # Remove the collected fenestrations
+        for fenestration in to_remove:
+            logger.info('Removed Fenestration: %s' % fenestration.Name)
+            idf.removeidfobject(fenestration)
 
         # Check if shading control elements contain unavailable fenestration
         fenestration_updated = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
