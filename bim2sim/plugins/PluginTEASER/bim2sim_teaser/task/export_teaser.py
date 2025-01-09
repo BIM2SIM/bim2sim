@@ -50,9 +50,16 @@ class ExportTEASER(ITask):
                 '*multizonePostProcessing.TOperativeAverageCalc.u*'
             ],
             'AHU': [
+                'multizonePostProcessing.PHeatAHU',
+                'multizonePostProcessing.PCoolAHU',
+                'multizonePostProcessing.PelAHU',
                 'multizonePostProcessing.WHeatAHU',
                 'multizonePostProcessing.WCoolAHU',
                 'multizonePostProcessing.WElAHU',
+                'multizone.AHU[1]',
+                'multizone.AHU[2]',
+                'multizone.AHU[3]',
+                'multizone.AHU[4]',
             ],
             'InternalGains': [
                 '*multizonePostProcessing.QIntGains_flow*'

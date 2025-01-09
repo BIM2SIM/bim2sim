@@ -617,11 +617,17 @@ class ThermalZone(BPSProduct):
     )
 
     min_ahu = attribute.Attribute(
+        unit=ureg.meter ** 3 / (ureg.meter ** 2 * ureg.s),
+        description="Zone area specific minimum air flow supplied by the "
+                "AHU. Absolute profile will be calculated with the "
+                "Building attribute ahu_v_flow_profile."
     )
 
     max_ahu = attribute.Attribute(
-        default_ps=("Pset_AirSideSystemInformation", "TotalAirflow"),
-        unit=ureg.meter ** 3 / ureg.s
+        unit=ureg.meter ** 3 / (ureg.meter ** 2 * ureg.s),
+        description="Zone area specific maximum air flow supplied by the "
+                "AHU. Absolute profile will be calculated with the "
+                "Building attribute ahu_v_flow_profile."
     )
 
     with_ideal_thresholds = attribute.Attribute(
@@ -1820,37 +1826,81 @@ class Building(BPSProduct):
     occupancy_type = attribute.Attribute(
         default_ps=("Pset_BuildingCommon", "OccupancyType"),
     )
-
     avg_storey_height = attribute.Attribute(
         unit=ureg.meter,
         functions=[_get_avg_storey_height]
     )
-
     with_ahu = attribute.Attribute(
         functions=[_check_tz_ahu]
     )
-
     ahu_heating = attribute.Attribute(
         attr_type=bool
     )
-
     ahu_cooling = attribute.Attribute(
         attr_type=bool
     )
-
     ahu_dehumidification = attribute.Attribute(
         attr_type=bool
     )
-
     ahu_humidification = attribute.Attribute(
         attr_type=bool
     )
-
     ahu_heat_recovery = attribute.Attribute(
         attr_type=bool
     )
-
+    ahu_by_pass_dehumidification = attribute.Attribute(
+        default=0.2
+    )
     ahu_heat_recovery_efficiency = attribute.Attribute(
+        default=0.85
+    )
+    ahu_efficiency_fan_supply = attribute.Attribute(
+        default=0.7
+    )
+    ahu_efficiency_fan_return = attribute.Attribute(
+        default=0.7
+    )
+    ahu_pressure_drop_fan_supply = attribute.Attribute(
+        default=400,
+        unit=ureg.pascal
+    )
+    ahu_pressure_drop_fan_return = attribute.Attribute(
+        default=400,
+        unit=ureg.pascal
+    )
+    # todo copy this to example, use simpler profile here
+    ahu_temperature_profile = attribute.Attribute(
+        default=
+        (40 * (6 * [293.15] + 12 * [292.15] + 6 * [293.15]) +
+         100 * (6 * [293.15] + 12 * [291.65] + 6 * [293.15]) +
+         20 * (5 * [293.15] + 2 * [290.15] + 10 * [287.15] + 3 * [
+                    290.15] + 4 * [293.15]) +
+         80 * (5 * [293.15] + 2 * [290.15] + 10 * [287.15] + 3 * [
+                    290.15] + 4 * [293.15]) +
+         20 * (5 * [293.15] + 2 * [291.15] + 10 * [287.15] + 3 * [
+                    290.15] + 4 * [293.15]) +
+         60 * (6 * [293.15] + 12 * [291.65] + 6 * [293.15]) +
+         45 * (6 * [293.15] + 12 * [292.15] + 6 * [293.15]),
+         ),
+        description="Temperature setpoint profile for AHU. Must be a list. "
+                    "List is periodized to 1 year if possible."
+    )
+    ahu_min_relative_humidity_profile = attribute.Attribute(
+        default=24 * [0.45],
+        description="Min humidity setpoint profile for AHU. Must be a list. "
+                    "List is periodized to 1 year if possible."
+    )
+    ahu_max_relative_humidity_profile = attribute.Attribute(
+        default=24 * [0.65],
+        description="Max humidity setpoint profile for AHU. Must be a list. "
+                    "List is periodized to 1 year if possible."
+    )
+    ahu_v_flow_profile = attribute.Attribute(
+        default=24 * [1],
+        description="Relative volume flow profile for AHU. Must be a list. "
+                    "List is periodized to 1 year if possible. Absolute value "
+                    "of volume flow is calculated based on min_ahu and max_ahu"
+                    " values in use conditions, which "
     )
 
 
