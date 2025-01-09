@@ -73,6 +73,12 @@ class EnergyPlusSimSettings(BuildingSimSettings):
                     'file period or not.',
         for_frontend=True
     )
+    extreme_weather_sizing = BooleanSetting(
+        default=False,
+        description='Choose whether to perform the system sizing for extreme '
+                    'weather periods or typical weather periods. Default=False '
+                    '(i.e., apply system sizing for typical weather). '
+    )
     solar_distribution = ChoiceSetting(
         default='FullExterior',
         choices={
