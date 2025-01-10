@@ -16,16 +16,18 @@ from bim2sim.utilities.common_functions import filter_elements
 
 bim2sim_energyplus_mapping_base = {
     "NOT_AVAILABLE": "heat_demand_total",
-    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Heating "
-    "Rate [W](Hourly)": "heat_demand_rooms",
+    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Supply Air Total "
+    "Heating Rate [W](Hourly)": "heat_demand_rooms",
     "NOT_AVAILABLE": "cool_demand_total",
-    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Cooling "
-    "Rate [W](Hourly)": "cool_demand_rooms",
-    "Heating:EnergyTransfer [J](Hourly)": "heat_energy_total",
-    "Cooling:EnergyTransfer [J](Hourly) ": "cool_energy_total",
-    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Heating Energy [J](Hourly)":
+    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Supply Air Total "
+    "Cooling Rate [W](Hourly)": "cool_demand_rooms",
+    "DistrictHeating:HVAC [J](Hourly)": "heat_energy_total",
+    "DistrictCooling:HVAC [J](Hourly) ": "cool_energy_total",
+    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Supply Air Total "
+    "Heating Energy [J](Hourly)":
         "heat_energy_rooms",
-    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Cooling Energy [J](Hourly)":
+    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Supply Air Total "
+    "Cooling Energy [J](Hourly)":
         "cool_energy_rooms",
     "Environment:Site Outdoor Air Drybulb Temperature [C](Hourly)":
         "air_temp_out",
