@@ -29,6 +29,8 @@ pint_pandas.PintType.ureg = ureg
 unit_mapping = {
     "_status": ureg.dimensionless,
     "air_temp": ureg.degree_Celsius,
+    "pmv": ureg.dimensionless,
+    "ppd": ureg.percent,
 }
 
 
