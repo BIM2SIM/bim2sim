@@ -573,6 +573,7 @@ class CreateIdf(ITask):
                     Control_Type_Schedule_Name='Zone Control Type Sched',
                     Control_1_Object_Type='ThermostatSetpoint:DualSetpoint',
                     Control_1_Name=htg_schedule_name + ' ' + clg_schedule_name,
+                    Temperature_Difference_Between_Cutout_And_Setpoint=0.2,
                 )
             else:
                 stat = idf.getobject('ZONECONTROL:THERMOSTAT',
@@ -1550,22 +1551,34 @@ class CreateIdf(ITask):
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Ideal Loads Zone Total Cooling Rate",
+                Variable_Name="Zone Ideal Loads Supply Air Total Heating "
+                              "Energy",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Ideal Loads Zone Total Heating Rate",
+                Variable_Name="Zone Ideal Loads Supply Air Total Cooling "
+                              "Energy",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Ideal Loads Zone Total Heating Energy",
+                Variable_Name="Zone Ideal Loads Outdoor Air Total Cooling Rate",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Ideal Loads Zone Total Cooling Energy",
+                Variable_Name="Zone Ideal Loads Outdoor Air Total Heating Rate",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Ideal Loads Supply Air Total Cooling Rate",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Ideal Loads Supply Air Total Heating Rate",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
@@ -1582,16 +1595,6 @@ class CreateIdf(ITask):
                 "OUTPUT:VARIABLE",
                 Variable_Name="Zone Windows Total Transmitted Solar Radiation "
                               "Energy",
-                Reporting_Frequency="Hourly",
-            )
-            idf.newidfobject(
-                "OUTPUT:VARIABLE",
-                Variable_Name="Zone Air System Sensible Heating Energy",
-                Reporting_Frequency="Hourly",
-            )
-            idf.newidfobject(
-                "OUTPUT:VARIABLE",
-                Variable_Name="Zone Air System Sensible Cooling Energy",
                 Reporting_Frequency="Hourly",
             )
         if 'output_infiltration' in sim_settings.output_keys:
@@ -1654,6 +1657,16 @@ class CreateIdf(ITask):
             idf.newidfobject(
                 "OUTPUT:METER",
                 Key_Name="Cooling:EnergyTransfer",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:METER",
+                Key_Name="DistrictHeating:HVAC",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:METER",
+                Key_Name="DistrictCooling:HVAC",
                 Reporting_Frequency="Hourly",
             )
         if 'output_dxf' in sim_settings.output_keys:
