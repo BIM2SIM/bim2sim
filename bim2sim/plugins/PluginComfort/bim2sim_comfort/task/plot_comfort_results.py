@@ -283,6 +283,17 @@ class PlotComfortResults(PlotBEPSResults):
                                           occupied=True):
         spaces = filter_elements(elements, 'ThermalZone')
         local_discomfort_dict = {}
+        global_local_discomfort = pd.DataFrame(columns=['TimeStamp',
+                                                        'space',
+                                                        'space_temperature',
+                                                          'wall_min',
+                                                          'wall_max',
+                                                          'floor_min',
+                                                          'floor_max',
+                                                          'ceiling_min',
+                                                          'ceiling_max'])
+        space_local_discomfort = pd.DataFrame(
+            columns=global_local_discomfort.columns)
         local_discomfort_overview = pd.DataFrame(columns=['space',
                                                           'wall_min',
                                                           'wall_max',
@@ -362,6 +373,8 @@ class PlotComfortResults(PlotBEPSResults):
                 if ('FLOOR' in bound.bound_element.element_type.upper()
                         and bound.top_bottom == BoundaryOrientation.bottom):
                     floor_df = pd.concat([floor_df, bound_temperature], axis=1)
+                space_local_discomfort = space_local_discomfort.reindex(
+                    index=bound_temperature.index)
             if not bound_temperatures_found:
                 self.logger.warning(f"No bound temperatures found in space "
                                     f"{space.usage} {space.guid}. No limited "
@@ -389,6 +402,9 @@ class PlotComfortResults(PlotBEPSResults):
                 local_discomfort_overview.iloc[
                     -1, local_discomfort_overview.columns.get_loc(
                         'wall_min')] = False
+                min_wall_df = min_wall_df.rename(
+                    columns={'MinValue': 'wall_min'})
+                space_local_discomfort.update(min_wall_df)
             if not max_wall_df.empty:
                 num_max_wall, hours_max_wall = (
                     self.calc_exceeded_temperature_hours(
@@ -399,6 +415,9 @@ class PlotComfortResults(PlotBEPSResults):
                 local_discomfort_overview.iloc[
                     -1, local_discomfort_overview.columns.get_loc(
                         'wall_max')] = False
+                max_wall_df = max_wall_df.rename(
+                    columns={'MaxValue': 'wall_max'})
+                space_local_discomfort.update(max_wall_df)
             if not min_floor_df.empty:
                 num_min_floor, hours_min_floor = (
                     self.calc_exceeded_temperature_hours(
@@ -409,6 +428,9 @@ class PlotComfortResults(PlotBEPSResults):
                 local_discomfort_overview.iloc[
                     -1, local_discomfort_overview.columns.get_loc(
                         'floor_min')] = False
+                min_floor_df = min_floor_df.rename(
+                    columns={'MinValue': 'floor_min'})
+                space_local_discomfort.update(min_floor_df)
             if not max_floor_df.empty:
                 num_max_floor, hours_max_floor = (
                     self.calc_exceeded_temperature_hours(
@@ -419,6 +441,9 @@ class PlotComfortResults(PlotBEPSResults):
                 local_discomfort_overview.iloc[
                     -1, local_discomfort_overview.columns.get_loc(
                         'floor_max')] = False
+                max_floor_df = max_floor_df.rename(
+                    columns={'MaxValue': 'floor_max'})
+                space_local_discomfort.update(max_floor_df)
             if not min_ceiling_df.empty:
                 num_min_ceiling, hours_min_ceiling = (
                     self.calc_exceeded_temperature_hours(
@@ -429,6 +454,9 @@ class PlotComfortResults(PlotBEPSResults):
                 local_discomfort_overview.iloc[
                     -1, local_discomfort_overview.columns.get_loc(
                         'ceiling_min')] = False
+                min_ceiling_df = min_ceiling_df.rename(
+                    columns={'MinValue': 'ceiling_min'})
+                space_local_discomfort.update(min_ceiling_df)
             if not max_ceiling_df.empty:
                 num_max_ceiling, hours_max_ceiling = (
                     self.calc_exceeded_temperature_hours(
@@ -439,6 +467,9 @@ class PlotComfortResults(PlotBEPSResults):
                 local_discomfort_overview.iloc[
                     -1, local_discomfort_overview.columns.get_loc(
                         'ceiling_max')] = False
+                max_ceiling_df = max_ceiling_df.rename(
+                    columns={'MaxValue': 'ceiling_max'})
+                space_local_discomfort.update(max_ceiling_df)
             last_row_values = local_discomfort_overview.iloc[-1]
             all_true_except_space = all(
                 last_row_values[col] for col in last_row_values.index if
@@ -449,11 +480,25 @@ class PlotComfortResults(PlotBEPSResults):
                                  f'usage "{space.usage}" with '
                                  f'guid "{space.guid}". ')
             else:
+                space_local_discomfort = space_local_discomfort.dropna(how='all')
+                space_local_discomfort.loc[:, 'space'] = (f"{space.usage}"
+                                                          f"_{space.guid}")
+                space_local_discomfort['space_temperature'] = \
+                    space_temperature.loc[n_persons_df > 0]
+                space_local_discomfort = space_local_discomfort.dropna(
+                    how='all', axis=1)
+                space_local_discomfort.to_csv(export_path /
+                                              f'space_'
+                                              f'{space.guid}_local_discomf.csv')
+                failed_checks = [col for col in space_local_discomfort.columns
+                                 if not col in ['space', 'space_temperature']]
                 self.logger.warning(f'DIN EN 16798-1 NA (GER), limited local '
-                                    f'comfort check FAILED for space usage '
+                                    f'comfort check FAILED the checks '
+                                    f'{failed_checks} for space usage '
                                     f'"{space.usage}" with '
                                     f'guid "{space.guid}". Please check '
-                                    f'beps_local_discomfort.json for details.')
+                                    f'"space_{space.guid}_local_discomf.csv" '
+                                    f'for details.')
         with open(export_path / 'beps_local_discomfort.json', 'w+') as file:
             json.dump(local_discomfort_dict, file, indent=4)
         local_discomfort_overview.to_csv(
