@@ -1868,20 +1868,8 @@ class Building(BPSProduct):
         default=400,
         unit=ureg.pascal
     )
-    # todo copy this to example, use simpler profile here
     ahu_temperature_profile = attribute.Attribute(
-        default=
-        (40 * (6 * [293.15] + 12 * [292.15] + 6 * [293.15]) +
-         100 * (6 * [293.15] + 12 * [291.65] + 6 * [293.15]) +
-         20 * (5 * [293.15] + 2 * [290.15] + 10 * [287.15] + 3 * [
-                    290.15] + 4 * [293.15]) +
-         80 * (5 * [293.15] + 2 * [290.15] + 10 * [287.15] + 3 * [
-                    290.15] + 4 * [293.15]) +
-         20 * (5 * [293.15] + 2 * [291.15] + 10 * [287.15] + 3 * [
-                    290.15] + 4 * [293.15]) +
-         60 * (6 * [293.15] + 12 * [291.65] + 6 * [293.15]) +
-         45 * (6 * [293.15] + 12 * [292.15] + 6 * [293.15]),
-         ),
+        default=24 * [295.15],
         description="Temperature setpoint profile for AHU. Must be a list. "
                     "List is periodized to 1 year if possible."
     )
