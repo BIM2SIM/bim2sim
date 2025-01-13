@@ -773,6 +773,8 @@ class BuildingSimSettings(BaseSimSettings):
     construction_class_windows = ChoiceSetting(
         default='Waermeschutzverglasung, dreifach',
         choices={
+            'EnEv':
+                'EnEV 2016',
             'Holzfenster, zweifach':
                 'Zeifachverglasung mit Holzfenstern',
             'Kunststofffenster, Isolierverglasung':
