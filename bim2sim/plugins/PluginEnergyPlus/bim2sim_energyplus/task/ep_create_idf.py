@@ -135,20 +135,39 @@ class CreateIdf(ITask):
         # remove location and design days
         idf.removeallidfobjects('SIZINGPERIOD:DESIGNDAY')
         idf.removeallidfobjects('SITE:LOCATION')
-        if sim_settings.extreme_weather_sizing:
-            period_selection = 'Extreme'
+        if sim_settings.system_weather_sizing != 'DesignDay':
+            if sim_settings.system_weather_sizing == 'Extreme':
+                period_selection = 'Extreme'
+            elif sim_settings.system_weather_sizing == 'Typical':
+                period_selection = 'Typical'
+            idf.newidfobject("SIZINGPERIOD:WEATHERFILECONDITIONTYPE",
+                             Name='Summer Design Day from Weather File',
+                             Period_Selection=f'Summer{period_selection}',
+                             Day_of_Week_for_Start_Day='SummerDesignDay'
+                             )
+            idf.newidfobject("SIZINGPERIOD:WEATHERFILECONDITIONTYPE",
+                             Name='Winter Design Day from Weather File',
+                             Period_Selection=f'Winter{period_selection}',
+                             Day_of_Week_for_Start_Day='WinterDesignDay'
+                             )
         else:
-            period_selection = 'Typical'
-        idf.newidfobject("SIZINGPERIOD:WEATHERFILECONDITIONTYPE",
-                         Name='Summer Design Day from Weather File',
-                         Period_Selection=f'Summer{period_selection}',
-                         Day_of_Week_for_Start_Day='SummerDesignDay'
-                         )
-        idf.newidfobject("SIZINGPERIOD:WEATHERFILECONDITIONTYPE",
-                         Name='Winter Design Day from Weather File',
-                         Period_Selection=f'Winter{period_selection}',
-                         Day_of_Week_for_Start_Day='WinterDesignDay'
-                         )
+            idf.newidfobject("SIZINGPERIOD:WEATHERFILEDAYS",
+                             Name='Summer Design Day from Weather File',
+                             Begin_Month=7,
+                             Begin_Day_of_Month=21,
+                             End_Month=7,
+                             End_Day_of_Month=21,
+                             Day_of_Week_for_Start_Day='SummerDesignDay'
+                             )
+            idf.newidfobject("SIZINGPERIOD:WEATHERFILEDAYS",
+                             Name='Winter Design Day from Weather File',
+                             Begin_Month=12,
+                             Begin_Day_of_Month=21,
+                             End_Month=12,
+                             End_Day_of_Month=21,
+                             Day_of_Week_for_Start_Day='WinterDesignDay'
+                             )
+
         sim_results_path = paths.export/'EnergyPlus'/'SimResults'
         export_path = sim_results_path / ifc_name
         if not os.path.exists(export_path):
