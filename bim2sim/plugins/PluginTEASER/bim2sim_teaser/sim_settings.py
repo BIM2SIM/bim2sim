@@ -124,7 +124,7 @@ class TEASERSimSettings(BuildingSimSettings):
         for_frontend=False,
         mandatory=False
     )
-    number_of_elements_calc = NumberSetting(
+    number_elements_calc = NumberSetting(
         description="Defines the number of elements, that the elements are"
                     "aggregated to: "
                     "1: all elements one R-C-R,"
