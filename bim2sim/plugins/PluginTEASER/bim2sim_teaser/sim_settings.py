@@ -1,5 +1,5 @@
 from bim2sim.sim_settings import BuildingSimSettings, ChoiceSetting, \
-    PathSetting
+    PathSetting, NumberSetting
 from bim2sim.utilities.types import LOD, ZoningCriteria
 
 
@@ -123,4 +123,16 @@ class TEASERSimSettings(BuildingSimSettings):
                     'prepare_regression_tests.py script.',
         for_frontend=False,
         mandatory=False
+    )
+    number_of_elements_calc = NumberSetting(
+        description="Defines the number of elements, that the elements are"
+                    "aggregated to: "
+                    "1: all elements one R-C-R,"
+                    "2: all external elements one R-C-R, all internal one "
+                    "R-C-R,"
+                    "3: extra R-C-R for rooftops,"
+                    "4: extra R-C-R for ground floors,",
+        min_value=1,
+        max_value=4,
+        default=2
     )
