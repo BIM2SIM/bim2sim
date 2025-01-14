@@ -16,6 +16,8 @@ class OpenFOAMCase:
         self.openfoam_dir = None
         self.default_templates_dir = None
         self.transient_simulation = False
+        self.required_heating_power = 0
+        self.required_cooling_power = 0
         self.furniture_trsfs = []
         self.default_surface_names =['boundingbox']# ['Back', 'Bottom', 'Front', 'Top', 'Left',
                                      # 'Right']

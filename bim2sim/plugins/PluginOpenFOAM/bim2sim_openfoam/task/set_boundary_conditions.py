@@ -2,6 +2,7 @@ from collections import OrderedDict
 
 import pandas as pd
 
+from bim2sim.elements.mapping.units import ureg
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
     PostprocessingUtils
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_base_boundary_conditions import \
@@ -75,11 +76,18 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.required_heating_power += openfoam_case.internal_gains
             # todo: consider radiation from windows once implemented
             if openfoam_case.required_heating_power > 0:
-                self.logger.warning('Heat balance cannot be leveled. Internal '
-                                    'gains are higher than the heating '
-                                    'demand. Required heating power is set to '
-                                    'zero, but the room will heat up '
-                                    'eventually due to high internal gains.')
+                openfoam_case.required_cooling_power = (
+                    openfoam_case.required_heating_power)
+                openfoam_case.required_heating_power = 0
+                self.logger.warning(f'Heat balance cannot be leveled. Internal '
+                                    f'gains are higher than the heating '
+                                    f'demand. Required heating power is set to '
+                                    f'zero, cooling power is required of '
+                                    f'{openfoam_case.required_cooling_power}W.'
+                                    f'The the room may heat up '
+                                    f'eventually due to high internal gains '
+                                    f'if no air conditioning system is '
+                                    f'available.')
         if add_floor_heating:
             total_floor_area = 0
             for bound in stl_bounds:
@@ -136,10 +144,26 @@ class SetOpenFOAMBoundaryConditions(ITask):
         # volumetric flow per person, air quality cat 2: 7 l/s/person
         total_volumetric_flow_l_per_s = (openfoam_case.floor_area * 2.0 + 7 *
                                          len(people))
+        dt_cooling = 0
         num_inlets = len(
             [i for i in air_terminals if 'INLET' in i.air_type.upper()])
         if num_inlets > 0:
             vol_per_inlet = total_volumetric_flow_l_per_s / num_inlets
+            cooling_power_each = (abs(
+                openfoam_case.required_cooling_power)/num_inlets) * ureg.watt
+            dt_cooling = cooling_power_each / (1004.5 * (ureg.joule)/(ureg.kg*ureg.kelvin) *
+                           1.204*(ureg.kg/ureg.meter**3) *
+                      vol_per_inlet *(ureg.l/ureg.s))
+            dt_cooling = dt_cooling.to(ureg.kelvin).m
+            self.logger.info(f"Required delta temperature of {dt_cooling}K is "
+                             f"set for each inlet.")
+            if dt_cooling > 6:
+                self.logger.warning(f"The required delta temperature of "
+                                    f"{dt_cooling}K is {dt_cooling-6}K larger "
+                                    f"than a comfortable limit for delta "
+                                    f"temperature of 6K. To avoid local "
+                                    f"discomfort, please increase the airflow "
+                                    f"and the number of air inlets.")
         num_outlets = len(
             [i for i in air_terminals if 'OUTLET' in i.air_type.upper()])
         if num_outlets > 0:
@@ -147,10 +171,12 @@ class SetOpenFOAMBoundaryConditions(ITask):
         for air_terminal in air_terminals:
             if 'INLET' in air_terminal.air_type.upper():
                 volumetric_flow_l_per_s = vol_per_inlet
+                applicable_delta = dt_cooling
             else:
                 volumetric_flow_l_per_s = vol_per_outlet
+                applicable_delta = 0
             air_terminal.set_boundary_conditions(
-                openfoam_case.current_zone.air_temp,
+                openfoam_case.current_zone.air_temp - applicable_delta,
                 volumetric_flow_l_per_s)
         for furn in furniture:
             furn.set_boundary_conditions()

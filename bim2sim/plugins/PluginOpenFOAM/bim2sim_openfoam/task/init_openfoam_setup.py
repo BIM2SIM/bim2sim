@@ -200,6 +200,7 @@ class InitializeOpenFOAMSetup(ITask):
                         "NNODES": str(math.ceil(
                             openfoam_case.n_procs/simsettings.cluster_cpu_per_node)),
                         "NPROCS": str(openfoam_case.n_procs)}
+        open(openfoam_case.openfoam_dir / 'paraview.foam', 'x')
         for script_file in script_files:
             src = openfoam_case.default_templates_dir / 'scripts' / script_file
             with open(src, 'r') as file:
