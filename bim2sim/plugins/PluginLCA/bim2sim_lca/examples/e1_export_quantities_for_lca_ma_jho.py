@@ -9,6 +9,7 @@ from bim2sim.utilities.types import IFCDomain
 
 def run_example_complex_building_lca(lock,
                                      project_path, weather_file_path,
+                                     emission_scenario_number, emission_scenario_factors,
                                      building_standard, heat_delivery_type):
 
     """Generate output for an LCA analysis.
@@ -24,6 +25,8 @@ def run_example_complex_building_lca(lock,
     <Quantities_overview_ERC_Mainbuilding_Arch.csv> will give you an overview
     about all elements separately and their materials.
     """
+
+    emission_scenario_factor = emission_scenario_factors[emission_scenario_number]
     with lock:
 
         # Get path of the IFC Building model that is used for this example

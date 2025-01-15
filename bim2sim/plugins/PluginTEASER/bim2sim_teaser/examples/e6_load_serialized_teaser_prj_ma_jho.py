@@ -23,7 +23,7 @@ def load_serialized_teaser_project(lock,
                                    heating_bool, cooling_bool,
                                    ahu_central_bool, ahu_heat_bool, ahu_cool_bool, ahu_hum_bool,
                                    ahu_heat_recovery, ahu_efficiency, ahu_heat_recovery_efficiency,
-                                   building_standard, window_standard):
+                                   building_standard, window_standard, window_wall_ratio_addition):
 
     """This function demonstrates different loading options of TEASER"""
     prj_export_path = Path(project_path, "export", f"TEASER_{year}")
@@ -61,9 +61,6 @@ def load_serialized_teaser_project(lock,
 
     # Do some work on the model, e.g. increase total window area of each
 
-    # thermal zone by 10 %
-    window_increase_percentage = 0.1
-
     # specify templates for the layer and material overwrite
     construction_classes = {"year_of_construction": 2016,
                             "year_of_construction_windows": 2015,
@@ -84,7 +81,7 @@ def load_serialized_teaser_project(lock,
                   }
 
     manipulate_teaser_model(teaser_prj=prj,
-                            window_increase_percentage=window_increase_percentage,
+                            window_wall_ratio_addition=window_wall_ratio_addition,
                             construction_classes=construction_classes,
                             hvac_params=hvac_params)
 
@@ -110,7 +107,7 @@ def load_serialized_teaser_project(lock,
                           hvac_params=hvac_params)
 
 def manipulate_teaser_model(teaser_prj,
-                            window_increase_percentage,
+                            window_wall_ratio_addition,
                             construction_classes,
                             hvac_params):
 
@@ -137,7 +134,7 @@ def manipulate_teaser_model(teaser_prj,
 
 
             # Increase window-wall ratio
-            """ow_area_old = 0
+            ow_area_old = 0
             for ow in tz.outer_walls:
                 ow_area_old += ow.area
             win_area_old = 0
@@ -147,9 +144,9 @@ def manipulate_teaser_model(teaser_prj,
             print(f"Current window to wall ratio of thermal zone "
                   f"{tz.name} is {round(win_ratio*100,2 )} %. "
                   f"Increasing total window "
-                  f"area by {window_increase_percentage*100} %.")
+                  f"area by {window_wall_ratio_addition*100} %.")
             # calculate the total new window area
-            win_area_new = (1 + window_increase_percentage) * win_area_old
+            win_area_new = (1 + window_wall_ratio_addition) * win_area_old
             win_area_increase = win_area_new-win_area_old
             ow_area_new = ow_area_old - win_area_increase
             ow_area_decrease = ow_area_old - ow_area_new
@@ -168,7 +165,7 @@ def manipulate_teaser_model(teaser_prj,
                 win_area_res += win.area
             win_ratio_res = win_area_res/ow_area_res
             print(f"New window to wall ratio of thermal zone "
-                  f"{tz.name} is {round(win_ratio_res*100,2 )} %.")"""
+                  f"{tz.name} is {round(win_ratio_res*100,2 )} %.")
 
             # element and material types
             for outer_wall in tz.outer_walls:
