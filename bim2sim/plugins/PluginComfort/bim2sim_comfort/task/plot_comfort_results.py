@@ -292,8 +292,6 @@ class PlotComfortResults(PlotBEPSResults):
                                                           'floor_max',
                                                           'ceiling_min',
                                                           'ceiling_max'])
-        space_local_discomfort = pd.DataFrame(
-            columns=global_local_discomfort.columns)
         local_discomfort_overview = pd.DataFrame(columns=['space',
                                                           'wall_min',
                                                           'wall_max',
@@ -310,6 +308,8 @@ class PlotComfortResults(PlotBEPSResults):
                                 "EnergyPlus.")
             return
         for space in spaces:
+            space_local_discomfort = pd.DataFrame(
+                columns=global_local_discomfort.columns)
             bound_temperatures_found = False
             if not any(df.filter(like=space.guid)):
                 continue
@@ -343,6 +343,8 @@ class PlotComfortResults(PlotBEPSResults):
                     n_persons_df.index)
                 space_temperature = space_temperature.loc[common_index][
                     n_persons_df.loc[common_index] > 0]
+            space_local_discomfort = space_local_discomfort.reindex(
+                index=space_temperature.index)
             wall_df = pd.DataFrame()
             floor_df = pd.DataFrame()
             ceiling_df = pd.DataFrame()
@@ -396,9 +398,9 @@ class PlotComfortResults(PlotBEPSResults):
                 num_min_wall, hours_min_wall = (
                     self.calc_exceeded_temperature_hours(
                         min_wall_df, space_temperature, 10))
-                local_discomfort_dict.update({space.guid: {
-                    'wall': {'min': {'count': num_min_wall,
-                                     'hours': hours_min_wall}}}})
+                local_discomfort_dict[space.guid]['wall'].update(
+                    {'min': {'count': num_min_wall,
+                             'hours': hours_min_wall}})
                 local_discomfort_overview.iloc[
                     -1, local_discomfort_overview.columns.get_loc(
                         'wall_min')] = False
@@ -409,9 +411,9 @@ class PlotComfortResults(PlotBEPSResults):
                 num_max_wall, hours_max_wall = (
                     self.calc_exceeded_temperature_hours(
                         max_wall_df, space_temperature, 23))
-                local_discomfort_dict.update({space.guid: {
-                    'wall': {'max': {'count': num_max_wall,
-                                     'hours': num_max_wall}}}})
+                local_discomfort_dict[space.guid]['wall'].update(
+                    {'max': {'count': num_max_wall,
+                             'hours': num_max_wall}})
                 local_discomfort_overview.iloc[
                     -1, local_discomfort_overview.columns.get_loc(
                         'wall_max')] = False
@@ -422,9 +424,9 @@ class PlotComfortResults(PlotBEPSResults):
                 num_min_floor, hours_min_floor = (
                     self.calc_exceeded_temperature_hours(
                         min_floor_df, 0, 19))
-                local_discomfort_dict.update({space.guid: {
-                    'floor': {'min': {'count': num_min_floor,
-                                      'hours': hours_min_floor}}}})
+                local_discomfort_dict[space.guid]['floor'].update(
+                    {'min': {'count': num_min_floor,
+                             'hours': hours_min_floor}})
                 local_discomfort_overview.iloc[
                     -1, local_discomfort_overview.columns.get_loc(
                         'floor_min')] = False
@@ -435,9 +437,9 @@ class PlotComfortResults(PlotBEPSResults):
                 num_max_floor, hours_max_floor = (
                     self.calc_exceeded_temperature_hours(
                         max_floor_df, 0, 29))
-                local_discomfort_dict.update({space.guid: {
-                    'floor': {'max': {'count': num_max_floor,
-                                      'hours': hours_max_floor}}}})
+                local_discomfort_dict[space.guid]['floor'].update(
+                    {'max': {'count': num_max_floor,
+                             'hours': hours_max_floor}})
                 local_discomfort_overview.iloc[
                     -1, local_discomfort_overview.columns.get_loc(
                         'floor_max')] = False
@@ -448,9 +450,9 @@ class PlotComfortResults(PlotBEPSResults):
                 num_min_ceiling, hours_min_ceiling = (
                     self.calc_exceeded_temperature_hours(
                         min_ceiling_df, 0, 14))
-                local_discomfort_dict.update({space.guid: {
-                    'ceiling': {'min': {'count': num_min_ceiling,
-                                        'hours': hours_min_ceiling}}}})
+                local_discomfort_dict[space.guid]['ceiling'].update(
+                    {'min': {'count': num_min_ceiling,
+                                        'hours': hours_min_ceiling}})
                 local_discomfort_overview.iloc[
                     -1, local_discomfort_overview.columns.get_loc(
                         'ceiling_min')] = False
@@ -461,9 +463,9 @@ class PlotComfortResults(PlotBEPSResults):
                 num_max_ceiling, hours_max_ceiling = (
                     self.calc_exceeded_temperature_hours(
                         max_ceiling_df, 0, 5))
-                local_discomfort_dict.update({space.guid: {
-                    'ceiling': {'max': {'count': num_max_ceiling,
-                                        'hours': hours_max_ceiling}}}})
+                local_discomfort_dict[space.guid]['ceiling'].update(
+                    {'max': {'count': num_max_ceiling,
+                             'hours': hours_max_ceiling}})
                 local_discomfort_overview.iloc[
                     -1, local_discomfort_overview.columns.get_loc(
                         'ceiling_max')] = False
