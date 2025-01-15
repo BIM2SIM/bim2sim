@@ -213,6 +213,14 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         for_frontend=True,
         description='Choose if people should be added.'
     )
+    use_energyplus_people_amount = BooleanSetting(
+        default=False, description='Choose if number of people should be '
+                                   'assigned as defined in the EnergyPlus '
+                                   'simulation. If true, people_amount is not '
+                                   'considered but overwritten with the '
+                                   'rounded up number of people from the '
+                                   'EnergyPlus simulation. '
+    )
     people_setting = ChoiceSetting(
         default='Seated',
         choices={

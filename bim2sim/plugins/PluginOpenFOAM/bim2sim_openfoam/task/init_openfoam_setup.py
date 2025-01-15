@@ -2,6 +2,10 @@ import math
 import pathlib
 import shutil
 
+import pandas as pd
+
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
+    PostprocessingUtils
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_case import \
     OpenFOAMCase
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils import \
@@ -35,6 +39,9 @@ class InitializeOpenFOAMSetup(ITask):
         self.create_thermophysicalProperties(openfoam_case)
         self.create_turbulenceProperties(openfoam_case)
         self.create_jobscripts(openfoam_case, self.playground.sim_settings)
+        self.read_ep_results(openfoam_case,
+                             date=self.playground.sim_settings.simulation_date,
+                             time=self.playground.sim_settings.simulation_time)
 
         return openfoam_case,
 
@@ -210,3 +217,15 @@ class InitializeOpenFOAMSetup(ITask):
             dst = openfoam_case.openfoam_scripts_dir / script_file
             with open(dst, 'w') as file:
                 file.write(content)
+
+    def read_ep_results(self, openfoam_case, year=1900, date='12/21', time=11):
+        full_results_df = pd.read_csv(
+            self.paths.export / 'EnergyPlus' / 'SimResults' /
+            self.playground.project.name
+            / 'eplusout.csv')
+        full_results_df['Date/Time'] = full_results_df['Date/Time'].apply(
+            PostprocessingUtils._string_to_datetime)
+        full_results_df = full_results_df.set_index('Date/Time')
+        openfoam_case.timestep_df = full_results_df.loc[
+            f"{year}-{date} {time:02}:00:00"]
+

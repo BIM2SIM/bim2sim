@@ -28,31 +28,18 @@ class SetOpenFOAMBoundaryConditions(ITask):
                                       'Right']
 
     def run(self, openfoam_elements, openfoam_case):
-        self.read_ep_results(
+        self.assign_ep_results(
             openfoam_elements, openfoam_case,
-            date=self.playground.sim_settings.simulation_date,
-            time=self.playground.sim_settings.simulation_time,
             add_floor_heating=self.playground.sim_settings.add_floorheating)
         self.init_boundary_conditions(openfoam_case, openfoam_elements)
         self.add_fvOptions_for_heating(openfoam_case, openfoam_elements)
 
         return openfoam_case, openfoam_elements
 
-    def read_ep_results(self, openfoam_elements, openfoam_case,
-                        year=1900,
-                        date='12/21',
-                        time=11, add_floor_heating=False):
+    def assign_ep_results(self, openfoam_elements, openfoam_case,
+                          add_floor_heating=False):
         stl_bounds = filter_elements(openfoam_elements, 'StlBound')
-        full_results_df = pd.read_csv(
-            self.paths.export / 'EnergyPlus' / 'SimResults' /
-            self.playground.project.name
-            / 'eplusout.csv')  # , index_col='Date/Time')
-        # full_results_df.index.str.strip()
-        full_results_df['Date/Time'] = full_results_df['Date/Time'].apply(
-            PostprocessingUtils._string_to_datetime)
-        full_results_df = full_results_df.set_index('Date/Time')
-        timestep_df = full_results_df.loc[
-            f"{year}-{date} {time:02}:00:00"]
+        timestep_df = openfoam_case.timestep_df
         openfoam_case.current_zone.zone_heat_conduction = 0
         openfoam_case.current_zone.air_temp = timestep_df[
                                                   openfoam_case.current_zone.guid.upper() +

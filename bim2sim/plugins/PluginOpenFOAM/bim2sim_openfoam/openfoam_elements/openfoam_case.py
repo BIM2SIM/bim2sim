@@ -27,3 +27,4 @@ class OpenFOAMCase:
         self.internal_gains = None
         self.n_procs = playground.sim_settings.n_procs
         self.floor_area = None
+        self.timestep_df = None

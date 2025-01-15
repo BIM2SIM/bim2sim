@@ -1136,7 +1136,12 @@ class CreateOpenFOAMGeometry(ITask):
                           'furniture_people_compositions')
         # people_shapes = []
         people_items = []
-        people_amount = self.playground.sim_settings.people_amount
+        if self.playground.sim_settings.use_energyplus_people_amount:
+            people_amount = math.ceil(openfoam_case.timestep_df.filter(
+                like=openfoam_case.current_zone.guid.upper()
+                                                  +':Zone People'))
+        else:
+            people_amount = self.playground.sim_settings.people_amount
 
         if self.playground.sim_settings.people_setting in ['Seated']:
             person_path = (furniture_path.as_posix() + '/' +
