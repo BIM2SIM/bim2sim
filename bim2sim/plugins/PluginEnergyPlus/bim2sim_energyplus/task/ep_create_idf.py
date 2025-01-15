@@ -592,7 +592,8 @@ class CreateIdf(ITask):
                     Control_Type_Schedule_Name='Zone Control Type Sched',
                     Control_1_Object_Type='ThermostatSetpoint:DualSetpoint',
                     Control_1_Name=htg_schedule_name + ' ' + clg_schedule_name,
-                    Temperature_Difference_Between_Cutout_And_Setpoint=0.2,
+                    # Temperature_Difference_Between_Cutout_And_Setpoint=0.2,
+                    # temperature difference disables operative control
                 )
             else:
                 stat = idf.getobject('ZONECONTROL:THERMOSTAT',
