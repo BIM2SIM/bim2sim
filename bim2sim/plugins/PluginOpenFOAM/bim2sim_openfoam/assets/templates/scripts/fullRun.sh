@@ -20,13 +20,13 @@ module load OpenFOAM/v2206
 ### start the OpenFOAM binary in parallel, cf.
 blockMesh
 decomposePar -force
-$MPIEXEC -np NPROCS snappyHexMesh -parallel -overwrite >logMeshing.compress
+$MPIEXEC $FLAGS_MPI_BATCH snappyHexMesh -parallel -overwrite >logMeshing.compress
 
 reconstructParMesh -mergeTol 1e-10 -constant
 topoSet
 setsToZones
 checkMesh > logCheckMesh.compress
 decomposePar -force
-$MPIEXEC -np NPROCS buoyantSimpleFoam -parallel >logSimulation.compress
+$MPIEXEC $FLAGS_MPI_BATCH buoyantSimpleFoam -parallel >logSimulation.compress
 
 reconstructPar -latestTime
