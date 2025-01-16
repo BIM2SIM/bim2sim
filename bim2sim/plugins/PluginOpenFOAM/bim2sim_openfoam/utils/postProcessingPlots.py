@@ -347,7 +347,7 @@ def analyze_execution_times(of_directory, target_iterations=[1000, 'final']):
     execution_re = re.compile(r"ExecutionTime = ([\d.]+)")
 
     # Parse the log file
-    with open(of_directory / 'log3.compress', 'r') as file:
+    with open(of_directory / 'logSimulation.compress', 'r') as file:
         current_iteration = None
         iteration_done = True
         for line in file:
@@ -411,7 +411,7 @@ def add_simulation_times(fig, of_directory, name='', number=0):
     execution_re = re.compile(r"ExecutionTime = ([\d.]+)")
 
     # Parse the log file
-    with open(of_directory / 'log3.compress', 'r') as file:
+    with open(of_directory / 'logSimulation.compress', 'r') as file:
         current_iteration = None
         iteration_done = True
         for line in file:
@@ -480,9 +480,9 @@ if __name__ == '__main__':
 
     fig_temp = None
     counter=0
-    for diss_dir in directory.glob('bm*'):
+    for diss_dir in directory.glob('cfd_comf_FZK_org_heat_*'):
         # Check if "OpenFOAM" subdirectory exists within the current directory
-        openfoam_dir = diss_dir / 'OpenFOAM'
+        openfoam_dir = diss_dir /'export' / 'OpenFOAM'
         if openfoam_dir.is_dir():
             print(openfoam_dir)
             try:
