@@ -35,7 +35,7 @@ def run_serialize_teaser_project_example():
 
 
 
-    project.sim_settings.zoning_criteria = ZoningCriteria.all_criteria
+    project.sim_settings.zoning_criteria = ZoningCriteria.individual_spaces
     # use cooling
     project.sim_settings.cooling = False
     project.sim_settings.setpoints_from_template = True
