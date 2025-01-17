@@ -1151,6 +1151,8 @@ class CreateOpenFOAMGeometry(ITask):
                 part_meshes.append(m)
             combined_data = np.concatenate([m.data.copy() for m in part_meshes])
             combined_mesh = mesh.Mesh(combined_data)
+            temp_path = openfoam_case.openfoam_triSurface_dir / 'Temp'
+            temp_path.mkdir(exist_ok=True)
             combined_mesh.save(openfoam_case.openfoam_triSurface_dir /
                                'Temp' / 'combined_person.stl')
             person_shape = TopoDS_Shape()

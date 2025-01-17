@@ -282,10 +282,12 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         any_string=True
     )
     cluster_compute_account = ChoiceSetting(
-        default=None,
-        choices={"thes1234": "Define thesis account", "rwth5678": "Define "
-                                                                  "user "
-                                                                  "account"},
+        default='',
+        choices={
+            '': 'Skip defining compute cluster account.',
+            "thes1234": "Define thesis account",
+            "rwth5678": "Define user account"
+        },
         description=r'Specify the compute account that is used for running '
                     r'the simulation on the RWTH Compute Cluster. Specify as '
                     r'"thes1234".',

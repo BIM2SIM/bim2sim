@@ -198,7 +198,7 @@ class InitializeOpenFOAMSetup(ITask):
         openfoam_case.openfoam_scripts_dir = openfoam_case.openfoam_dir
         openfoam_case.openfoam_scripts_dir.mkdir(exist_ok=True)
         script_files = ['fullRun.sh', 'runMeshing.sh', 'runSimulation.sh']
-        comp_acct = "" if simsettings.cluster_compute_account is None else (
+        comp_acct = "" if not simsettings.cluster_compute_account else (
             "#SBATCH --account=" + simsettings.cluster_compute_account)
         replacements = {"JOBNAME": simsettings.cluster_jobname,
                         "STIME": simsettings.cluster_max_runtime_simulation,
