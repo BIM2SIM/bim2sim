@@ -71,10 +71,13 @@ bim2sim = "bim2sim.__main__:commandline_interface"
 
 PluginTEASER = [
     "pyqt5",
+    "pillow",
+    "RWTHColors",
+    "scienceplots",
     "ebcpy",
     "reportlab",
     "svglib",
-    "TEASER[report]==1.0.1",
+    "TEASER[report]==1.1.0",
     "BuildingsPy@git+https://github.com/DaJansenGit/BuildingsPy.git",
     "reportlab",
     "svglib",
@@ -112,7 +115,7 @@ PluginVentilationSystem = [
     "requests",
     "pathlib",
 ]
-'PluginLCA' = [
+PluginLCA = [
     "pathlib",
     "requests",
 ]
