@@ -95,6 +95,13 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         for_frontend=True,
         mandatory=False
     )
+    enforce_system_sizing = BooleanSetting(
+        default=False,
+        description='Choose True if you want to enforce HVAC Sizing to sizing '
+                    'period settings (limit heating and cooling capacity) '
+                    'instead of autosizing.',
+        for_frontend=True
+    )
     solar_distribution = ChoiceSetting(
         default='FullExterior',
         choices={

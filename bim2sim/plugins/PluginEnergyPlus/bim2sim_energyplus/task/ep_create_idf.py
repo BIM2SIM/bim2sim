@@ -104,9 +104,15 @@ class CreateIdf(ITask):
         logger.info("Save idf ...")
         idf.save(idf.idfname)
         logger.info("Idf file successfully saved.")
-        if self.playground.sim_settings.weather_file_for_sizing:
+        if (self.playground.sim_settings.weather_file_for_sizing or
+                self.playground.sim_settings.enforce_system_sizing):
+            if self.playground.sim_settings.weather_file_for_sizing:
+                weather_file_sizing = (
+                    self.playground.sim_settings.weather_file_for_sizing)
+            else:
+                weather_file_sizing = str(weather_file)
             self.apply_system_sizing(
-                idf, self.playground.sim_settings.weather_file_for_sizing,
+                idf, weather_file_sizing,
                 sim_results_path)
             logger.info("Idf has been updated with limits from weather file "
                         "sizing.")
