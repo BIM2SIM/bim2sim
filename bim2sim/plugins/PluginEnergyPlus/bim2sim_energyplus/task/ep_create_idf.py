@@ -6,6 +6,7 @@ import os
 from pathlib import Path, PosixPath
 from typing import Union, TYPE_CHECKING
 
+import pandas as pd
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace
 from OCC.Core.BRepTools import breptools_UVBounds, BRepTools_WireExplorer
@@ -103,8 +104,53 @@ class CreateIdf(ITask):
         logger.info("Save idf ...")
         idf.save(idf.idfname)
         logger.info("Idf file successfully saved.")
+        if self.playground.sim_settings.weather_file_for_sizing:
+            self.apply_system_sizing(
+                idf, self.playground.sim_settings.weather_file_for_sizing,
+                sim_results_path)
+            logger.info("Idf has been updated with limits from weather file "
+                        "sizing.")
 
         return idf, sim_results_path
+
+    def apply_system_sizing(self, idf, sizing_weather_file, sim_results_path):
+        IDF.setiddname(
+            self.playground.sim_settings.ep_install_path / 'Energy+.idd')
+        export_path = sim_results_path / self.prj_name
+
+        # initialize the idf with a minimal idf setup
+        idf2 = IDF(export_path / str(self.prj_name + '.idf'))
+        idf2.save(export_path / str(self.prj_name + '_before_sizing.idf'))
+        idf2.save(export_path / str(self.prj_name + '_sizing.idf'))
+        idf3 = IDF(export_path / str(self.prj_name + '_sizing.idf'))
+        idf3.removeallidfobjects('OUTPUT:VARIABLE')
+        idf3.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Ideal Loads Supply Air Total Cooling Rate",
+            Reporting_Frequency="Hourly",
+        )
+        idf3.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Ideal Loads Supply Air Total Heating Rate",
+            Reporting_Frequency="Hourly",
+        )
+        idf3.epw=sizing_weather_file
+        idf3.run(output_directory=export_path, readvars=True, annual=True)
+        res_sizing = pd.read_csv(export_path / 'epluszsz.csv')
+        res_sizing = res_sizing.set_index('Time')
+        peak = res_sizing.loc['Peak']
+        peak_heating = peak.filter(like='Des Heat Load')
+        peak_cooling = peak.filter(like='Des Sens Cool Load')
+        for obj in idf.idfobjects['HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM']:
+            curr_heating = peak_heating.filter(like=obj.Zone_Name.upper()).max()
+            curr_cooling = peak_cooling.filter(like=obj.Zone_Name.upper()).max()
+            obj.Heating_Limit = 'LimitCapacity'
+            obj.Cooling_Limit = 'LimitCapacity'
+            obj.Maximum_Sensible_Heating_Capacity = curr_heating
+            obj.Maximum_Total_Cooling_Capacity = curr_cooling
+        for sim_control in idf.idfobjects["SIMULATIONCONTROL"]:
+            sim_control.Do_System_Sizing_Calculation = 'Yes'
+        idf.save(idf.idfname)
 
     @staticmethod
     def init_idf(sim_settings: EnergyPlusSimSettings, paths: FolderStructure,
@@ -1404,7 +1450,7 @@ class CreateIdf(ITask):
         """
         logger.info("Set Simulation Control ...")
         for sim_control in idf.idfobjects["SIMULATIONCONTROL"]:
-            if sim_settings.system_sizing:
+            if sim_settings.system_sizing or sim_settings.weather_file_for_sizing:
                 sim_control.Do_System_Sizing_Calculation = 'Yes'
             else:
                 sim_control.Do_System_Sizing_Calculation = 'No'
@@ -1417,7 +1463,7 @@ class CreateIdf(ITask):
             else:
                 sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'No'
             if sim_settings.set_run_period:
-                sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'Yes'
+                sim_control.Run_Simulation_for_cher_File_Run_Periods = 'Yes'
 
         if sim_settings.set_run_period:
             for run_period in idf.idfobjects["RUNPERIOD"]:

@@ -88,6 +88,13 @@ class EnergyPlusSimSettings(BuildingSimSettings):
                      'periods. Default=Typical (i.e., apply system sizing for '
                      'typical summer/winter days). '
     )
+    weather_file_for_sizing = PathSetting(
+        default=None,
+        description='Path to the weather file that should be used for system '
+                    'sizing in EnergyPlus',
+        for_frontend=True,
+        mandatory=False
+    )
     solar_distribution = ChoiceSetting(
         default='FullExterior',
         choices={
