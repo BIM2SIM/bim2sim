@@ -133,39 +133,39 @@ def manipulate_teaser_model(teaser_prj,
                 tz.use_conditions.with_ahu = False
 
 
-            # Increase window-wall ratio
-            ow_area_old = 0
-            for ow in tz.outer_walls:
-                ow_area_old += ow.area
-            win_area_old = 0
-            for win in tz.windows:
-                win_area_old += win.area
-            win_ratio = win_area_old / ow_area_old
-            print(f"Current window to wall ratio of thermal zone "
-                  f"{tz.name} is {round(win_ratio*100,2 )} %. "
-                  f"Increasing total window "
-                  f"area by {window_wall_ratio_addition*100} %.")
-            # calculate the total new window area
-            win_area_new = (1 + window_wall_ratio_addition) * win_area_old
-            win_area_increase = win_area_new-win_area_old
-            ow_area_new = ow_area_old - win_area_increase
-            ow_area_decrease = ow_area_old - ow_area_new
-            # distribute the changes on the different windows and outer walls
-            # based on their percentage ratio
-            for win in tz.windows:
-                win.area += win_area_increase * win.area/win_area_old
-            for ow in tz.outer_walls:
-                ow.area -= ow_area_decrease * ow.area/ow_area_old
-            # check new areas
-            ow_area_res = 0
-            for ow in tz.outer_walls:
-                ow_area_res += ow.area
-            win_area_res = 0
-            for win in tz.windows:
-                win_area_res += win.area
-            win_ratio_res = win_area_res/ow_area_res
-            print(f"New window to wall ratio of thermal zone "
-                  f"{tz.name} is {round(win_ratio_res*100,2 )} %.")
+            # # Increase window-wall ratio
+            # ow_area_old = 0
+            # for ow in tz.outer_walls:
+            #     ow_area_old += ow.area
+            # win_area_old = 0
+            # for win in tz.windows:
+            #     win_area_old += win.area
+            # win_ratio = win_area_old / ow_area_old
+            # print(f"Current window to wall ratio of thermal zone "
+            #       f"{tz.name} is {round(win_ratio*100,2 )} %. "
+            #       f"Increasing total window "
+            #       f"area by {window_wall_ratio_addition*100} %.")
+            # # calculate the total new window area
+            # win_area_new = (1 + window_wall_ratio_addition) * win_area_old
+            # win_area_increase = win_area_new-win_area_old
+            # ow_area_new = ow_area_old - win_area_increase
+            # ow_area_decrease = ow_area_old - ow_area_new
+            # # distribute the changes on the different windows and outer walls
+            # # based on their percentage ratio
+            # for win in tz.windows:
+            #     win.area += win_area_increase * win.area/win_area_old
+            # for ow in tz.outer_walls:
+            #     ow.area -= ow_area_decrease * ow.area/ow_area_old
+            # # check new areas
+            # ow_area_res = 0
+            # for ow in tz.outer_walls:
+            #     ow_area_res += ow.area
+            # win_area_res = 0
+            # for win in tz.windows:
+            #     win_area_res += win.area
+            # win_ratio_res = win_area_res/ow_area_res
+            # print(f"New window to wall ratio of thermal zone "
+            #       f"{tz.name} is {round(win_ratio_res*100,2 )} %.")
 
             # element and material types
             for outer_wall in tz.outer_walls:
