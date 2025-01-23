@@ -384,7 +384,7 @@ class PlotComfortResults(PlotBEPSResults):
                 continue
             min_wall_df, max_wall_df = self.get_exceeded_temperature_hours(
                 wall_df,
-                10, 23,
+                -10, 23,
                 space_temperature)
             min_floor_df, max_floor_df = self.get_exceeded_temperature_hours(
                 floor_df, 19,
@@ -392,7 +392,7 @@ class PlotComfortResults(PlotBEPSResults):
             min_ceiling_df, max_ceiling_df = (
                 self.get_exceeded_temperature_hours(
                     ceiling_df,
-                    14,
+                    -14,
                     5, space_temperature))
             if not min_wall_df.empty:
                 num_min_wall, hours_min_wall = (
@@ -529,7 +529,7 @@ class PlotComfortResults(PlotBEPSResults):
             df_max = pd.DataFrame(max_values[max_indices],
                                   index=df.index[max_indices],
                                   columns=['MaxValue'])
-        mask_min = df.sub(ref_value, axis=0) < -min_limit
+        mask_min = df.sub(ref_value, axis=0) < min_limit
         if mask_min.values.any():
             filtered_array = np.where(mask_min, array, np.nan)
             min_values = []
@@ -820,7 +820,7 @@ class PlotComfortResults(PlotBEPSResults):
                              export_path, room_name)
         plot_scatter_en16798(filter_occ_cat1, filter_occ_cat2, filter_occ_cat3,
                              filtered_df_outside, export_path,
-                             room_name + '_occupancy')
+                             room_name + '_occ')
         return cat_analysis_df, cat_analysis_occ_df
 
     def plot_en16798_adaptive_count_NA(self, df, guid, room_name, export_path):
@@ -1189,7 +1189,7 @@ class PlotComfortResults(PlotBEPSResults):
                              filtered_df_out_above_NA_occ,
                              filtered_df_out_below_NA_occ,
                              export_path,
-                             room_name + '_occupancy')
+                             room_name + '_occ')
         return cat_analysis_df, cat_analysis_occ_df, cat_analysis_hours_occ_df
 
     @staticmethod
