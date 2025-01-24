@@ -84,7 +84,7 @@ def run_example_complex_building_teaser(lock,
 
     project.sim_settings.prj_use_conditions = (Path(
         bim2sim.__file__).parent.parent /
-            "bim2sim/assets/enrichment/usage/UseConditions.json")
+            "bim2sim/assets/enrichment/usage/useConditions.json")
     project.sim_settings.prj_custom_usages = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"

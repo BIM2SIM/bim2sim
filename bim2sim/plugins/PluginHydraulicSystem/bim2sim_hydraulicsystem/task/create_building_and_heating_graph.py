@@ -390,7 +390,7 @@ class CreateBuildingAndHeatingGraph(ITask):
                 return PHeater_max, standard_indoor_temperature
 
     def define_standard_indoor_temperature(self, usage):
-        UseConditions_Path = Path(__file__).parent.parent / 'assets/UseConditions.json'
+        UseConditions_Path = Path(__file__).parent.parent / 'assets/useConditions.json'
         with self.lock:
             with open(UseConditions_Path, 'r') as file:
                 UseConditions = json.load(file)

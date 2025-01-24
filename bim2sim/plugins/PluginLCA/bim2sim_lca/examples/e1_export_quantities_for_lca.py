@@ -40,7 +40,7 @@ def run_example_complex_building_lca():
 
     # set weather file data
     project.sim_settings.weather_file_path = Path(
-        r"D:\02_Git\Dissertation_Coding\outer_optimization\clustering\DEU_NW_Aachen.105010_TMYx.mos")
+        r"D:\02_Git\Dissertation_Coding\outer_optimization\clustering\DEU_NW_Aachen.105010_TMYx2015.mos")
 
     project.sim_settings.update_emission_parameter_from_oekobdauat = False
     project.sim_settings.calculate_lca_building = False

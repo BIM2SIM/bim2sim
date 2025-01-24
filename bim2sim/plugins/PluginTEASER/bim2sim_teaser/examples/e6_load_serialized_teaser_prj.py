@@ -44,7 +44,7 @@ def load_serialized_teaser_project():
 
 
     # set weather file data
-    weather_file_path = fr"D:\dja-jho\Git\Dissertation_coding\outer_optimization\clustering\DEU_NW_Aachen.105010_TMYx.mos"
+    weather_file_path = fr"D:\dja-jho\Git\Dissertation_coding\outer_optimization\clustering\DEU_NW_Aachen.105010_TMYx2015.mos"
 
 
     # Select results to output:

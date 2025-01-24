@@ -59,7 +59,7 @@ def run_serialize_teaser_project_example():
     project.sim_settings.lock = threading.Lock()
 
     # set weather file data
-    project.sim_settings.weather_file_path = fr"D:\dja-jho\Git\Dissertation_coding\outer_optimization\clustering\DEU_NW_Aachen.105010_TMYx.mos"
+    project.sim_settings.weather_file_path = fr"D:\dja-jho\Git\Dissertation_coding\outer_optimization\clustering\DEU_NW_Aachen.105010_TMYx2015.mos"
     # Run a simulation directly with dymola after model creation
     project.sim_settings.dymola_simulation = True
     # Make sure that AixLib modelica library exist on machine by cloning it and

@@ -30,7 +30,7 @@ def run_example_project_ventilation_system():
     # all under concepts/sim_settings
 
     # set weather file data
-    project.sim_settings.weather_file_path = Path(r"D:\02_Git\Dissertation_Coding\outer_optimization\clustering\DEU_NW_Aachen.105010_TMYx.mos")
+    project.sim_settings.weather_file_path = Path(r"D:\02_Git\Dissertation_Coding\outer_optimization\clustering\DEU_NW_Aachen.105010_TMYx2015.mos")
 
 
 
