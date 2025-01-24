@@ -757,7 +757,7 @@ class CreateIdf(ITask):
                 Zone_or_ZoneList_Name=zone_name,
                 Schedule_Name="Continuous",
                 Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-                Air_Changes_per_Hour=space.infiltration_rate
+                Air_Changes_per_Hour=space.base_infiltration
             )
         else:
             idf.newidfobject(
@@ -766,7 +766,7 @@ class CreateIdf(ITask):
                 Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
                 Schedule_Name="Continuous",
                 Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-                Air_Changes_per_Hour=space.infiltration_rate
+                Air_Changes_per_Hour=space.base_infiltration
             )
 
     @staticmethod

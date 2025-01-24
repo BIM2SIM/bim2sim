@@ -173,7 +173,7 @@ class UseConditions(TEASER, UseConditions_Teaser):
         self.lighting_efficiency_lumen = None
 
         self.use_constant_infiltration = None
-        self.infiltration_rate = None
+        self.base_infiltration = None
         self.max_user_infiltration = None
         self.max_overheating_infiltration = []
         self.max_summer_infiltration = []
@@ -228,7 +228,7 @@ class UseConditions(TEASER, UseConditions_Teaser):
         self.request_param("lighting_efficiency_lumen", None)
         self.request_param("use_maintained_illuminance", None)
         self.request_param("use_constant_infiltration", None)
-        self.request_param("infiltration_rate", None)
+        self.request_param("base_infiltration", None)
         self.request_param("max_user_infiltration", None)
         self.request_param("max_overheating_infiltration", None)
         self.request_param("max_summer_infiltration", None)
