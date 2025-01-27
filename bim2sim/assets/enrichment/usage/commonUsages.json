@@ -140,7 +140,8 @@
       "Parkgaragen"
    ],
    "Restaurant":[
-      "Restaurant"
+      "Restaurant",
+      "Dachboden"
    ],
    "Retail with cooling":[
       "Einzelhandel",
@@ -159,7 +160,7 @@
    "Spectator area (theater and event venues)":[
       "Zuschauerbereich",
       "Theater",
-      "Veranstaltung"
+      "Veranstaltung",
    ],
    "Stage (theater and event venues)":[
       "Bühne",
@@ -168,7 +169,6 @@
    ],
    "Stock, technical equipment, archives":[
       "Schacht",
-      "Dachboden",
       "Lager",
       "Ausstattung",
       "Archive",
