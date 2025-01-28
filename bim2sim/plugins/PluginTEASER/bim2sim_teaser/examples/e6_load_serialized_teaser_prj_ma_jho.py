@@ -114,16 +114,16 @@ def manipulate_teaser_model(teaser_prj,
     for bldg in teaser_prj.buildings:
 
         bldg.with_ahu = hvac_params["ahu_central_bool"]
+        if bldg.with_ahu:
+            bldg.central_ahu.heating = hvac_params["ahu_heat_bool"]
+            bldg.central_ahu.cooling = hvac_params["ahu_cool_bool"]
+            bldg.central_ahu.humidification = hvac_params["ahu_hum_bool"]
+            bldg.central_ahu.heat_recovery = hvac_params["ahu_heat_recovery"]
+            bldg.central_ahu.efficiency_recovery = hvac_params["ahu_heat_recovery_efficiency"]
+            bldg.central_ahu.efficiency_recovery_false = hvac_params["ahu_heat_recovery_efficiency"]
 
-        bldg.central_ahu.heating = hvac_params["ahu_heat_bool"]
-        bldg.central_ahu.cooling = hvac_params["ahu_cool_bool"]
-        bldg.central_ahu.humidification = hvac_params["ahu_hum_bool"]
-        bldg.central_ahu.heat_recovery = hvac_params["ahu_heat_recovery"]
-        bldg.central_ahu.efficiency_recovery = hvac_params["ahu_heat_recovery_efficiency"]
-        bldg.central_ahu.efficiency_recovery_false = hvac_params["ahu_heat_recovery_efficiency"]
-
-        bldg.central_ahu.efficiency_fan_return = hvac_params["ahu_efficiency"]
-        bldg.central_ahu.efficiency_fan_return = hvac_params["ahu_efficiency"]
+            bldg.central_ahu.efficiency_fan_return = hvac_params["ahu_efficiency"]
+            bldg.central_ahu.efficiency_fan_return = hvac_params["ahu_efficiency"]
 
         for tz in bldg.thermal_zones:
 
