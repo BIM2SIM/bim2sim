@@ -56,7 +56,23 @@ def run_example_complex_building_lca(lock,
         project.sim_settings.calculate_costs_hydraulic_system = True
         project.sim_settings.calculate_costs_ventilation_system = True
 
+
+
+        if 'kfw_100' in building_standard:
+            bldg_year = 2020
+            win_data = 'EnEv'
+        elif 'kfw' in building_standard:
+            bldg_year = 2020
+            win_data = 'Waermeschutzverglasung, dreifach'
+        else:
+            bldg_year = 1995
+            win_data = 'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
+
         project.sim_settings.building_standard = building_standard
+        project.sim_settings.construction_class_walls = building_standard
+        project.sim_settings.construction_class_doors = "kfw_40"
+        project.sim_settings.construction_class_windows = win_data
+
         project.sim_settings.pipe_type = "Stahlrohr"
         project.sim_settings.hydraulic_components_data_file_radiator_sheet = "Profilierte Flachheizkörper"
         project.sim_settings.heat_delivery_type = heat_delivery_type
@@ -66,7 +82,7 @@ def run_example_complex_building_lca(lock,
         project.sim_settings.ventilation_supply_system_material_xlsx = Path(project_path / "export" / "ventilation system" / "supply air" / "dataframe_supply_air.xlsx")
         project.sim_settings.ventilation_exhaust_system_material_xlsx = Path(project_path / "export" / "ventilation system" / "exhaust air" / "dataframe_exhaust_air.xlsx")
 
-    answers = (2015,)
+    answers = (bldg_year,)
     handler = DebugDecisionHandler(answers)
     handler.handle(project.run())
 

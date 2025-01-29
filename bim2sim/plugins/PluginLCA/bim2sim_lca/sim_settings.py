@@ -55,7 +55,8 @@ class LCAExportSettings(BuildingSimSettings):
             'kfw_55': 'Building according to kfw 55 standard',
             'kfw_70': 'Building according to kfw 70 standard',
             'kfw_85': 'Building according to kfw 85 standard',
-            'kfw_100': 'Building according to kfw 100 standard'
+            'kfw_100': 'Building according to kfw 100 standard',
+            'iwu_heavy': 'Building according to iwu heavy standard'
         },
         description="Select the most fitting building standard"
                     "for the selected building.",

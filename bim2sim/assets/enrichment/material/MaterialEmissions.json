@@ -269,6 +269,20 @@
       "Transport": 3.83408172010471,
       "Beseitigung": 16.8792357918399
    },
+   "exterior_plaster_1": {
+      "oekobaudat_uuid": "004f3f4e-5bb8-4d9e-a104-6999a9e8ad5b",
+      "oekobaudat_calculation_factor": 0.001111,
+      "Herstellung": 138.181252014848,
+      "Transport": 3.83408172010471,
+      "Beseitigung": 16.8792357918399
+   },
+   "exterior_plaster_087": {
+      "oekobaudat_uuid": "004f3f4e-5bb8-4d9e-a104-6999a9e8ad5b",
+      "oekobaudat_calculation_factor": 0.001111,
+      "Herstellung": 138.181252014848,
+      "Transport": 3.83408172010471,
+      "Beseitigung": 16.8792357918399
+   },
    "vertical_core_brick_700": {
       "oekobaudat_uuid": "30514538-fcb4-483b-b5d5-c108d2037536",
       "oekobaudat_calculation_factor": 0.001739,
@@ -335,5 +349,140 @@
       "Transport": 1.33704093951577,
       "Abfallbehandlung": 269.205866197224,
       "Recyclingpotential": -78.8372698681549
+   },
+   "wood_fiber_insulation_board": {
+      "oekobaudat_uuid": "c91aa879-2826-4078-8bfa-baae349549cb",
+      "oekobaudat_calculation_factor": 0.00625,
+      "Herstellung": -162.685243764979,
+      "Transport": 0.594240417562566,
+      "Abfallbehandlung": 284.23908267291,
+      "Recyclingpotential": -83.2633755787831
+   },
+   "cellulose": {
+      "oekobaudat_uuid": "3f764d2e-320b-4996-8c28-0f38e8971044",
+      "oekobaudat_calculation_factor": 0.0125,
+      "Herstellung": 8.38391124845484,
+      "Transport": 0.297120208781283,
+      "Abfallbehandlung": 148.717937661561,
+      "Recyclingpotential": -32.8671219389933
+   },
+   "OSB_3": {
+      "oekobaudat_uuid": "0f2f2410-d9e2-4e0f-837a-987cb3186d81",
+      "oekobaudat_calculation_factor": 0.001428,
+      "Herstellung": -834.556744237936,
+      "Transport": 2.59980182683622,
+      "Abfallbehandlung": 1074.69643499103,
+      "Recyclingpotential": -289.641757877853
+   },
+   "installation_level": {
+      "oekobaudat_uuid": "b946d5e8-dd2f-42b2-a6cf-bbf4fd318c6d",
+      "oekobaudat_calculation_factor": 0.017,
+      "Herstellung": 231.0,
+      "Transport": 0.268,
+      "Einbau": 40.0,
+      "Abfallbehandlung": 149.0,
+      "Recyclingpotential": -41.1
+   },
+   "underlayment_membrane": {
+      "oekobaudat_uuid": "dcde634c-51b1-4d94-9206-cba9f9fd6822",
+      "oekobaudat_calculation_factor": 0.43103,
+      "Herstellung": 7.37715124352546,
+      "Transport": 0.0107773413956223,
+      "Abfallbehandlung": 7.03034797788439,
+      "Recyclingpotential": -2.20116250396985
+   },
+   "vapor_barrier": {
+      "oekobaudat_uuid": "6869f7c1-1b2b-4f30-afc9-823a0104f1d9",
+      "oekobaudat_calculation_factor": 5,
+      "Herstellung": 0.449903769014609,
+      "Transport": 0.000681188801946931,
+      "Abfallbehandlung": 0.555531312768986,
+      "Recyclingpotential": -0.245298327418871
+   },
+   "PE_film": {
+      "oekobaudat_uuid": "5f0bc680-a252-46d6-a47a-a4b5a05318bc",
+      "oekobaudat_calculation_factor": 0.08333,
+      "Herstellung": 4.47123644782304,
+      "Transport": 0.00408713281168158,
+      "Abfallbehandlung": 4.142249916473,
+      "Recyclingpotential": -1.82922467018072
+   },
+   "cement_screed": {
+      "oekobaudat_uuid": "86d919ee-8f30-4ca4-9b7e-717aecba6ac0",
+      "oekobaudat_calculation_factor": 0.0004167,
+      "Herstellung": 0.184976998144174,
+      "Transport": 0.00426009080011634,
+      "Beseitigung": 0.0166149044353777
+   },
+   "parquet": {
+      "oekobaudat_uuid": "bbbae8e3-3023-42b1-a58b-3cae9d482e10",
+      "oekobaudat_calculation_factor": 0.0854,
+      "Rohstoffbereitstellung": -18.7463381580744,
+      "Transport": 0.015788803988999,
+      "Herstellung": -13.635496774391306,
+      "Einbau": 0.12836102148346168,
+      "Abfallbehandlung": 20.04645183002168,
+      "Recyclingpotential": -0.3472654869460122
+   },
+   "fire_protection_board_GKF": {
+      "oekobaudat_uuid": "46c055f0-84a2-423b-ae82-5264886e51ad",
+      "oekobaudat_calculation_factor": 0.1,
+      "Herstellung": 1.70807813012895,
+      "Transport": 0.0426009080011634,
+      "Beseitigung": 0.770494706103777
+   },
+   "gypsum_fiberboard": {
+      "oekobaudat_uuid": "2272105e-734d-491d-a36c-d4ba2d759900",
+      "oekobaudat_calculation_factor": 0.0667,
+      "Herstellung": 4.02730737515694,
+      "Transport": 0.0943051579821514,
+      "Einbau": 0.00151680483749339,
+      "Abbruch": 0.0,
+      "Abfallbehandlung": 0.0,
+      "Beseitigung": 2.18417321654137,
+      "Recyclingpotential": 0.0
+   },
+   "lime_cement_plaster": {
+      "oekobaudat_uuid": "dca9f05c-036b-40e5-ae81-c957c2420fd8",
+      "oekobaudat_calculation_factor": 0.0005555,
+      "Herstellung": 344.892976495265,
+      "Transport": 7.66816344020942,
+      "Beseitigung": 40.4540625336798
+   },
+   "lightweight_perforated_bricks": {
+      "oekobaudat_uuid": "30514538-fcb4-483b-b5d5-c108d2037536",
+      "oekobaudat_calculation_factor": 0.001739,
+      "Herstellung": 113.0,
+      "Transport": 0.942,
+      "Einbau": 0.824,
+      "Abbruch": 0.352,
+      "Abfallbehandlung": -10.1,
+      "Beseitigung": 0.5,
+      "Recyclingpotential": -1.06
+   },
+   "lime_gypsum_plaster": {
+      "oekobaudat_uuid": "004f3f4e-5bb8-4d9e-a104-6999a9e8ad5b",
+      "oekobaudat_calculation_factor": 0.00111,
+      "Herstellung": 138.181252014848,
+      "Transport": 3.83408172010471,
+      "Beseitigung": 16.8792357918399
+   },
+   "subroof_panel": {
+      "oekobaudat_uuid": "17268809-56c9-40bf-9266-33bea77ff987",
+      "oekobaudat_calculation_factor": 0.0658,
+      "Herstellung": 52.579551941472,
+      "Abbruch": 0.0,
+      "Transport": 0.0364037912512579,
+      "Abfallbehandlung": 12.7010492039735,
+      "Beseitigung": 0.0225638961880233,
+      "Recyclingpotential": -21.3067786954685
+   },
+   "spruce": {
+      "oekobaudat_uuid": "f00557bd-5b73-4624-8c7b-834db8e8b106",
+      "oekobaudat_calculation_factor": 0.00208,
+      "Herstellung": -688.228467663309,
+      "Transport": 1.64030263508821,
+      "Abfallbehandlung": 810.335689464064,
+      "Recyclingpotential": -256.836936352808
    }
 }
