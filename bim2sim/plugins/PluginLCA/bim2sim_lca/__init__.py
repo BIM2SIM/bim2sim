@@ -18,7 +18,11 @@ class PluginLCA(Plugin):
     default_tasks = [
         common.LoadIFC,
         common.CreateElementsOnIfcTypes,
+        bps.CreateSpaceBoundaries,
+        bps.AddSpaceBoundaries2B,
+        bps.CorrectSpaceBoundaries,
         common.CreateRelations,
+        bps.DisaggregationCreationAndTypeCheck,
         bps.EnrichMaterial,
         #PlotHydraulicVentilationGraphs,
         LoadMaterialEmissionParameter,

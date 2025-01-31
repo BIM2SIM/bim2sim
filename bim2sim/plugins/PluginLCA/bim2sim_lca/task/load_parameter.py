@@ -72,7 +72,7 @@ class LoadMaterialEmissionParameter(ITask):
         for material in material_emission_parameter_dict.keys():
             emission_material = 0
             for key, value in material_emission_parameter_dict[material].items():
-                if key != "oekobaudat_uuid" and key != "oekobaudat_calculation_factor":
+                if key != "oekobaudat_uuid" and key != "oekobaudat_calculation_factor" and "Recycling" not in key:
                     emission_material += value
             material_emission_dict[material] = emission_material * material_emission_parameter_dict[material]["oekobaudat_calculation_factor"]
 
