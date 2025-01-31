@@ -183,8 +183,8 @@
       "Recyclingpotential": -17.1
    },
    "concrete_CEM_II_BS325R_wz05": {
-      "oekobaudat_uuid": "7c7f17df-1dfb-454e-a792-96b3b8665663",
-      "oekobaudat_calculation_factor": 0.00043879,
+      "oekobaudat_uuid": "0a1fa7f9-ad49-4942-a173-cb8c4ad99c9b",
+      "oekobaudat_calculation_factor": 4.32e-4,
       "Herstellung": 139.12746653453877,
       "Transport": 9.400875,
       "Einbau": 1.8646061779407925,
@@ -284,8 +284,8 @@
       "Beseitigung": 16.8792357918399
    },
    "vertical_core_brick_700": {
-      "oekobaudat_uuid": "30514538-fcb4-483b-b5d5-c108d2037536",
-      "oekobaudat_calculation_factor": 0.001739,
+      "oekobaudat_uuid": "2cdcffc6-84e9-4238-b8af-beebabea9a2d",
+      "oekobaudat_calculation_factor": 5e-4,
       "Herstellung": 113.0,
       "Transport": 0.942,
       "Einbau": 0.824,
@@ -295,8 +295,8 @@
       "Recyclingpotential": -1.06
    },
    "cement_floating_screed_2_bottom": {
-      "oekobaudat_uuid": "fe371be5-c72f-4203-8569-a085ef375ba4",
-      "oekobaudat_calculation_factor": 1,
+      "oekobaudat_uuid": "0a1fa7f9-ad49-4942-a173-cb8c4ad99c9b",
+      "oekobaudat_calculation_factor": 4.32e-4,
       "Herstellung": 0.080508506318184,
       "Transport": 0.00628701053214343,
       "Einbau": 0.000119974746247428,
@@ -408,8 +408,8 @@
       "Recyclingpotential": -1.82922467018072
    },
    "cement_screed": {
-      "oekobaudat_uuid": "86d919ee-8f30-4ca4-9b7e-717aecba6ac0",
-      "oekobaudat_calculation_factor": 0.0004167,
+      "oekobaudat_uuid": "0a1fa7f9-ad49-4942-a173-cb8c4ad99c9b",
+      "oekobaudat_calculation_factor": 4.32e-4,
       "Herstellung": 0.184976998144174,
       "Transport": 0.00426009080011634,
       "Beseitigung": 0.0166149044353777
@@ -444,7 +444,7 @@
    },
    "lime_cement_plaster": {
       "oekobaudat_uuid": "dca9f05c-036b-40e5-ae81-c957c2420fd8",
-      "oekobaudat_calculation_factor": 0.0005555,
+      "oekobaudat_calculation_factor": 5.55e-4,
       "Herstellung": 344.892976495265,
       "Transport": 7.66816344020942,
       "Beseitigung": 40.4540625336798
