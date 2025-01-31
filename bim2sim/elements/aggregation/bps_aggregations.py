@@ -227,7 +227,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         unit=ureg.meter,
         dependant_elements='elements'
     )
-    AreaPerOccupant = attribute.Attribute(
+    area_per_occupant = attribute.Attribute(
         functions=[_intensive_calc],
         unit=ureg.meter ** 2,
         dependant_elements='elements'
@@ -441,7 +441,7 @@ class SBDisaggregationMixin:
         self.layerset = disagg_parent.layerset
         self.material = disagg_parent.material
         self.material_set = disagg_parent.material_set
-        self.orientation = disagg_parent.orientation
+        self.ifc = disagg_parent.ifc
         self.storeys = disagg_parent.storeys
 
     @staticmethod

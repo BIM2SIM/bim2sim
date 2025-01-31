@@ -36,13 +36,12 @@ def run_example_complex_building_teaser():
     # combine spaces to thermal zones based on their usage
     project.sim_settings.zoning_criteria = ZoningCriteria.individual_spaces
     # use cooling
-    project.sim_settings.cooling = True
+    project.sim_settings.cooling_tz_overwrite = True
     project.sim_settings.setpoints_from_template = True
 
-    project.sim_settings.overwrite_ahu_by_settings = True
-    project.sim_settings.ahu_heating = True
-    project.sim_settings.ahu_cooling = True
-    project.sim_settings.ahu_heat_recovery = True
+    project.sim_settings.ahu_heating_overwrite = True
+    project.sim_settings.ahu_cooling_overwrite = True
+    project.sim_settings.ahu_heat_recovery_overwrite = True
 
     # overwrite existing layer structures and materials based on templates
     project.sim_settings.layers_and_materials = LOD.low

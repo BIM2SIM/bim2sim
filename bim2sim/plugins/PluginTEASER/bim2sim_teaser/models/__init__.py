@@ -272,7 +272,7 @@ class InnerWall(ElementWithLayers, InnerWall_Teaser):
         ElementWithLayers.__init__(self, element)
 
     def request_params(self):
-        self.orientation = self.element.orientation
+        self.orientation = self.element.teaser_orientation
         self.request_param("net_area",
                            self.check_numeric(min_value=0 * ureg.m ** 2),
                            "area")
@@ -291,7 +291,7 @@ class OuterWall(ElementWithLayers, OuterWall_Teaser):
         ElementWithLayers.__init__(self, element)
 
     def request_params(self):
-        self.orientation = self.element.orientation
+        self.orientation = self.element.teaser_orientation
         self.request_param("net_area",
                            self.check_numeric(min_value=0 * ureg.m ** 2),
                            "area")
@@ -358,7 +358,7 @@ class Window(ElementWithLayers, Window_Teaser):
         ElementWithLayers.__init__(self, element)
 
     def request_params(self):
-        self.orientation = self.element.orientation
+        self.orientation = self.element.teaser_orientation
         self.request_param("gross_area",
                            self.check_numeric(min_value=0 * ureg.m ** 2),
                            "area")
@@ -384,7 +384,7 @@ class Door(ElementWithLayers, Door_Teaser):
         ElementWithLayers.__init__(self, element)
 
     def request_params(self):
-        self.orientation = self.element.orientation
+        self.orientation = self.element.teaser_orientation
         self.request_param("gross_area",
                            self.check_numeric(min_value=0 * ureg.m ** 2),
                            "area")

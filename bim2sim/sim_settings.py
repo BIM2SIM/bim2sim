@@ -557,23 +557,6 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True,
         mandatory=True
     )
-    add_space_boundaries = BooleanSetting(
-        default=False,
-        description='Add space boundaries. Only required for building '
-                    'performance simulation and co-simulations.',
-        for_frontend=True
-    )
-    correct_space_boundaries = BooleanSetting(
-        default=False,
-        description='Apply geometric correction to space boundaries.',
-        for_frontend=True
-    )
-    close_space_boundary_gaps = BooleanSetting(
-        default=False,
-        description='Close gaps in the set of space boundaries by adding '
-                    'additional 2b space boundaries.',
-        for_frontend=True
-    )
 
     lock = LockSetting(
         default=None,
@@ -621,6 +604,13 @@ class PlantSimSettings(BaseSimSettings):
                     "connected. Based on there position in IFC.",
         for_frontend=True,
         min_value=1
+    )
+
+    verify_connection_by_position = BooleanSetting(
+        description="Choose if connection of elements via IfcDistributionPorts"
+                    " should be validated by the geometric position of the "
+                    "ports.",
+        default=True
     )
 
 
@@ -972,17 +962,29 @@ class BuildingSimSettings(BaseSimSettings):
     heating = BooleanSetting(
         default=True,
         description='Whether the building should be supplied with heating.',
+    )
+    heating_tz_overwrite = BooleanSetting(
+        default=None,
+        description='If True, all thermal zones will be provided with heating,'
+                    'if False no heating for thermal zones is provided, '
+                    'regardless of information in the IFC or in the use '
+                    'condition file.',
+        for_frontend=True,
+    )
+    cooling_tz_overwrite = BooleanSetting(
+        default=None,
+        description='If True, all thermal zones will be provided with cooling,'
+                    'if False no cooling for thermal zones is provided, '
+                    'regardless of information in the IFC or in the use '
+                    'condition file.',
         for_frontend=True
     )
-    cooling = BooleanSetting(
-        default=False,
-        description='Whether the building should be supplied with cooling.',
-        for_frontend=True
-    )
-    deactivate_ahu = BooleanSetting(
-        default=False,
-        description='If True the AHU unit will be deactivated for all thermal'
-                    ' zones, even if the fitting use condition uses an AHU.',
+    ahu_tz_overwrite = BooleanSetting(
+        default=None,
+        description='If True, all thermal zones will be provided with AHU,'
+                    'if False no AHU for thermal zones is provided, '
+                    'regardless of information in the IFC or in the use '
+                    'condition file.',
         for_frontend=True
     )
     prj_use_conditions = PathSetting(
@@ -1079,7 +1081,7 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
     correct_space_boundaries = BooleanSetting(
-        default=False,
+        default=True,
         description='Apply geometric correction to space boundaries.',
         for_frontend=True
     )
@@ -1101,7 +1103,7 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
     close_space_boundary_gaps = BooleanSetting(
-        default=False,
+        default=True,
         description='Close gaps in the set of space boundaries by adding '
                     'additional 2b space boundaries.',
         for_frontend=True
@@ -1157,48 +1159,43 @@ class BuildingSimSettings(BaseSimSettings):
                     "should be plotted.",
         any_string=True
     )
-    # Due to issue #722 this is currently the only way to set AHU values.
-    overwrite_ahu_by_settings = BooleanSetting(
-        default=True,
-        description='Overwrite central AHU settings with the following '
-                    'settings.',
-    )
-    ahu_heating = BooleanSetting(
-        default=False,
+    ahu_heating_overwrite = BooleanSetting(
+        default=None,
         description="Choose if the central AHU should provide heating. "
-                    "Set overwrite_ahu_by_settings to True, "
-                    "otherwise this has no effect. "
     )
-    ahu_cooling = BooleanSetting(
-        default=False,
+    ahu_cooling_overwrite = BooleanSetting(
+        default=None,
         description="Choose if the central AHU should provide cooling."
-                    "Set overwrite_ahu_by_settings to True, "
-                    "otherwise this has no effect. "
     )
-    ahu_dehumidification = BooleanSetting(
-        default=False,
+    ahu_dehumidification_overwrite = BooleanSetting(
+        default=None,
         description="Choose if the central AHU should provide "
                     "dehumidification."
-                    "Set overwrite_ahu_by_settings to True, "
-                    "otherwise this has no effect. "
     )
-    ahu_humidification = BooleanSetting(
-        default=False,
+    ahu_humidification_overwrite = BooleanSetting(
+        default=None,
         description="Choose if the central AHU should provide humidification."
-                    "Set overwrite_ahu_by_settings to True, "
                     "otherwise this has no effect. "
     )
-    ahu_heat_recovery = BooleanSetting(
-        default=False,
+    ahu_heat_recovery_overwrite = BooleanSetting(
+        default=None,
         description="Choose if the central AHU should zuse heat recovery."
-                    "Set overwrite_ahu_by_settings to True, "
-                    "otherwise this has no effect. "
     )
-    ahu_heat_recovery_efficiency = NumberSetting(
-        default=0.65,
+    ahu_heat_recovery_efficiency_overwrite = NumberSetting(
+        default=None,
         min_value=0.5,
         max_value=0.99,
         description="Choose the heat recovery efficiency of the central AHU."
-                    "Set overwrite_ahu_by_settings to True, "
-                    "otherwise this has no effect. "
+    )
+    use_constant_infiltration_overwrite = BooleanSetting(
+        default=None,
+        description="If only constant base infiltration should be used and no "
+                    "dynamic ventilation through e.g. windows."
+    )
+    base_infiltration_rate_overwrite = NumberSetting(
+        default=None,
+        min_value=0.001,
+        max_value=5,
+        description="Overwrite base value for the natural infiltration in 1/h "
+                    " without window openings"
     )

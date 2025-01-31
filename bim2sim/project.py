@@ -496,6 +496,8 @@ class Project:
                              f'{self.paths.export}')
             self.logger.info(f'Project "{self.name}" finished successful')
 
+        # reset sim_settings:
+        self.playground.sim_settings.load_default_settings()
         # clean logger
         log.teardown_loggers()
 
