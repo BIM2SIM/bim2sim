@@ -93,7 +93,7 @@
                 }
             },
             "4": {
-                "thickness": 0.06,
+                "thickness": 0.015,
                 "material": {
                     "name": "lime_plaster",
                     "material_id": "2e2c8180-3a43-11e7-a6be-2cd444b2e704"
@@ -383,7 +383,7 @@
                 }
             },
             "4": {
-                "thickness": 0.06,
+                "thickness": 0.015,
                 "material": {
                     "name": "lime_plaster",
                     "material_id": "2e2c8180-3a43-11e7-a6be-2cd444b2e704"
@@ -673,7 +673,7 @@
                 }
             },
             "4": {
-                "thickness": 0.06,
+                "thickness": 0.015,
                 "material": {
                     "name": "lime_plaster",
                     "material_id": "2e2c8180-3a43-11e7-a6be-2cd444b2e704"
@@ -963,7 +963,7 @@
                 }
             },
             "4": {
-                "thickness": 0.06,
+                "thickness": 0.015,
                 "material": {
                     "name": "lime_plaster",
                     "material_id": "2e2c8180-3a43-11e7-a6be-2cd444b2e704"
@@ -1246,7 +1246,7 @@
                 }
             },
             "4": {
-                "thickness": 0.06,
+                "thickness": 0.015,
                 "material": {
                     "name": "lime_plaster",
                     "material_id": "2e2c8180-3a43-11e7-a6be-2cd444b2e704"
