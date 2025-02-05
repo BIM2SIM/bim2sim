@@ -142,10 +142,10 @@ class InterfaceToPluginTeaser(ITask):
 
         heat_demand_dict = {}
         i = 1
-        for key, value in zone_dict.items():
+        for tz in tzs:
             heat_demand_dict[i] = {}
             heat_demand_dict[i]["space_guids"] = []
-            heat_demand_dict[i]["space_guids"].append(value[len("heat_demand_rooms_"):])
+            heat_demand_dict[i]["space_guids"].append(tz.guid)
             i += 1
 
         for key, values in plugin_teaser_dict.items():

@@ -365,6 +365,7 @@ class CalculateEmissionBuilding(ITask):
                     "gravel_single_granular": "gravel_single_granular",
                     "lime_plaster": "lime_plaster",
                     "vertical_core_brick_700": "vertical_core_brick_700",
+                    "vertical_core_brick_600": "vertical_core_brick_700",
                     "EPS_040_15": "EPS_040_15",
                     "cement_floating_screed_2_bottom": "cement_floating_screed_2_bottom",
                     "Stahlbeton 2747937872": "2747937872",
