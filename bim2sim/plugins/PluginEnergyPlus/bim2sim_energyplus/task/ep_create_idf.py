@@ -1469,7 +1469,7 @@ class CreateIdf(ITask):
             else:
                 sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'No'
             if sim_settings.set_run_period:
-                sim_control.Run_Simulation_for_cher_File_Run_Periods = 'Yes'
+                sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'Yes'
 
         if sim_settings.set_run_period:
             for run_period in idf.idfobjects["RUNPERIOD"]:
