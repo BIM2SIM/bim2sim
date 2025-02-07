@@ -61,6 +61,10 @@ unit_mapping = {
     "infiltration": ureg.hour ** (-1),
     "mech_ventilation": (ureg.meter ** 3) / ureg.second,
 }
+final_units = {
+    "heat_energy": ureg.watthour,
+    "cool_energy": ureg.watthour,
+}
 
 
 class CreateResultDF(ITask):
@@ -115,6 +119,7 @@ class CreateResultDF(ITask):
 
         # create dict for mapping surfaces to spaces
         space_bound_dict = {}
+        space_bound_renamed_dict = {}
         spaces = filter_elements(elements, 'ThermalZone')
         for space in spaces:
             space_guids = []
@@ -123,10 +128,17 @@ class CreateResultDF(ITask):
                     space_guids.append(bound)
                 else:
                     space_guids.append(bound.guid)
+            space_bound_renamed_dict[space.guid] = self.oriented_surface_names(
+                idf,
+                                                                 space.guid)
             space_bound_dict[space.guid] = space_guids
         with open(sim_results_path / self.prj_name / 'space_bound_dict.json',
-                  'w+') as file:
-            json.dump(space_bound_dict, file, indent=4)
+                  'w+') as file1:
+            json.dump(space_bound_dict, file1, indent=4)
+        with open(sim_results_path / self.prj_name /
+                  'space_bound_renamed_dict.json',
+                  'w+') as file2:
+            json.dump(space_bound_renamed_dict, file2, indent=4)
 
         df_original = PostprocessingUtils.read_csv_and_format_datetime(
             raw_csv_path)
@@ -179,6 +191,9 @@ class CreateResultDF(ITask):
             for key, unit in unit_mapping.items():
                 if key in column:
                     df_final[column] = PintArray(df_final[column], unit)
+            for key, unit in final_units.items():
+                if key in column:
+                    df_final[column] = df_final[column].pint.to(unit)
 
         return df_final
 
@@ -240,3 +255,47 @@ class CreateResultDF(ITask):
             else:
                 bim2sim_energyplus_mapping[key] = value
         return bim2sim_energyplus_mapping
+
+    @staticmethod
+    def oriented_surface_names(idf, space_guid):
+        from diss.utils.ep_utils import true_azimuth, azimuth_orientations
+        space_bounds_renamed = {}
+        temp_name_list = []
+        for ib in idf.getobject("ZONE", space_guid).zonesurfaces:
+            temp_name = None
+            if ib is not None:
+                try:
+                    az = true_azimuth(ib)
+                except:
+                    az = None
+                if az is None:
+                    continue
+                for key in azimuth_orientations:
+                    if (float(key) - 22.5) <= az < (float(key) + 22.5):
+                        if ib.Outside_Boundary_Condition == 'Surface':
+                            temp_name = 'Inner'
+                        elif ib.Outside_Boundary_Condition == 'Outdoors':
+                            temp_name = 'Outer'
+                        elif ib.Outside_Boundary_Condition == 'Ground':
+                            temp_name = 'Ground'
+                        elif ib.Outside_Boundary_Condition == 'Adiabatic':
+                            temp_name = 'Adiabatic'
+                        else:
+                            temp_name = ''
+                        surface_type = ib.Surface_Type
+                        if ib.Construction_Name == '_AirWall':
+                            surface_type = ib.Construction_Name
+                        temp_name = temp_name + surface_type
+                        if ib.Surface_Type == 'Wall':
+                            temp_name = temp_name + "_" + azimuth_orientations[key]
+                        if temp_name not in temp_name_list:
+                            temp_name_list.append(temp_name)
+                        else:
+                            temp_count = len([True for s in temp_name_list if
+                                              temp_name in s])
+                            temp_name = temp_name + "_" + str(temp_count)
+                        space_bounds_renamed[ib.Name] = temp_name
+                        break
+            else:
+                continue
+        return space_bounds_renamed
