@@ -141,7 +141,10 @@ class CreateIdf(ITask):
             Reporting_Frequency="Hourly",
         )
         idf3.epw=sizing_weather_file
-        idf3.run(output_directory=export_path, readvars=True, annual=True)
+        for sim_control in idf3.idfobjects["SIMULATIONCONTROL"]:
+            sim_control.Run_Simulation_for_Sizing_Periods = 'Yes'
+            sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'No'
+        idf3.run(output_directory=export_path, readvars=True, annual=False)
         res_sizing = pd.read_csv(export_path / 'epluszsz.csv')
         res_sizing = res_sizing.set_index('Time')
         peak = res_sizing.loc['Peak']
@@ -1460,7 +1463,7 @@ class CreateIdf(ITask):
                 sim_control.Do_System_Sizing_Calculation = 'Yes'
             else:
                 sim_control.Do_System_Sizing_Calculation = 'No'
-            if sim_settings.run_for_sizing_periods:
+            if sim_settings.run_for_sizing_periods or not sim_settings.run_full_simulation:
                 sim_control.Run_Simulation_for_Sizing_Periods = 'Yes'
             else:
                 sim_control.Run_Simulation_for_Sizing_Periods = 'No'
@@ -1468,7 +1471,9 @@ class CreateIdf(ITask):
                 sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'Yes'
             else:
                 sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'No'
-            if sim_settings.set_run_period:
+            if sim_settings.set_run_period or not sim_settings.run_full_simulation:
+                sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'No'
+            else:
                 sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'Yes'
 
         if sim_settings.set_run_period:
