@@ -1,6 +1,7 @@
 import math
 import pathlib
 import shutil
+from datetime import datetime
 
 import pandas as pd
 
@@ -226,6 +227,23 @@ class InitializeOpenFOAMSetup(ITask):
         full_results_df['Date/Time'] = full_results_df['Date/Time'].apply(
             PostprocessingUtils._string_to_datetime)
         full_results_df = full_results_df.set_index('Date/Time')
-        openfoam_case.timestep_df = full_results_df.loc[
-            f"{year}-{date} {time:02}:00:00"]
+        target_date = datetime.strptime(f"{year}-{date} {time:02}", "%Y-%m/%d %H")
+        if target_date in full_results_df.index:
+            openfoam_case.timestep_df = full_results_df.loc[
+                f"{year}-{date} {time:02}:00:00"]
+        else:
+            self.logger.warning(f"The requested date: {year}-{date} {time:02} "
+                                f"is not available in the eplusout.csv file. "
+                                f"Calculating the closest available timestep "
+                                f"for the selected hour of the day.")
+            target_day = pd.to_datetime(target_date).dayofyear
+            dates = full_results_df.index
+            filtered_dates = dates[dates.hour == time]
+            delta = (filtered_dates.dayofyear - target_day) % 366
+            min_delta = delta.min()
+            new_date = filtered_dates[delta == min_delta]
+            openfoam_case.timestep_df = full_results_df.loc[
+                new_date].squeeze(axis=0)
+            self.logger.warning(f"The new date is set to {new_date}. This is "
+                                f"the timestep for the OpenFOAM simulation.")
 
