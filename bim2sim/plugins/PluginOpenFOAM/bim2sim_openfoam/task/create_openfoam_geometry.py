@@ -1085,9 +1085,23 @@ class CreateOpenFOAMGeometry(ITask):
             #  Meeting: 1 two-sided table (rotate every other table by 180deg)
             #  Office: similar to meeting, but spread tables in Office.
             # calculate amount of rows
-            furniture_locations, furniture_trsfs = self.generate_grid_positions(
-                furniture_surface.bound, furniture_compound,
-                requested_amount, x_gap, y_gap, side_gap)
+            if self.playground.sim_settings.furniture_setting == 'Concert':
+                min_x_space = 0.5
+                min_y_distance = 0.4  # between rows
+                max_rows_per_block = 30
+                max_obj_single_escape = 10
+                max_obj_two_escape = 20
+                escape_route_width = 1.20
+                furniture_locations, furniture_trsfs = (
+                    self.generate_grid_positions_w_constraints(
+                    furniture_surface.bound, furniture_compound,
+                    requested_amount, min_x_space, min_y_distance,
+                        max_rows_per_block, max_obj_single_escape,
+                        max_obj_two_escape, escape_route_width))
+            else:
+                furniture_locations, furniture_trsfs = self.generate_grid_positions(
+                    furniture_surface.bound, furniture_compound,
+                    requested_amount, x_gap, y_gap, side_gap)
 
         # furniture_position = gp_Pnt(
         #     furniture_surface.bound.bound_center.X(),  #+ lx / 4,
@@ -1286,6 +1300,7 @@ class CreateOpenFOAMGeometry(ITask):
         compound_bbox = PyOCCTools.simple_bounding_box(obj_to_be_placed)
         lx_comp = compound_bbox[1][0] - compound_bbox[0][0]
         ly_comp = compound_bbox[1][1] - compound_bbox[0][1]
+
         compound_center = PyOCCTools.get_center_of_shape(
             PyOCCTools.simple_bounding_box_shape(obj_to_be_placed)).Coord()
         compound_center_lower = gp_Pnt(compound_center[0], compound_center[1],
@@ -1327,6 +1342,217 @@ class CreateOpenFOAMGeometry(ITask):
                     break
             if len(obj_locations) == requested_amount:
                 break
+        obj_trsfs = self.generate_obj_trsfs(obj_locations,
+                                            compound_center_lower)
+        return obj_locations, obj_trsfs
+
+    def generate_grid_positions_w_constraints(self, bound, obj_to_be_placed,
+                                requested_amount,
+                                min_x_space=0.5,
+                              min_y_distance=0.4,
+                              max_obj_rows_per_block=30,
+                              max_obj_single_escape=10,
+                              max_obj_two_escape=20,
+                              escape_route_width=1.2):
+        min_seats_single_escape = 3
+        min_rows_per_block = 4
+        max_row_blocks = 0  # possible blocks of rows
+        max_single_escape_blocks = 0  # possible blocks with single escape route
+        max_double_escape_blocks = 0
+        max_seats_single_escape_blocks = []
+        max_seats_double_escape_blocks = []
+        max_rows_per_block = []
+
+        surf_min_max = PyOCCTools.simple_bounding_box(bound.bound_shape)
+        lx = surf_min_max[1][0] - surf_min_max[0][0]
+        ly = surf_min_max[1][1] - surf_min_max[0][1]
+
+        compound_bbox = PyOCCTools.simple_bounding_box(obj_to_be_placed)
+        lx_comp = compound_bbox[1][0] - compound_bbox[0][0]
+        ly_comp = compound_bbox[1][1] - compound_bbox[0][1]
+
+        lx_comp_width = max(lx_comp, min_x_space)
+        ly_comp_width = ly_comp + min_y_distance
+
+        compound_center = PyOCCTools.get_center_of_shape(
+            PyOCCTools.simple_bounding_box_shape(obj_to_be_placed)).Coord()
+        compound_center_lower = gp_Pnt(compound_center[0], compound_center[1],
+                                       compound_bbox[0][2])
+        x_width_available = lx - escape_route_width
+        x_max_number = math.floor(x_width_available / lx_comp_width)
+        if x_max_number > 2*max_obj_single_escape:
+            temp_max_double_escape_blocks = x_width_available / (
+                escape_route_width + max_obj_two_escape * lx_comp_width)
+            if temp_max_double_escape_blocks < 1:
+                max_single_escape_blocks = 2
+                max_seats_single_escape_blocks = [max_obj_single_escape,
+                                                  max_obj_single_escape]
+            else:
+                max_double_escape_blocks = math.floor(
+                    temp_max_double_escape_blocks)
+                max_seats_double_escape_blocks = [
+                    max_obj_two_escape] * max_double_escape_blocks
+                remaining_x_width = x_width_available - \
+                    (max_double_escape_blocks * lx_comp_width
+                     * max_obj_two_escape + escape_route_width*max_double_escape_blocks)
+                temp_num_seats_single_escape = math.floor(
+                    remaining_x_width/lx_comp_width)
+                if temp_num_seats_single_escape < min_seats_single_escape:
+                    req_num_seats_single_escape = (
+                        min_seats_single_escape - temp_num_seats_single_escape)
+                    max_seats_double_escape_blocks[0] = \
+                        max_seats_double_escape_blocks[0] - req_num_seats_single_escape
+                    max_seats_single_escape_blocks = [min_seats_single_escape,
+                                                      0]
+                elif (min_seats_single_escape < temp_num_seats_single_escape <
+                        2*min_seats_single_escape):
+                    max_seats_single_escape_blocks = \
+                        [temp_num_seats_single_escape, 0]
+                    max_single_escape_blocks = 1
+                elif (2*min_seats_single_escape < temp_num_seats_single_escape
+                      <=2*max_obj_single_escape):
+                    smaller_half_of_seats = temp_num_seats_single_escape//2
+                    max_seats_single_escape_blocks = [smaller_half_of_seats,
+                        temp_num_seats_single_escape-smaller_half_of_seats]
+                    max_single_escape_blocks = 2
+                elif temp_num_seats_single_escape > 2*max_obj_single_escape:
+                    max_seats_single_escape_blocks = [max_obj_single_escape,
+                        max_obj_single_escape]
+                    max_single_escape_blocks = 2
+                else:
+                    raise NotImplementedError("The requested number of seats "
+                                              "cannot be processed.")
+        else:
+            if x_max_number < min_seats_single_escape:
+                max_seats_single_escape_blocks = [x_max_number, 0]
+                max_single_escape_blocks = 1
+            elif x_max_number < 2*min_seats_single_escape:
+                max_seats_single_escape_blocks = [x_max_number, 0]
+                max_single_escape_blocks = 1
+            else:
+                smaller_half_of_seats = x_max_number // 2
+                max_seats_single_escape_blocks = \
+                    [smaller_half_of_seats, x_max_number -
+                     smaller_half_of_seats]
+                max_single_escape_blocks = 2
+
+        # # todo: generalize implementation using divmod
+        # if x_max_number > 2*max_obj_single_escape:
+        #     x_width_available = lx - 2*escape_route_width
+        #     x_max_number = math.floor(x_width_available / lx_comp_width)
+        # if x_max_number > (max_obj_two_escape + 2*max_obj_single_escape):
+        #     x_width_available = lx - 3*escape_route_width
+        #     x_max_number = math.floor(x_width_available / lx_comp_width)
+        # if x_max_number > (2*max_obj_two_escape + 2*max_obj_single_escape):
+        #     self.logger.warning(f'More than '
+        #                         f'{2*max_obj_two_escape + 2*max_obj_single_escape} '
+        #                         f'seats in a row are not '
+        #                         f'supported. Using the maximum of '
+        #                         f'{2*max_obj_two_escape + 2*max_obj_single_escape} '
+        #                         f'seats '
+        #                         f'instead, subdivided in multiple blocks')
+        #     x_max_number = 2*max_obj_two_escape + 2*max_obj_single_escape
+
+        y_width_available = ly - escape_route_width
+        y_max_number = math.floor(y_width_available / ly_comp_width)
+        if y_max_number > max_obj_rows_per_block:
+            temp_max_row_blocks = y_width_available / (
+                escape_route_width + max_obj_rows_per_block * ly_comp_width)
+            if temp_max_row_blocks < 1:
+                max_row_blocks = 1  # only one block with one escape route
+                max_rows_per_block = [max_obj_rows_per_block]
+            else:
+                max_row_blocks = math.floor(temp_max_row_blocks)
+                max_rows_per_block = [max_obj_rows_per_block]*max_row_blocks
+                remaining_y_width = y_width_available - \
+                    (max_row_blocks * ly_comp_width
+                     * max_obj_rows_per_block + max_row_blocks*escape_route_width)
+                temp_num_remaining_rows = math.floor(remaining_y_width /
+                                                     ly_comp_width)
+                if temp_num_remaining_rows < min_rows_per_block:
+                    required_rows = min_rows_per_block - temp_num_remaining_rows
+                    max_rows_per_block[0] = max_rows_per_block[0]-required_rows
+                    max_rows_per_block.append(required_rows)
+        else:
+            max_rows_per_block = [y_max_number]
+            max_rows_blocks = 1
+
+        max_amount = (sum(max_seats_double_escape_blocks)+sum(
+            max_seats_single_escape_blocks)) * sum(max_rows_per_block)
+        if requested_amount > max_amount:
+            self.logger.warning(
+                f'You requested an amount of '
+                f'{requested_amount}, but only '
+                f'{max_amount} is possible. Using this maximum '
+                f'allowed amount.')
+            requested_amount = max_amount
+        elif requested_amount < max_amount:
+            # remove outer blocks to reduce total number of available chair
+            # positions
+            diff_amount = max_amount - requested_amount
+            if (diff_amount >
+                    sum(max_rows_per_block)*max_seats_single_escape_blocks[1]):
+                diff_amount -= max_seats_single_escape_blocks[1]*sum(max_rows_per_block)
+                max_seats_single_escape_blocks[1] = 0
+                max_single_escape_blocks = 1
+                if diff_amount >sum(max_rows_per_block)*max_seats_single_escape_blocks[0]:
+                    diff_amount -= max_seats_single_escape_blocks[0]*sum(max_rows_per_block)
+                    max_seats_single_escape_blocks[0] = 0
+                    max_single_escape_blocks = 0
+
+        # set number of rows to maximum number in y direction
+        global_x_position = surf_min_max[0][0]
+        global_y_position = surf_min_max[0][1]
+        obj_locations = []
+        for num_rows_in_block in max_rows_per_block:
+            obj_rows = num_rows_in_block
+            for row in range(obj_rows):
+                if row == 0:
+                    y_loc = (global_y_position + ly_comp / 2)
+                else:
+                    y_loc = (global_y_position + row*ly_comp_width + ly_comp / 2)
+                x_loc = global_x_position
+                if max_seats_single_escape_blocks[0] > 0:
+                    for x_pos in range(max_seats_single_escape_blocks[0]):
+                        if x_pos == 0:
+                            x_loc += lx_comp_width / 2
+                        else:
+                            x_loc += lx_comp_width
+                        pos = gp_Pnt(x_loc, y_loc, bound.bound_center.Z())
+                        obj_locations.append(pos)
+                        if len(obj_locations) == requested_amount:
+                            break
+                    if len(obj_locations) == requested_amount:
+                        break
+                if max_seats_double_escape_blocks[0] > 0:
+                    for seats_in_row in max_seats_double_escape_blocks:
+                        x_loc += escape_route_width
+                        for x_pos in range(seats_in_row):
+                            if x_pos == 0:
+                                x_loc += lx_comp_width / 2
+                            else:
+                                x_loc += lx_comp_width
+                            pos = gp_Pnt(x_loc, y_loc, bound.bound_center.Z())
+                            obj_locations.append(pos)
+                            if len(obj_locations) == requested_amount:
+                                break
+                        if len(obj_locations) == requested_amount:
+                            break
+                    if len(obj_locations) == requested_amount:
+                        break
+                if max_seats_single_escape_blocks[1] > 0:
+                    x_loc += escape_route_width
+                    for x_pos in range(max_seats_single_escape_blocks[1]):
+                        if x_pos == 0:
+                            x_loc += lx_comp_width / 2
+                        else:
+                            x_loc += lx_comp_width
+                        pos = gp_Pnt(x_loc, y_loc, bound.bound_center.Z())
+                        obj_locations.append(pos)
+                        if len(obj_locations) == requested_amount:
+                            break
+                if len(obj_locations) == requested_amount:
+                    break
         obj_trsfs = self.generate_obj_trsfs(obj_locations,
                                             compound_center_lower)
         return obj_locations, obj_trsfs
