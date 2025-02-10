@@ -208,6 +208,18 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         max_value=300,
         for_frontend=True,
     )
+    furniture_orientation = ChoiceSetting(
+        default='short_side',
+        choices={
+            'long_side': 'Long side of a rectangular space',
+            'short_side': 'short side of a rectangular space',
+            'window_long': 'long window side of a rectangular space',
+            'window_short': 'short window side of a rectangular space',
+            'door_short': 'short door side of a rectangular space',
+            'door_long': 'short door side of a rectangular space',
+
+        }
+    )
     add_people = BooleanSetting(
         default=False,
         for_frontend=True,

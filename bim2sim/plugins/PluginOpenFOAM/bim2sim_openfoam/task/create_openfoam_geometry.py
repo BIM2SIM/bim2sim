@@ -16,7 +16,7 @@ from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.StlAPI import StlAPI_Writer, StlAPI_Reader
 from OCC.Core.TopoDS import TopoDS_Compound, TopoDS_Builder, TopoDS_Shape
-from OCC.Core.gp import gp_Pnt, gp_XYZ, gp_Trsf
+from OCC.Core.gp import gp_Pnt, gp_XYZ, gp_Trsf, gp_Ax1, gp_Dir
 from stl import mesh
 
 from bim2sim.elements.mapping.units import ureg
@@ -1359,13 +1359,41 @@ class CreateOpenFOAMGeometry(ITask):
         max_row_blocks = 0  # possible blocks of rows
         max_single_escape_blocks = 0  # possible blocks with single escape route
         max_double_escape_blocks = 0
-        max_seats_single_escape_blocks = []
-        max_seats_double_escape_blocks = []
-        max_rows_per_block = []
-
+        max_seats_single_escape_blocks = [0,0]
+        max_seats_double_escape_blocks = [0]
+        max_rows_per_block = [0]
+        rotation_angle = 0
+        switch = False
         surf_min_max = PyOCCTools.simple_bounding_box(bound.bound_shape)
-        lx = surf_min_max[1][0] - surf_min_max[0][0]
-        ly = surf_min_max[1][1] - surf_min_max[0][1]
+        global_x_position = surf_min_max[0][0]
+        global_y_position = surf_min_max[0][1]
+        temp_lx = surf_min_max[1][0] - surf_min_max[0][0]
+        temp_ly = surf_min_max[1][1] - surf_min_max[0][1]
+        if self.playground.sim_settings.furniture_orientation == 'long_side':
+            if temp_lx < temp_ly:
+                lx = temp_ly
+                ly = temp_lx
+                global_x_position = surf_min_max[0][1]
+                global_y_position = surf_min_max[0][0]
+                rotation_angle = 270
+                switch = True
+            else:
+                lx = temp_lx
+                ly = temp_ly
+        elif self.playground.sim_settings.furniture_orientation == "short_side":
+            if temp_lx > temp_ly:
+                lx = temp_ly
+                ly = temp_lx
+                global_x_position = surf_min_max[0][1]
+                global_y_position = surf_min_max[0][0]
+                rotation_angle = 270
+                switch = True
+            else:
+                lx = temp_lx
+                ly = temp_ly
+        else:
+            lx = temp_lx
+            ly = temp_ly
 
         compound_bbox = PyOCCTools.simple_bounding_box(obj_to_be_placed)
         lx_comp = compound_bbox[1][0] - compound_bbox[0][0]
@@ -1501,8 +1529,6 @@ class CreateOpenFOAMGeometry(ITask):
                     max_single_escape_blocks = 0
 
         # set number of rows to maximum number in y direction
-        global_x_position = surf_min_max[0][0]
-        global_y_position = surf_min_max[0][1]
         obj_locations = []
         for num_rows_in_block in max_rows_per_block:
             obj_rows = num_rows_in_block
@@ -1553,17 +1579,30 @@ class CreateOpenFOAMGeometry(ITask):
                             break
                 if len(obj_locations) == requested_amount:
                     break
+        if switch:
+            old_obj_locations = obj_locations
+            new_obj_locations = []
+            for loc in obj_locations:
+                new_obj_locations.append(gp_Pnt(loc.Y(), loc.X(), loc.Z()))
+            obj_locations = new_obj_locations
         obj_trsfs = self.generate_obj_trsfs(obj_locations,
-                                            compound_center_lower)
+                                            compound_center_lower,
+                                            rotation_angle)
         return obj_locations, obj_trsfs
 
     def generate_obj_trsfs(self, obj_locations: list[gp_Pnt],
-                           obj_pos_to_be_transformed: gp_Pnt):
+                           obj_pos_to_be_transformed: gp_Pnt, rot_angle=0):
         obj_trsfs = []
+        angle_radians = math.radians(rot_angle)
         for loc in obj_locations:
-            trsf = gp_Trsf()
-            trsf.SetTranslation(obj_pos_to_be_transformed,
-                                loc)
+            trsf1 = gp_Trsf()
+            trsf2 = gp_Trsf()
+            trsf1.SetTranslation(obj_pos_to_be_transformed,
+                                    loc)
+            rotation_axis = gp_Ax1(obj_pos_to_be_transformed,
+                                   gp_Dir(0, 0, 1))
+            trsf2.SetRotation(rotation_axis, angle_radians)
+            trsf = trsf1.Multiplied(trsf2)
             obj_trsfs.append(trsf)
         return obj_trsfs
 
