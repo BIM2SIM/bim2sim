@@ -1086,12 +1086,17 @@ class CreateOpenFOAMGeometry(ITask):
             #  Office: similar to meeting, but spread tables in Office.
             # calculate amount of rows
             if self.playground.sim_settings.furniture_setting == 'Concert':
-                min_x_space = 0.5
-                min_y_distance = 0.4  # between rows
-                max_rows_per_block = 30
-                max_obj_single_escape = 10
-                max_obj_two_escape = 20
-                escape_route_width = 1.20
+                min_x_space = 0.5  # space for each seat SBauVO NRW 2019
+                min_y_distance = 0.4  # between rows SBauVO NRW 2019
+                max_rows_per_block = 15  # SBauVO NRW: max 30 rows per block
+                max_obj_single_escape = 10  # SBauVO NRW: max 10 seats per
+                # row if only a single escape route is available
+                max_obj_two_escape = 20  # SBauVO NRW: max 20 seats in a row
+                # if two escape routes are available
+                if requested_amount <= 200:
+                    escape_route_width = 0.9
+                else:
+                    escape_route_width = 1.2
                 furniture_locations, furniture_trsfs = (
                     self.generate_grid_positions_w_constraints(
                     furniture_surface.bound, furniture_compound,
@@ -1102,12 +1107,6 @@ class CreateOpenFOAMGeometry(ITask):
                 furniture_locations, furniture_trsfs = self.generate_grid_positions(
                     furniture_surface.bound, furniture_compound,
                     requested_amount, x_gap, y_gap, side_gap)
-
-        # furniture_position = gp_Pnt(
-        #     furniture_surface.bound.bound_center.X(),  #+ lx / 4,
-        #     furniture_surface.bound.bound_center.Y(), # + ly / 4,
-        #     furniture_surface.bound.bound_center.Z(),
-        # )
         furniture_items = []
 
         for i, trsf in enumerate(furniture_trsfs):
@@ -1355,7 +1354,7 @@ class CreateOpenFOAMGeometry(ITask):
                               max_obj_two_escape=20,
                               escape_route_width=1.2):
         min_seats_single_escape = 3
-        min_rows_per_block = 4
+        min_rows_per_block = 3
         max_row_blocks = 0  # possible blocks of rows
         max_single_escape_blocks = 0  # possible blocks with single escape route
         max_double_escape_blocks = 0
@@ -1501,9 +1500,13 @@ class CreateOpenFOAMGeometry(ITask):
                     required_rows = min_rows_per_block - temp_num_remaining_rows
                     max_rows_per_block[0] = max_rows_per_block[0]-required_rows
                     max_rows_per_block.append(required_rows)
+                    max_row_blocks += 1
+                else:
+                    max_rows_per_block.append(temp_num_remaining_rows)
+                    max_row_blocks += 1
         else:
             max_rows_per_block = [y_max_number]
-            max_rows_blocks = 1
+            max_row_blocks = 1
 
         max_amount = (sum(max_seats_double_escape_blocks)+sum(
             max_seats_single_escape_blocks)) * sum(max_rows_per_block)
@@ -1530,13 +1533,14 @@ class CreateOpenFOAMGeometry(ITask):
 
         # set number of rows to maximum number in y direction
         obj_locations = []
+        y_loc = global_y_position
         for num_rows_in_block in max_rows_per_block:
             obj_rows = num_rows_in_block
             for row in range(obj_rows):
                 if row == 0:
-                    y_loc = (global_y_position + ly_comp / 2)
+                    y_loc += ly_comp / 2
                 else:
-                    y_loc = (global_y_position + row*ly_comp_width + ly_comp / 2)
+                    y_loc += ly_comp_width
                 x_loc = global_x_position
                 if max_seats_single_escape_blocks[0] > 0:
                     for x_pos in range(max_seats_single_escape_blocks[0]):
@@ -1548,6 +1552,7 @@ class CreateOpenFOAMGeometry(ITask):
                         obj_locations.append(pos)
                         if len(obj_locations) == requested_amount:
                             break
+                    x_loc += lx_comp_width
                     if len(obj_locations) == requested_amount:
                         break
                 if max_seats_double_escape_blocks[0] > 0:
@@ -1562,6 +1567,7 @@ class CreateOpenFOAMGeometry(ITask):
                             obj_locations.append(pos)
                             if len(obj_locations) == requested_amount:
                                 break
+                        x_loc += lx_comp_width
                         if len(obj_locations) == requested_amount:
                             break
                     if len(obj_locations) == requested_amount:
@@ -1577,8 +1583,10 @@ class CreateOpenFOAMGeometry(ITask):
                         obj_locations.append(pos)
                         if len(obj_locations) == requested_amount:
                             break
+                    x_loc += lx_comp_width
                 if len(obj_locations) == requested_amount:
                     break
+            y_loc += ly_comp_width + escape_route_width
         if switch:
             old_obj_locations = obj_locations
             new_obj_locations = []
