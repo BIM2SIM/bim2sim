@@ -14,7 +14,8 @@ from scipy.spatial import KDTree
 from OCC.Core.BRepBndLib import brepbndlib_Add
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace, \
     BRepBuilderAPI_Transform, BRepBuilderAPI_MakePolygon, \
-    BRepBuilderAPI_MakeShell, BRepBuilderAPI_MakeSolid, BRepBuilderAPI_Sewing
+    BRepBuilderAPI_MakeShell, BRepBuilderAPI_MakeSolid, BRepBuilderAPI_Sewing, \
+    BRepBuilderAPI_MakeVertex
 from OCC.Core.BRepClass3d import BRepClass3d_SolidClassifier
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, \
@@ -110,7 +111,6 @@ class PyOCCTools:
         nb_faces = shape_analysis.NbFaces()
 
         return nb_faces
-
 
     @staticmethod
     def get_points_of_face(shape: TopoDS_Shape) -> List[gp_Pnt]:
@@ -229,7 +229,7 @@ class PyOCCTools:
         (min_x, min_y, min_z), (max_x, max_y, max_z) = (
             PyOCCTools.simple_bounding_box(shape))
         original_size = min(max_x - min_x, max_y - min_y, max_z - min_z)
-        new_size = original_size + scale_in_meters*2
+        new_size = original_size + scale_in_meters * 2
         scaling_factor = new_size / original_size
         return PyOCCTools.scale_shape(shape, scaling_factor)
 
@@ -263,19 +263,24 @@ class PyOCCTools:
 
     @staticmethod
     def move_bound_in_direction_of_normal(bound, move_dist: float,
-                                          reverse=False) -> TopoDS_Shape:
+                                          reverse=False, move_dir:
+            gp_Dir=None) -> (TopoDS_Shape):
         """Move a BIM2SIM Space Boundary in the direction of its surface
         normal by a given distance."""
-        if isinstance(bound, TopoDS_Shape):
-            bound_normal = PyOCCTools.simple_face_normal(bound)
-            bound_shape = bound
+        if not move_dir:
+            if isinstance(bound, TopoDS_Shape):
+                bound_normal = PyOCCTools.simple_face_normal(bound)
+                bound_shape = bound
+            else:
+                bound_normal = bound.bound_normal
+                bound_shape = bound.bound_shape
+            move_dir = bound_normal.Coord()
         else:
-            bound_normal = bound.bound_normal
-            bound_shape = bound.bound_shape
+            move_dir = move_dir.Coord()
+            bound_shape=bound
         prod_vec = []
-        move_dir = bound_normal.Coord()
         if reverse:
-            move_dir = bound_normal.Reversed().Coord()
+            move_dir = gp_Vec(*move_dir).Reversed().Coord()
         for i in move_dir:
             prod_vec.append(move_dist * i)
         # move bound in direction of bound normal by move_dist
@@ -426,8 +431,41 @@ class PyOCCTools:
         return sew.SewedShape()
 
     @staticmethod
+    def get_points_of_minimum_shape_distance(
+            shape1: TopoDS_Shape, shape2: TopoDS_Shape) -> list[list[gp_Pnt,
+    gp_Pnt, float]]:
+        minimum_point_pairs = []
+        extrema = BRepExtrema_DistShapeShape(shape1, shape2,
+                                             Extrema_ExtFlag_MIN)
+        # Perform the computation
+        extrema.Perform()
+        # Check if the computation was successful
+        if extrema.IsDone():
+            # Get the number of solution pairs (usually 1 for minimum distance)
+            nb_extrema = extrema.NbSolution()
+            print(f"Number of minimum distance solutions: {nb_extrema}")
+            for i in range(1,
+                           nb_extrema + 1):  # OpenCASCADE is 1-based indexing
+                # Retrieve the points on each shape
+                p1 = extrema.PointOnShape1(i)
+                p2 = extrema.PointOnShape2(i)
+                minimum_point_pairs.append([p1, p2, extrema.Value()])
+        return minimum_point_pairs
+
+    @staticmethod
+    def get_points_of_minimum_point_shape_distance(
+            point: gp_Pnt, shape: TopoDS_Shape) -> list[list[gp_Pnt, gp_Pnt,
+    float]]:
+
+        vertex = BRepBuilderAPI_MakeVertex(point).Vertex()
+        minimum_point_pairs = PyOCCTools.get_points_of_minimum_shape_distance(
+            vertex, shape)
+        return minimum_point_pairs
+
+    @staticmethod
     def move_bounds_to_vertical_pos(bound_list: list(),
-                                    base_face: TopoDS_Face) -> list[TopoDS_Shape]:
+                                    base_face: TopoDS_Face) -> list[
+        TopoDS_Shape]:
         new_shape_list = []
         for bound in bound_list:
             if not isinstance(bound, TopoDS_Shape):
@@ -493,7 +531,7 @@ class PyOCCTools:
 
     @staticmethod
     def triangulate_bound_shape(shape: TopoDS_Shape,
-                                cut_shapes: list[TopoDS_Shape] = [])\
+                                cut_shapes: list[TopoDS_Shape] = []) \
             -> TopoDS_Shape:
         """Triangulate bound shape.
 
@@ -637,7 +675,8 @@ class PyOCCTools:
         return (min_x, min_y, min_z), (max_x, max_y, max_z)
 
     @staticmethod
-    def simple_bounding_box_shape(shapes: Union[TopoDS_Shape, List[TopoDS_Shape]]):
+    def simple_bounding_box_shape(
+            shapes: Union[TopoDS_Shape, List[TopoDS_Shape]]):
         min_box, max_box = PyOCCTools.simple_bounding_box(shapes)
         return BRepPrimAPI_MakeBox(gp_Pnt(*min_box), gp_Pnt(*max_box)).Shape()
 
@@ -659,12 +698,12 @@ class PyOCCTools:
         shape_list = []
         removed_list = []
         bbox_shape = PyOCCTools.simple_bounding_box(shape)
-        top_surface_min_max =((bbox_shape[0][0],
-                               bbox_shape[0][1],
-                               bbox_shape[1][2]),
-                              (bbox_shape[1][0],
-                               bbox_shape[1][1],
-                               bbox_shape[1][2]))
+        top_surface_min_max = ((bbox_shape[0][0],
+                                bbox_shape[0][1],
+                                bbox_shape[1][2]),
+                               (bbox_shape[1][0],
+                                bbox_shape[1][1],
+                                bbox_shape[1][2]))
         top_surface = PyOCCTools.make_faces_from_pnts([
             gp_Pnt(*top_surface_min_max[0]),
             gp_Pnt(top_surface_min_max[1][0],
@@ -678,12 +717,12 @@ class PyOCCTools:
             shape_list.append(top_surface)
         else:
             removed_list.append(top_surface)
-        bottom_surface_min_max =((bbox_shape[0][0],
-                               bbox_shape[0][1],
-                               bbox_shape[0][2]),
-                              (bbox_shape[1][0],
-                               bbox_shape[1][1],
-                               bbox_shape[0][2]))
+        bottom_surface_min_max = ((bbox_shape[0][0],
+                                   bbox_shape[0][1],
+                                   bbox_shape[0][2]),
+                                  (bbox_shape[1][0],
+                                   bbox_shape[1][1],
+                                   bbox_shape[0][2]))
         bottom_surface = PyOCCTools.make_faces_from_pnts([
             gp_Pnt(*bottom_surface_min_max[0]),
             gp_Pnt(bottom_surface_min_max[1][0],
@@ -698,10 +737,10 @@ class PyOCCTools:
         else:
             removed_list.append(bottom_surface)
         front_surface_min_max = (
-                bbox_shape[0],
-                                 (bbox_shape[1][0],
-                                  bbox_shape[0][1],
-                                  bbox_shape[1][2]))
+            bbox_shape[0],
+            (bbox_shape[1][0],
+             bbox_shape[0][1],
+             bbox_shape[1][2]))
         front_surface = PyOCCTools.make_faces_from_pnts([
             gp_Pnt(*front_surface_min_max[0]),
             gp_Pnt(front_surface_min_max[1][0],
@@ -783,14 +822,14 @@ class PyOCCTools:
         rot_center = PyOCCTools.get_center_of_face(shape)
         rot_ax = None
         if axis == 'x':
-            rot_ax = gp_Ax1(rot_center, gp_Dir(1,0,0))
+            rot_ax = gp_Ax1(rot_center, gp_Dir(1, 0, 0))
         if axis == 'y':
-            rot_ax = gp_Ax1(rot_center, gp_Dir(0,1,0))
+            rot_ax = gp_Ax1(rot_center, gp_Dir(0, 1, 0))
         if axis == 'z':
-            rot_ax = gp_Ax1(rot_center, gp_Dir(0,0,1))
+            rot_ax = gp_Ax1(rot_center, gp_Dir(0, 0, 1))
 
         trsf = gp_Trsf()
-        trsf.SetRotation(rot_ax, rotation * math.pi/180)
+        trsf.SetRotation(rot_ax, rotation * math.pi / 180)
         new_shape = BRepBuilderAPI_Transform(shape, trsf).Shape()
         return new_shape
 
@@ -830,8 +869,8 @@ class PyOCCTools:
         if num_verts_1 < 5e4:
             num_faces_1 = PyOCCTools.get_number_of_faces(shape1)
             sample_points_per_face = math.floor(math.sqrt((
-                                                              final_num_points-num_verts_1)
-                                               / num_faces_1))
+                                                                  final_num_points - num_verts_1)
+                                                          / num_faces_1))
             points_on_shape1 = PyOCCTools.sample_points_on_faces(
                 shape1, u_samples=sample_points_per_face,
                 v_samples=sample_points_per_face)
@@ -843,7 +882,7 @@ class PyOCCTools:
         if num_verts_2 < 5e4:
             num_faces_2 = PyOCCTools.get_number_of_faces(shape2)
             sample_points_per_face = math.floor(math.sqrt(
-                (final_num_points-num_verts_2) / num_faces_2))
+                (final_num_points - num_verts_2) / num_faces_2))
             points_on_shape2 = PyOCCTools.sample_points_on_faces(
                 shape2, u_samples=sample_points_per_face,
                 v_samples=sample_points_per_face)
@@ -853,7 +892,7 @@ class PyOCCTools:
 
         tree1 = KDTree(points_on_shape1)
         distances, _ = tree1.query(points_on_shape2)
-        #print(f"Minimum distance: {min(distances)}")
+        # print(f"Minimum distance: {min(distances)}")
         return min(distances)
 
     @staticmethod
@@ -873,4 +912,18 @@ class PyOCCTools:
         unify.Initialize(shape)
         unify.Build()
         return unify.Shape()
+
+    @staticmethod
+    def enlarge_bounding_box_shape_in_dir(shape, distance=0.05,
+                                         direction=gp_Dir(0, 0, 1)):
+        (min_box, max_box) = PyOCCTools.simple_bounding_box([shape])
+        p1 = BRepBuilderAPI_MakeVertex(gp_Pnt(*min_box)).Vertex()
+        moved_p1 = BRep_Tool.Pnt(PyOCCTools.move_bound_in_direction_of_normal(
+            p1, distance, move_dir=direction, reverse=True))
+        p2 = BRepBuilderAPI_MakeVertex(gp_Pnt(*max_box)).Vertex()
+        moved_p2 = BRep_Tool.Pnt(PyOCCTools.move_bound_in_direction_of_normal(
+            p2, distance, move_dir=direction, reverse=False))
+        new_shape = BRepPrimAPI_MakeBox(moved_p1, moved_p2).Shape()
+        return new_shape
+
 

@@ -8,6 +8,7 @@ from pathlib import Path
 
 import numpy as np
 import stl
+from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Common
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex, \
     BRepBuilderAPI_Transform
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
@@ -15,8 +16,11 @@ from OCC.Core.BRepLib import BRepLib_FuseEdges
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.StlAPI import StlAPI_Writer, StlAPI_Reader
+from OCC.Core.TopAbs import TopAbs_SOLID
+from OCC.Core.TopExp import TopExp_Explorer
+from OCC.Core.TopOpeBRep import TopOpeBRep_ShapeIntersector
 from OCC.Core.TopoDS import TopoDS_Compound, TopoDS_Builder, TopoDS_Shape
-from OCC.Core.gp import gp_Pnt, gp_XYZ, gp_Trsf, gp_Ax1, gp_Dir
+from OCC.Core.gp import gp_Pnt, gp_XYZ, gp_Trsf, gp_Ax1, gp_Dir, gp_Vec
 from stl import mesh
 
 from bim2sim.elements.mapping.units import ureg
@@ -1038,6 +1042,11 @@ class CreateOpenFOAMGeometry(ITask):
 
     def create_furniture_shapes(self, openfoam_case, furniture_surface,
                                 x_gap=0.8, y_gap=0.8, side_gap=0.8):
+        doors = []
+        for bound in openfoam_case.current_bounds:
+            if bound.bound_element:
+                if "DOOR" in bound.bound_element.element_type.upper():
+                    doors.append(bound)
         meshes = []
         chair_shape = None
         desk_shape = None
@@ -1102,7 +1111,7 @@ class CreateOpenFOAMGeometry(ITask):
                     furniture_surface.bound, furniture_compound,
                     requested_amount, min_x_space, min_y_distance,
                         max_rows_per_block, max_obj_single_escape,
-                        max_obj_two_escape, escape_route_width))
+                        max_obj_two_escape, escape_route_width, doors))
             else:
                 furniture_locations, furniture_trsfs = self.generate_grid_positions(
                     furniture_surface.bound, furniture_compound,
@@ -1352,7 +1361,7 @@ class CreateOpenFOAMGeometry(ITask):
                               max_obj_rows_per_block=30,
                               max_obj_single_escape=10,
                               max_obj_two_escape=20,
-                              escape_route_width=1.2):
+                              escape_route_width=1.2, doors=[]):
         min_seats_single_escape = 3
         min_rows_per_block = 3
         max_row_blocks = 0  # possible blocks of rows
@@ -1405,6 +1414,24 @@ class CreateOpenFOAMGeometry(ITask):
             PyOCCTools.simple_bounding_box_shape(obj_to_be_placed)).Coord()
         compound_center_lower = gp_Pnt(compound_center[0], compound_center[1],
                                        compound_bbox[0][2])
+        # calculate footprint shape of setup
+        x_diff = lx_comp_width - lx_comp
+        if x_diff < 0:
+            x_diff = 0
+        footprint_shape = PyOCCTools.make_faces_from_pnts(
+            [gp_Pnt(compound_bbox[0][0]
+                    - x_diff / 2,
+                    compound_bbox[0][1],
+                    compound_bbox[0][2]),
+             gp_Pnt(compound_bbox[0][0] - x_diff / 2,
+                    compound_bbox[0][1] + ly_comp_width,
+                    compound_bbox[0][2]),
+             gp_Pnt(compound_bbox[0][0] + lx_comp_width - x_diff / 2,
+                    compound_bbox[0][1] + ly_comp_width,
+                    compound_bbox[0][2]),
+             gp_Pnt(compound_bbox[0][0] + lx_comp_width - x_diff / 2,
+                    compound_bbox[0][1],
+                    compound_bbox[0][2])])
         x_width_available = lx - escape_route_width
         x_max_number = math.floor(x_width_available / lx_comp_width)
         if x_max_number > 2*max_obj_single_escape:
@@ -1596,7 +1623,123 @@ class CreateOpenFOAMGeometry(ITask):
         obj_trsfs = self.generate_obj_trsfs(obj_locations,
                                             compound_center_lower,
                                             rotation_angle)
-        return obj_locations, obj_trsfs
+        footprints = []
+        for trsf in obj_trsfs:
+            footprints.append(
+                BRepBuilderAPI_Transform(footprint_shape, trsf).Shape())
+        escape_shape = PyOCCTools.triangulate_bound_shape(bound.bound_shape,
+                                                          footprints)
+        add_new_escape_shapes = []
+        for door in doors:
+            reverse=False
+            (min_box, max_box) = PyOCCTools.simple_bounding_box([
+                door.bound_shape])
+            door_lower_pnt1 = gp_Pnt(*min_box)
+            door_lower_pnt2 = gp_Pnt(max_box[0], max_box[1], min_box[2])
+            base_line_pnt1 = door_lower_pnt1
+            base_line_pnt2 = door_lower_pnt2
+            door_width = door_lower_pnt1.Distance(door_lower_pnt2)
+            p1 = PyOCCTools.get_points_of_minimum_point_shape_distance(
+                door_lower_pnt1, escape_shape)
+            p2 = PyOCCTools.get_points_of_minimum_point_shape_distance(
+                door_lower_pnt2, escape_shape)
+            if (p1[0][2] and p2[0][2]) > 0.001:
+                # add closest path to escape route
+                if p1[0][1].Distance(p2[0][1]) > 0.9:
+                    # check of the closest points on the escape_shape are
+                    # very close to each other. In this case, the generation
+                    # of a new escape path cannot be guaranteed
+                    reverse = False
+                    add_escape_shape = PyOCCTools.make_faces_from_pnts([p1[0][0],
+                                                                       p2[0][0],
+                                                                       p2[0][1], p1[0][1]])
+                    add_new_escape_shapes.append(add_escape_shape)
+                else:
+                    if p1[0][2] > p2[0][2]:
+                        base_line_pnt1 = p1[0][0]
+                        base_line_pnt2 = p1[0][1]
+                    else:
+                        base_line_pnt1 = p2[0][0]
+                        base_line_pnt2 = p2[0][1]
+
+            # add square space in front of doors
+            d = gp_Dir(gp_Vec(base_line_pnt1, base_line_pnt2))
+            new_dir = d.Rotated(gp_Ax1(base_line_pnt1, gp_Dir(0, 0, 1)),
+                     math.radians(90))
+            moved_pnt1 = PyOCCTools.move_bound_in_direction_of_normal(
+                                BRepBuilderAPI_MakeVertex(base_line_pnt1).Vertex(),
+                                door_width, move_dir=new_dir, reverse=reverse)
+            moved_dist = BRepExtrema_DistShapeShape(moved_pnt1,
+                                                  bound.bound_shape,
+                                                  Extrema_ExtFlag_MIN).Value()
+            if abs(moved_dist) > 1e-3:
+                reverse = True
+                moved_pnt1 = PyOCCTools.move_bound_in_direction_of_normal(
+                    BRepBuilderAPI_MakeVertex(base_line_pnt1).Vertex(),
+                    door_width, move_dir=new_dir, reverse=reverse)
+            if reverse:
+                moved_pnt2 = PyOCCTools.move_bound_in_direction_of_normal(
+                    BRepBuilderAPI_MakeVertex(base_line_pnt2).Vertex(),
+                    door_width, move_dir=new_dir, reverse=reverse)
+            else:
+                moved_pnt2 = PyOCCTools.move_bound_in_direction_of_normal(
+                    BRepBuilderAPI_MakeVertex(base_line_pnt2).Vertex(),
+                    door_width, move_dir=new_dir, reverse=reverse)
+            add_escape_shape = PyOCCTools.make_faces_from_pnts([base_line_pnt1,
+                                                                base_line_pnt2,
+                                                                moved_pnt2,
+                                                                moved_pnt1])
+            add_new_escape_shapes.append(add_escape_shape)
+        sewed_shape = PyOCCTools.sew_shapes([*add_new_escape_shapes, escape_shape])
+        unified_sewed_shape = PyOCCTools.unify_shape(sewed_shape)
+        solid_sewed_shape = PyOCCTools.make_solid_from_shape(PyOCCTools,
+                                                            unified_sewed_shape)
+        # unified_sewed_shape = PyOCCTools.unify_shape(solid_sewed_shape)
+
+        cleaned_obj_trsfs = []
+        cleaned_obj_locations = []
+        cleaned_footprints = []
+        escape_area = PyOCCTools.get_shape_area(unified_sewed_shape)
+        box_footprints = [PyOCCTools.enlarge_bounding_box_shape_in_dir(f) for
+                          f in footprints]
+        solid_box_footprints = [PyOCCTools.make_solid_from_shape(
+            PyOCCTools, ft) for ft in box_footprints]
+
+        for i, footprint in enumerate(solid_box_footprints):
+            foot_dist = BRepExtrema_DistShapeShape(unified_sewed_shape, footprint,
+                                                   Extrema_ExtFlag_MIN).Value()
+            if abs(foot_dist) < 1e-3:
+                common_algo = BRepAlgoAPI_Common(unified_sewed_shape, footprint)
+                common_algo.Build()
+                if not common_algo.IsDone():
+                    raise RuntimeError("Intersection computation failed.")
+                overlap_shape = common_algo.Shape()
+                # explorer = TopExp_Explorer(overlap_shape, TopAbs_SOLID)
+                # has_overlap = explorer.More()
+                if overlap_shape:
+                    overlap_area = PyOCCTools.get_shape_area(overlap_shape)
+                    if overlap_area < 0.02: # allow small overlapping
+                        # with escape routes (10cm2)
+                        cleaned_obj_trsfs.append(obj_trsfs[i])
+                        cleaned_footprints.append(footprints[i])
+                        cleaned_obj_locations.append(obj_locations[i])
+                else:
+                    cleaned_obj_trsfs.append(obj_trsfs[i])
+                    cleaned_footprints.append(footprints[i])
+                    cleaned_obj_locations.append(obj_locations[i])
+            else:
+                cleaned_obj_trsfs.append(obj_trsfs[i])
+                cleaned_obj_locations.append(obj_locations[i])
+                cleaned_footprints.append(footprints[i])
+
+        self.logger.warning(f"removed {len(obj_trsfs)-len(cleaned_obj_trsfs)} "
+                            f"furniture objects to guarantee escape route "
+                            f"compliance. A total number of "
+                            f"{len(cleaned_obj_trsfs)} furniture elements is "
+                            f"positioned, based on "
+                            f"{self.playground.sim_settings.furniture_amount} "
+                            f"requested elements. ")
+        return cleaned_obj_locations, cleaned_obj_trsfs
 
     def generate_obj_trsfs(self, obj_locations: list[gp_Pnt],
                            obj_pos_to_be_transformed: gp_Pnt, rot_angle=0):
