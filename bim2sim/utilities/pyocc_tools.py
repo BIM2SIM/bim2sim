@@ -7,7 +7,7 @@ from typing import List, Tuple, Union
 import numpy as np
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepAdaptor import BRepAdaptor_Surface
-from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut
+from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Fuse
 from OCC.Core.BRepOffsetAPI import BRepOffsetAPI_MakeOffsetShape
 from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
 from scipy.spatial import KDTree
@@ -434,6 +434,12 @@ class PyOCCTools:
     def get_points_of_minimum_shape_distance(
             shape1: TopoDS_Shape, shape2: TopoDS_Shape) -> list[list[gp_Pnt,
     gp_Pnt, float]]:
+        """
+        Compute points of minimum distance.
+
+        Returns list of [point on first shape, point on second shape,
+        distance between these points].
+        """
         minimum_point_pairs = []
         extrema = BRepExtrema_DistShapeShape(shape1, shape2,
                                              Extrema_ExtFlag_MIN)
@@ -443,7 +449,7 @@ class PyOCCTools:
         if extrema.IsDone():
             # Get the number of solution pairs (usually 1 for minimum distance)
             nb_extrema = extrema.NbSolution()
-            print(f"Number of minimum distance solutions: {nb_extrema}")
+            # print(f"Number of minimum distance solutions: {nb_extrema}")
             for i in range(1,
                            nb_extrema + 1):  # OpenCASCADE is 1-based indexing
                 # Retrieve the points on each shape
@@ -926,4 +932,37 @@ class PyOCCTools:
         new_shape = BRepPrimAPI_MakeBox(moved_p1, moved_p2).Shape()
         return new_shape
 
+    @staticmethod
+    def fuse_shapes(shapes:List[TopoDS_Shape]):
+        if not shapes:
+            return None
+        if len(shapes) < 2:
+            return shapes[0]
+        fuse_shape = shapes[0]
+        for shape in shapes[1:]:
+            fuse_shape = BRepAlgoAPI_Fuse(fuse_shape, shape).Shape()
+        return fuse_shape
+
+    @staticmethod
+    def get_projection_of_bounding_box(shapes: list[TopoDS_Shape],
+                                       proj_type: Union['x','y','z'],
+                                       value:float=None,
+                                       ) -> TopoDS_Shape:
+        ((x1, y1, z1), (x2, y2, z2)) = PyOCCTools.simple_bounding_box(shapes)
+        if proj_type == 'x':
+            if not value:
+                value = x1
+            pnt_list = [(value, y1, z1), (value, y2, z1), (value, y2, z2),
+                        (value, y1, z2)]
+        elif proj_type == 'y':
+            if not value:
+                value = y1
+            pnt_list = [(x1, value, z1), (x2, value, z1), (x2, value, z2),
+                        (x1, value, z2)]
+        else:
+            if not value:
+                value = z1
+            pnt_list = [(x1, y1, value), (x2, y1, value), (x2, y2, value),
+                        (x1, y2, value)]
+        return PyOCCTools.make_faces_from_pnts(pnt_list)
 

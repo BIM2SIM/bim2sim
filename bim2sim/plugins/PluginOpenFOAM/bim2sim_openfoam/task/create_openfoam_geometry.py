@@ -8,6 +8,7 @@ from pathlib import Path
 
 import numpy as np
 import stl
+from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Common
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex, \
     BRepBuilderAPI_Transform
@@ -1643,16 +1644,29 @@ class CreateOpenFOAMGeometry(ITask):
                 door_lower_pnt1, escape_shape)
             p2 = PyOCCTools.get_points_of_minimum_point_shape_distance(
                 door_lower_pnt2, escape_shape)
-            if (p1[0][2] and p2[0][2]) > 0.001:
+            if ((p1[0][2] or p2[0][2]) and BRepExtrema_DistShapeShape(
+                    door.bound_shape, escape_shape,
+                           Extrema_ExtFlag_MIN).Value()) > 0.001:
                 # add closest path to escape route
+                # ensure that neither the lower points of the door nor
+                # the door shape itself touches the escape
+                # shape. The escape shape may be smaller than the escape
+                # route shape
                 if p1[0][1].Distance(p2[0][1]) > 0.9:
                     # check of the closest points on the escape_shape are
                     # very close to each other. In this case, the generation
                     # of a new escape path cannot be guaranteed
                     reverse = False
-                    add_escape_shape = PyOCCTools.make_faces_from_pnts([p1[0][0],
-                                                                       p2[0][0],
-                                                                       p2[0][1], p1[0][1]])
+                    # add_escape_shape = PyOCCTools.make_faces_from_pnts([p1[0][0],
+                    #                                                    p2[0][0],
+                    #                                                    p2[0][1], p1[0][1]])
+                    # if add_escape_shape.IsNull():
+                    add_escape_shape = PyOCCTools.get_projection_of_bounding_box(
+                        [BRepBuilderAPI_MakeVertex(
+                            p).Vertex()
+                         for p in [p1[0][0], p2[0][0],
+                                   p2[0][1],
+                                   p1[0][1]]], proj_type='z', value=p1[0][1].Z())
                     add_new_escape_shapes.append(add_escape_shape)
                 else:
                     if p1[0][2] > p2[0][2]:
@@ -1662,13 +1676,13 @@ class CreateOpenFOAMGeometry(ITask):
                         base_line_pnt1 = p2[0][0]
                         base_line_pnt2 = p2[0][1]
 
-            # add square space in front of doors
+            # add square space in front of doors, depth = escape route width
             d = gp_Dir(gp_Vec(base_line_pnt1, base_line_pnt2))
             new_dir = d.Rotated(gp_Ax1(base_line_pnt1, gp_Dir(0, 0, 1)),
                      math.radians(90))
             moved_pnt1 = PyOCCTools.move_bound_in_direction_of_normal(
                                 BRepBuilderAPI_MakeVertex(base_line_pnt1).Vertex(),
-                                door_width, move_dir=new_dir, reverse=reverse)
+                                escape_route_width, move_dir=new_dir, reverse=reverse)
             moved_dist = BRepExtrema_DistShapeShape(moved_pnt1,
                                                   bound.bound_shape,
                                                   Extrema_ExtFlag_MIN).Value()
@@ -1676,40 +1690,56 @@ class CreateOpenFOAMGeometry(ITask):
                 reverse = True
                 moved_pnt1 = PyOCCTools.move_bound_in_direction_of_normal(
                     BRepBuilderAPI_MakeVertex(base_line_pnt1).Vertex(),
-                    door_width, move_dir=new_dir, reverse=reverse)
+                    escape_route_width, move_dir=new_dir, reverse=reverse)
             if reverse:
                 moved_pnt2 = PyOCCTools.move_bound_in_direction_of_normal(
                     BRepBuilderAPI_MakeVertex(base_line_pnt2).Vertex(),
-                    door_width, move_dir=new_dir, reverse=reverse)
+                    escape_route_width, move_dir=new_dir, reverse=reverse)
             else:
                 moved_pnt2 = PyOCCTools.move_bound_in_direction_of_normal(
                     BRepBuilderAPI_MakeVertex(base_line_pnt2).Vertex(),
-                    door_width, move_dir=new_dir, reverse=reverse)
+                    escape_route_width, move_dir=new_dir, reverse=reverse)
             add_escape_shape = PyOCCTools.make_faces_from_pnts([base_line_pnt1,
                                                                 base_line_pnt2,
-                                                                moved_pnt2,
-                                                                moved_pnt1])
+                                                                BRep_Tool.Pnt(moved_pnt2),
+                                                                BRep_Tool.Pnt(moved_pnt1)])
             add_new_escape_shapes.append(add_escape_shape)
-        sewed_shape = PyOCCTools.sew_shapes([*add_new_escape_shapes, escape_shape])
-        unified_sewed_shape = PyOCCTools.unify_shape(sewed_shape)
+            distance_new_escape = BRepExtrema_DistShapeShape(
+                add_escape_shape, escape_shape).Value()
+            if distance_new_escape > 1e-3:
+                new_dist_pnts2 = PyOCCTools.get_points_of_minimum_point_shape_distance(
+                    BRep_Tool.Pnt(moved_pnt2), escape_shape)
+                new_dist_pnts1 = (
+                    PyOCCTools.get_points_of_minimum_point_shape_distance(
+                    BRep_Tool.Pnt(moved_pnt1), escape_shape))
+                add_escape_shape2 = PyOCCTools.make_faces_from_pnts([
+                    new_dist_pnts1[0][0], new_dist_pnts2[0][0],
+                    new_dist_pnts2[0][1], new_dist_pnts1[0][1]])
+                add_new_escape_shapes.append(add_escape_shape2)
+        if add_new_escape_shapes:
+            sewed_shape = PyOCCTools.fuse_shapes([escape_shape,
+                                                  *add_new_escape_shapes])
+        else:
+            sewed_shape = escape_shape
+        # unified_sewed_shape = PyOCCTools.unify_shape(sewed_shape)
         solid_sewed_shape = PyOCCTools.make_solid_from_shape(PyOCCTools,
-                                                            unified_sewed_shape)
+                                                            sewed_shape)
         # unified_sewed_shape = PyOCCTools.unify_shape(solid_sewed_shape)
 
         cleaned_obj_trsfs = []
         cleaned_obj_locations = []
         cleaned_footprints = []
-        escape_area = PyOCCTools.get_shape_area(unified_sewed_shape)
+        escape_area = PyOCCTools.get_shape_area(sewed_shape)
         box_footprints = [PyOCCTools.enlarge_bounding_box_shape_in_dir(f) for
                           f in footprints]
         solid_box_footprints = [PyOCCTools.make_solid_from_shape(
             PyOCCTools, ft) for ft in box_footprints]
 
         for i, footprint in enumerate(solid_box_footprints):
-            foot_dist = BRepExtrema_DistShapeShape(unified_sewed_shape, footprint,
+            foot_dist = BRepExtrema_DistShapeShape(sewed_shape, footprint,
                                                    Extrema_ExtFlag_MIN).Value()
             if abs(foot_dist) < 1e-3:
-                common_algo = BRepAlgoAPI_Common(unified_sewed_shape, footprint)
+                common_algo = BRepAlgoAPI_Common(sewed_shape, footprint)
                 common_algo.Build()
                 if not common_algo.IsDone():
                     raise RuntimeError("Intersection computation failed.")
@@ -1718,6 +1748,7 @@ class CreateOpenFOAMGeometry(ITask):
                 # has_overlap = explorer.More()
                 if overlap_shape:
                     overlap_area = PyOCCTools.get_shape_area(overlap_shape)
+                    # print(overlap_area)
                     if overlap_area < 0.02: # allow small overlapping
                         # with escape routes (10cm2)
                         cleaned_obj_trsfs.append(obj_trsfs[i])
