@@ -1580,7 +1580,7 @@ class CreateOpenFOAMGeometry(ITask):
                         obj_locations.append(pos)
                         if len(obj_locations) == requested_amount:
                             break
-                    x_loc += lx_comp_width
+                    x_loc += lx_comp_width / 2
                     if len(obj_locations) == requested_amount:
                         break
                 if max_seats_double_escape_blocks[0] > 0:
@@ -1595,7 +1595,7 @@ class CreateOpenFOAMGeometry(ITask):
                             obj_locations.append(pos)
                             if len(obj_locations) == requested_amount:
                                 break
-                        x_loc += lx_comp_width
+                        x_loc += lx_comp_width / 2
                         if len(obj_locations) == requested_amount:
                             break
                     if len(obj_locations) == requested_amount:
@@ -1611,10 +1611,10 @@ class CreateOpenFOAMGeometry(ITask):
                         obj_locations.append(pos)
                         if len(obj_locations) == requested_amount:
                             break
-                    x_loc += lx_comp_width
+                    x_loc += lx_comp_width / 2
                 if len(obj_locations) == requested_amount:
                     break
-            y_loc += ly_comp_width + escape_route_width
+            y_loc += ly_comp / 2 + escape_route_width
         if switch:
             old_obj_locations = obj_locations
             new_obj_locations = []
