@@ -942,7 +942,8 @@ class PyOCCTools:
             return shapes[0]
         fuse_shape = shapes[0]
         for shape in shapes[1:]:
-            fuse_shape = BRepAlgoAPI_Fuse(fuse_shape, shape).Shape()
+            if not shape.IsNull():
+                fuse_shape = BRepAlgoAPI_Fuse(fuse_shape, shape).Shape()
         return fuse_shape
 
     @staticmethod
