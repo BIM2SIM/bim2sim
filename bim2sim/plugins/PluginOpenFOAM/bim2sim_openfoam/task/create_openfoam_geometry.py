@@ -1391,15 +1391,15 @@ class CreateOpenFOAMGeometry(ITask):
                 ly = temp_ly
         elif self.playground.sim_settings.furniture_orientation == "short_side":
             if temp_lx > temp_ly:
-                lx = temp_ly
-                ly = temp_lx
+                lx = temp_lx
+                ly = temp_ly
                 global_x_position = surf_min_max[0][1]
                 global_y_position = surf_min_max[0][0]
                 rotation_angle = 270
-                switch = True
+                switch = False
             else:
-                lx = temp_lx
-                ly = temp_ly
+                lx = temp_ly
+                ly = temp_lx
         else:
             lx = temp_lx
             ly = temp_ly
@@ -1564,14 +1564,19 @@ class CreateOpenFOAMGeometry(ITask):
                                 temp_max_double_escape_blocks))*
                                                         escape_route_width)/lx_comp_width))
                             add_seats = [
-                                temp_max_seats//len(max_double_escape_blocks)
+                                temp_max_seats//math.ceil(
+                                temp_max_double_escape_blocks)
                                 for s in range(max_double_escape_blocks)]
                             if (abs(sum(add_seats)-temp_max_seats) > 0 and
                                     add_seats):
                                 add_seats[-1] +=abs(sum(
                                     add_seats)-temp_max_seats)
                             if add_seats:
-                                max_seats_double_escape_blocks.append(*add_seats)
+                                if sum(max_seats_double_escape_blocks) == 0:
+                                    max_seats_single_escape_blocks = add_seats
+                                else:
+                                    max_seats_single_escape_blocks += add_seats
+
         elif 'MinXEscape' in available_x_list or 'MaxXEscape' in available_x_list:
             if len(available_x_list) <= 2:
                 for avail_x in available_x_list:
@@ -1601,8 +1606,8 @@ class CreateOpenFOAMGeometry(ITask):
                             remaining_x_width-escape_route_width) / (
                                  lx_comp_width))
                             max_double_escape_blocks += 1
-                            max_seats_double_escape_blocks.append(*[
-                                avail_seats])
+                            max_seats_double_escape_blocks.append(
+                                avail_seats)
                         else:
                             max_double_escape_blocks += math.ceil(
                                 temp_max_double_escape_blocks)
@@ -1611,16 +1616,19 @@ class CreateOpenFOAMGeometry(ITask):
                                     temp_max_double_escape_blocks) *
                                             escape_route_width)) /
                                  lx_comp_width))
-                            add_seats = [temp_max_seats // len(
-                                    max_double_escape_blocks)
+                            add_seats = [temp_max_seats // math.ceil(
+                                temp_max_double_escape_blocks)
                                 for s in range(max_double_escape_blocks)]
                             if (abs(sum(add_seats) - temp_max_seats) > 0 and
                                     add_seats):
                                 add_seats[-1] += abs(sum(
                                     add_seats) - temp_max_seats)
                             if add_seats:
-                                max_seats_double_escape_blocks.append(
-                                    *add_seats)
+                                if sum(max_seats_double_escape_blocks) == 0:
+                                    max_seats_single_escape_blocks = add_seats
+                                else:
+                                    max_seats_single_escape_blocks += add_seats
+
         else:
             for i, avail_x in enumerate(available_x_list):
                 x_max_number = math.floor(avail_x / lx_comp_width)
@@ -1644,15 +1652,18 @@ class CreateOpenFOAMGeometry(ITask):
                             ((avail_x - (temp_max_double_escape_blocks *
                                          escape_route_width)) / lx_comp_width))
                         if temp_max_double_escape_blocks > 0:
-                            add_seats = [temp_max_seats // len(temp_max_double_escape_blocks)
+                            add_seats = [temp_max_seats // temp_max_double_escape_blocks
                                          for s in range(temp_max_double_escape_blocks)]
                             if (abs(sum(add_seats) - temp_max_seats) > 0 and
                                     add_seats):
                                 add_seats[-1] += abs(sum(
                                     add_seats) - temp_max_seats)
                             if add_seats:
-                                max_seats_double_escape_blocks.append(
-                                    *add_seats)
+                                if sum(max_seats_double_escape_blocks) == 0:
+                                    max_seats_single_escape_blocks = add_seats
+                                else:
+                                    max_seats_single_escape_blocks += add_seats
+
                         remaining_x_width = avail_x - \
                             (temp_max_double_escape_blocks*escape_route_width + sum(add_seats) *
                              lx_comp_width)
