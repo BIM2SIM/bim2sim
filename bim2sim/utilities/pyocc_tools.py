@@ -9,6 +9,7 @@ from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepAdaptor import BRepAdaptor_Surface
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Fuse
 from OCC.Core.BRepOffsetAPI import BRepOffsetAPI_MakeOffsetShape
+from OCC.Core.GeomAPI import GeomAPI_IntCS
 from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
 from scipy.spatial import KDTree
 from OCC.Core.BRepBndLib import brepbndlib_Add
@@ -21,12 +22,13 @@ from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, \
     brepgprop_LinearProperties, brepgprop_VolumeProperties, BRepGProp_Face
 from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
-from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
+from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakePrism
 from OCC.Core.BRepTools import BRepTools_WireExplorer
 from OCC.Core.Bnd import Bnd_Box
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.GProp import GProp_GProps
-from OCC.Core.Geom import Handle_Geom_Plane_DownCast
+from OCC.Core.Geom import Handle_Geom_Plane_DownCast, Geom_Line, \
+    Handle_Geom_Curve_DownCast, Handle_Geom_Surface_DownCast
 from OCC.Core.ShapeAnalysis import ShapeAnalysis_ShapeContents
 from OCC.Core.ShapeFix import ShapeFix_Face, ShapeFix_Shape
 from OCC.Core.TopAbs import TopAbs_WIRE, TopAbs_FACE, TopAbs_OUT
@@ -34,7 +36,7 @@ from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopoDS import topods_Wire, TopoDS_Face, TopoDS_Shape, \
     topods_Face, TopoDS_Edge, TopoDS_Solid, TopoDS_Shell, TopoDS_Builder, \
     TopoDS_Compound
-from OCC.Core.gp import gp_XYZ, gp_Pnt, gp_Trsf, gp_Vec, gp_Ax1, gp_Dir
+from OCC.Core.gp import gp_XYZ, gp_Pnt, gp_Trsf, gp_Vec, gp_Ax1, gp_Dir, gp_Lin
 
 
 class PyOCCTools:
@@ -965,4 +967,91 @@ class PyOCCTools:
             pnt_list = [(x1, y1, value), (x2, y1, value), (x2, y2, value),
                         (x1, y2, value)]
         return PyOCCTools.make_faces_from_pnts(pnt_list)
+
+    @staticmethod
+    def find_min_distance_along_direction(start_point, direction, shape,
+                                          max_distance=1e6):
+        """Finds the minimum distance from a start point to a shape along a
+        given direction.
+
+        Args:
+            start_point (gp_Pnt): The starting point.
+            direction (gp_Dir): The direction vector.
+            shape (TopoDS_Shape): The target shape.
+            max_distance (float, optional): The maximum search distance.
+            Defaults to 1e6.
+
+        Returns:
+            tuple or (None, None): A tuple containing the distance and
+            intersection point, or (None, None) if no intersection is found.
+        """
+        # Create a Geom_Line (infinite, but we limit it to the maximum distance)
+        line = Geom_Line(gp_Lin(start_point, direction))
+        # assert line.DynamicType().Name() == "Geom_Curve"
+        line_handle = Handle_Geom_Curve_DownCast(line)
+
+        # Explore the faces of the shape
+        explorer = TopExp_Explorer(shape, TopAbs_FACE)
+        intersections = []
+
+        while explorer.More():
+            face = explorer.Current()
+            # Get the geometry of the face
+            geom_face = BRep_Tool.Surface(face)
+            # assert geom_face.DynamicType().Name() == "Geom_Surface"
+            surf_handle = Handle_Geom_Surface_DownCast(geom_face)
+
+            # Calculate the intersection between the line and the face
+            intersector = GeomAPI_IntCS(line_handle, surf_handle)
+            intersector.Perform(line_handle, surf_handle)
+
+            if intersector.IsDone():
+                for i in range(1, intersector.NbPoints() + 1):
+                    pnt = intersector.Point(i)
+                    # Vector from the start point to the intersection point
+                    vec = gp_Pnt(start_point.X(), start_point.Y(),
+                                 start_point.Z()).Distance(pnt)
+
+                    # Alternatively: Determine if the point lies in the desired direction
+                    # Calculate the dot product between (pnt - start_point) and direction
+                    delta = gp_Pnt(pnt.X() - start_point.X(),
+                                   pnt.Y() - start_point.Y(),
+                                   pnt.Z() - start_point.Z())
+
+                    dot = delta.X() * direction.X() + delta.Y() * direction.Y() + delta.Z() * direction.Z()
+                    if dot > 0:  # Only points in the direction of the ray
+                        intersections.append((start_point.Distance(pnt), pnt))
+
+            explorer.Next()
+
+        if not intersections:
+            return None, None  # No intersection found
+
+        # Find the intersection point with the smallest positive distance (dot)
+        intersections.sort(key=lambda x: x[0])
+        min_distance = intersections[0][0]# / gp_Vec(direction).Magnitude()
+        intersection_point = intersections[0][1]
+
+        # Optionally: Limit the search to max_distance
+        if min_distance > max_distance:
+            return None, None
+
+        return min_distance, intersection_point
+
+    @staticmethod
+    def extrude_face_in_direction(shape:TopoDS_Shape, distance:float=0.1,
+                                  direction:gp_Dir=gp_Dir(0,0,1),
+                                  bidirectional=True):
+        extrusion_vec = gp_Vec(
+            direction.X()*distance, direction.Y()*distance, direction.Z()*distance
+        )
+        extrusion = BRepPrimAPI_MakePrism(shape, extrusion_vec).Shape()
+        if bidirectional:
+            extrusion_vec1 = gp_Vec(
+                direction.X() * -distance, direction.Y() * -distance,
+                direction.Z() * -distance
+            )
+            extrusion1 = BRepPrimAPI_MakePrism(shape, extrusion_vec1).Shape()
+            extrusion = PyOCCTools.fuse_shapes([extrusion, extrusion1])
+        return extrusion
 
