@@ -1706,6 +1706,10 @@ class CreateOpenFOAMGeometry(ITask):
             add_new_escape_shapes.append(add_escape_shape)
             distance_new_escape = BRepExtrema_DistShapeShape(
                 add_escape_shape, escape_shape).Value()
+            distance_mp1 = BRepExtrema_DistShapeShape(
+                moved_pnt1, escape_shape).Value()
+            distance_mp2 = BRepExtrema_DistShapeShape(
+                moved_pnt2, escape_shape).Value()
             if distance_new_escape > 1e-3:
                 new_dist_pnts2 = PyOCCTools.get_points_of_minimum_point_shape_distance(
                     BRep_Tool.Pnt(moved_pnt2), escape_shape)
@@ -1716,6 +1720,30 @@ class CreateOpenFOAMGeometry(ITask):
                     new_dist_pnts1[0][0], new_dist_pnts2[0][0],
                     new_dist_pnts2[0][1], new_dist_pnts1[0][1]])
                 add_new_escape_shapes.append(add_escape_shape2)
+            elif (distance_mp1 and distance_mp2) > 1e-3:
+                if reverse:
+                    min_dist_dir = gp_Dir(*[-1 * d for d in new_dir.Coord()])
+                else:
+                    min_dist_dir = new_dir
+                extruded_escape_shape = PyOCCTools.extrude_face_in_direction(escape_shape,
+                                                                 0.1)
+                min_p1_new = PyOCCTools.find_min_distance_along_direction(
+                    BRep_Tool.Pnt(moved_pnt1), min_dist_dir,
+                    extruded_escape_shape)
+                min_p2_new = PyOCCTools.find_min_distance_along_direction(
+                    BRep_Tool.Pnt(moved_pnt2), min_dist_dir,
+                    extruded_escape_shape)
+
+                add_escape_shape3 = \
+                    PyOCCTools.get_projection_of_bounding_box([moved_pnt1, moved_pnt2,
+                                              *[BRepBuilderAPI_MakeVertex(
+                                                  p).Vertex()
+                                               for p in
+                                               [min_p2_new[1], min_p1_new[1]]]],
+                                              proj_type='z',
+                                              value=p1[0][1].Z())
+                add_new_escape_shapes.append(add_escape_shape3)
+
         if add_new_escape_shapes:
             sewed_shape = PyOCCTools.fuse_shapes([escape_shape,
                                                   *add_new_escape_shapes])
