@@ -1056,3 +1056,108 @@ class PyOCCTools:
             extrusion = PyOCCTools.fuse_shapes([extrusion, extrusion1])
         return extrusion
 
+    @staticmethod
+    def sweep_line_find_intersections_multiple_shapes(p1, p2, shapes,
+                                                      intersection_direction,
+                                                      max_distance=100.0,
+                                                      step=0.005):
+        """
+        Translates a line defined by two points along its direction and finds
+        all intersections
+        with multiple target shapes.
+
+        Args:
+            p1 (gp_Pnt): The first point defining the original line.
+            p2 (gp_Pnt): The second point defining the original line.
+            shapes (list of TopoDS_Shape): The list of target shapes to intersect with.
+            intersection_direction (gp_Dir): direction to find intersections
+            max_distance (float, optional): The maximum translation distance. Defaults to 100.0.
+            step (float, optional): The incremental step for translation.
+            Defaults to 0.05.
+
+        Returns:
+            tuple:
+                - translated_lines (list of Geom_Line): All translated lines.
+                - intersection_points (list of tuples): Each tuple contains (t, shape_index, gp_Pnt).
+                - min_t (float or None): The minimal translation distance where an intersection occurs.
+                - min_delta (float or None): The minimal distance where
+                intersection.
+                - min_pnt (gp_Pnt or None): The corresponding intersection point at min_t.
+        """
+        translated_lines = []
+        intersection_points = []
+
+        # Compute the direction vector from p1 to p2
+        direction_vec = gp_Vec(p1, p2)
+        direction_norm = direction_vec.Magnitude()
+
+        if direction_norm == 0:
+            raise ValueError(
+                "The two points p1 and p2 must define a valid line (distinct "
+                "points).")
+
+        # Normalize the direction vector
+        direction_unit = gp_Dir(direction_vec)
+
+        # Number of steps
+        num_steps = math.ceil(p1.Distance(p2) / step)
+
+        for i in range(num_steps + 1):
+            t = i * step
+
+            translation_vec = gp_Vec(direction_unit)
+            translation_vec.Scale(t)
+
+            translated_p1 = p1.Translated(translation_vec)
+
+            # Define the translated line
+            translated_lin = gp_Lin(translated_p1, intersection_direction)
+            geom_translated_line = Geom_Line(translated_lin)
+            translated_lines.append((t, geom_translated_line))
+
+            # Iterate through all target shapes
+            for shape_index, shape in enumerate(shapes):
+                explorer = TopExp_Explorer(shape, TopAbs_FACE)
+                while explorer.More():
+                    face = explorer.Current()
+                    # Get the surface geometry of the face
+                    face_surface = BRep_Tool.Surface(face)
+                    surf_handle = Handle_Geom_Surface_DownCast(face_surface)
+
+                    # Prepare the line for intersection
+                    line_handle = Handle_Geom_Curve_DownCast(
+                        geom_translated_line)
+
+                    # Compute intersection
+                    intersector = GeomAPI_IntCS(line_handle, surf_handle)
+                    intersector.Perform(line_handle, surf_handle)
+
+                    if intersector.IsDone():
+                        for j in range(1, intersector.NbPoints() + 1):
+                            pnt = intersector.Point(j)
+                            # Check if the intersection point is within the surface bounds
+                            if BRepExtrema_DistShapeShape(BRepBuilderAPI_MakeVertex(pnt).Vertex(), shape,
+                                Extrema_ExtFlag_MIN).Value() < 1e-6:
+                                # Calculate vector from translated_p1 to intersection point
+                                delta = gp_Vec(translated_p1, pnt)
+
+                                # Ensure the intersection point lies in the positive direction
+                                if delta.Dot(gp_Vec(intersection_direction)) >= 0\
+                                        and translated_p1.Distance(pnt) < max_distance:
+                                    # Store the intersection with t, shape index, and point
+                                    intersection_points.append(
+                                        (t, translated_p1.Distance(pnt),
+                                         shape_index, pnt))
+                    explorer.Next()
+
+        # Find the minimal translation distance
+        if intersection_points:
+            # Sort based on translation distance 'delta'
+            intersection_points_sorted = sorted(intersection_points,
+                                                key=lambda x: x[1])
+            min_t, min_delta, min_shape_index, min_pnt = (
+                intersection_points_sorted)[0]
+        else:
+            min_t, min_delta, min_shape_index, min_pnt = None, None, None, None
+
+        return translated_lines, intersection_points, min_t, min_delta, min_pnt
