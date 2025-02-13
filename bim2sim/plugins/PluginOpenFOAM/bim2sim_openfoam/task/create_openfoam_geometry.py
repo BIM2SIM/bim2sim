@@ -1404,6 +1404,68 @@ class CreateOpenFOAMGeometry(ITask):
             lx = temp_lx
             ly = temp_ly
 
+        # calculate areas in front of doors to guarantee escape
+        door_escapes = []
+        for door in doors:
+            reverse=False
+            (min_box, max_box) = PyOCCTools.simple_bounding_box([
+                door.bound_shape])
+            door_lower_pnt1 = gp_Pnt(*min_box)
+            door_lower_pnt2 = gp_Pnt(max_box[0], max_box[1], min_box[2])
+            base_line_pnt1 = door_lower_pnt1
+            base_line_pnt2 = door_lower_pnt2
+            door_width = door_lower_pnt1.Distance(door_lower_pnt2)
+            # add square space in front of doors, depth = escape route width
+            d = gp_Dir(gp_Vec(base_line_pnt1, base_line_pnt2))
+            new_dir = d.Rotated(gp_Ax1(base_line_pnt1, gp_Dir(0, 0, 1)),
+                     math.radians(90))
+            moved_pnt1 = PyOCCTools.move_bound_in_direction_of_normal(
+                                BRepBuilderAPI_MakeVertex(base_line_pnt1).Vertex(),
+                                escape_route_width, move_dir=new_dir, reverse=reverse)
+            moved_dist = BRepExtrema_DistShapeShape(moved_pnt1,
+                                                  bound.bound_shape,
+                                                  Extrema_ExtFlag_MIN).Value()
+            if abs(moved_dist) > 1e-3:
+                reverse = True
+                moved_pnt1 = PyOCCTools.move_bound_in_direction_of_normal(
+                    BRepBuilderAPI_MakeVertex(base_line_pnt1).Vertex(),
+                    escape_route_width, move_dir=new_dir, reverse=reverse)
+            if reverse:
+                moved_pnt2 = PyOCCTools.move_bound_in_direction_of_normal(
+                    BRepBuilderAPI_MakeVertex(base_line_pnt2).Vertex(),
+                    escape_route_width, move_dir=new_dir, reverse=reverse)
+            else:
+                moved_pnt2 = PyOCCTools.move_bound_in_direction_of_normal(
+                    BRepBuilderAPI_MakeVertex(base_line_pnt2).Vertex(),
+                    escape_route_width, move_dir=new_dir, reverse=reverse)
+            add_escape_shape = PyOCCTools.make_faces_from_pnts([base_line_pnt1,
+                                                                base_line_pnt2,
+                                                                BRep_Tool.Pnt(moved_pnt2),
+                                                                BRep_Tool.Pnt(moved_pnt1)])
+            door_escapes.append(add_escape_shape)
+        swp_x1 = gp_Pnt(
+            global_x_position, global_y_position, bound.bound_center.Z())
+        swp_x2 = gp_Pnt(
+            global_x_position, global_y_position+ly, bound.bound_center.Z())
+        swp_dir_x = gp_Pnt(
+            global_x_position+lx, global_y_position, bound.bound_center.Z())
+
+        (translated_lines_x, intersection_points_x, min_t_x, min_delta_x,
+         min_pnt_x) = (
+            PyOCCTools.sweep_line_find_intersections_multiple_shapes(
+            swp_x1, swp_x2, [PyOCCTools.extrude_face_in_direction(s) for s in door_escapes], gp_Dir(gp_Vec(swp_x1, swp_dir_x))))
+
+        # these intersections are relative to the global positions
+        intersect_dict_x = {}
+        for p in set([round(p[1], 3) for p in intersection_points_x]):
+            count = 0
+            for i in [round(p[1], 3) for p in intersection_points_x]:
+                if i == p:
+                    count += 1
+            if count > 4:
+                intersect_dict_x.update({p: count})
+        sorted_intersections_x = dict(sorted(intersect_dict_x.items()))
+
         compound_bbox = PyOCCTools.simple_bounding_box(obj_to_be_placed)
         lx_comp = compound_bbox[1][0] - compound_bbox[0][0]
         ly_comp = compound_bbox[1][1] - compound_bbox[0][1]
@@ -1433,63 +1495,218 @@ class CreateOpenFOAMGeometry(ITask):
              gp_Pnt(compound_bbox[0][0] + lx_comp_width - x_diff / 2,
                     compound_bbox[0][1],
                     compound_bbox[0][2])])
-        x_width_available = lx - escape_route_width
-        x_max_number = math.floor(x_width_available / lx_comp_width)
-        if x_max_number > 2*max_obj_single_escape:
-            temp_max_double_escape_blocks = x_width_available / (
-                escape_route_width + max_obj_two_escape * lx_comp_width)
-            if temp_max_double_escape_blocks < 1:
-                max_single_escape_blocks = 2
-                max_seats_single_escape_blocks = [max_obj_single_escape,
-                                                  max_obj_single_escape]
+        unavail_x_pos = []
+        temp_x_pos = 0
+        reset_x_pos = False
+        for i, key in enumerate(list(sorted_intersections_x.keys())):
+            if i % 2 == 0:
+                if (key - temp_x_pos) < lx_comp_width * min_seats_single_escape:
+                    if unavail_x_pos and unavail_x_pos[-1][1] == temp_x_pos:
+                        unavail_x_pos[-1][1] = key
+                    else:
+                        unavail_x_pos.append([temp_x_pos, key])
             else:
-                max_double_escape_blocks = math.floor(
-                    temp_max_double_escape_blocks)
-                max_seats_double_escape_blocks = [
-                    max_obj_two_escape] * max_double_escape_blocks
-                remaining_x_width = x_width_available - \
-                    (max_double_escape_blocks * lx_comp_width
-                     * max_obj_two_escape + escape_route_width*max_double_escape_blocks)
-                temp_num_seats_single_escape = math.floor(
-                    remaining_x_width/lx_comp_width)
-                if temp_num_seats_single_escape < min_seats_single_escape:
-                    req_num_seats_single_escape = (
-                        min_seats_single_escape - temp_num_seats_single_escape)
-                    max_seats_double_escape_blocks[0] = \
-                        max_seats_double_escape_blocks[0] - req_num_seats_single_escape
-                    max_seats_single_escape_blocks = [min_seats_single_escape,
-                                                      0]
-                elif (min_seats_single_escape < temp_num_seats_single_escape <
-                        2*min_seats_single_escape):
-                    max_seats_single_escape_blocks = \
-                        [temp_num_seats_single_escape, 0]
-                    max_single_escape_blocks = 1
-                elif (2*min_seats_single_escape < temp_num_seats_single_escape
-                      <=2*max_obj_single_escape):
-                    smaller_half_of_seats = temp_num_seats_single_escape//2
-                    max_seats_single_escape_blocks = [smaller_half_of_seats,
-                        temp_num_seats_single_escape-smaller_half_of_seats]
-                    max_single_escape_blocks = 2
-                elif temp_num_seats_single_escape > 2*max_obj_single_escape:
-                    max_seats_single_escape_blocks = [max_obj_single_escape,
-                        max_obj_single_escape]
-                    max_single_escape_blocks = 2
+                if unavail_x_pos and unavail_x_pos[-1][1] == temp_x_pos:
+                    unavail_x_pos[-1][1] = key
                 else:
-                    raise NotImplementedError("The requested number of seats "
-                                              "cannot be processed.")
+                    unavail_x_pos.append([temp_x_pos, key])
+            temp_x_pos = key
+        if temp_x_pos != 0 and abs(lx-temp_x_pos)>1e-3:
+            if abs(temp_x_pos - lx) < lx_comp_width * min_seats_single_escape:
+                if unavail_x_pos and unavail_x_pos[-1][1] == temp_x_pos:
+                    unavail_x_pos[-1][1] = lx
+                else:
+                    unavail_x_pos.append([temp_x_pos, lx])
+
+        available_x_list = []
+        if unavail_x_pos:
+            for i, uxp in enumerate(unavail_x_pos):
+                if uxp[1] - uxp[0] < escape_route_width:
+                    add_escape_dist = escape_route_width - (uxp[1] - uxp[0])
+                else:
+                    add_escape_dist = 0
+                if i == 0 and uxp[0] == 0:
+                    available_x_list.append('MinXEscape')
+                if i == len(unavail_x_pos) - 1:
+                    x_width_available = lx - uxp[1] - add_escape_dist
+                    available_x_list.append(x_width_available)
+                    if abs(uxp[1] - lx) < 1e-3:
+                        available_x_list.append('MaxXEscape')
+                    continue
+                else:
+                    x_width_available = unavail_x_pos[i + 1][0] - uxp[
+                        1] - add_escape_dist
+                available_x_list.append(x_width_available)
         else:
-            if x_max_number < min_seats_single_escape:
-                max_seats_single_escape_blocks = [x_max_number, 0]
-                max_single_escape_blocks = 1
-            elif x_max_number < 2*min_seats_single_escape:
-                max_seats_single_escape_blocks = [x_max_number, 0]
-                max_single_escape_blocks = 1
-            else:
-                smaller_half_of_seats = x_max_number // 2
-                max_seats_single_escape_blocks = \
-                    [smaller_half_of_seats, x_max_number -
-                     smaller_half_of_seats]
-                max_single_escape_blocks = 2
+            x_width_available = lx - escape_route_width
+            available_x_list.append(x_width_available)
+
+        if 'MinXEscape' in available_x_list and 'MaxXEscape' in \
+            available_x_list:
+            max_single_escape_blocks = 0
+            max_seats_single_escape_blocks = [0, 0]
+            for avail_x in available_x_list:
+                if isinstance(avail_x, str):
+                    continue
+                else:
+                    x_max_number = math.floor(avail_x / lx_comp_width)
+                    if x_max_number > max_obj_two_escape:
+                        temp_max_double_escape_blocks = avail_x / (
+                                escape_route_width + max_obj_two_escape * lx_comp_width)
+                        if temp_max_double_escape_blocks < 1:
+                            max_double_escape_blocks += 1
+                            max_seats_double_escape_blocks.append(*[[
+                                max_obj_two_escape] * max_double_escape_blocks])
+                        else:
+                            max_double_escape_blocks += math.ceil(
+                                temp_max_double_escape_blocks)
+                            temp_max_seats = math.floor(((avail_x - (math.ceil(
+                                temp_max_double_escape_blocks))*
+                                                        escape_route_width)/lx_comp_width))
+                            add_seats = [
+                                temp_max_seats//len(max_double_escape_blocks)
+                                for s in range(max_double_escape_blocks)]
+                            if (abs(sum(add_seats)-temp_max_seats) > 0 and
+                                    add_seats):
+                                add_seats[-1] +=abs(sum(
+                                    add_seats)-temp_max_seats)
+                            if add_seats:
+                                max_seats_double_escape_blocks.append(*add_seats)
+        elif 'MinXEscape' in available_x_list or 'MaxXEscape' in available_x_list:
+            if len(available_x_list) <= 2:
+                for avail_x in available_x_list:
+                    if isinstance(avail_x, str):
+                        continue
+                    x_max_number = math.floor(avail_x/lx_comp_width)
+                    if x_max_number < max_obj_single_escape:
+                        set_single_number = x_max_number
+                        remaining_number = 0
+                        max_single_escape_blocks = 1
+                    else:
+                        set_single_number = max_obj_single_escape
+                        remaining_number = x_max_number - set_single_number
+                        max_single_escape_blocks = 1
+                    if 'MinXEscape' in available_x_list:
+                        max_seats_single_escape_blocks = [0, set_single_number]
+                    else:
+                        max_seats_single_escape_blocks = [set_single_number, 0]
+                    if remaining_number > min_seats_single_escape:
+                        remaining_x_width = math.floor(
+                            remaining_number*lx_comp_width)
+
+                        temp_max_double_escape_blocks = remaining_x_width / (
+                                escape_route_width + max_obj_two_escape * lx_comp_width)
+                        if temp_max_double_escape_blocks < 1:
+                            avail_seats = math.floor((
+                            remaining_x_width-escape_route_width) / (
+                                 lx_comp_width))
+                            max_double_escape_blocks += 1
+                            max_seats_double_escape_blocks.append(*[
+                                avail_seats])
+                        else:
+                            max_double_escape_blocks += math.ceil(
+                                temp_max_double_escape_blocks)
+                            temp_max_seats = math.floor(
+                                ((avail_x - (math.ceil(
+                                    temp_max_double_escape_blocks) *
+                                            escape_route_width)) /
+                                 lx_comp_width))
+                            add_seats = [temp_max_seats // len(
+                                    max_double_escape_blocks)
+                                for s in range(max_double_escape_blocks)]
+                            if (abs(sum(add_seats) - temp_max_seats) > 0 and
+                                    add_seats):
+                                add_seats[-1] += abs(sum(
+                                    add_seats) - temp_max_seats)
+                            if add_seats:
+                                max_seats_double_escape_blocks.append(
+                                    *add_seats)
+        else:
+            for i, avail_x in enumerate(available_x_list):
+                x_max_number = math.floor(avail_x / lx_comp_width)
+                if x_max_number > 2*max_obj_single_escape:
+                    temp_max_double_escape_blocks = avail_x / (
+                        escape_route_width + max_obj_two_escape * lx_comp_width)
+                    if temp_max_double_escape_blocks < 1 and (i == 0 and len(
+                            available_x_list) == 1):
+                        max_single_escape_blocks = 2
+                        max_seats_single_escape_blocks = [max_obj_single_escape,
+                                                          max_obj_single_escape]
+                    else:
+                        if 0 < i < len(available_x_list):
+                            temp_max_double_escape_blocks = math.floor(
+                                temp_max_double_escape_blocks)
+                        else:
+                            temp_max_double_escape_blocks = math.ceil(
+                                temp_max_double_escape_blocks)
+                        max_double_escape_blocks += temp_max_double_escape_blocks
+                        temp_max_seats = math.floor(
+                            ((avail_x - (temp_max_double_escape_blocks *
+                                         escape_route_width)) / lx_comp_width))
+                        if temp_max_double_escape_blocks > 0:
+                            add_seats = [temp_max_seats // len(temp_max_double_escape_blocks)
+                                         for s in range(temp_max_double_escape_blocks)]
+                            if (abs(sum(add_seats) - temp_max_seats) > 0 and
+                                    add_seats):
+                                add_seats[-1] += abs(sum(
+                                    add_seats) - temp_max_seats)
+                            if add_seats:
+                                max_seats_double_escape_blocks.append(
+                                    *add_seats)
+                        remaining_x_width = avail_x - \
+                            (temp_max_double_escape_blocks*escape_route_width + sum(add_seats) *
+                             lx_comp_width)
+                        temp_num_seats_single_escape = math.floor(
+                            remaining_x_width/lx_comp_width)
+                        if not 0 < i < len(available_x_list):
+                            if temp_num_seats_single_escape < min_seats_single_escape:
+                                req_num_seats_single_escape = (
+                                    min_seats_single_escape - temp_num_seats_single_escape)
+                                max_seats_double_escape_blocks[0] = \
+                                    max_seats_double_escape_blocks[0] - req_num_seats_single_escape
+                                max_single_escape_blocks = 1
+
+                                if i == 0:
+                                    max_seats_single_escape_blocks = [min_seats_single_escape,
+                                                                      0]
+                                else:
+                                    max_seats_single_escape_blocks = [0,
+                                                                      min_seats_single_escape]
+                            elif (min_seats_single_escape < temp_num_seats_single_escape <
+                                    2*min_seats_single_escape):
+                                if i == 0:
+                                    max_seats_single_escape_blocks = [temp_num_seats_single_escape,
+                                                                      0]
+                                else:
+                                    max_seats_single_escape_blocks = [0,
+                                                                      temp_num_seats_single_escape]
+                                max_single_escape_blocks = 1
+                            elif (2*min_seats_single_escape < temp_num_seats_single_escape
+                                  <=2*max_obj_single_escape):
+                                smaller_half_of_seats = temp_num_seats_single_escape//2
+                                max_seats_single_escape_blocks = [smaller_half_of_seats,
+                                    temp_num_seats_single_escape-smaller_half_of_seats]
+                                max_single_escape_blocks = 2
+                            elif temp_num_seats_single_escape > 2*max_obj_single_escape:
+                                max_seats_single_escape_blocks = [max_obj_single_escape,
+                                    max_obj_single_escape]
+                                max_single_escape_blocks = 2
+                            else:
+                                raise NotImplementedError("The requested number of seats "
+                                                          "cannot be processed.")
+                else:
+                    if x_max_number < min_seats_single_escape:
+                        max_seats_single_escape_blocks = [x_max_number, 0]
+                        max_single_escape_blocks = 1
+                    elif x_max_number < 2*min_seats_single_escape:
+                        max_seats_single_escape_blocks = [x_max_number, 0]
+                        max_single_escape_blocks = 1
+                    else:
+                        smaller_half_of_seats = x_max_number // 2
+                        max_seats_single_escape_blocks = \
+                            [smaller_half_of_seats, x_max_number -
+                             smaller_half_of_seats]
+                        max_single_escape_blocks = 2
 
         # # todo: generalize implementation using divmod
         # if x_max_number > 2*max_obj_single_escape:
@@ -1562,6 +1779,8 @@ class CreateOpenFOAMGeometry(ITask):
         # set number of rows to maximum number in y direction
         obj_locations = []
         y_loc = global_y_position
+        if 'MinXEscape' in available_x_list:
+            global_x_position += unavail_x_pos[0][1]
         for num_rows_in_block in max_rows_per_block:
             obj_rows = num_rows_in_block
             for row in range(obj_rows):
@@ -1601,7 +1820,11 @@ class CreateOpenFOAMGeometry(ITask):
                     if len(obj_locations) == requested_amount:
                         break
                 if max_seats_single_escape_blocks[1] > 0:
-                    x_loc += escape_route_width
+                    if 'MinXEscape' in available_x_list and x_loc \
+                            == global_x_position:
+                        pass
+                    else:
+                        x_loc += escape_route_width
                     for x_pos in range(max_seats_single_escape_blocks[1]):
                         if x_pos == 0:
                             x_loc += lx_comp_width / 2
