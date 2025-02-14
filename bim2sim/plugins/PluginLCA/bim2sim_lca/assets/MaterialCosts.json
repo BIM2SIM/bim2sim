@@ -20,32 +20,32 @@
    "Fussbodenheizung_Copper_100mm_m2": {
       "Components": 25.0,
       "Pipe": 20.0,
-      "Installation": 75.0
+      "Installation": 35.0
    },
    "Fussbodenheizung_Copper_200mm_m2": {
       "Components": 25.0,
       "Pipe": 12.0,
-      "Installation": 75.0
+      "Installation": 35.0
    },
    "Fussbodenheizung_PEX_100mm_m2": {
       "Components": 25.0,
       "Pipe": 8.0,
-      "Installation": 75.0
+      "Installation": 35.0
    },
    "Fussbodenheizung_PEX_200mm_m2": {
       "Components": 25.0,
       "Pipe": 5.0,
-      "Installation": 75.0
+      "Installation": 35.0
    },
    "Fussbodenheizung_PP_100mm_m2": {
       "Components": 25.0,
       "Pipe": 7.0,
-      "Installation": 65.0
+      "Installation": 35.0
    },
    "Fussbodenheizung_PP_200mm_m2": {
       "Components": 25.0,
       "Pipe": 4.0,
-      "Installation": 65.0
+      "Installation": 35.0
    },
    "Lueftungskanal_m2": {
       "Blechkanal": 35.0,
