@@ -842,6 +842,22 @@ class PyOCCTools:
         return new_shape
 
     @staticmethod
+    def generate_obj_trsfs(final_obj_locations: list[gp_Pnt],
+                           org_obj_pos: gp_Pnt, rot_angle=0):
+        obj_trsfs = []
+        angle_radians = math.radians(rot_angle)
+        for loc in final_obj_locations:
+            trsf1 = gp_Trsf()
+            trsf2 = gp_Trsf()
+            trsf1.SetTranslation(org_obj_pos, loc)
+            rotation_axis = gp_Ax1(org_obj_pos,
+                                   gp_Dir(0, 0, 1))
+            trsf2.SetRotation(rotation_axis, angle_radians)
+            trsf = trsf1.Multiplied(trsf2)
+            obj_trsfs.append(trsf)
+        return obj_trsfs
+
+    @staticmethod
     def sample_points_on_faces(shape, u_samples=10, v_samples=10):
         """
         Generate a grid of points on the surfaces of a shape.

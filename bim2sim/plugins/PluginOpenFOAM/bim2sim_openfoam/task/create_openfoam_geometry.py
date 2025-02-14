@@ -2034,22 +2034,6 @@ class CreateOpenFOAMGeometry(ITask):
                             f"requested elements. ")
         return cleaned_obj_locations, cleaned_obj_trsfs
 
-    def generate_obj_trsfs(self, obj_locations: list[gp_Pnt],
-                           obj_pos_to_be_transformed: gp_Pnt, rot_angle=0):
-        obj_trsfs = []
-        angle_radians = math.radians(rot_angle)
-        for loc in obj_locations:
-            trsf1 = gp_Trsf()
-            trsf2 = gp_Trsf()
-            trsf1.SetTranslation(obj_pos_to_be_transformed,
-                                    loc)
-            rotation_axis = gp_Ax1(obj_pos_to_be_transformed,
-                                   gp_Dir(0, 0, 1))
-            trsf2.SetRotation(rotation_axis, angle_radians)
-            trsf = trsf1.Multiplied(trsf2)
-            obj_trsfs.append(trsf)
-        return obj_trsfs
-
 
 def create_stl_from_shape_single_solid_name(triangulated_shape,
                                             stl_file_path_name, solid_name):

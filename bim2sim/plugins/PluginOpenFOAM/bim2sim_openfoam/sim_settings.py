@@ -197,6 +197,8 @@ class OpenFOAMSimSettings(ComfortSimSettings):
             'Office': 'Office setup, chair and desk',
             'Concert': 'Concert setup, chairs in rows',
             'Meeting': 'Meeting setup, large table with chairs',
+            'TwoSideTable': 'Table with chairs on long side',
+            'GroupTable': 'Group table with chairs',
             'Classroom': 'Classroom setup, individual tables with chairs'
         },
         description='Select the type of furniture to add.',
