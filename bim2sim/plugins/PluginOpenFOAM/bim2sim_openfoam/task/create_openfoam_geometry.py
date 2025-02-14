@@ -1224,7 +1224,7 @@ class CreateOpenFOAMGeometry(ITask):
             available_trsfs = openfoam_case.chair_trsfs
 
             person_path = (furniture_path.as_posix() + '/' +
-                           "manikin_split_19parts.stl")
+                           "DIN1729_manikin_split_19parts.stl")
             part_meshes = []
             for m in mesh.Mesh.from_multi_file(person_path):
                 part_meshes.append(m)
@@ -1912,8 +1912,8 @@ class CreateOpenFOAMGeometry(ITask):
                 new_obj_locations.append(gp_Pnt(loc.Y(), loc.X(), loc.Z()))
             obj_locations = new_obj_locations
         obj_trsfs = PyOCCTools.generate_obj_trsfs(obj_locations,
-                                            compound_center_lower,
-                                            rotation_angle)
+                                                  compound_center_lower,
+                                                  rotation_angle)
         footprints = []
         for trsf in obj_trsfs:
             footprints.append(
