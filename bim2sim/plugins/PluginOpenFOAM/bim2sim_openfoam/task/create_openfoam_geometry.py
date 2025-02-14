@@ -30,7 +30,7 @@ from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils.utils_visualizati
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.airterminal import \
     AirTerminal
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.furniture import \
-    Furniture
+    Furniture, Table
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.heater import \
     Heater
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.people import \
@@ -1051,28 +1051,68 @@ class CreateOpenFOAMGeometry(ITask):
         meshes = []
         chair_shape = None
         desk_shape = None
+        table = None
+        furniture_setting = self.playground.sim_settings.furniture_setting
         furniture_path = (Path(__file__).parent.parent / 'assets' / 'geometry' /
-                          'furniture_people_compositions')
+                          'furniture')
         furniture_shapes = []
-        if self.playground.sim_settings.furniture_setting in ['Office',
-                                                              'Concert',
-                                                              'Meeting',
-                                                              'Classroom']:
+
+        if furniture_setting in ['Office', 'Concert', 'Meeting', 'Classroom',
+                                     'GroupTable', 'TwoSideTable']:
             chair_shape = TopoDS_Shape()
             stl_reader = StlAPI_Reader()
             stl_reader.Read(chair_shape,
                             furniture_path.as_posix() + '/' +
-                            "new_compChair.stl")
+                            "DIN1729_ChairH460.stl")
             furniture_shapes.append(chair_shape)
-        if self.playground.sim_settings.furniture_setting in ['Office',
-                                                              'Meeting',
-                                                              'Classroom']:
-            desk_shape = TopoDS_Shape()
-            stl_reader = StlAPI_Reader()
-            stl_reader.Read(desk_shape,
-                            furniture_path.as_posix() + '/' +
-                            "new_compDesk.stl")
-            furniture_shapes.append(desk_shape)
+            if furniture_setting in ['Office', 'Meeting', 'Classroom',
+                                     'GroupTable', 'TwoSideTable']:
+                desk_shape = TopoDS_Shape()
+                stl_reader = StlAPI_Reader()
+                stl_reader.Read(desk_shape,
+                                furniture_path.as_posix() + '/' +
+                                "Table1400x800H760.stl")
+                table = Table(furniture_setting, desk_shape,
+                              triSurface_path=openfoam_case.openfoam_triSurface_dir,
+                              furniture_type='Table',
+                              bbox_min_max=PyOCCTools.simple_bounding_box(
+                                  [desk_shape]),
+                              chair_bbox_min_max=PyOCCTools.simple_bounding_box(
+                                  [chair_shape]))
+                chair_shapes = [BRepBuilderAPI_Transform(chair_shape,
+                                                         tr).Shape() for tr in
+                                table.chair_trsfs]
+                furniture_shapes += chair_shapes
+                furniture_shapes.append(desk_shape)
+
+        # furniture_path = (Path(__file__).parent.parent / 'assets' / 'geometry' /
+        #                   'furniture_people_compositions')
+        # furniture_shapes = []
+        # if self.playground.sim_settings.furniture_setting in ['Office',
+        #                                                       'Concert',
+        #                                                       'Meeting',
+        #                                                       'Classroom']:
+        #     chair_shape = TopoDS_Shape()
+        #     stl_reader = StlAPI_Reader()
+        #     stl_reader.Read(chair_shape,
+        #                     furniture_path.as_posix() + '/' +
+        #                     "new_compChair.stl")
+        #     furniture_shapes.append(chair_shape)
+        # if self.playground.sim_settings.furniture_setting in ['Office',
+        #                                                       'Meeting']:
+        #     desk_shape = TopoDS_Shape()
+        #     stl_reader = StlAPI_Reader()
+        #     stl_reader.Read(desk_shape,
+        #                     furniture_path.as_posix() + '/' +
+        #                     "new_compDesk.stl")
+        #     furniture_shapes.append(desk_shape)
+        # elif self.playground.sim_settings.furniture_setting in ['Classroom']:
+        #     desk_shape = TopoDS_Shape()
+        #     stl_reader = StlAPI_Reader()
+        #     stl_reader.Read(desk_shape,
+        #                     furniture_path.parent.as_posix() + 'furniture/' +
+        #                     "Table1200x600H760.stl")
+        #     furniture_shapes.append(desk_shape)
 
         furniture_compound = TopoDS_Compound()
         builder = TopoDS_Builder()
@@ -1089,7 +1129,8 @@ class CreateOpenFOAMGeometry(ITask):
         if self.playground.sim_settings.furniture_setting in ['Concert',
                                                               'Classroom',
                                                               'Office',
-                                                              'Meeting']:
+                                                              'Meeting',
+                                     'GroupTable', 'TwoSideTable']:
             # todo: remove Office and Meeting setup here and replace by
             #  appropriate other setup
             #  Meeting: 1 two-sided table (rotate every other table by 180deg)
@@ -1118,18 +1159,31 @@ class CreateOpenFOAMGeometry(ITask):
                     furniture_surface.bound, furniture_compound,
                     requested_amount, x_gap, y_gap, side_gap)
         furniture_items = []
+        global_chair_trsfs = []
 
         for i, trsf in enumerate(furniture_trsfs):
             furniture_shape = BRepBuilderAPI_Transform(furniture_compound,
                                                        trsf).Shape()
             furniture_min_max = PyOCCTools.simple_bounding_box(furniture_shape)
             if chair_shape:
-                new_chair_shape = BRepBuilderAPI_Transform(chair_shape,
-                                                           trsf).Shape()
-                chair = Furniture(new_chair_shape,
-                                  openfoam_case.openfoam_triSurface_dir,
-                                  f'Chair{i}')
-                furniture_items.append(chair)
+                if table:
+                    for j, chair_trsf in enumerate(table.chair_trsfs):
+                        global_trsf = trsf.Multiplied(chair_trsf)
+                        global_chair_trsfs.append(global_trsf)
+                        new_chair_shape = BRepBuilderAPI_Transform(
+                            chair_shape, trsf.Multiplied(chair_trsf)).Shape()
+                        chair = Furniture(new_chair_shape,
+                                          openfoam_case.openfoam_triSurface_dir,
+                                          f'Tab{i}_Chair{j}')
+                        furniture_items.append(chair)
+                else:
+                    new_chair_shape = BRepBuilderAPI_Transform(chair_shape,
+                                                               trsf).Shape()
+                    global_chair_trsfs.append(trsf)
+                    chair = Furniture(new_chair_shape,
+                                      openfoam_case.openfoam_triSurface_dir,
+                                      f'Chair{i}')
+                    furniture_items.append(chair)
             if desk_shape:
                 new_desk_shape = BRepBuilderAPI_Transform(desk_shape,
                                                           trsf).Shape()
@@ -1139,6 +1193,7 @@ class CreateOpenFOAMGeometry(ITask):
                 furniture_items.append(desk)
 
         openfoam_case.furniture_trsfs = furniture_trsfs
+        openfoam_case.chair_trsfs = global_chair_trsfs
         return furniture_items
 
     def init_people(self, openfoam_case, elements, openfoam_elements):
@@ -1153,7 +1208,6 @@ class CreateOpenFOAMGeometry(ITask):
             openfoam_elements[people.solid_name] = people
 
     def create_people_shapes(self, openfoam_case, furniture_surface):
-        available_trsfs = openfoam_case.furniture_trsfs
 
         furniture_path = (Path(__file__).parent.parent / 'assets' / 'geometry' /
                           'furniture_people_compositions')
@@ -1167,6 +1221,8 @@ class CreateOpenFOAMGeometry(ITask):
             people_amount = self.playground.sim_settings.people_amount
 
         if self.playground.sim_settings.people_setting in ['Seated']:
+            available_trsfs = openfoam_case.chair_trsfs
+
             person_path = (furniture_path.as_posix() + '/' +
                            "manikin_split_19parts.stl")
             part_meshes = []
@@ -1187,7 +1243,7 @@ class CreateOpenFOAMGeometry(ITask):
             if people_amount > len(available_trsfs):
                 people_amount = len(available_trsfs)
         elif (self.playground.sim_settings.people_setting in ['Standing'] and
-              len(available_trsfs) == 0):
+              len(openfoam_case.chair_trsfs) == 0):
             person_path = (Path(__file__).parent.parent / 'assets' /
                            'geometry' / 'people' / "manikin_standing.stl")
             person_shape = TopoDS_Shape()
@@ -1351,7 +1407,7 @@ class CreateOpenFOAMGeometry(ITask):
                     break
             if len(obj_locations) == requested_amount:
                 break
-        obj_trsfs = self.generate_obj_trsfs(obj_locations,
+        obj_trsfs = PyOCCTools.generate_obj_trsfs(obj_locations,
                                             compound_center_lower)
         return obj_locations, obj_trsfs
 
@@ -1391,15 +1447,15 @@ class CreateOpenFOAMGeometry(ITask):
                 ly = temp_ly
         elif self.playground.sim_settings.furniture_orientation == "short_side":
             if temp_lx > temp_ly:
-                lx = temp_lx
-                ly = temp_ly
+                lx = temp_ly
+                ly = temp_lx
                 global_x_position = surf_min_max[0][1]
                 global_y_position = surf_min_max[0][0]
                 rotation_angle = 270
-                switch = False
+                switch = True
             else:
-                lx = temp_ly
-                ly = temp_lx
+                lx = temp_lx
+                ly = temp_ly
         else:
             lx = temp_lx
             ly = temp_ly
@@ -1511,7 +1567,7 @@ class CreateOpenFOAMGeometry(ITask):
                 else:
                     unavail_x_pos.append([temp_x_pos, key])
             temp_x_pos = key
-        if temp_x_pos != 0 and abs(lx-temp_x_pos)>1e-3:
+        if temp_x_pos != 0 and abs(lx - temp_x_pos)>1e-3:
             if abs(temp_x_pos - lx) < lx_comp_width * min_seats_single_escape:
                 if unavail_x_pos and unavail_x_pos[-1][1] == temp_x_pos:
                     unavail_x_pos[-1][1] = lx
@@ -1528,7 +1584,7 @@ class CreateOpenFOAMGeometry(ITask):
                 if i == 0 and uxp[0] == 0:
                     available_x_list.append('MinXEscape')
                 if i == len(unavail_x_pos) - 1:
-                    x_width_available = lx - uxp[1] - add_escape_dist
+                    x_width_available = abs(lx - uxp[1] - add_escape_dist)
                     available_x_list.append(x_width_available)
                     if abs(uxp[1] - lx) < 1e-3:
                         available_x_list.append('MaxXEscape')
@@ -1538,7 +1594,7 @@ class CreateOpenFOAMGeometry(ITask):
                         1] - add_escape_dist
                 available_x_list.append(x_width_available)
         else:
-            x_width_available = lx - escape_route_width
+            x_width_available = abs(lx - escape_route_width)
             available_x_list.append(x_width_available)
 
         if 'MinXEscape' in available_x_list and 'MaxXEscape' in \
@@ -1855,7 +1911,7 @@ class CreateOpenFOAMGeometry(ITask):
             for loc in obj_locations:
                 new_obj_locations.append(gp_Pnt(loc.Y(), loc.X(), loc.Z()))
             obj_locations = new_obj_locations
-        obj_trsfs = self.generate_obj_trsfs(obj_locations,
+        obj_trsfs = PyOCCTools.generate_obj_trsfs(obj_locations,
                                             compound_center_lower,
                                             rotation_angle)
         footprints = []
