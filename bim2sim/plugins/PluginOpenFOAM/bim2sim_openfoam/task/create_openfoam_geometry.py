@@ -11,7 +11,7 @@ import stl
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Common
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex, \
-    BRepBuilderAPI_Transform
+    BRepBuilderAPI_Transform, BRepBuilderAPI_MakeEdge
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.BRepLib import BRepLib_FuseEdges
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
@@ -1180,6 +1180,36 @@ class CreateOpenFOAMGeometry(ITask):
                         max_rows_per_block, max_obj_single_escape,
                         max_obj_two_escape, escape_route_width, doors,
                         min_distance_last_row=add_chair_depth+0.1))
+            elif self.playground.sim_settings.furniture_setting in [
+                'GroupTable']:
+                chair_bbox = PyOCCTools.simple_bounding_box([chair_shape])
+                add_chair_depth = chair_bbox[1][1] - chair_bbox[0][1]
+                table_bbox = PyOCCTools.simple_bounding_box([desk_shape])
+                add_table_width = table_bbox[1][0] - table_bbox[0][0]
+                min_x_space = 1.5 + add_table_width # space for each seat
+                # SBauVO NRW 2019
+                min_y_distance = 1.5  # between rows SBauVO NRW 2019
+                max_rows_per_block = 5  # SBauVO NRW: max 30 rows per block
+                max_obj_single_escape = 5  # SBauVO NRW: max 10 seats per
+                # row if only a single escape route is available
+                max_obj_two_escape = 10  # SBauVO NRW: max 20 seats in a row
+                # if two escape routes are available
+                if requested_amount <= 200:
+                    escape_route_width = 0.0# 0.9
+                else:
+                    escape_route_width = 1.2
+                min_seats_single_escape = 1
+                min_rows_per_block = 1
+
+                furniture_locations, furniture_trsfs = (
+                    self.generate_grid_positions_w_constraints(
+                    furniture_surface, desk_shape,
+                    requested_amount, min_x_space, min_y_distance,
+                        max_rows_per_block, max_obj_single_escape,
+                        max_obj_two_escape, escape_route_width, doors,
+                        min_dist_all_sides=add_chair_depth+0.1,
+                        min_seats_single_escape=min_seats_single_escape,
+                        min_rows_per_block=min_rows_per_block))
             else:
                 furniture_locations, furniture_trsfs = self.generate_grid_positions(
                     furniture_surface, furniture_compound,
@@ -1451,11 +1481,12 @@ class CreateOpenFOAMGeometry(ITask):
                                               escape_route_width=1.2,
                                               doors=[],
                                               min_distance_last_row=0.0,
-                                              min_dist_all_sides=0.1):
+                                              min_dist_all_sides=0.1,
+                                              min_rows_per_block=3,
+                                              min_seats_single_escape=3):
         furniture_surface_z = PyOCCTools.get_center_of_shape(
             furniture_surface).Z()
-        min_seats_single_escape = 3
-        min_rows_per_block = 3
+
         max_row_blocks = 0  # possible blocks of rows
         max_single_escape_blocks = 0  # possible blocks with single escape route
         max_double_escape_blocks = 0
@@ -1527,15 +1558,15 @@ class CreateOpenFOAMGeometry(ITask):
                 reverse = True
                 moved_pnt1 = PyOCCTools.move_bound_in_direction_of_normal(
                     BRepBuilderAPI_MakeVertex(base_line_pnt1).Vertex(),
-                    escape_route_width, move_dir=new_dir, reverse=reverse)
+                    max(escape_route_width, door_width), move_dir=new_dir, reverse=reverse)
             if reverse:
                 moved_pnt2 = PyOCCTools.move_bound_in_direction_of_normal(
                     BRepBuilderAPI_MakeVertex(base_line_pnt2).Vertex(),
-                    escape_route_width, move_dir=new_dir, reverse=reverse)
+                    max(escape_route_width, door_width), move_dir=new_dir, reverse=reverse)
             else:
                 moved_pnt2 = PyOCCTools.move_bound_in_direction_of_normal(
                     BRepBuilderAPI_MakeVertex(base_line_pnt2).Vertex(),
-                    escape_route_width, move_dir=new_dir, reverse=reverse)
+                    max(escape_route_width, door_width), move_dir=new_dir, reverse=reverse)
             add_escape_shape = PyOCCTools.make_faces_from_pnts([base_line_pnt1,
                                                                 base_line_pnt2,
                                                                 BRep_Tool.Pnt(moved_pnt2),
@@ -1552,7 +1583,13 @@ class CreateOpenFOAMGeometry(ITask):
          min_pnt_x) = (
             PyOCCTools.sweep_line_find_intersections_multiple_shapes(
             swp_x1, swp_x2, [PyOCCTools.extrude_face_in_direction(s) for s in door_escapes], gp_Dir(gp_Vec(swp_x1, swp_dir_x))))
-
+        if door_escapes:
+            inside_door_escape = True if min([BRepExtrema_DistShapeShape(
+                BRepBuilderAPI_MakeEdge(swp_x1, swp_x2).Edge(), d,
+                Extrema_ExtFlag_MIN).Value() for d in door_escapes]) < 1e-4 else (
+                False)
+        else:
+            inside_door_escape = False
         # these intersections are relative to the global positions
         intersect_dict_x = {}
         for p in set([round(p[1], 3) for p in intersection_points_x]):
@@ -1596,8 +1633,12 @@ class CreateOpenFOAMGeometry(ITask):
         unavail_x_pos = []
         temp_x_pos = 0
         reset_x_pos = False
+        if inside_door_escape:
+            k = 1
+        else:
+            k = 0
         for i, key in enumerate(list(sorted_intersections_x.keys())):
-            if i % 2 == 0:
+            if (i+k) % 2 == 0:
                 if (key - temp_x_pos) < lx_comp_width * min_seats_single_escape:
                     if unavail_x_pos and unavail_x_pos[-1][1] == temp_x_pos:
                         unavail_x_pos[-1][1] = key
@@ -1627,9 +1668,10 @@ class CreateOpenFOAMGeometry(ITask):
                     available_x_list.append('MinXEscape')
                 if i == len(unavail_x_pos) - 1:
                     x_width_available = abs(lx - uxp[1] - add_escape_dist)
-                    available_x_list.append(x_width_available)
                     if abs(uxp[1] - lx) < 1e-3:
                         available_x_list.append('MaxXEscape')
+                    else:
+                        available_x_list.append(x_width_available)
                     continue
                 else:
                     x_width_available = unavail_x_pos[i + 1][0] - uxp[
@@ -1678,6 +1720,10 @@ class CreateOpenFOAMGeometry(ITask):
                                     max_seats_single_escape_blocks = add_seats
                                 else:
                                     max_seats_single_escape_blocks += add_seats
+                    else:
+                        max_double_escape_blocks = 1
+                        max_seats_double_escape_blocks = [x_max_number]
+
 
         elif 'MinXEscape' in available_x_list or 'MaxXEscape' in available_x_list:
             if len(available_x_list) <= 2:
@@ -2018,7 +2064,8 @@ class CreateOpenFOAMGeometry(ITask):
                      math.radians(90))
             moved_pnt1 = PyOCCTools.move_bound_in_direction_of_normal(
                                 BRepBuilderAPI_MakeVertex(base_line_pnt1).Vertex(),
-                                escape_route_width, move_dir=new_dir, reverse=reverse)
+                                max(escape_route_width, door_width),
+                          move_dir=new_dir, reverse=reverse)
             moved_dist = BRepExtrema_DistShapeShape(moved_pnt1,
                                                   furniture_surface,
                                                   Extrema_ExtFlag_MIN).Value()
@@ -2026,15 +2073,16 @@ class CreateOpenFOAMGeometry(ITask):
                 reverse = True
                 moved_pnt1 = PyOCCTools.move_bound_in_direction_of_normal(
                     BRepBuilderAPI_MakeVertex(base_line_pnt1).Vertex(),
-                    escape_route_width, move_dir=new_dir, reverse=reverse)
+                    max(escape_route_width, door_width), move_dir=new_dir, reverse=reverse)
             if reverse:
                 moved_pnt2 = PyOCCTools.move_bound_in_direction_of_normal(
                     BRepBuilderAPI_MakeVertex(base_line_pnt2).Vertex(),
-                    escape_route_width, move_dir=new_dir, reverse=reverse)
+                    max(escape_route_width, door_width), move_dir=new_dir, reverse=reverse)
             else:
                 moved_pnt2 = PyOCCTools.move_bound_in_direction_of_normal(
                     BRepBuilderAPI_MakeVertex(base_line_pnt2).Vertex(),
-                    escape_route_width, move_dir=new_dir, reverse=reverse)
+                    max(escape_route_width, door_width), move_dir=new_dir,
+                                                         reverse=reverse)
             add_escape_shape = PyOCCTools.make_faces_from_pnts([base_line_pnt1,
                                                                 base_line_pnt2,
                                                                 BRep_Tool.Pnt(moved_pnt2),
