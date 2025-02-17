@@ -666,19 +666,19 @@ class CreateOpenFOAMGeometry(ITask):
                 # export stl geometry of surrounding surfaces again (including cut
                 # ceiling)
                 # create instances of air terminal class and return them?
-            if len(air_terminals) == 1:
+            if len(outlets) == 0 or len(inlets) == 0:
                 # check for cases with overflow from other spaces
                 stl_bounds = filter_elements(openfoam_elements, 'StlBound')
                 door_sbs = [sb for sb in stl_bounds
                             if 'door' in sb.bound_element_type.lower()]
                 door_outlet_height = 0.02
 
-                if 'zuluft' in air_terminals[0].name.lower():
+                if len(inlets) > 0:
                     # define additional outlet below door
 
                     # case 1 (simplification):
                     # all doors are used as outlets
-                    for dsb in door_sbs:
+                    for i, dsb in enumerate(door_sbs):
                         dsb_shape = dsb.tri_geom
                         dsb_min_max = PyOCCTools.get_minimal_bounding_box(
                             dsb_shape)
@@ -702,7 +702,7 @@ class CreateOpenFOAMGeometry(ITask):
                                              dsb_outlet_cut_shape),
                                          PyOCCTools.get_minimal_bounding_box(
                                              dsb_outlet_cut_shape)]
-                        outlet = AirTerminal(f'outlet_overflow_{len(door_sbs)}',
+                        outlet = AirTerminal(f'outlet_overflow_{i}',
                                              outlet_shapes,
                                              openfoam_case.openfoam_triSurface_dir,
                                              inlet_outlet_type='None')
@@ -711,9 +711,9 @@ class CreateOpenFOAMGeometry(ITask):
                         # considered
                         # for overflow)
 
-                if 'abluft' in air_terminals[0].name.lower():
+                if len(outlets) > 0:
                     # define additional inlet at upper part of door
-                    for dsb in door_sbs:
+                    for i, dsb in enumerate(door_sbs):
                         dsb_shape = dsb.tri_geom
                         dsb_min_max = PyOCCTools.get_minimal_bounding_box(
                             dsb_shape)
@@ -735,7 +735,7 @@ class CreateOpenFOAMGeometry(ITask):
                                             dsb_inlet_cut_shape),
                                         PyOCCTools.get_minimal_bounding_box(
                                             dsb_inlet_cut_shape)]
-                        inlet = AirTerminal(f'inlet_overflow_{len(door_sbs)}',
+                        inlet = AirTerminal(f'inlet_overflow_{i}',
                                             inlet_shapes,
                                             openfoam_case.openfoam_triSurface_dir,
                                             inlet_outlet_type='None')
