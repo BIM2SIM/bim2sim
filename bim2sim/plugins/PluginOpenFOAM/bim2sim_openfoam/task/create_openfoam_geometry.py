@@ -89,7 +89,7 @@ class CreateOpenFOAMGeometry(ITask):
                 # and bound.bound.top_bottom == 'BOTTOM':
                 floor.append(bound)
         if len(floor) == 1:
-            furniture_surface = floor[0]
+            furniture_surface = floor[0].tri_geom
         elif len(floor) > 1:
             logger.warning('more than 1 floor surface detected, using largest '
                            'floor surface.')
@@ -99,8 +99,12 @@ class CreateOpenFOAMGeometry(ITask):
                     furniture_surface = fl
                     fla = fl.bound_area
             logger.warning(f'Multiple floor surfaces ({len(floor)} detected, '
-                           f'using largest surface with area = {fla}. Merge '
+                           f'largest surface has area = {fla}m2. Merge '
                            f'floor surfaces to prevent errors.')
+            fused_floor = PyOCCTools.fuse_shapes([f.tri_geom for f in floor])
+            furniture_surface = fused_floor
+            logger.warning(f'Merged floor surfaces have a total floor area of '
+                        f'{PyOCCTools.get_shape_area(fused_floor)}m2.')
         else:
             raise NotImplementedError('NO FLOOR SURFACE FOUND FOR FURNITURE '
                                       'POSITION.')
@@ -1150,13 +1154,35 @@ class CreateOpenFOAMGeometry(ITask):
                     escape_route_width = 1.2
                 furniture_locations, furniture_trsfs = (
                     self.generate_grid_positions_w_constraints(
-                    furniture_surface.bound, furniture_compound,
+                    furniture_surface, furniture_compound,
                     requested_amount, min_x_space, min_y_distance,
                         max_rows_per_block, max_obj_single_escape,
                         max_obj_two_escape, escape_route_width, doors))
+            elif self.playground.sim_settings.furniture_setting in [
+                'Classroom', 'TwoSideTable']:
+                min_x_space = 0.0  # space for each seat SBauVO NRW 2019
+                min_y_distance = 1.5  # between rows SBauVO NRW 2019
+                max_rows_per_block = 5  # SBauVO NRW: max 30 rows per block
+                max_obj_single_escape = 5  # SBauVO NRW: max 10 seats per
+                # row if only a single escape route is available
+                max_obj_two_escape = 10  # SBauVO NRW: max 20 seats in a row
+                # if two escape routes are available
+                if requested_amount <= 200:
+                    escape_route_width = 0.9
+                else:
+                    escape_route_width = 1.2
+                chair_bbox = PyOCCTools.simple_bounding_box([chair_shape])
+                add_chair_depth = chair_bbox[1][1] - chair_bbox[0][1]
+                furniture_locations, furniture_trsfs = (
+                    self.generate_grid_positions_w_constraints(
+                    furniture_surface, desk_shape,
+                    requested_amount, min_x_space, min_y_distance,
+                        max_rows_per_block, max_obj_single_escape,
+                        max_obj_two_escape, escape_route_width, doors,
+                        min_distance_last_row=add_chair_depth+0.1))
             else:
                 furniture_locations, furniture_trsfs = self.generate_grid_positions(
-                    furniture_surface.bound, furniture_compound,
+                    furniture_surface, furniture_compound,
                     requested_amount, x_gap, y_gap, side_gap)
         furniture_items = []
         global_chair_trsfs = []
@@ -1251,7 +1277,7 @@ class CreateOpenFOAMGeometry(ITask):
             stl_reader.Read(person_shape, person_path.as_posix())
             # people_shapes.append(person_shape)
             people_locations, available_trsfs = self.generate_grid_positions(
-                furniture_surface.bound, person_shape,
+                furniture_surface, person_shape,
                 people_amount, x_gap=0.6, y_gap=0.6, side_gap=0.4)
         else:
             self.logger.warning('Standing people are currently not supported '
@@ -1354,11 +1380,14 @@ class CreateOpenFOAMGeometry(ITask):
                         body_part.stl_file_path_name,
                         body_part.solid_name)
 
-    def generate_grid_positions(self, bound, obj_to_be_placed,
+    def generate_grid_positions(self, furniture_surface, obj_to_be_placed,
                                 requested_amount,
                                 x_gap=0.2, y_gap=0.35,
                                 side_gap=0.6):
-        surf_min_max = PyOCCTools.simple_bounding_box(bound.bound_shape)
+        furniture_surface_z = PyOCCTools.get_center_of_shape(
+            furniture_surface).Z()
+
+        surf_min_max = PyOCCTools.simple_bounding_box(furniture_surface)
         lx = surf_min_max[1][0] - surf_min_max[0][0]
         ly = surf_min_max[1][1] - surf_min_max[0][1]
 
@@ -1401,7 +1430,7 @@ class CreateOpenFOAMGeometry(ITask):
                     x_loc += lx_comp / 2
                 else:
                     x_loc += x_gap + lx_comp
-                pos = gp_Pnt(x_loc, y_loc, bound.bound_center.Z())
+                pos = gp_Pnt(x_loc, y_loc, furniture_surface_z)
                 obj_locations.append(pos)
                 if len(obj_locations) == requested_amount:
                     break
@@ -1411,14 +1440,20 @@ class CreateOpenFOAMGeometry(ITask):
                                             compound_center_lower)
         return obj_locations, obj_trsfs
 
-    def generate_grid_positions_w_constraints(self, bound, obj_to_be_placed,
-                                requested_amount,
-                                min_x_space=0.5,
-                              min_y_distance=0.4,
-                              max_obj_rows_per_block=30,
-                              max_obj_single_escape=10,
-                              max_obj_two_escape=20,
-                              escape_route_width=1.2, doors=[]):
+    def generate_grid_positions_w_constraints(self, furniture_surface,
+                                              obj_to_be_placed,
+                                              requested_amount,
+                                              min_x_space=0.5,
+                                              min_y_distance=0.4,
+                                              max_obj_rows_per_block=30,
+                                              max_obj_single_escape=10,
+                                              max_obj_two_escape=20,
+                                              escape_route_width=1.2,
+                                              doors=[],
+                                              min_distance_last_row=0.0,
+                                              min_dist_all_sides=0.1):
+        furniture_surface_z = PyOCCTools.get_center_of_shape(
+            furniture_surface).Z()
         min_seats_single_escape = 3
         min_rows_per_block = 3
         max_row_blocks = 0  # possible blocks of rows
@@ -1429,7 +1464,7 @@ class CreateOpenFOAMGeometry(ITask):
         max_rows_per_block = [0]
         rotation_angle = 0
         switch = False
-        surf_min_max = PyOCCTools.simple_bounding_box(bound.bound_shape)
+        surf_min_max = PyOCCTools.simple_bounding_box(furniture_surface)
         global_x_position = surf_min_max[0][0]
         global_y_position = surf_min_max[0][1]
         temp_lx = surf_min_max[1][0] - surf_min_max[0][0]
@@ -1460,6 +1495,13 @@ class CreateOpenFOAMGeometry(ITask):
             lx = temp_lx
             ly = temp_ly
 
+        global_y_position += min_distance_last_row
+        ly -= min_distance_last_row
+        global_x_position += min_dist_all_sides
+        global_y_position += min_dist_all_sides
+        lx -= 2*min_dist_all_sides
+        ly -= 2*min_dist_all_sides
+
         # calculate areas in front of doors to guarantee escape
         door_escapes = []
         for door in doors:
@@ -1479,7 +1521,7 @@ class CreateOpenFOAMGeometry(ITask):
                                 BRepBuilderAPI_MakeVertex(base_line_pnt1).Vertex(),
                                 escape_route_width, move_dir=new_dir, reverse=reverse)
             moved_dist = BRepExtrema_DistShapeShape(moved_pnt1,
-                                                  bound.bound_shape,
+                                                  furniture_surface,
                                                   Extrema_ExtFlag_MIN).Value()
             if abs(moved_dist) > 1e-3:
                 reverse = True
@@ -1500,11 +1542,11 @@ class CreateOpenFOAMGeometry(ITask):
                                                                 BRep_Tool.Pnt(moved_pnt1)])
             door_escapes.append(add_escape_shape)
         swp_x1 = gp_Pnt(
-            global_x_position, global_y_position, bound.bound_center.Z())
+            global_x_position, global_y_position, furniture_surface_z)
         swp_x2 = gp_Pnt(
-            global_x_position, global_y_position+ly, bound.bound_center.Z())
+            global_x_position, global_y_position+ly, furniture_surface_z)
         swp_dir_x = gp_Pnt(
-            global_x_position+lx, global_y_position, bound.bound_center.Z())
+            global_x_position+lx, global_y_position, furniture_surface_z)
 
         (translated_lines_x, intersection_points_x, min_t_x, min_delta_x,
          min_pnt_x) = (
@@ -1862,7 +1904,7 @@ class CreateOpenFOAMGeometry(ITask):
                             x_loc += lx_comp_width / 2
                         else:
                             x_loc += lx_comp_width
-                        pos = gp_Pnt(x_loc, y_loc, bound.bound_center.Z())
+                        pos = gp_Pnt(x_loc, y_loc, furniture_surface_z)
                         obj_locations.append(pos)
                         if len(obj_locations) == requested_amount:
                             break
@@ -1877,7 +1919,7 @@ class CreateOpenFOAMGeometry(ITask):
                                 x_loc += lx_comp_width / 2
                             else:
                                 x_loc += lx_comp_width
-                            pos = gp_Pnt(x_loc, y_loc, bound.bound_center.Z())
+                            pos = gp_Pnt(x_loc, y_loc, furniture_surface_z)
                             obj_locations.append(pos)
                             if len(obj_locations) == requested_amount:
                                 break
@@ -1897,7 +1939,7 @@ class CreateOpenFOAMGeometry(ITask):
                             x_loc += lx_comp_width / 2
                         else:
                             x_loc += lx_comp_width
-                        pos = gp_Pnt(x_loc, y_loc, bound.bound_center.Z())
+                        pos = gp_Pnt(x_loc, y_loc, furniture_surface_z)
                         obj_locations.append(pos)
                         if len(obj_locations) == requested_amount:
                             break
@@ -1918,7 +1960,7 @@ class CreateOpenFOAMGeometry(ITask):
         for trsf in obj_trsfs:
             footprints.append(
                 BRepBuilderAPI_Transform(footprint_shape, trsf).Shape())
-        escape_shape = PyOCCTools.triangulate_bound_shape(bound.bound_shape,
+        escape_shape = PyOCCTools.triangulate_bound_shape(furniture_surface,
                                                           footprints)
         add_new_escape_shapes = []
         for door in doors:
@@ -1974,7 +2016,7 @@ class CreateOpenFOAMGeometry(ITask):
                                 BRepBuilderAPI_MakeVertex(base_line_pnt1).Vertex(),
                                 escape_route_width, move_dir=new_dir, reverse=reverse)
             moved_dist = BRepExtrema_DistShapeShape(moved_pnt1,
-                                                  bound.bound_shape,
+                                                  furniture_surface,
                                                   Extrema_ExtFlag_MIN).Value()
             if abs(moved_dist) > 1e-3:
                 reverse = True
