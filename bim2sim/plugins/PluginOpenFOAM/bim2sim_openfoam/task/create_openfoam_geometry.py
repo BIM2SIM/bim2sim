@@ -1653,8 +1653,12 @@ class CreateOpenFOAMGeometry(ITask):
                                 escape_route_width + max_obj_two_escape * lx_comp_width)
                         if temp_max_double_escape_blocks < 1:
                             max_double_escape_blocks += 1
-                            max_seats_double_escape_blocks.append(*[[
-                                max_obj_two_escape] * max_double_escape_blocks])
+                            if sum(max_seats_double_escape_blocks) == 0:
+                                max_seats_double_escape_blocks = [
+                                    max_obj_two_escape] * max_double_escape_blocks
+                            else:
+                                max_seats_double_escape_blocks += [
+                                    max_obj_two_escape] * max_double_escape_blocks
                         else:
                             max_double_escape_blocks += math.ceil(
                                 temp_max_double_escape_blocks)
