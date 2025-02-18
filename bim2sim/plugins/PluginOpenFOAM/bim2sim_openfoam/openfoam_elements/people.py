@@ -217,7 +217,7 @@ class People(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                  people_type, radiation_model, scale,
                  bbox_min_max=None, solid_name='person', power=120, temperature=32,
                  increase_small_refinement=0.10,
-                 increase_large_refinement=0.20):
+                 increase_large_refinement=0.20, add_scaled_shape = False):
 
         super().__init__()
         self.radiation_model = radiation_model
@@ -245,8 +245,11 @@ class People(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         self.body_parts_dict = {key: BodyPart(self, key, value)
                                 for key, value in body_shapes_dict.items()}
         self.area = PyOCCTools.get_shape_area(self.tri_geom)
-        self.scaled_surface = PyOCCTools.create_offset_shape(self.tri_geom,
-                                                             0.03)
+        if add_scaled_shape:
+            self.scaled_surface = PyOCCTools.create_offset_shape(self.tri_geom,
+                                                                 0.03)
+        else:
+            self.scaled_surface = None
 
         # self.refinement_zone_small = []
         # self.refinement_zone_small.append([c - increase_small_refinement for c

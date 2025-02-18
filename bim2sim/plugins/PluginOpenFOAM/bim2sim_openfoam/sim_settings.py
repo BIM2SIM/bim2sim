@@ -274,6 +274,14 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         description='Add solar radiation. Requires fvDOM as radiation model.',
         for_frontend=True
     )
+    add_air_volume_evaluation = BooleanSetting(
+        default=False,
+        description='Add an air volume evaluation. Removes voids of all '
+                    'people, furniture elements, and heaters, to enhance the '
+                    'evaluation of the air volume itself. This is '
+                    'computationally expensive.',
+        for_frontend=True
+    )
     scale_person_for_eval = NumberSetting(
         default=0.05,
         min_value=0.001,

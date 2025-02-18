@@ -1331,7 +1331,8 @@ class CreateOpenFOAMGeometry(ITask):
                 radiation_model=openfoam_case.radiation_model,
                 power=openfoam_case.current_zone.fixed_heat_flow_rate_persons.to(
                         ureg.watt).m,
-                scale=self.playground.sim_settings.scale_person_for_eval)
+                scale=self.playground.sim_settings.scale_person_for_eval, 
+                add_scaled_shape=self.playground.sim_settings.add_air_volume_evaluation)
             people_items.append(person)
         return people_items
 

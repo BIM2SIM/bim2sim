@@ -34,7 +34,8 @@ class CreateOpenFOAMMeshing(ITask):
         self.create_snappyHexMesh(openfoam_case, openfoam_elements)
         self.update_snappyHexMesh_heating(openfoam_case, openfoam_elements)
         self.add_topoSetDict_for_heating(openfoam_case, openfoam_elements)
-        self.modify_topoSet_for_evaluation(openfoam_case, openfoam_elements)
+        if self.playground.sim_settings.add_air_volume_evaluation:
+            self.modify_topoSet_for_evaluation(openfoam_case, openfoam_elements)
         self.update_blockMeshDict_air(openfoam_case, openfoam_elements)
         self.update_snappyHexMesh_air(openfoam_case, openfoam_elements)
         self.update_snappyHexMesh_furniture(openfoam_case, openfoam_elements)
