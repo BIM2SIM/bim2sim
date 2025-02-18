@@ -1157,7 +1157,8 @@ class CreateOpenFOAMGeometry(ITask):
                     furniture_surface, furniture_compound,
                     requested_amount, min_x_space, min_y_distance,
                         max_rows_per_block, max_obj_single_escape,
-                        max_obj_two_escape, escape_route_width, doors))
+                        max_obj_two_escape, escape_route_width, doors,
+                        min_dist_all_sides=0.15))
             elif self.playground.sim_settings.furniture_setting in [
                 'Classroom', 'TwoSideTable']:
                 min_x_space = 0.0  # space for each seat SBauVO NRW 2019
@@ -1179,7 +1180,8 @@ class CreateOpenFOAMGeometry(ITask):
                     requested_amount, min_x_space, min_y_distance,
                         max_rows_per_block, max_obj_single_escape,
                         max_obj_two_escape, escape_route_width, doors,
-                        min_distance_last_row=add_chair_depth+0.1))
+                        min_distance_last_row=add_chair_depth+0.15,
+                        min_dist_all_sides=0.15))
             elif self.playground.sim_settings.furniture_setting in [
                 'GroupTable']:
                 chair_bbox = PyOCCTools.simple_bounding_box([chair_shape])
@@ -1207,7 +1209,7 @@ class CreateOpenFOAMGeometry(ITask):
                     requested_amount, min_x_space, min_y_distance,
                         max_rows_per_block, max_obj_single_escape,
                         max_obj_two_escape, escape_route_width, doors,
-                        min_dist_all_sides=add_chair_depth+0.1,
+                        min_dist_all_sides=add_chair_depth+0.15,
                         min_seats_single_escape=min_seats_single_escape,
                         min_rows_per_block=min_rows_per_block))
             else:
