@@ -1271,6 +1271,7 @@ class CreateOpenFOAMGeometry(ITask):
                           'furniture_people_compositions')
         # people_shapes = []
         people_items = []
+        people_rotations = None
         if self.playground.sim_settings.use_energyplus_people_amount:
             people_amount = math.ceil(openfoam_case.timestep_df.filter(
                 like=openfoam_case.current_zone.guid.upper()
@@ -1308,14 +1309,20 @@ class CreateOpenFOAMGeometry(ITask):
             stl_reader = StlAPI_Reader()
             stl_reader.Read(person_shape, person_path.as_posix())
             # people_shapes.append(person_shape)
+            # set requested_amount independently from people amount for
+            # generating grid positions to allow for random distribution
+            # within the larger number of grid positions.
             people_locations, available_trsfs = self.generate_grid_positions(
-                furniture_surface, person_shape,
-                people_amount, x_gap=0.6, y_gap=0.6, side_gap=0.4)
+                furniture_surface, person_shape, requested_amount=1000,
+                x_gap=0.6, y_gap=0.6, side_gap=0.4)
+            random.seed(23)
+            people_rotations = random.sample(range(359), len(available_trsfs))
         else:
             self.logger.warning('Standing people are currently not supported '
                                 'combined with furniture setups. No people '
                                 'are added.')
             return
+        random.seed(42)
         random_people_choice = random.sample(range(len(available_trsfs)),
                                              people_amount)
         for i, trsf in enumerate(available_trsfs):
@@ -1323,8 +1330,13 @@ class CreateOpenFOAMGeometry(ITask):
                 continue
             if i == people_amount:
                 break
+
             new_person_shape = BRepBuilderAPI_Transform(person_shape,
                                                         trsf).Shape()
+            if people_rotations:
+                new_person_shape = PyOCCTools.rotate_by_deg(
+                    new_person_shape,
+                    rotation=people_rotations[i])
             person = People(
                 new_person_shape, trsf, person_path,
                 openfoam_case.openfoam_triSurface_dir, f'Person{i}',
