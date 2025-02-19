@@ -677,7 +677,7 @@ class CreateOpenFOAMGeometry(ITask):
                             if 'door' in sb.bound_element_type.lower()]
                 door_outlet_height = 0.02
 
-                if len(inlets) > 0:
+                if len(outlets) == 0:
                     # define additional outlet below door
 
                     # case 1 (simplification):
@@ -715,7 +715,7 @@ class CreateOpenFOAMGeometry(ITask):
                         # considered
                         # for overflow)
 
-                if len(outlets) > 0:
+                if len(inlets) == 0:
                     # define additional inlet at upper part of door
                     for i, dsb in enumerate(door_sbs):
                         dsb_shape = dsb.tri_geom
