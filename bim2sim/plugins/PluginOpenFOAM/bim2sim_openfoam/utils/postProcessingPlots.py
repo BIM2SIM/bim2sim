@@ -241,6 +241,8 @@ def MinMaxPlot(of_directory: str, min_max_dir='MinMax',
     T_min = []
     T_max = []
     T_av = []
+    AoA_min = []
+    AoA_max = []
     U_mag_min = []
     U_mag_max = []
     max_dirs = None
@@ -277,6 +279,9 @@ def MinMaxPlot(of_directory: str, min_max_dir='MinMax',
                         umax = line[5]
                         U_mag_min.append(float(umin))
                         U_mag_max.append(float(umax))
+                    elif len(line) > 5 and 'AoA' in line[1]:
+                        AoA_min.append(float(line[2]))
+                        AoA_max.append(float(line[5]))
     if min_dirs and max_dirs:
         for timestep in min_dirs:
             with open(of_directory / f'postProcessing/{min_dir}' /
@@ -312,6 +317,15 @@ def MinMaxPlot(of_directory: str, min_max_dir='MinMax',
     plt.legend(['T_min', 'T_max', 'T_av'])
     plt.title(f'{name} Temperature min/max/average')
     plt.savefig(of_directory / f'{name}minmaxavT.png')
+    plt.show()
+    plt.close()
+    plt.plot(AoA_min, linewidth=1)
+    plt.plot(AoA_max, linewidth=1)
+    plt.ylabel('AoA')
+    plt.xlabel('Iteration')
+    plt.legend(['AoA_min', 'AoA_max'])
+    plt.title(f'{name} AoA min/max')
+    plt.savefig(of_directory / f'{name}_AoA.png')
     plt.show()
     plt.close()
     if time_dirs:
@@ -474,17 +488,19 @@ if __name__ == '__main__':
     # else:
     #     analyze_execution_times(this_path, target_iterations=[1000, 'final'])
     #
-    directory = Path(r'C:\Users\richter\Documents\CFD-Data\PluginTests'
-                     r'\grid_conv_1o1p\P1')
+    directory = Path(r'C:\Users\richter\sciebo\03-Paperdrafts\BS2025\SimData\seminar_1OG_south')
     # Iterate through directories that start with 'diss_'
 
     fig_temp = None
     counter=0
-    for diss_dir in directory.glob('cfd_comf_FZK_org_heat_*'):
+    for diss_dir in directory.glob('*'):
         # Check if "OpenFOAM" subdirectory exists within the current directory
+        # openfoam_dir = diss_dir / 'OpenFOAM'
         openfoam_dir = diss_dir /'export' / 'OpenFOAM'
         if openfoam_dir.is_dir():
             print(openfoam_dir)
+            MinMaxPlot(openfoam_dir,
+                       name=str(diss_dir.name + '_MinMax'))
             try:
                 global_conv_iter = convergencePlot2(openfoam_dir)
                 MinMaxPlot(openfoam_dir, min_max_dir=None,
