@@ -1177,3 +1177,37 @@ class PyOCCTools:
             min_t, min_delta, min_shape_index, min_pnt = None, None, None, None
 
         return translated_lines, intersection_points, min_t, min_delta, min_pnt
+
+    @staticmethod
+    def transform_set_to_origin_based_on_surface(face_normal, compound,
+                                                 ref_dir,
+                                                 rot_ax_dir=gp_Dir(0,0,1)):
+        """
+
+        Args:
+            face:
+            compound:
+            ref_dir: reference direction to compare surface normal of face
+
+        Returns:
+
+        """
+
+        rotation_radians = gp_Vec(face_normal).AngleWithRef(ref_dir,
+                                                            gp_Vec(rot_ax_dir))
+
+        rotation_center = PyOCCTools.get_center_of_shape(compound)
+        rotation_axis = gp_Ax1(rotation_center, rot_ax_dir) # rotate around z
+        trsf_rot = gp_Trsf()
+        trsf_rot.SetRotation(rotation_axis, rotation_radians)
+        rot_compound = BRepBuilderAPI_Transform(compound, trsf_rot).Shape()
+        # rot_face = BRepBuilderAPI_Transform(face, trsf_rot).Shape()
+
+        bbox_min, bbox_max = PyOCCTools.simple_bounding_box([rot_compound])
+
+        # translate bbox_min to origin (0,0,0)
+        trsf_trans = gp_Trsf()
+        trsf_trans.SetTranslation(gp_Pnt(*bbox_min), gp_Pnt(0,0,0))
+        trsf = trsf_trans.Multiplied(trsf_rot)
+
+        return trsf

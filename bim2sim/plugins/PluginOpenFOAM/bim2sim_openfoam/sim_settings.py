@@ -215,11 +215,12 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         choices={
             'long_side': 'Long side of a rectangular space',
             'short_side': 'short side of a rectangular space',
-            'window_long': 'long window side of a rectangular space',
-            'window_short': 'short window side of a rectangular space',
-            'door_short': 'short door side of a rectangular space',
-            'door_long': 'short door side of a rectangular space',
-
+            'window': 'window side of a rectangular space',
+            'door': 'door side of a rectangular space',
+            'north': 'North side',
+            'east': 'East side',
+            'south': 'South side',
+            'west': 'West side',
         }
     )
     add_people = BooleanSetting(

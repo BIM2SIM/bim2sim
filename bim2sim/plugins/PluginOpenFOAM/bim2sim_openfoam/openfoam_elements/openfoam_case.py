@@ -1,6 +1,7 @@
 
 class OpenFOAMCase:
     def __init__(self, playground):
+        self.current_zone = None
         self.topoSetDict = None
         self.turbulenceProperties = None
         self.radiationProperties = None

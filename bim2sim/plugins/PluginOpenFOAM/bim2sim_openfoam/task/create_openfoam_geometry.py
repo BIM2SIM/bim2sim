@@ -1139,7 +1139,99 @@ class CreateOpenFOAMGeometry(ITask):
             #  appropriate other setup
             #  Meeting: 1 two-sided table (rotate every other table by 180deg)
             #  Office: similar to meeting, but spread tables in Office.
-            # calculate amount of rows
+            #  calculate amount of rows
+            space_bbox = PyOCCTools.simple_bounding_box_shape([
+                openfoam_case.current_zone.space_shape])
+            orientation_dict = {'north': gp_Dir(0, 1, 0),
+                                'east': gp_Dir(1, 0, 0),
+                                'south': gp_Dir(0, -1, 0),
+                                'west': gp_Dir(-1, 0, 0)}
+
+            space_bbox_min, space_bbox_max = PyOCCTools.simple_bounding_box([
+                openfoam_case.current_zone.space_shape])
+            north = space_bbox_max[1]
+            south = space_bbox_min[1]
+            east = space_bbox_max[0]
+            west = space_bbox_min[0]
+            # transform to origin
+            if self.playground.sim_settings.furniture_orientation == 'door':
+                # todo: Check if door is north/east/south/west
+                if doors:
+                    if abs(doors[0].bound_center.X()-east) < 1e-3:
+                        orientation_dir = orientation_dict['east']
+                    elif abs(doors[0].bound_center.X()-west) < 1e-3:
+                        orientation_dir = orientation_dict['west']
+                    elif abs(doors[0].bound_center.Y()-south) < 1e-3:
+                        orientation_dir = orientation_dict['south']
+                    else:
+                        orientation_dir = orientation_dict['north']
+                else:
+                    self.logger.warning("Furniture orientation 'Door' "
+                                        "requested, but no door found. "
+                                        "Furniture orientation is set to "
+                                        "'north'.")
+                    orientation_dir = orientation_dict['north']
+            elif self.playground.sim_settings.furniture_orientation == 'window':
+                # todo: Check if window is north/east/south/west
+                windows = []
+                for bound in openfoam_case.current_bounds:
+                    if bound.bound_element:
+                        if "WINDOW" in bound.bound_element.element_type.upper():
+                            windows.append(bound)
+                if windows:
+                    if abs(windows[0].bound_center.X()-east) < 1e-3:
+                        orientation_dir = orientation_dict['east']
+                    elif abs(windows[0].bound_center.X()-west) < 1e-3:
+                        orientation_dir = orientation_dict['west']
+                    elif abs(windows[0].bound_center.Y()-south) < 1e-3:
+                        orientation_dir = orientation_dict['south']
+                    else:
+                        orientation_dir = orientation_dict['north']
+                else:
+                    self.logger.warning("Furniture orientation 'window' "
+                                        "requested, but no window found. "
+                                        "Furniture orientation is set to "
+                                        "'north'.")
+                    orientation_dir = orientation_dict['north']
+            elif self.playground.sim_settings.furniture_orientation in list(
+                    orientation_dict.keys()):
+                orientation_dir = \
+                    orientation_dict[
+                        self.playground.sim_settings.furniture_orientation]
+            elif (self.playground.sim_settings.furniture_orientation in
+                  ['short_side', 'long_side']):
+                bbox_min, bbox_max = PyOCCTools.simple_bounding_box(space_bbox)
+                box_x = bbox_max[0] - bbox_min[0]
+                box_y = bbox_max[1] - bbox_min[1]
+                if (self.playground.sim_settings.furniture_orientation ==
+                        'short_side'):
+                    if box_x < box_y:
+                        orientation_dir = gp_Dir(0, -1, 0)
+                    else:
+                        orientation_dir = gp_Dir(-1, 0, 0)
+                else:
+                    if box_x > box_y:
+                        orientation_dir = gp_Dir(0, -1, 0)
+                    else:
+                        orientation_dir = gp_Dir(-1, 0, 0)
+            else:
+                self.logger.warning("Furniture orientation not implemented,"
+                                    "Furniture orientation is set to 'north'.")
+                orientation_dir = orientation_dict['north']
+
+            trsf_to_origin = (
+                PyOCCTools.transform_set_to_origin_based_on_surface(
+                    orientation_dir, space_bbox,
+                    ref_dir=gp_Vec(0, 1, 0)))
+            trsf_back_to_global = trsf_to_origin.Inverted()
+            furniture_surface_at_origin = BRepBuilderAPI_Transform(
+                furniture_surface, trsf_to_origin).Shape()
+            door_shapes_at_origin = []
+            if doors:
+                for door in doors:
+                    door_at_origin = BRepBuilderAPI_Transform(
+                        door.bound_shape, trsf_to_origin).Shape()
+                    door_shapes_at_origin.append(door_at_origin)
             if self.playground.sim_settings.furniture_setting == 'Concert':
                 min_x_space = 0.5  # space for each seat SBauVO NRW 2019
                 min_y_distance = 0.4  # between rows SBauVO NRW 2019
@@ -1152,12 +1244,12 @@ class CreateOpenFOAMGeometry(ITask):
                     escape_route_width = 0.9
                 else:
                     escape_route_width = 1.2
-                furniture_locations, furniture_trsfs = (
+                furniture_locations_origin, furniture_trsfs_origin = (
                     self.generate_grid_positions_w_constraints(
-                    furniture_surface, furniture_compound,
+                    furniture_surface_at_origin, furniture_compound,
                     requested_amount, min_x_space, min_y_distance,
                         max_rows_per_block, max_obj_single_escape,
-                        max_obj_two_escape, escape_route_width, doors,
+                        max_obj_two_escape, escape_route_width, door_shapes_at_origin,
                         min_dist_all_sides=0.15))
             elif self.playground.sim_settings.furniture_setting in [
                 'Classroom', 'TwoSideTable']:
@@ -1174,12 +1266,12 @@ class CreateOpenFOAMGeometry(ITask):
                     escape_route_width = 1.2
                 chair_bbox = PyOCCTools.simple_bounding_box([chair_shape])
                 add_chair_depth = chair_bbox[1][1] - chair_bbox[0][1]
-                furniture_locations, furniture_trsfs = (
+                furniture_locations_origin, furniture_trsfs_origin = (
                     self.generate_grid_positions_w_constraints(
-                    furniture_surface, desk_shape,
+                    furniture_surface_at_origin, desk_shape,
                     requested_amount, min_x_space, min_y_distance,
                         max_rows_per_block, max_obj_single_escape,
-                        max_obj_two_escape, escape_route_width, doors,
+                        max_obj_two_escape, escape_route_width, doors_at_origin,
                         min_distance_last_row=add_chair_depth+0.15,
                         min_dist_all_sides=0.15))
             elif self.playground.sim_settings.furniture_setting in [
@@ -1203,22 +1295,31 @@ class CreateOpenFOAMGeometry(ITask):
                 min_seats_single_escape = 1
                 min_rows_per_block = 1
 
-                furniture_locations, furniture_trsfs = (
+                furniture_locations_origin, furniture_trsfs_origin = (
                     self.generate_grid_positions_w_constraints(
-                    furniture_surface, desk_shape,
+                    furniture_surface_at_origin, desk_shape,
                     requested_amount, min_x_space, min_y_distance,
                         max_rows_per_block, max_obj_single_escape,
-                        max_obj_two_escape, escape_route_width, doors,
+                        max_obj_two_escape, escape_route_width, doors_at_origin,
                         min_dist_all_sides=add_chair_depth+0.15,
                         min_seats_single_escape=min_seats_single_escape,
                         min_rows_per_block=min_rows_per_block))
             else:
-                furniture_locations, furniture_trsfs = self.generate_grid_positions(
-                    furniture_surface, furniture_compound,
-                    requested_amount, x_gap, y_gap, side_gap)
+                furniture_locations_origin, furniture_trsfs_origin = (
+                    self.generate_grid_positions(
+                    furniture_surface_at_origin, furniture_compound,
+                    requested_amount, x_gap, y_gap, side_gap))
         furniture_items = []
         global_chair_trsfs = []
+        furniture_locations = []
+        furniture_trsfs = []
+        trsf_back_to_global_translation = trsf_back_to_global.TranslationPart()
 
+        for loc in furniture_locations_origin:
+            furniture_locations.append(gp_Pnt(loc.XYZ() + \
+                                              trsf_back_to_global_translation))
+        for tr in furniture_trsfs_origin:
+            furniture_trsfs.append(trsf_back_to_global.Multiplied(tr))
         for i, trsf in enumerate(furniture_trsfs):
             furniture_shape = BRepBuilderAPI_Transform(furniture_compound,
                                                        trsf).Shape()
@@ -1513,33 +1614,33 @@ class CreateOpenFOAMGeometry(ITask):
         surf_min_max = PyOCCTools.simple_bounding_box(furniture_surface)
         global_x_position = surf_min_max[0][0]
         global_y_position = surf_min_max[0][1]
-        temp_lx = surf_min_max[1][0] - surf_min_max[0][0]
-        temp_ly = surf_min_max[1][1] - surf_min_max[0][1]
-        if self.playground.sim_settings.furniture_orientation == 'long_side':
-            if temp_lx < temp_ly:
-                lx = temp_ly
-                ly = temp_lx
-                global_x_position = surf_min_max[0][1]
-                global_y_position = surf_min_max[0][0]
-                rotation_angle = 270
-                switch = True
-            else:
-                lx = temp_lx
-                ly = temp_ly
-        elif self.playground.sim_settings.furniture_orientation == "short_side":
-            if temp_lx > temp_ly:
-                lx = temp_ly
-                ly = temp_lx
-                global_x_position = surf_min_max[0][1]
-                global_y_position = surf_min_max[0][0]
-                rotation_angle = 270
-                switch = True
-            else:
-                lx = temp_lx
-                ly = temp_ly
-        else:
-            lx = temp_lx
-            ly = temp_ly
+        lx = surf_min_max[1][0] - surf_min_max[0][0]
+        ly = surf_min_max[1][1] - surf_min_max[0][1]
+        # if self.playground.sim_settings.furniture_orientation == 'long_side':
+        #     if temp_lx < temp_ly:
+        #         lx = temp_ly
+        #         ly = temp_lx
+        #         global_x_position = surf_min_max[0][1]
+        #         global_y_position = surf_min_max[0][0]
+        #         rotation_angle = 270
+        #         switch = True
+        #     else:
+        #         lx = temp_lx
+        #         ly = temp_ly
+        # elif self.playground.sim_settings.furniture_orientation == "short_side":
+        #     if temp_lx > temp_ly:
+        #         lx = temp_ly
+        #         ly = temp_lx
+        #         global_x_position = surf_min_max[0][1]
+        #         global_y_position = surf_min_max[0][0]
+        #         rotation_angle = 270
+        #         switch = True
+        #     else:
+        #         lx = temp_lx
+        #         ly = temp_ly
+        # else:
+        #     lx = temp_lx
+        #     ly = temp_ly
 
         global_y_position += min_distance_last_row
         ly -= min_distance_last_row
@@ -1550,10 +1651,10 @@ class CreateOpenFOAMGeometry(ITask):
 
         # calculate areas in front of doors to guarantee escape
         door_escapes = []
-        for door in doors:
+        for door_shape in doors:
             reverse=False
             (min_box, max_box) = PyOCCTools.simple_bounding_box([
-                door.bound_shape])
+                door_shape])
             door_lower_pnt1 = gp_Pnt(*min_box)
             door_lower_pnt2 = gp_Pnt(max_box[0], max_box[1], min_box[2])
             base_line_pnt1 = door_lower_pnt1
@@ -1666,6 +1767,7 @@ class CreateOpenFOAMGeometry(ITask):
                     unavail_x_pos.append([temp_x_pos, key])
             temp_x_pos = key
         if temp_x_pos != 0 and abs(lx - temp_x_pos)>1e-3:
+            # todo: double check
             if abs(temp_x_pos - lx) < lx_comp_width * min_seats_single_escape:
                 if unavail_x_pos and unavail_x_pos[-1][1] == temp_x_pos:
                     unavail_x_pos[-1][1] = lx
@@ -1679,8 +1781,10 @@ class CreateOpenFOAMGeometry(ITask):
                     add_escape_dist = escape_route_width - (uxp[1] - uxp[0])
                 else:
                     add_escape_dist = 0
-                if i == 0 and uxp[0] == 0:
+                if i == 0 and uxp[0] < global_x_position:
                     available_x_list.append('MinXEscape')
+                elif i == 0 and uxp[0] > escape_route_width:
+                    available_x_list.append(uxp[0])
                 if i == len(unavail_x_pos) - 1:
                     x_width_available = abs(lx - uxp[1] - add_escape_dist)
                     if abs(uxp[1] - lx) < 1e-3:
@@ -2028,10 +2132,10 @@ class CreateOpenFOAMGeometry(ITask):
         escape_shape = PyOCCTools.triangulate_bound_shape(furniture_surface,
                                                           footprints)
         add_new_escape_shapes = []
-        for door in doors:
+        for door_shape in doors:
             reverse=False
             (min_box, max_box) = PyOCCTools.simple_bounding_box([
-                door.bound_shape])
+                door_shape])
             door_lower_pnt1 = gp_Pnt(*min_box)
             door_lower_pnt2 = gp_Pnt(max_box[0], max_box[1], min_box[2])
             base_line_pnt1 = door_lower_pnt1
@@ -2042,7 +2146,7 @@ class CreateOpenFOAMGeometry(ITask):
             p2 = PyOCCTools.get_points_of_minimum_point_shape_distance(
                 door_lower_pnt2, escape_shape)
             if ((p1[0][2] or p2[0][2]) and BRepExtrema_DistShapeShape(
-                    door.bound_shape, escape_shape,
+                    door_shape, escape_shape,
                            Extrema_ExtFlag_MIN).Value()) > 0.001:
                 # add closest path to escape route
                 # ensure that neither the lower points of the door nor
@@ -2146,6 +2250,14 @@ class CreateOpenFOAMGeometry(ITask):
         if add_new_escape_shapes:
             sewed_shape = PyOCCTools.fuse_shapes([escape_shape,
                                                   *add_new_escape_shapes])
+            area_escape_shape = PyOCCTools.get_shape_area(escape_shape)
+            add_escape_areas = [PyOCCTools.get_shape_area(add_escape) for
+                                add_escape in add_new_escape_shapes]
+            sewed_area = PyOCCTools.get_shape_area(sewed_shape)
+            if (abs((area_escape_shape + sum(add_escape_areas)) - sewed_area)
+                    > 1):
+                sewed_shape = PyOCCTools.fuse_shapes([escape_shape,
+                                                      *add_new_escape_shapes])
         else:
             sewed_shape = escape_shape
         # unified_sewed_shape = PyOCCTools.unify_shape(sewed_shape)
