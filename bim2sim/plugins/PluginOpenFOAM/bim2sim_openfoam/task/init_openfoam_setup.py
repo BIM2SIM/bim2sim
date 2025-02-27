@@ -23,6 +23,8 @@ class InitializeOpenFOAMSetup(ITask):
     reads = ()
     touches = ('openfoam_case',)
 
+    single_use = False
+
     def __init__(self, playground):
         super().__init__(playground)
 
@@ -220,30 +222,33 @@ class InitializeOpenFOAMSetup(ITask):
                 file.write(content)
 
     def read_ep_results(self, openfoam_case, year=1900, date='12/21', time=11):
-        full_results_df = pd.read_csv(
-            self.paths.export / 'EnergyPlus' / 'SimResults' /
-            self.playground.project.name
-            / 'eplusout.csv')
-        full_results_df['Date/Time'] = full_results_df['Date/Time'].apply(
-            PostprocessingUtils._string_to_datetime)
-        full_results_df = full_results_df.set_index('Date/Time')
-        target_date = datetime.strptime(f"{year}-{date} {time:02}", "%Y-%m/%d %H")
-        if target_date in full_results_df.index:
-            openfoam_case.timestep_df = full_results_df.loc[
-                f"{year}-{date} {time:02}:00:00"]
-        else:
-            self.logger.warning(f"The requested date: {year}-{date} {time:02} "
-                                f"is not available in the eplusout.csv file. "
-                                f"Calculating the closest available timestep "
-                                f"for the selected hour of the day.")
-            target_day = pd.to_datetime(target_date).dayofyear
-            dates = full_results_df.index
-            filtered_dates = dates[dates.hour == time]
-            delta = (filtered_dates.dayofyear - target_day) % 366
-            min_delta = delta.min()
-            new_date = filtered_dates[delta == min_delta]
-            openfoam_case.timestep_df = full_results_df.loc[
-                new_date].squeeze(axis=0)
-            self.logger.warning(f"The new date is set to {new_date}. This is "
-                                f"the timestep for the OpenFOAM simulation.")
-
+        try:
+            full_results_df = pd.read_csv(
+                self.paths.export / 'EnergyPlus' / 'SimResults' /
+                self.playground.project.name
+                / 'eplusout.csv')
+            full_results_df['Date/Time'] = full_results_df['Date/Time'].apply(
+                PostprocessingUtils._string_to_datetime)
+            full_results_df = full_results_df.set_index('Date/Time')
+            target_date = datetime.strptime(f"{year}-{date} {time:02}", "%Y-%m/%d %H")
+            if target_date in full_results_df.index:
+                openfoam_case.timestep_df = full_results_df.loc[
+                    f"{year}-{date} {time:02}:00:00"]
+            else:
+                self.logger.warning(f"The requested date: {year}-{date} {time:02} "
+                                    f"is not available in the eplusout.csv file. "
+                                    f"Calculating the closest available timestep "
+                                    f"for the selected hour of the day.")
+                target_day = pd.to_datetime(target_date).dayofyear
+                dates = full_results_df.index
+                filtered_dates = dates[dates.hour == time]
+                delta = (filtered_dates.dayofyear - target_day) % 366
+                min_delta = delta.min()
+                new_date = filtered_dates[delta == min_delta]
+                openfoam_case.timestep_df = full_results_df.loc[
+                    new_date].squeeze(axis=0)
+                self.logger.warning(f"The new date is set to {new_date}. This is "
+                                    f"the timestep for the OpenFOAM simulation.")
+        except FileNotFoundError:
+            self.logger.warning("No sim_results found. Boundary conditions "
+                                "cannot be generated. ")

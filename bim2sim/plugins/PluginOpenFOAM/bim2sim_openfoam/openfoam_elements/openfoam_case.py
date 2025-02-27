@@ -1,6 +1,7 @@
 
 class OpenFOAMCase:
     def __init__(self, playground):
+        self.current_zone = None
         self.topoSetDict = None
         self.turbulenceProperties = None
         self.radiationProperties = None
@@ -19,6 +20,7 @@ class OpenFOAMCase:
         self.required_heating_power = 0
         self.required_cooling_power = 0
         self.furniture_trsfs = []
+        self.chair_trsfs = []
         self.default_surface_names =['boundingbox']# ['Back', 'Bottom', 'Front', 'Top', 'Left',
                                      # 'Right']
         if playground.sim_settings.simulation_type == 'transient':

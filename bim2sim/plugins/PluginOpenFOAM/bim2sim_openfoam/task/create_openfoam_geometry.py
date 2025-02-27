@@ -8,15 +8,20 @@ from pathlib import Path
 
 import numpy as np
 import stl
+from OCC.Core.BRep import BRep_Tool
+from OCC.Core.BRepAlgoAPI import BRepAlgoAPI_Cut, BRepAlgoAPI_Common
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeVertex, \
-    BRepBuilderAPI_Transform
+    BRepBuilderAPI_Transform, BRepBuilderAPI_MakeEdge
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
 from OCC.Core.BRepLib import BRepLib_FuseEdges
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.StlAPI import StlAPI_Writer, StlAPI_Reader
+from OCC.Core.TopAbs import TopAbs_SOLID
+from OCC.Core.TopExp import TopExp_Explorer
+from OCC.Core.TopOpeBRep import TopOpeBRep_ShapeIntersector
 from OCC.Core.TopoDS import TopoDS_Compound, TopoDS_Builder, TopoDS_Shape
-from OCC.Core.gp import gp_Pnt, gp_XYZ, gp_Trsf
+from OCC.Core.gp import gp_Pnt, gp_XYZ, gp_Trsf, gp_Ax1, gp_Dir, gp_Vec
 from stl import mesh
 
 from bim2sim.elements.mapping.units import ureg
@@ -25,7 +30,7 @@ from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils.utils_visualizati
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.airterminal import \
     AirTerminal
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.furniture import \
-    Furniture
+    Furniture, Table
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.heater import \
     Heater
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.people import \
@@ -45,16 +50,18 @@ class CreateOpenFOAMGeometry(ITask):
     """This ITask initializes the OpenFOAM Geometry.
     """
 
-    reads = ('openfoam_case', 'elements', 'idf')
+    reads = ('openfoam_case', 'elements')
     touches = ('openfoam_case', 'openfoam_elements')
+
+    single_use = False
 
     def __init__(self, playground):
         super().__init__(playground)
 
-    def run(self, openfoam_case, elements, idf):
+    def run(self, openfoam_case, elements):
         openfoam_elements = dict()
         self.init_zone(openfoam_case,
-                       elements, idf, openfoam_elements,
+                       elements, openfoam_elements,
                        space_guid=self.playground.sim_settings.select_space_guid)
         # todo: add geometry for heater and air terminals
         self.init_heater(openfoam_case, elements, openfoam_elements)
@@ -84,7 +91,7 @@ class CreateOpenFOAMGeometry(ITask):
                 # and bound.bound.top_bottom == 'BOTTOM':
                 floor.append(bound)
         if len(floor) == 1:
-            furniture_surface = floor[0]
+            furniture_surface = floor[0].tri_geom
         elif len(floor) > 1:
             logger.warning('more than 1 floor surface detected, using largest '
                            'floor surface.')
@@ -94,27 +101,33 @@ class CreateOpenFOAMGeometry(ITask):
                     furniture_surface = fl
                     fla = fl.bound_area
             logger.warning(f'Multiple floor surfaces ({len(floor)} detected, '
-                           f'using largest surface with area = {fla}. Merge '
+                           f'largest surface has area = {fla}m2. Merge '
                            f'floor surfaces to prevent errors.')
+            fused_floor = PyOCCTools.fuse_shapes([f.tri_geom for f in floor])
+            furniture_surface = fused_floor
+            logger.warning(f'Merged floor surfaces have a total floor area of '
+                        f'{PyOCCTools.get_shape_area(fused_floor)}m2.')
         else:
             raise NotImplementedError('NO FLOOR SURFACE FOUND FOR FURNITURE '
                                       'POSITION.')
         openfoam_case.furniture_surface = furniture_surface
 
     @staticmethod
-    def init_zone(openfoam_case, elements, idf, openfoam_elements,
+    def init_zone(openfoam_case, elements, openfoam_elements,
                   space_guid='2RSCzLOBz4FAK$_wE8VckM'):
         # guid '2RSCzLOBz4FAK$_wE8VckM' Single office has no 2B bounds
         # guid '3$f2p7VyLB7eox67SA_zKE' Traffic area has 2B bounds
 
         openfoam_case.current_zone = elements[space_guid]
+        if not openfoam_case.current_zone.fixed_heat_flow_rate_persons:
+            openfoam_case.current_zone.fixed_heat_flow_rate_persons = 0
         openfoam_case.floor_area = openfoam_case.current_zone.net_area.m
         openfoam_case.current_bounds = openfoam_case.current_zone.space_boundaries
         if hasattr(openfoam_case.current_zone, 'space_boundaries_2B'):  # todo
             # remove 2b
             openfoam_case.current_bounds += openfoam_case.current_zone.space_boundaries_2B
         for bound in openfoam_case.current_bounds:
-            new_stl_bound = StlBound(bound, idf, openfoam_case.radiation_model)
+            new_stl_bound = StlBound(bound, openfoam_case.radiation_model)
             openfoam_elements[new_stl_bound.solid_name] = new_stl_bound
             # openfoam_case.stl_bounds.append(new_stl_bound)
 
@@ -661,19 +674,19 @@ class CreateOpenFOAMGeometry(ITask):
                 # export stl geometry of surrounding surfaces again (including cut
                 # ceiling)
                 # create instances of air terminal class and return them?
-            if len(air_terminals) == 1:
+            if len(outlets) == 0 or len(inlets) == 0:
                 # check for cases with overflow from other spaces
                 stl_bounds = filter_elements(openfoam_elements, 'StlBound')
                 door_sbs = [sb for sb in stl_bounds
                             if 'door' in sb.bound_element_type.lower()]
                 door_outlet_height = 0.02
 
-                if 'zuluft' in air_terminals[0].name.lower():
+                if len(outlets) == 0:
                     # define additional outlet below door
 
                     # case 1 (simplification):
                     # all doors are used as outlets
-                    for dsb in door_sbs:
+                    for i, dsb in enumerate(door_sbs):
                         dsb_shape = dsb.tri_geom
                         dsb_min_max = PyOCCTools.get_minimal_bounding_box(
                             dsb_shape)
@@ -697,7 +710,7 @@ class CreateOpenFOAMGeometry(ITask):
                                              dsb_outlet_cut_shape),
                                          PyOCCTools.get_minimal_bounding_box(
                                              dsb_outlet_cut_shape)]
-                        outlet = AirTerminal(f'outlet_overflow_{len(door_sbs)}',
+                        outlet = AirTerminal(f'outlet_overflow_{i}',
                                              outlet_shapes,
                                              openfoam_case.openfoam_triSurface_dir,
                                              inlet_outlet_type='None')
@@ -706,9 +719,9 @@ class CreateOpenFOAMGeometry(ITask):
                         # considered
                         # for overflow)
 
-                if 'abluft' in air_terminals[0].name.lower():
+                if len(inlets) == 0:
                     # define additional inlet at upper part of door
-                    for dsb in door_sbs:
+                    for i, dsb in enumerate(door_sbs):
                         dsb_shape = dsb.tri_geom
                         dsb_min_max = PyOCCTools.get_minimal_bounding_box(
                             dsb_shape)
@@ -730,7 +743,7 @@ class CreateOpenFOAMGeometry(ITask):
                                             dsb_inlet_cut_shape),
                                         PyOCCTools.get_minimal_bounding_box(
                                             dsb_inlet_cut_shape)]
-                        inlet = AirTerminal(f'inlet_overflow_{len(door_sbs)}',
+                        inlet = AirTerminal(f'inlet_overflow_{i}',
                                             inlet_shapes,
                                             openfoam_case.openfoam_triSurface_dir,
                                             inlet_outlet_type='None')
@@ -1038,31 +1051,76 @@ class CreateOpenFOAMGeometry(ITask):
 
     def create_furniture_shapes(self, openfoam_case, furniture_surface,
                                 x_gap=0.8, y_gap=0.8, side_gap=0.8):
+        doors = []
+        for bound in openfoam_case.current_bounds:
+            if bound.bound_element:
+                if "DOOR" in bound.bound_element.element_type.upper():
+                    doors.append(bound)
         meshes = []
         chair_shape = None
         desk_shape = None
+        table = None
+        furniture_setting = self.playground.sim_settings.furniture_setting
         furniture_path = (Path(__file__).parent.parent / 'assets' / 'geometry' /
-                          'furniture_people_compositions')
+                          'furniture')
         furniture_shapes = []
-        if self.playground.sim_settings.furniture_setting in ['Office',
-                                                              'Concert',
-                                                              'Meeting',
-                                                              'Classroom']:
+
+        if furniture_setting in ['Office', 'Concert', 'Meeting', 'Classroom',
+                                     'GroupTable', 'TwoSideTable']:
             chair_shape = TopoDS_Shape()
             stl_reader = StlAPI_Reader()
             stl_reader.Read(chair_shape,
                             furniture_path.as_posix() + '/' +
-                            "new_compChair.stl")
+                            "DIN1729_ChairH460.stl")
             furniture_shapes.append(chair_shape)
-        if self.playground.sim_settings.furniture_setting in ['Office',
-                                                              'Meeting',
-                                                              'Classroom']:
-            desk_shape = TopoDS_Shape()
-            stl_reader = StlAPI_Reader()
-            stl_reader.Read(desk_shape,
-                            furniture_path.as_posix() + '/' +
-                            "new_compDesk.stl")
-            furniture_shapes.append(desk_shape)
+            if furniture_setting in ['Office', 'Meeting', 'Classroom',
+                                     'GroupTable', 'TwoSideTable']:
+                desk_shape = TopoDS_Shape()
+                stl_reader = StlAPI_Reader()
+                stl_reader.Read(desk_shape,
+                                furniture_path.as_posix() + '/' +
+                                "Table1400x800H760.stl")
+                table = Table(furniture_setting, desk_shape,
+                              triSurface_path=openfoam_case.openfoam_triSurface_dir,
+                              furniture_type='Table',
+                              bbox_min_max=PyOCCTools.simple_bounding_box(
+                                  [desk_shape]),
+                              chair_bbox_min_max=PyOCCTools.simple_bounding_box(
+                                  [chair_shape]))
+                chair_shapes = [BRepBuilderAPI_Transform(chair_shape,
+                                                         tr).Shape() for tr in
+                                table.chair_trsfs]
+                furniture_shapes += chair_shapes
+                furniture_shapes.append(desk_shape)
+
+        # furniture_path = (Path(__file__).parent.parent / 'assets' / 'geometry' /
+        #                   'furniture_people_compositions')
+        # furniture_shapes = []
+        # if self.playground.sim_settings.furniture_setting in ['Office',
+        #                                                       'Concert',
+        #                                                       'Meeting',
+        #                                                       'Classroom']:
+        #     chair_shape = TopoDS_Shape()
+        #     stl_reader = StlAPI_Reader()
+        #     stl_reader.Read(chair_shape,
+        #                     furniture_path.as_posix() + '/' +
+        #                     "new_compChair.stl")
+        #     furniture_shapes.append(chair_shape)
+        # if self.playground.sim_settings.furniture_setting in ['Office',
+        #                                                       'Meeting']:
+        #     desk_shape = TopoDS_Shape()
+        #     stl_reader = StlAPI_Reader()
+        #     stl_reader.Read(desk_shape,
+        #                     furniture_path.as_posix() + '/' +
+        #                     "new_compDesk.stl")
+        #     furniture_shapes.append(desk_shape)
+        # elif self.playground.sim_settings.furniture_setting in ['Classroom']:
+        #     desk_shape = TopoDS_Shape()
+        #     stl_reader = StlAPI_Reader()
+        #     stl_reader.Read(desk_shape,
+        #                     furniture_path.parent.as_posix() + 'furniture/' +
+        #                     "Table1200x600H760.stl")
+        #     furniture_shapes.append(desk_shape)
 
         furniture_compound = TopoDS_Compound()
         builder = TopoDS_Builder()
@@ -1079,34 +1137,216 @@ class CreateOpenFOAMGeometry(ITask):
         if self.playground.sim_settings.furniture_setting in ['Concert',
                                                               'Classroom',
                                                               'Office',
-                                                              'Meeting']:
+                                                              'Meeting',
+                                     'GroupTable', 'TwoSideTable']:
             # todo: remove Office and Meeting setup here and replace by
             #  appropriate other setup
             #  Meeting: 1 two-sided table (rotate every other table by 180deg)
             #  Office: similar to meeting, but spread tables in Office.
-            # calculate amount of rows
-            furniture_locations, furniture_trsfs = self.generate_grid_positions(
-                furniture_surface.bound, furniture_compound,
-                requested_amount, x_gap, y_gap, side_gap)
+            #  calculate amount of rows
+            space_bbox = PyOCCTools.simple_bounding_box_shape([
+                openfoam_case.current_zone.space_shape])
+            orientation_dict = {'north': gp_Dir(0, 1, 0),
+                                'east': gp_Dir(1, 0, 0),
+                                'south': gp_Dir(0, -1, 0),
+                                'west': gp_Dir(-1, 0, 0)}
 
-        # furniture_position = gp_Pnt(
-        #     furniture_surface.bound.bound_center.X(),  #+ lx / 4,
-        #     furniture_surface.bound.bound_center.Y(), # + ly / 4,
-        #     furniture_surface.bound.bound_center.Z(),
-        # )
+            space_bbox_min, space_bbox_max = PyOCCTools.simple_bounding_box([
+                openfoam_case.current_zone.space_shape])
+            north = space_bbox_max[1]
+            south = space_bbox_min[1]
+            east = space_bbox_max[0]
+            west = space_bbox_min[0]
+            # transform to origin
+            if self.playground.sim_settings.furniture_orientation == 'door':
+                # todo: Check if door is north/east/south/west
+                if doors:
+                    if abs(doors[0].bound_center.X()-east) < 1e-3:
+                        orientation_dir = orientation_dict['east']
+                    elif abs(doors[0].bound_center.X()-west) < 1e-3:
+                        orientation_dir = orientation_dict['west']
+                    elif abs(doors[0].bound_center.Y()-south) < 1e-3:
+                        orientation_dir = orientation_dict['south']
+                    else:
+                        orientation_dir = orientation_dict['north']
+                else:
+                    self.logger.warning("Furniture orientation 'Door' "
+                                        "requested, but no door found. "
+                                        "Furniture orientation is set to "
+                                        "'north'.")
+                    orientation_dir = orientation_dict['north']
+            elif self.playground.sim_settings.furniture_orientation == 'window':
+                # todo: Check if window is north/east/south/west
+                windows = []
+                for bound in openfoam_case.current_bounds:
+                    if bound.bound_element:
+                        if "WINDOW" in bound.bound_element.element_type.upper():
+                            windows.append(bound)
+                if windows:
+                    if abs(windows[0].bound_center.X()-east) < 1e-3:
+                        orientation_dir = orientation_dict['east']
+                    elif abs(windows[0].bound_center.X()-west) < 1e-3:
+                        orientation_dir = orientation_dict['west']
+                    elif abs(windows[0].bound_center.Y()-south) < 1e-3:
+                        orientation_dir = orientation_dict['south']
+                    else:
+                        orientation_dir = orientation_dict['north']
+                else:
+                    self.logger.warning("Furniture orientation 'window' "
+                                        "requested, but no window found. "
+                                        "Furniture orientation is set to "
+                                        "'north'.")
+                    orientation_dir = orientation_dict['north']
+            elif self.playground.sim_settings.furniture_orientation in list(
+                    orientation_dict.keys()):
+                orientation_dir = \
+                    orientation_dict[
+                        self.playground.sim_settings.furniture_orientation]
+            elif (self.playground.sim_settings.furniture_orientation in
+                  ['short_side', 'long_side']):
+                bbox_min, bbox_max = PyOCCTools.simple_bounding_box(space_bbox)
+                box_x = bbox_max[0] - bbox_min[0]
+                box_y = bbox_max[1] - bbox_min[1]
+                if (self.playground.sim_settings.furniture_orientation ==
+                        'short_side'):
+                    if box_x < box_y:
+                        orientation_dir = gp_Dir(0, -1, 0)
+                    else:
+                        orientation_dir = gp_Dir(-1, 0, 0)
+                else:
+                    if box_x > box_y:
+                        orientation_dir = gp_Dir(0, -1, 0)
+                    else:
+                        orientation_dir = gp_Dir(-1, 0, 0)
+            else:
+                self.logger.warning("Furniture orientation not implemented,"
+                                    "Furniture orientation is set to 'north'.")
+                orientation_dir = orientation_dict['north']
+
+            trsf_to_origin = (
+                PyOCCTools.transform_set_to_origin_based_on_surface(
+                    orientation_dir, space_bbox,
+                    ref_dir=gp_Vec(0, 1, 0)))
+            trsf_back_to_global = trsf_to_origin.Inverted()
+            furniture_surface_at_origin = BRepBuilderAPI_Transform(
+                furniture_surface, trsf_to_origin).Shape()
+            door_shapes_at_origin = []
+            if doors:
+                for door in doors:
+                    door_at_origin = BRepBuilderAPI_Transform(
+                        door.bound_shape, trsf_to_origin).Shape()
+                    door_shapes_at_origin.append(door_at_origin)
+            if self.playground.sim_settings.furniture_setting == 'Concert':
+                min_x_space = 0.5  # space for each seat SBauVO NRW 2019
+                min_y_distance = 0.4  # between rows SBauVO NRW 2019
+                max_rows_per_block = 15  # SBauVO NRW: max 30 rows per block
+                max_obj_single_escape = 10  # SBauVO NRW: max 10 seats per
+                # row if only a single escape route is available
+                max_obj_two_escape = 20  # SBauVO NRW: max 20 seats in a row
+                # if two escape routes are available
+                if requested_amount <= 200:
+                    escape_route_width = 0.9
+                else:
+                    escape_route_width = 1.2
+                furniture_locations_origin, furniture_trsfs_origin = (
+                    self.generate_grid_positions_w_constraints(
+                    furniture_surface_at_origin, furniture_compound,
+                    requested_amount, min_x_space, min_y_distance,
+                        max_rows_per_block, max_obj_single_escape,
+                        max_obj_two_escape, escape_route_width, door_shapes_at_origin,
+                        min_dist_all_sides=0.15, allow_skip_scanline=True))
+            elif self.playground.sim_settings.furniture_setting in [
+                'Classroom', 'TwoSideTable']:
+                min_x_space = 0.0  # space for each seat SBauVO NRW 2019
+                min_y_distance = 1.5  # between rows SBauVO NRW 2019
+                max_rows_per_block = 5  # SBauVO NRW: max 30 rows per block
+                max_obj_single_escape = 5  # SBauVO NRW: max 10 seats per
+                # row if only a single escape route is available
+                max_obj_two_escape = 10  # SBauVO NRW: max 20 seats in a row
+                # if two escape routes are available
+                if requested_amount <= 200:
+                    escape_route_width = 0.9
+                else:
+                    escape_route_width = 1.2
+                chair_bbox = PyOCCTools.simple_bounding_box([chair_shape])
+                add_chair_depth = chair_bbox[1][1] - chair_bbox[0][1]
+                furniture_locations_origin, furniture_trsfs_origin = (
+                    self.generate_grid_positions_w_constraints(
+                    furniture_surface_at_origin, desk_shape,
+                    requested_amount, min_x_space, min_y_distance,
+                        max_rows_per_block, max_obj_single_escape,
+                        max_obj_two_escape, escape_route_width, door_shapes_at_origin,
+                        min_distance_last_row=add_chair_depth+0.15,
+                        min_dist_all_sides=0.15))
+            elif self.playground.sim_settings.furniture_setting in [
+                'GroupTable']:
+                chair_bbox = PyOCCTools.simple_bounding_box([chair_shape])
+                add_chair_depth = chair_bbox[1][1] - chair_bbox[0][1]
+                table_bbox = PyOCCTools.simple_bounding_box([desk_shape])
+                add_table_width = table_bbox[1][0] - table_bbox[0][0]
+                min_x_space = 1.5 + add_table_width # space for each seat
+                # SBauVO NRW 2019
+                min_y_distance = 1.5  # between rows SBauVO NRW 2019
+                max_rows_per_block = 5  # SBauVO NRW: max 30 rows per block
+                max_obj_single_escape = 5  # SBauVO NRW: max 10 seats per
+                # row if only a single escape route is available
+                max_obj_two_escape = 10  # SBauVO NRW: max 20 seats in a row
+                # if two escape routes are available
+                if requested_amount <= 200:
+                    escape_route_width = 0.0# 0.9
+                else:
+                    escape_route_width = 1.2
+                min_seats_single_escape = 1
+                min_rows_per_block = 1
+
+                furniture_locations_origin, furniture_trsfs_origin = (
+                    self.generate_grid_positions_w_constraints(
+                    furniture_surface_at_origin, desk_shape,
+                    requested_amount, min_x_space, min_y_distance,
+                        max_rows_per_block, max_obj_single_escape,
+                        max_obj_two_escape, escape_route_width, door_shapes_at_origin,
+                        min_dist_all_sides=add_chair_depth+0.15,
+                        min_seats_single_escape=min_seats_single_escape,
+                        min_rows_per_block=min_rows_per_block))
+            else:
+                furniture_locations_origin, furniture_trsfs_origin = (
+                    self.generate_grid_positions(
+                    furniture_surface_at_origin, furniture_compound,
+                    requested_amount, x_gap, y_gap, side_gap))
         furniture_items = []
+        global_chair_trsfs = []
+        furniture_locations = []
+        furniture_trsfs = []
+        trsf_back_to_global_translation = trsf_back_to_global.TranslationPart()
 
+        for loc in furniture_locations_origin:
+            furniture_locations.append(gp_Pnt(loc.XYZ() + \
+                                              trsf_back_to_global_translation))
+        for tr in furniture_trsfs_origin:
+            furniture_trsfs.append(trsf_back_to_global.Multiplied(tr))
         for i, trsf in enumerate(furniture_trsfs):
             furniture_shape = BRepBuilderAPI_Transform(furniture_compound,
                                                        trsf).Shape()
             furniture_min_max = PyOCCTools.simple_bounding_box(furniture_shape)
             if chair_shape:
-                new_chair_shape = BRepBuilderAPI_Transform(chair_shape,
-                                                           trsf).Shape()
-                chair = Furniture(new_chair_shape,
-                                  openfoam_case.openfoam_triSurface_dir,
-                                  f'Chair{i}')
-                furniture_items.append(chair)
+                if table:
+                    for j, chair_trsf in enumerate(table.chair_trsfs):
+                        global_trsf = trsf.Multiplied(chair_trsf)
+                        global_chair_trsfs.append(global_trsf)
+                        new_chair_shape = BRepBuilderAPI_Transform(
+                            chair_shape, trsf.Multiplied(chair_trsf)).Shape()
+                        chair = Furniture(new_chair_shape,
+                                          openfoam_case.openfoam_triSurface_dir,
+                                          f'Tab{i}_Chair{j}')
+                        furniture_items.append(chair)
+                else:
+                    new_chair_shape = BRepBuilderAPI_Transform(chair_shape,
+                                                               trsf).Shape()
+                    global_chair_trsfs.append(trsf)
+                    chair = Furniture(new_chair_shape,
+                                      openfoam_case.openfoam_triSurface_dir,
+                                      f'Chair{i}')
+                    furniture_items.append(chair)
             if desk_shape:
                 new_desk_shape = BRepBuilderAPI_Transform(desk_shape,
                                                           trsf).Shape()
@@ -1116,6 +1356,7 @@ class CreateOpenFOAMGeometry(ITask):
                 furniture_items.append(desk)
 
         openfoam_case.furniture_trsfs = furniture_trsfs
+        openfoam_case.chair_trsfs = global_chair_trsfs
         return furniture_items
 
     def init_people(self, openfoam_case, elements, openfoam_elements):
@@ -1130,12 +1371,12 @@ class CreateOpenFOAMGeometry(ITask):
             openfoam_elements[people.solid_name] = people
 
     def create_people_shapes(self, openfoam_case, furniture_surface):
-        available_trsfs = openfoam_case.furniture_trsfs
 
         furniture_path = (Path(__file__).parent.parent / 'assets' / 'geometry' /
                           'furniture_people_compositions')
         # people_shapes = []
         people_items = []
+        people_rotations = None
         if self.playground.sim_settings.use_energyplus_people_amount:
             people_amount = math.ceil(openfoam_case.timestep_df.filter(
                 like=openfoam_case.current_zone.guid.upper()
@@ -1144,8 +1385,10 @@ class CreateOpenFOAMGeometry(ITask):
             people_amount = self.playground.sim_settings.people_amount
 
         if self.playground.sim_settings.people_setting in ['Seated']:
+            available_trsfs = openfoam_case.chair_trsfs
+
             person_path = (furniture_path.as_posix() + '/' +
-                           "manikin_split_19parts.stl")
+                           "DIN1729_manikin_split_19parts.stl")
             part_meshes = []
             for m in mesh.Mesh.from_multi_file(person_path):
                 part_meshes.append(m)
@@ -1164,37 +1407,49 @@ class CreateOpenFOAMGeometry(ITask):
             if people_amount > len(available_trsfs):
                 people_amount = len(available_trsfs)
         elif (self.playground.sim_settings.people_setting in ['Standing'] and
-              len(available_trsfs) == 0):
+              len(openfoam_case.chair_trsfs) == 0):
             person_path = (Path(__file__).parent.parent / 'assets' /
                            'geometry' / 'people' / "manikin_standing.stl")
             person_shape = TopoDS_Shape()
             stl_reader = StlAPI_Reader()
             stl_reader.Read(person_shape, person_path.as_posix())
             # people_shapes.append(person_shape)
+            # set requested_amount independently from people amount for
+            # generating grid positions to allow for random distribution
+            # within the larger number of grid positions.
             people_locations, available_trsfs = self.generate_grid_positions(
-                furniture_surface.bound, person_shape,
-                people_amount, x_gap=0.6, y_gap=0.6, side_gap=0.4)
+                furniture_surface, person_shape, requested_amount=1000,
+                x_gap=0.6, y_gap=0.6, side_gap=0.4)
+            random.seed(23)
+            people_rotations = random.sample(range(359), len(available_trsfs))
         else:
             self.logger.warning('Standing people are currently not supported '
                                 'combined with furniture setups. No people '
                                 'are added.')
             return
+        random.seed(42)
         random_people_choice = random.sample(range(len(available_trsfs)),
                                              people_amount)
         for i, trsf in enumerate(available_trsfs):
             if i not in random_people_choice:
                 continue
-            if i == people_amount:
+            if len(people_items) == people_amount:
                 break
+
             new_person_shape = BRepBuilderAPI_Transform(person_shape,
                                                         trsf).Shape()
+            if people_rotations:
+                new_person_shape = PyOCCTools.rotate_by_deg(
+                    new_person_shape,
+                    rotation=people_rotations[i])
             person = People(
                 new_person_shape, trsf, person_path,
                 openfoam_case.openfoam_triSurface_dir, f'Person{i}',
                 radiation_model=openfoam_case.radiation_model,
                 power=openfoam_case.current_zone.fixed_heat_flow_rate_persons.to(
                         ureg.watt).m,
-                scale=self.playground.sim_settings.scale_person_for_eval)
+                scale=self.playground.sim_settings.scale_person_for_eval, 
+                add_scaled_shape=self.playground.sim_settings.add_air_volume_evaluation)
             people_items.append(person)
         return people_items
 
@@ -1275,17 +1530,21 @@ class CreateOpenFOAMGeometry(ITask):
                         body_part.stl_file_path_name,
                         body_part.solid_name)
 
-    def generate_grid_positions(self, bound, obj_to_be_placed,
+    def generate_grid_positions(self, furniture_surface, obj_to_be_placed,
                                 requested_amount,
                                 x_gap=0.2, y_gap=0.35,
                                 side_gap=0.6):
-        surf_min_max = PyOCCTools.simple_bounding_box(bound.bound_shape)
+        furniture_surface_z = PyOCCTools.get_center_of_shape(
+            furniture_surface).Z()
+
+        surf_min_max = PyOCCTools.simple_bounding_box(furniture_surface)
         lx = surf_min_max[1][0] - surf_min_max[0][0]
         ly = surf_min_max[1][1] - surf_min_max[0][1]
 
         compound_bbox = PyOCCTools.simple_bounding_box(obj_to_be_placed)
         lx_comp = compound_bbox[1][0] - compound_bbox[0][0]
         ly_comp = compound_bbox[1][1] - compound_bbox[0][1]
+
         compound_center = PyOCCTools.get_center_of_shape(
             PyOCCTools.simple_bounding_box_shape(obj_to_be_placed)).Coord()
         compound_center_lower = gp_Pnt(compound_center[0], compound_center[1],
@@ -1321,25 +1580,753 @@ class CreateOpenFOAMGeometry(ITask):
                     x_loc += lx_comp / 2
                 else:
                     x_loc += x_gap + lx_comp
-                pos = gp_Pnt(x_loc, y_loc, bound.bound_center.Z())
+                pos = gp_Pnt(x_loc, y_loc, furniture_surface_z)
                 obj_locations.append(pos)
                 if len(obj_locations) == requested_amount:
                     break
             if len(obj_locations) == requested_amount:
                 break
-        obj_trsfs = self.generate_obj_trsfs(obj_locations,
+        obj_trsfs = PyOCCTools.generate_obj_trsfs(obj_locations,
                                             compound_center_lower)
         return obj_locations, obj_trsfs
 
-    def generate_obj_trsfs(self, obj_locations: list[gp_Pnt],
-                           obj_pos_to_be_transformed: gp_Pnt):
-        obj_trsfs = []
-        for loc in obj_locations:
-            trsf = gp_Trsf()
-            trsf.SetTranslation(obj_pos_to_be_transformed,
-                                loc)
-            obj_trsfs.append(trsf)
-        return obj_trsfs
+    def generate_grid_positions_w_constraints(self, furniture_surface,
+                                              obj_to_be_placed,
+                                              requested_amount,
+                                              min_x_space=0.5,
+                                              min_y_distance=0.4,
+                                              max_obj_rows_per_block=30,
+                                              max_obj_single_escape=10,
+                                              max_obj_two_escape=20,
+                                              escape_route_width=1.2,
+                                              doors=[],
+                                              min_distance_last_row=0.0,
+                                              min_dist_all_sides=0.1,
+                                              min_rows_per_block=3,
+                                              min_seats_single_escape=3,
+                                              allow_skip_scanline=False):
+        furniture_surface_z = PyOCCTools.get_center_of_shape(
+            furniture_surface).Z()
+
+        max_row_blocks = 0  # possible blocks of rows
+        max_single_escape_blocks = 0  # possible blocks with single escape route
+        max_double_escape_blocks = 0
+        max_seats_single_escape_blocks = [0,0]
+        max_seats_double_escape_blocks = [0]
+        max_rows_per_block = [0]
+        rotation_angle = 0
+        switch = False
+        surf_min_max = PyOCCTools.simple_bounding_box(furniture_surface)
+        global_x_position = surf_min_max[0][0]
+        global_y_position = surf_min_max[0][1]
+        lx = surf_min_max[1][0] - surf_min_max[0][0]
+        ly = surf_min_max[1][1] - surf_min_max[0][1]
+        # if self.playground.sim_settings.furniture_orientation == 'long_side':
+        #     if temp_lx < temp_ly:
+        #         lx = temp_ly
+        #         ly = temp_lx
+        #         global_x_position = surf_min_max[0][1]
+        #         global_y_position = surf_min_max[0][0]
+        #         rotation_angle = 270
+        #         switch = True
+        #     else:
+        #         lx = temp_lx
+        #         ly = temp_ly
+        # elif self.playground.sim_settings.furniture_orientation == "short_side":
+        #     if temp_lx > temp_ly:
+        #         lx = temp_ly
+        #         ly = temp_lx
+        #         global_x_position = surf_min_max[0][1]
+        #         global_y_position = surf_min_max[0][0]
+        #         rotation_angle = 270
+        #         switch = True
+        #     else:
+        #         lx = temp_lx
+        #         ly = temp_ly
+        # else:
+        #     lx = temp_lx
+        #     ly = temp_ly
+
+        global_y_position += min_distance_last_row
+        ly -= min_distance_last_row
+        global_x_position += min_dist_all_sides
+        global_y_position += min_dist_all_sides
+        lx -= 2*min_dist_all_sides
+        ly -= 2*min_dist_all_sides
+
+        compound_bbox = PyOCCTools.simple_bounding_box(obj_to_be_placed)
+        lx_comp = compound_bbox[1][0] - compound_bbox[0][0]
+        ly_comp = compound_bbox[1][1] - compound_bbox[0][1]
+
+        lx_comp_width = max(lx_comp, min_x_space)
+        ly_comp_width = ly_comp + min_y_distance
+
+        compound_center = PyOCCTools.get_center_of_shape(
+            PyOCCTools.simple_bounding_box_shape(obj_to_be_placed)).Coord()
+        compound_center_lower = gp_Pnt(compound_center[0], compound_center[1],
+                                       compound_bbox[0][2])
+        # calculate footprint shape of setup
+        x_diff = lx_comp_width - lx_comp
+        if x_diff < 0:
+            x_diff = 0
+        footprint_shape = PyOCCTools.make_faces_from_pnts(
+            [gp_Pnt(compound_bbox[0][0]
+                    - x_diff / 2,
+                    compound_bbox[0][1],
+                    compound_bbox[0][2]),
+             gp_Pnt(compound_bbox[0][0] - x_diff / 2,
+                    compound_bbox[0][1] + ly_comp_width,
+                    compound_bbox[0][2]),
+             gp_Pnt(compound_bbox[0][0] + lx_comp_width - x_diff / 2,
+                    compound_bbox[0][1] + ly_comp_width,
+                    compound_bbox[0][2]),
+             gp_Pnt(compound_bbox[0][0] + lx_comp_width - x_diff / 2,
+                    compound_bbox[0][1],
+                    compound_bbox[0][2])])
+
+        skip_scan_line = False
+        if ly > lx and allow_skip_scanline:
+            skip_scan_line = True
+
+        if not skip_scan_line:
+            # calculate areas in front of doors to guarantee escape
+            door_escapes = []
+            for door_shape in doors:
+                reverse=False
+                (min_box, max_box) = PyOCCTools.simple_bounding_box([
+                    door_shape])
+                door_lower_pnt1 = gp_Pnt(*min_box)
+                door_lower_pnt2 = gp_Pnt(max_box[0], max_box[1], min_box[2])
+                base_line_pnt1 = door_lower_pnt1
+                base_line_pnt2 = door_lower_pnt2
+                door_width = door_lower_pnt1.Distance(door_lower_pnt2)
+                # add square space in front of doors, depth = escape route width
+                d = gp_Dir(gp_Vec(base_line_pnt1, base_line_pnt2))
+                new_dir = d.Rotated(gp_Ax1(base_line_pnt1, gp_Dir(0, 0, 1)),
+                         math.radians(90))
+                moved_pnt1 = PyOCCTools.move_bound_in_direction_of_normal(
+                                    BRepBuilderAPI_MakeVertex(base_line_pnt1).Vertex(),
+                                    escape_route_width, move_dir=new_dir, reverse=reverse)
+                moved_dist = BRepExtrema_DistShapeShape(moved_pnt1,
+                                                      furniture_surface,
+                                                      Extrema_ExtFlag_MIN).Value()
+                if abs(moved_dist) > 1e-3:
+                    reverse = True
+                    moved_pnt1 = PyOCCTools.move_bound_in_direction_of_normal(
+                        BRepBuilderAPI_MakeVertex(base_line_pnt1).Vertex(),
+                        max(escape_route_width, door_width), move_dir=new_dir, reverse=reverse)
+                if reverse:
+                    moved_pnt2 = PyOCCTools.move_bound_in_direction_of_normal(
+                        BRepBuilderAPI_MakeVertex(base_line_pnt2).Vertex(),
+                        max(escape_route_width, door_width), move_dir=new_dir, reverse=reverse)
+                else:
+                    moved_pnt2 = PyOCCTools.move_bound_in_direction_of_normal(
+                        BRepBuilderAPI_MakeVertex(base_line_pnt2).Vertex(),
+                        max(escape_route_width, door_width), move_dir=new_dir, reverse=reverse)
+                add_escape_shape = PyOCCTools.make_faces_from_pnts([base_line_pnt1,
+                                                                    base_line_pnt2,
+                                                                    BRep_Tool.Pnt(moved_pnt2),
+                                                                    BRep_Tool.Pnt(moved_pnt1)])
+                door_escapes.append(add_escape_shape)
+            swp_x1 = gp_Pnt(
+                global_x_position, global_y_position, furniture_surface_z)
+            swp_x2 = gp_Pnt(
+                global_x_position, global_y_position+ly, furniture_surface_z)
+            swp_dir_x = gp_Pnt(
+                global_x_position+lx, global_y_position, furniture_surface_z)
+
+            (translated_lines_x, intersection_points_x, min_t_x, min_delta_x,
+             min_pnt_x) = (
+                PyOCCTools.sweep_line_find_intersections_multiple_shapes(
+                swp_x1, swp_x2, [PyOCCTools.extrude_face_in_direction(s) for s in door_escapes], gp_Dir(gp_Vec(swp_x1, swp_dir_x))))
+            if door_escapes:
+                inside_door_escape = True if min([BRepExtrema_DistShapeShape(
+                    BRepBuilderAPI_MakeEdge(swp_x1, swp_x2).Edge(), d,
+                    Extrema_ExtFlag_MIN).Value() for d in door_escapes]) < 1e-4 else (
+                    False)
+            else:
+                inside_door_escape = False
+            # these intersections are relative to the global positions
+            intersect_dict_x = {}
+            for p in set([round(p[1], 3) for p in intersection_points_x]):
+                count = 0
+                for i in [round(p[1], 3) for p in intersection_points_x]:
+                    if i == p:
+                        count += 1
+                if count > 4:
+                    intersect_dict_x.update({p: count})
+            sorted_intersections_x = dict(sorted(intersect_dict_x.items()))
+
+
+            unavail_x_pos = []
+            temp_x_pos = 0
+            reset_x_pos = False
+            if inside_door_escape:
+                k = 1
+            else:
+                k = 0
+            for i, key in enumerate(list(sorted_intersections_x.keys())):
+                if (i+k) % 2 == 0:
+                    if (key - temp_x_pos) < lx_comp_width * min_seats_single_escape:
+                        if unavail_x_pos and unavail_x_pos[-1][1] == temp_x_pos:
+                            unavail_x_pos[-1][1] = key
+                        else:
+                            unavail_x_pos.append([temp_x_pos, key])
+                else:
+                    if unavail_x_pos and unavail_x_pos[-1][1] == temp_x_pos:
+                        unavail_x_pos[-1][1] = key
+                    else:
+                        unavail_x_pos.append([temp_x_pos, key])
+                temp_x_pos = key
+            if temp_x_pos != 0 and abs(lx - temp_x_pos)>1e-3:
+                # todo: double check
+                if abs(temp_x_pos - lx) < lx_comp_width * min_seats_single_escape:
+                    if unavail_x_pos and unavail_x_pos[-1][1] == temp_x_pos:
+                        unavail_x_pos[-1][1] = lx
+                    else:
+                        unavail_x_pos.append([temp_x_pos, lx])
+        else:
+            unavail_x_pos = []
+
+        available_x_list = []
+        if unavail_x_pos:
+            for i, uxp in enumerate(unavail_x_pos):
+                if uxp[1] - uxp[0] < escape_route_width:
+                    add_escape_dist = escape_route_width - (uxp[1] - uxp[0])
+                else:
+                    add_escape_dist = 0
+                if i == 0:
+                    # todo
+                    if uxp[0] < global_x_position:
+                        available_x_list.append('MinXEscape')
+                    elif uxp[0] > global_x_position:
+                        available_x_list.append(uxp[0])
+                if i == len(unavail_x_pos) - 1:
+                    # todo
+                    x_width_available = abs(lx - uxp[1] - add_escape_dist)
+                    if abs(uxp[1] - lx) < 1e-3:
+                        available_x_list.append('MaxXEscape')
+                    else:
+                        available_x_list.append(x_width_available)
+                    continue
+                else:
+                    x_width_available = unavail_x_pos[i + 1][0] - uxp[
+                        1] - add_escape_dist
+                    available_x_list.append(x_width_available)
+        else:
+            x_width_available = abs(lx - escape_route_width)
+            available_x_list.append(x_width_available)
+
+        if 'MinXEscape' in available_x_list and 'MaxXEscape' in \
+            available_x_list:
+            max_single_escape_blocks = 0
+            max_seats_single_escape_blocks = [0, 0]
+            for avail_x in available_x_list:
+                if isinstance(avail_x, str):
+                    continue
+                else:
+                    x_max_number = math.floor(avail_x / lx_comp_width)
+                    if x_max_number > max_obj_two_escape:
+                        temp_max_double_escape_blocks = avail_x / (
+                                escape_route_width + max_obj_two_escape * lx_comp_width)
+                        if temp_max_double_escape_blocks < 1:
+                            max_double_escape_blocks += 1
+                            if sum(max_seats_double_escape_blocks) == 0:
+                                max_seats_double_escape_blocks = [
+                                    max_obj_two_escape] * max_double_escape_blocks
+                            else:
+                                max_seats_double_escape_blocks += [
+                                    max_obj_two_escape] * max_double_escape_blocks
+                        else:
+                            max_double_escape_blocks += math.ceil(
+                                temp_max_double_escape_blocks)
+                            temp_max_seats = math.floor(((avail_x - (math.ceil(
+                                temp_max_double_escape_blocks))*
+                                                        escape_route_width)/lx_comp_width))
+                            add_seats = [
+                                temp_max_seats//math.ceil(
+                                temp_max_double_escape_blocks)
+                                for s in range(max_double_escape_blocks)]
+                            if (abs(sum(add_seats)-temp_max_seats) > 0 and
+                                    add_seats):
+                                add_seats[-1] +=abs(sum(
+                                    add_seats)-temp_max_seats)
+                            if add_seats:
+                                if sum(max_seats_double_escape_blocks) == 0:
+                                    max_seats_single_escape_blocks = add_seats
+                                else:
+                                    max_seats_single_escape_blocks += add_seats
+                    else:
+                        max_double_escape_blocks = 1
+                        max_seats_double_escape_blocks = [x_max_number]
+
+
+        elif 'MinXEscape' in available_x_list or 'MaxXEscape' in available_x_list:
+            if len(available_x_list) <= 2:
+                for avail_x in available_x_list:
+                    if isinstance(avail_x, str):
+                        continue
+                    x_max_number = math.floor(avail_x/lx_comp_width)
+                    if x_max_number < max_obj_single_escape:
+                        set_single_number = x_max_number
+                        remaining_number = 0
+                        max_single_escape_blocks = 1
+                    else:
+                        set_single_number = max_obj_single_escape
+                        remaining_number = x_max_number - set_single_number
+                        max_single_escape_blocks = 1
+                    if 'MinXEscape' in available_x_list:
+                        max_seats_single_escape_blocks = [0, set_single_number]
+                    else:
+                        max_seats_single_escape_blocks = [set_single_number, 0]
+                    if remaining_number > min_seats_single_escape:
+                        remaining_x_width = math.floor(
+                            remaining_number*lx_comp_width)
+
+                        temp_max_double_escape_blocks = remaining_x_width / (
+                                escape_route_width + max_obj_two_escape * lx_comp_width)
+                        if temp_max_double_escape_blocks < 1:
+                            avail_seats = math.floor((
+                            remaining_x_width-escape_route_width) / (
+                                 lx_comp_width))
+                            max_double_escape_blocks += 1
+                            max_seats_double_escape_blocks.append(
+                                avail_seats)
+                        else:
+                            max_double_escape_blocks += math.ceil(
+                                temp_max_double_escape_blocks)
+                            temp_max_seats = math.floor(
+                                ((avail_x - (math.ceil(
+                                    temp_max_double_escape_blocks) *
+                                            escape_route_width)) /
+                                 lx_comp_width))
+                            add_seats = [temp_max_seats // math.ceil(
+                                temp_max_double_escape_blocks)
+                                for s in range(max_double_escape_blocks)]
+                            if (abs(sum(add_seats) - temp_max_seats) > 0 and
+                                    add_seats):
+                                add_seats[-1] += abs(sum(
+                                    add_seats) - temp_max_seats)
+                            if add_seats:
+                                if sum(max_seats_double_escape_blocks) == 0:
+                                    max_seats_single_escape_blocks = add_seats
+                                else:
+                                    max_seats_single_escape_blocks += add_seats
+
+        else:
+            for i, avail_x in enumerate(available_x_list):
+                x_max_number = math.floor(avail_x / lx_comp_width)
+                if x_max_number > 2*max_obj_single_escape:
+                    temp_max_double_escape_blocks = avail_x / (
+                        escape_route_width + max_obj_two_escape * lx_comp_width)
+                    if temp_max_double_escape_blocks < 1 and (i == 0 and len(
+                            available_x_list) == 1):
+                        max_single_escape_blocks = 2
+                        max_seats_single_escape_blocks = [max_obj_single_escape,
+                                                          max_obj_single_escape]
+                    else:
+                        if 0 < i < len(available_x_list):
+                            temp_max_double_escape_blocks = math.floor(
+                                temp_max_double_escape_blocks)
+                        else:
+                            temp_max_double_escape_blocks = math.ceil(
+                                temp_max_double_escape_blocks)
+                        max_double_escape_blocks += temp_max_double_escape_blocks
+                        temp_max_seats = math.floor(
+                            ((avail_x - (temp_max_double_escape_blocks *
+                                         escape_route_width)) / lx_comp_width))
+                        if temp_max_double_escape_blocks > 0:
+                            add_seats = [temp_max_seats // temp_max_double_escape_blocks
+                                         for s in range(temp_max_double_escape_blocks)]
+                            if (abs(sum(add_seats) - temp_max_seats) > 0 and
+                                    add_seats):
+                                add_seats[-1] += abs(sum(
+                                    add_seats) - temp_max_seats)
+                            if add_seats:
+                                if sum(max_seats_double_escape_blocks) == 0:
+                                    max_seats_single_escape_blocks = add_seats
+                                else:
+                                    max_seats_single_escape_blocks += add_seats
+
+                        remaining_x_width = avail_x - \
+                            (temp_max_double_escape_blocks*escape_route_width + sum(add_seats) *
+                             lx_comp_width)
+                        temp_num_seats_single_escape = math.floor(
+                            remaining_x_width/lx_comp_width)
+                        if not 0 < i < len(available_x_list):
+                            if temp_num_seats_single_escape < min_seats_single_escape:
+                                req_num_seats_single_escape = (
+                                    min_seats_single_escape - temp_num_seats_single_escape)
+                                max_seats_double_escape_blocks[0] = \
+                                    max_seats_double_escape_blocks[0] - req_num_seats_single_escape
+                                max_single_escape_blocks = 1
+
+                                if i == 0:
+                                    max_seats_single_escape_blocks = [min_seats_single_escape,
+                                                                      0]
+                                else:
+                                    max_seats_single_escape_blocks = [0,
+                                                                      min_seats_single_escape]
+                            elif (min_seats_single_escape < temp_num_seats_single_escape <
+                                    2*min_seats_single_escape):
+                                if i == 0:
+                                    max_seats_single_escape_blocks = [temp_num_seats_single_escape,
+                                                                      0]
+                                else:
+                                    max_seats_single_escape_blocks = [0,
+                                                                      temp_num_seats_single_escape]
+                                max_single_escape_blocks = 1
+                            elif (2*min_seats_single_escape < temp_num_seats_single_escape
+                                  <=2*max_obj_single_escape):
+                                smaller_half_of_seats = temp_num_seats_single_escape//2
+                                max_seats_single_escape_blocks = [smaller_half_of_seats,
+                                    temp_num_seats_single_escape-smaller_half_of_seats]
+                                max_single_escape_blocks = 2
+                            elif temp_num_seats_single_escape > 2*max_obj_single_escape:
+                                max_seats_single_escape_blocks = [max_obj_single_escape,
+                                    max_obj_single_escape]
+                                max_single_escape_blocks = 2
+                            else:
+                                raise NotImplementedError("The requested number of seats "
+                                                          "cannot be processed.")
+                else:
+                    if x_max_number < min_seats_single_escape:
+                        max_seats_single_escape_blocks = [x_max_number, 0]
+                        max_single_escape_blocks = 1
+                    elif x_max_number < 2*min_seats_single_escape:
+                        max_seats_single_escape_blocks = [x_max_number, 0]
+                        max_single_escape_blocks = 1
+                    else:
+                        smaller_half_of_seats = x_max_number // 2
+                        max_seats_single_escape_blocks = \
+                            [smaller_half_of_seats, x_max_number -
+                             smaller_half_of_seats]
+                        max_single_escape_blocks = 2
+
+        # # todo: generalize implementation using divmod
+        # if x_max_number > 2*max_obj_single_escape:
+        #     x_width_available = lx - 2*escape_route_width
+        #     x_max_number = math.floor(x_width_available / lx_comp_width)
+        # if x_max_number > (max_obj_two_escape + 2*max_obj_single_escape):
+        #     x_width_available = lx - 3*escape_route_width
+        #     x_max_number = math.floor(x_width_available / lx_comp_width)
+        # if x_max_number > (2*max_obj_two_escape + 2*max_obj_single_escape):
+        #     self.logger.warning(f'More than '
+        #                         f'{2*max_obj_two_escape + 2*max_obj_single_escape} '
+        #                         f'seats in a row are not '
+        #                         f'supported. Using the maximum of '
+        #                         f'{2*max_obj_two_escape + 2*max_obj_single_escape} '
+        #                         f'seats '
+        #                         f'instead, subdivided in multiple blocks')
+        #     x_max_number = 2*max_obj_two_escape + 2*max_obj_single_escape
+
+        y_width_available = ly - escape_route_width
+        y_max_number = math.floor(y_width_available / ly_comp_width)
+        if y_max_number > max_obj_rows_per_block:
+            temp_max_row_blocks = y_width_available / (
+                escape_route_width + max_obj_rows_per_block * ly_comp_width)
+            if temp_max_row_blocks < 1:
+                max_row_blocks = 1  # only one block with one escape route
+                max_rows_per_block = [max_obj_rows_per_block]
+            else:
+                max_row_blocks = math.floor(temp_max_row_blocks)
+                max_rows_per_block = [max_obj_rows_per_block]*max_row_blocks
+                remaining_y_width = y_width_available - \
+                    (max_row_blocks * ly_comp_width
+                     * max_obj_rows_per_block + max_row_blocks*escape_route_width)
+                temp_num_remaining_rows = math.floor(remaining_y_width /
+                                                     ly_comp_width)
+                if temp_num_remaining_rows < min_rows_per_block:
+                    required_rows = min_rows_per_block - temp_num_remaining_rows
+                    max_rows_per_block[0] = max_rows_per_block[0]-required_rows
+                    max_rows_per_block.append(required_rows)
+                    max_row_blocks += 1
+                else:
+                    max_rows_per_block.append(temp_num_remaining_rows)
+                    max_row_blocks += 1
+        else:
+            max_rows_per_block = [y_max_number]
+            max_row_blocks = 1
+
+        max_amount = (sum(max_seats_double_escape_blocks)+sum(
+            max_seats_single_escape_blocks)) * sum(max_rows_per_block)
+        if requested_amount > max_amount:
+            self.logger.warning(
+                f'You requested an amount of '
+                f'{requested_amount}, but only '
+                f'{max_amount} is possible. Using this maximum '
+                f'allowed amount.')
+            requested_amount = max_amount
+        elif requested_amount < max_amount:
+            # remove outer blocks to reduce total number of available chair
+            # positions
+            diff_amount = max_amount - requested_amount
+            if (diff_amount >
+                    sum(max_rows_per_block)*max_seats_single_escape_blocks[1]):
+                diff_amount -= max_seats_single_escape_blocks[1]*sum(max_rows_per_block)
+                max_seats_single_escape_blocks[1] = 0
+                max_single_escape_blocks = 1
+                if diff_amount >sum(max_rows_per_block)*max_seats_single_escape_blocks[0]:
+                    diff_amount -= max_seats_single_escape_blocks[0]*sum(max_rows_per_block)
+                    max_seats_single_escape_blocks[0] = 0
+                    max_single_escape_blocks = 0
+
+        # set number of rows to maximum number in y direction
+        obj_locations = []
+        y_loc = global_y_position
+        if 'MinXEscape' in available_x_list:
+            global_x_position += unavail_x_pos[0][1]
+        for num_rows_in_block in max_rows_per_block:
+            obj_rows = num_rows_in_block
+            for row in range(obj_rows):
+                if row == 0:
+                    y_loc += ly_comp / 2
+                else:
+                    y_loc += ly_comp_width
+                x_loc = global_x_position
+                if max_seats_single_escape_blocks[0] > 0:
+                    for x_pos in range(max_seats_single_escape_blocks[0]):
+                        if x_pos == 0:
+                            x_loc += lx_comp_width / 2
+                        else:
+                            x_loc += lx_comp_width
+                        pos = gp_Pnt(x_loc, y_loc, furniture_surface_z)
+                        obj_locations.append(pos)
+                        if len(obj_locations) == requested_amount:
+                            break
+                    x_loc += lx_comp_width / 2
+                    if len(obj_locations) == requested_amount:
+                        break
+                if max_seats_double_escape_blocks[0] > 0:
+                    for seats_in_row in max_seats_double_escape_blocks:
+                        x_loc += escape_route_width
+                        for x_pos in range(seats_in_row):
+                            if x_pos == 0:
+                                x_loc += lx_comp_width / 2
+                            else:
+                                x_loc += lx_comp_width
+                            pos = gp_Pnt(x_loc, y_loc, furniture_surface_z)
+                            obj_locations.append(pos)
+                            if len(obj_locations) == requested_amount:
+                                break
+                        x_loc += lx_comp_width / 2
+                        if len(obj_locations) == requested_amount:
+                            break
+                    if len(obj_locations) == requested_amount:
+                        break
+                if max_seats_single_escape_blocks[1] > 0:
+                    if 'MinXEscape' in available_x_list and x_loc \
+                            == global_x_position:
+                        pass
+                    else:
+                        x_loc += escape_route_width
+                    for x_pos in range(max_seats_single_escape_blocks[1]):
+                        if x_pos == 0:
+                            x_loc += lx_comp_width / 2
+                        else:
+                            x_loc += lx_comp_width
+                        pos = gp_Pnt(x_loc, y_loc, furniture_surface_z)
+                        obj_locations.append(pos)
+                        if len(obj_locations) == requested_amount:
+                            break
+                    x_loc += lx_comp_width / 2
+                if len(obj_locations) == requested_amount:
+                    break
+            y_loc += ly_comp / 2 + escape_route_width
+        if switch:
+            old_obj_locations = obj_locations
+            new_obj_locations = []
+            for loc in obj_locations:
+                new_obj_locations.append(gp_Pnt(loc.Y(), loc.X(), loc.Z()))
+            obj_locations = new_obj_locations
+        obj_trsfs = PyOCCTools.generate_obj_trsfs(obj_locations,
+                                                  compound_center_lower,
+                                                  rotation_angle)
+        footprints = []
+        for trsf in obj_trsfs:
+            footprints.append(
+                BRepBuilderAPI_Transform(footprint_shape, trsf).Shape())
+        escape_shape = PyOCCTools.triangulate_bound_shape(furniture_surface,
+                                                          footprints)
+        add_new_escape_shapes = []
+        for door_shape in doors:
+            reverse=False
+            (min_box, max_box) = PyOCCTools.simple_bounding_box([
+                door_shape])
+            door_lower_pnt1 = gp_Pnt(*min_box)
+            door_lower_pnt2 = gp_Pnt(max_box[0], max_box[1], min_box[2])
+            base_line_pnt1 = door_lower_pnt1
+            base_line_pnt2 = door_lower_pnt2
+            door_width = door_lower_pnt1.Distance(door_lower_pnt2)
+            p1 = PyOCCTools.get_points_of_minimum_point_shape_distance(
+                door_lower_pnt1, escape_shape)
+            p2 = PyOCCTools.get_points_of_minimum_point_shape_distance(
+                door_lower_pnt2, escape_shape)
+            if ((p1[0][2] or p2[0][2]) and BRepExtrema_DistShapeShape(
+                    door_shape, escape_shape,
+                           Extrema_ExtFlag_MIN).Value()) > 0.001:
+                # add closest path to escape route
+                # ensure that neither the lower points of the door nor
+                # the door shape itself touches the escape
+                # shape. The escape shape may be smaller than the escape
+                # route shape
+                if p1[0][1].Distance(p2[0][1]) > 0.9:
+                    # check of the closest points on the escape_shape are
+                    # very close to each other. In this case, the generation
+                    # of a new escape path cannot be guaranteed
+                    reverse = False
+                    # add_escape_shape = PyOCCTools.make_faces_from_pnts([p1[0][0],
+                    #                                                    p2[0][0],
+                    #                                                    p2[0][1], p1[0][1]])
+                    # if add_escape_shape.IsNull():
+                    add_escape_shape = PyOCCTools.get_projection_of_bounding_box(
+                        [BRepBuilderAPI_MakeVertex(
+                            p).Vertex()
+                         for p in [p1[0][0], p2[0][0],
+                                   p2[0][1],
+                                   p1[0][1]]], proj_type='z', value=p1[0][1].Z())
+                    add_new_escape_shapes.append(add_escape_shape)
+                else:
+                    if p1[0][2] > p2[0][2]:
+                        base_line_pnt1 = p1[0][0]
+                        base_line_pnt2 = p1[0][1]
+                    else:
+                        base_line_pnt1 = p2[0][0]
+                        base_line_pnt2 = p2[0][1]
+
+            # add square space in front of doors, depth = escape route width
+            d = gp_Dir(gp_Vec(base_line_pnt1, base_line_pnt2))
+            new_dir = d.Rotated(gp_Ax1(base_line_pnt1, gp_Dir(0, 0, 1)),
+                     math.radians(90))
+            moved_pnt1 = PyOCCTools.move_bound_in_direction_of_normal(
+                                BRepBuilderAPI_MakeVertex(base_line_pnt1).Vertex(),
+                                max(escape_route_width, door_width),
+                          move_dir=new_dir, reverse=reverse)
+            moved_dist = BRepExtrema_DistShapeShape(moved_pnt1,
+                                                  furniture_surface,
+                                                  Extrema_ExtFlag_MIN).Value()
+            if abs(moved_dist) > 1e-3:
+                reverse = True
+                moved_pnt1 = PyOCCTools.move_bound_in_direction_of_normal(
+                    BRepBuilderAPI_MakeVertex(base_line_pnt1).Vertex(),
+                    max(escape_route_width, door_width), move_dir=new_dir, reverse=reverse)
+            if reverse:
+                moved_pnt2 = PyOCCTools.move_bound_in_direction_of_normal(
+                    BRepBuilderAPI_MakeVertex(base_line_pnt2).Vertex(),
+                    max(escape_route_width, door_width), move_dir=new_dir, reverse=reverse)
+            else:
+                moved_pnt2 = PyOCCTools.move_bound_in_direction_of_normal(
+                    BRepBuilderAPI_MakeVertex(base_line_pnt2).Vertex(),
+                    max(escape_route_width, door_width), move_dir=new_dir,
+                                                         reverse=reverse)
+            add_escape_shape = PyOCCTools.make_faces_from_pnts([base_line_pnt1,
+                                                                base_line_pnt2,
+                                                                BRep_Tool.Pnt(moved_pnt2),
+                                                                BRep_Tool.Pnt(moved_pnt1)])
+            add_new_escape_shapes.append(add_escape_shape)
+            distance_new_escape = BRepExtrema_DistShapeShape(
+                add_escape_shape, escape_shape).Value()
+            distance_mp1 = BRepExtrema_DistShapeShape(
+                moved_pnt1, escape_shape).Value()
+            distance_mp2 = BRepExtrema_DistShapeShape(
+                moved_pnt2, escape_shape).Value()
+            if distance_new_escape > 1e-3:
+                new_dist_pnts2 = PyOCCTools.get_points_of_minimum_point_shape_distance(
+                    BRep_Tool.Pnt(moved_pnt2), escape_shape)
+                new_dist_pnts1 = (
+                    PyOCCTools.get_points_of_minimum_point_shape_distance(
+                    BRep_Tool.Pnt(moved_pnt1), escape_shape))
+                add_escape_shape2 = PyOCCTools.make_faces_from_pnts([
+                    new_dist_pnts1[0][0], new_dist_pnts2[0][0],
+                    new_dist_pnts2[0][1], new_dist_pnts1[0][1]])
+                add_new_escape_shapes.append(add_escape_shape2)
+            elif (distance_mp1 and distance_mp2) > 1e-3:
+                if reverse:
+                    min_dist_dir = gp_Dir(*[-1 * d for d in new_dir.Coord()])
+                else:
+                    min_dist_dir = new_dir
+                extruded_escape_shape = PyOCCTools.extrude_face_in_direction(escape_shape,
+                                                                 0.1)
+                min_p1_new = PyOCCTools.find_min_distance_along_direction(
+                    BRep_Tool.Pnt(moved_pnt1), min_dist_dir,
+                    extruded_escape_shape)
+                min_p2_new = PyOCCTools.find_min_distance_along_direction(
+                    BRep_Tool.Pnt(moved_pnt2), min_dist_dir,
+                    extruded_escape_shape)
+
+                add_escape_shape3 = \
+                    PyOCCTools.get_projection_of_bounding_box([moved_pnt1, moved_pnt2,
+                                              *[BRepBuilderAPI_MakeVertex(
+                                                  p).Vertex()
+                                               for p in
+                                               [min_p2_new[1], min_p1_new[1]]]],
+                                              proj_type='z',
+                                              value=p1[0][1].Z())
+                add_new_escape_shapes.append(add_escape_shape3)
+
+        if add_new_escape_shapes:
+            sewed_shape = PyOCCTools.fuse_shapes([escape_shape,
+                                                  *add_new_escape_shapes])
+            area_escape_shape = PyOCCTools.get_shape_area(escape_shape)
+            add_escape_areas = [PyOCCTools.get_shape_area(add_escape) for
+                                add_escape in add_new_escape_shapes]
+            sewed_area = PyOCCTools.get_shape_area(sewed_shape)
+            if (abs((area_escape_shape + sum(add_escape_areas)) - sewed_area)
+                    > 1):
+                sewed_shape = PyOCCTools.fuse_shapes([escape_shape,
+                                                      *add_new_escape_shapes])
+        else:
+            sewed_shape = escape_shape
+        # unified_sewed_shape = PyOCCTools.unify_shape(sewed_shape)
+        solid_sewed_shape = PyOCCTools.make_solid_from_shape(PyOCCTools,
+                                                            sewed_shape)
+        # unified_sewed_shape = PyOCCTools.unify_shape(solid_sewed_shape)
+
+        cleaned_obj_trsfs = []
+        cleaned_obj_locations = []
+        cleaned_footprints = []
+        escape_area = PyOCCTools.get_shape_area(sewed_shape)
+        box_footprints = [PyOCCTools.enlarge_bounding_box_shape_in_dir(f) for
+                          f in footprints]
+        solid_box_footprints = [PyOCCTools.make_solid_from_shape(
+            PyOCCTools, ft) for ft in box_footprints]
+
+        for i, footprint in enumerate(solid_box_footprints):
+            foot_dist = BRepExtrema_DistShapeShape(sewed_shape, footprint,
+                                                   Extrema_ExtFlag_MIN).Value()
+            if abs(foot_dist) < 1e-3:
+                common_algo = BRepAlgoAPI_Common(sewed_shape, footprint)
+                common_algo.Build()
+                if not common_algo.IsDone():
+                    raise RuntimeError("Intersection computation failed.")
+                overlap_shape = common_algo.Shape()
+                # explorer = TopExp_Explorer(overlap_shape, TopAbs_SOLID)
+                # has_overlap = explorer.More()
+                if overlap_shape:
+                    overlap_area = PyOCCTools.get_shape_area(overlap_shape)
+                    # print(overlap_area)
+                    if overlap_area < 0.02: # allow small overlapping
+                        # with escape routes (10cm2)
+                        cleaned_obj_trsfs.append(obj_trsfs[i])
+                        cleaned_footprints.append(footprints[i])
+                        cleaned_obj_locations.append(obj_locations[i])
+                else:
+                    cleaned_obj_trsfs.append(obj_trsfs[i])
+                    cleaned_footprints.append(footprints[i])
+                    cleaned_obj_locations.append(obj_locations[i])
+            else:
+                cleaned_obj_trsfs.append(obj_trsfs[i])
+                cleaned_obj_locations.append(obj_locations[i])
+                cleaned_footprints.append(footprints[i])
+
+        self.logger.warning(f"removed {len(obj_trsfs)-len(cleaned_obj_trsfs)} "
+                            f"furniture objects to guarantee escape route "
+                            f"compliance. A total number of "
+                            f"{len(cleaned_obj_trsfs)} furniture elements is "
+                            f"positioned, based on "
+                            f"{self.playground.sim_settings.furniture_amount} "
+                            f"requested elements. ")
+        return cleaned_obj_locations, cleaned_obj_trsfs
 
 
 def create_stl_from_shape_single_solid_name(triangulated_shape,

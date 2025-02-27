@@ -6,12 +6,13 @@ from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_base_element import \
     OpenFOAMBaseElement
 from bim2sim.utilities.pyocc_tools import PyOCCTools
+from bim2sim.utilities.types import BoundaryOrientation
 
 logger = logging.getLogger(__name__)
 
 
 class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
-    def __init__(self, bound, idf, radiation_model):
+    def __init__(self, bound, radiation_model):
         super().__init__()
         self.radiation_model = radiation_model
         self.bound = bound
@@ -23,10 +24,9 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
             self.bound_element_type = 'Ceiling'
         # hotfix for incorrectly assigned floors and roofs in bim2sim elements
         # todo: test and remove?
-        if self.bound_element_type in ['Floor', 'GroundFloor', 'Roof',
-                                       'InnerFloor']:
-            self.bound_element_type = idf.getobject('BUILDINGSURFACE:DETAILED',
-                                                    self.guid.upper()).Surface_Type
+        if self.bound_element_type in ['InnerFloor']:
+            if bound.top_bottom == BoundaryOrientation.top:
+                self.bound_element_type = 'Ceiling'
         self.solid_name = self.bound_element_type + '_' + bound.guid.replace(
             '$', '___')
         if not hasattr(bound, 'cfd_face'):

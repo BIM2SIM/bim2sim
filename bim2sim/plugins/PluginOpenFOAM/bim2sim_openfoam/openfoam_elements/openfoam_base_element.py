@@ -1,5 +1,8 @@
+import logging
+
 from bim2sim.elements.base_elements import Element
 
+logger = logging.getLogger(__name__)
 
 class OpenFOAMBaseElement(Element):
     def __init__(self):

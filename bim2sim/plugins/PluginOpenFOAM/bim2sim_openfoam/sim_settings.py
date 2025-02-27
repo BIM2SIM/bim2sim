@@ -197,6 +197,8 @@ class OpenFOAMSimSettings(ComfortSimSettings):
             'Office': 'Office setup, chair and desk',
             'Concert': 'Concert setup, chairs in rows',
             'Meeting': 'Meeting setup, large table with chairs',
+            'TwoSideTable': 'Table with chairs on long side',
+            'GroupTable': 'Group table with chairs',
             'Classroom': 'Classroom setup, individual tables with chairs'
         },
         description='Select the type of furniture to add.',
@@ -207,6 +209,19 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         min_value=0,
         max_value=300,
         for_frontend=True,
+    )
+    furniture_orientation = ChoiceSetting(
+        default='short_side',
+        choices={
+            'long_side': 'Long side of a rectangular space',
+            'short_side': 'short side of a rectangular space',
+            'window': 'window side of a rectangular space',
+            'door': 'door side of a rectangular space',
+            'north': 'North side',
+            'east': 'East side',
+            'south': 'South side',
+            'west': 'West side',
+        }
     )
     add_people = BooleanSetting(
         default=False,
@@ -258,6 +273,14 @@ class OpenFOAMSimSettings(ComfortSimSettings):
     add_solar_radiation=BooleanSetting(
         default=True,
         description='Add solar radiation. Requires fvDOM as radiation model.',
+        for_frontend=True
+    )
+    add_air_volume_evaluation = BooleanSetting(
+        default=False,
+        description='Add an air volume evaluation. Removes voids of all '
+                    'people, furniture elements, and heaters, to enhance the '
+                    'evaluation of the air volume itself. This is '
+                    'computationally expensive.',
         for_frontend=True
     )
     scale_person_for_eval = NumberSetting(
