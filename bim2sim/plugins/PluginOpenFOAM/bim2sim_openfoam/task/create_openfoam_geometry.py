@@ -50,16 +50,18 @@ class CreateOpenFOAMGeometry(ITask):
     """This ITask initializes the OpenFOAM Geometry.
     """
 
-    reads = ('openfoam_case', 'elements', 'idf')
+    reads = ('openfoam_case', 'elements')
     touches = ('openfoam_case', 'openfoam_elements')
+
+    single_use = False
 
     def __init__(self, playground):
         super().__init__(playground)
 
-    def run(self, openfoam_case, elements, idf):
+    def run(self, openfoam_case, elements):
         openfoam_elements = dict()
         self.init_zone(openfoam_case,
-                       elements, idf, openfoam_elements,
+                       elements, openfoam_elements,
                        space_guid=self.playground.sim_settings.select_space_guid)
         # todo: add geometry for heater and air terminals
         self.init_heater(openfoam_case, elements, openfoam_elements)
@@ -111,19 +113,21 @@ class CreateOpenFOAMGeometry(ITask):
         openfoam_case.furniture_surface = furniture_surface
 
     @staticmethod
-    def init_zone(openfoam_case, elements, idf, openfoam_elements,
+    def init_zone(openfoam_case, elements, openfoam_elements,
                   space_guid='2RSCzLOBz4FAK$_wE8VckM'):
         # guid '2RSCzLOBz4FAK$_wE8VckM' Single office has no 2B bounds
         # guid '3$f2p7VyLB7eox67SA_zKE' Traffic area has 2B bounds
 
         openfoam_case.current_zone = elements[space_guid]
+        if not openfoam_case.current_zone.fixed_heat_flow_rate_persons:
+            openfoam_case.current_zone.fixed_heat_flow_rate_persons = 0
         openfoam_case.floor_area = openfoam_case.current_zone.net_area.m
         openfoam_case.current_bounds = openfoam_case.current_zone.space_boundaries
         if hasattr(openfoam_case.current_zone, 'space_boundaries_2B'):  # todo
             # remove 2b
             openfoam_case.current_bounds += openfoam_case.current_zone.space_boundaries_2B
         for bound in openfoam_case.current_bounds:
-            new_stl_bound = StlBound(bound, idf, openfoam_case.radiation_model)
+            new_stl_bound = StlBound(bound, openfoam_case.radiation_model)
             openfoam_elements[new_stl_bound.solid_name] = new_stl_bound
             # openfoam_case.stl_bounds.append(new_stl_bound)
 
@@ -1429,7 +1433,7 @@ class CreateOpenFOAMGeometry(ITask):
         for i, trsf in enumerate(available_trsfs):
             if i not in random_people_choice:
                 continue
-            if i == people_amount:
+            if len(people_items) == people_amount:
                 break
 
             new_person_shape = BRepBuilderAPI_Transform(person_shape,

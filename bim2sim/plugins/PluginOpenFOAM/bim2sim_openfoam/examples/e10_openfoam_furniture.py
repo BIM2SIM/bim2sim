@@ -46,14 +46,23 @@ def run_example_8():
 
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
+    # project.sim_settings.select_space_guid = '2dQFggKBb1fOc1CqZDIDlx'
+    # project.sim_settings.select_space_guid = '347jFE2yX7IhCEIALmupEH'
     project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
+    # project.sim_settings.select_space_guid = '0Lt8gR_E9ESeGH5uY_g9e9'
     # project.sim_settings.simulation_time = 11
     project.sim_settings.run_meshing = False
     project.sim_settings.run_cfd_simulation = False
     project.sim_settings.add_heating = True
-    project.sim_settings.add_floorheating = True
+    # project.sim_settings.add_floorheating = True
     # project.sim_settings.add_airterminals = True
     project.sim_settings.add_furniture = True
+    project.sim_settings.furniture_setting = 'Concert'
+    project.sim_settings.furniture_orientation = 'north'
+    project.sim_settings.furniture_amount = 40
+    project.sim_settings.add_people = True
+    project.sim_settings.people_setting = 'Seated'
+    project.sim_settings.people_amount = 1
     answers = ('ArchiCAD', 'ArchiCAD', *('Single office',)*4)
     # project.sim_settings.simulation_type = 'transient'
     # project.sim_settings.inlet_type = 'SimpleStlDiffusor'
