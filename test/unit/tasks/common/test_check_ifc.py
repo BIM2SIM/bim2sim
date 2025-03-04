@@ -5,20 +5,23 @@ Based on ifctester and IDS (Information Delivery Specification)
 
 import unittest
 import bim2sim.tasks.common.check_ifc_ids as check_ifc_ids
+from pathlib import Path
 
-# the paths must adapt to be generic
-ifc_file = '/home/cudok/Documents/10_Git/bim2sim/test/resources/arch/ifc/AC20-FZK-Haus_with_SB55.ifc'
-ids_file = '/home/cudok/Documents/12_ifc_check_ids/ifc_check_spaces(3).ids'
+
+test_rsrc_path = Path(__file__).parent.parent.parent.parent / 'resources'
 
 class TestCheckIFC(unittest.TestCase):
 
-    def test_checkIFC_IDS_example(self):
+    def test_checkIFC_IDS_fail(self):
         """check ifctester is working correctly by do check with IDS and ifc
         files from the IDS repo
 
         see:
         https://github.com/buildingSMART/IDS/tree/development/Documentation/ImplementersDocumentation/TestCases/ids
         """
+
+        ifc_file = test_rsrc_path / 'arch/ids/fail-a_minimal_ids_can_check_a_minimal_ifc_1_2.ifc'
+        ids_file = test_rsrc_path / 'arch/ids/fail-a_minimal_ids_can_check_a_minimal_ifc_1_2.ids'
         all_checks_passed = check_ifc_ids.run_ids_check_on_ifc(ifc_file, ids_file)
         # dummy code, delete later
         self.assertEqual(all_checks_passed, False, "Should be false")
