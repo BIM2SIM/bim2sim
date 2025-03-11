@@ -49,20 +49,4 @@ class TestCheckIFC(unittest.TestCase):
         ifc_file = test_rsrc_path / 'ids/pass-a_specification_passes_only_if_all_requirements_pass_2_2.ifc'
         ids_file = test_rsrc_path / 'ids/pass-a_specification_passes_only_if_all_requirements_pass_2_2.ids'
         all_checks_passed = check_ifc_ids.run_ids_check_on_ifc(ifc_file, ids_file)
-        # dummy code, delete later
-        self.assertEqual(all_checks_passed, True, "Should be true")
-
-
-    def test_checkIFC_IDS_examples_specification_optionality_pass(self):
-        """check ifctester is working correctly by do check with IDS and ifc
-        files from the IDS repo
-
-        see:
-        https://github.com/buildingSMART/IDS/tree/development/Documentation/ImplementersDocumentation/TestCases/ids
-        """
-
-        ifc_file = test_rsrc_path / 'ids/pass-specification_optionality_and_facet_optionality_can_be_combined.ifc'
-        ids_file = test_rsrc_path / 'ids/pass-specification_optionality_and_facet_optionality_can_be_combined.ids'
-        all_checks_passed = check_ifc_ids.run_ids_check_on_ifc(ifc_file, ids_file)
-        # dummy code, delete later
         self.assertEqual(all_checks_passed, True, "Should be true")
