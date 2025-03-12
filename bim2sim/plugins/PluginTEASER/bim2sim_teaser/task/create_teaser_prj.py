@@ -133,7 +133,7 @@ class CreateTEASER(ITask):
             ow_min.name = 'min_outer_wall'
             ow_min.area = 0.01
             ow_min.load_type_element(
-                year=bldg.year_of_construction,
+                year=2000,
                 construction='iwu_heavy',
             )
             ow_min.tilt = 90
@@ -143,7 +143,7 @@ class CreateTEASER(ITask):
             win_min.name = 'min_window'
             win_min.area = 0.01
             win_min.load_type_element(
-                year=bldg.year_of_construction,
+                year=2000,
                 construction='EnEv',
             )
             win_min.orientation = 0
