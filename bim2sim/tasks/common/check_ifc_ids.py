@@ -22,6 +22,24 @@ def run_check_guid(ifc_file: str) -> bool:
                        false: one or more guids are not unique)
     """
     model = ifcopenshell.open(ifc_file)
+    print("hello")
+    for inst in model:
+       if hasattr(inst, "GlobalId"):
+           guid = inst.GlobalId
+           print(guid)
+           # if guid is not None and guid in used_guids:
+           #     rule = "Rule IfcRoot.UR1:\n    The attribute GlobalId should be unique"
+           #     previous_element = used_guids[guid]
+           #     logger.error(
+           #         "On instance:\n    %s\n   %s\n%s\nViolated by:\n    %s\n    %s",
+           #         inst,
+           #         annotate_inst_attr_pos(inst, 0),
+           #         rule,
+           #         previous_element,
+           #         annotate_inst_attr_pos(previous_element, 0),
+           #     )
+           # else:
+           #     used_guids[guid] = inst
     return True
 
 
