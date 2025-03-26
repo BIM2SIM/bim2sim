@@ -57,6 +57,7 @@ def run_check_guid_unique(ifc_file: str) -> (bool, dict):
     print("the GUIDs of all elements are unique: {}".format(all_guids_unique))
     if all_guids_unique is False:
         print("non-unique GUIDs: {}".format(list_guids_non_unique))
+    print("<<<<<<")
     return (all_guids_unique, double_guids)
 
 
@@ -82,12 +83,15 @@ def run_ids_check_on_ifc(ifc_file: str, ids_file: str, report_html: bool = False
     my_ids = ifctester.ids.open(ids_file)
     my_ids.validate(model)
     all_spec_pass = True
+    print(">>>>>> ")
     for spec in my_ids.specifications:
         print("name: {}, passed: {}".format(spec.name, spec.status))
         if not spec.status:
             all_spec_pass = False
-    print(">>>>>> ")
+    print("---")
     print("all checks of the specifications of this IDS pass: {}".format(all_spec_pass))
+    print("---")
+    print("<<<<<<")
     return all_spec_pass
 
 # for check the results of return above
