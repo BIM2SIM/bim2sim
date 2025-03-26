@@ -69,3 +69,22 @@ class TestCheckIFC(unittest.TestCase):
         ids_file = test_rsrc_path / 'ids/pass-specification_optionality_and_facet_optionality_can_be_combined.ids'
         all_checks_passed = check_ifc_ids.run_ids_check_on_ifc(ifc_file, ids_file)
         self.assertEqual(all_checks_passed, True, "Should be true, fails because of issue in ifcTester, 2025-03-12")
+
+    def test_checkIFC_guid_unique_fail(self):
+        """test the boolean of the GUID uniqueness check
+        """
+        # TODO move test ifc file into resources and adapt path
+        ifc_file_guid_error = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55_NoneAndDoubleGUID.ifc'
+        all_guids_checks_passed, non_unique_guids = check_ifc_ids.run_check_guid_unique(ifc_file_guid_error)
+        self.assertEqual(all_guids_checks_passed, False, "Should be false")
+
+    def test_checkIFC_guid_unique_specifc_guid_return(self):
+        """test the guid return of the GUID uniqueness check
+        """
+        # TODO move test ifc file into resources and adapt path
+        ifc_file_guid_error = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55_NoneAndDoubleGUID.ifc'
+        all_guids_checks_passed, non_unique_guids = check_ifc_ids.run_check_guid_unique(ifc_file_guid_error)
+        list_guids_non_unique = list(non_unique_guids.keys())
+
+        predicted_result = ['25OWQvmXj5BPgyergP43tY', '1Oms875aH3Wg$9l65H2ZGw']
+        self.assertEqual(list_guids_non_unique, predicted_result, "Should be a list of 2 GUIDs")
