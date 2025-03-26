@@ -68,7 +68,12 @@ The framework aims to enable engineers, architects, researchers, and practitione
 
 # Architecture and Implementation
 
-**bim2sim** is implemented in Python, making it accessible and interoperable with other tools in the building analysis ecosystem. The tool employs a two-stage architecture:
+**bim2sim** is implemented in Python, making it accessible and interoperable with other tools in the building analysis ecosystem. The general structure is illustrated in \autoref{fig:bim2sim_framework}.
+
+![bim2sim framework structure and plugins. Dashed plugins are still under active development.\label{fig:bim2sim_framework}](docs/source/img/static
+/bim2sim_framework_overview.png)
+
+The tool employs a two-stage architecture:
 
 1. **Base Framework**: Transforms IFC data into a uniform meta-structure that preserves essential building information while resolving inconsistencies
 2. **Domain-Specific Plugins**: Convert the meta-structure into simulation-ready models for specific applications
