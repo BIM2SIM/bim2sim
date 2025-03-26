@@ -144,8 +144,11 @@ class DeadEnds(ITask):
                         element.guid for element in element_strand))
                 decisions.append(cur_decision)
             yield decisions
+            # TODO additional decision to decide if connections should be done or if the dead end just should be kept as it is
             answers = decisions.to_answer_dict()
             n_removed = 0
+
+            connected = []
             for element, answer in answers.items():
                 if answer:
                     remove = remove_ports[element][0]
@@ -155,6 +158,11 @@ class DeadEnds(ITask):
                     if playground:
                         playground.update_graph(graph)
                 else:
+                    # TODO continue here
+                    con_decision = BoolDecision(
+                        question=f"..."
+                    )
+                    pass
                     raise NotImplementedError()
                     # TODO connect elements that are open but not dead ends
                     #  (missing connections) #769

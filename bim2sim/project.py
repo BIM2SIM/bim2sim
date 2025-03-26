@@ -226,25 +226,33 @@ class FolderStructure:
                     "to IFC ")
             # copy all ifc files to domain specific project folders
             for domain, file_path in ifc_paths.items():
-                if not file_path.exists():
-                    if "test" in file_path.parts \
-                            and "resources" in file_path.parts:
-                        raise ValueError(
-                            f"Provided path to ifc is: {file_path}, but this "
-                            f"file does not exist. You are trying to run a "
-                            f"test on your local machine,"
-                            f" but it seems like you have not downloaded the"
-                            f" needed test resources. "
-                            f"Run 'git submodule update --init --recursive' "
-                            f"to make sure to include the test resources."
-                        )
-                    else:
-                        raise ValueError(
-                            f"Provided path to ifc is: {file_path}, but this file "
-                            f"does not exist.")
-                Path.mkdir(self.ifc_base / domain.name, exist_ok=True)
-                shutil.copy2(
-                    file_path, self.ifc_base / domain.name / file_path.name)
+                if isinstance(file_path, list):
+                    # TODO error handling
+                    for file_path_i in file_path:
+                        Path.mkdir(self.ifc_base / domain.name, exist_ok=True)
+                        shutil.copy2(
+                            file_path_i,
+                            self.ifc_base / domain.name / file_path_i.name)
+                else:
+                    if not file_path.exists():
+                        if "test" in file_path.parts \
+                                and "resources" in file_path.parts:
+                            raise ValueError(
+                                f"Provided path to ifc is: {file_path}, but this "
+                                f"file does not exist. You are trying to run a "
+                                f"test on your local machine,"
+                                f" but it seems like you have not downloaded the"
+                                f" needed test resources. "
+                                f"Run 'git submodule update --init --recursive' "
+                                f"to make sure to include the test resources."
+                            )
+                        else:
+                            raise ValueError(
+                                f"Provided path to ifc is: {file_path}, but this file "
+                                f"does not exist.")
+                    Path.mkdir(self.ifc_base / domain.name, exist_ok=True)
+                    shutil.copy2(
+                        file_path, self.ifc_base / domain.name / file_path.name)
 
         if open_conf:
             # open config for user interaction
