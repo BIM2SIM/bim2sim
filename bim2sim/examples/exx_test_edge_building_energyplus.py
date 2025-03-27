@@ -4,7 +4,6 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
 from bim2sim.tasks import common, bps
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import task as ep_tasks
@@ -19,10 +18,6 @@ def run_example_simple_building():
     the zoning setup is specified to be with a medium level of detail),
     before the project is executed with the previously specified settings.
     """
-    # Create the default logging to for quality log and bim2sim main log
-    # (see logging documentation for more information)
-    default_logging_setup()
-
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(
@@ -39,7 +34,8 @@ def run_example_simple_building():
     # LOCAL CODE DAVID
     ifc_paths = {
         IFCDomain.arch:
-            Path(r'D:\12_IFCs\BIM-ESH-5A-BDS (EDITED) 00 EG _ OKFF +0,00 - 00 MZ _ OKFF +3,72 -IFC4.ifc'),
+            Path(r'D:\12_IFCs\BIM-ESH-5A-BDS (EDITED)-IFC4.ifc'),
+            # Path(r'D:\12_IFCs\BIM-ESH-5A-BDS (EDITED) 00 EG _ OKFF +0,00 - 00 MZ _ OKFF +3,72 -IFC4.ifc'),
     }
     # Create a project including the folder structure for the project with
     # teaser as backend and no specified workflow (default workflow is taken)
@@ -94,8 +90,8 @@ def run_example_simple_building():
 
     # answers = ('ArchiCAD', 'ArchiCAD',*(None,)*3, *(None,)*23,
     #            *('Traffic area',)*3, 2015)
-    # run_project(project, ConsoleDecisionHandler())
-    run_project(project, DebugDecisionHandler(answers))
+    run_project(project, ConsoleDecisionHandler())
+    # run_project(project, DebugDecisionHandler(answers))
 
 
 if __name__ == '__main__':
