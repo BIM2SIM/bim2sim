@@ -103,7 +103,7 @@ The tool employs a two-stage architecture:
 1. **TEASER**: Modelica based BEPS simulation
 2. **EnergyPlus**: BEPS Simulation using EnergyPlus
 3. **AixLib**: Modelica-based HVAC simulation
-4. **HKESim**: Modelica-based HVAC simulation (not public available)
+4. **HKESim**: Modelica-based HVAC simulation (Modelica library itself is not public available)
 5. **Comfort**: Thermal comfort analysis using EnergyPlus
 6. **LCA**: Life cycle assessment via  quantity takeoff
 7. **OpenFOAM**: CFD simulation (under development, open-source available in fall 2025)
