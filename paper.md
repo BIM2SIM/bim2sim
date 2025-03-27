@@ -68,7 +68,7 @@ The framework aims to enable engineers, architects, researchers, and practitione
 
 # Architecture and Implementation
 
-**bim2sim** is implemented in Python, making it accessible and interoperable with other tools in the building analysis ecosystem. The general structure is illustrated in \autoref{fig:bim2sim_framework}.
+**bim2sim** is implemented in Python, making it accessible and interoperable with other tools in the building analysis ecosystem. The general structure is illustrated in Figure \autoref{fig:bim2sim_framework}.
 
 ![bim2sim framework structure and plugins. Dashed plugins are still under active development.\label{fig:bim2sim_framework}](docs/source/img/static/bim2sim_framework_overview.png)
 
