@@ -27,6 +27,9 @@ authors:
   - name: Jérôme Frisch
     orcid: 0000-0003-0509-5275
     affiliation: 2
+  - name: Christoph van Treeck
+    orcid: 0000-0001-5241-035X
+    affiliation: 2
   - name: Dirk Müller
     orcid: 0000-0002-6106-6607
     affiliation: 1
