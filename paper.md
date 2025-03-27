@@ -44,7 +44,7 @@ bibliography: paper.bib
 
 # Summary
 
-Building Information Modeling (BIM) offers comprehensive data about buildings, but transforming this information into domain-specific simulation models remains challenging. **bim2sim** addresses this gap by providing a Python framework that transforms Industry Foundation Classes (IFC) models into simulation-ready models for multiple domains. This open-source tool implements a two-stage approach with a uniform meta-structure for IFC data extraction and domain-specific plugins for simulation model generation. The framework currently focuses on Building Performance Simulation (BPS) and Heating, Ventilation, and Air Conditioning (HVAC) simulations, with additional support for Computational Fluid Dynamics (CFD) and Life Cycle Assessment (LCA). **bim2sim**'s modular architecture handles complex tasks such as space boundary generation, thermal zoning, and building element mapping while preserving semantic relationships. The framework significantly reduces manual effort in simulation model creation while providing extensibility for future domain-specific applications.
+Building Information Modeling (BIM) offers comprehensive data about buildings, but transforming this information into domain-specific simulation models remains challenging. **bim2sim** addresses this gap by providing a Python framework that transforms Industry Foundation Classes (IFC) models into simulation-ready models for multiple domains. This open-source framework implements a two-stage approach with a uniform meta-structure for IFC data extraction and domain-specific plugins for simulation model generation. The framework currently focuses on Building Performance Simulation (BPS) and Heating, Ventilation, and Air Conditioning (HVAC) simulations, with additional support for Computational Fluid Dynamics (CFD) and Life Cycle Assessment (LCA). **bim2sim**'s modular architecture handles complex tasks such as space boundary generation, thermal zoning, and building element mapping while preserving semantic relationships. The framework significantly reduces manual effort in simulation model creation while providing extensibility for future domain-specific applications.
 
 # Statement of Need
 Energy-efficient building design and operation heavily rely on Building Energy Performance Simulation (BEPS), but creating these simulation models manually is notoriously time-consuming, error-prone, and requires specialized expertise. While Building Information Modeling (BIM) provides a rich source of building data, the direct use of this information for simulation faces several challenges:
@@ -87,7 +87,7 @@ The tool employs a two-stage architecture:
 
 ## Key Features
 
-- IFC parser that extracts geometric and semantic data utilizing the existing python implementation of IfcOpenShell [@IfcOpenShell]
+- IFC parser that extracts geometric and semantic data utilizing the existing Python implementation of IfcOpenShell [@IfcOpenShell]
 - Algorithms to correct missing or incorrect space boundary information
 - Enrichment processes for adding missing information (materials, usage profiles) 
 - Decision management for handling ambiguities in IFC data
@@ -110,7 +110,7 @@ The tool employs a two-stage architecture:
 
 
 # Acknowledgments
-**bim2sim** was developed through collaboration between academic institutions (RWTH Aachen University's EBC - Institute for Energy Efficient Buildings and Indoor Climate, E3D - Institute of Energy Efficiency and Sustainable Building) and industry partners (ROM Technik GmbH). The framework was initially created under the "BIM2SIM" project with continued enhancement through the follow-up "BIM2Praxis" initiative, both funded by the German Federal Ministry for Economic Affairs and Energy (BMWi/BMWK).
+**bim2sim** was developed through collaboration between academic institutions (RWTH Aachen University's EBC - Institute for Energy Efficient Buildings and Indoor Climate, E3D - Institute of Energy Efficiency and Sustainable Building) and industry partners (ROM Technik GmbH). The framework was initially created under the "BIM2SIM" project with continued enhancement through the follow-up "BIM2Praxis" project, both funded by the German Federal Ministry for Economic Affairs and Energy (BMWi/BMWK).
 
 We acknowledge the funding support from the German Federal Ministry for Economic Affairs and Energy (grant number 03ET1562A/B) and the Federal Ministry for Economic Affairs and Climate Action (grant number 3EN1050A/B).
 
