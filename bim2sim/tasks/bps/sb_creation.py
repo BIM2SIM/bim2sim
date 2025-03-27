@@ -212,6 +212,7 @@ class CreateSpaceBoundaries(ITask):
             related_opening_elems: list of Window and Door elements
         """
         related_opening_elems = []
+        skipped_elements = []
         if not hasattr(bound_element.ifc, 'HasOpenings'):
             return related_opening_elems
         if len(bound_element.ifc.HasOpenings) == 0:
@@ -220,9 +221,19 @@ class CreateSpaceBoundaries(ITask):
         for opening in bound_element.ifc.HasOpenings:
             if hasattr(opening.RelatedOpeningElement, 'HasFillings'):
                 for fill in opening.RelatedOpeningElement.HasFillings:
-                    opening_obj = elements[
-                        fill.RelatedBuildingElement.GlobalId]
-                    related_opening_elems.append(opening_obj)
+                    try:
+                        opening_obj = elements[
+                            fill.RelatedBuildingElement.GlobalId]
+                        related_opening_elems.append(opening_obj)
+                    except KeyError:
+                        # todo: hotfix. Skipped BuildingElementProxies raise
+                        #  key errors if they are called by the opening
+                        #  assignment process.
+                        # these openings are skipped.
+                        logger.warning(
+                            f"GlobalId {fill.RelatedBuildingElement.GlobalId} "
+                            f"not found in elements, skipped.")
+                        skipped_elements.append(fill.RelatedBuildingElement.GlobalId)
         return related_opening_elems
 
     @staticmethod
