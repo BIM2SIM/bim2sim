@@ -44,12 +44,12 @@ bibliography: paper.bib
 
 # Summary
 
-Building Information Modeling (BIM) offers comprehensive data about buildings, but transforming this information into domain-specific simulation models remains challenging. **bim2sim** addresses this gap by providing a Python framework that transforms Industry Foundation Classes (IFC) models into simulation-ready models for multiple domains. This open-source tool implements a two-stage approach with a uniform meta-structure for IFC data extraction and domain-specific plugins for simulation model generation. The framework currently focuses on Building Performance Simulation (BPS) and Heating, Ventilation, and Air Conditioning (HVAC) simulations, with additional support for Computational Fluid Dynamics (CFD) and Life Cycle Assessment (LCA). **bim2sim**'s modular architecture handles complex tasks such as space boundary generation, thermal zoning, and building element mapping while preserving semantic relationships. The framework significantly reduces manual effort in simulation model creation while providing extensibility for future domain-specific applications.
+Building Information Modeling (BIM) offers comprehensive data about buildings, but transforming this information into domain-specific simulation models remains challenging. **bim2sim** addresses this gap by providing a Python framework that transforms Industry Foundation Classes (IFC) models into simulation-ready models for multiple domains. This open-source tool implements a two-stage approach with a uniform meta-structure for IFC data extraction and domain-specific plugins for simulation model generation. The framework currently focuses on Building Performance Simulation (BPS) and Heating, Ventilation, and Air Conditioning (HVAC) simulations, with additional support for Computational Fluid Dynamics (CFD) and Life Cycle Assessment (LCA). **bim2sim**'s modular architecture handles complex tasks such as space boundary (SB) generation, thermal zoning, and building element mapping while preserving semantic relationships. The framework significantly reduces manual effort in simulation model creation while providing extensibility for future domain-specific applications.
 
 # Statement of Need
 Energy-efficient building design and operation heavily rely on Building Energy Performance Simulation (BEPS), but creating these simulation models manually is notoriously time-consuming, error-prone, and requires specialized expertise. While Building Information Modeling (BIM) provides a rich source of building data, the direct use of this information for simulation faces several challenges:
 
-1. **Geometric Discrepancies**: Architectural BIM models employ geometric representations that differ from those required by simulation tools, necessitating complex transformations (e.g., second-level space boundaries)
+1. **Geometric Discrepancies**: Architectural BIM models employ geometric representations that differ from those required by simulation tools, necessitating complex transformations (e.g., second-level SB)
 2. **Semantic Gaps**: Critical simulation parameters (material properties, usage profiles, HVAC specifications) are often missing or incompletely defined in BIM models
 3. **Topological Gaps**: HVAC simulation requires accurate component connection information, but topological relationships are frequently incorrect or missing in existing BIM files
 4. **Data Format Incompatibilities**: Various simulation domains and tools demand specific input formats and data schemas that differ from standard BIM exports
@@ -88,7 +88,7 @@ The tool employs a two-stage architecture:
 ## Key Features
 
 - IFC parser that extracts geometric and semantic data utilizing the existing python implementation of IfcOpenShell [@IfcOpenShell]
-- Algorithms to correct missing or incorrect space boundary information
+- Algorithms to correct missing or incorrect SB information
 - Enrichment processes for adding missing information (materials, usage profiles) 
 - Decision management for handling ambiguities in IFC data
 - Exporters for different simulation platforms
@@ -104,10 +104,52 @@ The tool employs a two-stage architecture:
 5. **Comfort**: Thermal comfort analysis
 6. **LCA**: Life cycle assessment via  quantity takeoff
 
-## Existing publications on methodology
+# Existing Publications on Methodology
 * The methodology and use case demonstration for the BEPS-focused plugins **TEASER** and **EnergyPlus** will be published in a forthcoming paper by Jansen et al. [-@Jansen2024bim2sim]
 * The methodology and detailed implementation of the HVAC-focused plugins **AixLib** and **HKESim** are comprehensively documented in Jansen et al. [-@jansen2023bim2sim]
 
+# Comparison with Similar Tools
+
+**bim2sim** builds upon previous efforts to leverage BIM data for building energy simulation. In our forthcoming paper [@Jansen2024bim2sim], we conducted a comprehensive review of existing BIM-to-simulation approaches. Table 1 provides a comparative analysis of these tools, evaluating them across several dimensions: IFC version support, space and surface boundary handling, data enrichment capabilities, simulation domain coverage (BEPS, HVAC), architectural modularity, open-source availability, and implementation technologies.
+
+: IFC-based BEPS approaches from related research (chronologically ordered) as analyzed in [@Jansen2024bim2sim]. R: Required, G: Generation, P: Partially, Y: Yes, -: No/not applicable. {#tab:bim2bemApproaches}
+
++---------------------+----------------+-------------+--------+----+----------------+------------------------+---------------+------------+-------------+--------------------+
+| Reference           | Name           | IFC Version | Spaces | SB | Enrichment     | BEPS                   | HVAC          | Modularity | open-source | Implementation     |
++=====================+================+=============+========+====+================+========================+===============+============+=============+====================+
+| Bazjanac (2008)     |                | IFC         | G      | G  | manual         | EnergyPlus             | -             | Y          | -           | -                  |
++---------------------+----------------+-------------+--------+----+----------------+------------------------+---------------+------------+-------------+--------------------+
+| O'Donnell (2011)    | SimModel       | IFC         | R      | R  | Template       | EnergyPlus             | -             | Y          | -           | XML                |
++---------------------+----------------+-------------+--------+----+----------------+------------------------+---------------+------------+-------------+--------------------+
+| EmiraElAsmi (2015)  |                | IFC2x3/IFC4 | R      | -  |                | COMETH                 | COMETH        | -          | -           | -                  |
++---------------------+----------------+-------------+--------+----+----------------+------------------------+---------------+------------+-------------+--------------------+
+| giannakis (2015)    |                | IFC2x3/IFC4 | R      | G  | -              | EnergyPlus, TRNSYS     | -             | -          | -           | -, Matlab          |
++---------------------+----------------+-------------+--------+----+----------------+------------------------+---------------+------------+-------------+--------------------+
+| Cao (2018)          | SimModel+      | IFC         | G      | G  |                | Modelica               | Modelica      | Y          | -           | Python, C++        |
++---------------------+----------------+-------------+--------+----+----------------+------------------------+---------------+------------+-------------+--------------------+
+| Andriamamonjy (2018)| Ifc2Modelica   | IFC4        | R      | R  | Spreadsheet    | Modelica               | Modelica      | P (Modelica)| -          | Python, ifcopenshell|
++---------------------+----------------+-------------+--------+----+----------------+------------------------+---------------+------------+-------------+--------------------+
+| BIM2Modelica (2017, | CoTeTo/        | IFC2x3      | R      | G  | Template &     | Modelica               | -             | -          | Y           | Python, JModelica  |
+| 2019)               | BIM2Modelica   |             |        |    | Manual         |                        |               |            |             |                    |
++---------------------+----------------+-------------+--------+----+----------------+------------------------+---------------+------------+-------------+--------------------+
+| giannakis (2019)    |                | IFC4        | R      | G  | SimModel XML   | SimModel XML,          | -             | -          | -           | -                  |
+|                     |                |             |        |    | Enrichment tool| EnergyPlus             |               |            |             |                    |
++---------------------+----------------+-------------+--------+----+----------------+------------------------+---------------+------------+-------------+--------------------+
+| Ramaji (2020)       | OsmSerializer  | IFC2x3      | R      | G  | OpenStudio     | OpenStudio/EnergyPlus  | -             | -          | Y           | Java               |
++---------------------+----------------+-------------+--------+----+----------------+------------------------+---------------+------------+-------------+--------------------+
+| Chen (2021)         |                | IFC4        | R      | -  |                | EnergyPlus, eQuest     | Y (for BPS)   | -          | -           | Java               |
++---------------------+----------------+-------------+--------+----+----------------+------------------------+---------------+------------+-------------+--------------------+
+| SIMVICUS (2023)     | SIM-VICUS      | IFC2x3/IFC4 | R      | G  | template &     | Nandrad, EnergyPlus    | local/districts| Y         | Y           | C++                |
+|                     |                |             |        |    | manual         |                        |               |            |             |                    |
++---------------------+----------------+-------------+--------+----+----------------+------------------------+---------------+------------+-------------+--------------------+
+| Chen (2023)         | AutoBPS-BIM    | IFC2x2      | R      | R  |                | EnergyPlus             | EnergyPlus    | -          | -           | -                  |
++---------------------+----------------+-------------+--------+----+----------------+------------------------+---------------+------------+-------------+--------------------+
+| graphBasedbim2bem   |                | IFC4        | G      | G  | Template       | EnergyPlus             | -             | -          | -           | -                  |
+| (2023)              |                |             |        |    |                | (not executed)         |               |            |             |                    |
++---------------------+----------------+-------------+--------+----+----------------+------------------------+---------------+------------+-------------+--------------------+
+| bim2sim             | bim2sim        | IFC4        | R      | R  | template &     | EnergyPlus, Modelica   | Modelica      | Y          | Y           | Python, ifcopenshell|
+|                     |                |             |        |    | manual         |                        |               |            |             |                    |
++---------------------+----------------+-------------+--------+----+----------------+------------------------+---------------+------------+-------------+--------------------+
 
 # Acknowledgments
 **bim2sim** was developed through collaboration between academic institutions (RWTH Aachen University's EBC - Institute for Energy Efficient Buildings and Indoor Climate, E3D - Institute of Energy Efficiency and Sustainable Building) and industry partners (ROM Technik GmbH). The framework was initially created under the "BIM2SIM" project with continued enhancement through the follow-up "BIM2Praxis" initiative, both funded by the German Federal Ministry for Economic Affairs and Energy (BMWi/BMWK).
