@@ -5,11 +5,10 @@ import math
 import re
 import sys
 from datetime import date
-from typing import Set, List
+from typing import Set, List, Union
 
 import ifcopenshell
 import ifcopenshell.geom
-from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBndLib import brepbndlib_Add
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
@@ -19,27 +18,19 @@ from OCC.Core.Bnd import Bnd_Box
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.GProp import GProp_GProps
 from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
-from OCC.Core.TopAbs import TopAbs_FACE
-from OCC.Core.TopExp import TopExp_Explorer
-from OCC.Core.TopoDS import topods_Face
-from OCC.Core._Geom import Handle_Geom_Plane_DownCast
-from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Dir, gp_Ax1, gp_Pnt, \
+from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Pnt, \
     gp_Mat, gp_Quaternion
 from ifcopenshell import guid
 
-from bim2sim.kernel.decorators import cached_property
 from bim2sim.elements.mapping import condition, attribute
 from bim2sim.elements.base_elements import ProductBased, RelationBased
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.common.inner_loop_remover import remove_inner_loops
 from bim2sim.utilities.common_functions import vector_angle, angle_equivalent
 from bim2sim.utilities.pyocc_tools import PyOCCTools
-from bim2sim.utilities.types import IFCDomain
+from bim2sim.utilities.types import IFCDomain, BoundaryOrientation
 
 logger = logging.getLogger(__name__)
-
-# todo @ veronika: convert all attributes regarding SB
-#  which can't come from ifc to cached_property
 
 
 class BPSProduct(ProductBased):
@@ -67,7 +58,7 @@ class BPSProduct(ProductBased):
         """get net area (including opening areas) of the element"""
         return self.gross_area - self.opening_area
 
-    @cached_property
+    @property
     def is_external(self) -> bool or None:
         """Checks if the corresponding element has contact with external
         environment (e.g. ground, roof, wall)"""
@@ -92,33 +83,7 @@ class BPSProduct(ProductBased):
         """Default cost group for building elements is 300"""
         return 300
 
-    gross_area = attribute.Attribute(
-        functions=[get_bound_area],
-        unit=ureg.meter ** 2
-    )
-    net_area = attribute.Attribute(
-        functions=[get_net_bound_area],
-        unit=ureg.meter ** 2
-    )
-
-    @cached_property
-    def sbs_without_corresponding(self):
-        """get a list with only not duplicated space boundaries"""
-        sbs_without_corresponding = list(self.space_boundaries)
-        for sb in self.space_boundaries:
-            if sb in sbs_without_corresponding:
-                if sb.related_bound and sb.related_bound in \
-                        sbs_without_corresponding:
-                    sbs_without_corresponding.remove(sb.related_bound)
-        return sbs_without_corresponding
-
-
-    @cached_property
-    def opening_area(self):
-        """get sum of opening areas of the element"""
-        return sum(sb.opening_area for sb in self.sbs_without_corresponding)
-
-    def calc_orientation(self) -> float:
+    def _calc_teaser_orientation(self, name) -> Union[int, None]:
         """Calculate the orientation of the bps product based on SB direction.
 
         For buildings elements we can use the more reliable space boundaries
@@ -151,14 +116,46 @@ class BPSProduct(ProductBased):
             return max(dict_orientations, key=dict_orientations.get)
         return None
 
-    @cached_property
-    def volume(self):
-        if hasattr(self, "net_volume"):
-            if self.net_volume:
-                vol = self.net_volume
-                return vol
-        vol = self.calc_volume_from_ifc_shape()
-        return vol
+    def _get_sbs_without_corresponding(self, name) -> list:
+        """get a list with only not duplicated space boundaries"""
+        sbs_without_corresponding = list(self.space_boundaries)
+        for sb in self.space_boundaries:
+            if sb in sbs_without_corresponding:
+                if sb.related_bound and sb.related_bound in \
+                        sbs_without_corresponding:
+                    sbs_without_corresponding.remove(sb.related_bound)
+        return sbs_without_corresponding
+
+    def _get_opening_area(self, name):
+        """get sum of opening areas of the element"""
+        return sum(sb.opening_area for sb in self.sbs_without_corresponding)
+
+    teaser_orientation = attribute.Attribute(
+        description="Orientation of element in TEASER conventions. 0-360 for "
+                    "orientation of vertical elements and -1 for roofs and "
+                    "ceiling, -2 for groundfloors and floors.",
+        functions=[_calc_teaser_orientation],
+    )
+
+    gross_area = attribute.Attribute(
+        functions=[get_bound_area],
+        unit=ureg.meter ** 2
+    )
+
+    net_area = attribute.Attribute(
+        functions=[get_net_bound_area],
+        unit=ureg.meter ** 2
+    )
+
+    sbs_without_corresponding = attribute.Attribute(
+        description="A list with only not duplicated space boundaries",
+        functions=[_get_sbs_without_corresponding]
+    )
+
+    opening_area = attribute.Attribute(
+        description="Sum of opening areas of the element",
+        functions=[_get_opening_area]
+    )
 
 
 class ThermalZone(BPSProduct):
@@ -176,29 +173,28 @@ class ThermalZone(BPSProduct):
         self.bound_elements = kwargs.pop('bound_elements', [])
         super().__init__(*args, **kwargs)
 
-    @cached_property
+    @property
     def outer_walls(self) -> list:
         """List of all outer wall elements bounded to the thermal zone"""
         return [
             ele for ele in self.bound_elements if isinstance(ele, OuterWall)]
 
-    @cached_property
+    @property
     def windows(self) -> list:
         """List of all window elements bounded to the thermal zone"""
         return [ele for ele in self.bound_elements if isinstance(ele, Window)]
 
-    @cached_property
+    @property
     def is_external(self) -> bool:
         """determines if a thermal zone is external or internal based on the
         presence of outer walls"""
         return len(self.outer_walls) > 0
 
-    @cached_property
-    def external_orientation(self) -> str or float:
+    def _get_external_orientation(self, name) -> str or float:
         """determines the orientation of the thermal zone based on its elements
         it can be a corner (list of 2 angles) or an edge (1 angle)"""
         if self.is_external is True:
-            orientations = [ele.orientation for ele in self.outer_walls]
+            orientations = [ele.teaser_orientation for ele in self.outer_walls]
             calc_temp = list(set(orientations))
             sum_or = sum(calc_temp)
             if 0 in calc_temp:
@@ -207,8 +203,7 @@ class ThermalZone(BPSProduct):
             return sum_or / len(calc_temp)
         return 'Internal'
 
-    @cached_property
-    def glass_percentage(self) -> float or ureg.Quantity:
+    def _get_glass_percentage(self, name) -> float or ureg.Quantity:
         """determines the glass area/facade area ratio for all the windows in
         the space in one of the 4 following ranges
         0%-30%: 15
@@ -222,8 +217,7 @@ class ThermalZone(BPSProduct):
         else:
             return 'Internal'
 
-    @cached_property
-    def space_neighbors(self):
+    def _get_space_neighbors(self, name) -> list:
         """determines the neighbors of the thermal zone"""
         neighbors = []
         for sb in self.space_boundaries:
@@ -237,8 +231,7 @@ class ThermalZone(BPSProduct):
                     neighbors.append(tz)
         return neighbors
 
-    @cached_property
-    def space_shape(self):
+    def _get_space_shape(self, name):
         """returns topods shape of the IfcSpace"""
         settings = ifcopenshell.geom.main.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
@@ -247,8 +240,7 @@ class ThermalZone(BPSProduct):
         settings.set(settings.INCLUDE_CURVES, True)
         return ifcopenshell.geom.create_shape(settings, self.ifc).geometry
 
-    @cached_property
-    def space_center(self):
+    def _get_space_center(self, name) -> float:
         """
         This function returns the center of the bounding box of an ifc space
         shape
@@ -259,8 +251,7 @@ class ThermalZone(BPSProduct):
         bbox_center = ifcopenshell.geom.utils.get_bounding_box_center(bbox)
         return bbox_center
 
-    @cached_property
-    def footprint_shape(self):
+    def _get_footprint_shape(self, name):
         """
         This function returns the footprint of a space shape. This can be
         used e.g., to visualize floor plans.
@@ -268,13 +259,13 @@ class ThermalZone(BPSProduct):
         footprint = PyOCCTools.get_footprint_of_shape(self.space_shape)
         return footprint
 
-    def get_space_shape_volume(self, name):
+    def _get_space_shape_volume(self, name):
         """
         This function returns the volume of a space shape
         """
         return PyOCCTools.get_shape_volume(self.space_shape)
 
-    def get_volume_geometric(self, name):
+    def _get_volume_geometric(self, name):
         """
         This function returns the volume of a space geometrically
         """
@@ -327,12 +318,11 @@ class ThermalZone(BPSProduct):
 
         return sum(leveled_areas.values()) / 2
 
-    @cached_property
-    def horizontal_sbs(self):
+    def _get_horizontal_sbs(self, name):
         """get all horizonal SBs in a zone and convert them into a dict with
          key z-height in room and the SB as value."""
         # todo: use only bottom when TOP bottom is working correctly
-        valid = ['TOP', 'BOTTOM']
+        valid = [BoundaryOrientation.top, BoundaryOrientation.bottom]
         leveled_sbs = {}
         for sb in self.sbs_without_corresponding:
             if sb.top_bottom in valid:
@@ -343,9 +333,66 @@ class ThermalZone(BPSProduct):
 
         return leveled_sbs
 
-    def __repr__(self):
-        return "<%s (usage: %s)>" \
-               % (self.__class__.__name__, self.usage)
+    def _area_specific_post_processing(self, value):
+        return value / self.net_area
+
+    def _get_heating_profile(self, name) -> list:
+        """returns a heating profile using the heat temperature in the IFC"""
+        # todo make this "dynamic" with a night set back
+        if self.t_set_heat is not None:
+            return [self.t_set_heat.to(ureg.kelvin).m] * 24
+
+    def _get_cooling_profile(self, name) -> list:
+        """returns a cooling profile using the cool temperature in the IFC"""
+        # todo make this "dynamic" with a night set back
+        if self.t_set_cool is not None:
+            return [self.t_set_cool.to(ureg.kelvin).m] * 24
+
+    def _get_persons(self, name):
+        if self.area_per_occupant:
+            return 1 / self.area_per_occupant
+
+    external_orientation = attribute.Attribute(
+        description="Orientation of the thermal zone, either 'Internal' or a "
+                    "list of 2 angles or a single angle as value between 0 and "
+                    "360.",
+        functions=[_get_external_orientation]
+    )
+
+    glass_percentage = attribute.Attribute(
+        description="Determines the glass area/facade area ratio for all the "
+                    "windows in the space in one of the 4 following ranges:"
+                    " 0%-30%: 15, 30%-50%: 40, 50%-70%: 60, 70%-100%: 85.",
+        functions=[_get_glass_percentage]
+    )
+
+    space_neighbors = attribute.Attribute(
+        description="Determines the neighbors of the thermal zone.",
+        functions=[_get_space_neighbors]
+    )
+
+    space_shape = attribute.Attribute(
+        description="Returns topods shape of the IfcSpace.",
+        functions=[_get_space_shape]
+    )
+
+    space_center = attribute.Attribute(
+        description="Returns the center of the bounding box of an ifc space "
+                    "shape.",
+        functions=[_get_space_center]
+    )
+
+    footprint_shape = attribute.Attribute(
+        description="Returns the footprint of a space shape, which can be "
+                    "used e.g., to visualize floor plans.",
+        functions=[_get_footprint_shape]
+    )
+
+    horizontal_sbs = attribute.Attribute(
+        description="All horizontal space boundaries in a zone as dict. Key is" 
+                    " the z-zeight in the room and value the SB.",
+        functions=[_get_horizontal_sbs]
+    )
 
     zone_name = attribute.Attribute(
         default_ps=("Pset_SpaceCommon", "Reference")
@@ -413,6 +460,7 @@ class ThermalZone(BPSProduct):
         functions=[get_bound_floor_area],
         unit=ureg.meter ** 2
     )
+
     net_area = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "NetFloorArea"),
         functions=[get_net_bound_floor_area],
@@ -431,33 +479,37 @@ class ThermalZone(BPSProduct):
 
     net_volume = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "NetVolume"),
-        functions=[get_space_shape_volume, get_volume_geometric],
+        functions=[_get_space_shape_volume, _get_volume_geometric],
         unit=ureg.meter ** 3,
     )
     gross_volume = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "GrossVolume"),
-        functions=[get_volume_geometric],
+        functions=[_get_volume_geometric],
         unit=ureg.meter ** 3,
     )
+
     height = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "Height"),
         unit=ureg.meter,
     )
+
     length = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "Length"),
         unit=ureg.meter,
     )
+
     width = attribute.Attribute(
         default_ps=("Qto_SpaceBaseQuantities", "Width"),
         unit=ureg.m
     )
-    AreaPerOccupant = attribute.Attribute(
+
+    area_per_occupant = attribute.Attribute(
         default_ps=("Pset_SpaceOccupancyRequirements", "AreaPerOccupant"),
         unit=ureg.meter ** 2
     )
 
     space_shape_volume = attribute.Attribute(
-        functions=[get_space_shape_volume],
+        functions=[_get_space_shape_volume],
         unit=ureg.meter ** 3,
     )
 
@@ -469,94 +521,139 @@ class ThermalZone(BPSProduct):
         default_ps=("", "")
     )
 
-    def _get_heating_profile(self, name) -> list:
-        """returns a heating profile using the heat temperature in the IFC"""
-        # todo make this "dynamic" with a night set back
-        if self.t_set_heat is not None:
-            return [self.t_set_heat.to(ureg.kelvin).m] * 24
-
-    def _get_cooling_profile(self, name) -> list:
-        """returns a cooling profile using the cool temperature in the IFC"""
-        # todo make this "dynamic" with a night set back
-        if self.t_set_cool is not None:
-            return [self.t_set_cool.to(ureg.kelvin).m] * 24
-
     heating_profile = attribute.Attribute(
         functions=[_get_heating_profile],
     )
+
     cooling_profile = attribute.Attribute(
         functions=[_get_cooling_profile],
     )
 
-    def _get_persons(self, name):
-        if self.AreaPerOccupant:
-            return 1 / self.AreaPerOccupant
-
     persons = attribute.Attribute(
         functions=[_get_persons],
     )
+
     # use conditions
     with_cooling = attribute.Attribute(
     )
+
     with_heating = attribute.Attribute(
     )
-    typical_length = attribute.Attribute(
-    )
-    typical_width = attribute.Attribute(
-    )
+
     T_threshold_heating = attribute.Attribute(
     )
+
     activity_degree_persons = attribute.Attribute(
     )
+
     fixed_heat_flow_rate_persons = attribute.Attribute(
         default_ps=("Pset_SpaceThermalLoad", "People"),
         unit=ureg.W,
     )
+
     internal_gains_moisture_no_people = attribute.Attribute(
     )
+
     T_threshold_cooling = attribute.Attribute(
     )
+
     ratio_conv_rad_persons = attribute.Attribute(
         default=0.5,
     )
+
     ratio_conv_rad_machines = attribute.Attribute(
         default=0.5,
     )
+
     ratio_conv_rad_lighting = attribute.Attribute(
         default=0.5,
     )
+
     machines = attribute.Attribute(
+        description="Specific internal gains through machines, if taken from"
+                    " IFC property set a division by thermal zone area is"
+                    " needed.",
         default_ps=("Pset_SpaceThermalLoad", "EquipmentSensible"),
-        unit=ureg.watt,
+        ifc_postprocessing=_area_specific_post_processing,
+        unit=ureg.W / (ureg.meter ** 2),
     )
+
+    def _calc_lighting_power(self, name) -> float:
+        if self.use_maintained_illuminance:
+            return self.maintained_illuminance / self.lighting_efficiency_lumen
+        else:
+            return self.fixed_lighting_power
+
     lighting_power = attribute.Attribute(
+        description="Specific lighting power in W/m2. If taken from IFC"
+                    " property set a division by thermal zone area is needed.",
         default_ps=("Pset_SpaceThermalLoad", "Lighting"),
-        unit=ureg.W,
+        ifc_postprocessing=_area_specific_post_processing,
+        functions=[_calc_lighting_power],
+        unit=ureg.W / (ureg.meter ** 2),
     )
+
+    fixed_lighting_power = attribute.Attribute(
+        description="Specific fixed electrical power for lighting in W/m2. "
+                    "This value is taken from SIA 2024.",
+        unit=ureg.W / (ureg.meter ** 2)
+    )
+
+    maintained_illuminance = attribute.Attribute(
+        description="Maintained illuminance value for lighting. This value is"
+                    " taken from SIA 2024.",
+        unit=ureg.lumen / (ureg.meter ** 2)
+    )
+
+    use_maintained_illuminance = attribute.Attribute(
+        description="Decision variable to determine if lighting_power will"
+                    " be given by fixed_lighting_power or by calculation "
+                    "using the variables maintained_illuminance and "
+                    "lighting_efficiency_lumen. This is not available in IFC "
+                    "and can be set through the sim_setting with equivalent "
+                    "name. "
+    )
+
+    lighting_efficiency_lumen = attribute.Attribute(
+        description="Lighting efficiency in lm/W_el, in german: Lichtausbeute.",
+        unit=ureg.lumen / ureg.W
+    )
+
     use_constant_infiltration = attribute.Attribute(
     )
-    infiltration_rate = attribute.Attribute(
+
+    base_infiltration = attribute.Attribute(
     )
+
     max_user_infiltration = attribute.Attribute(
     )
+
     max_overheating_infiltration = attribute.Attribute(
     )
+
     max_summer_infiltration = attribute.Attribute(
     )
+
     winter_reduction_infiltration = attribute.Attribute(
     )
+
     min_ahu = attribute.Attribute(
     )
+
     max_ahu = attribute.Attribute(
         default_ps=("Pset_AirSideSystemInformation", "TotalAirflow"),
         unit=ureg.meter ** 3 / ureg.s
     )
+
     with_ideal_thresholds = attribute.Attribute(
     )
+
     persons_profile = attribute.Attribute(
     )
+
     machines_profile = attribute.Attribute(
     )
+
     lighting_profile = attribute.Attribute(
     )
 
@@ -564,9 +661,8 @@ class ThermalZone(BPSProduct):
         raise NotImplementedError
 
     def __repr__(self):
-        return "<%s (guid: %s, Name: %s)>" % (
-            self.__class__.__name__, self.guid, self.name)
-
+        return "<%s (usage: %s)>" \
+               % (self.__class__.__name__, self.usage)
 
 class ExternalSpatialElement(ThermalZone):
     ifc_types = {
@@ -586,23 +682,10 @@ class SpaceBoundary(RelationBased):
         self.disagg_parent = None
         self.bound_thermal_zone = None
         self._elements = elements
+        self.parent_bound = None
+        self.opening_bounds = []
 
-    def calc_orientation(self):
-        """
-        calculates the orientation of the spaceboundary, using the relative
-        position of resultant disaggregation
-        """
-        if hasattr(self.ifc.ConnectionGeometry.SurfaceOnRelatingElement,
-                   'BasisSurface'):
-            axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
-                BasisSurface.Position.Axis.DirectionRatios
-        else:
-            axis = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement. \
-                Position.Axis.DirectionRatios
-
-        return vector_angle(axis)
-
-    def calc_position(self):
+    def _calc_position(self, name):
         """
         calculates the position of the spaceboundary, using the relative
         position of resultant disaggregation
@@ -626,129 +709,54 @@ class SpaceBoundary(RelationBased):
             return True
         return False
 
-    @cached_property
-    def bound_neighbors(self) -> list:
-        """
-        returns the neighbors of the spaceboundary
-        """
-        neighbors = []
-        space_bounds = []
-        if not hasattr(self.bound_thermal_zone, 'space_boundaries'):
-            return None
-        if len(self.bound_thermal_zone.space_boundaries) == 0:
-            for obj in self.bound_thermal_zone.objects:
-                this_obj = self.bound_thermal_zone.objects[obj]
-                if not isinstance(this_obj, SpaceBoundary):
-                    continue
-                if this_obj.bound_thermal_zone.ifc.GlobalId != \
-                        self.bound_thermal_zone.ifc.GlobalId:
-                    continue
-                space_bounds.append(this_obj)
-        else:
-            space_bounds = self.bound_thermal_zone.space_boundaries
-        for bound in space_bounds:
-            if bound.ifc.GlobalId == self.ifc.GlobalId:
-                continue
-            distance = BRepExtrema_DistShapeShape(bound.bound_shape,
-                                                  self.bound_shape,
-                                                  Extrema_ExtFlag_MIN).Value()
-            if distance == 0:
-                neighbors.append(bound)
-        return neighbors
-
-    def get_bound_area(self) -> ureg.Quantity:
+    def get_bound_area(self, name) -> ureg.Quantity:
         """compute area of a space boundary"""
         bound_prop = GProp_GProps()
         brepgprop_SurfaceProperties(self.bound_shape, bound_prop)
         area = bound_prop.Mass()
         return area * ureg.meter ** 2
 
-    @cached_property
-    def bound_area(self) -> ureg.Quantity:
-        return self.get_bound_area()
+    bound_area = attribute.Attribute(
+        description="The area bound by the space boundary.",
+        unit=ureg.meter ** 2,
+        functions=[get_bound_area]
+    )
 
-    @cached_property
-    def top_bottom(self):
+    def _get_top_bottom(self, name) -> BoundaryOrientation:
         """
-        This function computes, if the center of a space boundary
-        is below (bottom) or above (top) the center of a space.
-        This function is used to distinguish floors and ceilings (IfcSlab).
+        Determines if a boundary is a top (ceiling/roof) or bottom (floor/slab)
+         element based solely on its normal vector orientation.
 
-        If the SB is vertical (Walls etc.) VERTICAL will be returned.
-        :return: top_bottom ("TOP", "BOTTOM", "VERTICAL")
+        Classification is based on the dot product between the boundary's
+        normal vector and the vertical vector (0, 0, 1):
+        - TOP: when normal points upward (dot product > cos(89°))
+        - BOTTOM: when normal points downward (dot product < cos(91°))
+        - VERTICAL: when normal is perpendicular to vertical (dot product ≈ 0)
+
+        Returns:
+            BoundaryOrientation: Enumerated orientation classification
         """
-        top_bottom = None
-        vertical = gp_XYZ(0.0, 0.0, 1.0)
-        # only assign top and bottom for elements, whose
-        # surface normals are not perpendicular to a vertical
-        if -1e-3 < self.bound_normal.Dot(vertical) < 1e-3:
-            top_bottom = "VERTICAL"
-        # is related bounds z-coordinate below current bound(self) then
-        # current bound is a floor (BOTTOM), otherwise a ceiling (TOP)
-        elif self.related_bound != None:
-            if (self.bound_center.Z() - self.related_bound.bound_center.Z()) \
-                    > 1e-2:
-                top_bottom = "BOTTOM"
-            elif (self.bound_center.Z() - self.related_bound.bound_center.Z()) \
-                    < -1e-2:
-                top_bottom = "TOP"
-            else:
-                # caution, this relies on correct surface normals
-                if vertical.Dot(self.bound_normal) < -0.8:
-                    top_bottom = "BOTTOM"
-                elif vertical.Dot(self.bound_normal) > 0.8:
-                    top_bottom = "TOP"
-        # for adiabatic bounds we need no tolerance
-        elif self.related_adb_bound is not None:
-            if self.bound_center.Z() > self.related_adb_bound.bound_center.Z():
-                top_bottom = "BOTTOM"
-            else:
-                top_bottom = "TOP"
-        # if no relating bound exists (exterior boundaries), we use the space
-        # center instead.
-        # TODO: This might fail for multi storey spaces.
-        else:
-            if (self.bound_center.Z() - self.bound_thermal_zone.space_center.Z()) \
-                    > 1e-2:
-                top_bottom = "TOP"
-            elif (self.bound_center.Z() - self.bound_thermal_zone.space_center.Z()) \
-                    < -1e-2:
-                top_bottom = "BOTTOM"
-            else:
-                # caution, this relies on correct surface normals
-                if vertical.Dot(self.bound_normal) < -0.8:
-                    top_bottom = "BOTTOM"
-                elif vertical.Dot(self.bound_normal) > 0.8:
-                    top_bottom = "TOP"
-        return top_bottom
+        vertical_vector = gp_XYZ(0.0, 0.0, 1.0)
+        cos_angle_top = math.cos(math.radians(89))
+        cos_angle_bottom = math.cos(math.radians(91))
 
-    # @staticmethod
-    # def compare_direction_of_normals(normal1, normal2):
-    #     """
-    #     Compare the direction of two surface normals (vectors).
-    #     True, if direction is same or reversed
-    #     :param normal1: first normal (gp_Pnt)
-    #     :param normal2: second normal (gp_Pnt)
-    #     :return: True/False
-    #     """
-    #     dotp = normal1.Dot(normal2)
-    #     check = False
-    #     if 1-1e-2 < dotp ** 2 < 1+1e-2:
-    #         check = True
-    #     return check
+        normal_dot_vertical = vertical_vector.Dot(self.bound_normal)
 
-    def get_bound_center(self):
+        # Classify based on dot product
+        if normal_dot_vertical > cos_angle_top:
+            return BoundaryOrientation.top
+        elif normal_dot_vertical < cos_angle_bottom:
+            return BoundaryOrientation.bottom
+
+        return BoundaryOrientation.vertical
+
+    def _get_bound_center(self, name):
         """ compute center of the bounding box of a space boundary"""
         p = GProp_GProps()
         brepgprop_SurfaceProperties(self.bound_shape, p)
         return p.CentreOfMass().XYZ()
 
-    @cached_property
-    def bound_center(self):
-        return self.get_bound_center()
-
-    @cached_property
-    def related_bound(self):
+    def _get_related_bound(self, name):
         """
         Get corresponding space boundary in another space,
         ensuring that corresponding space boundaries have a matching number of
@@ -861,8 +869,7 @@ class SpaceBoundary(RelationBased):
         else:
             return None
 
-    @cached_property
-    def related_adb_bound(self):
+    def _get_related_adb_bound(self, name):
         adb_bound = None
         if self.bound_element is None:
             return None
@@ -888,27 +895,18 @@ class SpaceBoundary(RelationBased):
                 adb_bound = bound
         return adb_bound
 
-    @staticmethod
-    def move_bound_in_direction_of_normal(shape, normal, move_dist,
-                                          reversed=False):
-        prod_vec = []
-        move_dir = normal.Coord()
-        if reversed:
-            move_dir = normal.Reversed().Coord()
-        for i in move_dir:
-            prod_vec.append(move_dist * i)
+    related_adb_bound = attribute.Attribute(
+        description="Related adiabatic boundary.",
+        functions=[_get_related_adb_bound]
+    )
 
-        # move bound in direction of bound normal by move_dist
-        trsf = gp_Trsf()
-        coord = gp_XYZ(*prod_vec)
-        vec = gp_Vec(coord)
-        trsf.SetTranslation(vec)
-        moved_shape = BRepBuilderAPI_Transform(shape, trsf).Shape()
+    def _get_is_physical(self, name) -> bool:
+        """
+        This function returns True if the spaceboundary is physical
+        """
+        return self.ifc.PhysicalOrVirtualBoundary.lower() == 'physical'
 
-        return moved_shape
-
-    @cached_property
-    def bound_shape(self):
+    def _get_bound_shape(self, name):
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
         settings.set(settings.USE_WORLD_COORDS, True)
@@ -951,8 +949,6 @@ class SpaceBoundary(RelationBased):
                 face = PyOCCTools.remove_coincident_and_collinear_points_from_face(
                     face)
                 shape = face
-
-
         except:
             try:
                 sore = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement
@@ -1008,100 +1004,27 @@ class SpaceBoundary(RelationBased):
         shape = PyOCCTools.get_face_from_shape(shape)
         return shape
 
-    def get_transformed_shape(self, shape):
-        """transform TOPODS_Shape of each space boundary to correct position"""
-        zone = self.bound_thermal_zone
-        zone_position = gp_XYZ(zone.position[0], zone.position[1],
-                               zone.position[2])
-        trsf1 = gp_Trsf()
-        trsf2 = gp_Trsf()
-        if zone.orientation == None:
-            zone.orientation = 0
-        trsf2.SetRotation(gp_Ax1(gp_Pnt(zone_position), gp_Dir(0, 0, 1)),
-                          -zone.orientation * math.pi / 180)
-        trsf1.SetTranslation(gp_Vec(
-            gp_XYZ(zone.position[0], zone.position[1], zone.position[2])))
-        try:
-            shape = BRepBuilderAPI_Transform(shape, trsf1).Shape()
-            shape = BRepBuilderAPI_Transform(shape, trsf2).Shape()
-        except:
-            pass
-        return shape.Reversed()
-
-    def compute_surface_normals_in_space(self, name):
-        """
-        This function returns the face normal of the boundary
-        pointing outwarts the center of the space.
-        Additionally, the area of the boundary is computed
-        :return: face normal (gp_XYZ)
-        """
-        bbox_center = self.bound_thermal_zone.space_center
-        an_exp = TopExp_Explorer(self.bound_shape, TopAbs_FACE)
-        a_face = an_exp.Current()
-        try:
-            face = topods_Face(a_face)
-        except:
-            pnts = PyOCCTools.get_points_of_face(a_face)
-            # pnts.append(pnts[0])
-            face = PyOCCTools.make_faces_from_pnts(pnts)
-        surf = BRep_Tool.Surface(face)
-        obj = surf
-        assert obj.DynamicType().Name() == "Geom_Plane"
-        plane = Handle_Geom_Plane_DownCast(surf)
-        # face_bbox = Bnd_Box()
-        # brepbndlib_Add(face, face_bbox)
-        # face_center = ifcopenshell.geom.utils.get_bounding_box_center(face_bbox).XYZ()
-        face_prop = GProp_GProps()
-        brepgprop_SurfaceProperties(self.bound_shape, face_prop)
-        area = face_prop.Mass()
-        face_normal = plane.Axis().Direction().XYZ()
-        if face.Orientation() == 1:
-            face_normal = face_normal.Reversed()
-        face_towards_center = bbox_center.XYZ() - self.bound_center
-        face_towards_center.Normalize()
-
-        dot = face_towards_center.Dot(face_normal)
-
-        # check if surface normal points into direction of space center
-        # Transform surface normals to be pointing outwards
-        # For faces without reversed surface normal, reverse the orientation of the face itself
-        # if dot > 0:
-        #    face_normal = face_normal.Reversed()
-        #     self.bound_shape = self.bound_shape.Reversed()
-        # else:
-        #     self.bound_shape = self.bound_shape.Reversed()
-
-        return face_normal
-
-    @cached_property
-    def storeys(self) -> list:
-        """
-        This function returns the storeys associated to the spaceboundary
-        """
-        return self.bound_thermal_zone.storeys
-
     def get_level_description(self, name) -> str:
         """
         This function returns the level description of the spaceboundary
         """
         return self.ifc.Description
 
-    @cached_property
-    def is_external(self) -> bool:
+    def _get_is_external(self, name) -> Union[None, bool]:
         """
         This function returns True if the spaceboundary is external
         """
-        return not self.ifc.InternalOrExternalBoundary.lower() == 'internal'
+        if self.ifc.InternalOrExternalBoundary is not None:
+            ifc_ext_internal = self.ifc.InternalOrExternalBoundary.lower()
+            if ifc_ext_internal == 'internal':
+                return False
+            elif 'external' in ifc_ext_internal:
+                return True
+        else:
+            return None
+        # return not self.ifc.InternalOrExternalBoundary.lower() == 'internal'
 
-    @cached_property
-    def physical(self) -> bool:
-        """
-        This function returns True if the spaceboundary is physical
-        """
-        return self.ifc.PhysicalOrVirtualBoundary.lower() == 'physical'
-
-    @cached_property
-    def opening_area(self):
+    def _get_opening_area(self, name):
         """
         This function returns the opening area of the spaceboundary
         """
@@ -1110,51 +1033,82 @@ class SpaceBoundary(RelationBased):
                        in self.opening_bounds)
         return 0
 
-    @cached_property
-    def net_bound_area(self):
+    def _get_net_bound_area(self, name):
         """
         This function returns the net bound area of the spaceboundary
         """
         return self.bound_area - self.opening_area
 
-    @cached_property
-    def bound_normal(self):
+    is_external = attribute.Attribute(
+        description="True if the Space Boundary is external",
+        functions=[_get_is_external]
+    )
+
+    bound_shape = attribute.Attribute(
+        description="Bound shape element of the SB.",
+        functions=[_get_bound_shape]
+    )
+
+    top_bottom = attribute.Attribute(
+        description="Info if the SB is top "
+                    "(ceiling etc.) or bottom (floor etc.).",
+        functions=[_get_top_bottom]
+    )
+
+    bound_center = attribute.Attribute(
+        description="The center of the space boundary.",
+        functions=[_get_bound_center]
+    )
+
+    related_bound = attribute.Attribute(
+        description="Related space boundary.",
+        functions=[_get_related_bound]
+    )
+
+    physical = attribute.Attribute(
+        description="If the Space Boundary is physical or not.",
+        functions=[_get_is_physical]
+    )
+
+    opening_area = attribute.Attribute(
+        description="Opening area of the Space Boundary.",
+        functions = [_get_opening_area]
+    )
+
+    net_bound_area = attribute.Attribute(
+        description="Net bound area of the Space Boundary",
+        functions=[_get_net_bound_area]
+    )
+
+    def _get_bound_normal(self, name):
         """
         This function returns the normal vector of the spaceboundary
         """
         return PyOCCTools.simple_face_normal(self.bound_shape)
 
+    bound_normal = attribute.Attribute(
+        description="Normal vector of the Space Boundary.",
+        functions=[_get_bound_normal]
+    )
+
     level_description = attribute.Attribute(
         functions=[get_level_description],
         # Todo this should be removed in near future. We should either 
-        # find # a way to distinguish the level of SB by something 
-        # different or should check this during the creation of SBs 
-        # and throw an error if the level is not defined.
+        #  find # a way to distinguish the level of SB by something
+        #  different or should check this during the creation of SBs
+        #  and throw an error if the level is not defined.
         default='2a'
         # HACK: Rou's Model has 2a boundaries but, the description is None,
-        # default set to 2a to temporary solve this problem
+        #  default set to 2a to temporary solve this problem
     )
 
-    @cached_property
-    def opening_bounds(self):
-        """
-        This function returns the opening bounds of the spaceboundary
-        """
-        return list()
-
-    @cached_property
-    def parent_bound(self):
-        """
-        This function returns the parent bound of the space boundary. Only
-        available for space boundary of openings. The parent boundary of an
-        opening boundary is the boundary of the wall which surrounds the
-        opening.
-        """
-        return None
-
-    @cached_property
-    def internal_external_type(self):
-        return self.ifc.InternalOrExternalBoundary
+    internal_external_type = attribute.Attribute(
+        description="Defines, whether the Space Boundary is internal"
+                    " (Internal), or external, i.e. adjacent to open space "
+                    "(that can be an partially enclosed space, such as terrace"
+                    " (External",
+        ifc_attr_name="InternalOrExternalBoundary"
+    )
 
 
 class ExtSpatialSpaceBoundary(SpaceBoundary):
@@ -1256,11 +1210,13 @@ class Wall(BPSProductWithLayers):
         functions=[BPSProduct.get_net_bound_area],
         unit=ureg.meter ** 2
     )
+
     gross_area = attribute.Attribute(
         default_ps=("Qto_WallBaseQuantities", "GrossSideArea"),
         functions=[BPSProduct.get_bound_area],
         unit=ureg.meter ** 2
     )
+
     tilt = attribute.Attribute(
         default=90
     )
@@ -1270,11 +1226,13 @@ class Wall(BPSProductWithLayers):
         unit=ureg.W / ureg.K / ureg.meter ** 2,
         functions=[BPSProductWithLayers.get_u_value],
     )
+
     width = attribute.Attribute(
         default_ps=("Qto_WallBaseQuantities", "Width"),
         functions=[BPSProductWithLayers.get_thickness_by_layers],
         unit=ureg.m
     )
+
     inner_convection = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
         default=0.6
@@ -1283,6 +1241,7 @@ class Wall(BPSProductWithLayers):
     is_load_bearing = attribute.Attribute(
         default_ps=("Pset_WallCommon", "LoadBearing"),
     )
+
     net_volume = attribute.Attribute(
         default_ps=("Qto_WallBaseQuantities", "NetVolume"),
         unit=ureg.meter ** 3
@@ -1329,7 +1288,7 @@ class Layer(BPSProduct):
     def validate_creation(self) -> bool:
         return True
 
-    def get_thickness(self, name):
+    def _get_thickness(self, name):
         """layer thickness function"""
         if hasattr(self.ifc, 'LayerThickness'):
             return self.ifc.LayerThickness * ureg.meter
@@ -1338,25 +1297,29 @@ class Layer(BPSProduct):
 
     thickness = attribute.Attribute(
         unit=ureg.m,
-        functions=[get_thickness]
+        functions=[_get_thickness]
     )
 
-    @cached_property
-    def is_ventilated(self):
-        if hasattr(self.ifc, 'IsVentilated'):
-            return self.ifc.IsVentilated
+    is_ventilated = attribute.Attribute(
+        description="Indication of whether the material layer represents an "
+                    "air layer (or cavity).",
+        ifc_attr_name="IsVentilated",
+    )
 
-    @cached_property
-    def description(self):
-        if hasattr(self.ifc, 'Description'):
-            return self.ifc.Description
+    description = attribute.Attribute(
+        description="Definition of the material layer in more descriptive "
+                    "terms than given by attributes Name or Category.",
+        ifc_attr_name="Description",
+    )
 
-    @cached_property
-    def category(self):
-        """needs usage. This can be one of [LoadBearing, Insulation,
-        Inner finish, Outer finish] due to IFC4_1 schema."""
-        if hasattr(self.ifc, 'Category'):
-            return self.ifc.Category
+    category = attribute.Attribute(
+        description="Category of the material layer, e.g. the role it has in"
+                    " the layer set it belongs to (such as 'load bearing', "
+                    "'thermal insulation' etc.). The list of keywords might be"
+                    " extended by model view definitions, however the "
+                    "following keywords shall apply in general:",
+        ifc_attr_name="Category",
+    )
 
     def __repr__(self):
         return "<%s (material: %s>" \
@@ -1405,18 +1368,7 @@ class LayerSet(BPSProduct):
                 return self.ifc.TotalThickness * ureg.m
         return sum(layer.thickness for layer in self.layers)
 
-    thickness = attribute.Attribute(
-        unit=ureg.m,
-        functions=[get_total_thickness],
-    )
-
-    @cached_property
-    def name(self):
-        if hasattr(self.ifc, 'LayerSetName'):
-            return self.ifc.LayerSetName
-
-    @cached_property
-    def volume(self):
+    def _get_volume(self, name):
         if hasattr(self, "net_volume"):
             if self.net_volume:
                 vol = self.net_volume
@@ -1433,6 +1385,21 @@ class LayerSet(BPSProduct):
         else:
             vol = float('nan') * ureg.meter ** 3
         return vol
+
+    thickness = attribute.Attribute(
+        unit=ureg.m,
+        functions=[get_total_thickness],
+    )
+
+    name = attribute.Attribute(
+        description="The name by which the IfcMaterialLayerSet is known.",
+        ifc_attr_name="LayerSetName",
+    )
+
+    volume = attribute.Attribute(
+        description="Volume of layer set",
+        functions=[_get_volume],
+    )
 
     def __repr__(self):
         if self.name:
@@ -1507,14 +1474,17 @@ class Window(BPSProductWithLayers):
         functions=[get_glazing_area],
         unit=ureg.meter ** 2,
     )
+
     gross_area = attribute.Attribute(
         default_ps=("Qto_WindowBaseQuantities", "Area"),
         functions=[BPSProduct.get_bound_area],
         unit=ureg.meter ** 2
     )
+
     glazing_ratio = attribute.Attribute(
         default_ps=("Pset_WindowCommon", "GlazingAreaFraction"),
     )
+
     width = attribute.Attribute(
         default_ps=("Qto_WindowBaseQuantities", "Depth"),
         functions=[BPSProductWithLayers.get_thickness_by_layers],
@@ -1525,23 +1495,31 @@ class Window(BPSProductWithLayers):
         unit=ureg.W / ureg.K / ureg.meter ** 2,
         functions=[BPSProductWithLayers.get_u_value],
     )
+
     g_value = attribute.Attribute(  # material
     )
+
     a_conv = attribute.Attribute(
     )
+
     shading_g_total = attribute.Attribute(
     )
+
     shading_max_irr = attribute.Attribute(
     )
+
     inner_convection = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
     )
+
     inner_radiation = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
     )
+
     outer_radiation = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
     )
+
     outer_convection = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
     )
@@ -1574,11 +1552,13 @@ class Door(BPSProductWithLayers):
         functions=[get_net_area, ],
         unit=ureg.meter ** 2,
     )
+
     gross_area = attribute.Attribute(
         default_ps=("Qto_DoorBaseQuantities", "Area"),
         functions=[BPSProduct.get_bound_area],
         unit=ureg.meter ** 2
     )
+
     glazing_ratio = attribute.Attribute(
         default_ps=("Pset_DoorCommon", "GlazingAreaFraction"),
     )
@@ -1588,20 +1568,25 @@ class Door(BPSProductWithLayers):
         functions=[BPSProductWithLayers.get_thickness_by_layers],
         unit=ureg.m
     )
+
     u_value = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
         functions=[BPSProductWithLayers.get_u_value],
     )
+
     inner_convection = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
         default=0.6
     )
+
     inner_radiation = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
     )
+
     outer_radiation = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
     )
+
     outer_convection = attribute.Attribute(
         unit=ureg.W / ureg.K / ureg.meter ** 2,
     )
@@ -1640,9 +1625,8 @@ class Slab(BPSProductWithLayers):
         """slab __init__ function"""
         super().__init__(*args, **kwargs)
 
-    @cached_property
-    def orientation(self) -> float:
-        """Returns the orientation of the slab"""
+    def _calc_teaser_orientation(self, name) -> int:
+        """Returns the orientation of the slab in TEASER convention."""
         return -1
 
     net_area = attribute.Attribute(
@@ -1650,25 +1634,30 @@ class Slab(BPSProductWithLayers):
         functions=[BPSProduct.get_net_bound_area],
         unit=ureg.meter ** 2
     )
+
     gross_area = attribute.Attribute(
         default_ps=("Qto_SlabBaseQuantities", "GrossArea"),
         functions=[BPSProduct.get_bound_area],
         unit=ureg.meter ** 2
     )
+
     width = attribute.Attribute(
         default_ps=("Qto_SlabBaseQuantities", "Width"),
         functions=[BPSProductWithLayers.get_thickness_by_layers],
         unit=ureg.m
     )
+
     u_value = attribute.Attribute(
         default_ps=("Pset_SlabCommon", "ThermalTransmittance"),
         unit=ureg.W / ureg.K / ureg.meter ** 2,
         functions=[BPSProductWithLayers.get_u_value],
     )
+
     net_volume = attribute.Attribute(
         default_ps=("Qto_SlabBaseQuantities", "NetVolume"),
         unit=ureg.meter ** 3
     )
+
     is_load_bearing = attribute.Attribute(
         default_ps=("Pset_SlabCommon", "LoadBearing"),
     )
@@ -1677,7 +1666,7 @@ class Slab(BPSProductWithLayers):
 class Roof(Slab):
     # todo decomposed roofs dont have materials, layers etc. because these
     #  information are stored in the slab itself and not the decomposition
-    is_external = True
+    # is_external = True
     ifc_types = {
         "IfcRoof":
             ['*', 'FLAT_ROOF', 'SHED_ROOF', 'GABLE_ROOF', 'HIP_ROOF',
@@ -1726,10 +1715,14 @@ class InnerFloor(Slab):
 
 
 class GroundFloor(Slab):
-    is_external = True  # todo to be removed
+    # is_external = True  # todo to be removed
     ifc_types = {
         "IfcSlab": ['BASESLAB']
     }
+
+    def _calc_teaser_orientation(self, name) -> int:
+        """Returns the orientation of the groundfloor in TEASER convention."""
+        return -2
 
     def calc_cost_group(self) -> int:
         """Calc cost group for groundfloors
@@ -1738,6 +1731,7 @@ class GroundFloor(Slab):
         """
 
         return 322
+
 
     # pattern_ifc_type = [
     #     re.compile('Bodenplatte', flags=re.IGNORECASE),
@@ -1830,47 +1824,60 @@ class Building(BPSProduct):
     bldg_name = attribute.Attribute(
         functions=[_get_building_name],
     )
+
     year_of_construction = attribute.Attribute(
         default_ps=("Pset_BuildingCommon", "YearOfConstruction"),
         unit=ureg.year
     )
+
     gross_area = attribute.Attribute(
         default_ps=("Qto_BuildingBaseQuantities", "GrossFloorArea"),
         unit=ureg.meter ** 2
     )
+
     net_area = attribute.Attribute(
         default_ps=("Qto_BuildingBaseQuantities", "NetFloorArea"),
         unit=ureg.meter ** 2
     )
+
     number_of_storeys = attribute.Attribute(
         unit=ureg.dimensionless,
         functions=[_get_number_of_storeys]
     )
+
     occupancy_type = attribute.Attribute(
         default_ps=("Pset_BuildingCommon", "OccupancyType"),
     )
+
     avg_storey_height = attribute.Attribute(
         unit=ureg.meter,
         functions=[_get_avg_storey_height]
     )
+
     with_ahu = attribute.Attribute(
         functions=[_check_tz_ahu]
     )
+
     ahu_heating = attribute.Attribute(
         attr_type=bool
     )
+
     ahu_cooling = attribute.Attribute(
         attr_type=bool
     )
+
     ahu_dehumidification = attribute.Attribute(
         attr_type=bool
     )
+
     ahu_humidification = attribute.Attribute(
         attr_type=bool
     )
+
     ahu_heat_recovery = attribute.Attribute(
         attr_type=bool
     )
+
     ahu_heat_recovery_efficiency = attribute.Attribute(
     )
 
@@ -1920,15 +1927,18 @@ class Storey(BPSProduct):
         default_ps=("Qto_BuildingStoreyBaseQuantities", "GrossFloorArea"),
         unit=ureg.meter ** 2
     )
+
     # todo make the lookup for height hierarchical
     net_height = attribute.Attribute(
         default_ps=("Qto_BuildingStoreyBaseQuantities", "NetHeight"),
         unit=ureg.meter
     )
+
     gross_height = attribute.Attribute(
         default_ps=("Qto_BuildingStoreyBaseQuantities", "GrossHeight"),
         unit=ureg.meter
     )
+
     height = attribute.Attribute(
         default_ps=("Qto_BuildingStoreyBaseQuantities", "Height"),
         unit=ureg.meter

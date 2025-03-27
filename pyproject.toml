@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = 'bim2sim'
-version = '0.2.2'
+version = '0.2.3'
 authors = [
     {name = "David Jansen"},
     {name = "Veronika Richter"},
@@ -23,7 +23,7 @@ authors = [
 ]
 description = "bim2sim is a framework to create simulation models for different purposes based on BIM models in IFC format."
 readme = "README.md"
-requires-python = ">=3.10, <=3.11.10"
+requires-python = ">=3.10, <3.12"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
@@ -76,7 +76,7 @@ PluginTEASER = [
     "ebcpy",
     "reportlab",
     "svglib",
-    "TEASER[report]==1.0.1",
+    "TEASER[report]==1.1.0",
     "BuildingsPy@git+https://github.com/DaJansenGit/BuildingsPy.git",
 ]
 PluginEnergyPlus = [
