@@ -101,16 +101,20 @@ The tool employs a two-stage architecture:
 **bim2sim** currently includes plugins for:
 
 1. **TEASER**: Modelica based BEPS simulation
-2. **EnergyPlus**: BEPS Simulation
+2. **EnergyPlus**: BEPS Simulation using EnergyPlus
 3. **AixLib**: Modelica-based HVAC simulation
 4. **HKESim**: Modelica-based HVAC simulation (not public available)
-5. **Comfort**: Thermal comfort analysis
+5. **Comfort**: Thermal comfort analysis using EnergyPlus
 6. **LCA**: Life cycle assessment via  quantity takeoff
+7. **OpenFOAM**: CFD simulation (under development, open-source available in fall 2025)
 
 # Existing Publications on Methodology
 * The methodology and use case demonstration for the BEPS-focused plugins **TEASER** and **EnergyPlus** will be published in a forthcoming paper by Jansen et al. [-@Jansen2024bim2sim]
 * The methodology and detailed implementation of the HVAC-focused plugins **AixLib** and **HKESim** are comprehensively documented in Jansen et al. [-@jansen2023bim2sim]
-
+* The algorithms for handling geometric and semantic inconsistencies within the SBs are presented in Richter et al. [-@Richter.2021]
+* The framework for the BEPS-focused plugin **Comfort** has been presented in Richter et al. [-@richterFrameworkAutomatedIFCbased2023]. 
+  The implementation of this Comfort plugin is further described and evaluated on a use case on future climate scenarios in Richter et al. [-@richterExtendingIFCBasedBim2sim2023]
+* The fundamentals of the methodology of the CFD-focused plugin **OpenFOAM** has been presented by Richter et al. [-@richterExtendingIFCbasedFramework2024] and extended to improve mesh quality by Hochberger et al. [-@hochbergerAutomatedIFCbasedMesh2024].
 
 # Comparison with Similar Tools
 
