@@ -63,7 +63,7 @@ According to case studies cited in the literature, creating simulation models ma
 
 1. Automating the transformation from IFC data to simulation models, reducing model creation time from days to under an hour for high-quality BIM inputs
 2. Providing a flexible Python framework that can be easily extended to support new simulation tools and domains
-3. Supporting multiple simulation domains and tools through specialized plugins (TEASER [@Remmen.2016], EnergyPlus [@EnergyPlus.2001], AixLib [@Maier.2023], Comfort, HKESim, and LCA)
+3. Supporting multiple simulation domains and tools through specialized plugins (TEASER [@Remmen.2016], EnergyPlus [@EnergyPlus.2001], AixLib [@Maier.2023], Comfort, HKESim, LCA, and OpenFOAM)
 4. Handling imperfect IFC data through repair algorithms and user decision management
 5. Maintaining OpenBIM compatibility while minimizing external tool dependencies
 
@@ -109,12 +109,12 @@ The tool employs a two-stage architecture:
 7. **OpenFOAM**: CFD simulation (under development, open-source available in fall 2025)
 
 # Existing Publications on Methodology
-* The methodology and use case demonstration for the BEPS-focused plugins **TEASER** and **EnergyPlus** will be published in a forthcoming paper by Jansen et al. [-@Jansen2024bim2sim]
-* The methodology and detailed implementation of the HVAC-focused plugins **AixLib** and **HKESim** are comprehensively documented in Jansen et al. [-@jansen2023bim2sim]
-* The algorithms for handling geometric and semantic inconsistencies within the SBs are presented in Richter et al. [-@Richter.2021]
-* The framework for the BEPS-focused plugin **Comfort** has been presented in Richter et al. [-@richterFrameworkAutomatedIFCbased2023]. 
-  The implementation of this Comfort plugin is further described and evaluated on a use case on future climate scenarios in Richter et al. [-@richterExtendingIFCBasedBim2sim2023]
-* The fundamentals of the methodology of the CFD-focused plugin **OpenFOAM** has been presented by Richter et al. [-@richterExtendingIFCbasedFramework2024] and extended to improve mesh quality by Hochberger et al. [-@hochbergerAutomatedIFCbasedMesh2024].
+* The methodology and use case demonstration for the BEPS-focused plugins **TEASER** and **EnergyPlus** will be published in a forthcoming paper by Jansen et al. [@Jansen2024bim2sim]
+* The methodology and detailed implementation of the HVAC-focused plugins **AixLib** and **HKESim** are comprehensively documented in Jansen et al. [@jansen2023bim2sim]
+* The algorithms for handling geometric and semantic inconsistencies within the SBs are presented in Richter et al. [@Richter.2021]
+* The framework for the BEPS-focused plugin **Comfort** has been presented in Richter et al. [@richterFrameworkAutomatedIFCbased2023]. 
+  The implementation of this Comfort plugin is further described and evaluated on a use case on future climate scenarios in Richter et al. [@richterExtendingIFCBasedBim2sim2023]
+* The fundamentals of the methodology of the CFD-focused plugin **OpenFOAM** has been presented by Richter et al. [@richterExtendingIFCbasedFramework2024] and extended to improve mesh quality by Hochberger et al. [@hochbergerAutomatedIFCbasedMesh2024].
 
 # Comparison with Similar Tools
 
