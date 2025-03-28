@@ -121,24 +121,25 @@ The tool employs a two-stage architecture:
 **bim2sim** builds upon previous efforts to leverage BIM data for building energy simulation. In our forthcoming paper [@Jansen2025bim2sim], we conducted a comprehensive review of existing BIM-to-simulation 
 approaches. \autoref{tab:bim2bemApproaches} provides a comparative analysis of these tools, evaluating them across several dimensions: IFC version support, simulation domain coverage (BEPS, HVAC), architectural modularity, open-source availability, and implementation technologies.
 
-: IFC-based approaches from related research (chronologically ordered) as analyzed in [@Jansen2025bim2sim]. P: Partially, Y: Yes, -: No/not applicable.\label{tab:bim2bemApproaches}
+: IFC-based approaches from related research (chronologically ordered) as analyzed in [@Jansen2025bim2sim]. P: Partially, Y: Yes, -: No/not applicable, EP: EnergyPlus, Mod: Modelica, OS: Open-source, Mod.: Modularity, Impl.: Implementation language/framework.\label{tab:bim2bemApproaches}
 
-| Reference | Name | IFC Version | BEPS | HVAC | Modularity | open-source | Implementation |
-|:----------|:-----|:------------|:-----|:-----|:-----------|:------------|:---------------|
-| [@Bazjanac.2008a] | | IFC | EnergyPlus | - | Y | - | - |
-| [@ODonnell.2011] | SimModel | IFC | EnergyPlus | - | Y | - | XML |
-| [@EmiraElAsmi.2015] | | IFC2x3/IFC4 | COMETH | COMETH | - | - | - |
-| [@giannakis2015] | | IFC2x3/IFC4 | EnergyPlus, TRNSYS | - | - | - | -, Matlab |
-| [@Cao.2018] | SimModel+ | IFC | Modelica | Modelica | Y | - | Python, C++ |
-| [@Andriamamonjy.2018] | Ifc2Modelica | IFC4 | Modelica | Modelica | P (Modelica) | - | Python, ifcopenshell |
-| [@BIM2Modelica2017; @BIM2Modelica2019] | CoTeTo/ BIM2Modelica | IFC2x3 | Modelica | - | - | Y | Python, JModelica |
-| [@giannakis2019] | | IFC4 | SimModel XML, EnergyPlus | - | - | - | - |
-| [@Ramaji.2020] | OsmSerializer | IFC2x3 | OpenStudio/EnergyPlus | - | - | Y | Java |
-| [@Chen.2021] | | IFC4 | EnergyPlus, eQuest | Y (for BPS) | - | - | Java |
-| [@SIMVICUSNEXTLEVEL2023] | SIM-VICUS | IFC2x3/IFC4 | Nandrad, EnergyPlus | local/districts | Y | Y | C++ |
-| [@Chen.2023] | AutoBPS-BIM | IFC2x2 | EnergyPlus | EnergyPlus | - | - | - |
-| [@graphBasedbim2bem2023] | | IFC4 | EnergyPlus (not executed) | - | - | - | - |
-| bim2sim | bim2sim | IFC4 | EnergyPlus, Modelica | Modelica | Y | Y | Python, ifcopenshell |
+| Reference | Name | BEPS | HVAC | Mod. | OS | Impl. |
+|:----------|:-----|:-----|:-----|:-----|:----|:------|
+| [@Bazjanac.2008a] | | EP | - | Y | - | - |
+| [@ODonnell.2011] | SimModel | EP | - | Y | - | XML |
+| [@EmiraElAsmi.2015] | | COMETH | COMETH | - | - | - |
+| [@giannakis2015] | | EP, TRNSYS | - | - | - | Matlab |
+| [@Cao.2018] | SimModel+ | Mod | Mod | Y | - | Py, C++ |
+| [@Andriamamonjy.2018] | Ifc2Modelica | Mod | Mod | P | - | Py, IFC |
+| [@BIM2Modelica2017; @BIM2Modelica2019] | CoTeTo | Mod | - | - | Y | Py, JModelica |
+| [@giannakis2019] | | SimModel, EP | - | - | - | - |
+| [@Ramaji.2020] | OsmSerializer | OS/EP | - | - | Y | Java |
+| [@Chen.2021] | | EP, eQuest | Y | - | - | Java |
+| [@SIMVICUSNEXTLEVEL2023] | SIM-VICUS | Nandrad, EP | district | Y | Y | C++ |
+| [@Chen.2023] | AutoBPS-BIM | EP | EP | - | - | - |
+| [@graphBasedbim2bem2023] | | EP (not run) | - | - | - | - |
+| bim2sim | bim2sim | EP, Mod | Mod | Y | Y | Py, IFC |
+
 # Acknowledgments
 **bim2sim** was developed through collaboration between academic institutions (RWTH Aachen University's EBC - Institute for Energy Efficient Buildings and Indoor Climate, E3D - Institute of Energy Efficiency and Sustainable Building) and industry partners (ROM Technik GmbH). The framework was initially created under the "BIM2SIM" project with continued enhancement through the follow-up "BIM2Praxis" project, both funded by the German Federal Ministry for Economic Affairs and Energy (BMWi/BMWK).
 
