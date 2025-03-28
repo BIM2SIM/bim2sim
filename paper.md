@@ -99,9 +99,9 @@ The framework enables efficient incorporation of building performance simulation
 
 **bim2sim** currently includes the following plugins:
 
-1. **TEASER**: Modelica based BEPS simulation
-2. **EnergyPlus**: BEPS Simulation using EnergyPlus
-3. **AixLib**: Modelica-based HVAC simulation
+1. **TEASER**: Modelica based BEPS simulation using TEASER [@TEASER.2018]
+2. **EnergyPlus**: BEPS Simulation using EnergyPlus [@EnergyPlus.2001]
+3. **AixLib**: Modelica-based HVAC simulation with AixLib library [@Maier.2023]
 4. **HKESim**: Modelica-based HVAC simulation (Modelica library itself is not public available)
 5. **LCA**: Life cycle assessment via quantity takeoff
 6. **Comfort**: Thermal comfort analysis using EnergyPlus
