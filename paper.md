@@ -71,7 +71,7 @@ The framework aims to enable engineers, architects, researchers, and practitione
 
 # Architecture and Implementation
 
-**bim2sim** is implemented in Python, making it accessible and interoperable with other tools in the building analysis ecosystem. The general structure is illustrated in \autoref{fig:bim2sim_framework}.
+**bim2sim** is implemented in Python, making it accessible and interoperable with other tools in the building analysis ecosystem. The general structure and the existing plugins are illustrated in \autoref{fig:bim2sim_framework}.
 
 ![bim2sim framework structure and plugins. Dashed plugins are still under heavy active development.\label{fig:bim2sim_framework}](docs/source/img/static/bim2sim_framework_overview.png)
 
@@ -98,15 +98,20 @@ The tool employs a two-stage architecture:
 
 ## Available Plugins
 
-**bim2sim** currently includes plugins for:
+**bim2sim** currently includes the following plugins:
 
 1. **TEASER**: Modelica based BEPS simulation
 2. **EnergyPlus**: BEPS Simulation using EnergyPlus
 3. **AixLib**: Modelica-based HVAC simulation
 4. **HKESim**: Modelica-based HVAC simulation (Modelica library itself is not public available)
-5. **Comfort**: Thermal comfort analysis using EnergyPlus
-6. **LCA**: Life cycle assessment via  quantity takeoff
-7. **OpenFOAM**: CFD simulation (under development, open-source available in fall 2025)
+5. **LCA**: Life cycle assessment via quantity takeoff
+6. **Comfort**: Thermal comfort analysis using EnergyPlus
+
+The following plugins are currently in development and exist only in feature branches, pending public release:
+
+7. **Ventilation & Hydraulic System**: Automatic design of ventilation and hydraulic distribution systems
+8. **PluginSpawn**: Dynamic coupled simulations of building and HVAC via SpawnOfEnergyPlus [@WetterSpawn]
+9. **OpenFOAM**: CFD simulation (under development, open-source available in fall 2025)
 
 # Existing Publications on Methodology
 * The methodology and use case demonstration for the BEPS-focused plugins **TEASER** and **EnergyPlus** will be published in a forthcoming paper by Jansen et al. [@Jansen2025bim2sim]
