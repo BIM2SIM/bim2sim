@@ -317,7 +317,8 @@ class CreateIdf(ITask):
                 if rel_elem.layerset is None:
                     print('todo')
                 # set construction for all but fenestration
-                if self.check_preprocessed_materials_and_constructions(
+                if rel_elem.layerset and \
+                        self.check_preprocessed_materials_and_constructions(
                         rel_elem, rel_elem.layerset.layers):
                     self.set_preprocessed_construction_elem(
                         rel_elem, rel_elem.layerset.layers, idf)
@@ -335,7 +336,7 @@ class CreateIdf(ITask):
                     rel_elem, idf, sim_settings.add_window_shading)
 
         # Add air boundaries as construction as a material for virtual bounds
-        if sim_settings.ep_version in ["9-2-0", "9-4-0", "9-6-0"]:
+        if sim_settings.ep_version in ["9-2-0", "9-4-0"]:
             idf.newidfobject("CONSTRUCTION:AIRBOUNDARY",
                              Name='Air Wall',
                              Solar_and_Daylighting_Method='GroupedZones',
@@ -1645,6 +1646,8 @@ class IdfObject:
         else:
             rel_elem = self.this_bound.bound_element
             if not rel_elem:
+                return
+            if not rel_elem.layerset:
                 return
             if any([isinstance(rel_elem, window) for window in
                     all_subclasses(Window, include_self=True)]):
