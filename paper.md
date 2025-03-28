@@ -47,12 +47,12 @@ bibliography: paper.bib
 
 # Summary
 
-Building Information Modeling (BIM) offers comprehensive data about buildings, but transforming this information into domain-specific simulation models remains challenging. **bim2sim** addresses this gap by providing a Python framework that transforms Industry Foundation Classes (IFC) models into simulation-ready models for multiple domains. This open-source framework implements a two-stage approach with a uniform meta-structure for IFC data extraction and domain-specific plugins for simulation model generation. The framework currently focuses on Building Performance Simulation (BPS) and Heating, Ventilation, and Air Conditioning (HVAC) simulations, with additional support for Computational Fluid Dynamics (CFD) and Life Cycle Assessment (LCA). **bim2sim**'s modular architecture handles complex tasks such as space boundary (SB) generation, thermal zoning, and building element mapping while preserving semantic relationships. The framework significantly reduces manual effort in simulation model creation while providing extensibility for future domain-specific applications.
+Building Information Modeling (BIM) offers comprehensive data about buildings, but transforming this information into domain-specific simulation models remains challenging. **bim2sim** addresses this gap by providing a Python framework that transforms Industry Foundation Classes (IFC) models into simulation models for multiple domains. This open-source framework implements a two-stage approach with a uniform meta-structure for IFC data extraction and domain-specific plugins for simulation model generation. The framework currently focuses on Building Energy Performance Simulation (BEPS) and Heating, Ventilation, and Air Conditioning (HVAC) simulations, with additional support for Computational Fluid Dynamics (CFD) and Life Cycle Assessment (LCA). The framework significantly reduces manual effort in simulation model creation while providing extensibility for future domain-specific applications.
 
 # Statement of Need
-Energy-efficient building design and operation heavily rely on Building Energy Performance Simulation (BEPS), but creating these simulation models manually is notoriously time-consuming, error-prone, and requires specialized expertise. While Building Information Modeling (BIM) provides a rich source of building data, the direct use of this information for simulation faces several challenges:
+Energy-efficient building design and operation heavily rely on BEPS, but creating these simulation models manually is notoriously time-consuming, error-prone, and requires specialized expertise. While BIM provides a rich source of building data, the direct use of this information for simulation faces several challenges:
 
-1. **Geometric Discrepancies**: Architectural BIM models employ geometric representations that differ from those required by simulation tools, necessitating complex transformations (e.g., second-level SB)
+1. **Geometric Discrepancies**: Architectural BIM models employ geometric representations that differ from those required by simulation tools, necessitating complex transformations (e.g., second-level Space Boundary (SB))
 2. **Semantic Gaps**: Critical simulation parameters (material properties, usage profiles, HVAC specifications) are often missing or incompletely defined in BIM models
 3. **Topological Gaps**: HVAC simulation requires accurate component connection information, but topological relationships are frequently incorrect or missing in existing BIM files
 4. **Data Format Incompatibilities**: Various simulation domains and tools demand specific input formats and data schemas that differ from standard BIM exports
@@ -67,7 +67,7 @@ According to case studies cited in the literature, creating simulation models ma
 4. Handling imperfect IFC data through repair algorithms and user decision management
 5. Maintaining OpenBIM compatibility while minimizing external tool dependencies
 
-The framework aims to enable engineers, architects, researchers, and practitioners to efficiently incorporate building performance simulation into their workflows, supporting better-informed decisions during design, renovation, and operation phases. By reducing the time and expertise barriers to simulation model creation, **bim2sim** helps bridge the persistent gap between building design and performance analysis.
+The framework aims to enable engineers, architects, researchers, and practitioners to efficiently incorporate building performance simulation into their workflows, supporting better-informed decisions. By reducing the time and expertise barriers to simulation model creation, **bim2sim** helps bridge the gap between building design and performance analysis.
 
 # Architecture and Implementation
 
@@ -80,9 +80,9 @@ The tool employs a two-stage architecture:
 1. **Base Framework**: Transforms IFC data into a uniform meta-structure that preserves essential building information while resolving inconsistencies
 2. **Domain-Specific Plugins**: Convert the meta-structure into simulation-ready models for specific applications
 
-## Core Components
+## Core Components of Base Framework
 
-- **Elements**: Domain-specific building component classes with attributes and relationships
+- **Elements**: Domain-specific meta-structure for building component classes 
 - **Tasks**: Modular processing steps that can be sequenced into workflows
 - **Playground**: Task execution environment that manages the transformation process
 - **Simulation Settings**: Configuration system for customizing simulation parameters
@@ -91,9 +91,10 @@ The tool employs a two-stage architecture:
 ## Key Features
 
 - IFC parser that extracts geometric and semantic data utilizing the existing Python implementation of IfcOpenShell [@IfcOpenShell]
-- Algorithms to correct missing or incorrect SB information
-- Enrichment processes for adding missing information (materials, usage profiles) 
 - Decision management for handling ambiguities in IFC data
+- Enrichment processes for adding missing information (materials, usage profiles) 
+- Algorithms to correct missing or incorrect SB information
+- Algorithms for simplifying HVAC systems to make them suitable for Modelica simulations
 - Exporters for different simulation platforms
 
 ## Available Plugins
@@ -114,6 +115,7 @@ The following plugins are currently in development and exist only in feature bra
 9. **OpenFOAM**: CFD simulation (under development, open-source available in fall 2025)
 
 # Existing Publications on Methodology
+
 * The methodology and use case demonstration for the BEPS-focused plugins **TEASER** and **EnergyPlus** will be published in a forthcoming paper by Jansen et al. [@Jansen2025bim2sim]
 * The methodology and detailed implementation of the HVAC-focused plugins **AixLib** and **HKESim** are comprehensively documented in Jansen et al. [@jansen2023bim2sim]
 * The algorithms for handling geometric and semantic inconsistencies within the SBs are presented in Richter et al. [@Richter.2021]
