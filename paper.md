@@ -117,9 +117,8 @@ The tool employs a two-stage architecture:
 * The fundamentals of the methodology of the CFD-focused plugin **OpenFOAM** has been presented by Richter et al. [@richterExtendingIFCbasedFramework2024] and extended to improve mesh quality by Hochberger et al. [@hochbergerAutomatedIFCbasedMesh2024].
 
 # Comparison with Similar Tools
+**bim2sim** addresses the challenge of leveraging BIM data for building energy simulations, a field with several existing approaches. In our paper [@Jansen2025bim2sim] (currently under review), we conducted a comprehensive analysis of these BIM-to-simulation tools. \autoref{tab:bim2bemApproaches} presents an abbreviated comparative overview of these tools. The complete analysis in the to-be-published paper considers additional dimensions such as IFC version support, space and surface boundary handling, and data enrichment methods. In the abbreviated version shown here, we focus on the most important aspects: simulation domains (BEPS, HVAC), modular architecture, open-source availability, and implementation technologies.
 
-**bim2sim** builds upon previous efforts to leverage BIM data for building energy simulation. In our forthcoming paper [@Jansen2025bim2sim], we conducted a comprehensive review of existing BIM-to-simulation 
-approaches. \autoref{tab:bim2bemApproaches} provides a comparative analysis of these tools, evaluating them across several dimensions: IFC version support, simulation domain coverage (BEPS, HVAC), architectural modularity, open-source availability, and implementation technologies.
 
 : IFC-based approaches from related research (chronologically ordered) as analyzed in [@Jansen2025bim2sim]. P: Partially, Y: Yes, -: No/not applicable, EP: EnergyPlus, Mod: Modelica, OS: Open-source, Mod.: Modularity, Impl.: Implementation language/framework.\label{tab:bim2bemApproaches}
 
