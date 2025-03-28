@@ -220,9 +220,10 @@ class CreateSpaceBoundaries(ITask):
         for opening in bound_element.ifc.HasOpenings:
             if hasattr(opening.RelatedOpeningElement, 'HasFillings'):
                 for fill in opening.RelatedOpeningElement.HasFillings:
-                    opening_obj = elements[
-                        fill.RelatedBuildingElement.GlobalId]
-                    related_opening_elems.append(opening_obj)
+                    if fill.RelatedBuildingElement.GlobalId in elements.keys():
+                        opening_obj = elements[
+                            fill.RelatedBuildingElement.GlobalId]
+                        related_opening_elems.append(opening_obj)
         return related_opening_elems
 
     @staticmethod

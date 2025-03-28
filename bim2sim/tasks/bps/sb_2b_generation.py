@@ -92,6 +92,9 @@ class AddSpaceBoundaries2B(ITask):
         for space_obj in spaces:
             # compare surface area of IfcSpace shape with sum of space
             # boundary shapes of this thermal zone.
+            if (not space_obj or not hasattr(space_obj, 'space_boundaries') or
+                    not space_obj.space_boundaries):
+                continue
             space_surf_area = PyOCCTools.get_shape_area(space_obj.space_shape)
             sb_area = 0
             for bound in space_obj.space_boundaries:
@@ -177,7 +180,10 @@ class AddSpaceBoundaries2B(ITask):
                 if distance < 1e-3:
                     b_bound.bound_element = instance
                     break
+            # if not hasattr(space_obj, 'space_boundaries'):
+            #     space_obj.space_boundaries = []
             space_obj.space_boundaries.append(b_bound)
-            b_bound.bound_element.space_boundaries.append(b_bound)
+            if b_bound.bound_element:
+                b_bound.bound_element.space_boundaries.append(b_bound)
             inst_2b[b_bound.guid] = b_bound
         return inst_2b

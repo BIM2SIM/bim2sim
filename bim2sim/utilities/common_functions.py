@@ -364,7 +364,7 @@ def get_spaces_with_bounds(elements: dict):
     """
 
     spaces = filter_elements(elements, 'ThermalZone')
-    spaces_with_bounds = [s for s in spaces if s.space_boundaries]
+    spaces_with_bounds = [s for s in spaces if s and s.space_boundaries]
 
     return spaces_with_bounds
 
