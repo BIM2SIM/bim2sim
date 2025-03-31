@@ -385,8 +385,9 @@ class PathSetting(Setting):
 
 class BooleanSetting(Setting):
     def check_value(self, bound_simulation_settings, value):
-        if not isinstance(value, bool):
-            raise ValueError(f"The provided value {value} is not a Boolean")
+        if not isinstance(value, bool) and value is not None:
+            raise ValueError(f"The provided value {value} for sim_setting "
+                             f"{self.name} is not a Boolean")
         else:
             return True
 
