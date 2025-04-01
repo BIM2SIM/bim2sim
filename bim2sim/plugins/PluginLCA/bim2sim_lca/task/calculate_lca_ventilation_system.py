@@ -50,6 +50,10 @@ class CalculateEmissionVentilationSystem(ITask):
             total_gwp_ventilation_duct = total_gwp_supply + total_gwp_exhaust
             total_cost_ventilation_duct = total_cost_supply + total_cost_exhaust
 
+            # Add maintenance costs
+            total_gwp_ventilation_duct += total_gwp_ventilation_duct * 40 * material_cost_dict["VentilationSystem"]
+            total_cost_ventilation_duct += total_cost_ventilation_duct * 40 * material_cost_dict["VentilationSystem"]
+
         return (total_gwp_ventilation_duct, total_gwp_ventilation_component,
                 total_cost_ventilation_duct, total_cost_ventilation_component)
 

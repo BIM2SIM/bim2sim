@@ -79,7 +79,7 @@ class CalculateHydraulicSystem(ITask):
     ureg = pint.UnitRegistry()
 
     reads = ('heating_graph', 'heat_demand_dict', 'elements')
-    touches = ()
+    touches = ('heating_pump_el_demand_max',)
 
     def run(self, heating_graph, heat_demand_dict, elements):
 
@@ -230,7 +230,13 @@ class CalculateHydraulicSystem(ITask):
                               viewpoint="design")
         bom, bom_types_quantities = self.write_component_list(graph=composed_graph)
         self.write_result_files(filepath=self.material_result_file, bom=bom, bom_types_quantities=bom_types_quantities)
-        #plt.show()
+
+        heating_pump_el_demand_max = 0
+        for values in bom.values():
+            if 'Pumpe' in values["Type"]:
+                heating_pump_el_demand_max += values["Power [kW]"]
+
+        return heating_pump_el_demand_max,
 
     def calc_pipe_friction_resistance(self,
                                       pipe_friction_coefficient,

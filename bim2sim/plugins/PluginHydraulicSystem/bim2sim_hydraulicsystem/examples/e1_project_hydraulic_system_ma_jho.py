@@ -64,6 +64,8 @@ def run_example_project_hydraulic_system(lock,
 
         project.sim_settings.heat_delivery_type = heat_delivery_type # UFH or Radiator
 
+        project.sim_settings.one_pump_flag = True
+
         if project.sim_settings.heat_delivery_type != heat_delivery_type:
             assert KeyboardInterrupt(f"Sim Setting: {project.sim_settings.heat_delivery_type}, Value: {heat_delivery_type}")
 
@@ -90,11 +92,9 @@ def run_example_project_hydraulic_system(lock,
     handler = DebugDecisionHandler(answers)
     handler.handle(project.run())
 
-    # Run the project with the ConsoleDecisionHandler. This allows interactive
-    # input to answer upcoming questions regarding the imported IFC.
-    # run_project(project, ConsoleDecisionHandler())
-    # Have a look at the instances/elements that were created
-    # elements = project.playground.state['elements']
+    heating_pump_el_demand_max = project.playground.state['heating_pump_el_demand_max']
+
+    return heating_pump_el_demand_max
 
 
 if __name__ == '__main__':

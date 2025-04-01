@@ -108,6 +108,10 @@ def run_example_complex_building_lca(lock,
     total_cost_ventilation_duct = project.playground.state['total_cost_ventilation_duct']
     total_cost_ventilation_component = project.playground.state['total_cost_ventilation_component']
 
+    if heat_delivery_type == "CCA":
+        total_gwp_hydraulic_pipe *= 2
+        total_cost_hydraulic_pipe *= 2
+
     return (total_gwp_building, total_gwp_hydraulic_pipe, total_gwp_hydraulic_component, total_gwp_ventilation_duct, total_gwp_ventilation_component,
             total_cost_building, total_cost_hydraulic_pipe, total_cost_hydraulic_component, total_cost_ventilation_duct, total_cost_ventilation_component)
 

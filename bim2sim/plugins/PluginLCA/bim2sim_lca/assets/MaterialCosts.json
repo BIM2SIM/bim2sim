@@ -61,6 +61,12 @@
       "Pipe_kg": 5.0,
       "Isolation_kg": 25.0,
       "Installation_m": 45.0
+   },
+   "VentilationSystem": {
+      "Maintenance": 0.01
+   },
+   "HydraulicSystem": {
+      "Maintenance": 0.01
    }
 }
 

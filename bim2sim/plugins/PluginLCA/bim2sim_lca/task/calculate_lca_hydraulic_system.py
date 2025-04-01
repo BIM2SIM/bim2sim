@@ -12,6 +12,7 @@ class CalculateEmissionHydraulicSystem(ITask):
                'total_cost_hydraulic_pipe', 'total_cost_hydraulic_component')
 
     def run(self, material_emission_dict, material_cost_dict):
+
         total_gwp_hydraulic_pipe = 0
         total_gwp_hydraulic_component = 0
 
@@ -36,6 +37,10 @@ class CalculateEmissionHydraulicSystem(ITask):
              total_pipe_mass, total_isolation_mass) = self.calulcate_pipe(pipe_dict=pipe_dict,
                                                                           material_emission_dict=material_emission_dict,
                                                                           material_cost_dict=material_cost_dict)
+
+            # Add maintenance costs
+            total_cost_hydraulic_pipe += total_cost_hydraulic_pipe * 40 * material_cost_dict["HydraulicSystem"]
+            total_cost_hydraulic_component += total_cost_hydraulic_component * 40 * material_cost_dict["HydraulicSystem"]
 
             self.write_xlsx(pipe_dict=pipe_dict,
                             component_material_emission_cost=component_material_emission_cost,

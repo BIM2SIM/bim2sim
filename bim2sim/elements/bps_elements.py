@@ -18,6 +18,7 @@ from OCC.Core.Bnd import Bnd_Box
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.GProp import GProp_GProps
 from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
+from OCC.Core import gp
 from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Pnt, \
     gp_Mat, gp_Quaternion
 from ifcopenshell import guid
@@ -251,6 +252,25 @@ class ThermalZone(BPSProduct):
         bbox_center = ifcopenshell.geom.utils.get_bounding_box_center(bbox)
         return bbox_center
 
+    def _get_space_corners(self, name):
+        """
+        This function returns the corners of the bounding box of an ifc space
+        shape
+        :return: corners of space bounding box (gp_Pnt,gp_Pnt)
+        """
+        bbox = Bnd_Box()
+        brepbndlib_Add(self.space_shape, bbox)
+
+        bbmin = [0.0] * 3
+        bbmax = [0.0] * 3
+
+        bbmin[0], bbmin[1], bbmin[2], bbmax[0], bbmax[1], bbmax[2] = bbox.Get()
+
+        min_point = gp.gp_Pnt(bbmin[0], bbmin[1], bbmin[2])
+        max_point = gp.gp_Pnt(bbmax[0], bbmax[1], bbmax[2])
+
+        return min_point, max_point
+
     def _get_footprint_shape(self, name):
         """
         This function returns the footprint of a space shape. This can be
@@ -380,6 +400,12 @@ class ThermalZone(BPSProduct):
         description="Returns the center of the bounding box of an ifc space "
                     "shape.",
         functions=[_get_space_center]
+    )
+
+    space_corners = attribute.Attribute(
+        description="Returns the corners of the bounding box of an ifc space "
+                    "shape.",
+        functions=[_get_space_corners]
     )
 
     footprint_shape = attribute.Attribute(
