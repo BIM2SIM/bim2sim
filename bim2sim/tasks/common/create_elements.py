@@ -136,7 +136,7 @@ class CreateElementsOnIfcTypes(ITask):
                 ['Description'])
             entity_class_dict, unknown_entities = yield from (
                 self.filter_by_text(
-                    text_filter, unknown_entities, ifc_file.ifc_units))
+                    text_filter, unknown_entities))
             entity_best_guess_dict.update(entity_class_dict)
 
             # Now we use the result of previous text filter to create the
@@ -417,54 +417,95 @@ class CreateElementsOnIfcTypes(ITask):
             self.materials_all.append(material)
         return material
 
-    def filter_by_text(self, text_filter: TextFilter, ifc_entities: entity_instance, ifc_units: dict) \
-            -> Generator[DecisionBunch, None,
-                         Tuple[Dict[Any, Type[ProductBased]], List]]:
-        """Generator method filtering ifc elements by given TextFilter.
+    def filter_by_text(self, text_filter: TextFilter,
+                       ifc_entities: entity_instance) \
+            -> Generator[DecisionBunch, None, Tuple[
+                Dict[Any, Type[ProductBased]], List]]:
+        """Filter IFC elements by analyzing text fragments.
 
-        yields decision bunch for ambiguous results"""
-        entities_dict, unknown_entities = text_filter.run(ifc_entities)
-        answers = {}
-        decisions = DecisionBunch()
-        for entity, classes in entities_dict.items():
-            sorted_classes = sorted(classes, key=lambda item: item.key)
-            if len(sorted_classes) > 1:
-                # choices
+        This method applies text-based filtering to identify elements. It
+        handles:
+        1. Automatic classification for entities with single matching class
+        2. User decision for entities with multiple potential matching classes
+        3. Collection of unidentified entities
+
+        Args:
+            text_filter: The TextFilter instance to use.
+            ifc_entities: IFC entities to filter.
+
+        Yields:
+            DecisionBunch: User decisions for ambiguous matches.
+
+        Returns:
+            tuple:
+                - Dictionary mapping entities to their identified element
+                classes
+                - List of unidentified entities
+        """
+        # Step 1: Run the text filter to find potential matches
+        # Now each entity maps to a dictionary of {class: fragments}
+        entities_match_dict, unknown_entities = text_filter.run(ifc_entities)
+
+        # Prepare containers for results
+        direct_matches = {}  # For entities with a single match
+        decisions = DecisionBunch()  # For entities requiring user decision
+
+        # Step 2: Process the matches
+        for entity, class_fragments_dict in entities_match_dict.items():
+            # Sort classes by their key
+            sorted_classes = sorted(class_fragments_dict.keys(),
+                                    key=lambda cls: cls.key)
+
+            if len(sorted_classes) == 1:
+                # Single match - direct assignment
+                direct_matches[entity] = sorted_classes[0]
+            elif len(sorted_classes) > 1:
+                # Multiple matches - user decision required
                 choices = []
+
+                # Create choices with helpful hints using already computed
+                # fragments
                 for element_cls in sorted_classes:
-                    # TODO: filter_for_text_fragments()
-                    #  already called in text_filter.run()
-                    hints = f"Matches: '" + "', '".join(
-                        element_cls.filter_for_text_fragments(
-                            entity, ifc_units)) + "'"
+                    fragments = class_fragments_dict[element_cls]
+                    hints = f"Matches: '{', '.join(fragments)}'"
                     choices.append([element_cls.key, hints])
+
                 choices.append(["Other", "Other"])
+
+                # Create decision
                 decisions.append(ListDecision(
-                    question=f"Searching for text fragments in '{entity.Name}',"
-                    f" gave the following class hints. "
-                    f"Please select best match.",
-                    console_identifier=f"Name: '{entity.Name}', "
-                                       f"Description: '{entity.Description}'",
+                    question=f"Searching for text fragments in '"
+                             f"{entity.Name}' gave the following class hints. "
+                             f"Please select best match.",
+                    console_identifier=f"Name: '{entity.Name}', Descr"
+                                       f"iption: '{entity.Description}'",
                     choices=choices,
                     key=entity,
                     related=[entity.GlobalId],
-                    global_key="TextFilter:%s.%s.%s" % (
-                        entity.is_a(), entity.GlobalId, entity.Name),
+                    global_key=f"TextFilter:{entity.is_a()}"
+                               f".{entity.GlobalId}.{entity.Name}",
                     allow_skip=True,
-                    context=[entity.GlobalId]))
-            elif len(sorted_classes) == 1:
-                answers[entity] = sorted_classes[0].key
-            # empty classes are covered below
+                    context=[entity.GlobalId]
+                ))
+
+        # Step 3: Yield decisions for user input
         yield decisions
-        answers.update(decisions.to_answer_dict())
+
+        # Step 4: Process results
         result_entity_dict = {}
-        for ifc_entity, element_classes in entities_dict.items():
-            element_key = answers.get(ifc_entity)
+
+        # Add direct matches
+        for entity, element_cls in direct_matches.items():
+            result_entity_dict[entity] = element_cls
+
+        # Process user decisions
+        answers = decisions.to_answer_dict()
+        for entity, element_key in answers.items():
             element_cls = ProductBased.key_map.get(element_key)
             if element_cls:
-                result_entity_dict[ifc_entity] = element_cls
+                result_entity_dict[entity] = element_cls
             else:
-                unknown_entities.append(ifc_entity)
+                unknown_entities.append(entity)
 
         return result_entity_dict, unknown_entities
 
