@@ -78,7 +78,7 @@ class CorrectSpaceBoundaries(ITask):
         # todo: refactor elements to initial_elements.
         # todo: space_boundaries should be already included in elements
         self.move_children_to_parents(elements)
-        self.fix_surface_orientation(elements)
+        # self.fix_surface_orientation(elements)
         self.split_non_convex_bounds(
             elements, self.playground.sim_settings.split_bounds)
         self.add_and_split_bounds_for_shadings(
@@ -190,7 +190,8 @@ class CorrectSpaceBoundaries(ITask):
                     continue
                 # append all faces within the space to face_list
                 face = PyOCCTools.get_face_from_shape(bound.bound_shape)
-                face_list.append(face)
+                if face:
+                    face_list.append(face)
             if not face_list:
                 continue
             # if the space has generated 2B space boundaries, add them to
@@ -198,7 +199,11 @@ class CorrectSpaceBoundaries(ITask):
             if hasattr(space, 'space_boundaries_2B'):
                 for bound in space.space_boundaries_2B:
                     face = PyOCCTools.get_face_from_shape(bound.bound_shape)
-                    face_list.append(face)
+                    if face:
+                        face_list.append(face)
+                    else:
+                        logger.warning(f"No shape has been extracted for 2B "
+                                       f"SB with guid {bound.guid}.")
             # sew all faces within the face_list together
             sew = BRepBuilderAPI_Sewing(0.0001)
             for fc in face_list:

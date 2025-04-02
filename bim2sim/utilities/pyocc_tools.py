@@ -310,14 +310,17 @@ class PyOCCTools:
     @staticmethod
     def get_face_from_shape(shape: TopoDS_Shape) -> TopoDS_Face:
         """Return first face of a TopoDS_Shape."""
-        exp = TopExp_Explorer(shape, TopAbs_FACE)
-        face = exp.Current()
         try:
+            exp = TopExp_Explorer(shape, TopAbs_FACE)
+            face = exp.Current()
             face = topods_Face(face)
-        except:
-            exp1 = TopExp_Explorer(shape, TopAbs_WIRE)
-            wire = exp1.Current()
-            face = BRepBuilderAPI_MakeFace(wire).Face()
+        except TypeError:
+            try:
+                exp1 = TopExp_Explorer(shape, TopAbs_WIRE)
+                wire = exp1.Current()
+                face = BRepBuilderAPI_MakeFace(wire).Face()
+            except TypeError:
+                face = None
         return face
 
     @staticmethod

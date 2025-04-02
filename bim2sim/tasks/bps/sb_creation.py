@@ -11,7 +11,7 @@ from bim2sim.elements.mapping.filter import TypeFilter
 from bim2sim.elements.base_elements import RelationBased, Element, IFCBased
 from bim2sim.elements.bps_elements import (
     SpaceBoundary, ExtSpatialSpaceBoundary, ThermalZone, Window, Door,
-    BPSProductWithLayers)
+    BPSProductWithLayers, SpaceBoundaryNoBuildElem)
 from bim2sim.elements.mapping.finder import TemplateFinder
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.base import ITask
@@ -408,6 +408,10 @@ class CreateSpaceBoundaries(ITask):
                 element = SpaceBoundary.from_ifc(
                     entity, elements=element_lst, finder=finder,
                     ifc_units=ifc_units)
+                if not element.ifc.RelatedBuildingElement:
+                    element = SpaceBoundaryNoBuildElem.from_ifc(
+                    entity, elements=element_lst, finder=finder,
+                    ifc_units=ifc_units)
             elif create_external_elements and entity.RelatingSpace.is_a(
                     'IfcExternalSpatialElement'):
                 element = ExtSpatialSpaceBoundary.from_ifc(
@@ -423,6 +427,10 @@ class CreateSpaceBoundaries(ITask):
                 self.connect_space_boundaries(element, relating_space,
                                               elements)
                 element_lst[element.guid] = element
+            else:
+                logger.warning(f"SpaceBoundary with guid {element.guid} has "
+                               f"not been created due to missing relating "
+                               f"space.")
 
         return list(element_lst.values())
 
@@ -445,11 +453,13 @@ class CreateSpaceBoundaries(ITask):
         if space_boundary.ifc.RelatedBuildingElement:
             related_building_element = elements.get(
                 space_boundary.ifc.RelatedBuildingElement.GlobalId, None)
-            if related_building_element:
+            if related_building_element is not None:
                 related_building_element.space_boundaries.append(space_boundary)
                 space_boundary.bound_element = related_building_element
                 self.connect_element_to_zone(relating_space,
                                               related_building_element)
+        elif isinstance(space_boundary, SpaceBoundaryNoBuildElem):
+            space_boundary.bound_element = None
 
     @staticmethod
     def connect_element_to_zone(thermal_zone: ThermalZone,

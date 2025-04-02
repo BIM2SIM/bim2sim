@@ -1110,6 +1110,9 @@ class SpaceBoundary(RelationBased):
         ifc_attr_name="InternalOrExternalBoundary"
     )
 
+class SpaceBoundaryNoBuildElem(SpaceBoundary):
+    """New space boundary class for space boundaries without related building element in the Ifc File"""
+    pass
 
 class ExtSpatialSpaceBoundary(SpaceBoundary):
     """describes all space boundaries related to an IfcExternalSpatialElement instead of an IfcSpace"""
