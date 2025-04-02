@@ -475,7 +475,7 @@ information</p>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.filter.TextFilter"><code class="docutils literal notranslate"><span class="pre">TextFilter</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.filter.TextFilter.matches"><code class="docutils literal notranslate"><span class="pre">TextFilter.matches()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.filter.TextFilter.find_matches"><code class="docutils literal notranslate"><span class="pre">TextFilter.find_matches()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.filter.TextFilter.run"><code class="docutils literal notranslate"><span class="pre">TextFilter.run()</span></code></a></li>
 </ul>
 </li>
@@ -775,7 +775,18 @@ Special values for predifined types:</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.elements.base_elements.IFCBased.filter_for_text_fragments">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">filter_for_text_fragments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optional_locations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.base_elements.IFCBased.filter_for_text_fragments" title="Permalink to this definition"></a></dt>
-<dd><p>Filter for text fragments in the ifc_element to identify the ifc_element.</p>
+<dd><p>Find text fragments that match the class patterns in an IFC element.</p>
+<dl>
+<dt>Args:</dt><dd><p>ifc_element: The IFC element to check.
+ifc_units: Dictionary containing IFC unit information.
+optional_locations: Additional locations to check patterns beyond</p>
+<blockquote>
+<div><p>name. Defaults to None.</p>
+</div></blockquote>
+</dd>
+<dt>Returns:</dt><dd><p>list: List of matched fragments, empty list if no matches found.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
