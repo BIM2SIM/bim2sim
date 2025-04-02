@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import collections
 import logging
 from typing import Tuple, List, Any, Generator, Dict, Type, Set
 import copy
@@ -48,6 +49,44 @@ class CreateElementsOnIfcTypes(ITask):
         to make sure that the resulting bim2sim elements hold valid
         information.
 
+        The element creation process follows a three-stage classification
+        approach:
+
+        1. **Validation-Based Classification**:
+           * Elements are initially processed based on relevant element
+           types and IFC classifications
+           * Each element undergoes validation against predefined criteria
+           * Valid elements are immediately added to the "valids" collection
+           * Elements failing validation are placed in "unknown_entities"
+           for further processing
+
+        2. **Pattern Matching Classification**:
+           * For unidentified elements in "unknown_entities", a text
+           analysis is performed
+           * The system examines IFC descriptions and compares them against
+           regular expression patterns defined in element classes
+           * Results are handled based on match confidence:
+             - Single match: Element is automatically moved to "valids"
+             - Multiple matches: User decision is requested to determine the
+             correct classification
+             - No matches: Element remains in "unknown_entities" for final
+             classification stage
+
+        3. **User-Assisted Classification**:
+           * Remaining unidentified elements are processed through the
+           set_class_by_user function
+           * To optimize user experience, similar elements are intelligently
+           grouped using one of these strategies:
+             - Exact name matching: Groups elements with identical names
+             - Name and description matching: Groups elements with identical
+             names and descriptions
+             - Fuzzy matching: Groups elements with similar names based on a
+             configurable similarity threshold
+           * This grouping significantly reduces the number of required user
+           decisions
+           * User decisions determine the final classification of each
+           element or group
+
         Args:
             ifc_files: list of ifc files in bim2sim structured format
         Returns:
@@ -70,8 +109,9 @@ class CreateElementsOnIfcTypes(ITask):
                 ifc_file.finder)
 
             # Filtering:
-            #  filter returns dict of entities: suggested class and list of unknown
-            #  accept_valids returns created elements and lst of invalids
+            #  filter returns dict of entities: suggested class and list of
+            #  unknown accept_valids returns created elements and lst of
+            #  invalids
 
             element_lst: list = []
             entity_best_guess_dict: dict = {}
@@ -80,20 +120,27 @@ class CreateElementsOnIfcTypes(ITask):
             entity_type_dict, unknown_entities = type_filter.run(ifc_file.file)
 
             # create valid elements
+            # First elements are created with validation, by checking
+            # conditions and number of ports if they fit expectations, those
+            # who don't fit expectations are added to invalids list
             valids, invalids = self.create_with_validation(entity_type_dict)
             element_lst.extend(valids)
             unknown_entities.extend(invalids)
 
             # filter by text
+            # invalids from before are checked with text filter on their IFC
+            # Description to identify them
             text_filter = TextFilter(
                 relevant_elements,
                 ifc_file.ifc_units,
                 ['Description'])
-            entity_class_dict, unknown_entities = yield from self.filter_by_text(
-                text_filter, unknown_entities, ifc_file.ifc_units)
+            entity_class_dict, unknown_entities = yield from (
+                self.filter_by_text(
+                    text_filter, unknown_entities))
             entity_best_guess_dict.update(entity_class_dict)
-            # TODO why do we run this two times, once without and once with
-            #  force=True
+
+            # Now we use the result of previous text filter to create the
+            # elements that could be identified by text filter
             valids, invalids = self.create_with_validation(
                 entity_class_dict, force=True)
             element_lst.extend(valids)
@@ -106,12 +153,17 @@ class CreateElementsOnIfcTypes(ITask):
                              len(unknown_entities))
 
             # identification of remaining entities by user
-            entity_class_dict, unknown_entities = yield from self.set_class_by_user(
-                unknown_entities,
-                self.playground.sim_settings,
-                entity_best_guess_dict)
+            # those are elements that failed initial validation and could not
+            # be identified by text filter
+            entity_class_dict, unknown_entities = yield from (
+                self.set_class_by_user(
+                    unknown_entities,
+                    self.playground.sim_settings,
+                    entity_best_guess_dict)
+            )
             entity_best_guess_dict.update(entity_class_dict)
             invalids = []
+
             for element_cls, ifc_entities in entity_class_dict.items():
                 for ifc_entity in ifc_entities:
                     try:
@@ -365,54 +417,95 @@ class CreateElementsOnIfcTypes(ITask):
             self.materials_all.append(material)
         return material
 
-    def filter_by_text(self, text_filter: TextFilter, ifc_entities: entity_instance, ifc_units: dict) \
-            -> Generator[DecisionBunch, None,
-                         Tuple[Dict[Any, Type[ProductBased]], List]]:
-        """Generator method filtering ifc elements by given TextFilter.
+    def filter_by_text(self, text_filter: TextFilter,
+                       ifc_entities: entity_instance) \
+            -> Generator[DecisionBunch, None, Tuple[
+                Dict[Any, Type[ProductBased]], List]]:
+        """Filter IFC elements by analyzing text fragments.
 
-        yields decision bunch for ambiguous results"""
-        entities_dict, unknown_entities = text_filter.run(ifc_entities)
-        answers = {}
-        decisions = DecisionBunch()
-        for entity, classes in entities_dict.items():
-            sorted_classes = sorted(classes, key=lambda item: item.key)
-            if len(sorted_classes) > 1:
-                # choices
+        This method applies text-based filtering to identify elements. It
+        handles:
+        1. Automatic classification for entities with single matching class
+        2. User decision for entities with multiple potential matching classes
+        3. Collection of unidentified entities
+
+        Args:
+            text_filter: The TextFilter instance to use.
+            ifc_entities: IFC entities to filter.
+
+        Yields:
+            DecisionBunch: User decisions for ambiguous matches.
+
+        Returns:
+            tuple:
+                - Dictionary mapping entities to their identified element
+                classes
+                - List of unidentified entities
+        """
+        # Step 1: Run the text filter to find potential matches
+        # Now each entity maps to a dictionary of {class: fragments}
+        entities_match_dict, unknown_entities = text_filter.run(ifc_entities)
+
+        # Prepare containers for results
+        direct_matches = {}  # For entities with a single match
+        decisions = DecisionBunch()  # For entities requiring user decision
+
+        # Step 2: Process the matches
+        for entity, class_fragments_dict in entities_match_dict.items():
+            # Sort classes by their key
+            sorted_classes = sorted(class_fragments_dict.keys(),
+                                    key=lambda cls: cls.key)
+
+            if len(sorted_classes) == 1:
+                # Single match - direct assignment
+                direct_matches[entity] = sorted_classes[0]
+            elif len(sorted_classes) > 1:
+                # Multiple matches - user decision required
                 choices = []
+
+                # Create choices with helpful hints using already computed
+                # fragments
                 for element_cls in sorted_classes:
-                    # TODO: filter_for_text_fragments()
-                    #  already called in text_filter.run()
-                    hints = f"Matches: '" + "', '".join(
-                        element_cls.filter_for_text_fragments(
-                            entity, ifc_units)) + "'"
+                    fragments = class_fragments_dict[element_cls]
+                    hints = f"Matches: '{', '.join(fragments)}'"
                     choices.append([element_cls.key, hints])
+
                 choices.append(["Other", "Other"])
+
+                # Create decision
                 decisions.append(ListDecision(
-                    question=f"Searching for text fragments in '{entity.Name}',"
-                    f" gave the following class hints. "
-                    f"Please select best match.",
-                    console_identifier=f"Name: '{entity.Name}', "
-                                       f"Description: '{entity.Description}'",
+                    question=f"Searching for text fragments in '"
+                             f"{entity.Name}' gave the following class hints. "
+                             f"Please select best match.",
+                    console_identifier=f"Name: '{entity.Name}', Descr"
+                                       f"iption: '{entity.Description}'",
                     choices=choices,
                     key=entity,
                     related=[entity.GlobalId],
-                    global_key="TextFilter:%s.%s.%s" % (
-                        entity.is_a(), entity.GlobalId, entity.Name),
+                    global_key=f"TextFilter:{entity.is_a()}"
+                               f".{entity.GlobalId}.{entity.Name}",
                     allow_skip=True,
-                    context=[entity.GlobalId]))
-            elif len(sorted_classes) == 1:
-                answers[entity] = sorted_classes[0].key
-            # empty classes are covered below
+                    context=[entity.GlobalId]
+                ))
+
+        # Step 3: Yield decisions for user input
         yield decisions
-        answers.update(decisions.to_answer_dict())
+
+        # Step 4: Process results
         result_entity_dict = {}
-        for ifc_entity, element_classes in entities_dict.items():
-            element_key = answers.get(ifc_entity)
+
+        # Add direct matches
+        for entity, element_cls in direct_matches.items():
+            result_entity_dict[entity] = element_cls
+
+        # Process user decisions
+        answers = decisions.to_answer_dict()
+        for entity, element_key in answers.items():
             element_cls = ProductBased.key_map.get(element_key)
             if element_cls:
-                result_entity_dict[ifc_entity] = element_cls
+                result_entity_dict[entity] = element_cls
             else:
-                unknown_entities.append(ifc_entity)
+                unknown_entities.append(entity)
 
         return result_entity_dict, unknown_entities
 
@@ -437,8 +530,8 @@ class CreateElementsOnIfcTypes(ITask):
         """
 
         def group_similar_entities(
-            search_type: str = 'fuzzy',
-            fuzzy_threshold: float = 0.7) -> dict:
+                search_type: str = 'fuzzy',
+                fuzzy_threshold: float = 0.7) -> dict:
             """Group unknown entities to reduce number of decisions.
 
             IFC elements are often not correctly specified, or have uncertain
@@ -460,8 +553,12 @@ class CreateElementsOnIfcTypes(ITask):
                 element type as key (e.g. 'IfcPipeFitting') and a list of all
                 represented ifc elements.
             """
+            # Sort unknown entities by GlobalId for determinism
+            unknown_entities_sorted = sorted(unknown_entities,
+                                             key=lambda e: e.GlobalId)
+
             entities_by_type = {}
-            for entity in unknown_entities:
+            for entity in unknown_entities_sorted:
                 entity_type = entity.is_a()
                 if entity_type not in entities_by_type:
                     entities_by_type[entity_type] = [entity]
@@ -469,16 +566,30 @@ class CreateElementsOnIfcTypes(ITask):
                     entities_by_type[entity_type].append(entity)
 
             representatives = {}
-            for entity_type, entities in entities_by_type.items():
+            for entity_type, entities in sorted(entities_by_type.items()):
                 if len(entities) == 1:
-                    representatives.setdefault(entity_type,
-                                               {entities[0]: entities})
+                    # Use OrderedDict for stable iteration
+                    entity_dict = collections.OrderedDict()
+                    entity_dict[entities[0]] = entities
+                    representatives[entity_type] = entity_dict
                     continue
+
                 # group based on similarity in string of "Name" of IFC element
                 if search_type == 'fuzzy':
-                    # use names of entities for grouping
-                    representatives[entity_type] = group_by_levenshtein(
+                    # Modify group_by_levenshtein to ensure stable sorting
+                    grouped = group_by_levenshtein(
                         entities, similarity_score=fuzzy_threshold)
+
+                    # Convert result to a stable structure
+                    stable_grouped = collections.OrderedDict()
+                    for key, group in sorted(grouped.items(),
+                                             key=lambda x: x[0].GlobalId):
+                        # Sort the group itself
+                        stable_grouped[key] = sorted(group,
+                                                     key=lambda e: e.GlobalId)
+
+                    representatives[entity_type] = stable_grouped
+
                     self.logger.info(
                         f"Grouping the unidentified elements with fuzzy search "
                         f"based on their Name (Threshold = {fuzzy_threshold})"
@@ -486,30 +597,61 @@ class CreateElementsOnIfcTypes(ITask):
                         f"entities from {len(entities_by_type[entity_type])} "
                         f"elements of IFC type {entity_type} "
                         f"to {len(representatives[entity_type])} elements.")
+
                 # just group based on exact same string in "Name" of IFC element
                 elif search_type == 'name':
-                    representatives[entity_type] = {}
-                    for entity in entities:
-                        # find if a key entity with same Name exists already
-                        repr_entity = None
-                        for repr in representatives[entity_type].keys():
-                            if repr.Name == entity.Name:
-                                repr_entity = repr
-                                break
+                    # Use OrderedDict for stable iteration
+                    name_groups = collections.defaultdict(list)
 
-                        if not repr_entity:
-                            representatives[entity_type][entity] = [entity]
-                        else:
-                            representatives[entity_type][repr_entity].append(entity)
+                    # Group by name, but keep the sorting
+                    for entity in entities:
+                        name_groups[entity.Name].append(entity)
+
+                    # Create the stable representatives dictionary
+                    stable_grouped = collections.OrderedDict()
+                    for name, group in sorted(name_groups.items()):
+                        # Sort the group by GlobalId and choose the first element as representative
+                        sorted_group = sorted(group, key=lambda e: e.GlobalId)
+                        stable_grouped[sorted_group[0]] = sorted_group
+
+                    representatives[entity_type] = stable_grouped
+
                     self.logger.info(
                         f"Grouping the unidentified elements by their Name "
                         f"reduced the number of unknown entities from"
                         f" {len(entities_by_type[entity_type])} "
                         f"elements of IFC type {entity_type} "
                         f"to {len(representatives[entity_type])} elements.")
+                elif search_type == 'name_and_description':
+                    # Use OrderedDict for stable iteration
+                    name_desc_groups = collections.defaultdict(list)
+
+                    # Group by name AND description, but keep the sorting
+                    for entity in entities:
+                        # Create a composite key combining Name and Description
+                        composite_key = (entity.Name, entity.Description)
+                        name_desc_groups[composite_key].append(entity)
+
+                    # Create the stable representatives dictionary
+                    stable_grouped = collections.OrderedDict()
+                    for (name, desc), group in sorted(
+                            name_desc_groups.items()):
+                        # Sort the group by GlobalId and choose the first element as representative
+                        sorted_group = sorted(group, key=lambda e: e.GlobalId)
+                        stable_grouped[sorted_group[0]] = sorted_group
+
+                    representatives[entity_type] = stable_grouped
+
+                    self.logger.info(
+                        f"Grouping the unidentified elements by their Name and Description "
+                        f"reduced the number of unknown entities from"
+                        f" {len(entities_by_type[entity_type])} "
+                        f"elements of IFC type {entity_type} "
+                        f"to {len(representatives[entity_type])} elements.")
                 else:
-                    raise NotImplementedError('Only fuzzy and name grouping are'
-                                              'implemented for now.')
+                    raise NotImplementedError(
+                        'Only fuzzy and name grouping are'
+                        'implemented for now.')
 
             return representatives
 
@@ -522,73 +664,111 @@ class CreateElementsOnIfcTypes(ITask):
         representatives = group_similar_entities(
             sim_settings.group_unidentified, sim_settings.fuzzy_threshold)
 
+        # Sort the outer loop by IFC type
+        # Create a single decision bunch for all entities
+        all_decisions = DecisionBunch()
+        # Store associations between decisions and their representatives
+        decision_associations = {}  # Maps (decision -> (ifc_type, ifc_entity))
+
+        # Sort the outer loop by IFC type
         for ifc_type, repr_entities in sorted(representatives.items()):
-            decisions = DecisionBunch()
-            for ifc_entity, represented in repr_entities.items():
+            # Sort the inner loop by GlobalId for determinism
+            for ifc_entity, represented in sorted(repr_entities.items(),
+                                                  key=lambda x: x[0].GlobalId):
                 # assert same list of ifc_files
                 checksum = Decision.build_checksum(
                     [pe.key for pe in sorted_elements])
 
                 best_guess_cls = best_guess_dict.get(ifc_entity)
                 best_guess = best_guess_cls.key if best_guess_cls else None
+
+                # Sort ports and related elements
                 context = []
-                for port in ifc2python.get_ports(ifc_entity):
-                    connected_ports = ifc2python.get_ports_connections(port)
+                for port in sorted(ifc2python.get_ports(ifc_entity),
+                                   key=lambda p: p.GlobalId):
+                    connected_ports = sorted(
+                        ifc2python.get_ports_connections(port),
+                        key=lambda p: p.GlobalId)
                     con_ports_guid = [con.GlobalId for con in connected_ports]
                     parents = []
-                    for con_port in connected_ports:
-                        parents.extend(ifc2python.get_ports_parent(con_port))
+                    for con_port in sorted(connected_ports,
+                                           key=lambda p: p.GlobalId):
+                        port_parents = sorted(
+                            ifc2python.get_ports_parent(con_port),
+                            key=lambda p: p.GlobalId)
+                        parents.extend(port_parents)
                     parents_guid = [par.GlobalId for par in parents]
                     context.append(port.GlobalId)
-                    context.extend(con_ports_guid + parents_guid)
+                    context.extend(sorted(con_ports_guid + parents_guid))
+
+                # Sort the represented elements
                 representative_global_keys = []
-                for represent in representatives[ifc_type][ifc_entity]:
+                for represent in sorted(repr_entities[ifc_entity],
+                                        key=lambda e: e.GlobalId):
                     representative_global_keys.append(
                         "SetClass:%s.%s.%s" % (
                             represent.is_a(), represent.GlobalId,
                             represent.Name
                         )
                     )
-                decisions.append(ListDecision(
-                    question="Found unidentified Element of %s" % (
+
+                decision = ListDecision(
+                    question="Found unidentified Element of Ifc Type: %s" % (
                         ifc_entity.is_a()),
                     console_identifier="Name: %s, Description: %s, GUID: %s, "
                                        "Predefined Type: %s"
-                    % (ifc_entity.Name, ifc_entity.Description,
-                        ifc_entity.GlobalId, ifc_entity.PredefinedType),
+                                       % (
+                                           ifc_entity.Name,
+                                           ifc_entity.Description,
+                                           ifc_entity.GlobalId,
+                                           ifc_entity.PredefinedType),
                     choices=[ele.key for ele in sorted_elements],
                     related=[ifc_entity.GlobalId],
-                    context=context,
+                    context=sorted(context),  # Sort the context
                     default=best_guess,
                     key=ifc_entity,
                     global_key="SetClass:%s.%s.%s" % (
                         ifc_entity.is_a(), ifc_entity.GlobalId, ifc_entity.Name
                     ),
-                    representative_global_keys=representative_global_keys,
+                    representative_global_keys=sorted(
+                        representative_global_keys),  # Sort the keys
                     allow_skip=True,
-                    validate_checksum=checksum))
-            self.logger.info(f"Found {len(decisions)} "
-                             f"unidentified Elements of IFC type {ifc_type} "
-                             f"to check by user")
-            yield decisions
+                    validate_checksum=checksum)
 
-            answers = decisions.to_answer_dict()
+                # Add decision to the bunch
+                all_decisions.append(decision)
 
-            for ifc_entity, element_key in answers.items():
-                represented_entities = representatives[ifc_type][ifc_entity]
-                if element_key is None:
-                    # todo check
-                    # ignore.append(ifc_entity)
-                    ignore.extend(represented_entities)
-                else:
-                    element_cls = ProductBased.key_map[element_key]
-                    lst = result_entity_dict.setdefault(element_cls, [])
-                    # lst.append(ifc_entity)
-                    lst.extend(represented_entities)
+                # Store association between decision and its representatives
+                decision_associations[ifc_entity] = (ifc_type, ifc_entity)
+
+        self.logger.info(
+            f"Found {len(all_decisions)} unidentified Elements to check by user")
+
+        # Yield the single big bunch of decisions
+        yield all_decisions
+
+        # Process all answers at once
+        answers = all_decisions.to_answer_dict()
+
+        for ifc_entity, element_key in sorted(answers.items(),
+                                              key=lambda x: x[0].GlobalId):
+            # Get the associated ifc_type and representative entity
+            ifc_type, _ = decision_associations[ifc_entity]
+            represented_entities = representatives[ifc_type][ifc_entity]
+
+            if element_key is None:
+                ignore.extend(
+                    sorted(represented_entities, key=lambda e: e.GlobalId))
+            else:
+                element_cls = ProductBased.key_map[element_key]
+                lst = result_entity_dict.setdefault(element_cls, [])
+                lst.extend(
+                    sorted(represented_entities, key=lambda e: e.GlobalId))
 
         return result_entity_dict, ignore
 
-    def get_ifc_types(self, relevant_elements: List[Type[ProductBased]]) \
+    @staticmethod
+    def get_ifc_types(relevant_elements: List[Type[ProductBased]]) \
             -> Set[str]:
         """Extract used ifc types from list of elements."""
         relevant_ifc_types = []
