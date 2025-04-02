@@ -473,8 +473,10 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
     group_unidentified = ChoiceSetting(
         default='fuzzy',
         choices={
-            'fuzzy': 'Use fuzzy search to find name similarities',
-            'name': 'Only group elements with exact same name'
+            'fuzzy': 'Use fuzzy search to find ifc name similarities',
+            'name': 'Only group elements with exact same ifc name',
+            'name_and_description': 'Only group elements with the same ifc'
+                                    ' name and ifc description'
         },
         description='To reduce the number of decisions by user to identify '
                     'elements which can not be identified automatically by '
