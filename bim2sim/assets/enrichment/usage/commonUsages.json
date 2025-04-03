@@ -140,7 +140,8 @@
       "Parkgaragen"
    ],
    "Restaurant":[
-      "Restaurant"
+      "Restaurant",
+      "Dachboden"
    ],
    "Retail with cooling":[
       "Einzelhandel",
@@ -196,7 +197,6 @@
       "Verkehrsfläche",
       "Hall",
       "Flur",
-      "Dachboden",
       "Treppenhaus",
       "Korridor",
       "Übergang"
