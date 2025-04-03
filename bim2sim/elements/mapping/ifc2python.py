@@ -733,6 +733,7 @@ def check_guid(guid_to_check: str) -> bool:
         >>> check_guid("invalid_guid")
         False  # Also logs an error message
     """
+    # TODO update, when updating to IfcOpenShell 0.8 #792
     error = None
     if len(guid_to_check) != 22:
         error = "Guid length should be 22 characters."
