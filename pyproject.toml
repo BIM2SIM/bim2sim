@@ -76,8 +76,7 @@ PluginTEASER = [
     "ebcpy",
     "reportlab",
     "svglib",
-    #"TEASER[report]@git+https://github.com/RWTH-EBC/TEASER.git@806-add-simplified-transfer-systems",
-    "TEASER[report]@git+https://github.com/RWTH-EBC/TEASER.git@jho-testing",
+    "TEASER[report]@git+https://github.com/RWTH-EBC/TEASER.git@simplified_transfer_and_ahu",
     "BuildingsPy@git+https://github.com/DaJansenGit/BuildingsPy.git",
 ]
 PluginEnergyPlus = [
