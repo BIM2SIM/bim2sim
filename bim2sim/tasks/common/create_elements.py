@@ -191,9 +191,10 @@ class CreateElementsOnIfcTypes(ITask):
         if not elements:
             self.logger.error("No bim2sim elements could be created based on "
                               "the IFC files.")
-            raise AssertionError("No bim2sim elements could be created, program"
-                                 "will be terminated as no further process is "
-                                 "possible.")
+            raise AssertionError(
+                "No bim2sim elements could be created, program"
+                "will be terminated as no further process is "
+                "possible.")
         self.logger.info(f"Created {len(elements)} bim2sim elements in "
                          f"total for all IFC files.")
         # sort elements for easier handling
@@ -202,7 +203,8 @@ class CreateElementsOnIfcTypes(ITask):
         _initial_elements = copy.copy(elements)
         return elements, _initial_elements, ifc_files
 
-    def create_with_validation(self, entities_dict: dict, warn=True, force=False) -> \
+    def create_with_validation(self, entities_dict: dict, warn=True,
+                               force=False) -> \
             Tuple[List[ProductBased], List[Any]]:
         """Instantiate ifc_entities using given element class.
 
@@ -262,7 +264,8 @@ class CreateElementsOnIfcTypes(ITask):
                 if (self.playground.sim_settings.layers_and_materials
                         is not LOD.low):
                     raise NotImplementedError(
-                        "Only layers_and_materials using LOD.low is currently supported.")
+                        "Only layers_and_materials using LOD.low is "
+                        "currently supported.")
                     self.create_layers_and_materials(element)
                     valid += (
                             self.layersets_all
@@ -321,7 +324,7 @@ class CreateElementsOnIfcTypes(ITask):
                     # Constituent sets
                     if ifc_mat_rel_object.is_a(
                             'IfcMaterialConstituentSet'):
-                        ifc_material_constituents =\
+                        ifc_material_constituents = \
                             ifc_mat_rel_object.MaterialConstituents
                         self.create_constituent(
                             element, ifc_material_constituents, quality_logger)
@@ -345,11 +348,13 @@ class CreateElementsOnIfcTypes(ITask):
                             'IfcMaterialProfile'):
                         pass
 
-    def create_layersets(self, element: Element, ifc_layerset_entity: entity_instance):
+    def create_layersets(self, element: Element,
+                         ifc_layerset_entity: entity_instance):
         """Instantiate the layerset and its layers and materials and link to
          element.
 
-        Layersets in IFC are used to describe the layer structure of e.g. walls.
+        Layersets in IFC are used to describe the layer structure of e.g.
+        walls.
 
         Args:
             element: bim2sim element
@@ -382,7 +387,9 @@ class CreateElementsOnIfcTypes(ITask):
         layerset.parents.append(element)
 
     def create_constituent(
-            self, element: Element, ifc_material_constituents: entity_instance, quality_logger: Element): # Error durch mypy: Element has no attribute Layerset
+            self, element: Element, ifc_material_constituents: entity_instance,
+            quality_logger: Element):  # Error durch mypy: Element has no
+        # attribute Layerset
         """Instantiate the constituent set  and its  materials and link to
          element.
 
@@ -546,7 +553,8 @@ class CreateElementsOnIfcTypes(ITask):
 
             IFC elements are often not correctly specified, or have uncertain
             specifications like "USERDEFINED" as predefined type. For some IFC
-            files this would lead to a very high amount of decisions to identify
+            files this would lead to a very high amount of decisions to
+            identify
             elements. To reduce those decisions, this function groups similar
             elements based on:
                 - same name (exact)
@@ -554,7 +562,8 @@ class CreateElementsOnIfcTypes(ITask):
 
             Args:
                 search_type: str which is either 'fuzzy' or 'name'
-                fuzzy_threshold: float that sets the threshold for fuzzy search.
+                fuzzy_threshold: float that sets the threshold for fuzzy
+                search.
                     A low threshold means a small similarity is required for
                     grouping
 
@@ -601,14 +610,16 @@ class CreateElementsOnIfcTypes(ITask):
                     representatives[entity_type] = stable_grouped
 
                     self.logger.info(
-                        f"Grouping the unidentified elements with fuzzy search "
+                        f"Grouping the unidentified elements with fuzzy "
+                        f"search "
                         f"based on their Name (Threshold = {fuzzy_threshold})"
                         f" reduced the number of unknown "
                         f"entities from {len(entities_by_type[entity_type])} "
                         f"elements of IFC type {entity_type} "
                         f"to {len(representatives[entity_type])} elements.")
 
-                # just group based on exact same string in "Name" of IFC element
+                # just group based on exact same string in "Name" of IFC
+                # element
                 elif search_type == 'name':
                     # Use OrderedDict for stable iteration
                     name_groups = collections.defaultdict(list)
@@ -620,7 +631,8 @@ class CreateElementsOnIfcTypes(ITask):
                     # Create the stable representatives dictionary
                     stable_grouped = collections.OrderedDict()
                     for name, group in sorted(name_groups.items()):
-                        # Sort the group by GlobalId and choose the first element as representative
+                        # Sort the group by GlobalId and choose the first
+                        # element as representative
                         sorted_group = sorted(group, key=lambda e: e.GlobalId)
                         stable_grouped[sorted_group[0]] = sorted_group
 
@@ -638,22 +650,34 @@ class CreateElementsOnIfcTypes(ITask):
 
                     # Group by name AND description, but keep the sorting
                     for entity in entities:
-                        # Create a composite key combining Name and Description
-                        composite_key = (entity.Name, entity.Description)
+                        # Create a composite key combining Name and
+                        # Description, handling None values
+                        name = entity.Name if (
+                                hasattr(entity, "Name") and
+                                entity.Name is not None) else ""
+                        desc = entity.Description if (
+                                hasattr(entity, "Description") and
+                                entity.Description is not None) else ""
+                        composite_key = (name, desc)
                         name_desc_groups[composite_key].append(entity)
 
                     # Create the stable representatives dictionary
                     stable_grouped = collections.OrderedDict()
-                    for (name, desc), group in sorted(
+
+                    # Sort by composite key, handling None values by
+                    # converting them to empty strings
+                    for composite_key, group in sorted(
                             name_desc_groups.items()):
-                        # Sort the group by GlobalId and choose the first element as representative
+                        # Sort the group by GlobalId and choose the first
+                        # element as representative
                         sorted_group = sorted(group, key=lambda e: e.GlobalId)
                         stable_grouped[sorted_group[0]] = sorted_group
 
                     representatives[entity_type] = stable_grouped
 
                     self.logger.info(
-                        f"Grouping the unidentified elements by their Name and Description "
+                        f"Grouping the unidentified elements by their Name "
+                        f"and Description "
                         f"reduced the number of unknown entities from"
                         f" {len(entities_by_type[entity_type])} "
                         f"elements of IFC type {entity_type} "
@@ -752,7 +776,8 @@ class CreateElementsOnIfcTypes(ITask):
                 decision_associations[ifc_entity] = (ifc_type, ifc_entity)
 
         self.logger.info(
-            f"Found {len(all_decisions)} unidentified Elements to check by user")
+            f"Found {len(all_decisions)} unidentified Elements to check by "
+            f"user")
 
         # Yield the single big bunch of decisions
         yield all_decisions
