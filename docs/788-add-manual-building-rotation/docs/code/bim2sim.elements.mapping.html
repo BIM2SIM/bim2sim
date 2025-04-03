@@ -1,0 +1,990 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bim2sim.elements.mapping package &mdash; bim2sim  0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bim2sim.examples package" href="bim2sim.examples.html" />
+    <link rel="prev" title="bim2sim.elements.graphs package" href="bim2sim.elements.graphs.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/b2s_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide.html">User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced-user-guide.html">Advanced User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer-guide.html">Developer-Guide</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">bim2sim</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="bim2sim.html">bim2sim package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#bim2sim.run_project"><code class="docutils literal notranslate"><span class="pre">run_project()</span></code></a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="bim2sim.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="bim2sim.elements.html">bim2sim.elements package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.examples.html">bim2sim.examples package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.export.html">bim2sim.export package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.kernel.html">bim2sim.kernel package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.html">bim2sim.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.html">bim2sim.tasks package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.utilities.html">bim2sim.utilities package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#module-bim2sim.project">bim2sim.project module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#module-bim2sim.sim_settings">bim2sim.sim_settings module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">bim2sim </a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">bim2sim</a></li>
+          <li class="breadcrumb-item"><a href="bim2sim.html">bim2sim package</a></li>
+          <li class="breadcrumb-item"><a href="bim2sim.elements.html">bim2sim.elements package</a></li>
+      <li class="breadcrumb-item active">bim2sim.elements.mapping package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/code/bim2sim.elements.mapping.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-bim2sim.elements.mapping">
+<span id="bim2sim-elements-mapping-package"></span><h1>bim2sim.elements.mapping package<a class="headerlink" href="#module-bim2sim.elements.mapping" title="Permalink to this heading"></a></h1>
+<p>Package contains all functionality to gather all information from the IFC</p>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-bim2sim.elements.mapping.attribute">
+<span id="bim2sim-elements-mapping-attribute-module"></span><h2>bim2sim.elements.mapping.attribute module<a class="headerlink" href="#module-bim2sim.elements.mapping.attribute" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.attribute.</span></span><span class="sig-name descname"><span class="pre">Attribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">description:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">unit:</span> <span class="pre">~pint.registry.Unit</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">ifc_attr_name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">default_ps:</span> <span class="pre">~typing.Tuple[str,</span> <span class="pre">str]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">default_association:</span> <span class="pre">~typing.Tuple[str,</span> <span class="pre">str]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">patterns:</span> <span class="pre">~typing.Iterable</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">ifc_postprocessing:</span> <span class="pre">~typing.Callable[[~typing.Any],</span> <span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">functions:</span> <span class="pre">~typing.Iterable[~typing.Callable[[object,</span> <span class="pre">str],</span> <span class="pre">~typing.Any]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">default=None,</span> <span class="pre">dependant_elements:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">attr_type:</span> <span class="pre">type</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'float'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.
+Possible statuses are:</p>
+<blockquote>
+<div><p>UNKNOWN: default status at the beginning.
+REQUESTED: Attribute was already requested via a decision??.
+AVAILABLE: Attribute exists and is available.
+NOT_AVAILABLE: No way was found to obtain the attributes value.
+RESET: The Attribute was reset.</p>
+</div></blockquote>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.STATUS_AVAILABLE">
+<span class="sig-name descname"><span class="pre">STATUS_AVAILABLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'AVAILABLE'</span></em><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.STATUS_AVAILABLE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.STATUS_NOT_AVAILABLE">
+<span class="sig-name descname"><span class="pre">STATUS_NOT_AVAILABLE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'NOT_AVAILABLE'</span></em><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.STATUS_NOT_AVAILABLE" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.STATUS_REQUESTED">
+<span class="sig-name descname"><span class="pre">STATUS_REQUESTED</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'REQUESTED'</span></em><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.STATUS_REQUESTED" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.STATUS_RESET">
+<span class="sig-name descname"><span class="pre">STATUS_RESET</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RESET'</span></em><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.STATUS_RESET" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.STATUS_UNKNOWN">
+<span class="sig-name descname"><span class="pre">STATUS_UNKNOWN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'UNKNOWN'</span></em><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.STATUS_UNKNOWN" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.check_conditions">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.check_conditions" title="Permalink to this definition"></a></dt>
+<dd><p>Check conditions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.create_decision">
+<span class="sig-name descname"><span class="pre">create_decision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.create_decision" title="Permalink to this definition"></a></dt>
+<dd><p>Created Decision for this Attribute</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.dependant_elements_decision">
+<span class="sig-name descname"><span class="pre">dependant_elements_decision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.dependant_elements_decision" title="Permalink to this definition"></a></dt>
+<dd><p>Function to request attributes in other elements different to bind,
+that are later on necessary to calculate an attribute in bind (case of
+aggregation)</p>
+<p>Returns:
+_decision: key: is the instance, value: is another dict composed of the</p>
+<blockquote>
+<div><p>attr name and the corresponding decision or function to
+calculate said attribute</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.get_conditions">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_conditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.get_conditions" title="Permalink to this definition"></a></dt>
+<dd><p>Get conditions for attribute</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.get_dependency_decisions">
+<span class="sig-name descname"><span class="pre">get_dependency_decisions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_decision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.get_dependency_decisions" title="Permalink to this definition"></a></dt>
+<dd><p>Get dependency decisions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.get_from_default_propertyset">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_from_default_propertyset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.get_from_default_propertyset" title="Permalink to this definition"></a></dt>
+<dd><p>Get value from default property set</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.get_from_finder">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_from_finder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.get_from_finder" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.get_from_functions">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_from_functions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">functions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.get_from_functions" title="Permalink to this definition"></a></dt>
+<dd><p>Get value from functions.</p>
+<p>First successful function calls return value is used. As we want to
+allow to overwrite functions in inherited classes, we use
+getattr(bind, func.__name__) to get the function from the bind.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>bind: the bind object
+functions: a list of functions
+name: the name of the attribute</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.get_from_patterns">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_from_patterns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patterns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.get_from_patterns" title="Permalink to this definition"></a></dt>
+<dd><p>Get value from non default property sets matching patterns</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.ifc_post_processing">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ifc_post_processing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.ifc_post_processing" title="Permalink to this definition"></a></dt>
+<dd><p>Function for post processing of ifc property values (e.g. diameter
+list -&gt; diameter)by default this function does nothing</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">manager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.initialize" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.post_process_value">
+<span class="sig-name descname"><span class="pre">post_process_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">raw_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.post_process_value" title="Permalink to this definition"></a></dt>
+<dd><p>Post-process the raw_value.</p>
+<p>If attribute is given an external ifc_postprocessing entry, this
+function will be used. Otherwise, the pre implemented
+ifc_post_processing of the attribute class will be used.
+If an external ifc_postprocessing is give, this is checked for being
+static or not, because if not static, the bind needs to be forwarded to
+the method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.request">
+<span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_decision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.request" title="Permalink to this definition"></a></dt>
+<dd><p>Request attribute via decision.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>bind: bound instance of attribute
+external_decision: Decision to use instead of default decision</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">AttributeDataSource.manual_overwrite</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.reset" title="Permalink to this definition"></a></dt>
+<dd><p>Reset attribute, set to None and STATUS_NOT_AVAILABLE.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.Attribute.to_aggregation">
+<span class="sig-name descname"><span class="pre">to_aggregation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute.to_aggregation" title="Permalink to this definition"></a></dt>
+<dd><p>Create new Attribute suited for aggregation.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.AttributeManager">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.attribute.</span></span><span class="sig-name descname"><span class="pre">AttributeManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bind</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.AttributeManager" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+<p>Manages the attributes.</p>
+<p>Every bim2sim element owns an instance of the AttributeManager class which
+manages the corresponding attributes of this element. It as an dict with</p>
+<blockquote>
+<div><p>key: name of attribute as string
+value: tuple with (value of attribute, Status of attribute).</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.AttributeManager.get_attribute">
+<span class="sig-name descname"><span class="pre">get_attribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.AttributeManager.get_attribute" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.AttributeManager.get_decisions">
+<span class="sig-name descname"><span class="pre">get_decisions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="bim2sim.kernel.decision.html#bim2sim.kernel.decision.DecisionBunch" title="bim2sim.kernel.decision.DecisionBunch"><span class="pre">DecisionBunch</span></a></span></span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.AttributeManager.get_decisions" title="Permalink to this definition"></a></dt>
+<dd><p>Return all decision of attributes with status REQUESTED.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.AttributeManager.get_unit">
+<span class="sig-name descname"><span class="pre">get_unit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.AttributeManager.get_unit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.AttributeManager.names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">names</span></span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.AttributeManager.names" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a generator object with all attributes that the corresponding
+bind owns.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.AttributeManager.request">
+<span class="sig-name descname"><span class="pre">request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">external_decision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.kernel.decision.html#bim2sim.kernel.decision.Decision" title="bim2sim.kernel.decision.Decision"><span class="pre">Decision</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.kernel.decision.html#bim2sim.kernel.decision.Decision" title="bim2sim.kernel.decision.Decision"><span class="pre">Decision</span></a></span></span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.AttributeManager.request" title="Permalink to this definition"></a></dt>
+<dd><p>Request attribute by name.</p>
+<p>Checks the status of the requested attribute and returns</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>name: name of requested attribute
+external_decision: custom decision to get attribute from</p>
+</dd>
+<dt>Returns:</dt><dd><p>A Decision to get the requested attributes value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.AttributeManager.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">AttributeDataSource.manual_overwrite</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.AttributeManager.reset" title="Permalink to this definition"></a></dt>
+<dd><p>Reset attribute, set to None and STATUS_NOT_AVAILABLE.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.AttributeManager.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param"><span class="n"><span class="pre">E</span></span></em>, <span class="optional">]</span><em class="sig-param"><span class="n"><span class="pre">**F</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None.</span>&#160; <span class="pre">Update</span> <span class="pre">D</span> <span class="pre">from</span> <span class="pre">dict/iterable</span> <span class="pre">E</span> <span class="pre">and</span> <span class="pre">F.</span></span></span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.AttributeManager.update" title="Permalink to this definition"></a></dt>
+<dd><p>If E is present and has a .keys() method, then does:  for k in E: D[k] = E[k]
+If E is present and lacks a .keys() method, then does:  for k, v in E: D[k] = v
+In either case, this is followed by: for k in F:  D[k] = F[k]</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.AutoAttributeNameMeta">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.attribute.</span></span><span class="sig-name descname"><span class="pre">AutoAttributeNameMeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.AutoAttributeNameMeta" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code></p>
+<p>Detect setting on Attributes on class level and set name as given</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.attribute.multi_calc">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.attribute.</span></span><span class="sig-name descname"><span class="pre">multi_calc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.multi_calc" title="Permalink to this definition"></a></dt>
+<dd><p>Decorator for calculation of multiple Attribute values.</p>
+<p>Decorator functools.wraps is needed to return the real function name
+for get_from_functions method.</p>
+</dd></dl>
+
+</section>
+<section id="module-bim2sim.elements.mapping.condition">
+<span id="bim2sim-elements-mapping-condition-module"></span><h2>bim2sim.elements.mapping.condition module<a class="headerlink" href="#module-bim2sim.elements.mapping.condition" title="Permalink to this heading"></a></h2>
+<p>Module for validating an element by a condition</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.condition.Condition">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.condition.</span></span><span class="sig-name descname"><span class="pre">Condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">critical_for_creation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.condition.Condition" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for validating an element by a condition</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.condition.Condition.check">
+<span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.condition.Condition.check" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.condition.Condition.logger">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#bim2sim.elements.mapping.condition.Condition.logger" title="Permalink to this definition"></a></dt>
+<dd><p>logger instance</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.condition.ListCondition">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.condition.</span></span><span class="sig-name descname"><span class="pre">ListCondition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">critical_for_creation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.condition.ListCondition" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.mapping.condition.Condition" title="bim2sim.elements.mapping.condition.Condition"><code class="xref py py-class docutils literal notranslate"><span class="pre">Condition</span></code></a></p>
+<p>Validate if a list has elements, or a specific number of elements</p>
+<dl>
+<dt>Args:</dt><dd><p>key: attribute of the element to validate
+values: list of allowed values
+critical_for_creation: if True, the element will not be created if the</p>
+<blockquote>
+<div><p>validation fails</p>
+</div></blockquote>
+</dd>
+<dt>Return:</dt><dd><p>True if valid, False if not valid</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.condition.ListCondition.check">
+<span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.condition.ListCondition.check" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.condition.RangeCondition">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.condition.</span></span><span class="sig-name descname"><span class="pre">RangeCondition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incl_edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">critical_for_creation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.condition.RangeCondition" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.mapping.condition.Condition" title="bim2sim.elements.mapping.condition.Condition"><code class="xref py py-class docutils literal notranslate"><span class="pre">Condition</span></code></a></p>
+<p>“Validate through a simple ValueRange</p>
+<dl>
+<dt>Args:</dt><dd><p>key: attribute of the element to validate
+value_min: minimum allowed value
+value_max: maximum allowed value
+incl_edges: if True, the value_min and value_max are valid as well
+critical_for_creation: if True, the element will not be created if the</p>
+<blockquote>
+<div><p>validation fails</p>
+</div></blockquote>
+</dd>
+<dt>Return:</dt><dd><p>True if valid, False if not valid</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.condition.RangeCondition.check">
+<span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.condition.RangeCondition.check" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.condition.ThicknessCondition">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.condition.</span></span><span class="sig-name descname"><span class="pre">ThicknessCondition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Quantity</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">critical_for_creation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.condition.ThicknessCondition" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.mapping.condition.Condition" title="bim2sim.elements.mapping.condition.Condition"><code class="xref py py-class docutils literal notranslate"><span class="pre">Condition</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.condition.ThicknessCondition.check">
+<span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.condition.ThicknessCondition.check" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.condition.UValueCondition">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.condition.</span></span><span class="sig-name descname"><span class="pre">UValueCondition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Quantity</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">critical_for_creation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.condition.UValueCondition" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.mapping.condition.Condition" title="bim2sim.elements.mapping.condition.Condition"><code class="xref py py-class docutils literal notranslate"><span class="pre">Condition</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.condition.UValueCondition.check">
+<span class="sig-name descname"><span class="pre">check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.condition.UValueCondition.check" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.condition.UValueCondition.get_u_value_from_layers">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_u_value_from_layers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.condition.UValueCondition.get_u_value_from_layers" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bim2sim.elements.mapping.filter">
+<span id="bim2sim-elements-mapping-filter-module"></span><h2>bim2sim.elements.mapping.filter module<a class="headerlink" href="#module-bim2sim.elements.mapping.filter" title="Permalink to this heading"></a></h2>
+<p>Module containing filters to identify IFC elements of interest</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.Filter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.filter.</span></span><span class="sig-name descname"><span class="pre">Filter</span></span><a class="headerlink" href="#bim2sim.elements.mapping.filter.Filter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base filter</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.Filter.matches">
+<span class="sig-name descname"><span class="pre">matches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcelement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.Filter.matches" title="Permalink to this definition"></a></dt>
+<dd><p>Check if element matches filter conditions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.Filter.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.Filter.run" title="Permalink to this definition"></a></dt>
+<dd><p>Apply the Filter on IFC File</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.GeometricFilter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.filter.</span></span><span class="sig-name descname"><span class="pre">GeometricFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.GeometricFilter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.mapping.filter.Filter" title="bim2sim.elements.mapping.filter.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></a></p>
+<p>Filter based on geometric position</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.GeometricFilter.matches">
+<span class="sig-name descname"><span class="pre">matches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcelement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.GeometricFilter.matches" title="Permalink to this definition"></a></dt>
+<dd><p>Check if element matches filter conditions</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.TextFilter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.filter.</span></span><span class="sig-name descname"><span class="pre">TextFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements_classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.ProductBased" title="bim2sim.elements.base_elements.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optional_locations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.TextFilter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.mapping.filter.Filter" title="bim2sim.elements.mapping.filter.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></a></p>
+<p>Filter for unknown properties by text fracments</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.TextFilter.matches">
+<span class="sig-name descname"><span class="pre">matches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcelement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.TextFilter.matches" title="Permalink to this definition"></a></dt>
+<dd><p>Check if element matches filter conditions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.TextFilter.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_entities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.TextFilter.run" title="Permalink to this definition"></a></dt>
+<dd><p>Apply the Filter on IFC File</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.TypeFilter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.filter.</span></span><span class="sig-name descname"><span class="pre">TypeFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_types</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.TypeFilter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.mapping.filter.Filter" title="bim2sim.elements.mapping.filter.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></a></p>
+<p>Filter for subsets of IFC types</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.TypeFilter.matches">
+<span class="sig-name descname"><span class="pre">matches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcelement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.TypeFilter.matches" title="Permalink to this definition"></a></dt>
+<dd><p>Check if element matches filter conditions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.TypeFilter.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.ProductBased" title="bim2sim.elements.base_elements.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.elements.mapping.filter.TypeFilter.run" title="Permalink to this definition"></a></dt>
+<dd><p>Scan ifc by ifc_types.</p>
+<p>:returns dict of ifc_types and suggested entities, list of unknown entities</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.ZoneFilter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.filter.</span></span><span class="sig-name descname"><span class="pre">ZoneFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zone</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.ZoneFilter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.mapping.filter.GeometricFilter" title="bim2sim.elements.mapping.filter.GeometricFilter"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeometricFilter</span></code></a></p>
+<p>Filter elements within given zone</p>
+</dd></dl>
+
+</section>
+<section id="module-bim2sim.elements.mapping.finder">
+<span id="bim2sim-elements-mapping-finder-module"></span><h2>bim2sim.elements.mapping.finder module<a class="headerlink" href="#module-bim2sim.elements.mapping.finder" title="Permalink to this heading"></a></h2>
+<p>Finders are used to get properties from ifc which do not meet IFC standards.</p>
+<p>Currently, we implemented only one Finder, the TemplateFinder.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.finder.Finder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.finder.</span></span><span class="sig-name descname"><span class="pre">Finder</span></span><a class="headerlink" href="#bim2sim.elements.mapping.finder.Finder" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.finder.Finder.find">
+<span class="sig-name descname"><span class="pre">find</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">property_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.finder.Finder.find" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.finder.Finder.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.finder.Finder.reset" title="Permalink to this definition"></a></dt>
+<dd><p>Reset finder instance</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.finder.SourceTool">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.finder.</span></span><span class="sig-name descname"><span class="pre">SourceTool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app_ifc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">entity_instance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.finder.SourceTool" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.finder.TemplateFinder">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.finder.</span></span><span class="sig-name descname"><span class="pre">TemplateFinder</span></span><a class="headerlink" href="#bim2sim.elements.mapping.finder.TemplateFinder" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.mapping.finder.Finder" title="bim2sim.elements.mapping.finder.Finder"><code class="xref py py-class docutils literal notranslate"><span class="pre">Finder</span></code></a></p>
+<p>TemplateFinder works like a multi key dictionary.</p>
+<p>The TemplateFinder allows to find information (properties) which are stored
+in the IFC file but not on the position the IFC schema specifies. To find
+these information we implemented templates in form of .json files for the
+most relevant IFC exporter tools. These templates hold the information where
+to look in the IFC. E.g. Revit stores length of IfcPipeSegment in
+PropertySet ‘Abmessungen’ with name ‘Länge’.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.finder.TemplateFinder.disable">
+<span class="sig-name descname"><span class="pre">disable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.finder.TemplateFinder.disable" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.finder.TemplateFinder.find">
+<span class="sig-name descname"><span class="pre">find</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.IFCBased" title="bim2sim.elements.base_elements.IFCBased"><span class="pre">IFCBased</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">property_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.finder.TemplateFinder.find" title="Permalink to this definition"></a></dt>
+<dd><p>Tries to find the required property.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>element: IFCBased bim2sim element
+property_name: str with name of the property</p>
+</dd>
+<dt>Returns:</dt><dd><p>value of property or None if propertyset or property is not
+available.</p>
+</dd>
+<dt>Raises:</dt><dd><p>AttributeError if TemplateFinder does not know about given input</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.finder.TemplateFinder.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.finder.TemplateFinder.initialize" title="Permalink to this definition"></a></dt>
+<dd><p>Find fitting templates for given IFC and set default source tool.</p>
+<p>Checks the IfcApplications in the IFC File against the existing
+templates of the finder. If multiple IfcApplications with existing
+templates are found a decision is triggered which template should be
+used by default for template lookup to reduce number of decisions
+during process.
+This must be called from inside a tasks because it holds decisions.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>ifc: ifcopenshell instance of ifc file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.finder.TemplateFinder.load">
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.finder.TemplateFinder.load" title="Permalink to this definition"></a></dt>
+<dd><p>Loads jsontemplates from given path.</p>
+<p>Each <a href="#id1"><span class="problematic" id="id2">*</span></a>.json file is loaded into the templates dictionary with tool
+name as key and converted json dictionary as value.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>path: str or Path where the templates are stored.</p>
+</dd>
+<dt>Raises:</dt><dd><p>ValueError: if an invalid json is loaded.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.finder.TemplateFinder.prefix">
+<span class="sig-name descname"><span class="pre">prefix</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'template_'</span></em><a class="headerlink" href="#bim2sim.elements.mapping.finder.TemplateFinder.prefix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.finder.TemplateFinder.remove_duplicate_source_tools">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remove_duplicate_source_tools</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_tools</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#bim2sim.elements.mapping.finder.TemplateFinder.remove_duplicate_source_tools" title="Permalink to this definition"></a></dt>
+<dd><p>Removes duplicates from source_tools list.</p>
+<p>Filters a list of SourceTool objects to retain only those with unique
+combinations of ‘version’, ‘full_name’, and ‘ident’ attributes.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>source_tools (list): A list of SourceTool objects to be filtered.</p>
+</dd>
+<dt>Returns:</dt><dd><p>list: A new list containing SourceTool objects with unique
+combinations of ‘version’, ‘full_name’, and ‘ident’.</p>
+</dd>
+<dt>Example:</dt><dd><p>Assuming source_tools is a list of SourceTool objects,
+filtered_tools = filter_source_tools(source_tools)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.finder.TemplateFinder.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.finder.TemplateFinder.reset" title="Permalink to this definition"></a></dt>
+<dd><p>Reset finder instance</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.finder.TemplateFinder.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.finder.TemplateFinder.save" title="Permalink to this definition"></a></dt>
+<dd><p>Save templates to path, one file for each tool in templates.</p>
+<p>Allows to save the created templates to path.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>path: str or Path where the templates are stored.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.finder.TemplateFinder.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">property_set_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">property_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.finder.TemplateFinder.set" title="Permalink to this definition"></a></dt>
+<dd><p>Internally saves property_set_name as property_name.</p>
+<p>This deals as a lookup source  for tool, element and parameter</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bim2sim.elements.mapping.ifc2python">
+<span id="bim2sim-elements-mapping-ifc2python-module"></span><h2>bim2sim.elements.mapping.ifc2python module<a class="headerlink" href="#module-bim2sim.elements.mapping.ifc2python" title="Permalink to this heading"></a></h2>
+<p>Module to convert ifc data from to python data</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.BoundedValue">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">BoundedValue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_val</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.BoundedValue" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.checkIfcElementType">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">checkIfcElementType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcElement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifcType</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.checkIfcElementType" title="Permalink to this definition"></a></dt>
+<dd><p>Checks for matching IFC element types.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.convertToSI">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">convertToSI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcUnit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.convertToSI" title="Permalink to this definition"></a></dt>
+<dd><p>Return the value in basic SI units, conversion according to ifcUnit.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.getBuilding">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">getBuilding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcElement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.getBuilding" title="Permalink to this definition"></a></dt>
+<dd><p>Find the building for this element.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.getElementByGUID">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">getElementByGUID</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.getElementByGUID" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.getElementType">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">getElementType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcElement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.getElementType" title="Permalink to this definition"></a></dt>
+<dd><p>Return the ifctype of the IFC element</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.getHierarchicalChildren">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">getHierarchicalChildren</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcElement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.getHierarchicalChildren" title="Permalink to this definition"></a></dt>
+<dd><p>Fetch the child elements from the first structural aggregation.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.getHierarchicalParent">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">getHierarchicalParent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcElement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.getHierarchicalParent" title="Permalink to this definition"></a></dt>
+<dd><p>Fetch the first structural parent element.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.getIfcAttribute">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">getIfcAttribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcElement</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attribute</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.getIfcAttribute" title="Permalink to this definition"></a></dt>
+<dd><p>Fetches non-empty attributes (if they exist).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.getProject">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">getProject</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcElement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.getProject" title="Permalink to this definition"></a></dt>
+<dd><p>Find the project/root for this element.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.getSite">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">getSite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcElement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.getSite" title="Permalink to this definition"></a></dt>
+<dd><p>Find the building site for this element.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.getSpace">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">getSpace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcElement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.getSpace" title="Permalink to this definition"></a></dt>
+<dd><p>Find the space for this element.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.getSpatialChildren">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">getSpatialChildren</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcElement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.getSpatialChildren" title="Permalink to this definition"></a></dt>
+<dd><p>Fetch the child elements from the first spatial structure.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.getSpatialParent">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">getSpatialParent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcElement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.getSpatialParent" title="Permalink to this definition"></a></dt>
+<dd><p>Fetch the first spatial parent element.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.getStorey">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">getStorey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcElement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.getStorey" title="Permalink to this definition"></a></dt>
+<dd><p>Find the building storey for this element.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.get_guid">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">get_guid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcElement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.get_guid" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the global id of the IFC element</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.get_layers_ifc">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">get_layers_ifc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">entity_instance</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.ProductBased" title="bim2sim.elements.base_elements.ProductBased"><span class="pre">ProductBased</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.get_layers_ifc" title="Permalink to this definition"></a></dt>
+<dd><p>Returns layers information of an element as list. It can be applied to
+an IFCProduct directly or a Bim2Sim Instance. This only used to pre instance
+creation check of IFC file now.
+Args:</p>
+<blockquote>
+<div><p>element: ifcopenshell instance or bim2sim Instance</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>layers_list: list of all organized layers with all material information</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.get_ports">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">get_ports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">entity_instance</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.get_ports" title="Permalink to this definition"></a></dt>
+<dd><p>Get all ports for new and old IFC definition of ports.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>element: ifcopenshell element to check for ports</p>
+</dd>
+<dt>Returns:</dt><dd><p>ports: list of all ports connected to the element</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.get_ports_connections">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">get_ports_connections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">entity_instance</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.get_ports_connections" title="Permalink to this definition"></a></dt>
+<dd><p>Get all connected ports to a given port.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>element_port: ifcopenshell port element to check for connections</p>
+</dd>
+<dt>Returns:</dt><dd><p>connected_ports: list of all ports connected to given element_port</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.get_ports_parent">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">get_ports_parent</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">entity_instance</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.get_ports_parent" title="Permalink to this definition"></a></dt>
+<dd><p>Get the parent of given port for new and old Ifc definitions of ports.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>element: ifcopenshell port element which parents are searched</p>
+</dd>
+<dt>Returns:</dt><dd><p>parents: list of ifcopenshell elements that are parent of the port</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.get_predefined_type">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">get_predefined_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcElement</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.get_predefined_type" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the predefined type of the IFC element</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.get_property_set_by_name">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">get_property_set_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property_set_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">entity_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.get_property_set_by_name" title="Permalink to this definition"></a></dt>
+<dd><p>Try to find a IfcPropertySet for a given ifc instance by it’s name.</p>
+<p>This function searches an elements PropertySets for the defined
+PropertySetName. If the PropertySet is found the function will return a
+dict with the properties and their values. If the PropertySet is not
+found the function will return None</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>property_set_name: Name of the PropertySet you are looking for
+element: ifcopenshell element to search for PropertySet
+ifc_units: dict with key ifc unit definition and value pint unit</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>property_set: dict with key name of the property/quantity and value</dt><dd><p>the property/quantity value as pint quantity if available if found</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.get_property_sets">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">get_property_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">entity_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.get_property_sets" title="Permalink to this definition"></a></dt>
+<dd><p>Returns all PropertySets of element</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>element: The element in which you want to search for the PropertySets
+ifc_units: dict holding all unit definitions from ifc_units</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>dict of dicts for each PropertySet. Each dict with key property name</dt><dd><p>and value its value</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.get_quantity_sets">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">get_quantity_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_units</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.get_quantity_sets" title="Permalink to this definition"></a></dt>
+<dd><p>Returns all QuantitySets of element</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.get_true_north">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">get_true_north</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcElement</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">entity_instance</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.get_true_north" title="Permalink to this definition"></a></dt>
+<dd><p>Find the true north in degree of this element, 0 °C means positive
+Y-axis. 45 °C Degree means middle between X- and Y-Axis</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.get_type_property_sets">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">get_type_property_sets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_units</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.get_type_property_sets" title="Permalink to this definition"></a></dt>
+<dd><p>Returns all PropertySets of element’s types</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>element</strong> – The element in which you want to search for the PropertySets</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict(of dicts)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.load_ifc">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">load_ifc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">file</span></span></span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.load_ifc" title="Permalink to this definition"></a></dt>
+<dd><p>loads the ifc file using ifcopenshell and returns the ifcopenshell
+instance</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>path: Path to ifc file location</p>
+</dd>
+<dt>Returns:</dt><dd><p>ifc_file: ifcopenshell file object</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.property_set2dict">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">property_set2dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">entity_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.property_set2dict" title="Permalink to this definition"></a></dt>
+<dd><p>Converts IfcPropertySet and IfcQuantitySet to python dict</p>
+<dl class="simple">
+<dt>Takes all IfcPropertySet and IfcQuantitySet properties and quantities of the</dt><dd><p>given IfcPropertySet or IfcQuantitySet and converts them into a dictionary.</p>
+</dd>
+</dl>
+<p>Also takes care of setting the correct unit to every property/quantity by
+using the units defined in the IFC.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>property_set: IfcPropertySet entity from ifcopenshell
+ifc_units: dict with key ifc unit definition and value pint unit</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>property_dict: dict with key name of the property/quantity and value</dt><dd><p>the property/quantity value as pint quantity if available</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.reset_guids">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">reset_guids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_file</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">file</span></span></span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.reset_guids" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.summary">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcelement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.summary" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.used_properties">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">used_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.used_properties" title="Permalink to this definition"></a></dt>
+<dd><p>Filters given IFC for property_sets.</p>
+<p>Returns a dictionary with related ifc types as keys and lists of used
+propertysets as values</p>
+</dd></dl>
+
+</section>
+<section id="module-bim2sim.elements.mapping.units">
+<span id="bim2sim-elements-mapping-units-module"></span><h2>bim2sim.elements.mapping.units module<a class="headerlink" href="#module-bim2sim.elements.mapping.units" title="Permalink to this heading"></a></h2>
+<p>Module contains the unit registry for all params</p>
+<p>To handle different unit definitions in IFC files and get accurate values when
+exporting later to simulation models, we use pint to maintain and check correct
+unit definitions throughout the whole bim2sim chain. To get the correct units
+when loading the IFC we convert IFC units to pint units.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.units.parse_ifc">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.units.</span></span><span class="sig-name descname"><span class="pre">parse_ifc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unit_entity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.units.parse_ifc" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="bim2sim.elements.graphs.html" class="btn btn-neutral float-left" title="bim2sim.elements.graphs package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bim2sim.examples.html" class="btn btn-neutral float-right" title="bim2sim.examples package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, RWTH Aachen University, EBC &amp; E3D; ROM Technik GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
