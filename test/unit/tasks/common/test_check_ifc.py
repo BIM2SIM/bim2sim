@@ -79,7 +79,7 @@ class TestCheckIFC(unittest.TestCase):
         self.assertEqual(all_guids_checks_passed, False, "Should be false")
 
     def test_checkIFC_guid_unique_specifc_guid_return(self):
-        """test the guid return of the GUID uniqueness check
+        """test the guid return of a failed GUID uniqueness check
         """
         # TODO move test ifc file into resources and adapt path
         ifc_file_guid_error = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55_NoneAndDoubleGUID.ifc'
