@@ -32,3 +32,11 @@ bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.examples.e3\_load\_energypl
    :members:
    :undoc-members:
    :show-inheritance:
+
+bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.examples.e4\_simple\_rotated\_project\_energyplus module
+-------------------------------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e4_simple_rotated_project_energyplus
+   :members:
+   :undoc-members:
+   :show-inheritance:
