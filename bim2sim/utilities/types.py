@@ -111,3 +111,15 @@ class BoundaryOrientation(Enum):
     top = auto()
     bottom = auto()
     vertical = auto()
+
+
+class LCACalculationBuilding(Enum):
+    """
+    Enumeration for LCA calculation options for buildings
+
+    granular: Take into account all materials and match them to ÖKUBAUDAT
+    only_insulation: Just take into account insulation
+    vertical: Walls (normal perpendicular to vertical)
+    """
+    granular = auto()
+    only_insulation = auto()
