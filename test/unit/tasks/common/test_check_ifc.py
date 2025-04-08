@@ -70,8 +70,16 @@ class TestCheckIFC(unittest.TestCase):
         all_checks_passed = check_ifc_ids.run_ids_check_on_ifc(ifc_file, ids_file)
         self.assertEqual(all_checks_passed, True, "Should be true, fails because of issue in ifcTester, 2025-03-12")
 
+    def test_checkIFC_guid_unique_pass(self):
+        """test the boolean of the GUID uniqueness check, check pass
+        """
+        # TODO move test ifc file into resources and adapt path
+        ifc_file_guid_error = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc'
+        all_guids_checks_passed, non_unique_guids = check_ifc_ids.run_check_guid_unique(ifc_file_guid_error)
+        self.assertEqual(all_guids_checks_passed, True, "Should be True")
+
     def test_checkIFC_guid_unique_fail(self):
-        """test the boolean of the GUID uniqueness check
+        """test the boolean of the GUID uniqueness check, check fails
         """
         # TODO move test ifc file into resources and adapt path
         ifc_file_guid_error = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55_NoneAndDoubleGUID.ifc'
