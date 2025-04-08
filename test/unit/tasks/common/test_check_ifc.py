@@ -74,8 +74,8 @@ class TestCheckIFC(unittest.TestCase):
         """test the boolean of the GUID uniqueness check, check pass
         """
         # TODO move test ifc file into resources and adapt path
-        ifc_file_guid_error = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc'
-        all_guids_checks_passed, non_unique_guids = check_ifc_ids.run_check_guid_unique(ifc_file_guid_error)
+        ifc_file_guid_ok = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc'
+        all_guids_checks_passed, non_unique_guids = check_ifc_ids.run_check_guid_unique(ifc_file_guid_ok)
         self.assertEqual(all_guids_checks_passed, True, "Should be True")
 
     def test_checkIFC_guid_unique_fail(self):
@@ -96,3 +96,19 @@ class TestCheckIFC(unittest.TestCase):
 
         predicted_result = ['25OWQvmXj5BPgyergP43tY', '1Oms875aH3Wg$9l65H2ZGw']
         self.assertEqual(list_guids_non_unique, predicted_result, "Should be a list of 2 GUIDs")
+
+    def test_run_check_guid_empty_fail(self):
+        """test the boolean of all GUIDs has a value check, check fails
+        """
+        # TODO move test ifc file into resources and adapt path
+        ifc_file_guid_error = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55_NoneAndDoubleGUID.ifc'
+        all_guids_filled_passed, non_unique_guids = check_ifc_ids.run_check_guid_empty(ifc_file_guid_error)
+        self.assertEqual(all_guids_filled_passed, False, "Should be false")
+
+    def test_run_check_guid_empty_pass(self):
+        """test the boolean of all GUIDs has a value check, check pass
+        """
+        # TODO move test ifc file into resources and adapt path
+        ifc_file_guid_ok = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc'
+        all_guids_filled_passed, non_unique_guids = check_ifc_ids.run_check_guid_empty(ifc_file_guid_ok)
+        self.assertEqual(all_guids_filled_passed, True, "Should be true")
