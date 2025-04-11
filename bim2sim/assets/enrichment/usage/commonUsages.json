@@ -140,8 +140,7 @@
       "Parkgaragen"
    ],
    "Restaurant":[
-      "Restaurant",
-      "Dachboden"
+      "Restaurant"
    ],
    "Retail with cooling":[
       "Einzelhandel",
@@ -169,6 +168,7 @@
    ],
    "Stock, technical equipment, archives":[
       "Schacht",
+      "Dachboden",
       "Lager",
       "Ausstattung",
       "Archive",
