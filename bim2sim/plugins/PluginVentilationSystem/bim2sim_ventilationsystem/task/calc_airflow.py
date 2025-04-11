@@ -86,24 +86,27 @@ class CalcAirFlow(ITask):
         for tz in thermal_zones:
             persons_per_square_meter = tz.persons * ureg.person # persons/m² (data source is din 18599)
             area = tz.net_area  # Area of the room
-            persons_per_room = math.ceil(persons_per_square_meter * area.magnitude)  # number of people per room,
+            persons_per_room = math.ceil(persons_per_square_meter * area.magnitude) # number of people
+            # per room,
             # rounded up!
 
-            # if tz.usage == "WC and sanitary rooms in non-residential buildings":
-            #     tz.area_air_flow_factor = 11 * (ureg.meter**3)/(ureg.hour * ureg.meter**2)  # ASR A4.1 Page 5; 5.1. Allgemeines
-            #     tz.persons_air_flow_factor = 0
-            # else:
-            #     tz.area_air_flow_factor = 0.7 * (ureg.liter/(ureg.second * ureg.meter**2))  # from DIN EN 16798-1:2022-03 table B.7 , Kat II, Schadstoffarmes Gebäude
-            #     tz.persons_air_flow_factor = 7 * (ureg.liter/(ureg.second * ureg.person)) # from DIN EN 16798-1:2022-03 table B.6, Kat II
-            #
-            # area_airflow = area * tz.area_air_flow_factor
-            # person_airflow = persons_per_room * tz.persons_air_flow_factor
+            if tz.usage == "WC and sanitary rooms in non-residential buildings":
+                tz.area_air_flow_factor = 11 * (ureg.meter**3)/(ureg.hour * ureg.meter**2)  # ASR A4.1 Page 5; 5.1. Allgemeines
+                tz.persons_air_flow_factor = 0
+            else:
+                tz.area_air_flow_factor = 0.7 * (ureg.liter/(ureg.second * ureg.meter**2))  # from DIN EN 16798-1:2022-03 table B.7 , Kat II, Schadstoffarmes Gebäude
+                tz.persons_air_flow_factor = 7 * (ureg.liter/(ureg.second * ureg.person)) # from DIN EN 16798-1:2022-03 table B.6, Kat II
+
+            area_airflow = area * tz.area_air_flow_factor
+            person_airflow = persons_per_room * tz.persons_air_flow_factor
 
             if tz.ventilation_system:  # True
-                # tz.air_flow = person_airflow + area_airflow
-                tz.air_flow = tz.max_ahu.m * area
+                tz.air_flow = person_airflow + area_airflow
+                # TODO
+                # tz.air_flow = tz.max_ahu * area
+                # tz.air_flow = tz.air_flow.to(ureg.liter / ureg.second)
             elif not tz.ventilation_system:  # False
-                tz.air_flow = 0
+                tz.air_flow = 0 * ureg.liter / ureg.second
 
     def calc_air_flow_building(self, thermal_zones):
         """Function calculates the airflow of the complete building.
@@ -136,9 +139,9 @@ class CalcAirFlow(ITask):
             "Clear height of the room": [tz.height for tz in thermal_zones],
             "Room volume": [tz.net_volume for tz in thermal_zones],
             "Number of persons": [math.ceil(tz.persons * tz.net_area.magnitude) for tz in thermal_zones],
-            "Air volume factor person": [tz.persons_air_flow_factor for tz in thermal_zones],
+            # "Air volume factor person": [tz.persons_air_flow_factor for tz in thermal_zones],
             "Floor area of the room": [tz.net_area for tz in thermal_zones],
-            "Air volume factor Area": [tz.area_air_flow_factor for tz in thermal_zones],
+            # "Air volume factor Area": [tz.area_air_flow_factor for tz in thermal_zones],
             "Ventilation required:": [tz.ventilation_system for tz in thermal_zones],
             "Total air volume": [tz.air_flow for tz in thermal_zones]
         })

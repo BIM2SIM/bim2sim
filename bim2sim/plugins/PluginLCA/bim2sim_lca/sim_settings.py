@@ -16,6 +16,11 @@ class LCAExportSettings(BuildingSimSettings):
         description='Whether to update material emission parameter from Ökobaudat',
         for_frontend=True
     )
+    only_cradle_to_gate = BooleanSetting(
+        default=False,
+        description='Whether to calculate lca only between cradle and gate phase',
+        for_frontend=True
+    )
     calculate_lca_building = BooleanSetting(
         default=True,
         description='Whether to calculate lca of building or not',

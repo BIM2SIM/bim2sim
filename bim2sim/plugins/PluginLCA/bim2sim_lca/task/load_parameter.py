@@ -60,8 +60,7 @@ class LoadMaterialEmissionParameter(ITask):
                 material_emission_parameter_dict[material]["oekobaudat_uuid"] = oekobaudat_uuid
                 material_emission_parameter_dict[material]["oekobaudat_calculation_factor"] = oekobaudat_calculation_factor
                 for key, value in gwp_data.items():
-                    mapped_key = emission_mapping[key]
-                    material_emission_parameter_dict[material][mapped_key] = float(value)
+                    material_emission_parameter_dict[material][key] = float(value)
 
             with self.lock:
                 with open(material_emissions_file_path, 'w') as json_file:
@@ -72,8 +71,12 @@ class LoadMaterialEmissionParameter(ITask):
         for material in material_emission_parameter_dict.keys():
             emission_material = 0
             for key, value in material_emission_parameter_dict[material].items():
-                if key != "oekobaudat_uuid" and key != "oekobaudat_calculation_factor" and "Recycling" not in key:
-                    emission_material += value
+                if key != "oekobaudat_uuid" and key != "oekobaudat_calculation_factor" and "D" not in key:
+                    if self.playground.sim_settings.only_cradle_to_gate:
+                        if "A" in key:
+                            emission_material += value
+                    else:
+                        emission_material += value
             material_emission_dict[material] = emission_material * material_emission_parameter_dict[material]["oekobaudat_calculation_factor"]
 
         material_cost_dict = {}

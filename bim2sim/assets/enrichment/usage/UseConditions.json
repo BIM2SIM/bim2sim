@@ -6478,8 +6478,8 @@
       273.15,
       283.15
     ],
-    "min_ahu": 24.0,
-    "max_ahu": 48.0,
+    "min_ahu": 2.0,
+    "max_ahu": 4.0,
     "with_ahu": true,
     "with_ideal_thresholds": false,
     "heating_profile": [
