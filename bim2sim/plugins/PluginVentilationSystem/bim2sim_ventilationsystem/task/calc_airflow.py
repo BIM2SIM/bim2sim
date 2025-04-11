@@ -89,18 +89,19 @@ class CalcAirFlow(ITask):
             persons_per_room = math.ceil(persons_per_square_meter * area.magnitude)  # number of people per room,
             # rounded up!
 
-            if tz.usage == "WC and sanitary rooms in non-residential buildings":
-                tz.area_air_flow_factor = 11 * (ureg.meter**3)/(ureg.hour * ureg.meter**2)  # ASR A4.1 Page 5; 5.1. Allgemeines
-                tz.persons_air_flow_factor = 0
-            else:
-                tz.area_air_flow_factor = 0.7 * (ureg.liter/(ureg.second * ureg.meter**2))  # from DIN EN 16798-1:2022-03 table B.7 , Kat II, Schadstoffarmes Gebäude
-                tz.persons_air_flow_factor = 7 * (ureg.liter/(ureg.second * ureg.person)) # from DIN EN 16798-1:2022-03 table B.6, Kat II
-
-            area_airflow = area * tz.area_air_flow_factor
-            person_airflow = persons_per_room * tz.persons_air_flow_factor
+            # if tz.usage == "WC and sanitary rooms in non-residential buildings":
+            #     tz.area_air_flow_factor = 11 * (ureg.meter**3)/(ureg.hour * ureg.meter**2)  # ASR A4.1 Page 5; 5.1. Allgemeines
+            #     tz.persons_air_flow_factor = 0
+            # else:
+            #     tz.area_air_flow_factor = 0.7 * (ureg.liter/(ureg.second * ureg.meter**2))  # from DIN EN 16798-1:2022-03 table B.7 , Kat II, Schadstoffarmes Gebäude
+            #     tz.persons_air_flow_factor = 7 * (ureg.liter/(ureg.second * ureg.person)) # from DIN EN 16798-1:2022-03 table B.6, Kat II
+            #
+            # area_airflow = area * tz.area_air_flow_factor
+            # person_airflow = persons_per_room * tz.persons_air_flow_factor
 
             if tz.ventilation_system:  # True
-                tz.air_flow = person_airflow + area_airflow
+                # tz.air_flow = person_airflow + area_airflow
+                tz.air_flow = tz.max_ahu.m * area
             elif not tz.ventilation_system:  # False
                 tz.air_flow = 0
 
