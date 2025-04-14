@@ -70,7 +70,7 @@ class DesignExaustLCA(ITask):
 
         self.logger.info("Start design LCA")
         thermal_zones = filter_elements(self.elements, 'ThermalZone')
-        thermal_zones = [tz for tz in thermal_zones if tz.ventilation_system == True]
+        thermal_zones = [tz for tz in thermal_zones if tz.with_ahu == True]
 
         self.logger.info("Start calculating points of the ventilation outlet at the ceiling")
         # Hier werden die Mittelpunkte der einzelnen Räume aus dem IFC-Modell ausgelesen und im Anschluss um die
@@ -265,8 +265,7 @@ class DesignExaustLCA(ITask):
                                                         round(lueftungseinlass_abluft[1], 1),
                                                         round(tz.space_center.Z() + tz.height.magnitude / 2,
                                                                            2),
-                                                        math.ceil(tz.air_flow.to(ureg.meter ** 3 / ureg.hour).magnitude) * (
-                                                                    ureg.meter ** 3 / ureg.hour)])
+                                                        math.ceil(tz.air_flow.magnitude) * ureg.meter**3 / ureg.hour])
 
                 room_type.append(tz.usage)
 
@@ -2686,6 +2685,11 @@ class DesignExaustLCA(ITask):
             :param alpha: Winkel in Grad
             :return: Widerstandbeiwert für eine T-Vereinigung A28
             """
+
+            # ToDo This function doesnt work if there is an additional air inlet/outlet at the junction,
+            # which creates a 4 way junction instead of a t-fitting, since A_D + A_A might be smaller than A.
+            # This case also isnt included in VDI 3803 Blatt 6
+
             # Querschnitt Kanals:
             A = math.pi * d ** 2 / 4
             # Strömungsgeschwindigkeit Kanals
@@ -2732,7 +2736,9 @@ class DesignExaustLCA(ITask):
 
                     return zeta
 
-                elif A_A + A_D == A:
+                # elif A_A + A_D == A:
+                # Temporary solution for problem described above
+                elif A_A + A_D <= A:
                     K1 = 43.836
                     K2 = 26.78
                     K3 = 0.20
@@ -2756,7 +2762,9 @@ class DesignExaustLCA(ITask):
 
                     return zeta
 
-                elif A_A + A_D == A:
+                # elif A_A + A_D == A:
+                # Temporary solution for problem described above
+                elif A_A + A_D <= A:
                     # Beiwerte
                     K1 = -232.1
                     K2 = -38.743
@@ -3190,8 +3198,8 @@ class DesignExaustLCA(ITask):
                 ].iloc[0]
 
                 luftmenge_eingehende_kante_1 = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['starting_node'] == from_junction[index]) &
-                    (dataframe_distribution_network_exhaust_air['target_node'] == to_junction[index]),
+                    (dataframe_distribution_network_exhaust_air['starting_node'] == eingehende_kante_1[0]) &
+                    (dataframe_distribution_network_exhaust_air['target_node'] == eingehende_kante_1[1]),
                     'Air volume'
                 ].iloc[0]
 
@@ -3210,8 +3218,8 @@ class DesignExaustLCA(ITask):
                 ].iloc[0]
 
                 luftmenge_eingehende_kante_2 = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['starting_node'] == from_junction[index]) &
-                    (dataframe_distribution_network_exhaust_air['target_node'] == to_junction[index]),
+                    (dataframe_distribution_network_exhaust_air['starting_node'] == eingehende_kante_2[0]) &
+                    (dataframe_distribution_network_exhaust_air['target_node'] == eingehende_kante_2[1]),
                     'Air volume'
                 ].iloc[0]
 
