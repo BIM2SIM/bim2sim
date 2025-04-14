@@ -70,7 +70,7 @@ class DesignSupplyLCA(ITask):
 
         self.logger.info("Start design LCA")
         thermal_zones = filter_elements(self.elements, 'ThermalZone')
-        thermal_zones = [tz for tz in thermal_zones if tz.ventilation_system == True]
+        thermal_zones = [tz for tz in thermal_zones if tz.with_ahu == True]
 
         self.logger.info("Checking ceiling height for each room")
         self.check_ceiling_height(thermal_zones, suspended_ceiling_space)
@@ -232,9 +232,8 @@ class DesignSupplyLCA(ITask):
                                                         self.round_decimal(tz.space_center.Y(), 1),
                                                         self.round_decimal(tz.space_center.Z() + tz.height.magnitude / 2,
                                                                            2),
-                                                        math.ceil(tz.air_flow.to(ureg.meter ** 3 / ureg.hour).magnitude) * (
-                                                                    ureg.meter ** 3 / ureg.hour),
-                                                       tz.usage])
+                                                        math.ceil(tz.air_flow.magnitude) * ureg.meter**3 / ureg.hour,
+                                                        tz.usage])
                 room_type.append(tz.usage)
 
         # As the points are not exactly in line, although the rooms are actually next to each other, but some rooms are slightly different depths, the coordinates must be adjusted. In reality, a small shift of the ventilation outlet will not cause a major change, as the ventilation outlets are either connected with a flexible hose or directly from the main duct.

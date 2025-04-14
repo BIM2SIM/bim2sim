@@ -30,21 +30,16 @@ class CalcAirFlow(ITask):
 
         thermal_zones = filter_elements(elements, 'ThermalZone')
 
-        use_without_ventilation = ["Stock, technical equipment, archives",
-                                   "Storehouse, logistics building, Auxiliary areas (without common rooms)"
-                                   ]
-        # TODO die Liste muss erweitert werden, wenn andere Modelle verwendet werden!
-
-        self.logger.info("Check whether a ventilation system is required")
-        # Since a ventilation system is not required in every room according to DIN, it is checked here whether
-        # ventilation is sensible/required or whether it is a room that is not permanently used.
-        # The existing room types from 20.11.2023 are taken as a basis
-        self.ventilation_system(thermal_zones, use_without_ventilation)
-        self.logger.info("Check successful")
-
         self.logger.info("Start calculating the needed air flows for each zone")
+
+        # ToDo Differentiate thermal zones in attic in commonUsages
+        for tz in thermal_zones:
+            for storey in tz.storeys:
+                if storey.name == "Dachgeschoss":
+                    tz.with_ahu = False
+
         # The required air volumes per room are calculated here
-        self.calc_air_flow_zone(thermal_zones, use_without_ventilation)
+        self.calc_air_flow_zone(thermal_zones)
         self.logger.info("Caluclated airflows for spaces succesful")
 
         self.logger.info("Start calculating the needed air flow for the buiding")
@@ -57,24 +52,7 @@ class CalcAirFlow(ITask):
 
         return elements, air_flow_building
 
-    def ventilation_system(self, thermal_zones, use_without_ventilation):
-        """Function decides whether ventilation is required
-
-        Args:
-            termal_zones: ThermalZone bim2sim element
-            use_without_ventilation: List
-        Returns:
-            ventilation_system True or False
-        """
-        for tz in thermal_zones:
-            if tz.usage in use_without_ventilation:
-                tz.ventilation_system = False
-            elif tz.zone_name == "Flur 3.OG Treppe":  # So the 3rd floor has no ventilation!
-                tz.ventilation_system = False
-            else:
-                tz.ventilation_system = True
-
-    def calc_air_flow_zone(self, thermal_zones, use_without_ventilation):
+    def calc_air_flow_zone(self, thermal_zones):
         """Function calculates the airflow of one specific zone.
 
         Args:
@@ -84,29 +62,29 @@ class CalcAirFlow(ITask):
         """
 
         for tz in thermal_zones:
-            persons_per_square_meter = tz.persons * ureg.person # persons/m² (data source is din 18599)
-            area = tz.net_area  # Area of the room
-            persons_per_room = math.ceil(persons_per_square_meter * area.magnitude) # number of people
+            # persons_per_square_meter = tz.persons * ureg.person # persons/m² (data source is din 18599)
+            # area = tz.net_area  # Area of the room
+            # persons_per_room = math.ceil(persons_per_square_meter * area.magnitude) # number of people
             # per room,
             # rounded up!
 
-            if tz.usage == "WC and sanitary rooms in non-residential buildings":
-                tz.area_air_flow_factor = 11 * (ureg.meter**3)/(ureg.hour * ureg.meter**2)  # ASR A4.1 Page 5; 5.1. Allgemeines
-                tz.persons_air_flow_factor = 0
-            else:
-                tz.area_air_flow_factor = 0.7 * (ureg.liter/(ureg.second * ureg.meter**2))  # from DIN EN 16798-1:2022-03 table B.7 , Kat II, Schadstoffarmes Gebäude
-                tz.persons_air_flow_factor = 7 * (ureg.liter/(ureg.second * ureg.person)) # from DIN EN 16798-1:2022-03 table B.6, Kat II
+            # if tz.usage == "WC and sanitary rooms in non-residential buildings":
+            #     tz.area_air_flow_factor = 11 * (ureg.meter**3)/(ureg.hour * ureg.meter**2)  # ASR A4.1 Page 5; 5.1. Allgemeines
+            #     tz.persons_air_flow_factor = 0
+            # else:
+            #     tz.area_air_flow_factor = 0.7 * (ureg.liter/(ureg.second * ureg.meter**2))  # from DIN EN 16798-1:2022-03 table B.7 , Kat II, Schadstoffarmes Gebäude
+            #     tz.persons_air_flow_factor = 7 * (ureg.liter/(ureg.second * ureg.person)) # from DIN EN 16798-1:2022-03 table B.6, Kat II
 
-            area_airflow = area * tz.area_air_flow_factor
-            person_airflow = persons_per_room * tz.persons_air_flow_factor
+            # area_airflow = area * tz.area_air_flow_factor
+            # person_airflow = persons_per_room * tz.persons_air_flow_factor
 
-            if tz.ventilation_system:  # True
-                tz.air_flow = person_airflow + area_airflow
+            if tz.with_ahu:  # True
+                # tz.air_flow = person_airflow + area_airflow
                 # TODO
-                # tz.air_flow = tz.max_ahu * area
-                # tz.air_flow = tz.air_flow.to(ureg.liter / ureg.second)
-            elif not tz.ventilation_system:  # False
-                tz.air_flow = 0 * ureg.liter / ureg.second
+                tz.air_flow = tz.max_ahu * tz.net_area
+                tz.air_flow = tz.air_flow.to(ureg.meter**3 / ureg.hour)
+            else:
+                tz.air_flow = 0 * ureg.meter**3 / ureg.hour
 
     def calc_air_flow_building(self, thermal_zones):
         """Function calculates the airflow of the complete building.
@@ -118,11 +96,7 @@ class CalcAirFlow(ITask):
         """
         building_air_flow = 0 * ureg.liter / ureg.second
         for tz in thermal_zones:
-            if tz.ventilation_system:  # True
-                building_air_flow += tz.air_flow
-            elif not tz.ventilation_system:  # False
-                building_air_flow += 0
-
+            building_air_flow += tz.air_flow
         return building_air_flow
 
     def create_dataframe_air_volumes(self, thermal_zones):
@@ -142,7 +116,7 @@ class CalcAirFlow(ITask):
             # "Air volume factor person": [tz.persons_air_flow_factor for tz in thermal_zones],
             "Floor area of the room": [tz.net_area for tz in thermal_zones],
             # "Air volume factor Area": [tz.area_air_flow_factor for tz in thermal_zones],
-            "Ventilation required:": [tz.ventilation_system for tz in thermal_zones],
+            "Ventilation required:": [tz.with_ahu for tz in thermal_zones],
             "Total air volume": [tz.air_flow for tz in thermal_zones]
         })
 
