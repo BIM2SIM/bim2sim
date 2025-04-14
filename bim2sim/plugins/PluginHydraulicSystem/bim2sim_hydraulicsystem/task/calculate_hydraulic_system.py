@@ -2246,6 +2246,9 @@ class CalculateHydraulicSystem(ITask):
                 standard_indoor_temperature = self.define_standard_indoor_temperature(usage=self.heat_demand_dict[d]["usage"])
                 PHeater = self.heat_demand_dict[d]["PHeater"]
                 PHeater_max = np.max(PHeater)
+                # always create a radiator, even if not needed
+                if PHeater_max == 0:
+                    PHeater_max = 1
                 return PHeater_max, standard_indoor_temperature
 
     def initilize_design_operating_point(self,
