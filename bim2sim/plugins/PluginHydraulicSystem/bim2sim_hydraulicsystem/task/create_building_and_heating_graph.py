@@ -85,7 +85,9 @@ class CreateBuildingAndHeatingGraph(ITask):
             self.logger.info("Load heating network graph")
             heating_graph = self.load_json_graph(filename="heating_circle.json")
             self.logger.info("Finished loading heating network graph")
-            
+
+        self.visualzation_networkx_3D(heating_graph)
+
         return building_graph, heating_graph
 
 
@@ -4095,7 +4097,7 @@ class CreateBuildingAndHeatingGraph(ITask):
         fig.tight_layout()
         plt.close()
 
-    def visualzation_networkx_3D(self, graph, minimum_trees: list, type_grid: str):
+    def visualzation_networkx_3D(self, graph):
 
         """
 
@@ -4105,44 +4107,23 @@ class CreateBuildingAndHeatingGraph(ITask):
                 """
         fig = plt.figure()
         ax = fig.add_subplot(111, projection="3d")
-        # Graph Buildings graph
-        node_xyz = np.array(sorted(nx.get_node_attributes(graph, "pos").values()))
-        ax.scatter(*node_xyz.T, s=1, ec="w")
-        for u, v in graph.edges():
+
+        for (u, v) in graph.edges():
             edge = np.array([(graph.nodes[u]['pos'], graph.nodes[v]['pos'])])
             ax.plot(*edge.T, color=graph.edges[u, v]['color'])
 
-        # Graph Steiner Tree
-        for minimum_tree in minimum_trees:
-            for u, v in minimum_tree.edges():
-                edge = np.array([(minimum_tree.nodes[u]['pos'], minimum_tree.nodes[v]['pos'])])
-                if minimum_tree.graph["grid_type"] == "forward":
-                    ax.plot(*edge.T, color="magenta")
-                else:
-                    ax.plot(*edge.T, color="blue")
+        for u in graph.nodes():
+            if any(t in graph.nodes[u]['type'] for t in ("Verteiler", "start_node", "radiator_forward")):
+                pos = np.array(graph.nodes[u]['pos'])
+                ax.scatter(*pos.T, s=10, ec=graph.nodes[u]['color'])
 
-            node_xyz = np.array(
-                sorted([data["pos"] for n, data in minimum_tree.nodes(data=True) if {"radiator"} in set(data["type"])]))
-            if len(node_xyz) > 0 and node_xyz is not None:
-                ax.scatter(*node_xyz.T, s=10, ec="red")
-            node_xyz = np.array(sorted([data["pos"][0] for n, data in minimum_tree.nodes(data=True) if
-                                        set(data["type"]) not in {"heat_source"} and {"radiator"}]))
-            # node_xyz = np.array(sorted([data["pos"][0] for n, data in minimum_tree.nodes(data=True) if "pos" in data]))
-            if len(node_xyz) > 0 and node_xyz is not None:
-                ax.scatter(node_xyz.T[0], node_xyz.T[1], node_xyz.T[2], s=100, ec="yellow")
-        """for minimum_tree in minimum_trees:
-                    edge_xyz = np.array([(minimum_tree.nodes[u]['pos'], minimum_tree.nodes[v]['pos']) for u, v in minimum_tree.edges()])
-                    if len(edge_xyz) > 0 or edge_xyz is not None:
-                        for vizedge in edge_xyz:
-                            if minimum_tree.graph["grid_type"] == "forward":
-                                ax.plot(*vizedge.T, color="tab:red")
-                            else:
-                                ax.plot(*vizedge.T, color="blue")"""
-        ax.set_xlabel("x")
-        ax.set_ylabel("y")
-        ax.set_zlabel("z")
-        plt.title(f'Graphennetzwerk vom typ {type_grid}')
-        fig.tight_layout()
+        fig.set_xlabel("X-Axis")
+        fig.set_ylabel("Y-Axis")
+        fig.set_zlabel("Z-Axis")
+        fig.set_xlim = (0,45)
+        fig.set_ylim = (0,35)
+        fig.set_zlim = (0,10)
+        # fig.tight_layout()
         plt.close()
 
     def create_node_on_edge_overlap(self,
