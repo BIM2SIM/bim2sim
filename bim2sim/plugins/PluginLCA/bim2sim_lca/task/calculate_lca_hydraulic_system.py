@@ -38,6 +38,7 @@ class CalculateEmissionHydraulicSystem(ITask):
                                                                           material_emission_dict=material_emission_dict,
                                                                           material_cost_dict=material_cost_dict)
 
+            # ToDo dja: Maintenance costs for hydraulic system
             # Add maintenance costs
             total_cost_hydraulic_pipe += total_cost_hydraulic_pipe * 40 * material_cost_dict["HydraulicSystem"]
             total_cost_hydraulic_component += total_cost_hydraulic_component * 40 * material_cost_dict["HydraulicSystem"]
