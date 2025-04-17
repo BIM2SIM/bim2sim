@@ -82,9 +82,29 @@ class CalculateEmissionHydraulicSystem(ITask):
                                              "Length [m]": row["Length [m]"],
                                              "Power [kW]": row["Power [kW]"],
                                              "Model": row["Model"]}
-                if "Pumpe" in row["Type"]:
+                elif "Pumpe" in row["Type"]:
                     component_dict[index] = {"Type": row["Type"],
                                              "Power [kW]": row["Power [kW]"]}
+                elif "Trennung" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
+                elif "Krümmer" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
+                elif "Verteiler" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
+                elif "Magnetventil" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
+                elif "Schwerkraftbremse" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
+                elif "Rücklaufabsperrung" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
+                elif "Absperrschieber" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
+                elif "Schmutzfänger" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
+                elif "Vereinigung" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
+                elif "Membranausdehnungsgefäß" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
             elif self.playground.sim_settings.heat_delivery_type == "UFH":
                 if "radiator_forward" in row["Type"] and not "extra" in row["Type"]:
                     component_dict[index] = {"Type": row["Type"],
@@ -97,9 +117,30 @@ class CalculateEmissionHydraulicSystem(ITask):
                                              "Length [m]": row["Length [m]"],
                                              "Power [kW]": row["Power [kW]"],
                                              "Model": row["Model"]}
+
                 elif "Pumpe" in row["Type"]:
                     component_dict[index] = {"Type": row["Type"],
                                              "Power [kW]": row["Power [kW]"]}
+                elif "Trennung" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
+                elif "Krümmer" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
+                elif "Verteiler" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
+                elif "Magnetventil" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
+                elif "Schwerkraftbremse" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
+                elif "Rücklaufabsperrung" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
+                elif "Absperrschieber" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
+                elif "Schmutzfänger" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
+                elif "Vereinigung" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
+                elif "Membranausdehnunggefäß" in row["Type"]:
+                    component_dict[index] = {"Type": row["Type"]}
         return component_dict
 
     def read_radiator_material_excel(self,
@@ -183,30 +224,46 @@ class CalculateEmissionHydraulicSystem(ITask):
                              radiator_dict: dict):
 
         if self.playground.sim_settings.heat_delivery_type == "Radiator":
-            mapping = {"radiator_forward": "Heizkoerper",}
+            heat_delivery_mapping = {"radiator_forward": "Heizkoerper",}
         elif self.playground.sim_settings.heat_delivery_type == "UFH":
             ufh_pipe_type = self.playground.sim_settings.ufh_pipe_type
-            mapping = {'radiator_forward': '', "radiator_forward_extra": "Heizkoerper"}
+            heat_delivery_mapping = {'radiator_forward': '', "radiator_forward_extra": "Heizkoerper"}
+
+        further_components_mapping = {
+            "Pumpe": "Pumpe",
+            "Trennung": "Trennung",
+            "Krümmer": "Kruemmer",
+            "Verteiler": "Verteiler",
+            "Magnetventil": "Magnetventil",
+            "Schwerkraftbremse": "Schwerkraftbremse",
+            "Rücklaufabsperrung": "Ruecklaufabsperrung",
+            "Absperrschieber": "Absperrschieber",
+            "Schmutzfänger": "Schmutzfaenger",
+            "Vereinigung": "Vereinigung",
+            "Membranausdehnungsgefäß": "Membranausdehnungsgefaeß"
+        }
+        heat_delivery_keys = list(heat_delivery_mapping.keys())
 
         component_material_emission_cost = {}
         pump_component = {}
         total_gwp_component = 0
         total_cost_component = 0
 
-        mapping_keys_list = list(mapping.keys())
-        for comp_material, material_value in component_dict.items():
+
+        for node, material_value in component_dict.items():
             corresponding_material = material_value["Type"]
-            for key in mapping_keys_list:
+            component_material_emission_cost[node] = {}
+            for key in heat_delivery_keys:
                 if key in corresponding_material:
                     if "Mass [kg]" in material_value or "UFH Area [m²]" in material_value:
                         if self.playground.sim_settings.heat_delivery_type == "UFH":
                             if "extra" not in corresponding_material:
-                                mapping[key] = (f"Fussbodenheizung_{ufh_pipe_type}_"
+                                heat_delivery_mapping[key] = (f"Fussbodenheizung_{ufh_pipe_type}_"
                                                 f"{int(material_value['UFH Laying Distance [mm]'])}mm_m2")
                                 material_amount = material_value["UFH Area [m²]"]
-                                cost = material_amount * material_cost_dict[mapping[key]]
+                                cost = material_amount * material_cost_dict[heat_delivery_mapping[key]]
                             else:
-                                mapping[key] = "Heizkoerper"
+                                heat_delivery_mapping[key] = "Heizkoerper"
                                 material_amount = material_value["Mass [kg]"]
                                 length = material_value["Length [m]"]
                                 radiator = radiator_dict[int(material_value["Model"])]
@@ -216,24 +273,39 @@ class CalculateEmissionHydraulicSystem(ITask):
                             length = material_value["Length [m]"]
                             radiator = radiator_dict[int(material_value["Model"])]
                             cost = length * radiator["Trendlinie a"] * ((length * 1000) ** radiator["Trendlinie e"])
-                        gwp = material_emission_dict[mapping[key]]
+                        gwp = material_emission_dict[heat_delivery_mapping[key]]
                         emissions = round(material_amount * gwp,2)
                         total_gwp_component += emissions
                         cost = round(cost, 2)
                         total_cost_component += cost
-                        material_value["GWP [kg CO2-eq]"] = emissions
-                        material_value["Cost [€]"] = cost
+                        # material_value["GWP [kg CO2-eq]"] = emissions
+                        # material_value["Cost [€]"] = cost
 
-                        if key not in component_material_emission_cost:
-                            component_material_emission_cost[comp_material] = {}
-                        component_material_emission_cost[comp_material]["Type"] = mapping[key]
-                        component_material_emission_cost[comp_material]["GWP [kg CO2-eq]"] = emissions
-                        component_material_emission_cost[comp_material]["Cost [€]"] = cost
-                else:
-                    if "Pumpe" in corresponding_material:
-                        if comp_material not in pump_component:
-                            pump_component[comp_material] = {}
-                        pump_component[comp_material]["Power [kW]"] = material_value["Power [kW]"]
+                        if key not in component_material_emission_cost[node]:
+                            component_material_emission_cost[node][key] = {}
+                        component_material_emission_cost[node][key]["Type"] = heat_delivery_mapping[key]
+                        component_material_emission_cost[node][key]["GWP [kg CO2-eq]"] = emissions
+                        component_material_emission_cost[node][key]["Cost [€]"] = cost
+
+            for key, mapping in further_components_mapping.items():
+                if key in corresponding_material:
+                    emissions = round(material_emission_dict[mapping], 2)
+                    cost = round(material_cost_dict[mapping], 2)
+                    total_gwp_component += emissions
+                    total_cost_component += cost
+                    # material_value["GWP [kg CO2-eq]"] = emissions
+                    # material_value["Cost [€]"] = cost
+
+                    if key not in component_material_emission_cost[node]:
+                        component_material_emission_cost[node][key] = {}
+                    component_material_emission_cost[node][key]["Type"] = mapping
+                    component_material_emission_cost[node][key]["GWP [kg CO2-eq]"] = emissions
+                    component_material_emission_cost[node][key]["Cost [€]"] = cost
+
+                    if key == "Pumpe":
+                        pump_component[node] = {}
+                        pump_component[node]["Power [kW]"] = material_value["Power [kW]"]
+
         return component_material_emission_cost, pump_component, total_gwp_component, total_cost_component
 
     def write_xlsx(self,
@@ -250,10 +322,23 @@ class CalculateEmissionHydraulicSystem(ITask):
 
         data = {}
         data["Pump"] = pump_component
-        data["Component"] = component_material_emission_cost
-        data["Component"]["Total"] = {"Type": "",
-                                      "GWP [kg CO2-eq]": total_gwp_component,
-                                      "Cost [€]": total_cost_component}
+
+        component_data = {}
+        for node, node_values in component_material_emission_cost.items():
+            i = 1
+            for component, values in node_values.items():
+                row = {
+                    'Component': component,
+                    **values
+                }
+                component_data[f'{node}-{i}'] = row
+                i += 1
+        data["Component"] = component_data
+        data["Component"]["Total"] = {
+            'Component': '',
+            "Type": "",
+            "GWP [kg CO2-eq]": total_gwp_component,
+            "Cost [€]": total_cost_component}
         data["Pipe"] = pipe_dict
         data["Pipe"]["Total"] = {"Material": "",
                                  "Mass Pipe [kg]": total_pipe_mass,

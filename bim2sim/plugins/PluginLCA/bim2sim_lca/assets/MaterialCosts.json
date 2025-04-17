@@ -67,6 +67,42 @@
    },
    "HydraulicSystem": {
       "Maintenance": 0.01
+   },
+   "Pumpe": {
+      "Components": 500
+   },
+   "Trennung": {
+      "Components": 20.0
+   },
+   "Kruemmer": {
+      "Components": 15.0
+   },
+   "Verteiler": {
+      "Components": 500.0
+   },
+   "Magnetventil": {
+      "Components": 120.0
+   },
+   "Schwerkraftbremse": {
+      "Components": 45.0
+   },
+   "Ruecklaufabsperrung": {
+      "Components": 10.0
+   },
+   "Absperrschieber": {
+      "Components": 170.0
+   },
+   "Schmutzfaenger": {
+      "Components": 100.0
+   },
+   "Vereinigung": {
+      "Components": 20.0
+   },
+   "Membranausdehnungsgefaeß": {
+      "Components": 75.0
+   },
+   "Brandschutzklappe": {
+      "Components": 0
    }
 }
 
