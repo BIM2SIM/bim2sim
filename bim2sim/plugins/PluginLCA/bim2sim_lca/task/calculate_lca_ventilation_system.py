@@ -178,52 +178,42 @@ class CalculateEmissionVentilationSystem(ITask):
                 total_gwp_silencer += emission_silencer
                 total_cost_silencer += cost_silencer_spec
 
+        # VAV and silcener only in supply
         # Handle room exhaust calculations
-        room_exhaust_dict_cp = room_exhaust_dict.copy()
-        for room in room_exhaust_dict_cp:
-            # Safely extract values with default of 0 for NaN or missing values
-            mass_vav = self._safe_get_value(room_exhaust_dict_cp[room],
-                                            "VAV Weight [kg]", 0)
-            insulation_volume = self._safe_get_value(
-                room_exhaust_dict_cp[room], "Isolation volume Silencer [m³]",
+        # room_exhaust_dict_cp = room_exhaust_dict.copy()
+        # for room in room_exhaust_dict_cp:
+        #     # Safely extract values with default of 0 for NaN or missing values
+        #     mass_vav = self._safe_get_value(room_exhaust_dict_cp[room],
+        #                                     "VAV Weight [kg]", 0)
+        #     insulation_volume = self._safe_get_value(
+        #         room_exhaust_dict_cp[room], "Isolation volume Silencer [m³]",
+        #         0)
+        #     mass_sheet_silencer = self._safe_get_value(
+        #         room_exhaust_dict_cp[room], "Gewicht Blech Silencer [kg]", 0)
+        #
+        #     # Only calculate if we have valid data
+        #     if mass_vav > 0:
+        #         emission_vav = mass_vav * emission_vav_spec
+        #         total_gwp_vav += emission_vav
+        #         total_cost_vav += cost_vav_spec
+        #
+        #     # Calculate silencer emissions only if we have valid silencer data
+        #     if insulation_volume > 0 or mass_sheet_silencer > 0:
+        #         # We need to recalculate this *100 because rho=100kg/m3
+        #         mass_insulation_silencer = insulation_volume * 100
+        #         emission_silencer = mass_insulation_silencer * emission_isolation_spec + mass_sheet_silencer * emission_duct_sheet_spec
+        #         total_gwp_silencer += emission_silencer
+        #         total_cost_silencer += cost_silencer_spec
+
+
+        fire_damper_dict_cp = fire_damper_dict.copy()
+        for idx in fire_damper_dict_cp:
+            mass_fire_damper = self._safe_get_value(
+                fire_damper_dict_cp[idx], "Gewicht Brandschutzklappe[kg]",
                 0)
-            mass_sheet_silencer = self._safe_get_value(
-                room_exhaust_dict_cp[room], "Gewicht Blech Silencer [kg]", 0)
-
-            # Only calculate if we have valid data
-            if mass_vav > 0:
-                emission_vav = mass_vav * emission_vav_spec
-                total_gwp_vav += emission_vav
-                total_cost_vav += cost_vav_spec
-
-            # Calculate silencer emissions only if we have valid silencer data
-            if insulation_volume > 0 or mass_sheet_silencer > 0:
-                # We need to recalculate this *100 because rho=100kg/m3
-                mass_insulation_silencer = insulation_volume * 100
-                emission_silencer = mass_insulation_silencer * emission_isolation_spec + mass_sheet_silencer * emission_duct_sheet_spec
-                total_gwp_silencer += emission_silencer
-                total_cost_silencer += cost_silencer_spec
-
-        # Handle fire damper calculations
-        if isinstance(fire_damper_dict, list):
-            # If fire_damper_dict is a list of dictionaries
-            for fire_damper in fire_damper_dict:
-                mass_fire_damper = self._safe_get_value(fire_damper,
-                                                        "Gewicht Brandschutzklappe[kg]",
-                                                        0)
-                if mass_fire_damper > 0:
-                    total_gwp_fire_damper += mass_fire_damper * emission_fire_damper_spec
-                    total_cost_fire_damper += cost_fire_damper_spec
-        else:
-            # If fire_damper_dict is a dictionary with indices as keys
-            fire_damper_dict_cp = fire_damper_dict.copy()
-            for idx in fire_damper_dict_cp:
-                mass_fire_damper = self._safe_get_value(
-                    fire_damper_dict_cp[idx], "Gewicht Brandschutzklappe[kg]",
-                    0)
-                if mass_fire_damper > 0:
-                    total_gwp_fire_damper += mass_fire_damper * emission_fire_damper_spec
-                    total_cost_fire_damper += cost_fire_damper_spec
+            if mass_fire_damper > 0:
+                total_gwp_fire_damper += mass_fire_damper * emission_fire_damper_spec
+                total_cost_fire_damper += cost_fire_damper_spec
 
         return (total_gwp_fire_damper, total_cost_fire_damper,
                 total_gwp_silencer, total_cost_silencer, total_gwp_vav,
