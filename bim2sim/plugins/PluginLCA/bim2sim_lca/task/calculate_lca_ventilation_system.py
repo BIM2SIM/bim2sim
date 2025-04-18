@@ -64,19 +64,17 @@ class CalculateEmissionVentilationSystem(ITask):
                             total_gwp_vav=total_gwp_vav,
                             total_cost_vav=total_cost_vav)
 
-            total_gwp_ventilation_duct = (total_gwp_supply +
-                                          total_gwp_exhaust +
-                                          total_gwp_fire_damper +
-                                          total_gwp_silencer + total_gwp_vav)
-            total_cost_ventilation_duct = (total_cost_supply +
-                                           total_cost_exhaust +
-                                           total_cost_fire_damper +
-                                           total_cost_silencer +
-                                           total_cost_vav)
+            total_gwp_ventilation_duct = total_gwp_supply + total_gwp_exhaust
+            total_cost_ventilation_duct = total_cost_supply + total_cost_exhaust
+            total_gwp_ventilation_component = total_gwp_fire_damper + total_gwp_silencer + total_gwp_vav
+            total_cost_ventilation_component = total_cost_fire_damper + total_cost_silencer + total_cost_vav
+
 
             # Add maintenance costs
             total_gwp_ventilation_duct += total_gwp_ventilation_duct * 40 * material_cost_dict["VentilationSystem"]
             total_cost_ventilation_duct += total_cost_ventilation_duct * 40 * material_cost_dict["VentilationSystem"]
+            total_gwp_ventilation_component += total_gwp_ventilation_component * 40 * material_cost_dict["VentilationSystem"]
+            total_gwp_ventilation_component += total_gwp_ventilation_component * 40 * material_cost_dict["VentilationSystem"]
 
         return (total_gwp_ventilation_duct, total_gwp_ventilation_component,
                 total_cost_ventilation_duct, total_cost_ventilation_component)
@@ -147,7 +145,7 @@ class CalculateEmissionVentilationSystem(ITask):
         emission_vav_spec = material_emission_dict["Volumenstromregler_VRE"]  #  per kg
         cost_fire_damper_spec = material_cost_dict["Brandschutzklappe"]  # per piece
         cost_vav_spec = material_cost_dict["Volumenstromregler"]  # per piece
-        cost_silencer_spec = material_cost_dict["Schalldämpfer"]  # per piece
+        cost_silencer_spec = material_cost_dict["Schalldaempfer"]  # per piece
 
         room_supply_dict_cp = room_supply_dict.copy()
         for room in room_supply_dict_cp:
