@@ -102,7 +102,13 @@
       "Components": 75.0
    },
    "Brandschutzklappe": {
-      "Components": 0
+      "Components": 550.0
+   },
+   "Volumenstromregler": {
+      "Components": 258.0
+   },
+   "Schalldämpfer": {
+      "Components": 476.0
    }
 }
 

@@ -23,6 +23,17 @@ class CalculateEmissionVentilationSystem(ITask):
             with self.lock:
                 supply_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_supply_system_material_xlsx)
                 exhaust_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_exhaust_system_material_xlsx)
+                room_supply_dict = self.load_room_data(self.playground.sim_settings.ventilation_rooms_supply_xlsx)
+                room_exhaust_dict = self.load_room_data(self.playground.sim_settings.ventilation_rooms_exhaust_xlsx)
+                fire_damper_dict = self.load_fire_damper_data(self.playground.sim_settings.ventilation_fire_damper_xlsx)
+
+            (total_gwp_fire_damper, total_cost_fire_damper,
+             total_gwp_silencer, total_cost_silencer, total_gwp_vav,
+             total_cost_vav) = self.calculate_components(room_supply_dict,
+                                                         room_exhaust_dict,
+                                                         fire_damper_dict,
+                                                         material_emission_dict,
+                                                         material_cost_dict)
 
             (supply_dict, total_gwp_supply, total_cost_supply,
              total_pipe_mass_supply, total_isolation_mass_supply) = self.calulcate_pipe(
@@ -45,10 +56,23 @@ class CalculateEmissionVentilationSystem(ITask):
                             total_gwp_supply=total_gwp_supply,
                             total_gwp_exhaust=total_gwp_exhaust,
                             total_cost_supply=total_cost_supply,
-                            total_cost_exhaust=total_cost_exhaust)
+                            total_cost_exhaust=total_cost_exhaust,
+                            total_gwp_fire_damper=total_gwp_fire_damper,
+                            total_cost_fire_damper=total_cost_fire_damper,
+                            total_gwp_silencer=total_gwp_silencer,
+                            total_cost_silencer=total_cost_silencer,
+                            total_gwp_vav=total_gwp_vav,
+                            total_cost_vav=total_cost_vav)
 
-            total_gwp_ventilation_duct = total_gwp_supply + total_gwp_exhaust
-            total_cost_ventilation_duct = total_cost_supply + total_cost_exhaust
+            total_gwp_ventilation_duct = (total_gwp_supply +
+                                          total_gwp_exhaust +
+                                          total_gwp_fire_damper +
+                                          total_gwp_silencer + total_gwp_vav)
+            total_cost_ventilation_duct = (total_cost_supply +
+                                           total_cost_exhaust +
+                                           total_cost_fire_damper +
+                                           total_cost_silencer +
+                                           total_cost_vav)
 
             # Add maintenance costs
             total_gwp_ventilation_duct += total_gwp_ventilation_duct * 40 * material_cost_dict["VentilationSystem"]
@@ -88,7 +112,8 @@ class CalculateEmissionVentilationSystem(ITask):
         copy_duct_dict = duct_dict.copy()
         for pipe in copy_duct_dict:
             mass_pipe = copy_duct_dict[pipe]["Duct weight [kg]"]
-            mass_isolation = copy_duct_dict[pipe]["Isolation Volume [m³]"]
+            # we need to recalculate this *100 because rho=100kg/m3
+            mass_isolation = copy_duct_dict[pipe]["Isolation Volume [m³]"] * 100
             surface_area = ureg(copy_duct_dict[pipe]["Surface Area [m²]"]).magnitude
 
             emission = round(mass_pipe * emission_pipe + mass_isolation * emission_isolation, 2)
@@ -104,6 +129,68 @@ class CalculateEmissionVentilationSystem(ITask):
 
         return copy_duct_dict, total_gwp, total_cost, total_pipe_mass, total_isolation_mass
 
+    def calculate_components(
+            self, room_supply_dict: dict, room_exhaust_dict: dict,
+            fire_damper_dict: dict, material_emission_dict: dict,
+        material_cost_dict: dict):
+
+        total_gwp_silencer = 0
+        total_gwp_vav = 0
+        total_gwp_fire_damper = 0
+        total_cost_silencer = 0
+        total_cost_vav = 0
+        total_cost_fire_damper = 0
+
+        emission_fire_damper_spec = material_emission_dict["Brandschutzklappe"]  #  per kg
+        emission_isolation_spec = material_emission_dict["Mineralwolle-Daemmstoff"]  # per kg
+        emission_duct_sheet_spec = material_emission_dict["Lueftungskanal"]  # per kg
+        emission_vav_spec = material_emission_dict["Volumenstromregler_VRE"]  #  per kg
+        cost_fire_damper_spec = material_cost_dict["Brandschutzklappe"]  # per piece
+        cost_vav_spec = material_cost_dict["Volumenstromregler"]  # per piece
+        cost_silencer_spec = material_cost_dict["Schalldämpfer"]  # per piece
+
+        room_supply_dict_cp = room_supply_dict.copy()
+        for room in room_supply_dict_cp:
+            mass_vav = room_supply_dict_cp[room]["VAV Weight [kg]"]
+            # we need to recalculate this *100 because rho=100kg/m3
+            mass_insulation_silencer = room_supply_dict_cp[room]["Isolation volume Silencer [m³]"] * 100
+            mass_sheet_silencer = room_supply_dict_cp["Gewicht Blech Silencer [kg]"]
+            emission_vav = mass_vav * emission_vav_spec
+            emission_silencer = mass_insulation_silencer * emission_isolation_spec + mass_sheet_silencer * emission_duct_sheet_spec
+
+
+            total_cost_vav += cost_vav_spec
+            total_cost_silencer += cost_silencer_spec
+            total_gwp_silencer += emission_silencer
+            total_gwp_vav += emission_vav
+
+        room_exhaust_dict_cp = room_exhaust_dict.copy()
+        for room in room_exhaust_dict_cp:
+            mass_vav = room_exhaust_dict_cp[room]["VAV Weight [kg]"]
+            # we need to recalculate this *100 because rho=100kg/m3
+            mass_insulation_silencer = room_exhaust_dict_cp[room][
+                "Isolation volume Silencer [m³]"] * 100
+            mass_sheet_silencer = room_exhaust_dict_cp[
+                "Gewicht Blech Silencer [kg]"]
+            emission_vav = mass_vav * emission_vav_spec
+            emission_silencer = mass_insulation_silencer * emission_isolation_spec + mass_sheet_silencer * emission_duct_sheet_spec
+
+            total_cost_vav += cost_vav_spec
+            total_cost_silencer += cost_silencer_spec
+            total_gwp_silencer += emission_silencer
+            total_gwp_vav += emission_vav
+
+        fire_damper_dict = fire_damper_dict.copy()
+        for fire_damper in fire_damper_dict:
+            mass_fire_damper = fire_damper["Gewicht Brandschutzklappe[kg]"]
+
+            total_gwp_fire_damper += mass_fire_damper * emission_fire_damper_spec
+            total_cost_fire_damper += cost_fire_damper_spec
+
+
+        return (total_gwp_fire_damper, total_cost_fire_damper,
+                total_gwp_silencer, total_cost_silencer, total_gwp_vav,
+                total_cost_vav)
 
     def write_xlsx(self,
                    supply_dict,
@@ -115,7 +202,14 @@ class CalculateEmissionVentilationSystem(ITask):
                    total_gwp_supply,
                    total_gwp_exhaust,
                    total_cost_supply,
-                   total_cost_exhaust):
+                   total_cost_exhaust,
+                   total_gwp_fire_damper,
+                   total_cost_fire_damper,
+                   total_gwp_silencer,
+                   total_cost_silencer,
+                   total_gwp_vav,
+                   total_cost_vav
+                   ):
 
 
         data = {}
@@ -136,11 +230,19 @@ class CalculateEmissionVentilationSystem(ITask):
         data["Totals"]["GWP [kg CO2-eq]"] = {}
         data["Totals"]["GWP [kg CO2-eq]"]["Supply"] = total_gwp_supply
         data["Totals"]["GWP [kg CO2-eq]"]["Exhaust"] = total_gwp_exhaust
-        data["Totals"]["GWP [kg CO2-eq]"]["Total"] = total_gwp_supply + total_gwp_exhaust
+        data["Totals"]["GWP [kg CO2-eq]"]["Fire Dampers"] = total_gwp_fire_damper
+        data["Totals"]["GWP [kg CO2-eq]"]["VAVs"] = total_gwp_vav
+        data["Totals"]["GWP [kg CO2-eq]"]["Silencer"] = total_gwp_silencer
+        data["Totals"]["GWP [kg CO2-eq]"]["Total"] = total_gwp_supply + total_gwp_exhaust + total_gwp_fire_damper + total_gwp_vav + total_gwp_silencer
+
         data["Totals"]["Cost [€]"] = {}
         data["Totals"]["Cost [€]"]["Supply"] = total_cost_supply
         data["Totals"]["Cost [€]"]["Exhaust"] = total_cost_exhaust
-        data["Totals"]["Cost [€]"]["Total"] = total_cost_supply + total_cost_exhaust
+        data["Totals"]["Cost [€]"]["Fire Dampers"] = total_cost_fire_damper
+        data["Totals"]["Cost [€]"]["VAVs"] = total_cost_vav
+        data["Totals"]["Cost [€]"]["Silencer"] = total_cost_silencer
+
+        data["Totals"]["Cost [€]"]["Total"] = total_cost_supply + total_cost_exhaust + total_cost_fire_damper + total_cost_vav + total_cost_silencer
 
         with pd.ExcelWriter(self.paths.export / "lca_lcc_ventilation_system.xlsx") as writer:
             for key, values in data.items():
@@ -149,6 +251,44 @@ class CalculateEmissionVentilationSystem(ITask):
                     df = df.transpose()
                 df.to_excel(writer, sheet_name=key, index_label=key, index=True)
 
+    def load_room_data(self, data_path):
+        with open(data_path, "rb") as excel_file:
+            df = pd.read_excel(excel_file, engine="openpyxl")
+        room_dict = {}
+        for index, row in df.iterrows():
+
+            room_dict[index] = {"VAV Weight [kg]": row["Gewicht Volume_flow_controller"],
+                                "Isolation volume Silencer [m³]": row["Isolation volume silencer"],
+                                "Gewicht Blech Silencer [kg]": row["Gewicht Blech silencer"]}
+        room_dict.pop(len(room_dict) - 1)
+
+        return room_dict
+
+    def load_fire_damper_data(self, data_path):
+        fire_damper_dict = {}
+        counter = 0
+
+        # Load supply data
+        with open(data_path, "rb") as excel_file:
+            df_supply = pd.read_excel(excel_file, engine="openpyxl",
+                                      sheet_name="Brandschutzklappen Zuluft")
+
+        for _, row in df_supply.iterrows():
+            fire_damper_dict[counter] = {"Gewicht Brandschutzklappe[kg]": row[
+                "Gewicht Brandschutzklappe ges"]}
+            counter += 1
+
+        # Load exhaust data
+        with open(data_path, "rb") as excel_file:
+            df_exhaust = pd.read_excel(excel_file, engine="openpyxl",
+                                       sheet_name="Brandschutzklappen Abluft")
+
+        for _, row in df_exhaust.iterrows():
+            fire_damper_dict[counter] = {"Gewicht Brandschutzklappe[kg]": row[
+                "Gewicht Brandschutzklappe ges"]}
+            counter += 1
+
+        return fire_damper_dict
 
 
 

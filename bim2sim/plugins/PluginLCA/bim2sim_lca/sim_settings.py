@@ -137,5 +137,25 @@ class LCAExportSettings(BuildingSimSettings):
                     '(Output of PluginVentilationSystem)',
         for_frontend=True
     )
-
+    ventilation_rooms_supply_xlsx = PathSetting(
+        default=None,
+        description='Path to the excel file which holds information'
+                    'about room specific information in ventilation supply'
+                    ' system (Output of PluginVentilationSystem)',
+        for_frontend=True
+    )
+    ventilation_rooms_exhaust_xlsx = PathSetting(
+        default=None,
+        description='Path to the excel file which holds information'
+                    'about room specific information in ventilation exhaust'
+                    ' system (Output of PluginVentilationSystem)',
+        for_frontend=True
+    )
+    ventilation_fire_damper_xlsx = PathSetting(
+        default=None,
+        description='Path to the excel file which holds information'
+                    'about fire damper data in ventilation'
+                    ' system (Output of PluginVentilationSystem)',
+        for_frontend=True
+    )
 
