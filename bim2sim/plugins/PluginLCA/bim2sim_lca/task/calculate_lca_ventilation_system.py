@@ -261,7 +261,7 @@ class CalculateEmissionVentilationSystem(ITask):
         # Try to convert string to float if possible
         if isinstance(value, str):
             try:
-                value = float(value)
+                value = ureg(value).m
             except (ValueError, TypeError):
                 return default_value
 
