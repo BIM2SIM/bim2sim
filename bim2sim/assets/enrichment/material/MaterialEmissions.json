@@ -109,7 +109,7 @@
    },
    "Brandschutzklappe": {
       "oekobaudat_uuid": "e8f279e9-d72d-4645-bb33-5651d9ec07c0",
-      "oekobaudat_calculation_factor": 6.827,
+      "oekobaudat_calculation_factor": 0.146,
       "A1-A3": 20.7,
       "A4": 0.177,
       "A5": 0.112,
