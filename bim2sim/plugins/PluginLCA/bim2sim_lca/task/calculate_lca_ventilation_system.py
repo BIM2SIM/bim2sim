@@ -130,7 +130,7 @@ class CalculateEmissionVentilationSystem(ITask):
     def calculate_components(
             self, room_supply_dict: dict, room_exhaust_dict: dict,
             fire_damper_dict: dict, material_emission_dict: dict,
-        material_cost_dict: dict):
+            material_cost_dict: dict):
 
         total_gwp_silencer = 0
         total_gwp_vav = 0
@@ -139,56 +139,133 @@ class CalculateEmissionVentilationSystem(ITask):
         total_cost_vav = 0
         total_cost_fire_damper = 0
 
-        emission_fire_damper_spec = material_emission_dict["Brandschutzklappe"]  #  per kg
-        emission_isolation_spec = material_emission_dict["Mineralwolle-Daemmstoff"]  # per kg
-        emission_duct_sheet_spec = material_emission_dict["Lueftungskanal"]  # per kg
-        emission_vav_spec = material_emission_dict["Volumenstromregler_VRE"]  #  per kg
-        cost_fire_damper_spec = material_cost_dict["Brandschutzklappe"]  # per piece
+        emission_fire_damper_spec = material_emission_dict[
+            "Brandschutzklappe"]  # per kg
+        emission_isolation_spec = material_emission_dict[
+            "Mineralwolle-Daemmstoff"]  # per kg
+        emission_duct_sheet_spec = material_emission_dict[
+            "Lueftungskanal"]  # per kg
+        emission_vav_spec = material_emission_dict[
+            "Volumenstromregler_VRE"]  # per kg
+        cost_fire_damper_spec = material_cost_dict[
+            "Brandschutzklappe"]  # per piece
         cost_vav_spec = material_cost_dict["Volumenstromregler"]  # per piece
         cost_silencer_spec = material_cost_dict["Schalldaempfer"]  # per piece
 
+        # Handle room supply calculations
         room_supply_dict_cp = room_supply_dict.copy()
         for room in room_supply_dict_cp:
-            mass_vav = room_supply_dict_cp[room]["VAV Weight [kg]"]
-            # we need to recalculate this *100 because rho=100kg/m3
-            mass_insulation_silencer = room_supply_dict_cp[room]["Isolation volume Silencer [m³]"] * 100
-            mass_sheet_silencer = room_supply_dict_cp["Gewicht Blech Silencer [kg]"]
-            emission_vav = mass_vav * emission_vav_spec
-            emission_silencer = mass_insulation_silencer * emission_isolation_spec + mass_sheet_silencer * emission_duct_sheet_spec
+            # Safely extract values with default of 0 for NaN or missing values
+            mass_vav = self._safe_get_value(room_supply_dict_cp[room],
+                                            "VAV Weight [kg]", 0)
+            insulation_volume = self._safe_get_value(room_supply_dict_cp[room],
+                                                     "Isolation volume Silencer [m³]",
+                                                     0)
+            mass_sheet_silencer = self._safe_get_value(
+                room_supply_dict_cp[room], "Gewicht Blech Silencer [kg]", 0)
 
+            # Only calculate if we have valid data
+            if mass_vav > 0:
+                emission_vav = mass_vav * emission_vav_spec
+                total_gwp_vav += emission_vav
+                total_cost_vav += cost_vav_spec
 
-            total_cost_vav += cost_vav_spec
-            total_cost_silencer += cost_silencer_spec
-            total_gwp_silencer += emission_silencer
-            total_gwp_vav += emission_vav
+            # Calculate silencer emissions only if we have valid silencer data
+            if insulation_volume > 0 or mass_sheet_silencer > 0:
+                # We need to recalculate this *100 because rho=100kg/m3
+                mass_insulation_silencer = insulation_volume * 100
+                emission_silencer = mass_insulation_silencer * emission_isolation_spec + mass_sheet_silencer * emission_duct_sheet_spec
+                total_gwp_silencer += emission_silencer
+                total_cost_silencer += cost_silencer_spec
 
+        # Handle room exhaust calculations
         room_exhaust_dict_cp = room_exhaust_dict.copy()
         for room in room_exhaust_dict_cp:
-            mass_vav = room_exhaust_dict_cp[room]["VAV Weight [kg]"]
-            # we need to recalculate this *100 because rho=100kg/m3
-            mass_insulation_silencer = room_exhaust_dict_cp[room][
-                "Isolation volume Silencer [m³]"] * 100
-            mass_sheet_silencer = room_exhaust_dict_cp[
-                "Gewicht Blech Silencer [kg]"]
-            emission_vav = mass_vav * emission_vav_spec
-            emission_silencer = mass_insulation_silencer * emission_isolation_spec + mass_sheet_silencer * emission_duct_sheet_spec
+            # Safely extract values with default of 0 for NaN or missing values
+            mass_vav = self._safe_get_value(room_exhaust_dict_cp[room],
+                                            "VAV Weight [kg]", 0)
+            insulation_volume = self._safe_get_value(
+                room_exhaust_dict_cp[room], "Isolation volume Silencer [m³]",
+                0)
+            mass_sheet_silencer = self._safe_get_value(
+                room_exhaust_dict_cp[room], "Gewicht Blech Silencer [kg]", 0)
 
-            total_cost_vav += cost_vav_spec
-            total_cost_silencer += cost_silencer_spec
-            total_gwp_silencer += emission_silencer
-            total_gwp_vav += emission_vav
+            # Only calculate if we have valid data
+            if mass_vav > 0:
+                emission_vav = mass_vav * emission_vav_spec
+                total_gwp_vav += emission_vav
+                total_cost_vav += cost_vav_spec
 
-        fire_damper_dict = fire_damper_dict.copy()
-        for fire_damper in fire_damper_dict:
-            mass_fire_damper = fire_damper["Gewicht Brandschutzklappe[kg]"]
+            # Calculate silencer emissions only if we have valid silencer data
+            if insulation_volume > 0 or mass_sheet_silencer > 0:
+                # We need to recalculate this *100 because rho=100kg/m3
+                mass_insulation_silencer = insulation_volume * 100
+                emission_silencer = mass_insulation_silencer * emission_isolation_spec + mass_sheet_silencer * emission_duct_sheet_spec
+                total_gwp_silencer += emission_silencer
+                total_cost_silencer += cost_silencer_spec
 
-            total_gwp_fire_damper += mass_fire_damper * emission_fire_damper_spec
-            total_cost_fire_damper += cost_fire_damper_spec
-
+        # Handle fire damper calculations
+        if isinstance(fire_damper_dict, list):
+            # If fire_damper_dict is a list of dictionaries
+            for fire_damper in fire_damper_dict:
+                mass_fire_damper = self._safe_get_value(fire_damper,
+                                                        "Gewicht Brandschutzklappe[kg]",
+                                                        0)
+                if mass_fire_damper > 0:
+                    total_gwp_fire_damper += mass_fire_damper * emission_fire_damper_spec
+                    total_cost_fire_damper += cost_fire_damper_spec
+        else:
+            # If fire_damper_dict is a dictionary with indices as keys
+            fire_damper_dict_cp = fire_damper_dict.copy()
+            for idx in fire_damper_dict_cp:
+                mass_fire_damper = self._safe_get_value(
+                    fire_damper_dict_cp[idx], "Gewicht Brandschutzklappe[kg]",
+                    0)
+                if mass_fire_damper > 0:
+                    total_gwp_fire_damper += mass_fire_damper * emission_fire_damper_spec
+                    total_cost_fire_damper += cost_fire_damper_spec
 
         return (total_gwp_fire_damper, total_cost_fire_damper,
                 total_gwp_silencer, total_cost_silencer, total_gwp_vav,
                 total_cost_vav)
+
+    def _safe_get_value(self, dictionary, key, default_value=0):
+        """
+        Safely get a value from a dictionary, handling NaN values.
+
+        Args:
+            dictionary: The dictionary to extract from
+            key: The key to look up
+            default_value: The default value to return if key is missing or value is NaN
+
+        Returns:
+            The value or default_value if value is NaN or key is missing
+        """
+        import math
+        import numpy as np
+
+        if key not in dictionary:
+            return default_value
+
+        value = dictionary[key]
+
+        # Check for various forms of NaN or None
+        if value is None or (isinstance(value, (int, float)) and (
+        math.isnan(value) if hasattr(math, 'isnan') else np.isnan(value))):
+            return default_value
+
+        # Handle string 'nan' values
+        if isinstance(value, str) and value.lower() == 'nan':
+            return default_value
+
+        # Try to convert string to float if possible
+        if isinstance(value, str):
+            try:
+                value = float(value)
+            except (ValueError, TypeError):
+                return default_value
+
+        return value
 
     def write_xlsx(self,
                    supply_dict,
