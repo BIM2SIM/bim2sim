@@ -69,12 +69,12 @@ class CalculateEmissionVentilationSystem(ITask):
             total_gwp_ventilation_component = total_gwp_fire_damper + total_gwp_silencer + total_gwp_vav
             total_cost_ventilation_component = total_cost_fire_damper + total_cost_silencer + total_cost_vav
 
-
+            rbf = (1.0-(1.0+0.03)**(-40.0))/0.03
             # Add maintenance costs
-            total_gwp_ventilation_duct += total_gwp_ventilation_duct * 40 * material_cost_dict["VentilationSystem"]
-            total_cost_ventilation_duct += total_cost_ventilation_duct * 40 * material_cost_dict["VentilationSystem"]
-            total_gwp_ventilation_component += total_gwp_ventilation_component * 40 * material_cost_dict["VentilationSystem"]
-            total_gwp_ventilation_component += total_gwp_ventilation_component * 40 * material_cost_dict["VentilationSystem"]
+            # total_gwp_ventilation_duct += total_gwp_ventilation_duct * 40 * material_cost_dict["VentilationSystem"]
+            total_cost_ventilation_duct += total_cost_ventilation_duct * rbf * material_cost_dict["VentilationSystem"]
+            # total_gwp_ventilation_component += total_gwp_ventilation_component * 40 * material_cost_dict["VentilationSystem"]
+            total_gwp_ventilation_component += total_gwp_ventilation_component * rbf * material_cost_dict["VentilationSystem"]
 
         return (total_gwp_ventilation_duct, total_gwp_ventilation_component,
                 total_cost_ventilation_duct, total_cost_ventilation_component)

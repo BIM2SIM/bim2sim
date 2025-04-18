@@ -40,8 +40,9 @@ class CalculateEmissionHydraulicSystem(ITask):
 
             # ToDo dja: Maintenance costs for hydraulic system
             # Add maintenance costs
-            total_cost_hydraulic_pipe += total_cost_hydraulic_pipe * 40 * material_cost_dict["HydraulicSystem"]
-            total_cost_hydraulic_component += total_cost_hydraulic_component * 40 * material_cost_dict["HydraulicSystem"]
+            rbf = (1.0-(1.0+0.03)**(-40.0))/0.03
+            total_cost_hydraulic_pipe += total_cost_hydraulic_pipe * rbf * material_cost_dict["HydraulicSystem"]
+            total_cost_hydraulic_component += total_cost_hydraulic_component * rbf * material_cost_dict["HydraulicSystem"]
 
             self.write_xlsx(pipe_dict=pipe_dict,
                             component_material_emission_cost=component_material_emission_cost,
