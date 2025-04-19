@@ -9,7 +9,8 @@ class CalculateEmissionHydraulicSystem(ITask):
 
     reads = ('material_emission_dict', 'material_cost_dict')
     touches = ('total_gwp_hydraulic_pipe', 'total_gwp_hydraulic_component',
-               'total_cost_hydraulic_pipe', 'total_cost_hydraulic_component')
+               'total_cost_hydraulic_pipe', 'total_cost_hydraulic_component',
+               'total_gwp_fbh_room', 'total_cost_fbh_room')
 
     def run(self, material_emission_dict, material_cost_dict):
 
