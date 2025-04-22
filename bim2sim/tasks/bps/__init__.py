@@ -6,3 +6,4 @@ from .sb_creation import CreateSpaceBoundaries
 from .sb_correction import CorrectSpaceBoundaries
 from .sb_2b_generation import AddSpaceBoundaries2B
 from .plot_results import PlotBEPSResults
+from .elements_from_sb import CreateElementsFromSB

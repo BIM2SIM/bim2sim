@@ -28,6 +28,7 @@ class CreateSpaceBoundaries(ITask):
     See run function for further information on this module. """
 
     reads = ('ifc_files', 'elements')
+    touches = ('elements_without_sb',)
 
     def run(self, ifc_files: list, elements: dict):
         """Create space boundaries for elements from IfcRelSpaceBoundary.
@@ -71,24 +72,27 @@ class CreateSpaceBoundaries(ITask):
                     f"elements in total for all IFC files.")
 
         self.add_bounds_to_elements(elements, space_boundaries)
-        self.remove_elements_without_sbs(elements)
+        elements_without_sb = self.find_elements_without_sbs(elements)
+        # delete elements_without_sb from elements but keet in state
+        for ele_guid_to_remove in elements_without_sb:
+            del elements[ele_guid_to_remove]
+        return elements_without_sb,
 
     @staticmethod
-    def remove_elements_without_sbs(elements: dict):
-        """Remove elements that hold no Space Boundaries.
+    def find_elements_without_sbs(elements: dict):
+        """Find elements that hold no Space Boundaries.
 
         Those elements are usual not relevant for the simulation.
         """
-        elements_to_remove = []
+        elements_without_sb = []
         for ele in elements.values():
             if not any([isinstance(ele, bps_product_layer_ele) for
                         bps_product_layer_ele in
                         all_subclasses(BPSProductWithLayers)]):
                 continue
             if not ele.space_boundaries:
-                elements_to_remove.append(ele.guid)
-        for ele_guid_to_remove in elements_to_remove:
-            del elements[ele_guid_to_remove]
+                elements_without_sb.append(ele.guid)
+        return elements_without_sb
 
     @staticmethod
     def add_bounds_to_elements(
