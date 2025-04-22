@@ -130,3 +130,21 @@ class TestCheckIFC(unittest.TestCase):
         ids_file = '/home/cudok/Documents/12_ifc_check_ids/check_guid_length_equals_22_character.ids'
         all_checks_passed = check_ifc_ids.run_ids_check_on_ifc(ifc_file, ids_file)
         self.assertEqual(all_checks_passed, False, "Should be true")
+
+    def test_checkIFC_IDS_2LSB_pass(self):
+        """check ifctester for use case 2nd Level Space Boundarys
+        """
+        # TODO move test ifc file into resources and adapt path
+        ifc_file = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc'
+        ids_file = '/home/cudok/Documents/12_ifc_check_ids/check_2LSB.ids'
+        all_checks_passed = check_ifc_ids.run_ids_check_on_ifc(ifc_file, ids_file)
+        self.assertEqual(all_checks_passed, True, "Should be true")
+
+    def test_checkIFC_IDS_2LSB_fail(self):
+        """check ifctester for use case 2nd Level Space Boundarys
+        """
+        # TODO move test ifc file into resources and adapt path
+        ifc_file = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus.ifc'
+        ids_file = '/home/cudok/Documents/12_ifc_check_ids/check_2LSB.ids'
+        all_checks_passed = check_ifc_ids.run_ids_check_on_ifc(ifc_file, ids_file)
+        self.assertEqual(all_checks_passed, False, "Should be false")
