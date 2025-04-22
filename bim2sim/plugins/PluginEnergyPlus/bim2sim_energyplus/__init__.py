@@ -21,6 +21,7 @@ class PluginEnergyPlus(Plugin):
         bps.AddSpaceBoundaries2B,
         bps.CorrectSpaceBoundaries,
         common.CreateRelations,
+        bps.CreateElementsFromSB,
         bps.DisaggregationCreationAndTypeCheck,
         bps.EnrichMaterial,
         bps.EnrichUseConditions,

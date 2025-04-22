@@ -1134,3 +1134,8 @@ class BuildingSimSettings(BaseSimSettings):
                     "curtain walls but curtain walls not correctly defined in "
                     "IFC."
     )
+    create_elements_from_sb = BooleanSetting(
+        default=False,
+        description="If task to create elements if semantic connection between"
+                    "SB and element is missing."
+    )
