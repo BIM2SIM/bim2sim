@@ -1127,3 +1127,10 @@ class BuildingSimSettings(BaseSimSettings):
         description="Overwrite base value for the natural infiltration in 1/h "
                     " without window openings"
     )
+    handle_outer_walls_as_curtain_walls = BooleanSetting(
+        default=False,
+        description="Handle all outer wall elements as curtain walls. Useful "
+                    "for buildings with high window to wall ratio and mostly"
+                    "curtain walls but curtain walls not correctly defined in "
+                    "IFC."
+    )
