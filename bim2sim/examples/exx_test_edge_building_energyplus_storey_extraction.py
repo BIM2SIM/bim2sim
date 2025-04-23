@@ -31,6 +31,10 @@ def run_example_simple_building():
     #         Path(r'C:\Users\richter\Downloads\BIM-ESH-5A-BDS (EDITED)-IFC4 ('
     #         r'EDITED).ifc'),
     # }
+    # ifc_paths = {
+    #     IFCDomain.arch:
+    #         Path(r'/home/veronika/Downloads/BIM-ESH-5A-BDS (EDITED)-IFC4.ifc'),
+    # }
     # LOCAL CODE DAVID
     ifc_paths = {
         IFCDomain.arch:
@@ -61,7 +65,7 @@ def run_example_simple_building():
     project.sim_settings.stories_to_load_guids = ['2YtJDdhvbA_ObcqqNobyw4']
     project.sim_settings.create_elements_from_sb = True
     project.sim_settings.handle_outer_walls_as_curtain_walls = True
-    project.sim_settings.ep_install_path = 'C:/EnergyPlusV9-4-0'
+    # project.sim_settings.ep_install_path = 'C:/EnergyPlusV9-4-0'
     project.sim_settings.ep_version = '9-4-0'
     project.plugin_cls.default_tasks = [
         common.LoadIFC,

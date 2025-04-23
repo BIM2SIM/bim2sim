@@ -1427,10 +1427,12 @@ class CreateIdf(ITask):
         logger.info("Export IDF geometry")
         # TODO use 'SpaceBoundary' instead SpaceBoundary class?
         bounds = filter_elements(elements, 'SpaceBoundary')
+        skipped_bounds = []
         for bound in bounds:
 
             idfp = IdfObject(sim_settings, bound, idf)
             if idfp.skip_bound:
+                skipped_bounds.append(bound)
                 idf.popidfobject(idfp.key, -1)
                 logger.warning(
                     "Boundary with the GUID %s (%s) is skipped (due to "
@@ -1441,6 +1443,7 @@ class CreateIdf(ITask):
         for b_bound in bounds_2b:
             idfp = IdfObject(sim_settings, b_bound, idf)
             if idfp.skip_bound:
+                skipped_bounds.append(b_bound)
                 logger.warning(
                     "Boundary with the GUID %s (%s) is skipped (due to "
                     "missing boundary conditions)!",
@@ -1581,7 +1584,12 @@ class CreateIdf(ITask):
         for wall in walls:
             if wall.Outside_Boundary_Condition.upper() == "SURFACE":
                 if wall.Outside_Boundary_Condition_Object not in all_surface_names:
-                    to_remove_walls.append(wall)
+                    wall.Outside_Boundary_Condition_Object = ''
+                    wall.Outside_Boundary_Condition = 'Adiabatic'
+                    self.logger.warning(f"Set wall {wall.Name} to adiabatic "
+                                        f"boundary conditions because of "
+                                        f"invalid surface pairing.")
+                    # to_remove_walls.append(wall)
 
         # ----------------------------
         # 3. Entferne Doors mit ungültigem Building Surface Name
