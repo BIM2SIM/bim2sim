@@ -1842,13 +1842,15 @@ class IdfObject:
             elif any([isinstance(elem, roof) for roof in all_subclasses(Roof,
                                                                         include_self=True)]) or elem.key == "BPS-Roof":
                 surface_type = "Roof"
+            # TODO #31 EDGE bldg, added slab as valid subclass here
             elif any([isinstance(elem, slab) for slab in all_subclasses(Slab,
                                                                         include_self=True)]):
-                if any([isinstance(elem, floor) for floor in all_subclasses(
-                        GroundFloor, include_self=True)]):
+                valid_floors = all_subclasses(InnerFloor, include_self=True)
+                valid_floors.add(Slab)
+                if any([isinstance(elem, floor) for floor in valid_floors]):
                     surface_type = "Floor"
                 elif any([isinstance(elem, floor) for floor in all_subclasses(
-                        InnerFloor, include_self=True)]):
+                        InnerFloor, include_self=True).extend(Slab)]):
                     if inst_obj.top_bottom == BoundaryOrientation.bottom:
                         surface_type = "Floor"
                     elif inst_obj.top_bottom == BoundaryOrientation.top:
@@ -1858,11 +1860,11 @@ class IdfObject:
                         logger.warning(f"InnerFloor with vertical orientation "
                                        f"found, exported as wall, "
                                        f"GUID: {inst_obj.guid}.")
-                    else:
-                        logger.warning(f"InnerFloor was not correctly matched "
-                                       f"to surface type for GUID: "
-                                       f"{inst_obj.guid}.")
-                        surface_type = "Floor"
+                else:
+                    logger.warning(f"InnerFloor was not correctly matched "
+                                   f"to surface type for GUID: "
+                                   f"{inst_obj.guid}.")
+                    surface_type = "Floor"
             elif elem.ifc.is_a("IfcBeam"):
                 if not PyOCCTools.compare_direction_of_normals(
                         inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
