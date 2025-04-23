@@ -333,7 +333,7 @@ class DisaggregationCreationAndTypeCheck(ITask):
             type: The correct wall type or None if not applicable.
         """
         if any([isinstance(element, slab_class) for slab_class in
-                all_subclasses(Slab)]):
+                all_subclasses(Slab, include_self=True)]):
             # Corresponding Boundaries
             if len(sbs) == 2:
                 return InnerFloor
