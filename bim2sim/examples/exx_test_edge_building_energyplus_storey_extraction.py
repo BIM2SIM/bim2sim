@@ -59,6 +59,8 @@ def run_example_simple_building():
     ]
     # project.sim_settings.ep_install_path = 'C:/EnergyPlusV24-1-0'
     project.sim_settings.stories_to_load_guids = ['2YtJDdhvbA_ObcqqNobyw4']
+    project.sim_settings.create_elements_from_sb = True
+    project.sim_settings.handle_outer_walls_as_curtain_walls = True
     project.sim_settings.ep_install_path = 'C:/EnergyPlusV9-4-0'
     project.sim_settings.ep_version = '9-4-0'
     project.plugin_cls.default_tasks = [
@@ -69,6 +71,7 @@ def run_example_simple_building():
         bps.AddSpaceBoundaries2B,
         bps.CorrectSpaceBoundaries,
         common.CreateRelations,
+        bps.CreateElementsFromSB,
         bps.DisaggregationCreationAndTypeCheck,
         bps.EnrichMaterial,
         bps.EnrichUseConditions,
@@ -113,7 +116,11 @@ def run_example_simple_building():
         'BPS-Wall',  # Vorhangfassade (BA_FT2 Doppelt: BA_FT2 Doppelt) Wand oder Fenster?
         'BPS-Wall',  # Vorhangfassade Opak
         'BPS-Wall',  # Vorhangfassade Opak
-
+        'BPS-InnerWall',  # Innenwand (Dämmung) IfcCovering
+        None,  # Deckenrandverkleidung IfcCovering
+        None,  # Pflanztrog IfcCovering
+        None,  # Rankgerüst IfcCovering
+        None,  # PR Fassade IfcCovering
         # year of construction
         2015,
         # usage decisions
