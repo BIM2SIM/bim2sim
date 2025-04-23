@@ -78,7 +78,7 @@ class CorrectSpaceBoundaries(ITask):
         # todo: refactor elements to initial_elements.
         # todo: space_boundaries should be already included in elements
         self.move_children_to_parents(elements)
-        # self.fix_surface_orientation(elements)
+        self.fix_surface_orientation(elements)
         self.split_non_convex_bounds(
             elements, self.playground.sim_settings.split_bounds)
         self.add_and_split_bounds_for_shadings(
