@@ -76,6 +76,7 @@ def run_example_simple_building():
         bps.CorrectSpaceBoundaries,
         common.CreateRelations,
         bps.CreateElementsFromSB,
+        bps.CorrectInternalExternal,
         bps.DisaggregationCreationAndTypeCheck,
         bps.EnrichMaterial,
         bps.EnrichUseConditions,
