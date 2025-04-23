@@ -101,6 +101,7 @@ class CreateIdf(ITask):
             elements)[0].t_ground)  # assuming all zones have same ground
         self.set_output_variables(idf, self.playground.sim_settings)
         self.idf_validity_check(idf)
+        self.idf_cleanup(idf)
         logger.info("Save idf ...")
         idf.save(idf.idfname)
         logger.info("Idf file successfully saved.")
@@ -1424,8 +1425,10 @@ class CreateIdf(ITask):
             idf: idf file object
         """
         logger.info("Export IDF geometry")
-        bounds = filter_elements(elements, SpaceBoundary)
+        # TODO use 'SpaceBoundary' instead SpaceBoundary class?
+        bounds = filter_elements(elements, 'SpaceBoundary')
         for bound in bounds:
+
             idfp = IdfObject(sim_settings, bound, idf)
             if idfp.skip_bound:
                 idf.popidfobject(idfp.key, -1)
@@ -1556,6 +1559,63 @@ class CreateIdf(ITask):
                     'Surface due to invalid material: %s' % sf.Name)
                 idf.removeidfobject(sf)
         logger.info('IDF Validity Checker done')
+
+    def idf_cleanup(self, idf):
+        fenestrations = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
+        walls = idf.idfobjects['BUILDINGSURFACE:DETAILED']
+        # ----------------------------
+        # 1. Entferne Fenestrations mit Surface Type = "Wall"
+        # ----------------------------
+        to_remove_fenestrations = [
+            f for f in fenestrations if f.Surface_Type.upper() == "WALL"
+        ]
+
+        # ----------------------------
+        # 2. Entferne Walls & Doors mit ungültigem Outside Boundary Condition Object
+        # ----------------------------
+        # Alle gültigen Building Surface Namen (für Verweisprüfung)
+        all_surface_names = {w.Name for w in walls}
+
+        # Prüfe auf ungültige Referenz, wenn Outside Boundary Condition == "Surface"
+        to_remove_walls = []
+        for wall in walls:
+            if wall.Outside_Boundary_Condition.upper() == "SURFACE":
+                if wall.Outside_Boundary_Condition_Object not in all_surface_names:
+                    to_remove_walls.append(wall)
+
+        # ----------------------------
+        # 3. Entferne Doors mit ungültigem Building Surface Name
+        # ----------------------------
+        if 'DOOR' in idf.idfobjects:  # Sicherheitscheck
+            doors = idf.idfobjects['DOOR']
+            to_remove_doors = [
+                d for d in doors if
+                d.Building_Surface_Name not in all_surface_names
+            ]
+        else:
+            to_remove_doors = []
+
+        # ----------------------------
+        # Objekte entfernen
+        # ----------------------------
+        for f in to_remove_fenestrations:
+            idf.removeidfobject(f)
+
+        for w in to_remove_walls:
+            idf.removeidfobject(w)
+
+        for d in to_remove_doors:
+            idf.removeidfobject(d)
+
+        # ----------------------------
+        # Log
+        # ----------------------------
+        self.logger.info(
+            f"Removed {len(to_remove_fenestrations)} invalid fenestrations (Surface_Type=WALL).")
+        self.logger.info(
+            f"Removed {len(to_remove_walls)} walls with invalid Outside_Boundary_Condition_Object.")
+        self.logger.info(
+            f"Removed {len(to_remove_doors)} doors with invalid Building_Surface_Name.")
 
 
 class IdfObject:
