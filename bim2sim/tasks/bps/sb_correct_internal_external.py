@@ -7,6 +7,7 @@ from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 class CorrectInternalExternal(ITask):
     reads = ('elements',)
+    touches = ('elements',)
 
     def run(self, elements):
         if not self.playground.sim_settings.create_elements_from_sb:
@@ -95,7 +96,7 @@ class CorrectInternalExternal(ITask):
                 else:
                     b.is_external = False
                     b.internal_external_type = 'INTERNAL'
-
+        return elements,
 
 
 

@@ -1956,6 +1956,10 @@ class IdfObject:
             self.sun_exposed = 'SunExposed'
             self.wind_exposed = 'WindExposed'
             self.out_bound_cond_obj = ''
+        elif self.related_bound is None and not inst_obj.is_external:
+            self.out_bound_cond = 'Adiabatic'
+            self.sun_exposed = 'NoSun'
+            self.wind_exposed = 'NoWind'
         elif self.related_bound is None:
             self.out_bound_cond = 'Outdoors'
             self.sun_exposed = 'SunExposed'
