@@ -15,7 +15,7 @@ from OCC.Core.TopoDS import topods_Face, topods_Wire
 from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 
 from OCC.Core.gp import gp_Dir, gp_XYZ, gp_Pln
-from geomeppy import IDF
+from geomeppy import IDF, recipes
 
 from bim2sim.elements.base_elements import IFCBased
 from bim2sim.elements.bps_elements import (ExternalSpatialElement,
@@ -105,7 +105,84 @@ class CreateIdf(ITask):
         logger.info("Save idf ...")
         idf.save(idf.idfname)
         logger.info("Idf file successfully saved.")
-
+        if self.playground.sim_settings.set_wwr:
+            bsd = idf.idfobjects['BUILDINGSURFACE:DETAILED']
+            fsd = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
+            bsd_outdoors = [b for b in bsd if b.Outside_Boundary_Condition ==
+                            'Outdoors' and b.Surface_Type == 'Wall']
+            remove_fenstration = []
+            for f in fsd:
+                for b in bsd_outdoors:
+                    if f.Building_Surface_Name == b.Name:
+                        remove_fenstration.append(f)
+            for f in remove_fenstration:
+                try:
+                    idf.removeidfobject(f)
+                except Exception as ex:
+                    self.logger.warning(f"Failed to remove Fenestration {f} "
+                                        f"due to {ex}")
+            try:
+                ggr = idf.idfobjects["GLOBALGEOMETRYRULES"][0]
+            except IndexError:
+                ggr = None
+            for b in bsd_outdoors:
+                window_coords = recipes.window_vertices_given_wall(b,
+                                                                   self.playground.sim_settings.set_wwr)
+                window = idf.newidfobject(
+                    "FENESTRATIONSURFACE:DETAILED",
+                    Name="%s window" % b.Name,
+                    Surface_Type="Window",
+                    Construction_Name='Window_' + idf.idfobjects[
+                        "WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM"][0].Name.upper(),
+                    Building_Surface_Name=b.Name,
+                    View_Factor_to_Ground="autocalculate",
+                )
+                if not window_coords or len(window_coords) < 3:
+                    self.logger.warning(
+                        f"Failed to generate WWR-Window for Wall "
+                        f"{b.Name} due to Wall geometry. Try "
+                        f"Triangulation approach instead.")
+                    idf.popidfobject("FENESTRATIONSURFACE:DETAILED", -1)
+                    continue
+                elif len(window_coords) < 5:
+                    window.setcoords(window_coords, ggr)
+                else:
+                    try:
+                        self.logger.warning(
+                            f"downcast {window.Name} from {len(window_coords)}"
+                            f" to 4 coordinates. This "
+                            f"may affect the geometric "
+                            f"representation.")
+                        window.setcoords(window_coords[:3], ggr)
+                    except Exception as ex:
+                        self.logger.warning(
+                            f"Failed to generate WWR-Window for Wall "
+                            f"{b.Name} due to Wall geometry. Try "
+                            f"Triangulation approach instead.")
+                        idf.popidfobject("FENESTRATIONSURFACE:DETAILED", -1)
+                        continue
+                if not window.coords or len(window.coords) < 3:
+                    print(window.coords, len(window_coords))
+                    self.logger.warning(
+                        f"Failed to generate WWR-Window for Wall "
+                        f"{b.Name} due to Wall geometry. Try "
+                        f"Triangulation approach instead.")
+                    idf.popidfobject("FENESTRATIONSURFACE:DETAILED", -1)
+            # idf.set_wwr(
+            #     self.playground.sim_settings.set_wwr,
+            #         construction=idf.idfobjects[
+            #             "WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM"][0].Name)
+            # uppercase_window_material = idf.copyidfobject(idf.idfobjects[
+            #                 "WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM"][0])
+            # uppercase_window_material.Name = idf.idfobjects[
+            #                 "WINDOWMATERIAL:SIMPLEGLAZINGSYSTEM"][0].Name.upper()
+            # some windows may have more vertices than four due to walls with
+            # more than 4 edges.
+            # hotfix, may result in too small windows. Increase robustness by
+            # adding triangulation instead.
+            idf.save(idf.idfname.as_posix().replace('.idf',
+                                                    f'_wwr_auto'
+                                                    f'_{int(self.playground.sim_settings.set_wwr * 100)}.idf'))
         return idf, sim_results_path
 
     @staticmethod
