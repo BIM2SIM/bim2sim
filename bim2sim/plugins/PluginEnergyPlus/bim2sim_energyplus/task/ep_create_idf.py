@@ -1660,12 +1660,24 @@ class CreateIdf(ITask):
         to_remove_walls = []
         for wall in walls:
             if wall.Outside_Boundary_Condition.upper() == "SURFACE":
-                if wall.Outside_Boundary_Condition_Object not in all_surface_names:
+                if (not wall.Outside_Boundary_Condition_Object or
+                        wall.Outside_Boundary_Condition_Object not in
+                        all_surface_names):
+                    all_subsurfaces = idf.getsubsurfaces()
+                    wall_subsurfs = []
+                    for sub in all_subsurfaces:
+                        if (sub.Building_Surface_Name.upper() ==
+                                wall.Name.upper()):
+                            wall_subsurfs.append(sub)
+                    for sub in wall_subsurfs:
+                        idf.removeidfobject(sub)
                     wall.Outside_Boundary_Condition_Object = ''
                     wall.Outside_Boundary_Condition = 'Adiabatic'
                     self.logger.warning(f"Set wall {wall.Name} to adiabatic "
                                         f"boundary conditions because of "
-                                        f"invalid surface pairing.")
+                                        f"invalid surface pairing and "
+                                        f"removed {len(wall_subsurfs)} "
+                                        f"subsurfaces.")
                     # to_remove_walls.append(wall)
 
         # ----------------------------
