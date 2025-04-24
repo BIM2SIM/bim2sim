@@ -32,7 +32,7 @@ class CreateElementsFromSB(ITask):
         }
 
         for sb_ele in sbs_without_element:
-            # TODO for now set all to physical
+            # TODO #31 for now set all to physical
             sb_ele.physical = True
             key = (sb_ele.top_bottom, sb_ele.is_external)
             cls, lst = element_lists.get(key, (None, None))

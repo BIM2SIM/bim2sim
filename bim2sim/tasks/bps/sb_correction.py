@@ -78,7 +78,9 @@ class CorrectSpaceBoundaries(ITask):
         # todo: refactor elements to initial_elements.
         # todo: space_boundaries should be already included in elements
         self.move_children_to_parents(elements)
-        self.fix_surface_orientation(elements)
+        # self.fix_surface_orientation(elements)
+        if len(self.playground.sim_settings.stories_to_load_guids) == 1:
+            self.fix_horizontal_surface_bound_normals(elements)
         self.split_non_convex_bounds(
             elements, self.playground.sim_settings.split_bounds)
         self.add_and_split_bounds_for_shadings(
@@ -169,8 +171,7 @@ class CorrectSpaceBoundaries(ITask):
                             opening_obj.bound_shape, trsf).Shape()
                     opening_obj.reset('bound_center')
 
-    @staticmethod
-    def fix_surface_orientation(elements: dict):
+    def fix_surface_orientation(self, elements: dict):
         """Fix orientation of space boundaries.
 
         Fix orientation of all surfaces but openings by sewing followed
@@ -182,6 +183,7 @@ class CorrectSpaceBoundaries(ITask):
         """
         logger.info("Fix surface orientation")
         spaces = get_spaces_with_bounds(elements)
+
         for space in spaces:
             face_list = []
             for bound in space.space_boundaries:
@@ -269,6 +271,41 @@ class CorrectSpaceBoundaries(ITask):
                         if hasattr(bound, 'bound_normal'):
                             bound.reset('bound_normal')
                         break
+
+    @staticmethod
+    def fix_horizontal_surface_bound_normals(elements: dict):
+        """Fix horizontal surface bound normals based on horizontal position
+
+        For single storey we can use SB position relative to center to fix
+        orientation of horizontal normal vectors.
+        """
+        logger.info("Fix surface orientation for horizontal bounds")
+        eps = 0.001
+        spaces = get_spaces_with_bounds(elements)
+
+        vertical_vector = gp_XYZ(0.0, 0.0, 1.0)
+        for space in spaces:
+            for bound in space.space_boundaries:
+                normal_dot_vertical = vertical_vector.Dot(
+                    bound.bound_normal)
+                # only correct horizontal ones
+                if abs(1 - abs(normal_dot_vertical)) < eps:
+                    center_of_bound = bound.bound_center
+                    center_of_space = space.space_center
+                    if center_of_bound.Z() < center_of_space.Z():
+                        if normal_dot_vertical > 1.0 - eps:
+                            bound.bound_normal = gp_XYZ(
+                                bound.bound_normal.X(),
+                                bound.bound_normal.Y(),
+                                -bound.bound_normal.Z()
+                            )
+                    if center_of_bound.Z() > center_of_space.Z():
+                        if normal_dot_vertical < -1.0 + eps:
+                            bound.bound_normal = gp_XYZ(
+                                bound.bound_normal.X(),
+                                bound.bound_normal.Y(),
+                                -bound.bound_normal.Z()
+                            )
 
     def split_non_convex_bounds(self, elements: dict, split_bounds: bool):
         """Split non-convex space boundaries.

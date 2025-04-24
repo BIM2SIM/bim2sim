@@ -1226,3 +1226,12 @@ class BuildingSimSettings(BaseSimSettings):
         description="Manually set Window-to-Wall-Ratio. Choose number between "
                     "0 and 0.99."
     )
+    turn_horizontal_elements_internal = BooleanSetting(
+        default=False,
+        description="Set all horizontal areas to internal areas (Roofs and "
+                    "GroundFloors are turned into InnerFloors). This is useful"
+                    "when using stories_to_load_guids setting to simulate a "
+                    "single floor but with wrong external/internal boundary "
+                    "conditions, as correction algorithms won't work if only a"
+                    "single storey is taken into account."
+    )

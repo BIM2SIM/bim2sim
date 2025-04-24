@@ -1754,8 +1754,8 @@ class IdfObject:
             self.key = "BUILDINGSURFACE:DETAILED"
         if inst_obj.parent_bound:
             self.building_surface_name = inst_obj.parent_bound.guid
-        self.map_surface_types(inst_obj)
-        self.map_boundary_conditions(inst_obj)
+        self.map_surface_types(inst_obj, sim_settings)
+        self.map_boundary_conditions(inst_obj, sim_settings)
         self.set_preprocessed_construction_name()
         # only set a construction name if this construction is available
         if not self.construction_name \
@@ -1905,7 +1905,8 @@ class IdfObject:
             return obj
 
     def map_surface_types(self, inst_obj: Union[SpaceBoundary,
-                                                SpaceBoundary2B]):
+                                                SpaceBoundary2B],
+                          sim_settings: EnergyPlusSimSettings):
         """Map surface types.
 
         This function maps the attributes of a SpaceBoundary instance to idf
@@ -1913,6 +1914,7 @@ class IdfObject:
 
         Args:
             inst_obj: SpaceBoundary instance
+            sim_settings: EnergyPlusSimSettings
         """
         # TODO use bim2sim elements mapping instead of ifc.is_a()
         # TODO update to new disaggregations
@@ -1928,18 +1930,21 @@ class IdfObject:
             elif any([isinstance(elem, window) for window in all_subclasses(
                     Window, include_self=True)]) or elem.key == "BPS-Window":
                 surface_type = "Window"
-            elif any([isinstance(elem, roof) for roof in all_subclasses(Roof,
-                                                                        include_self=True)]) or elem.key == "BPS-Roof":
-                surface_type = "Roof"
-            # TODO #31 EDGE bldg, added slab as valid subclass here
-            elif any([isinstance(elem, slab) for slab in all_subclasses(Slab,
-                                                                        include_self=True)]):
+            elif any([isinstance(elem, roof) for roof in all_subclasses(
+                    Roof, include_self=True)]) or elem.key == "BPS-Roof":
+                if sim_settings.turn_horizontal_elements_internal:
+                    surface_type = 'Ceiling'
+                else:
+                    surface_type = "Roof"
+            elif any([isinstance(elem, slab) for slab in all_subclasses(
+                    Slab, include_self=True)]):
+                # TODO #31 EDGE bldg, added slab as valid subclass here
                 valid_floors = all_subclasses(InnerFloor, include_self=True)
                 valid_floors.add(Slab)
-                if any([isinstance(elem, floor) for floor in valid_floors]):
+                if any([isinstance(elem, floor) for floor in all_subclasses(
+                        GroundFloor, include_self=True)]):
                     surface_type = "Floor"
-                elif any([isinstance(elem, floor) for floor in all_subclasses(
-                        InnerFloor, include_self=True).extend(Slab)]):
+                elif any([isinstance(elem, floor) for floor in valid_floors]):
                     if inst_obj.top_bottom == BoundaryOrientation.bottom:
                         surface_type = "Floor"
                     elif inst_obj.top_bottom == BoundaryOrientation.top:
@@ -1997,7 +2002,8 @@ class IdfObject:
         self.surface_type = surface_type
 
     def map_boundary_conditions(self, inst_obj: Union[SpaceBoundary,
-                                                      SpaceBoundary2B]):
+                                                      SpaceBoundary2B],
+                                sim_settings: EnergyPlusSimSettings):
         """Map boundary conditions.
 
         This function maps the boundary conditions of a SpaceBoundary instance
@@ -2005,6 +2011,7 @@ class IdfObject:
 
         Args:
             inst_obj: SpaceBoundary instance
+            sim_settings: EnergyPlusSimSettings
         """
         if inst_obj.level_description == '2b' \
                 or inst_obj.related_adb_bound is not None:
@@ -2022,17 +2029,30 @@ class IdfObject:
             self.wind_exposed = 'NoWind'
         elif inst_obj.is_external and inst_obj.physical \
                 and not self.surface_type == 'Floor':
-            self.out_bound_cond = 'Outdoors'
-            self.sun_exposed = 'SunExposed'
-            self.wind_exposed = 'WindExposed'
-            self.out_bound_cond_obj = ''
+            # TODO #31 Edge
+            if (sim_settings.turn_horizontal_elements_internal and
+                    self.surface_type in ('Ceiling', 'Roof')):
+                self.out_bound_cond = 'Adiabatic'
+                self.sun_exposed = 'NoSun'
+                self.wind_exposed = 'NoWind'
+            else:
+                self.out_bound_cond = 'Outdoors'
+                self.sun_exposed = 'SunExposed'
+                self.wind_exposed = 'WindExposed'
+                self.out_bound_cond_obj = ''
         elif self.surface_type == "Floor" and \
                 (inst_obj.related_bound is None
                  or inst_obj.related_bound.ifc.RelatingSpace.is_a(
                             'IfcExternalSpatialElement')):
-            self.out_bound_cond = "Ground"
-            self.sun_exposed = 'NoSun'
-            self.wind_exposed = 'NoWind'
+            # TODO #31 Edge
+            if sim_settings.turn_horizontal_elements_internal:
+                self.out_bound_cond = 'Adiabatic'
+                self.sun_exposed = 'NoSun'
+                self.wind_exposed = 'NoWind'
+            else:
+                self.out_bound_cond = "Ground"
+                self.sun_exposed = 'NoSun'
+                self.wind_exposed = 'NoWind'
         elif inst_obj.related_bound is not None \
                 and not inst_obj.related_bound.ifc.RelatingSpace.is_a(
             'IfcExternalSpatialElement'):
