@@ -1219,3 +1219,10 @@ class BuildingSimSettings(BaseSimSettings):
         description="If task to create elements if semantic connection between"
                     "SB and element is missing."
     )
+    set_wwr = NumberSetting(
+        default=None,
+        min_value=0,
+        max_value=0.99,
+        description="Manually set Window-to-Wall-Ratio. Choose number between "
+                    "0 and 0.99."
+    )
