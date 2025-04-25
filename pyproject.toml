@@ -103,7 +103,7 @@ PluginComfort = [
     "pyqt5",
     "shapely",
     "numpy-stl",
-    "energyplus-regressions",
+    "energyplus-regressions <= 2.1.2",
     "eppy@git+https://github.com/BIM2SIM/eppy",
     "geomeppy@git+https://github.com/BIM2SIM/geomeppy@fix_dependencies",
 ]
