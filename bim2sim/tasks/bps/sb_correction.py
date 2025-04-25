@@ -508,6 +508,19 @@ class CorrectSpaceBoundaries(ITask):
                             continue
                         new_rel_bound.opening_bounds.append(op.related_bound)
                         op.related_bound.parent_bound = new_rel_bound
+                nb_vert_this = PyOCCTools.get_number_of_vertices(
+                    new_bound.bound_shape)
+                nb_vert_other = PyOCCTools.get_number_of_vertices(
+                    new_rel_bound.bound_shape)
+                # if not nb_vert_this == nb_vert_other:
+                #     print("NO VERT MATCH!:", nb_vert_this, nb_vert_other)
+                if not nb_vert_this == nb_vert_other:
+                    self.logger.warning(f"Boundaries assigned as related even "
+                                        f"if mismatch of vertex numbers, "
+                                        f"Bound 1 {new_bound.guid} "
+                                        f"{nb_vert_this}; Bound 2 "
+                                        f"{new_rel_bound.guid} "
+                                        f"{nb_vert_other}.")
                 new_bound.related_bound = new_rel_bound
                 new_rel_bound.related_bound = new_bound
                 new_space_boundaries.append(new_rel_bound)

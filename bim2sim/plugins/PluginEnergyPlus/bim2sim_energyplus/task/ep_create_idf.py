@@ -1560,6 +1560,17 @@ class CreateIdf(ITask):
                 )
                 if building_surface and building_surface.Outside_Boundary_Condition == 'Adiabatic':
                     should_remove = True
+                elif (building_surface and
+                      building_surface.Outside_Boundary_Condition == 'Surface'):
+                    if (not fenestration.Outside_Boundary_Condition_Object or
+                            fenestration.Outside_Boundary_Condition_Object ==
+                            ''):
+                        should_remove = True
+                elif (building_surface and
+                      building_surface.Outside_Boundary_Condition ==
+                      'Outdoors'):
+                    if fenestration.Outside_Boundary_Condition_Object:
+                        fenestration.Outside_Boundary_Condition_Object = ''
 
             if should_remove:
                 to_remove.append(fenestration)
@@ -1642,18 +1653,20 @@ class CreateIdf(ITask):
 
     def idf_cleanup(self, idf):
         fenestrations = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
-        walls = idf.idfobjects['BUILDINGSURFACE:DETAILED']
         # ----------------------------
         # 1. Entferne Fenestrations mit Surface Type = "Wall"
         # ----------------------------
         to_remove_fenestrations = [
             f for f in fenestrations if f.Surface_Type.upper() == "WALL"
         ]
+        for f in to_remove_fenestrations:
+            idf.removeidfobject(f)
 
         # ----------------------------
         # 2. Entferne Walls & Doors mit ungültigem Outside Boundary Condition Object
         # ----------------------------
         # Alle gültigen Building Surface Namen (für Verweisprüfung)
+        walls = idf.idfobjects['BUILDINGSURFACE:DETAILED']
         all_surface_names = {w.Name for w in walls}
 
         # Prüfe auf ungültige Referenz, wenn Outside Boundary Condition == "Surface"
@@ -1679,10 +1692,15 @@ class CreateIdf(ITask):
                                         f"removed {len(wall_subsurfs)} "
                                         f"subsurfaces.")
                     # to_remove_walls.append(wall)
+        for w in to_remove_walls:
+            idf.removeidfobject(w)
 
         # ----------------------------
         # 3. Entferne Doors mit ungültigem Building Surface Name
         # ----------------------------
+        walls = idf.idfobjects['BUILDINGSURFACE:DETAILED']
+        all_surface_names = {w.Name for w in walls}
+
         if 'DOOR' in idf.idfobjects:  # Sicherheitscheck
             doors = idf.idfobjects['DOOR']
             to_remove_doors = [
@@ -1695,11 +1713,6 @@ class CreateIdf(ITask):
         # ----------------------------
         # Objekte entfernen
         # ----------------------------
-        for f in to_remove_fenestrations:
-            idf.removeidfobject(f)
-
-        for w in to_remove_walls:
-            idf.removeidfobject(w)
 
         for d in to_remove_doors:
             idf.removeidfobject(d)

@@ -941,8 +941,9 @@ class SpaceBoundary(RelationBased):
                     shape = ifcopenshell.geom.create_shape(settings, temp_sore)
                 else:
                     shape = remove_inner_loops(shape)
-            if not (sore.InnerBoundaries and not self.bound_element.ifc.is_a(
-                    'IfcWall')):
+            if not sore.InnerBoundaries: # TODO 31 EDGE
+            # if not sore.InnerBoundaries and not self.bound_element.ifc.is_a(
+            #         'IfcWall')):
                 faces = PyOCCTools.get_faces_from_shape(shape)
                 if len(faces) > 1:
                     unify = ShapeUpgrade_UnifySameDomain()
