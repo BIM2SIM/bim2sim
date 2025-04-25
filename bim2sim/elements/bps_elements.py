@@ -818,7 +818,12 @@ class SpaceBoundary(RelationBased):
                             gp_Pnt(b.bound_center)) ** 2
                         if center_dist > 0.5:
                             continue
-                        corr_bound = b
+                        nb_vert_this = PyOCCTools.get_number_of_vertices(
+                            self.bound_shape)
+                        nb_vert_other = PyOCCTools.get_number_of_vertices(
+                            b.bound_shape)
+                        if nb_vert_this == nb_vert_other:
+                            corr_bound = b
                         return corr_bound
                     return None
                 # cover virtual space boundaries related to an IfcVirtualElement
