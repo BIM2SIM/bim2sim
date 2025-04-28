@@ -1652,6 +1652,16 @@ class CreateIdf(ITask):
         logger.info('IDF Validity Checker done')
 
     def idf_cleanup(self, idf):
+        # TODO #31 EDGE
+        set_to_adiabatic = []
+            # ['1LJTWHTF9WXI5GTQPHZRQC',
+            #                 '3TER4XJL8NPYW8PBKYRYVK',
+            #                 '05PHXS4WYQ_Q$Z7OBQMEXY',
+            #                 '3KLDBXMLZANIHVDOJWM41Y',
+            #                 '0VQS1MLWVEEJVZL5MZLYUA', '2NNVCJLYW4P31JEU5YK2QY',
+            #                 '1E4IWYHNY_ZTHSPBOADAKN',
+            #                 '2PZHDTFF$JCHZKLYWDTQPH',
+            #                 '31LKPSZR6TLOVW63UYNXRH', '0IY4SZGY1WXKAVZ3X1KJOB']
         fenestrations = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
         # ----------------------------
         # 1. Entferne Fenestrations mit Surface Type = "Wall"
@@ -1676,7 +1686,8 @@ class CreateIdf(ITask):
             if wall.Outside_Boundary_Condition.upper() == "SURFACE":
                 if (not wall.Outside_Boundary_Condition_Object or
                         wall.Outside_Boundary_Condition_Object not in
-                        all_surface_names):
+                        all_surface_names or wall.Name.upper() in
+                        set_to_adiabatic):
                     all_subsurfaces = idf.getsubsurfaces()
                     wall_subsurfs = []
                     for sub in all_subsurfaces:
