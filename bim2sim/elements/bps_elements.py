@@ -217,19 +217,19 @@ class ThermalZone(BPSProduct):
         else:
             return 'Internal'
 
-    def _get_space_neighbors(self, name) -> list:
-        """determines the neighbors of the thermal zone"""
-        neighbors = []
-        for sb in self.space_boundaries:
-            if sb.related_bound is not None:
-                tz = sb.related_bound.bound_thermal_zone
-                # todo: check if computation of neighbors works as expected
-                # what if boundary has no related bound but still has a
-                # neighbor?
-                # hint: neighbors != related bounds
-                if (tz is not self) and (tz not in neighbors):
-                    neighbors.append(tz)
-        return neighbors
+    # def _get_space_neighbors(self, name) -> list:
+    #     """determines the neighbors of the thermal zone"""
+    #     neighbors = []
+    #     for sb in self.space_boundaries:
+    #         if sb.related_bound is not None:
+    #             tz = sb.related_bound.bound_thermal_zone
+    #             # todo: check if computation of neighbors works as expected
+    #             # what if boundary has no related bound but still has a
+    #             # neighbor?
+    #             # hint: neighbors != related bounds
+    #             if (tz is not self) and (tz not in neighbors):
+    #                 neighbors.append(tz)
+    #     return neighbors
 
     def _get_space_shape(self, name):
         """returns topods shape of the IfcSpace"""
@@ -368,7 +368,8 @@ class ThermalZone(BPSProduct):
 
     space_neighbors = attribute.Attribute(
         description="Determines the neighbors of the thermal zone.",
-        functions=[_get_space_neighbors]
+        # space neighbors are calculated in create_relations.py
+        # functions=[_get_space_neighbors]
     )
 
     space_shape = attribute.Attribute(
@@ -804,18 +805,26 @@ class SpaceBoundary(RelationBased):
                 corr_bound = None
                 # cover virtual space boundaries without related IfcVirtualElement
                 if not self.ifc.RelatedBuildingElement:
-                    vbs = [b for b in self._elements.values() if
-                           isinstance(b, SpaceBoundary) and not
-                           b.ifc.RelatedBuildingElement]
-                    for b in vbs:
+                    # limit search to neighboring spaces to reduce
+                    # computational cost
+                    neighbor_bounds = []
+                    for s in self.bound_thermal_zone.space_neighbors:
+                        neighbor_bounds += s.space_boundaries
+                    distances = {}
+                    for b in neighbor_bounds:
                         if b is self:
                             continue
+                        # if related_bound attribute has already been set for
+                        # matching related_bound, assign this bound as related
+                        if b.attributes['related_bound'][1] == 'AVAILABLE':
+                            if b.related_bound == self:
+                                return b
                         if b.ifc.RelatingSpace == self.ifc.RelatingSpace:
                             continue
-                        if not (b.bound_area.m - self.bound_area.m) ** 2 < 1e-2:
+                        if not abs(b.bound_area.m - self.bound_area.m) < 1e-2:
                             continue
-                        center_dist = gp_Pnt(self.bound_center).Distance(
-                            gp_Pnt(b.bound_center)) ** 2
+                        center_dist = abs(gp_Pnt(self.bound_center).Distance(
+                            gp_Pnt(b.bound_center)))
                         if center_dist > 0.5:
                             continue
                         nb_vert_this = PyOCCTools.get_number_of_vertices(
@@ -823,9 +832,15 @@ class SpaceBoundary(RelationBased):
                         nb_vert_other = PyOCCTools.get_number_of_vertices(
                             b.bound_shape)
                         if nb_vert_this == nb_vert_other:
-                            corr_bound = b
+                            distances.update({center_dist: b})
+                    # set related_bound to bound with lowest center-to-center
+                    # distance
+                    sorted_distances = sorted(distances.items())
+                    if sorted_distances:
+                        corr_bound = sorted_distances[0][1]
                         return corr_bound
-                    return None
+                    else:
+                        return None
                 # cover virtual space boundaries related to an IfcVirtualElement
                 if self.ifc.RelatedBuildingElement.is_a('IfcVirtualElement'):
                     if len(self.ifc.RelatedBuildingElement.ProvidesBoundaries) == 2:
@@ -844,14 +859,17 @@ class SpaceBoundary(RelationBased):
                     continue
                 if bound is self:
                     continue
+                if bound.attributes['related_bound'][1] == 'AVAILABLE':
+                    if bound.related_bound == self:
+                        return bound
                 # if bound.bound_normal.Dot(self.bound_normal) != -1:
                 #     continue
                 other_area = bound.bound_area
-                if (other_area.m - self.bound_area.m) ** 2 > 1e-1:
+                if abs(other_area.m - self.bound_area.m) > 1e-2:
                     continue
-                center_dist = gp_Pnt(self.bound_center).Distance(
-                    gp_Pnt(bound.bound_center)) ** 2
-                if abs(center_dist) > 0.5:
+                center_dist = abs(gp_Pnt(self.bound_center).Distance(
+                    gp_Pnt(bound.bound_center)))
+                if abs(center_dist) > 0.5 or abs(center_dist) > min_dist:
                     continue
                 distance = BRepExtrema_DistShapeShape(
                     bound.bound_shape,
@@ -944,17 +962,18 @@ class SpaceBoundary(RelationBased):
             if not sore.InnerBoundaries: # TODO 31 EDGE
             # if not sore.InnerBoundaries and not self.bound_element.ifc.is_a(
             #         'IfcWall')):
-                faces = PyOCCTools.get_faces_from_shape(shape)
-                if len(faces) > 1:
-                    unify = ShapeUpgrade_UnifySameDomain()
-                    unify.Initialize(shape)
-                    unify.Build()
-                    shape = unify.Shape()
-                    faces = PyOCCTools.get_faces_from_shape(shape)
-                face = faces[0]
-                face = PyOCCTools.remove_coincident_and_collinear_points_from_face(
-                    face)
-                shape = face
+            #     faces = PyOCCTools.get_faces_from_shape(shape)
+            #     if len(faces) > 1:
+            #         unify = ShapeUpgrade_UnifySameDomain()
+            #         unify.Initialize(shape)
+            #         unify.Build()
+            #         shape = unify.Shape()
+            #         faces = PyOCCTools.get_faces_from_shape(shape)
+            #     face = faces[0]
+            #     face = PyOCCTools.remove_coincident_and_collinear_points_from_face(
+            #         face)
+            #     shape = face
+                pass
         except:
             try:
                 sore = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement
@@ -1000,6 +1019,19 @@ class SpaceBoundary(RelationBased):
         unify.Initialize(shape)
         unify.Build()
         shape = unify.Shape()
+        # apply removal of coincident and collinear points to all new faces
+        # to avoid errors lateron for mismatched vertex numbers
+        faces = PyOCCTools.get_faces_from_shape(shape)
+        if len(faces) > 1:
+            unify = ShapeUpgrade_UnifySameDomain()
+            unify.Initialize(shape)
+            unify.Build()
+            shape = unify.Shape()
+            faces = PyOCCTools.get_faces_from_shape(shape)
+        face = faces[0]
+        face = PyOCCTools.remove_coincident_and_collinear_points_from_face(
+            face)
+        shape = face
 
         if self.bound_element is not None:
             bi = self.bound_element
