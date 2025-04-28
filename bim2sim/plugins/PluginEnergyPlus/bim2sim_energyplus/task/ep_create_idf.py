@@ -1701,20 +1701,20 @@ class CreateIdf(ITask):
         walls = idf.idfobjects['BUILDINGSURFACE:DETAILED']
         all_surface_names = {w.Name for w in walls}
 
-        if 'DOOR' in idf.idfobjects:  # Sicherheitscheck
-            doors = idf.idfobjects['DOOR']
-            to_remove_doors = [
-                d for d in doors if
+        if 'FENESTRATIONSURFACE:DETAILED' in idf.idfobjects:  # Sicherheitscheck
+            openings = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
+            to_remove_openings = [
+                d for d in openings if
                 d.Building_Surface_Name not in all_surface_names
             ]
         else:
-            to_remove_doors = []
+            to_remove_openings = []
 
         # ----------------------------
         # Objekte entfernen
         # ----------------------------
 
-        for d in to_remove_doors:
+        for d in to_remove_openings:
             idf.removeidfobject(d)
 
         # ----------------------------
@@ -1725,7 +1725,8 @@ class CreateIdf(ITask):
         self.logger.info(
             f"Removed {len(to_remove_walls)} walls with invalid Outside_Boundary_Condition_Object.")
         self.logger.info(
-            f"Removed {len(to_remove_doors)} doors with invalid Building_Surface_Name.")
+            f"Removed {len(to_remove_openings)} openings with invalid "
+            f"Building_Surface_Name.")
 
 
 class IdfObject:
@@ -1895,6 +1896,27 @@ class IdfObject:
                 if self.surface_type.lower() in {"DOOR".lower(),
                                                  "Window".lower()}:
                     self.surface_type = "Wall"
+                    self.construction_name = None
+                    constructions = idf.idfobjects['CONSTRUCTION']
+                    if (self.out_bound_cond.upper() == 'SURFACE' or
+                            self.out_bound_cond.upper() == 'ADIABATIC'):
+                        if any(['INNERWALL' in c.Name.upper() for c in
+                            constructions]):
+                            self.construction_name = [
+                                c.Name for c in constructions if 'INNERWALL' in
+                                                               c.Name.upper()][0]
+                    elif self.out_bound_cond.upper() == 'OUTDOORS':
+                        if any(['OUTERWALL' in c.Name.upper() for c in
+                            constructions]):
+                            self.construction_name = [
+                                c.Name for c in constructions if 'OUTERWALL' in
+                                                               c.Name.upper()][0]
+                    if not self.construction_name:
+                        if any(['WALL' in c.Name.upper() for c in
+                                constructions]):
+                            self.construction_name = [
+                                c.Name for c in constructions if 'WALL' in
+                                                                 c.Name.upper()][0]
                 obj = idf.newidfobject(
                     self.key,
                     Name=self.name,
