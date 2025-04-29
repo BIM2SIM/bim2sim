@@ -77,12 +77,12 @@ class Reduce(ITask):
         for aggregation, count in statistics.items():
             log_str += "\n  - %s: %d" % (aggregation, count)
         self.logger.info(log_str)
-
-        if __debug__:
-            self.logger.info("Plotting graph ...")
-            graph.plot(self.paths.export)
-            graph.plot(self.paths.export, ports=True)
-            graph.plot(self.paths.export, ports=False, use_pyvis=True)
+        # TODO add plotting
+        # if __debug__:
+        #     self.logger.info("Plotting graph ...")
+        #     graph.plot(self.paths.export)
+        #     graph.plot(self.paths.export, ports=True)
+        #     graph.plot(self.paths.export, ports=False, use_pyvis=True)
 
         return graph,
 
