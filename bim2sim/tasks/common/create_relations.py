@@ -43,31 +43,33 @@ class CreateRelations(ITask):
             if ifc_building:
                 element_building = elements.get(
                     ifc_building.GlobalId, None)
-                if isinstance(element, Storey):
-                    if element not in element_building.storeys:
-                        element_building.storeys.append(element)
-                if isinstance(element, ThermalZone):
-                    if not isinstance(element, ExternalSpatialElement):
-                        if element not in element_building.thermal_zones:
-                            element_building.thermal_zones.append(element)
-                else:
-                    if element not in element_building.elements:
-                        element_building.elements.append(element)
-                element.building = element_building
+                if element_building:
+                    if isinstance(element, Storey):
+                        if element not in element_building.storeys:
+                            element_building.storeys.append(element)
+                    if isinstance(element, ThermalZone):
+                        if not isinstance(element, ExternalSpatialElement):
+                            if element not in element_building.thermal_zones:
+                                element_building.thermal_zones.append(element)
+                    else:
+                        if element not in element_building.elements:
+                            element_building.elements.append(element)
+                    element.building = element_building
 
             # connect element to storey and vice versa
             ifc_storey = getStorey(element.ifc)
             if ifc_storey:
                 element_storey = elements.get(
                     ifc_storey.GlobalId, None)
-                if isinstance(element, ThermalZone):
-                    if not isinstance(element, ExternalSpatialElement):
-                        if element not in element_storey.thermal_zones:
-                            element_storey.thermal_zones.append(element)
-                else:
-                    if element not in element_storey.elements:
-                        element_storey.elements.append(element)
-                if element not in element.storeys:
-                    element.storeys.append(element_storey)
+                if element_storey:
+                    if isinstance(element, ThermalZone):
+                        if not isinstance(element, ExternalSpatialElement):
+                            if element not in element_storey.thermal_zones:
+                                element_storey.thermal_zones.append(element)
+                    else:
+                        if element not in element_storey.elements:
+                            element_storey.elements.append(element)
+                    if element not in element.storeys:
+                        element.storeys.append(element_storey)
             # relations between element and space are handled in sb_creation
             # as more robust
