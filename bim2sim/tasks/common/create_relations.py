@@ -3,6 +3,8 @@ from bim2sim.elements.bps_elements import (
     ThermalZone, Storey, Building, ExternalSpatialElement)
 from bim2sim.tasks.base import ITask
 from bim2sim.elements.mapping.ifc2python import getBuilding, getStorey, getSite
+from bim2sim.utilities.common_functions import filter_elements
+from bim2sim.utilities.pyocc_tools import PyOCCTools
 
 
 class CreateRelations(ITask):
@@ -73,3 +75,30 @@ class CreateRelations(ITask):
                         element.storeys.append(element_storey)
             # relations between element and space are handled in sb_creation
             # as more robust
+
+        # calculate neighboring spaces of each space and store them in a
+        # dictionary. This pre-computation avoids computational overhead for
+        # further geometric calculations in this algorithm
+        spaces = filter_elements(elements, 'ThermalZone')
+        neighbor_spaces = {space: [] for space in spaces}
+        # define the maximum distance to search for neighboring spaces. This
+        # should be the maximum occurring wall distance. If selected too
+        # large, more neighboring spaces are found, which may result in
+        # higher computational cost for further operations, and may lead to
+        # an increased number of false-internal surfaces.
+        max_space_dist = 0.8  # TODO #31 EDGE bldg
+        for space1 in spaces:
+            for space2 in spaces:
+                if space1 == space2:
+                    continue
+                if space1 in neighbor_spaces[space2]:
+                    continue
+                if (PyOCCTools.get_minimum_distance(
+                        space1.space_shape, space2.space_shape) <
+                        max_space_dist):
+                    neighbor_spaces[space1].append(space2)
+                    neighbor_spaces[space2].append(space1)
+        for space_key, neighbors in neighbor_spaces.items():
+            space_key.space_neighbors = neighbors
+        self.logger.info('Added pre-computed space neighbors to thermal '
+                         'zones. ')

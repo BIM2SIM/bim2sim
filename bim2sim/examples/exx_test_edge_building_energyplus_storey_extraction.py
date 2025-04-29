@@ -87,7 +87,7 @@ def run_example_simple_building():
         # ep_tasks.IdfPostprocessing,
         # ep_tasks.ExportIdfForCfd,
         # common.SerializeElements,
-        # ep_tasks.RunEnergyPlusSimulation,
+        ep_tasks.RunEnergyPlusSimulation,
         # ep_tasks.CreateResultDF,
         # ep_tasks.VisualizeResults,
         # bps.PlotBEPSResults,

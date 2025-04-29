@@ -1652,6 +1652,16 @@ class CreateIdf(ITask):
         logger.info('IDF Validity Checker done')
 
     def idf_cleanup(self, idf):
+        # TODO #31 EDGE
+        set_to_adiabatic = []
+            # ['1LJTWHTF9WXI5GTQPHZRQC',
+            #                 '3TER4XJL8NPYW8PBKYRYVK',
+            #                 '05PHXS4WYQ_Q$Z7OBQMEXY',
+            #                 '3KLDBXMLZANIHVDOJWM41Y',
+            #                 '0VQS1MLWVEEJVZL5MZLYUA', '2NNVCJLYW4P31JEU5YK2QY',
+            #                 '1E4IWYHNY_ZTHSPBOADAKN',
+            #                 '2PZHDTFF$JCHZKLYWDTQPH',
+            #                 '31LKPSZR6TLOVW63UYNXRH', '0IY4SZGY1WXKAVZ3X1KJOB']
         fenestrations = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
         # ----------------------------
         # 1. Entferne Fenestrations mit Surface Type = "Wall"
@@ -1667,29 +1677,37 @@ class CreateIdf(ITask):
         # ----------------------------
         # Alle gültigen Building Surface Namen (für Verweisprüfung)
         walls = idf.idfobjects['BUILDINGSURFACE:DETAILED']
-        all_surface_names = {w.Name for w in walls}
-
         # Prüfe auf ungültige Referenz, wenn Outside Boundary Condition == "Surface"
         to_remove_walls = []
         for wall in walls:
+            all_surface_names = {w.Name for w in walls if not
+                w.Outside_Boundary_Condition.upper() ==
+                'ADIABATIC'}
             if wall.Outside_Boundary_Condition.upper() == "SURFACE":
                 if (not wall.Outside_Boundary_Condition_Object or
                         wall.Outside_Boundary_Condition_Object not in
-                        all_surface_names):
+                        all_surface_names or wall.Name.upper() in
+                        set_to_adiabatic):
                     all_subsurfaces = idf.getsubsurfaces()
                     wall_subsurfs = []
                     for sub in all_subsurfaces:
                         if (sub.Building_Surface_Name.upper() ==
                                 wall.Name.upper()):
                             wall_subsurfs.append(sub)
+                    openings_to_remove = []
                     for sub in wall_subsurfs:
+                        for other_sub in all_subsurfaces:
+                            if (other_sub.Outside_Boundary_Condition_Object ==
+                                    sub.Name):
+                                openings_to_remove.append(other_sub)
+                    for sub in wall_subsurfs+openings_to_remove:
                         idf.removeidfobject(sub)
                     wall.Outside_Boundary_Condition_Object = ''
                     wall.Outside_Boundary_Condition = 'Adiabatic'
                     self.logger.warning(f"Set wall {wall.Name} to adiabatic "
                                         f"boundary conditions because of "
                                         f"invalid surface pairing and "
-                                        f"removed {len(wall_subsurfs)} "
+                                        f"removed {len(wall_subsurfs+openings_to_remove)} "
                                         f"subsurfaces.")
                     # to_remove_walls.append(wall)
         for w in to_remove_walls:
@@ -1699,13 +1717,30 @@ class CreateIdf(ITask):
         # 3. Entferne Doors mit ungültigem Building Surface Name
         # ----------------------------
         walls = idf.idfobjects['BUILDINGSURFACE:DETAILED']
-        all_surface_names = {w.Name for w in walls}
-
+        all_surface_names = {w.Name.upper() for w in walls if not
+                             w.Outside_Boundary_Condition.upper() ==
+                             'ADIABATIC'}
+        to_remove_openings = []
         if 'FENESTRATIONSURFACE:DETAILED' in idf.idfobjects:  # Sicherheitscheck
             openings = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
-            to_remove_openings = [
+            all_opening_names = {o.Name.upper() for o in openings}
+            for opening in openings:
+                if (opening.Outside_Boundary_Condition_Object.upper() not in
+                        all_opening_names):
+                    parent_surface = idf.getobject('BUILDINGSURFACE:DETAILED',
+                                   opening.Building_Surface_Name)
+                    if parent_surface:
+                        if (parent_surface.Outside_Boundary_Condition.upper() in
+                                ['SURFACE', 'ADIABATIC']):
+                            to_remove_openings.append(opening)
+                        else:
+                            opening.Outside_Boundary_Condition_Object = ''
+                    else:
+                        to_remove_openings.append(opening)
+
+            to_remove_openings += [
                 d for d in openings if
-                d.Building_Surface_Name not in all_surface_names
+                d.Building_Surface_Name.upper() not in all_surface_names
             ]
         else:
             to_remove_openings = []
@@ -1715,7 +1750,11 @@ class CreateIdf(ITask):
         # ----------------------------
 
         for d in to_remove_openings:
-            idf.removeidfobject(d)
+            try:
+                idf.removeidfobject(d)
+            except ValueError:
+                self.logger.warning(f"Could not remove {d}, has already been "
+                                    f"removed.")
 
         # ----------------------------
         # Log

@@ -28,28 +28,32 @@ class CorrectInternalExternal(ITask):
         global_faces = PyOCCTools.get_faces_from_shape(global_bbox)
         global_shell = PyOCCTools.make_shell_from_faces(global_faces)
         global_bbox_solid = PyOCCTools.make_solid_from_shell(global_shell)
-
-        # calculate neighboring spaces of each space and store them in a
-        # dictionary. This pre-computation avoids computational overhead for
-        # further geometric calculations in this algorithm
-        neighbor_spaces = {space: [] for space in spaces}
-        # define the maximum distance to search for neighboring spaces. This
-        # should be the maximum occurring wall distance. If selected too
-        # large, more neighboring spaces are found, which may result in
-        # higher computational cost for further operations, and may lead to
-        # an increased number of false-internal surfaces.
         max_space_dist = 0.8  # TODO #31 EDGE bldg
-        for space1 in spaces:
-            for space2 in spaces:
-                if space1 == space2:
-                    continue
-                if space1 in neighbor_spaces[space2]:
-                    continue
-                if (PyOCCTools.get_minimum_distance(
-                        space1.space_shape, space2.space_shape) <
-                        max_space_dist):
-                    neighbor_spaces[space1].append(space2)
-                    neighbor_spaces[space2].append(space1)
+
+        # neighbor spaces are calculated in create_relations.py and assigned
+        # to the ThermalZone element.
+
+        # # calculate neighboring spaces of each space and store them in a
+        # # dictionary. This pre-computation avoids computational overhead for
+        # # further geometric calculations in this algorithm
+        # neighbor_spaces = {space: [] for space in spaces}
+        # # define the maximum distance to search for neighboring spaces. This
+        # # should be the maximum occurring wall distance. If selected too
+        # # large, more neighboring spaces are found, which may result in
+        # # higher computational cost for further operations, and may lead to
+        # # an increased number of false-internal surfaces.
+        # for space1 in spaces:
+        #     for space2 in spaces:
+        #         if space1 == space2:
+        #             continue
+        #         if space1 in neighbor_spaces[space2]:
+        #             continue
+        #         if (PyOCCTools.get_minimum_distance(
+        #                 space1.space_shape, space2.space_shape) <
+        #                 max_space_dist):
+        #             neighbor_spaces[space1].append(space2)
+        #             neighbor_spaces[space2].append(space1)
+
         # Further calculations only address vertical boundaries. This
         # algorithm does not affect horizontal boundaries (floors / roofs /
         # slabs)
@@ -57,12 +61,15 @@ class CorrectInternalExternal(ITask):
                            if b.top_bottom == BoundaryOrientation.vertical]
         vertical_internal_external = {b: None for b in vertical_bounds}
         for b in vertical_bounds:
+            if vertical_internal_external[b] is not None:
+                continue
             if b.related_bound:
                 # boundaries with a related boundary (corresponding boundary)
                 # are assigned to have a matching surface partner and are
                 # thus assigned to be internal. This requires a correct
                 # surface matching beforehand.
                 vertical_internal_external[b] = 'internal'
+                vertical_internal_external[b.related_bound] = 'internal'
                 continue
             # First, it is checked if the space boundaries are close to the
             # edge surfaces of the global bounding box, which means
@@ -93,7 +100,7 @@ class CorrectInternalExternal(ITask):
             # max_space_distance to any other neighboring space. This may
             # overshoot and result in false-internal assignments
             # if max_space_distance is too large.
-            for ns in neighbor_spaces[b.bound_thermal_zone]:
+            for ns in b.bound_thermal_zone.space_neighbors:
                 if (PyOCCTools.get_point_to_shape_distance(gp_Pnt(
                         b.bound_center), ns.space_shape) <
                         max_space_dist):
