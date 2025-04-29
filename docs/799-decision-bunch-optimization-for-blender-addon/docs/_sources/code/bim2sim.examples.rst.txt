@@ -24,3 +24,11 @@ bim2sim.examples.e2\_interactive\_project module
    :members:
    :undoc-members:
    :show-inheritance:
+
+bim2sim.examples.e2\_interactive\_project\_tcp module
+-----------------------------------------------------
+
+.. automodule:: bim2sim.examples.e2_interactive_project_tcp
+   :members:
+   :undoc-members:
+   :show-inheritance:

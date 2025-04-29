@@ -24,3 +24,11 @@ bim2sim.kernel.decision.decisionhandler module
    :members:
    :undoc-members:
    :show-inheritance:
+
+bim2sim.kernel.decision.tcp\_decisionhandler module
+---------------------------------------------------
+
+.. automodule:: bim2sim.kernel.decision.tcp_decisionhandler
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -87,6 +87,10 @@
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.SettingsManager"><code class="docutils literal notranslate"><span class="pre">SettingsManager</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#module-bim2sim.tcp_connection">bim2sim.tcp_connection module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.tcp_connection.TCPClient"><code class="docutils literal notranslate"><span class="pre">TCPClient</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -864,6 +868,10 @@
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.examples.html#bim2sim.examples.e2_interactive_project.run_interactive_example"><code class="docutils literal notranslate"><span class="pre">run_interactive_example()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.examples.html#module-bim2sim.examples.e2_interactive_project_tcp">bim2sim.examples.e2_interactive_project_tcp module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.examples.html#bim2sim.examples.e2_interactive_project_tcp.run_interactive_example"><code class="docutils literal notranslate"><span class="pre">run_interactive_example()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="bim2sim.export.html">bim2sim.export package</a><ul>
@@ -911,6 +919,7 @@
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.kernel.decision.html#submodules">Submodules</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.kernel.decision.html#module-bim2sim.kernel.decision.console">bim2sim.kernel.decision.console module</a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.kernel.decision.html#module-bim2sim.kernel.decision.decisionhandler">bim2sim.kernel.decision.decisionhandler module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.kernel.decision.html#module-bim2sim.kernel.decision.tcp_decisionhandler">bim2sim.kernel.decision.tcp_decisionhandler module</a></li>
 </ul>
 </li>
 </ul>
@@ -2002,6 +2011,53 @@ bound to. E.g. BuildingSimSettings.</p>
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">names</span></span><a class="headerlink" href="#bim2sim.sim_settings.SettingsManager.names" title="Permalink to this definition"></a></dt>
 <dd><p>Returns a generator object with all settings that the
 bound_simulation_settings owns.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bim2sim.tcp_connection">
+<span id="bim2sim-tcp-connection-module"></span><h2>bim2sim.tcp_connection module<a class="headerlink" href="#module-bim2sim.tcp_connection" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.tcp_connection.TCPClient">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.tcp_connection.</span></span><span class="sig-name descname"><span class="pre">TCPClient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'localhost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">65432</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tcp_connection.TCPClient" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>TCP-Client Klasse für die Kommunikation mit dem Blender-Server.
+Diese Klasse stellt die Verbindung her, sendet und empfängt Nachrichten.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tcp_connection.TCPClient.receive_message">
+<span class="sig-name descname"><span class="pre">receive_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tcp_connection.TCPClient.receive_message" title="Permalink to this definition"></a></dt>
+<dd><p>Empfängt eine Nachricht vom Server.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>timeout: Timeout in Sekunden für den Empfang</p>
+</dd>
+<dt>Returns:</dt><dd><p>Empfangene Nachricht als String oder None bei Timeout/Fehler</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tcp_connection.TCPClient.reconnect">
+<span class="sig-name descname"><span class="pre">reconnect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tcp_connection.TCPClient.reconnect" title="Permalink to this definition"></a></dt>
+<dd><p>Stellt die Verbindung zum Server wieder her, wenn sie unterbrochen wurde.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tcp_connection.TCPClient.send_message">
+<span class="sig-name descname"><span class="pre">send_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tcp_connection.TCPClient.send_message" title="Permalink to this definition"></a></dt>
+<dd><p>Sendet eine Nachricht an den Server.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tcp_connection.TCPClient.start">
+<span class="sig-name descname"><span class="pre">start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tcp_connection.TCPClient.start" title="Permalink to this definition"></a></dt>
+<dd><p>Startet den TCP-Client und stellt die Verbindung her.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.tcp_connection.TCPClient.stop">
+<span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tcp_connection.TCPClient.stop" title="Permalink to this definition"></a></dt>
+<dd><p>Stoppt den TCP-Client und schließt die Verbindung.</p>
 </dd></dl>
 
 </dd></dl>

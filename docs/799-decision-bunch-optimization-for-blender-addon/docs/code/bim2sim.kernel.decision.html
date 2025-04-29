@@ -68,6 +68,7 @@
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.html#submodules">Submodules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.html#module-bim2sim.project">bim2sim.project module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.html#module-bim2sim.sim_settings">bim2sim.sim_settings module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#module-bim2sim.tcp_connection">bim2sim.tcp_connection module</a></li>
 </ul>
 </li>
 </ul>
@@ -801,6 +802,51 @@ implementation or external logic.</p>
 <dt class="sig sig-object py" id="bim2sim.kernel.decision.decisionhandler.DecisionHandler.validate">
 <span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decision</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.decisionhandler.DecisionHandler.validate" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bim2sim.kernel.decision.tcp_decisionhandler">
+<span id="bim2sim-kernel-decision-tcp-decisionhandler-module"></span><h2>bim2sim.kernel.decision.tcp_decisionhandler module<a class="headerlink" href="#module-bim2sim.kernel.decision.tcp_decisionhandler" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.kernel.decision.tcp_decisionhandler.TCPDecisionHandler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.kernel.decision.tcp_decisionhandler.</span></span><span class="sig-name descname"><span class="pre">TCPDecisionHandler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tcp_client</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.html#bim2sim.tcp_connection.TCPClient" title="bim2sim.tcp_connection.TCPClient"><span class="pre">TCPClient</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.tcp_decisionhandler.TCPDecisionHandler" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.kernel.decision.decisionhandler.DecisionHandler" title="bim2sim.kernel.decision.decisionhandler.DecisionHandler"><code class="xref py py-class docutils literal notranslate"><span class="pre">DecisionHandler</span></code></a></p>
+<p>DecisionHandler mit TCP-Kommunikation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.kernel.decision.tcp_decisionhandler.TCPDecisionHandler.ensure_client_running">
+<span class="sig-name descname"><span class="pre">ensure_client_running</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.tcp_decisionhandler.TCPDecisionHandler.ensure_client_running" title="Permalink to this definition"></a></dt>
+<dd><p>Stellt sicher, dass der TCP-Client läuft.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.kernel.decision.tcp_decisionhandler.TCPDecisionHandler.extract_answers">
+<span class="sig-name descname"><span class="pre">extract_answers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">identifier_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.tcp_decisionhandler.TCPDecisionHandler.extract_answers" title="Permalink to this definition"></a></dt>
+<dd><p>Extrahiert die Antworten aus verschiedenen Antwortformaten und mapped sie
+auf die passenden Typen laut identifier_map.</p>
+<p>Unterstützt sowohl:
+- Einfaches dict mit identifier -&gt; wert
+- Dict mit identifier -&gt; {answer: wert, type: typ}
+- Liste von Objekten mit decision_id, answer, decision_type</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.kernel.decision.tcp_decisionhandler.TCPDecisionHandler.get_answers_for_bunch">
+<span class="sig-name descname"><span class="pre">get_answers_for_bunch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bunch</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bim2sim.kernel.decision.DecisionBunch" title="bim2sim.kernel.decision.DecisionBunch"><span class="pre">DecisionBunch</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#bim2sim.kernel.decision.tcp_decisionhandler.TCPDecisionHandler.get_answers_for_bunch" title="Permalink to this definition"></a></dt>
+<dd><p>Collect and return answers for given decision bunch.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.kernel.decision.tcp_decisionhandler.TCPDecisionHandler.send_decision_to_client">
+<span class="sig-name descname"><span class="pre">send_decision_to_client</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decision</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.tcp_decisionhandler.TCPDecisionHandler.send_decision_to_client" title="Permalink to this definition"></a></dt>
+<dd><p>Sendet eine Entscheidung an den TCP-Client und erhält die Antwort.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.kernel.decision.tcp_decisionhandler.TCPDecisionHandler.shutdown">
+<span class="sig-name descname"><span class="pre">shutdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">success</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.kernel.decision.tcp_decisionhandler.TCPDecisionHandler.shutdown" title="Permalink to this definition"></a></dt>
+<dd><p>Schließt die TCP-Verbindung, wenn erforderlich.</p>
+</dd></dl>
 
 </dd></dl>
 

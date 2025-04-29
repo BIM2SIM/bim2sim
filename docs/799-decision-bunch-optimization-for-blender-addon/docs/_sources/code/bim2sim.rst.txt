@@ -38,3 +38,11 @@ bim2sim.sim\_settings module
    :members:
    :undoc-members:
    :show-inheritance:
+
+bim2sim.tcp\_connection module
+------------------------------
+
+.. automodule:: bim2sim.tcp_connection
+   :members:
+   :undoc-members:
+   :show-inheritance:
