@@ -484,19 +484,46 @@ critical_for_creation: if True, the element will not be created if the</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.TextFilter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.filter.</span></span><span class="sig-name descname"><span class="pre">TextFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements_classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.ProductBased" title="bim2sim.elements.base_elements.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optional_locations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.TextFilter" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.filter.</span></span><span class="sig-name descname"><span class="pre">TextFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements_classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.ProductBased" title="bim2sim.elements.base_elements.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optional_locations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.TextFilter" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.mapping.filter.Filter" title="bim2sim.elements.mapping.filter.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></a></p>
-<p>Filter for unknown properties by text fracments</p>
+<p>Filter for unknown properties by text fragments.</p>
+<p>This class provides functionality to filter IFC entities by analyzing text
+fragments to determine their potential element classes.</p>
+<dl class="simple">
+<dt>Attributes:</dt><dd><p>elements_classes: Collection of ProductBased classes to check for matches.
+ifc_units: Dictionary containing IFC unit information.
+optional_locations: Additional locations to check patterns beyond names.</p>
+</dd>
+</dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.TextFilter.matches">
-<span class="sig-name descname"><span class="pre">matches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcelement</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.TextFilter.matches" title="Permalink to this definition"></a></dt>
-<dd><p>Check if element matches filter conditions</p>
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.TextFilter.find_matches">
+<span class="sig-name descname"><span class="pre">find_matches</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.TextFilter.find_matches" title="Permalink to this definition"></a></dt>
+<dd><p>Find all element classes that match the given entity.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>entity: The IFC entity to check.</p>
+</dd>
+<dt>Returns:</dt><dd><p>dict: Dictionary with matching classes as keys and their match fragments as values.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.TextFilter.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_entities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.TextFilter.run" title="Permalink to this definition"></a></dt>
-<dd><p>Apply the Filter on IFC File</p>
+<dd><p>Run the filter on a list of IFC entities.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>ifc_entities: List of IFC entities to filter.</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>tuple:</dt><dd><ul class="simple">
+<li><p>filter_results: Dictionary mapping IFC entities to matching classes
+and their fragments.</p></li>
+<li><p>unknown: List of IFC entities that didn’t match any class.</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
