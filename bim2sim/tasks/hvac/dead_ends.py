@@ -33,11 +33,10 @@ class DeadEnds(ITask):
         graph, n_removed = yield from self.decide_dead_ends(
             graph, pot_dead_ends, False)
         self.logger.info("Removed %s ports due to found dead ends." % n_removed)
-        # TODO add plotting
-        # if __debug__:
-        #     self.logger.info("Plotting graph ...")
-        #     graph.plot(self.paths.export)
-        #     graph.plot(self.paths.export, ports=True)
+        if __debug__:
+            self.logger.info("Plotting graph ...")
+            graph.plot(self.paths.export)
+            graph.plot(self.paths.export, ports=True)
         return graph,
 
     @staticmethod
