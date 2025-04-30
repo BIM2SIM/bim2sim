@@ -1,4 +1,5 @@
 """Project handling"""
+import hashlib
 import logging
 import os
 import sys
@@ -467,9 +468,17 @@ class Project:
                              self.playground.available_tasks()}
             choices = [(name, task.__doc__) for name, task in
                        tasks_classes.items()]
-            task_decision = ListDecision("What shall we do?",
-                                         choices=choices,
-                                         global_key = "_task_%s_decision" % (self.__class__.__name__)) # add global key: or task.__name__
+            task_infos = [f"{task.__module__}.{task.__name__}" for task in
+                          tasks_classes.values()]
+            task_infos_sorted = sorted(task_infos)
+            task_key_base = ",".join(task_infos_sorted)
+            task_key_hash = hashlib.sha256(task_key_base.encode()).hexdigest()
+            global_key = f"_task_{task_key_hash}_decision"
+            task_decision = ListDecision(
+                "What shall we do?",
+                choices=choices,
+                global_key=global_key
+            )
             yield DecisionBunch([task_decision])
             task_name = task_decision.value
             task_class = tasks_classes[task_name]
