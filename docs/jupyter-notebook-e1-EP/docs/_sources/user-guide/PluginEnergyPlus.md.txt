@@ -17,6 +17,23 @@ For python > 3.9: make sure that the correct geomeppy is installed (using requir
 
 ### Test install
 
+## Examples
+Please also take a look at
+`bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/examples`, which provides some
+runnable examples for the EnergyPlus plugin. You can use these examples to test your
+installation and learn from them. Additionally, they serve as good starting
+points for your own projects."
+
+### Hints Jupyter Notebook
+For a more interactive experience, you can run the Jupyter Notebook. To do this, you need to configure a kernel based on our bim2sim Python environment. Run the following commands:
+```shell
+
+  pip install ipykernel
+  python3 -m ipykernel install --user --name=bim2sim-kernel
+```
+Now you can run Jupyter Notebook and switch to the configured kernel, which can be selected from the top-right corner.
+
+
 
 ## Structure of the plugin
 
