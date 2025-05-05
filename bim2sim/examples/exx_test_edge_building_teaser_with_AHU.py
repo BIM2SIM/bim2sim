@@ -3,7 +3,7 @@ from pathlib import Path
 
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
-from bim2sim.elements import bps_elements, hvac_elements
+from bim2sim.elements import bps_elements, hvac_elements, vent_elements
 from bim2sim.elements.base_elements import Material
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.tasks import common, bps
@@ -58,7 +58,7 @@ def run_example_simple_building():
     # system requirements
     project.sim_settings.cooling = True
     project.sim_settings.relevant_elements = (
-            {*bps_elements.items, hvac_elements.AirTerminal, Material}
+            {*bps_elements.items, vent_elements.AirTerminal, Material}
             - {bps_elements.Plate}
             - {bps_elements.Insulation})
     # overwrite existing layer structures and materials based on templates
