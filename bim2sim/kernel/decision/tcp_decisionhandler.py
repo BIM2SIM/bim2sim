@@ -31,13 +31,13 @@ class TCPDecisionHandler(DecisionHandler):
 
         # Entscheidungen vorbereiten und Nachricht aufbauen
         for i, decision in enumerate(bunch):
-            identifier = decision.console_identifier or f"auto_id_{i}"
+            identifier = decision.related or f"auto_id_{i}"
             identifier_map[identifier] = decision
             decision_to_identifier[decision] = identifier  # Reverse-Mapping speichern
 
             message[identifier] = {
                 "question": self.get_question(decision),
-                "identifier": identifier,
+                "identifier": decision.related,
                 "options": self.get_options(decision),
                 "default": decision.default if decision.default is not None else "",
                 "type": type(decision).__name__,
@@ -125,10 +125,11 @@ class TCPDecisionHandler(DecisionHandler):
         """Sendet eine Entscheidung an den TCP-Client und erhält die Antwort."""
         message = {
             "question": self.get_question(decision),
-            "identifier": decision.console_identifier,
+            "identifier": decision.related,
             "options": self.get_options(decision),
             "default": decision.default,
             "type": type(decision).__name__,
+            # "related": decision.related
         }
         if hasattr(decision, "get_body"):
             message["body"] = decision.get_body()
