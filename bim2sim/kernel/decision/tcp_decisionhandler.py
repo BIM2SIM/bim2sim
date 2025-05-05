@@ -20,6 +20,11 @@ class TCPDecisionHandler(DecisionHandler):
 
     # Antwortverarbeitung: Sicherstellen, dass das Antwortformat korrekt ist
     def get_answers_for_bunch(self, bunch: DecisionBunch) -> list:
+        # Sofort leere Liste zurückgeben, wenn das Bunch leer ist
+        if not bunch:
+            print("Leeres DecisionBunch erhalten, gebe leere Liste zurück")
+            return []
+
         message = {}
         identifier_map = {}
         decision_to_identifier = {}  # Mapping von Entscheidung zu Identifier
@@ -63,13 +68,23 @@ class TCPDecisionHandler(DecisionHandler):
 
                 print(f"Received from server: {response}")
 
-                # Antwort verarbeiten
-                extracted_responses = json.loads(response)
+                # Leere Antwort oder leeres JSON verarbeiten
+                if not response.strip() or response.strip() == "[]" or response.strip() == "{}":
+                    print("Leere Antwort erhalten, verwende Standardwerte")
+                    return [decision.default if decision.default is not None else 0 for decision in bunch]
+
+                # Versuche Antwort zu parsen
+                try:
+                    extracted_responses = json.loads(response)
+                except json.JSONDecodeError as e:
+                    print(f"Fehler beim Parsen der Antwort: {e}")
+                    retry_count += 1
+                    continue
+
                 parsed_responses = self.extract_answers(extracted_responses, identifier_map)
 
                 if parsed_responses is None:
                     # Sende Fehlermeldung und versuche es erneut
-                    self.tcp_client.send_message("Invalid response format. Please try again.")
                     retry_count += 1
                     time.sleep(1)
                     continue
@@ -95,22 +110,10 @@ class TCPDecisionHandler(DecisionHandler):
                         answers.append(default_value)
 
                 print(f"Parsed answers: {answers}")
-
-                # Bestätigung senden
-                try:
-                    self.tcp_client.send_message("OK")
-                except Exception as e:
-                    print(f"Warnung: Konnte Bestätigung nicht senden: {e}")
-
                 return answers
 
-            except (json.JSONDecodeError, ValueError, Exception) as e:
-                error_msg = f"Invalid response format. Please try again. Error: {e}"
-                print(error_msg)
-                try:
-                    self.tcp_client.send_message(error_msg)
-                except:
-                    pass
+            except Exception as e:
+                print(f"Fehler bei der Verarbeitung: {e}")
                 retry_count += 1
                 time.sleep(1)
 
@@ -149,18 +152,17 @@ class TCPDecisionHandler(DecisionHandler):
                     time.sleep(1)
                     continue
 
+                # Leere Antwort verarbeiten
+                if not response.strip() or response.strip() == "[]" or response.strip() == "{}":
+                    print("Leere Antwort erhalten, verwende Standardwert")
+                    return decision.default
+
                 extracted_response = self.extract_answer(response)
                 parsed_response = self.parse(decision, extracted_response)
 
                 if self.validate(decision, parsed_response):
-                    # Bestätigung senden
-                    try:
-                        self.tcp_client.send_message("OK")
-                    except:
-                        pass
                     return parsed_response
                 else:
-                    self.tcp_client.send_message("Invalid input. Please try again.")
                     retry_count += 1
             except DecisionSkip:
                 raise DecisionSkip
@@ -168,7 +170,6 @@ class TCPDecisionHandler(DecisionHandler):
                 raise DecisionCancel
             except Exception as e:
                 print(f"Fehler bei der Verarbeitung der Antwort: {e}")
-                self.tcp_client.send_message(f"Error: {e}. Please try again.")
                 retry_count += 1
                 time.sleep(1)
 
@@ -193,10 +194,16 @@ class TCPDecisionHandler(DecisionHandler):
         - Einfaches dict mit identifier -> wert
         - Dict mit identifier -> {answer: wert, type: typ}
         - Liste von Objekten mit decision_id, answer, decision_type
+        - Leere Liste oder Dict (gibt leeres Dictionary zurück)
         """
         answers = {}
 
         try:
+            # Fall 0: Leere Antwort
+            if response == [] or response == {}:
+                print("Leere Antwort erhalten, gebe leeres Dictionary zurück")
+                return {}
+
             # Fall 1: Antwort ist eine Liste von Objekten mit decision_id
             if isinstance(response, list):
                 for item in response:
@@ -219,14 +226,6 @@ class TCPDecisionHandler(DecisionHandler):
                             else:
                                 # Für andere Entscheidungstypen verwenden wir die normale Parsing-Methode
                                 answers[identifier] = self._parse_value(raw_answer, decision_type)
-
-                # Prüfen, ob wir alle erwarteten Identifiers haben
-                if len(answers) != len(identifier_map):
-                    print(
-                        f"Warnung: Nicht alle erwarteten Antworten gefunden (gefunden: {len(answers)}, erwartet: {len(identifier_map)})")
-                    for identifier in identifier_map:
-                        if identifier not in answers:
-                            print(f"Fehlender Identifier: {identifier}")
 
             # Fall 2: Antwort ist ein Dictionary
             elif isinstance(response, dict):
@@ -252,10 +251,10 @@ class TCPDecisionHandler(DecisionHandler):
                 print(f"Fehler: Antwortformat nicht unterstützt: {type(response)}")
                 return None
 
-            # Prüfen, ob wir Antworten für alle Identifiers haben
-            if len(answers) == 0:
-                print("Fehler: Keine gültigen Antworten gefunden.")
-                return None
+            # Bei einer leeren Liste/Dict akzeptieren wir das als gültige Antwort
+            if len(answers) == 0 and (isinstance(response, list) or isinstance(response, dict)):
+                print("Leere Antwortliste/Dict erhalten, akzeptiert.")
+                return {}
 
             return answers
 
