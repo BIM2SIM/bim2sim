@@ -488,7 +488,7 @@ class CreateElementsOnIfcTypes(ITask):
                                        f"iption: '{entity.Description}'",
                     choices=choices,
                     key=entity,
-                    related=[entity.GlobalId],
+                    related=entity.GlobalId,
                     global_key=f"TextFilter:{entity.is_a()}"
                                f".{entity.GlobalId}.{entity.Name}",
                     allow_skip=True,
@@ -747,7 +747,7 @@ class CreateElementsOnIfcTypes(ITask):
                                            ifc_entity.GlobalId,
                                            ifc_entity.PredefinedType),
                     choices=[ele.key for ele in sorted_elements],
-                    related=[ifc_entity.GlobalId],
+                    related=ifc_entity.GlobalId,
                     context=sorted(context),  # Sort the context
                     default=best_guess,
                     key=ifc_entity,

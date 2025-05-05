@@ -140,7 +140,7 @@ class DeadEnds(ITask):
                     key=dead_end,
                     global_key="deadEnd.%s" % dead_end.guid,
                     allow_skip=False,
-                    related={related_guid}, context=set(
+                    related=related_guid, context=set(
                         element.guid for element in element_strand))
                 decisions.append(cur_decision)
             yield decisions

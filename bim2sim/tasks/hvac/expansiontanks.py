@@ -105,7 +105,7 @@ class ExpansionTanks(ITask):
                     key=tank,
                     global_key="expansionTank.%s" % tank.guid,
                     allow_skip=True,
-                    related={tank.guid},
+                    related=tank.guid,
                 )
                 decisions.append(cur_decision)
             yield decisions
