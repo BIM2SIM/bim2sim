@@ -190,7 +190,7 @@ class ConsumerHeatingDistributorModule(AixLib):
                  element: hvac_aggregations.ConsumerHeatingDistributorModule):
         super().__init__(element)
         n_consumers = len(element.whitelist_elements)
-        self._set_parameter(name='redeclare package Medium_con',
+        self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
                             value=MEDIUM_WATER)
@@ -304,7 +304,7 @@ class BoilerAggregation(AixLib):
                             unit=None,
                             required=False,
                             value=MEDIUM_WATER)
-        self._set_parameter(name='hasPump',
+        self._set_parameter(name='Pump',
                             unit=None,
                             required=False,
                             attributes=['has_pump'])
