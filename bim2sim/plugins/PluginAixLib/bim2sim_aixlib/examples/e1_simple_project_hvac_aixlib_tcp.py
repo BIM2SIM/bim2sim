@@ -113,7 +113,7 @@ def run_example_simple_hvac_aixlib():
         'ConsumerHeatingDistributorModule',
         'GeneratorOneFluid'
     ]
-    project.sim_settings.group_unidentified = 'name'
+    project.sim_settings.group_unidentified = 'name_and_description'
 
     # Ändern der TCPClient-Klasse, um unbegrenzten Timeout zu ermöglichen
     original_receive_message = tcp_client.receive_message
