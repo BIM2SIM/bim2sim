@@ -215,6 +215,12 @@ class TCPDecisionHandler(DecisionHandler):
                             decision_type = type(decision).__name__
                             raw_answer = item["answer"]
 
+                            # Prüfen auf Skip-Antwort
+                            if raw_answer == "skip":
+                                print(f"Skip erkannt für {identifier}")
+                                answers[identifier] = None
+                                continue
+
                             # Für ListDecision akzeptieren wir sowohl Indizes als auch Namen
                             if decision_type == "ListDecision":
                                 if isinstance(raw_answer, int) or (
@@ -242,6 +248,12 @@ class TCPDecisionHandler(DecisionHandler):
                         else:
                             value = raw_value
 
+                        # Prüfen auf Skip-Antwort
+                        if value == "skip":
+                            print(f"Skip erkannt für {identifier}")
+                            answers[identifier] = None
+                            continue
+
                         # Für alle Entscheidungstypen: Direkt den Wert verwenden
                         answers[identifier] = value
                     else:
@@ -268,6 +280,11 @@ class TCPDecisionHandler(DecisionHandler):
     def _parse_value(self, value, decision_type):
         """Parst einen Wert basierend auf dem Entscheidungstyp."""
         try:
+            # Zuerst prüfen, ob es ein Skip ist
+            if value == "skip":
+                print(f"Skip erkannt, gebe None zurück")
+                return None
+
             if decision_type == "ListDecision":
                 # Für ListDecision akzeptieren wir die Werte direkt
                 return value
