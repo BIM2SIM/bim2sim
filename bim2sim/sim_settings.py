@@ -590,6 +590,16 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True,
         mandatory=True
     )
+
+    building_rotation_overwrite = NumberSetting(
+        default=0,
+        description='Overwrite the (clockwise) building rotation angle in '
+                    'degrees.',
+        min_value=0,
+        max_value=359,
+        for_frontend=True
+    )
+
     add_space_boundaries = BooleanSetting(
         default=False,
         description='Add space boundaries. Only required for building '
