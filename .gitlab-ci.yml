@@ -23,191 +23,191 @@ stages:
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
-build_env:master:
- image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
- stage: build-env
- services:
-   - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-     command: ["--mtu=1440"]
- before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
- script:
-   - docker build -t $CI_REGISTRY/environment:master -f envBase.Dockerfile . 
-   - docker push $CI_REGISTRY/environment:master
- only:
-   refs:
-      - master
-   changes:
-      - envBase.Dockerfile
-      - requirements.txt
+# build_env:master:
+#  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+#  stage: build-env
+#  services:
+#    - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+#      command: ["--mtu=1440"]
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/environment:master -f envBase.Dockerfile . 
+#    - docker push $CI_REGISTRY/environment:master
+#  only:
+#    refs:
+#       - master
+#    changes:
+#       - envBase.Dockerfile
+#       - requirements.txt
 
-build_env:development:
- image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
- stage: build-env
- services:
-   - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-     command: ["--mtu=1440"]
- before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
- script:
-   - docker build -t $CI_REGISTRY/environment:development -f envBase.Dockerfile .
-   - docker push $CI_REGISTRY/environment:development
- only:
-   refs:
-      - development
-   changes:
-      - envBase.Dockerfile
-      - requirements.txt
-      - .gitlab-ci.yml
+# build_env:development:
+#  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+#  stage: build-env
+#  services:
+#    - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+#      command: ["--mtu=1440"]
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/environment:development -f envBase.Dockerfile .
+#    - docker push $CI_REGISTRY/environment:development
+#  only:
+#    refs:
+#       - development
+#    changes:
+#       - envBase.Dockerfile
+#       - requirements.txt
+#       - .gitlab-ci.yml
 
-build_env:dymola:
- image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
- stage: build-env
- services:
-   - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-     command: ["--mtu=1440"]
- before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA   # login dymola docker reg
- script:
-   - docker build -t $CI_REGISTRY/environment:dymola -f envBaseDymola.Dockerfile .
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
-   - docker push $CI_REGISTRY/environment:dymola
- only:
-   refs:
-      - development
-   changes:
-      - envBaseDymola.Dockerfile
-      - requirements.txt
-      - .gitlab-ci.yml
-
-
-build_env:energyplus:
-  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
-  stage: build-env-plugins
-  services:
-   - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-     command: ["--mtu=1440"]
-  before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-  script:
-    - docker build -t $CI_REGISTRY/environment:energyplus -f bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile .
-    - docker push $CI_REGISTRY/environment:energyplus
-  only:
-    refs:
-       - development
-    changes:
-       - envBase.Dockerfile
-       - bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile
-       - bim2sim/plugins/PluginEnergyPlus/requirements.txt
-       - requirements.txt
-       - .gitlab-ci.yml
-
-build_env:energyplus_workshop:
-  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
-  stage: build-env-plugins
-  services:
-   - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-     command: ["--mtu=1440"]
-  before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-  script:
-    - docker build -t $CI_REGISTRY/environment:energyplus_workshop -f bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile .
-    - docker push $CI_REGISTRY/environment:energyplus_workshop
-  only:
-    refs:
-       - webtool_testing
-    changes:
-       - envBase.Dockerfile
-       - bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile
-       - bim2sim/plugins/PluginEnergyPlus/requirements.txt
-       - requirements.txt
-       - .gitlab-ci.yml
-
-build_env:cfd:
- image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
- stage: build-env-plugins
- services:
-   - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-     command: ["--mtu=1440"]
- before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
- script:
-   - docker build -t $CI_REGISTRY/environment:cfd -f bim2sim/plugins/PluginCFD/envCFD.Dockerfile .
-   - docker push $CI_REGISTRY/environment:cfd
- timeout: 6 hours
- only:
-   refs:
-      - development
-   changes:
-      - envBase.Dockerfile
-      - bim2sim/plugins/PluginCFD/envCFD.Dockerfile
-      - requirements.txt
-      - .gitlab-ci.yml
-
-build_env:teaser:
- image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
- stage: build-env-plugins
- services:
-   - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-     command: ["--mtu=1440"]
- before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
- script:
-   - docker build -t $CI_REGISTRY/environment:teaser -f bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile .
-   - docker push $CI_REGISTRY/environment:teaser
- only:
-   refs:
-     - development
-   changes:
-     - envBase.Dockerfile
-     - bim2sim/plugins/PluginTEASER/requirements.txt
-     - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
-     - requirements.txt
-     - .gitlab-ci.yml
+# build_env:dymola:
+#  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+#  stage: build-env
+#  services:
+#    - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+#      command: ["--mtu=1440"]
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA   # login dymola docker reg
+#  script:
+#    - docker build -t $CI_REGISTRY/environment:dymola -f envBaseDymola.Dockerfile .
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
+#    - docker push $CI_REGISTRY/environment:dymola
+#  only:
+#    refs:
+#       - development
+#    changes:
+#       - envBaseDymola.Dockerfile
+#       - requirements.txt
+#       - .gitlab-ci.yml
 
 
-build_env:teaser-dymola:
- image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
- stage: build-env-plugins
- services:
-   - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-     command: ["--mtu=1440"]
- before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
- script:
-   - docker build -t $CI_REGISTRY/environment:teaser-dymola -f bim2sim/plugins/PluginTEASER/envTEASER-dymola.Dockerfile .
-   - docker push $CI_REGISTRY/environment:teaser-dymola
- only:
-   refs:
-     - development
-   changes:
-     - envBase.Dockerfile
-     - bim2sim/plugins/PluginTEASER/requirements.txt
-     - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
-     - requirements.txt
-     - .gitlab-ci.yml
+# build_env:energyplus:
+#   image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+#   stage: build-env-plugins
+#   services:
+#    - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+#      command: ["--mtu=1440"]
+#   before_script:
+#     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#   script:
+#     - docker build -t $CI_REGISTRY/environment:energyplus -f bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile .
+#     - docker push $CI_REGISTRY/environment:energyplus
+#   only:
+#     refs:
+#        - development
+#     changes:
+#        - envBase.Dockerfile
+#        - bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile
+#        - bim2sim/plugins/PluginEnergyPlus/requirements.txt
+#        - requirements.txt
+#        - .gitlab-ci.yml
+
+# build_env:energyplus_workshop:
+#   image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+#   stage: build-env-plugins
+#   services:
+#    - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+#      command: ["--mtu=1440"]
+#   before_script:
+#     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#   script:
+#     - docker build -t $CI_REGISTRY/environment:energyplus_workshop -f bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile .
+#     - docker push $CI_REGISTRY/environment:energyplus_workshop
+#   only:
+#     refs:
+#        - webtool_testing
+#     changes:
+#        - envBase.Dockerfile
+#        - bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile
+#        - bim2sim/plugins/PluginEnergyPlus/requirements.txt
+#        - requirements.txt
+#        - .gitlab-ci.yml
+
+# build_env:cfd:
+#  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+#  stage: build-env-plugins
+#  services:
+#    - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+#      command: ["--mtu=1440"]
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/environment:cfd -f bim2sim/plugins/PluginCFD/envCFD.Dockerfile .
+#    - docker push $CI_REGISTRY/environment:cfd
+#  timeout: 6 hours
+#  only:
+#    refs:
+#       - development
+#    changes:
+#       - envBase.Dockerfile
+#       - bim2sim/plugins/PluginCFD/envCFD.Dockerfile
+#       - requirements.txt
+#       - .gitlab-ci.yml
+
+# build_env:teaser:
+#  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+#  stage: build-env-plugins
+#  services:
+#    - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+#      command: ["--mtu=1440"]
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/environment:teaser -f bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile .
+#    - docker push $CI_REGISTRY/environment:teaser
+#  only:
+#    refs:
+#      - development
+#    changes:
+#      - envBase.Dockerfile
+#      - bim2sim/plugins/PluginTEASER/requirements.txt
+#      - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
+#      - requirements.txt
+#      - .gitlab-ci.yml
 
 
-build_env:aixlib:
- image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
- stage: build-env-plugins
- services:
-   - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-     command: ["--mtu=1440"]
- before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
- script:
-   - docker build -t $CI_REGISTRY/environment:aixlib -f bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile .
-   - docker push $CI_REGISTRY/environment:aixlib
- only:
-   refs:
-     - development
-   changes:
-     - envBase.Dockerfile
-     - bim2sim/plugins/PluginAixLib/requirements.txt
-     - bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile
-     - requirements.txt
-     - .gitlab-ci.yml
+# build_env:teaser-dymola:
+#  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+#  stage: build-env-plugins
+#  services:
+#    - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+#      command: ["--mtu=1440"]
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/environment:teaser-dymola -f bim2sim/plugins/PluginTEASER/envTEASER-dymola.Dockerfile .
+#    - docker push $CI_REGISTRY/environment:teaser-dymola
+#  only:
+#    refs:
+#      - development
+#    changes:
+#      - envBase.Dockerfile
+#      - bim2sim/plugins/PluginTEASER/requirements.txt
+#      - bim2sim/plugins/PluginTEASER/envTEASER.Dockerfile
+#      - requirements.txt
+#      - .gitlab-ci.yml
+
+
+# build_env:aixlib:
+#  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+#  stage: build-env-plugins
+#  services:
+#    - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+#      command: ["--mtu=1440"]
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/environment:aixlib -f bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile .
+#    - docker push $CI_REGISTRY/environment:aixlib
+#  only:
+#    refs:
+#      - development
+#    changes:
+#      - envBase.Dockerfile
+#      - bim2sim/plugins/PluginAixLib/requirements.txt
+#      - bim2sim/plugins/PluginAixLib/envAixLib.Dockerfile
+#      - requirements.txt
+#      - .gitlab-ci.yml
 
 # build_tool:release:
 #  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
