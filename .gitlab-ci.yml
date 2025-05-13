@@ -238,11 +238,12 @@ variables:
 #    - development
 
 build_tool:webdevelop:
- image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+ image: docker:24.0.5
  stage: build-tool
  services:
-   - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-     command: ["--mtu=1440"]
+   - name: docker:24.0.5-dind
+     variables:
+       HEALTHCHECK_TCP_PORT: "2376"
  before_script:
    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
  script:
@@ -251,6 +252,21 @@ build_tool:webdevelop:
  only:
    - development
    - webtool_testing
+   
+# build_tool:webdevelop:
+#  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+#  stage: build-tool
+#  services:
+#    - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+#      command: ["--mtu=1440"]
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/tool:web_develop -f total.Dockerfile .
+#    - docker push $CI_REGISTRY/tool:web_develop
+#  only:
+#    - development
+#    - webtool_testing
 
 # build_tool:cfd:
 #  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
