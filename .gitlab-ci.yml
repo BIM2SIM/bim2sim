@@ -3,7 +3,7 @@
     refs:
       - master
       - tags
-      - branches
+      # - branches
     changes:
       - bim2sim/**/*.py
   except:
