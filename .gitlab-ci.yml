@@ -511,77 +511,77 @@ test_LCA:
     - $CI_COMMIT_REF_NAME/coverage
 
 
-pylint:
- <<: *test-default
- stage: code_quality
- image: python:3.6
- services:
-   - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-     command: ["--mtu=1440"]
- before_script:
-   - pip install pylint pylint-json2html anybadge --quiet
- script:
-    - mkdir -p $CI_COMMIT_REF_NAME/pylint
-    # Determine code to check: in a user-defined directory, or module with the project name, or all python files
-    # (In case of using the project name, make project-name pep8 lowercase to be detected by pylint)
-    - if [ ! -z "$PYLINT_INPUT" ]; 
-      then echo "Using user-defined source dir"; 
-      elif [ -d "$CI_PROJECT_NAME" ]; 
-      then echo "Using repo name as module name" && PYLINT_INPUT=`echo "$CI_PROJECT_NAME" | tr '[:upper:]' '[:lower:]'`; 
-      else echo "Checking all python files" && PYLINT_INPUT="**/*.py"; 
-      fi
-    # Run pylint on the python-project
-    - pylint --output-format=text $PYLINT_INPUT --exit-zero | tee $CI_COMMIT_REF_NAME/pylint/pylint.txt
-    - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' $CI_COMMIT_REF_NAME/pylint/pylint.txt)
-    - anybadge --value=$score --file=$CI_COMMIT_REF_NAME/pylint/pylint.svg pylint
-    - pylint --output-format=jsonextended --load-plugins=pylint_json2html --exit-zero $PYLINT_INPUT | tee $CI_COMMIT_REF_NAME/pylint/pylint.json
-    - pylint-json2html -f jsonextended -o $CI_COMMIT_REF_NAME/pylint/pylint.html < $CI_COMMIT_REF_NAME/pylint/pylint.json
- artifacts:
-   paths:
-   - $CI_COMMIT_REF_NAME/pylint
-   expire_in: 2 hrs
+# pylint:
+#  <<: *test-default
+#  stage: code_quality
+#  image: python:3.6
+#  services:
+#    - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+#      command: ["--mtu=1440"]
+#  before_script:
+#    - pip install pylint pylint-json2html anybadge --quiet
+#  script:
+#     - mkdir -p $CI_COMMIT_REF_NAME/pylint
+#     # Determine code to check: in a user-defined directory, or module with the project name, or all python files
+#     # (In case of using the project name, make project-name pep8 lowercase to be detected by pylint)
+#     - if [ ! -z "$PYLINT_INPUT" ]; 
+#       then echo "Using user-defined source dir"; 
+#       elif [ -d "$CI_PROJECT_NAME" ]; 
+#       then echo "Using repo name as module name" && PYLINT_INPUT=`echo "$CI_PROJECT_NAME" | tr '[:upper:]' '[:lower:]'`; 
+#       else echo "Checking all python files" && PYLINT_INPUT="**/*.py"; 
+#       fi
+#     # Run pylint on the python-project
+#     - pylint --output-format=text $PYLINT_INPUT --exit-zero | tee $CI_COMMIT_REF_NAME/pylint/pylint.txt
+#     - score=$(sed -n 's/^Your code has been rated at \([-0-9.]*\)\/.*/\1/p' $CI_COMMIT_REF_NAME/pylint/pylint.txt)
+#     - anybadge --value=$score --file=$CI_COMMIT_REF_NAME/pylint/pylint.svg pylint
+#     - pylint --output-format=jsonextended --load-plugins=pylint_json2html --exit-zero $PYLINT_INPUT | tee $CI_COMMIT_REF_NAME/pylint/pylint.json
+#     - pylint-json2html -f jsonextended -o $CI_COMMIT_REF_NAME/pylint/pylint.html < $CI_COMMIT_REF_NAME/pylint/pylint.json
+#  artifacts:
+#    paths:
+#    - $CI_COMMIT_REF_NAME/pylint
+#    expire_in: 2 hrs
 
-sphinxdoc:
- image: $CI_REGISTRY/environment:development
- stage: doc
- services:
-  - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-    command: ["--mtu=1440"]
- before_script:
-   - mv ./* /bim2sim-coding/
-   - pip install -r /bim2sim-coding/docs/requirements.txt
- script:
-   - mkdir -p $CI_COMMIT_REF_NAME/docs
-   - sphinx-apidoc -M -o /bim2sim-coding/docs/source/code /bim2sim-coding  # create rst files for all python files
-   - sphinx-build -b html /bim2sim-coding/docs/source $CI_COMMIT_REF_NAME/docs
-   - anybadge --value="passing" --file=$CI_COMMIT_REF_NAME/docs/doc.svg --label documentation
+# sphinxdoc:
+#  image: $CI_REGISTRY/environment:development
+#  stage: doc
+#  services:
+#   - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+#     command: ["--mtu=1440"]
+#  before_script:
+#    - mv ./* /bim2sim-coding/
+#    - pip install -r /bim2sim-coding/docs/requirements.txt
+#  script:
+#    - mkdir -p $CI_COMMIT_REF_NAME/docs
+#    - sphinx-apidoc -M -o /bim2sim-coding/docs/source/code /bim2sim-coding  # create rst files for all python files
+#    - sphinx-build -b html /bim2sim-coding/docs/source $CI_COMMIT_REF_NAME/docs
+#    - anybadge --value="passing" --file=$CI_COMMIT_REF_NAME/docs/doc.svg --label documentation
 
- artifacts:
-   paths:
-   - $CI_COMMIT_REF_NAME/docs
-   expire_in: 2 hrs
+#  artifacts:
+#    paths:
+#    - $CI_COMMIT_REF_NAME/docs
+#    expire_in: 2 hrs
 
-pages:
-# Page to generate content to be downloaded in the artifact-section.
- image: ubuntu:latest
- stage: deploy
- before_script:
-   - apt-get update -y
-   - apt-get install zip unzip -y
-   - apt-get install curl -y
- script:
-   - set -e
-   # get existing content with branch artifacts
-   - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
-   - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
-   # delete all branch folders older than 14 days which are not master or development
-   - find public/* -maxdepth 0 -type d -not -name "development" -not -name "master" -mtime +14 -exec rm -rf {} \;
-   # Add/update content
-   - mkdir -p public/$CI_COMMIT_REF_NAME
-   - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
-   # Zip the content and publish the zip again
-   - zip -r "content.zip" "public"
-   - mv "content.zip" "public/"
- artifacts:
-   paths:
-     - public
+# pages:
+# # Page to generate content to be downloaded in the artifact-section.
+#  image: ubuntu:latest
+#  stage: deploy
+#  before_script:
+#    - apt-get update -y
+#    - apt-get install zip unzip -y
+#    - apt-get install curl -y
+#  script:
+#    - set -e
+#    # get existing content with branch artifacts
+#    - curl --fail --header "PRIVATE-TOKEN:$GL_TOKEN" $CI_PAGES_URL/content.zip -o content.zip
+#    - if [ -e "content.zip" ]; then unzip "content.zip"; rm "content.zip"; fi
+#    # delete all branch folders older than 14 days which are not master or development
+#    - find public/* -maxdepth 0 -type d -not -name "development" -not -name "master" -mtime +14 -exec rm -rf {} \;
+#    # Add/update content
+#    - mkdir -p public/$CI_COMMIT_REF_NAME
+#    - cp -r $CI_COMMIT_REF_NAME/* public/$CI_COMMIT_REF_NAME
+#    # Zip the content and publish the zip again
+#    - zip -r "content.zip" "public"
+#    - mv "content.zip" "public/"
+#  artifacts:
+#    paths:
+#      - public
