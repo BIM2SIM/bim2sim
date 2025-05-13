@@ -115,7 +115,7 @@ build_env:energyplus_workshop:
     - docker push $CI_REGISTRY/environment:energyplus_workshop
   only:
     refs:
-       - webtool_hotfixes
+       - webtool_testing
     changes:
        - envBase.Dockerfile
        - bim2sim/plugins/PluginEnergyPlus/envEP.Dockerfile
@@ -250,7 +250,7 @@ build_tool:webdevelop:
    - docker push $CI_REGISTRY/tool:web_develop
  only:
    - development
-   - webtool_hotfixes
+   - webtool_testing
 
 build_tool:cfd:
  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
