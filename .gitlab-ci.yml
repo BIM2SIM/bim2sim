@@ -209,33 +209,33 @@ build_env:aixlib:
      - requirements.txt
      - .gitlab-ci.yml
 
-build_tool:release:
- image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
- stage: build-tool
- services:
-   - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-     command: ["--mtu=1440"]
- before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
- script:
-   - docker build -t $CI_REGISTRY/tool:latest .
-   - docker push $CI_REGISTRY/tool:latest
- only:
-   - master
+# build_tool:release:
+#  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+#  stage: build-tool
+#  services:
+#    - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+#      command: ["--mtu=1440"]
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/tool:latest .
+#    - docker push $CI_REGISTRY/tool:latest
+#  only:
+#    - master
 
-build_tool:development:
- image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
- stage: build-tool
- services:
-   - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-     command: ["--mtu=1440"]
- before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
- script:
-   - docker build -t $CI_REGISTRY/tool:development .
-   - docker push $CI_REGISTRY/tool:development
- only:
-   - development
+# build_tool:development:
+#  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+#  stage: build-tool
+#  services:
+#    - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+#      command: ["--mtu=1440"]
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/tool:development .
+#    - docker push $CI_REGISTRY/tool:development
+#  only:
+#    - development
 
 build_tool:webdevelop:
  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
@@ -252,50 +252,50 @@ build_tool:webdevelop:
    - development
    - webtool_testing
 
-build_tool:cfd:
- image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
- stage: build-tool
- services:
-   - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-     command: ["--mtu=1440"]
- before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
- script:
-   - docker build -t $CI_REGISTRY/tool:cfd -f bim2sim/plugins/PluginCFD/cfd.Dockerfile .
-   - docker push $CI_REGISTRY/tool:cfd
- only:
-   changes:
-      - bim2sim/plugins/PluginCFD/*
+# build_tool:cfd:
+#  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+#  stage: build-tool
+#  services:
+#    - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+#      command: ["--mtu=1440"]
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/tool:cfd -f bim2sim/plugins/PluginCFD/cfd.Dockerfile .
+#    - docker push $CI_REGISTRY/tool:cfd
+#  only:
+#    changes:
+#       - bim2sim/plugins/PluginCFD/*
 
-build_tool:teaser:
- image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
- stage: build-tool
- services:
-   - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-     command: ["--mtu=1440"]
- before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
- script:
-   - docker build -t $CI_REGISTRY/tool:teaser -f bim2sim/plugins/PluginTEASER/teaser.Dockerfile .
-   - docker push $CI_REGISTRY/tool:teaser
- only:
-   changes:
-      - bim2sim/plugins/PluginTEASER/*
+# build_tool:teaser:
+#  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+#  stage: build-tool
+#  services:
+#    - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+#      command: ["--mtu=1440"]
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/tool:teaser -f bim2sim/plugins/PluginTEASER/teaser.Dockerfile .
+#    - docker push $CI_REGISTRY/tool:teaser
+#  only:
+#    changes:
+#       - bim2sim/plugins/PluginTEASER/*
 
-build_tool:aixlib:
- image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
- stage: build-tool
- services:
-   - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
-     command: ["--mtu=1440"]
- before_script:
-   - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
- script:
-   - docker build -t $CI_REGISTRY/tool:aixlib -f bim2sim/plugins/PluginAixLib/aixlib.Dockerfile .
-   - docker push $CI_REGISTRY/tool:aixlib
- only:
-   changes:
-      - bim2sim/plugins/PluginAixLib/*
+# build_tool:aixlib:
+#  image: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_20.10.23
+#  stage: build-tool
+#  services:
+#    - name: registry.git.rwth-aachen.de/ebc/ebc_all/gitlab_ci/templates:docker_18.09.7-dind
+#      command: ["--mtu=1440"]
+#  before_script:
+#    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+#  script:
+#    - docker build -t $CI_REGISTRY/tool:aixlib -f bim2sim/plugins/PluginAixLib/aixlib.Dockerfile .
+#    - docker push $CI_REGISTRY/tool:aixlib
+#  only:
+#    changes:
+#       - bim2sim/plugins/PluginAixLib/*
 
 test_Base:
   <<: *test-default
