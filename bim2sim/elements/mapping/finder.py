@@ -139,17 +139,18 @@ class TemplateFinder(Finder):
                 self.__class__.__name__, (key1, key2, key3, key4)))
 
         try:
-            if all([isinstance(res[0], list), isinstance(res[1], list)]):
-                for res_ele in res:
-                    pset = ifc2python.get_property_set_by_name(
-                        res_ele[0], element.ifc, element.ifc_units)
-                    if pset:
-                        res = res_ele
-                        break
-            else:
-                pset = ifc2python.get_property_set_by_name(
-                    res[0], element.ifc, element.ifc_units)
-            return pset.get(res[1])
+            # get value from templates
+            for res_ele in (
+                    res if all(isinstance(r, list) for r in res[:2]) else [
+                        res]):
+                pset = ifc2python.get_property_set_by_name(res_ele[0],
+                                                           element.ifc,
+                                                           element.ifc_units)
+                if pset:
+                    val = pset.get(res_ele[1])
+                    if val is not None:
+                        return val
+            return None
         except AttributeError:
             raise AttributeError("Can't find property as defined by template.")
 

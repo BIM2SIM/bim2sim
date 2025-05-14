@@ -355,8 +355,9 @@ class PathSetting(Setting):
 
 class BooleanSetting(Setting):
     def check_value(self, bound_simulation_settings, value):
-        if not isinstance(value, bool):
-            raise ValueError(f"The provided value {value} is not a Boolean")
+        if not isinstance(value, bool) and value is not None:
+            raise ValueError(f"The provided value {value} for sim_setting "
+                             f"{self.name} is not a Boolean")
         else:
             return True
 
@@ -472,8 +473,10 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
     group_unidentified = ChoiceSetting(
         default='fuzzy',
         choices={
-            'fuzzy': 'Use fuzzy search to find name similarities',
-            'name': 'Only group elements with exact same name'
+            'fuzzy': 'Use fuzzy search to find ifc name similarities',
+            'name': 'Only group elements with exact same ifc name',
+            'name_and_description': 'Only group elements with the same ifc'
+                                    ' name and ifc description'
         },
         description='To reduce the number of decisions by user to identify '
                     'elements which can not be identified automatically by '
@@ -520,6 +523,16 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True,
         mandatory=True
     )
+
+    building_rotation_overwrite = NumberSetting(
+        default=0,
+        description='Overwrite the (clockwise) building rotation angle in '
+                    'degrees.',
+        min_value=0,
+        max_value=359,
+        for_frontend=True
+    )
+
     add_space_boundaries = BooleanSetting(
         default=False,
         description='Add space boundaries. Only required for building '
@@ -580,6 +593,12 @@ class PlantSimSettings(BaseSimSettings):
         min_value=1
     )
 
+    verify_connection_by_position = BooleanSetting(
+        description="Choose if connection of elements via IfcDistributionPorts"
+                    " should be validated by the geometric position of the "
+                    "ports.",
+        default=True
+    )
 
 class BuildingSimSettings(BaseSimSettings):
 
