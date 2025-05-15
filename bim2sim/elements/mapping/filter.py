@@ -59,70 +59,74 @@ class TypeFilter(Filter):
 
 
 class TextFilter(Filter):
-    """Filter for unknown properties by text fracments"""
+    """Filter for unknown properties by text fragments.
+
+    This class provides functionality to filter IFC entities by analyzing text
+    fragments to determine their potential element classes.
+
+    Attributes:
+        elements_classes: Collection of ProductBased classes to check for matches.
+        ifc_units: Dictionary containing IFC unit information.
+        optional_locations: Additional locations to check patterns beyond names.
+    """
 
     def __init__(self, elements_classes: Iterable[ProductBased],
                  ifc_units: dict,
-                 optional_locations: list = None,
-                 mode: int = 0):
-        """"
-        :param mode:    0 - include search in all ifc_types of previous filter
-                        1 - only search ifc_types of this filter
-        :param optional_locations: additional locations to ifc_types to check patterns
+                 optional_locations: list = None):
+        """Initialize a TextFilter instance.
+
+        Args:
+            elements_classes: Collection of ProductBased classes to check for matches.
+            ifc_units: Dictionary containing IFC unit information.
+            optional_locations: Additional locations to check patterns. Defaults to None.
         """
         super().__init__()
         self.elements_classes = elements_classes
         self.ifc_units = ifc_units
         self.optional_locations = optional_locations
-        self.mode = mode
-        if self.mode not in [0, 1]:
-            raise ValueError("TextFilter: 'Mode' not in [0, 1]")
 
-    def matches(self, ifcelement):
-        __doc__ = super().matches.__doc__
-        raise NotImplementedError("Must overwride method 'matches'")
-        if ifcelement:
-            #Pseudocode: check if element contains Text_fracments[ifc_property]
-            element = None
-            return element
-        else:
-            #Pseudocode: filter self.components for text in Text_Fracments[ifc_property]
-            elements = None
-            return elements
+    def find_matches(self, entity):
+        """Find all element classes that match the given entity.
+
+        Args:
+            entity: The IFC entity to check.
+
+        Returns:
+            dict: Dictionary with matching classes as keys and their match fragments as values.
+        """
+        matches = {}
+        for cls in self.elements_classes:
+            fragments = cls.filter_for_text_fragments(
+                entity, self.ifc_units, self.optional_locations)
+            if fragments:
+                matches[cls] = fragments
+
+        return matches
 
     def run(self, ifc_entities: list):
-        __doc__ = super().run.__doc__
+        """Run the filter on a list of IFC entities.
 
+        Args:
+            ifc_entities: List of IFC entities to filter.
+
+        Returns:
+            tuple:
+                - filter_results: Dictionary mapping IFC entities to matching classes
+                  and their fragments.
+                - unknown: List of IFC entities that didn't match any class.
+        """
         filter_results = {}
         unknown = []
 
-        # check matches for all entities on all classes
         for entity in ifc_entities:
-            matches = [cls for cls in self.elements_classes
-                       if cls.filter_for_text_fragments(
-                    entity, self.ifc_units, self.optional_locations)]
+            matches = self.find_matches(entity)
             if matches:
+                # Store both the classes and their matching fragments
                 filter_results[entity] = matches
             else:
                 unknown.append(entity)
 
         return filter_results, unknown
-
-        for ifc_type in self.elements_classes:
-            if ifc_type not in source_ifc_elements:
-                source_ifc_elements[ifc_type] = ifc.by_type(ifc_type) or []
-
-        if self.mode == 0:
-            for ifc_type, ifc_elements in source_ifc_elements.items():
-                for ifc_element in ifc_elements:
-                    filter_results[ifc_element] = [cls for cls in Element._ifc_classes.values() if cls.filter_for_text_fragments(ifc_element, self.optional_locations)]
-
-        elif self.mode == 1:
-            for ifc_type in self.elements_classes:
-                for ifc_element in source_ifc_elements[ifc_type]:
-                    filter_results[ifc_element] = [cls for cls in Element._ifc_classes.values() if cls.filter_for_text_fragments(ifc_element, self.optional_locations)]
-
-        return source_ifc_elements, filter_results
 
 
 class GeometricFilter(Filter):
