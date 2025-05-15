@@ -14,6 +14,13 @@ The [bim2sim core installation](coreInstalltion) needs to be done before.
 
 ### Test install
 
+## Examples
+Please also take a look at
+`bim2sim/plugins/PluginHKESim/bim2sim_hkesim/examples`, which provides some
+runnable examples for the HKESim plugin. You can use these examples to test your
+installation and learn from them. Additionally, they serve as good starting
+points for your own projects."
+
 ## Structure of the plugin
 
 The following figure shows the structure of the HKESim plugin. Here you see which tasks are used and how they are combined.

@@ -333,29 +333,47 @@ class IFCBased(Element):
         return matches
 
     @classmethod
-    def filter_for_text_fragments(
-            cls, ifc_element, ifc_units: dict, optional_locations: list = None):
-        """Filter for text fragments in the ifc_element to identify the ifc_element."""
+    def filter_for_text_fragments(cls, ifc_element, ifc_units: dict,
+                                  optional_locations: list = None):
+        """Find text fragments that match the class patterns in an IFC element.
+
+        Args:
+            ifc_element: The IFC element to check.
+            ifc_units: Dictionary containing IFC unit information.
+            optional_locations: Additional locations to check patterns beyond
+             name. Defaults to None.
+
+        Returns:
+            list: List of matched fragments, empty list if no matches found.
+        """
         results = []
-        hits = [p.search(ifc_element.Name) for p in cls.pattern_ifc_type]
-        # hits.extend([p.search(ifc_element.Description or '') for p in cls.pattern_ifc_type])
-        hits = [x for x in hits if x is not None]
-        if any(hits):
-            quality_logger.info("Identified %s through text fracments in name. Criteria: %s", cls.ifc_type, hits)
-            results.append(hits[0][0])
-            # return hits[0][0]
+
+        # Check name matches
+        name_hits = [p.search(ifc_element.Name) for p in cls.pattern_ifc_type]
+        name_hits = [hit for hit in name_hits if hit is not None]
+        if name_hits:
+            quality_logger.info(
+                f"Identified {cls.ifc_type} through text fragments in name. "
+                f"Criteria: {name_hits}")
+            results.append(name_hits[0][0])
+
+        # Check optional locations
         if optional_locations:
             for loc in optional_locations:
-                hits = [p.search(ifc2python.get_property_set_by_name(
-                    loc, ifc_element, ifc_units) or '')
-                        for p in cls.pattern_ifc_type
-                        if ifc2python.get_property_set_by_name(
-                        loc, ifc_element, ifc_units)]
-                hits = [x for x in hits if x is not None]
-                if any(hits):
-                    quality_logger.info("Identified %s through text fracments in %s. Criteria: %s", cls.ifc_type, loc, hits)
-                    results.append(hits[0][0])
-        return results if results else ''
+                prop_value = ifc2python.get_property_set_by_name(
+                    loc, ifc_element, ifc_units)
+                if not prop_value:
+                    continue
+
+                loc_hits = [p.search(prop_value) for p in cls.pattern_ifc_type]
+                loc_hits = [hit for hit in loc_hits if hit is not None]
+                if loc_hits:
+                    quality_logger.info(
+                        f"Identified {cls.ifc_type} through text fragments "
+                        f"in {loc}. Criteria: {loc_hits}")
+                    results.append(loc_hits[0][0])
+
+        return results
 
     def get_exact_property(self, propertyset_name: str, property_name: str):
         """Returns value of property specified by propertyset name and property name

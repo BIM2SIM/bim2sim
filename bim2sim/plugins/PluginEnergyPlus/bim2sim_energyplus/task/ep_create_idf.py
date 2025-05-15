@@ -191,6 +191,11 @@ class CreateIdf(ITask):
                                zone_name=zone.Name, space=space)
             self.set_lights(sim_settings, idf, name=zone.Name, zone_name=zone.Name,
                             space=space)
+            if sim_settings.building_rotation_overwrite != 0:
+                idf.idfobjects['BUILDING'][0].North_Axis = (
+                    sim_settings.building_rotation_overwrite)
+                idf.idfobjects['GLOBALGEOMETRYRULES'][0].Coordinate_System =\
+                    'Relative'
 
     @staticmethod
     def init_zonelist(
