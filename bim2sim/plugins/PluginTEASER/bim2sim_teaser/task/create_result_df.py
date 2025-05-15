@@ -6,6 +6,7 @@ from bim2sim.tasks.base import ITask
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.utilities.common_functions import filter_elements
 
+# Important: if these are adjusted, also adjust export_vars in ExportTEASER
 bim2sim_teaser_mapping_base = {
     "multizonePostProcessing.PHeaterSum": "heat_demand_total",
     "multizonePostProcessing.PHeater[numZones]": "heat_demand_rooms",
@@ -33,7 +34,8 @@ bim2sim_teaser_mapping_base = {
     "multizone.zone[numZones].ventCont.y": "infiltration_rooms",
     "multizone.zone[numZones].ventRate": "mech_ventilation_rooms",
     "tableTSet.y[numZones]": "heat_set_rooms",
-    "tableTSetCool.y[numZones]": "cool_set_rooms"
+    "tableTSetCool.y[numZones]": "cool_set_rooms",
+    "CPUtime": "cpu_time"
 }
 
 # bim2sim_teaser_indirect_mapping = {
@@ -56,6 +58,7 @@ unit_mapping = {
     "heat_set": ureg.kelvin,
     "cool_set": ureg.kelvin,
     "internal_gains": ureg.watt,
+    "cpu_time": ureg.second
 }
 
 
@@ -187,14 +190,9 @@ class CreateResultDF(ITask):
         """
         bim2sim_teaser_mapping = {}
         space_guid_list = []
-        agg_tzs = filter_elements(elements, 'AggregatedThermalZone')
-        if agg_tzs:
-            for agg_tz in agg_tzs:
-                space_guid_list.append(agg_tz.guid)
-        else:
-            tzs = filter_elements(elements, 'ThermalZone')
-            for tz in tzs:
-                space_guid_list.append(tz.guid)
+        thermal_zones = filter_elements(elements, 'ThermalZone')
+        for tz in thermal_zones:
+            space_guid_list.append(tz.guid)
         for key, value in bim2sim_teaser_mapping_selected.items():
             # add entry for each room/zone
             if "numZones" in key:

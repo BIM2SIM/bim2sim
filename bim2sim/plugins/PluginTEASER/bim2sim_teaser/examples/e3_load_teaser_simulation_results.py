@@ -2,7 +2,6 @@ from pathlib import Path
 
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
 from bim2sim.tasks import bps, common
 import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
 from e1_simple_project_bps_teaser import run_example_simple_building_teaser
@@ -17,10 +16,6 @@ def run_example_load_existing_project():
     the zoning setup is specified to be with a medium level of detail),
     before the project is executed with the previously specified settings.
     """
-    # Create the default logging to for quality log and bim2sim main log
-    # (see logging documentation for more information)
-    default_logging_setup()
-
     # First run the previous example e1: run_example_simple_building_teaser
     project = run_example_simple_building_teaser()
 

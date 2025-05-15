@@ -4,7 +4,6 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project, ConsoleDecisionHandler, run_project
 from bim2sim.elements import bps_elements
-from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.types import IFCDomain
 from bim2sim.elements.base_elements import Material
@@ -18,10 +17,6 @@ def run_simple_project():
     relevant elements for building performance simulation and how to review and
     analyze the resulting elements
     """
-    # Create the default logging to for quality log and bim2sim main log
-    # (see logging documentation for more information)
-    default_logging_setup()
-
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(tempfile.TemporaryDirectory(

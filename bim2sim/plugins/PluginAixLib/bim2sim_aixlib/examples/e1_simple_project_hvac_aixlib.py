@@ -3,7 +3,6 @@ from pathlib import Path
 
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain
 
 
@@ -15,10 +14,6 @@ def run_example_simple_hvac_aixlib():
     project with the aixlib backend. Simulation settings are specified (here,
     the aggregations are specified), before the project is executed with the
     previously specified settings."""
-
-    # Create the default logging to for quality log and bim2sim main log (
-    # see logging documentation for more information
-    default_logging_setup()
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
@@ -52,7 +47,7 @@ def run_example_simple_hvac_aixlib():
         'ConsumerHeatingDistributorModule',
         'GeneratorOneFluid'
     ]
-    project.sim_settings.group_unidentified = 'name'
+    project.sim_settings.group_unidentified = 'name_and_description'
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
@@ -60,16 +55,26 @@ def run_example_simple_hvac_aixlib():
     # missing attributes are written below
     run_project(project, ConsoleDecisionHandler())
 
+
+# Documentation of Decision answers:
 # IfcBuildingElementProxy: skip
-# Rücklaufverschraubung: 'HVAC-PipeFitting',
-# Apparate (M_606) 'HVAC-Distributor',
-# 3-Wege-Regelventil PN16: 'HVAC-ThreeWayValve',
+
+# IfcPipeFitting, Name: Heizungsarmatur, Description: Ventilgehäuse DG mit
+# Fühler, GUID: 0$QIFdmTARhKaMBTfJUvWD: 'HVAC-PipeFitting'
+
+# IfcPipeFitting, Name: Heizungsarmatur, Description: Rücklaufverschraubung
+# DG, GUID: 03TbBCNszVXaBWMuR55Ezt: 'HVAC-PipeFitting'
+
+# IfcPipeFitting, Name: Apparate (M_606), Description: Apparate (M_606),
+# GUID: 1259naiEpIkasmH4NcC8DL: 'HVAC-Distributor',
+
+# IfcValve, Name: Armatur/Flansch/Dichtung M_600, Description:
+# 3-Wege-Regelventil PN16, GUID: 0A4aE_Sb7Wa4OrZ9Zwd6P3: 'HVAC-ThreeWayValve'
+
+# IfcValve, Name: Armatur/Flansch/Dichtung M_600, Description: Hubventil,
+# GUID: 1CczU6h2kUYa3KDyi1bJj6: 'HVAC-Valve'
+
 # True * 6
-# efficiency: 0.95
-# flow_temperature: 70
-# nominal_power_consumption: 200
-# return_temperature: 50
-# heat_capacity: 10 * 7
 
 
 if __name__ == '__main__':

@@ -294,7 +294,7 @@ def generate_plugin_structure_fig(path_file: str,
               + " - 'teaser'\n"
               + " - 'energyplus'\n"
               + " - 'aixlib'\n"
-              + " - 'cfd'\n"
+              # + " - 'cfd'\n"
               + " - 'HKESim'\n"
               + " - 'lca'\n")
 
@@ -332,14 +332,6 @@ if __name__ == '__main__':
                                   central_state=False)
 
     # Examples 5
-    # setup simple plugin, here cfd decentral state
-    # visualisation
-    PATH_NAME = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
-                 "dynamic/plugindiagram/cfd_structure_decentral_state.mmd")
-    generate_plugin_structure_fig(PATH_NAME,
-                                  plugin_name='cfd',
-                                  central_state=False)
-    # Examples 4
     # setup simple plugin, here aixlib decentral state
     # visualisation
     PATH_NAME = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
@@ -372,3 +364,12 @@ if __name__ == '__main__':
     generate_plugin_structure_fig(PATH_NAME,
                                   plugin_name='teaser',
                                   central_state=True)
+
+    # # Examples 4 - not working, because cfd plugin not included since 0.2.1
+    # # setup simple plugin, here cfd decentral state
+    # # visualisation
+    # PATH_NAME = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+    #              "dynamic/plugindiagram/cfd_structure_decentral_state.mmd")
+    # generate_plugin_structure_fig(PATH_NAME,
+    #                               plugin_name='cfd',
+    #                               central_state=False)

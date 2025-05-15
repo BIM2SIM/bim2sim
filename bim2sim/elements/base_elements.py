@@ -10,7 +10,6 @@ from ifcopenshell import guid
 
 from bim2sim.elements.aggregation import AggregationMixin
 from bim2sim.kernel.decision import Decision, DecisionBunch
-from bim2sim.kernel.decorators import cached_property
 from bim2sim.kernel import IFCDomainError
 from bim2sim.elements.mapping import condition, attribute, ifc2python
 from bim2sim.elements.mapping.finder import TemplateFinder, SourceTool
@@ -18,7 +17,7 @@ from bim2sim.elements.mapping.units import ureg
 from bim2sim.utilities.common_functions import angle_equivalent, vector_angle, \
     remove_umlaut
 from bim2sim.utilities.pyocc_tools import PyOCCTools
-from bim2sim.utilities.types import IFCDomain
+from bim2sim.utilities.types import IFCDomain, AttributeDataSource
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -75,22 +74,14 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         """Check if attributes are valid"""
         return {}
 
-    def calc_position(self) -> np.array:
+    def _calc_position(self, name) -> np.array:
         """Returns position (calculation may be expensive)"""
         return None
 
-    def calc_orientation(self) -> np.array:
-        """Returns position (calculation may be expensive)"""
-        return None
-
-    @cached_property
-    def position(self) -> np.array:
-        """Position calculated only once by calling calc_position"""
-        return self.calc_position()
-
-    @cached_property
-    def orientation(self) -> np.array:
-        return self.calc_orientation()
+    position = attribute.Attribute(
+        description='Position of element',
+        functions=[_calc_position]
+    )
 
     @staticmethod
     def get_id(prefix=""):
@@ -118,6 +109,16 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
             external_decision: Decision to use instead of default decision
         """
         return self.attributes.request(name, external_decision)
+
+    def reset(self, name, data_source=AttributeDataSource.manual_overwrite):
+        """Reset the attribute of the element.
+
+        Args:
+            name: attribute name
+            data_source (object): data source of the attribute
+        """
+
+        return self.attributes.reset(name, data_source)
 
     def source_info(self) -> str:
         """Get informative string about source of Element."""
@@ -211,7 +212,7 @@ class IFCBased(Element):
         """Check if ifc meets conditions to create element from it"""
         raise NotImplementedError
 
-    def calc_position(self):
+    def _calc_position(self, name):
         """returns absolute position"""
         if hasattr(self.ifc, 'ObjectPlacement'):
             absolute = np.array(self.ifc.ObjectPlacement.RelativePlacement.Location.Coordinates)
@@ -224,47 +225,15 @@ class IFCBased(Element):
 
         return absolute
 
-    def calc_orientation(self) -> np.array:
-        """Tries to calculate the orientation of based on DirectionRatio.
-
-        This generic orientation calculation uses the DirectionRatios which in
-        most cases return the correct orientation of the element. But this
-        depends on the modeller and the BIM author software and is not failsafe.
-        Orientation is mostly important for BPSProducts where we can use
-        Space Boundaries for failsafe orientation calculation.
-
-        Returns:
-            Orientation angle between 0 and 360.
-            (0 : north, 90: east, 180: south, 270: west)
-        """
-        # ToDO: check if true north angle is taken into account
-        #  (should be with while loop)
-        ang_sum = 0
-        placementrel = self.ifc.ObjectPlacement
-        while placementrel is not None:
-            if placementrel.RelativePlacement.RefDirection is not None:
-                vector = placementrel.RelativePlacement.RefDirection.DirectionRatios
-                ang_sum += vector_angle(vector)
-            placementrel = placementrel.PlacementRelTo
-
-        # relative vector + absolute vector
-        # if len(list_angles) == 1:
-        #     if list_angles[next(iter(list_angles))] is None:
-        #         return -90
-        #         # return 0
-
-        # windows DirectionRatios are mostly facing inwards the building
-        if self.ifc_type == 'IfcWindow':
-            ang_sum += 180
-
-        # angle between 0 and 360
-        return angle_equivalent(ang_sum)
-
-    @cached_property
-    def name(self):
+    def _get_name_from_ifc(self, name):
         ifc_name = self.get_ifc_attribute('Name')
         if ifc_name:
             return remove_umlaut(ifc_name)
+
+    name = attribute.Attribute(
+        description="Name of element based on IFC attribute.",
+        functions=[_get_name_from_ifc]
+    )
 
     def get_ifc_attribute(self, attribute):
         """
@@ -364,29 +333,47 @@ class IFCBased(Element):
         return matches
 
     @classmethod
-    def filter_for_text_fragments(
-            cls, ifc_element, ifc_units: dict, optional_locations: list = None):
-        """Filter for text fragments in the ifc_element to identify the ifc_element."""
+    def filter_for_text_fragments(cls, ifc_element, ifc_units: dict,
+                                  optional_locations: list = None):
+        """Find text fragments that match the class patterns in an IFC element.
+
+        Args:
+            ifc_element: The IFC element to check.
+            ifc_units: Dictionary containing IFC unit information.
+            optional_locations: Additional locations to check patterns beyond
+             name. Defaults to None.
+
+        Returns:
+            list: List of matched fragments, empty list if no matches found.
+        """
         results = []
-        hits = [p.search(ifc_element.Name) for p in cls.pattern_ifc_type]
-        # hits.extend([p.search(ifc_element.Description or '') for p in cls.pattern_ifc_type])
-        hits = [x for x in hits if x is not None]
-        if any(hits):
-            quality_logger.info("Identified %s through text fracments in name. Criteria: %s", cls.ifc_type, hits)
-            results.append(hits[0][0])
-            # return hits[0][0]
+
+        # Check name matches
+        name_hits = [p.search(ifc_element.Name) for p in cls.pattern_ifc_type]
+        name_hits = [hit for hit in name_hits if hit is not None]
+        if name_hits:
+            quality_logger.info(
+                f"Identified {cls.ifc_type} through text fragments in name. "
+                f"Criteria: {name_hits}")
+            results.append(name_hits[0][0])
+
+        # Check optional locations
         if optional_locations:
             for loc in optional_locations:
-                hits = [p.search(ifc2python.get_property_set_by_name(
-                    loc, ifc_element, ifc_units) or '')
-                        for p in cls.pattern_ifc_type
-                        if ifc2python.get_property_set_by_name(
-                        loc, ifc_element, ifc_units)]
-                hits = [x for x in hits if x is not None]
-                if any(hits):
-                    quality_logger.info("Identified %s through text fracments in %s. Criteria: %s", cls.ifc_type, loc, hits)
-                    results.append(hits[0][0])
-        return results if results else ''
+                prop_value = ifc2python.get_property_set_by_name(
+                    loc, ifc_element, ifc_units)
+                if not prop_value:
+                    continue
+
+                loc_hits = [p.search(prop_value) for p in cls.pattern_ifc_type]
+                loc_hits = [hit for hit in loc_hits if hit is not None]
+                if loc_hits:
+                    quality_logger.info(
+                        f"Identified {cls.ifc_type} through text fragments "
+                        f"in {loc}. Criteria: {loc_hits}")
+                    results.append(loc_hits[0][0])
+
+        return results
 
     def get_exact_property(self, propertyset_name: str, property_name: str):
         """Returns value of property specified by propertyset name and property name
@@ -485,6 +472,7 @@ class ProductBased(IFCBased):
         self.material = None
         self.material_set = {}
         self.storeys = []
+        self.cost_group = self.calc_cost_group()
 
     def __init_subclass__(cls, **kwargs):
         # set key for each class
@@ -571,9 +559,20 @@ class ProductBased(IFCBased):
             except:
                 logger.warning(f"No calculation of geometric volume possible "
                                f"for {self.ifc}.")
-    @cached_property
-    def cost_group(self) -> int:
-        return self.calc_cost_group()
+
+    def _get_volume(self, name):
+        if hasattr(self, "net_volume"):
+            if self.net_volume:
+                vol = self.net_volume
+                return vol
+        vol = self.calc_volume_from_ifc_shape()
+        return vol
+
+    volume = attribute.Attribute(
+        description="Volume of the attribute",
+        functions=[_get_volume],
+    )
+
     def __str__(self):
         return "<%s>" % (self.__class__.__name__)
 

@@ -2,7 +2,6 @@ from pathlib import Path
 
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
 from bim2sim.tasks import bps, common
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
     task as ep_tasks
@@ -17,10 +16,6 @@ def run_example_load_existing_project():
     project with the EnergyPlus backend. Workflow settings are specified,
     before the project is executed with the previously specified settings.
     """
-    # Create the default logging to for quality log and bim2sim main log
-    # (see logging documentation for more information)
-    default_logging_setup()
-
     # First run the previous example e1: run_example_1
     project = run_example_1()
 

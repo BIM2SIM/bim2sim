@@ -3,7 +3,6 @@ from pathlib import Path
 
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain
 
 
@@ -17,10 +16,6 @@ def run_example_complex_hvac_aixlib():
     executed via the ConsoleDecisionHandler which takes answers for upcoming
     decisions via command line input.
     """
-
-    # Create the default logging to for quality log and bim2sim main log (
-    # see logging documentation for more information
-    default_logging_setup()
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory

@@ -1,4 +1,4 @@
-﻿"""Module contains the different classes for all HVAC elements"""
+"""Module contains the different classes for all HVAC elements"""
 import inspect
 import itertools
 import logging
@@ -11,7 +11,6 @@ import numpy as np
 import ifcopenshell.geom
 
 from bim2sim.kernel.decision import ListDecision, DecisionBunch
-from bim2sim.kernel.decorators import cached_property
 from bim2sim.elements.mapping import condition, attribute
 from bim2sim.elements.base_elements import Port, ProductBased, IFCBased
 from bim2sim.elements.mapping.ifc2python import get_ports as ifc2py_get_ports
@@ -69,7 +68,7 @@ class HVACPort(Port):
         kwargs['flow_direction'] = flow_direction
         return args, kwargs
 
-    def calc_position(self) -> np.array:
+    def _calc_position(self, name) -> np.array:
         """returns absolute position as np.array"""
         try:
             relative_placement = \
@@ -206,19 +205,10 @@ class HVACProduct(ProductBased):
         self.inner_connections: List[Tuple[HVACPort, HVACPort]] \
             = self.get_inner_connections()
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         raise NotImplementedError(f"Please define the expected number of ports "
                                   f"for the class {self.__class__.__name__} ")
-
-    @cached_property
-    def volume(self):
-        if hasattr(self, "net_volume"):
-            if self.net_volume:
-                vol = self.net_volume
-                return vol
-        vol = self.calc_volume_from_ifc_shape()
-        return vol
 
     def get_ports(self) -> list:
         """Returns a list of ports of this product."""
@@ -351,7 +341,7 @@ class HeatPump(HVACProduct):
     }
     # IFC Schema does not support Heatpumps directly, but default of unitary
     # equipment is set to HeatPump now and expected ports to 4 to try to
-    # identify heatpumps
+    # identify heat pumps
 
     pattern_ifc_type = [
         re.compile('Heat.?pump', flags=re.IGNORECASE),
@@ -359,20 +349,38 @@ class HeatPump(HVACProduct):
     ]
 
     min_power = attribute.Attribute(
-        description='Minimum power that HeatPump operates at.',
+        description='Minimum power that heat pump operates at.',
         unit=ureg.kilowatt,
     )
     rated_power = attribute.Attribute(
-        description='Rated power of HeatPump.',
+        description='Rated power of heat pump.',
         unit=ureg.kilowatt,
     )
     efficiency = attribute.Attribute(
-        description='Efficiency of HeatPump provided as list with pairs of '
+        description='Efficiency of heat pump provided as list with pairs of '
                     '[percentage_of_rated_power,efficiency]',
         unit=ureg.dimensionless
     )
+    vdi_performance_data_table=attribute.Attribute(
+        description="temp dummy to test vdi table export",
+    )
+    is_reversible = attribute.Attribute(
+        description="Does the heat pump support cooling as well?",
+        unit=ureg.dimensionless
+    )
+    rated_cooling_power = attribute.Attribute(
+        description='Rated power of heat pump in cooling mode.',
+        unit=ureg.kilowatt,
+    )
+    COP = attribute.Attribute(
+        description="The COP of the heat pump, definition based on VDI 3805-22",
+        unit=ureg.dimensionless
+    )
+    internal_pump = attribute.Attribute(
+        description="The COP of the heat pump, definition based on VDI 3805-22",
+    )
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 4
 
@@ -441,7 +449,7 @@ class Chiller(HVACProduct):
         unit=ureg.kilowatt,
     )
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 4
 
@@ -478,7 +486,7 @@ class CoolingTower(HVACProduct):
         unit=ureg.dimensionless,
     )
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 2
 
@@ -508,7 +516,7 @@ class HeatExchanger(HVACProduct):
         unit=ureg.dimensionless,
     )
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 4
 
@@ -523,7 +531,7 @@ class Boiler(HVACProduct):
         re.compile('Boiler', flags=re.IGNORECASE),
     ]
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 2
 
@@ -577,10 +585,31 @@ class Boiler(HVACProduct):
         unit=ureg.dimensionless,
     )
 
-    nominal_partial_ratio = attribute.Attribute(
-        description="Nominal partial ratio of the boiler",
+    part_load_ratio_range = attribute.Attribute(
+        description="Allowable part load ratio range (Bounded value).",
         default_ps=('Pset_BoilerTypeCommon', 'NominalPartLoadRatio'),
     )
+
+    def _get_minimal_part_load_ratio(self, name):
+        """Calculates the minimal part load ratio based on the given range."""
+        # TODO this is not tested yet but should work with the new BoundedValue
+        #  in ifc2python
+        if hasattr(self, "part_load_ratio_range"):
+            return min(self.part_load_ratio_range)
+
+    def _normalise_value_zero_to_one(self, value):
+        if (max(self.part_load_ratio_range) == 100
+                and min(self.part_load_ratio_range) == 0):
+            return value * 0.01
+
+    minimal_part_load_ratio = attribute.Attribute(
+        description="Minimal part load ratio",
+        functions=[_get_minimal_part_load_ratio],
+        # TODO use ifc_post_processing to make sure that ranged value are between
+        #  0 and 1
+        ifc_postprocessing=[_normalise_value_zero_to_one]
+    )
+
 
     def _calc_nominal_efficiency(self, name):
         """function to calculate the boiler nominal efficiency using the
@@ -620,7 +649,8 @@ class Boiler(HVACProduct):
         nominal partial ratio and the efficiency curve"""
         if isinstance(self.efficiency, list):
             efficiency_curve = {y: x for x, y in self.efficiency}
-            partial_eff = efficiency_curve.get(self.nominal_partial_ratio, None)
+            partial_eff = efficiency_curve.get(max(self.part_load_ratio_range),
+                                               None)
             if partial_eff:
                 return partial_eff
             else:
@@ -689,7 +719,7 @@ class Pipe(HVACProduct):
              'SPOOL']
     }
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 2
 
@@ -797,7 +827,7 @@ class PipeFitting(HVACProduct):
         re.compile('Bend', flags=re.IGNORECASE),
     ]
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return (2, 3)
 
@@ -868,7 +898,7 @@ class Junction(PipeFitting):
         re.compile('Kreuzst(ü|ue)ck', flags=re.IGNORECASE)
     ]
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 3
 
@@ -886,7 +916,7 @@ class SpaceHeater(HVACProduct):
         re.compile('Space.?heater', flags=re.IGNORECASE)
     ]
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 2
 
@@ -992,7 +1022,7 @@ class ExpansionTank(HVACProduct):
         re.compile('Ausdehnungs.?gef(ä|ae)(ss|ß)', flags=re.IGNORECASE),
     ]
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 1
 
@@ -1015,7 +1045,7 @@ class Storage(HVACProduct):
                                  math.inf * ureg.liter)
     ]
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return float('inf')
 
@@ -1068,7 +1098,7 @@ class Distributor(HVACProduct):
     }
     # TODO why is pipefitting for DH found as Pipefitting and not distributor
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return (2, float('inf'))
 
@@ -1101,7 +1131,7 @@ class Pump(HVACProduct):
              'VERTICALTURBINE']
     }
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 2
 
@@ -1181,7 +1211,7 @@ class Valve(HVACProduct):
              'STOPCOCK']
     }
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 2
 
@@ -1248,7 +1278,7 @@ class ThreeWayValve(Valve):
         re.compile('3-Wege.*?ventil', flags=re.IGNORECASE)
     ]
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 3
 
@@ -1314,7 +1344,7 @@ class Medium(HVACProduct):
         re.compile('Medium', flags=re.IGNORECASE)
     ]
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 0
 
@@ -1322,7 +1352,7 @@ class Medium(HVACProduct):
 class CHP(HVACProduct):
     ifc_types = {'IfcElectricGenerator': ['CHP']}
 
-    @cached_property
+    @property
     def expected_hvac_ports(self):
         return 2
 

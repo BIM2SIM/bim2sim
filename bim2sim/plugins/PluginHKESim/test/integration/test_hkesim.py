@@ -5,7 +5,6 @@ from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.export.modelica import ModelicaElement
 from bim2sim.elements.aggregation.hvac_aggregations \
     import ConsumerHeatingDistributorModule
-from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.test import IntegrationBase
 from bim2sim.utilities.types import IFCDomain
 
@@ -74,7 +73,6 @@ class TestIntegrationHKESIM(IntegrationBaseHKESIM, unittest.TestCase):
             'ParallelPump',
             'ConsumerHeatingDistributorModule',
         ]
-        default_logging_setup()
         answers = (None, 'HVAC-PipeFitting', 'HVAC-Distributor',
                    'HVAC-ThreeWayValve',
                    # 7x dead ends
