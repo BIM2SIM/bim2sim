@@ -174,8 +174,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         intensive_attributes = ['gross_area', 'net_area', 'volume']"""
         # only calculate intensive calc if all zones have this attribute
         if all([getattr(tz, name) is not None for tz in self.elements]):
-            return sum(getattr(tz, name) for tz in self.elements if
-                       getattr(tz, name) is not None)
+            return sum(getattr(tz, name) for tz in self.elements))
 
     def _bool_calc(self, name) -> bool:
         """bool properties getter
