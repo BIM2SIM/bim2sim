@@ -362,6 +362,41 @@ class BooleanSetting(Setting):
             return True
 
 
+class DeprecatedSetting(Setting):
+    """A setting that raises an error when accessed as it is deprecated."""
+
+    def __init__(self, replacement_settings, *args, **kwargs):
+        """
+        Initialize a deprecated setting.
+
+        Args:
+            replacement_settings: List of setting names that replace this
+            setting
+            *args, **kwargs: Arguments passed to the parent class
+        """
+        super().__init__(*args, **kwargs)
+        self.replacement_settings = replacement_settings
+
+    def initialize(self, manager):
+        """Sets the error message after initialization when name is known."""
+        super().initialize(manager)
+        self.error_message = (
+            f"The setting '{self.name}' is deprecated and no"
+            f" longer supported. Please use one of "
+            f" {', '.join(self.replacement_settings)} instead.")
+
+    def __get__(self, bound_simulation_settings, owner):
+        """Raise an error when the deprecated setting is accessed."""
+        if bound_simulation_settings is None:
+            return self
+
+        raise AttributeError(self.error_message)
+
+    def __set__(self, bound_simulation_settings, value):
+        """Raise an error when the deprecated setting is set."""
+        raise AttributeError(self.error_message)
+
+
 class BaseSimSettings(metaclass=AutoSettingNameMeta):
     """Specification of basic bim2sim simulation settings which are common for
     all simulations"""
@@ -512,6 +547,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True
     )
 
+
     # TODO fix mandatory for EP and MODELICA seperated weather files
     weather_file_path_modelica = PathSetting(
         default=None,
@@ -536,6 +572,18 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True,
         mandatory=False
     )
+
+    weather_file_path = DeprecatedSetting(
+        replacement_settings=["weather_file_path_ep",
+                              "weather_file_path_modelica"],
+        default=None,
+        description='DEPRECATED: Use weather_file_path_ep or '
+                    'weather_file_path_modelica instead. ' +
+                    'Path to the weather file that should be used for the'
+                    ' simulation.',
+        for_frontend=False
+    )
+
     building_rotation_overwrite = NumberSetting(
         default=0,
         description='Overwrite the (clockwise) building rotation angle in '
