@@ -618,12 +618,18 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True
     )
     stories_to_load_guids = GuidListSetting(
-        default=[],  # Initialize with empty list by default
-        description='List of IFC GUIDs for the specific stories that should be'
-                    ' loaded. If empty, all stories will be considered '
-                    'for loading.',
+        default=[],
+        description='List of IFC GUIDs for the specific stories that should '
+                    'be loaded. If empty, all stories will be considered '
+                    'for loading. This setting is useful for large buildings '
+                    'to reduce computational time. Note that loading single '
+                    'storeys may lead to missing ceilings if the related '
+                    'slab is assigned to the storey above, which may require '
+                    'corrections to boundary conditions.'
+                    ' It is recommended to include GUIDs of neighboring'
+                    ' storeys to reduce boundary condition errors.',
         for_frontend=True,
-        mandatory=False  # Set to False to make this setting optional
+        mandatory=False
     )
 
 
