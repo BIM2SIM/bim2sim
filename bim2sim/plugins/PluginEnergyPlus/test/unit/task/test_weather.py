@@ -41,7 +41,7 @@ class TestWeather(unittest.TestCase):
             IFCDomain.arch: test_rsrc_path / 'arch/ifc/AC20-FZK-Haus.ifc'}
         self.project = Project.create(self.test_dir.name, ifc_paths,
                                       plugin=PluginWeatherDummyEP)
-        self.project.sim_settings.weather_file_path = (
+        self.project.sim_settings.weather_file_path_ep = (
                 test_rsrc_path / 'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
         handler = DebugDecisionHandler([])
         handler.handle(self.project.run(cleanup=False))
