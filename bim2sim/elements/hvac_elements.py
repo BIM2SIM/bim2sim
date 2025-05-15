@@ -923,8 +923,7 @@ class SpaceHeater(HVACProduct):
     def is_consumer(self):
         return True
 
-    @cached_property
-    def shape(self):
+    def _get_radiator_shape(self, name):
         """returns topods shape of the radiator"""
         settings = ifcopenshell.geom.main.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
@@ -932,6 +931,11 @@ class SpaceHeater(HVACProduct):
         settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
         settings.set(settings.INCLUDE_CURVES, True)
         return ifcopenshell.geom.create_shape(settings, self.ifc).geometry
+
+    shape = attribute.Attribute(
+        description="Returns topods shape of the radiator.",
+        functions=[_get_radiator_shape]
+    )
 
     number_of_panels = attribute.Attribute(
         description="Number of panels of heater",

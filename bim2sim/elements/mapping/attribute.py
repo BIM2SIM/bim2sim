@@ -239,27 +239,63 @@ class Attribute:
     def get_from_functions(bind, functions: list, name: str):
         """Get value from functions.
 
-        First successful function calls return value is used. As we want to
-        allow to overwrite functions in inherited classes, we use
-        getattr(bind, func.__name__) to get the function from the bind.
+        First successful function call's return value is used. Functions can be
+        1. Methods from the bind object's class hierarchy (use inheritance)
+        2. Methods from external classes (call directly with bind as first arg)
 
         Args:
-            bind: the bind object
-            functions: a list of functions
-            name: the name of the attribute
+            bind: The bind object
+            functions: List of function objects
+            name: The attribute name to process
         """
         value = None
         for func in functions:
-            func_inherited = getattr(bind, func.__name__)
-            try:
-                value = func_inherited(name)
-            except Exception as ex:
-                logger.error("Function '%s' of %s.%s raised %s",
-                             func.__name__, bind, name, ex)
-                pass
+            # Check if the function's class is in the bind object's class
+            # hierarchy
+            if hasattr(func, '__qualname__') and '.' in func.__qualname__:
+                func_class_name = func.__qualname__.split('.')[0]
+
+                # Check if the function's class is in the bind's class
+                # hierarchy
+                is_in_hierarchy = False
+                for cls in bind.__class__.__mro__:
+                    if cls.__name__ == func_class_name:
+                        is_in_hierarchy = True
+                        break
+
+                if is_in_hierarchy:
+                    # Function is from bind's class hierarchy,
+                    # use inheritance
+                    try:
+                        func_to_call = getattr(bind, func.__name__)
+                        value = func_to_call(name)
+                    except Exception as ex:
+                        logger.error("Function '%s' of %s.%s raised %s",
+                                     func.__name__, bind, name, ex)
+                        pass
+                else:
+                    # Function is from an external class, call directly with
+                    # bind as first arg
+                    try:
+                        value = func(bind, name)
+                    except Exception as ex:
+                        logger.error("Function '%s' of %s.%s raised %s",
+                                     func.__name__, bind, name, ex)
+                        pass
             else:
-                if value is not None:
-                    break
+                # Fallback for functions without __qualname__, use inheritance
+                try:
+                    func_to_call = getattr(bind, func.__name__)
+                    value = func_to_call(name)
+                except Exception as ex:
+                    logger.error("Function '%s' of %s.%s raised %s",
+                                 func.__name__, bind, name, ex)
+                    pass
+
+            # Break the loop if we got a non-None value
+            if value is not None:
+                break
+
         return value
 
     @staticmethod

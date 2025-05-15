@@ -40,31 +40,19 @@ class TestStandardLibraryExports(TestTask):
         # Instantiate modelica create task and set required values via mocks
         cls.create_modelica_model_task = CreateModelicaModel(cls.playground)
         cls.create_modelica_model_task.prj_name = 'TestStandardLibrary'
-        cls.create_modelica_model_task.paths = paths
-
-        # Instantiate export task and set required values via mocks
-        cls.export_task = Export(cls.playground)
-        cls.export_task.prj_name = 'TestStandardLibrary'
-        cls.export_task.paths = paths
-
-        cls.helper = SetupHelperHVAC()
-
-    def setUp(self) -> None:
-        # Set export path to temporary path
-        self.export_path = tempfile.TemporaryDirectory(prefix='bim2sim')
-
-        self.export_task.paths.export = self.export_path.name
-
-    def tearDown(self) -> None:
-        self.helper.reset()
+        cls.create_modelica_model_task.paths = cls.test_task.paths
 
     def run_export(self, graph, answers=()):
-        (export_elements, connections, cons_heat_ports_conv,
-         cons_heat_ports_rad) = DebugDecisionHandler(answers).handle(
+        """Method to reduce redundant code.
+
+        We need an extra method here, as the normal run_task method just runs
+        one task but in this case we need to run CreateModelicaModel model task
+        first and then Export. We use Export as testTask.
+        """
+        reads_from_modelica_creation = DebugDecisionHandler(answers).handle(
             self.create_modelica_model_task.run(self.loaded_libs, graph))
-        return self.export_task.run(
-            export_elements, connections, cons_heat_ports_conv,
-            cons_heat_ports_rad)
+        modelica_model = self.run_task(answers, reads_from_modelica_creation)
+        return modelica_model
 
     def run_parameter_test(self, graph: HvacGraph, modelica_model: list,
                            parameters: List[Tuple[str, str]],
@@ -145,10 +133,10 @@ class TestStandardLibraryExports(TestTask):
         """ Test if an AssertionError is raised if a required parameter is not
             provided."""
         graph, pipe = self.helper.get_simple_pipe()
-        answers = ()
         with self.assertRaises(AssertionError):
-            DebugDecisionHandler(answers).handle(
-                self.test_task.run(self.loaded_libs, graph))
+            self.run_export(graph)
+            # DebugDecisionHandler(answers).handle(
+            #     self.test_task.run(self.loaded_libs, graph))
 
     def test_check_function(self):
         """ Test if the check function for a parameter works. The exported
@@ -159,14 +147,15 @@ class TestStandardLibraryExports(TestTask):
         pipe.diameter = -1 * ureg.meter
         answers = ()
         # reads = (self.loaded_libs, graph)
+        modelica_model = self.run_export(graph)
         # modelica_model = self.run_task(answers, reads)
-        (export_elements, connections, cons_heat_ports_conv,
-         cons_heat_ports_rad) = DebugDecisionHandler(
-            answers).handle(
-            self.create_modelica_model_task.run(self.loaded_libs, graph))
-        modelica_model = self.export_task.run(
-            export_elements, connections, cons_heat_ports_conv,
-            cons_heat_ports_rad)
+        # (export_elements, connections, cons_heat_ports_conv,
+        #  cons_heat_ports_rad) = DebugDecisionHandler(
+        #     answers).handle(
+        #     self.create_modelica_model_task.run(self.loaded_libs, graph))
+        # modelica_model = self.export_task.run(
+        #     export_elements, connections, cons_heat_ports_conv,
+        #     cons_heat_ports_rad)
         self.assertIsNone(
             modelica_model[0].modelica_elements[0].parameters[
                 'diameter'].value)
@@ -176,9 +165,8 @@ class TestStandardLibraryExports(TestTask):
     def test_pipe_export(self):
         graph, pipe = self.helper.get_simple_pipe()
         pipe.diameter = 0.2 * ureg.meter
-        answers = ()
-        reads = (self.loaded_libs, graph)
-        modelica_model = self.run_task(answers, reads)
+        modelica_model = self.run_export(graph)
+
         # Test for expected and exported parameters
         parameters = [('diameter', 'diameter'), ('length', 'length')]
         expected_units = [ureg.m, ureg.m]
@@ -188,8 +176,7 @@ class TestStandardLibraryExports(TestTask):
     def test_valve_export(self):
         graph = self.helper.get_simple_valve()
         answers = (1 * ureg.kg / ureg.h,)
-        reads = (self.loaded_libs, graph)
-        modelica_model = self.run_task(answers, reads)
+        modelica_model = self.run_export(graph, answers)
         parameters = [('nominal_pressure_difference', 'dp_nominal'),
                       ('nominal_mass_flow_rate', 'm_flow_nominal')]
         expected_units = [ureg.bar, ureg.kg / ureg.s]
@@ -198,9 +185,7 @@ class TestStandardLibraryExports(TestTask):
 
     def test_junction_export(self):
         graph = self.helper.get_simple_junction()
-        answers = ()
-        reads = (self.loaded_libs, graph)
-        modelica_model = self.run_task(answers, reads)
+        modelica_model = self.run_export(graph)
         # Test for expected and exported parameters
         parameters = [('volume', 'V')]
         expected_units = [ureg.m ** 3]
@@ -209,9 +194,7 @@ class TestStandardLibraryExports(TestTask):
 
     def test_storage_export(self):
         graph = self.helper.get_simple_storage()
-        answers = ()
-        reads = (self.loaded_libs, graph)
-        modelica_model = self.run_task(answers, reads)
+        modelica_model = self.run_export(graph)
         # Test for expected and exported parameters
         parameters = [('volume', 'V')]
         expected_units = [ureg.m ** 3]
