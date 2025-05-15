@@ -21,6 +21,12 @@ For python > 3.9: make sure that the correct geomeppy is installed (using requir
 
 ### Test install
 
+## Examples
+Please also take a look at
+`bim2sim/plugins/PluginComfort/bim2sim_comfort/examples`, which provides some
+runnable examples for the Comfort plugin. You can use these examples to test your
+installation and learn from them. Additionally, they serve as good starting
+points for your own projects."
 
 ## Structure of the plugin
 
