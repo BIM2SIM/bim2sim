@@ -22,6 +22,12 @@ The [bim2sim core installation](coreInstalltion) needs to be done before.
 
 ### Test install
 
+## Examples
+Please also take a look at
+`bim2sim/plugins/PluginTEASER/bim2sim_teaser/examples`, which provides some
+runnable examples for the TEASER plugin. You can use these examples to test your
+installation and learn from them. Additionally, they serve as good starting
+points for your own projects."
 
 ## Structure of the plugin
 
