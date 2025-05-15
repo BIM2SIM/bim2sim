@@ -46,9 +46,9 @@ class TestWeather(unittest.TestCase):
         handler = DebugDecisionHandler([])
         handler.handle(self.project.run(cleanup=False))
         try:
-            weather_file = self.project.playground.state['weather_file']
+            weather_file = self.project.playground.state['weather_file_ep']
         except Exception:
             raise ValueError(f"No weather file set through Weather task. An"
                              f"error occurred.")
         self.assertEquals(weather_file,
-                          self.project.sim_settings.weather_file_path)
+                          self.project.sim_settings.weather_file_path_ep)

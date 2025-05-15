@@ -130,3 +130,37 @@ class TestSimSettings(unittest.TestCase):
         new_sim_setting.new_setting_lod = LOD.full
         self.assertEqual(
             new_sim_setting.new_setting_lod, LOD.full)
+
+    def test_deprecated_setting(self):
+        """Test if deprecated settings raise appropriate error messages"""
+        # Create a standard settings instance
+        standard_wf = sim_settings.BaseSimSettings()
+
+        # Test accessing the deprecated setting
+        with self.assertRaises(AttributeError) as context:
+            value = standard_wf.weather_file_path
+
+        # Check that the error message contains the expected information
+        error_message = str(context.exception)
+        self.assertIn("weather_file_path", error_message)
+        self.assertIn("deprecated", error_message.lower())
+        self.assertIn("weather_file_path_ep", error_message)
+        self.assertIn("weather_file_path_modelica", error_message)
+
+        # Test setting the deprecated setting
+        test_path = Path(__file__)  # Just a valid path for testing
+        with self.assertRaises(AttributeError) as context:
+            standard_wf.weather_file_path = test_path
+
+        # Check that the error message contains the expected information
+        error_message = str(context.exception)
+        self.assertIn("weather_file_path", error_message)
+        self.assertIn("deprecated", error_message.lower())
+        self.assertIn("weather_file_path_ep", error_message)
+        self.assertIn("weather_file_path_modelica", error_message)
+
+        # Test that we can still set and access the new settings
+        standard_wf.weather_file_path_ep = test_path
+        standard_wf.weather_file_path_modelica = test_path
+        self.assertEqual(standard_wf.weather_file_path_ep, test_path)
+        self.assertEqual(standard_wf.weather_file_path_modelica, test_path)
