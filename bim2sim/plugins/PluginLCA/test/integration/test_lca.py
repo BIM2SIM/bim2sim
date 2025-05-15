@@ -15,6 +15,7 @@ class IntegrationBaseLCA(IntegrationBase):
                 self.test_resources_path() /
                 'weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 
+
 class TestIntegrationLCA(IntegrationBaseLCA, unittest.TestCase):
     def test_run_kitinstitute_lca(self):
         """Run project with AC20-Institute-Var-2..ifc"""
