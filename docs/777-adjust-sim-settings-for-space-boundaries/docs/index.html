@@ -1,0 +1,758 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to bim2sim’s documentation! &mdash; bim2sim  0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+      <script src="_static/jquery.js"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+      <script src="_static/doctools.js"></script>
+      <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Big Picture" href="big-picture.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#">
+            
+              <img src="_static/b2s_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="big-picture.html">Big Picture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide.html">User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulation-guide.html">Simulation-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced-user-guide.html">Advanced User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer-guide.html">Developer-Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="code/modules.html">bim2sim</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">bim2sim </a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Welcome to bim2sim’s documentation!</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="welcome-to-bim2sim-s-documentation">
+<h1>Welcome to bim2sim’s documentation!<a class="headerlink" href="#welcome-to-bim2sim-s-documentation" title="Permalink to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="big-picture.html">Big Picture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="big-picture.html#what-is-bim2sim-about">What is bim2sim about?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="big-picture.html#how-does-bim2sim-work">How does bim2sim work?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="big-picture.html#simulation-types">Simulation Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="big-picture.html#building-performance-simulation-bps">Building Performance Simulation (BPS)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="big-picture.html#reasons-to-perform-a-bps">Reasons to perform a BPS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="big-picture.html#requirements-for-bps-in-bim2sim">Requirements for BPS in bim2sim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="big-picture.html#ifc-requirements">IFC Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="big-picture.html#heating-ventilation-and-air-conditioning-hvac-simulation">Heating Ventilation and Air Conditioning (HVAC) Simulation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="big-picture.html#hydraulic-network">Hydraulic Network</a></li>
+<li class="toctree-l4"><a class="reference internal" href="big-picture.html#generation-devices-consumers">Generation Devices &amp; Consumers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="big-picture.html#control-logic">Control Logic</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="big-picture.html#what-are-plugins">What are Plugins?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="big-picture.html#compatibility">Compatibility</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide.html">User-Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user-guide/PluginTemplate.html">PluginTemplate</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTemplate.html#how-to-install">How to install?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTemplate.html#step-by-step">Step by step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTemplate.html#trouble-shooting">Trouble Shooting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTemplate.html#docker">Docker</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTemplate.html#test-installation">Test installation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTemplate.html#how-to-create-a-project">How to create a project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTemplate.html#console">Console</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTemplate.html#script">Script</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTemplate.html#structure-of-the-plugin-template">Structure of the plugin template</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTemplate.html#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTemplate.html#how-to-load-an-ifc-file">How to load an IFC file?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTemplate.html#how-to-configure-my-project">How to configure my project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTemplate.html#simulation-settings">Simulation settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTemplate.html#configuration-file">Configuration file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTemplate.html#default-tasks">Default tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTemplate.html#additional-templates">Additional templates</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTemplate.html#how-to-run-the-project">How to run the project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTemplate.html#how-to-run-the-simulation">How to run the simulation?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTemplate.html#how-to-analyze-the-project">How to analyze the project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTemplate.html#what-kind-of-results-exist">What kind of results exist?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTemplate.html#what-programs-tools-to-use-for-further-analysis">What programs/tools to use for further analysis?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user-guide/PluginTEASER.html">PluginTEASER</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTEASER.html#how-to-install">How to install?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTEASER.html#step-by-step">Step by step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTEASER.html#test-install">Test install</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTEASER.html#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTEASER.html#structure-of-the-plugin">Structure of the plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTEASER.html#how-to-create-a-project">How to create a project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTEASER.html#how-to-load-an-ifc-file">How to load an IFC file?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTEASER.html#how-to-configure-my-project">How to configure my project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTEASER.html#simulation-settings">Simulation settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTEASER.html#configuration-file">Configuration file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTEASER.html#default-tasks">Default tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTEASER.html#additional-templates">Additional templates</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTEASER.html#how-to-run-the-project">How to run the project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTEASER.html#how-to-run-the-simulation">How to run the simulation?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTEASER.html#how-to-analyze-the-project">How to analyze the project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTEASER.html#what-kind-of-results-exist">What kind of results exist?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTEASER.html#what-programs-tools-to-use-for-further-analysis">What programs/tools to use for further analysis?</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTEASER.html#enrichment">Enrichment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTEASER.html#space-boundary-usage">Space Boundary Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginTEASER.html#zoning">Zoning</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTEASER.html#external-internal">External/Internal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTEASER.html#orientation">Orientation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTEASER.html#usage">Usage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginTEASER.html#window-to-wall-ratio">Window to wall ratio</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user-guide/PluginEnergyPlus.html">PluginEnergyPlus</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#how-to-install">How to install?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#step-by-step">Step by step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#trouble-shooting">Trouble Shooting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#test-install">Test install</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#structure-of-the-plugin">Structure of the plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#how-to-create-a-project">How to create a project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#how-to-load-an-ifc-file">How to load an IFC file?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#how-to-configure-my-project">How to configure my project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#simulation-settings">Simulation settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#configuration-file">Configuration file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#default-tasks">Default tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#additional-templates">Additional templates</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#how-to-run-the-project">How to run the project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#how-to-run-the-simulation">How to run the simulation?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#how-to-analyze-the-project">How to analyze the project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#what-kind-of-results-exist">What kind of results exist?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#what-programs-tools-to-use-for-further-analysis">What programs/tools to use for further analysis?</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#energyplus-specific-tasks">EnergyPlus specific tasks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#validation-of-the-ifc-file">Validation of the IFC file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#geometric-preprocessing-for-energyplus-export">Geometric Preprocessing for EnergyPlus Export</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#add-2b-space-boundaries">Add 2b Space Boundaries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#set-the-weather-file">Set the Weather File</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#initialize-and-export-the-energyplus-idf-file">Initialize and Export the EnergyPlus IDF File</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#idf-postprocessing">IDF Postprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#export-idf-geometry-for-cfd-processing">Export IDF Geometry for CFD Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#run-energyplus-simulation">Run EnergyPlus Simulation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginEnergyPlus.html#energyplussimsettings">EnergyPlusSimSettings</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user-guide/PluginComfort.html">PluginComfort</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginComfort.html#how-to-install">How to install?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginComfort.html#step-by-step">Step by step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginComfort.html#trouble-shooting">Trouble Shooting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginComfort.html#test-install">Test install</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginComfort.html#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginComfort.html#structure-of-the-plugin">Structure of the plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginComfort.html#comfort-specific-tasks">Comfort specific tasks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginComfort.html#add-comfort-settings">Add Comfort Settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginComfort.html#create-result-dataframe-for-comfort-analysis">Create result dataframe for comfort analysis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginComfort.html#plot-comfort-results">Plot comfort results</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginComfort.html#how-to-create-a-project">How to create a project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginComfort.html#how-to-load-an-ifc-file">How to load an IFC file?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginComfort.html#how-to-configure-my-project">How to configure my project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginComfort.html#simulation-settings">Simulation settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginComfort.html#configuration-file">Configuration file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginComfort.html#default-tasks">Default tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginComfort.html#additional-templates">Additional templates</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginComfort.html#how-to-run-the-project">How to run the project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginComfort.html#how-to-run-the-simulation">How to run the simulation?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginComfort.html#how-to-analyze-the-project">How to analyze the project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginComfort.html#what-kind-of-results-exist">What kind of results exist?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginComfort.html#what-programs-tools-to-use-for-further-analysis">What programs/tools to use for further analysis?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user-guide/PluginAixLib.html">PluginAixLib</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginAixLib.html#how-to-install">How to install?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginAixLib.html#step-by-step">Step by step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginAixLib.html#test-install">Test install</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginAixLib.html#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginAixLib.html#structure-of-the-plugin">Structure of the plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginAixLib.html#how-to-create-a-project">How to create a project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginAixLib.html#how-to-load-an-ifc-file">How to load an IFC file?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginAixLib.html#how-to-configure-my-project">How to configure my project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginAixLib.html#simulation-settings">Simulation settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginAixLib.html#configuration-file">Configuration file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginAixLib.html#default-tasks">Default tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginAixLib.html#additional-templates">Additional templates</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginAixLib.html#how-to-run-the-project">How to run the project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginAixLib.html#how-to-run-the-simulation">How to run the simulation?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginAixLib.html#how-to-analyze-the-project">How to analyze the project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginAixLib.html#what-kind-of-results-exist">What kind of results exist?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginAixLib.html#what-programs-tools-to-use-for-further-analysis">What programs/tools to use for further analysis?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user-guide/PluginHKESim.html">PluginHKESim</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginHKESim.html#how-to-install">How to install?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginHKESim.html#step-by-step">Step by step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginHKESim.html#test-install">Test install</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginHKESim.html#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginHKESim.html#structure-of-the-plugin">Structure of the plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginHKESim.html#how-to-create-a-project">How to create a project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginHKESim.html#how-to-load-an-ifc-file">How to load an IFC file?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginHKESim.html#how-to-configure-my-project">How to configure my project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginHKESim.html#simulation-settings">Simulation settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginHKESim.html#configuration-file">Configuration file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginHKESim.html#default-tasks">Default tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginHKESim.html#additional-templates">Additional templates</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginHKESim.html#how-to-run-the-project">How to run the project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginHKESim.html#how-to-run-the-simulation">How to run the simulation?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginHKESim.html#how-to-analyze-the-project">How to analyze the project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginHKESim.html#what-kind-of-results-exist">What kind of results exist?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginHKESim.html#what-programs-tools-to-use-for-further-analysis">What programs/tools to use for further analysis?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user-guide/PluginLCA.html">PluginLCA</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginLCA.html#how-to-install">How to install?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginLCA.html#step-by-step">Step by step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginLCA.html#test-install">Test install</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginLCA.html#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginLCA.html#structure-of-the-plugin">Structure of the plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginLCA.html#how-to-create-a-project">How to create a project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginLCA.html#how-to-load-an-ifc-file">How to load an IFC file?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginLCA.html#how-to-configure-my-project">How to configure my project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginLCA.html#simulation-settings">Simulation settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginLCA.html#configuration-file">Configuration file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginLCA.html#default-tasks">Default tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginLCA.html#additional-templates">Additional templates</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginLCA.html#how-to-run-the-project">How to run the project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginLCA.html#how-to-run-the-simulation">How to run the simulation?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/PluginLCA.html#how-to-analyze-the-project">How to analyze the project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginLCA.html#what-kind-of-results-exist">What kind of results exist?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="user-guide/PluginLCA.html#what-programs-tools-to-use-for-further-analysis">What programs/tools to use for further analysis?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="user-guide/User_hints.html">General hints and howtos</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="user-guide/User_hints.html#hints-jupyter-notebook">Hints Jupyter Notebook</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="simulation-guide.html">Simulation-Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="simulation-guide/simulation-types.html">Simulation Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulation-guide/simulation-types.html#building-performance-simulation-bps">Building Performance Simulation (BPS)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulation-guide/simulation-types.html#reasons-to-perform-a-bps">Reasons to perform a BPS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulation-guide/simulation-types.html#requirements-for-bps-in-bim2sim">Requirements for BPS in bim2sim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulation-guide/simulation-types.html#ifc-requirements">IFC Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simulation-guide/simulation-types.html#heating-ventilation-and-air-conditioning-hvac-simulation">Heating Ventilation and Air Conditioning (HVAC) Simulation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="simulation-guide/simulation-types.html#hydraulic-network">Hydraulic Network</a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulation-guide/simulation-types.html#generation-devices-consumers">Generation Devices &amp; Consumers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulation-guide/simulation-types.html#control-logic">Control Logic</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="simulation-guide/plugin-guides/teaser.html">TEASER Simulation Guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="simulation-guide/plugin-guides/teaser.html#ahu">AHU</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced-user-guide.html">Advanced User-Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced-user-guide/concepts.html">Concepts</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="advanced-user-guide/concepts/project.html">Project</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/project.html#functionality">Functionality</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="advanced-user-guide/concepts/sim_settings.html">Simulation settings</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/sim_settings.html#what-are-simulation-settings">What are simulation settings?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/sim_settings.html#how-do-settings-work">How do settings work?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/sim_settings.html#how-to-set-simulation-settings">How to set simulation settings?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/sim_settings.html#want-to-set-up-your-own-workflow">Want to set up your own workflow?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/sim_settings.html#list-of-current-simulation-settings">List of current simulation settings:</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="advanced-user-guide/concepts/sim_settings.html#basesimsettings">BaseSimSettings</a></li>
+<li class="toctree-l5"><a class="reference internal" href="advanced-user-guide/concepts/sim_settings.html#plantsimsettings">PlantSimSettings</a></li>
+<li class="toctree-l5"><a class="reference internal" href="advanced-user-guide/concepts/sim_settings.html#buildingsimsettings">BuildingSimSettings</a></li>
+<li class="toctree-l5"><a class="reference internal" href="advanced-user-guide/concepts/sim_settings.html#teasersimsettings">TEASERSimSettings</a></li>
+<li class="toctree-l5"><a class="reference internal" href="advanced-user-guide/concepts/sim_settings.html#energyplussimsettings">EnergyPlusSimSettings</a></li>
+<li class="toctree-l5"><a class="reference internal" href="advanced-user-guide/concepts/sim_settings.html#cfdsimsettings">CFDSimSettings</a></li>
+<li class="toctree-l5"><a class="reference internal" href="advanced-user-guide/concepts/sim_settings.html#lcaexportsettings">LCAExportSettings</a></li>
+<li class="toctree-l5"><a class="reference internal" href="advanced-user-guide/concepts/sim_settings.html#comfortsimsettings">ComfortSimSettings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="advanced-user-guide/concepts/domains.html">Domains</a></li>
+<li class="toctree-l3"><a class="reference internal" href="advanced-user-guide/concepts/playground.html">Playground</a></li>
+<li class="toctree-l3"><a class="reference internal" href="advanced-user-guide/concepts/plugins.html">Plugins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="advanced-user-guide/concepts/tasks.html">Tasks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/tasks.html#what-are-tasks-for">What are Tasks for?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/tasks.html#how-are-tasks-managed-the-playground">How are Tasks managed? The Playground</a></li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/tasks.html#special-variables-for-tasks">Special variables for Tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/tasks.html#writing-your-own-task">Writing your own Task</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="advanced-user-guide/concepts/elements.html">Elements</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/elements.html#functionality">Functionality</a></li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/elements.html#mapping">Mapping</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="advanced-user-guide/concepts/elements.html#many-mapping">1:many Mapping</a></li>
+<li class="toctree-l5"><a class="reference internal" href="advanced-user-guide/concepts/elements.html#many-1-mapping">many:1 Mapping</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/elements.html#element-types">Element Types</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="advanced-user-guide/concepts/attribute.html">Attributes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/attribute.html#which-problem-is-addressed-by-attributes">Which problem is addressed by attributes?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/attribute.html#concept-how-does-it-work">Concept / How does it work?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/attribute.html#how-are-the-attributes-managed">How are the attributes managed?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/attribute.html#when-to-use-attributes">When to use <code class="docutils literal notranslate"><span class="pre">attributes</span></code>?</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="advanced-user-guide/concepts/attribute.html#bim2sim-attribute">bim2sim <code class="docutils literal notranslate"><span class="pre">attribute</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="advanced-user-guide/concepts/attribute.html#python-properties">Python properties</a></li>
+<li class="toctree-l5"><a class="reference internal" href="advanced-user-guide/concepts/attribute.html#class-attributes">Class attributes</a></li>
+<li class="toctree-l5"><a class="reference internal" href="advanced-user-guide/concepts/attribute.html#instance-attributes">Instance attributes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="advanced-user-guide/concepts/finder.html">Finder</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/finder.html#what-does-the-finder">What does the finder?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/finder.html#i-have-my-own-tool-or-i-m-aware-of-more-typical-storage-points-what-to-do">I have my own tool, or I’m aware of more typical storage points, what to do?</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="advanced-user-guide/concepts/aggregations.html">Aggregations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/aggregations.html#what-are-aggregations-used-for">What are aggregations used for?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/aggregations.html#how-are-aggregations-implemented">How are aggregations implemented?</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="advanced-user-guide/concepts/aggregations.html#find-matches">Find Matches</a></li>
+<li class="toctree-l5"><a class="reference internal" href="advanced-user-guide/concepts/aggregations.html#get-edge-ports">Get Edge Ports</a></li>
+<li class="toctree-l5"><a class="reference internal" href="advanced-user-guide/concepts/aggregations.html#replacement">Replacement</a></li>
+<li class="toctree-l5"><a class="reference internal" href="advanced-user-guide/concepts/aggregations.html#merge-graph">Merge graph</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/aggregations.html#improvements">Improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/aggregations.html#what-aggregations-exist-currently">What aggregations exist currently:</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="advanced-user-guide/concepts/decisions.html">Decisions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="advanced-user-guide/concepts/decisions.html#yielding">Yielding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="advanced-user-guide/concepts/enrichment.html">Enrichment</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/enrichment.html#use-conditions">Use Conditions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/enrichment.html#material-and-layer-enrichment">Material and layer enrichment</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="advanced-user-guide/concepts/logging.html">Logging</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/logging.html#user-logging">User logging</a></li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/logging.html#developer-logging">Developer logging</a></li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/concepts/logging.html#ifc-quality-logging">IFC Quality logging</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="advanced-user-guide/project-file-structure.html">Project File Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced-user-guide/writing-your-own-plugin.html">Writing your own bim2sim Plugin</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="advanced-user-guide/writing-your-own-plugin.html#basics">Basics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="advanced-user-guide/writing-your-own-plugin.html#use-a-custom-plugin">Use a custom Plugin</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/writing-your-own-plugin.html#let-bim2sim-find-your-plugin">Let <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> find your Plugin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="advanced-user-guide/writing-your-own-plugin.html#use-in-script">Use in script</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="developer-guide.html">Developer-Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="developer-guide/contribute.html">How to Contribute?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developer-guide/contribute.html#version-control-guidelines">Version Control Guidelines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="developer-guide/contribute.html#versioning-rules">Versioning Rules</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="developer-guide/contribute.html#current-status">Current Status</a></li>
+<li class="toctree-l5"><a class="reference internal" href="developer-guide/contribute.html#version-number-components">Version Number Components</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="developer-guide/contribute.html#implementation">Implementation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="developer-guide/contribute.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="developer-guide/contribute.html#what-do-i-have-to-do-when-i-want-to-use-bim2sim-for-other-simulation-tools">What do I have to do, when I want to use bim2sim for other simulation tools?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="developer-guide/contribute.html#which-files-functions-needs-to-be-adapted-created">Which files/functions needs to be adapted/created?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="developer-guide/contribute.html#what-is-stored-in-tasks">What is stored in tasks?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="developer-guide/contribute.html#what-is-stored-in-projects">What is stored in projects?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="developer-guide/contribute.html#what-is-stored-in-plugins">What is stored in plugins?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="developer-guide/contribute.html#what-is-stored-in-playgrounds">What is stored in playgrounds?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developer-guide/testing.html">Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developer-guide/testing.html#unit-testing">Unit Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer-guide/testing.html#integration-testing">Integration Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer-guide/testing.html#regression-testing">Regression Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer-guide/testing.html#run-tests-local">Run Tests Local</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer-guide/testing.html#update-test-resources">Update test resources</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="developer-guide/testing.html#test-resources-repository">Test Resources Repository</a></li>
+<li class="toctree-l4"><a class="reference internal" href="developer-guide/testing.html#main-bim2sim-repository">Main bim2sim Repository</a></li>
+<li class="toctree-l4"><a class="reference internal" href="developer-guide/testing.html#id1">Test Resources Repository</a></li>
+<li class="toctree-l4"><a class="reference internal" href="developer-guide/testing.html#id2">Main bim2sim Repository</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developer-guide/doc-utilities.html">Utilities for documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="developer-guide/doc-utilities/gen_plugin_visu.html">Visualization of bim2sim plugin structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="developer-guide/doc-utilities/run_sphinx_local.html">Run Sphinx local</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="developer-guide/doc-utilities/run_sphinx_local.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="developer-guide/doc-utilities/run_sphinx_local.html#warning-import-failures-no-module-named-xxxx">Warning: import failures - No module named XXXX</a></li>
+<li class="toctree-l5"><a class="reference internal" href="developer-guide/doc-utilities/run_sphinx_local.html#problems-with-code-documentation">Problems with code documentation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="bim2sim-code">
+<h1>bim2sim code<a class="headerlink" href="#bim2sim-code" title="Permalink to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="code/modules.html">bim2sim</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="code/bim2sim.html">bim2sim package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="code/bim2sim.html#bim2sim.run_project"><code class="docutils literal notranslate"><span class="pre">run_project()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="code/bim2sim.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.elements.html">bim2sim.elements package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.elements.html#subpackages">Subpackages</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.elements.html#submodules">Submodules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.elements.html#module-bim2sim.elements.base_elements">bim2sim.elements.base_elements module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.elements.html#module-bim2sim.elements.bps_elements">bim2sim.elements.bps_elements module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.elements.html#module-bim2sim.elements.hvac_elements">bim2sim.elements.hvac_elements module</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.examples.html">bim2sim.examples package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.examples.html#submodules">Submodules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.examples.html#module-bim2sim.examples.e1_template_plugin">bim2sim.examples.e1_template_plugin module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.examples.html#module-bim2sim.examples.e2_interactive_project">bim2sim.examples.e2_interactive_project module</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.export.html">bim2sim.export package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.export.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.kernel.html">bim2sim.kernel package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.kernel.html#bim2sim.kernel.IFCDomainError"><code class="docutils literal notranslate"><span class="pre">IFCDomainError</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.kernel.html#subpackages">Subpackages</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.kernel.html#submodules">Submodules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.kernel.html#module-bim2sim.kernel.decorators">bim2sim.kernel.decorators module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.kernel.html#module-bim2sim.kernel.ifc_file">bim2sim.kernel.ifc_file module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.kernel.html#module-bim2sim.kernel.log">bim2sim.kernel.log module</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.plugins.html">bim2sim.plugins package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.plugins.html#bim2sim.plugins.Plugin"><code class="docutils literal notranslate"><span class="pre">Plugin</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.plugins.html#bim2sim.plugins.PluginBPSBase"><code class="docutils literal notranslate"><span class="pre">PluginBPSBase</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.plugins.html#bim2sim.plugins.add_plugins_to_path"><code class="docutils literal notranslate"><span class="pre">add_plugins_to_path()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.plugins.html#bim2sim.plugins.available_plugins"><code class="docutils literal notranslate"><span class="pre">available_plugins()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.plugins.html#bim2sim.plugins.get_plugin"><code class="docutils literal notranslate"><span class="pre">get_plugin()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.plugins.html#bim2sim.plugins.load_plugin"><code class="docutils literal notranslate"><span class="pre">load_plugin()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.plugins.html#subpackages">Subpackages</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.tasks.html">bim2sim.tasks package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.tasks.html#subpackages">Subpackages</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.tasks.html#submodules">Submodules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.tasks.html#module-bim2sim.tasks.base">bim2sim.tasks.base module</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.utilities.html">bim2sim.utilities package</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.utilities.html#submodules">Submodules</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.utilities.html#bim2sim-utilities-check-docstrings-module">bim2sim.utilities.check_docstrings module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.utilities.html#module-bim2sim.utilities.common_functions">bim2sim.utilities.common_functions module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.utilities.html#module-bim2sim.utilities.pyocc_tools">bim2sim.utilities.pyocc_tools module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.utilities.html#module-bim2sim.utilities.svg_utils">bim2sim.utilities.svg_utils module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.utilities.html#module-bim2sim.utilities.test">bim2sim.utilities.test module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.utilities.html#module-bim2sim.utilities.types">bim2sim.utilities.types module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.utilities.html#module-bim2sim.utilities.visualize_spaces">bim2sim.utilities.visualize_spaces module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="code/bim2sim.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="code/bim2sim.html#module-bim2sim.project">bim2sim.project module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure"><code class="docutils literal notranslate"><span class="pre">FolderStructure</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.CONFIG"><code class="docutils literal notranslate"><span class="pre">FolderStructure.CONFIG</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.DECISIONS"><code class="docutils literal notranslate"><span class="pre">FolderStructure.DECISIONS</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.EXPORT"><code class="docutils literal notranslate"><span class="pre">FolderStructure.EXPORT</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.FINDER"><code class="docutils literal notranslate"><span class="pre">FolderStructure.FINDER</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.IFC_BASE"><code class="docutils literal notranslate"><span class="pre">FolderStructure.IFC_BASE</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.LOG"><code class="docutils literal notranslate"><span class="pre">FolderStructure.LOG</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.assets"><code class="docutils literal notranslate"><span class="pre">FolderStructure.assets</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.b2sroot"><code class="docutils literal notranslate"><span class="pre">FolderStructure.b2sroot</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.complete_project_folder"><code class="docutils literal notranslate"><span class="pre">FolderStructure.complete_project_folder()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.config"><code class="docutils literal notranslate"><span class="pre">FolderStructure.config</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.copy_assets"><code class="docutils literal notranslate"><span class="pre">FolderStructure.copy_assets()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.create"><code class="docutils literal notranslate"><span class="pre">FolderStructure.create()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.create_project_folder"><code class="docutils literal notranslate"><span class="pre">FolderStructure.create_project_folder()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.decisions"><code class="docutils literal notranslate"><span class="pre">FolderStructure.decisions</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.delete"><code class="docutils literal notranslate"><span class="pre">FolderStructure.delete()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.enrichment"><code class="docutils literal notranslate"><span class="pre">FolderStructure.enrichment</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.export"><code class="docutils literal notranslate"><span class="pre">FolderStructure.export</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.finder"><code class="docutils literal notranslate"><span class="pre">FolderStructure.finder</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.ifc_base"><code class="docutils literal notranslate"><span class="pre">FolderStructure.ifc_base</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.is_project_folder"><code class="docutils literal notranslate"><span class="pre">FolderStructure.is_project_folder()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.log"><code class="docutils literal notranslate"><span class="pre">FolderStructure.log</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.root"><code class="docutils literal notranslate"><span class="pre">FolderStructure.root</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.FolderStructure.sub_dirs"><code class="docutils literal notranslate"><span class="pre">FolderStructure.sub_dirs</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.Project"><code class="docutils literal notranslate"><span class="pre">Project</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.Project.config"><code class="docutils literal notranslate"><span class="pre">Project.config</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.Project.create"><code class="docutils literal notranslate"><span class="pre">Project.create()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.Project.delete"><code class="docutils literal notranslate"><span class="pre">Project.delete()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.Project.finalize"><code class="docutils literal notranslate"><span class="pre">Project.finalize()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.Project.is_active"><code class="docutils literal notranslate"><span class="pre">Project.is_active()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.Project.is_project_folder"><code class="docutils literal notranslate"><span class="pre">Project.is_project_folder()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.Project.reset"><code class="docutils literal notranslate"><span class="pre">Project.reset()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.Project.rewrite_config"><code class="docutils literal notranslate"><span class="pre">Project.rewrite_config()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.Project.run"><code class="docutils literal notranslate"><span class="pre">Project.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.add_config_section"><code class="docutils literal notranslate"><span class="pre">add_config_section()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.config_base_setup"><code class="docutils literal notranslate"><span class="pre">config_base_setup()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.html#bim2sim.project.open_config"><code class="docutils literal notranslate"><span class="pre">open_config()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="code/bim2sim.html#module-bim2sim.sim_settings">bim2sim.sim_settings module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.AutoSettingNameMeta"><code class="docutils literal notranslate"><span class="pre">AutoSettingNameMeta</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BaseSimSettings"><code class="docutils literal notranslate"><span class="pre">BaseSimSettings</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BaseSimSettings.building_rotation_overwrite"><code class="docutils literal notranslate"><span class="pre">BaseSimSettings.building_rotation_overwrite</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BaseSimSettings.check_mandatory"><code class="docutils literal notranslate"><span class="pre">BaseSimSettings.check_mandatory()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BaseSimSettings.create_external_elements"><code class="docutils literal notranslate"><span class="pre">BaseSimSettings.create_external_elements</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BaseSimSettings.dymola_simulation"><code class="docutils literal notranslate"><span class="pre">BaseSimSettings.dymola_simulation</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BaseSimSettings.fuzzy_threshold"><code class="docutils literal notranslate"><span class="pre">BaseSimSettings.fuzzy_threshold</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BaseSimSettings.group_unidentified"><code class="docutils literal notranslate"><span class="pre">BaseSimSettings.group_unidentified</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BaseSimSettings.load_default_settings"><code class="docutils literal notranslate"><span class="pre">BaseSimSettings.load_default_settings()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BaseSimSettings.max_wall_thickness"><code class="docutils literal notranslate"><span class="pre">BaseSimSettings.max_wall_thickness</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BaseSimSettings.reset_guids"><code class="docutils literal notranslate"><span class="pre">BaseSimSettings.reset_guids</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BaseSimSettings.update_from_config"><code class="docutils literal notranslate"><span class="pre">BaseSimSettings.update_from_config()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BaseSimSettings.weather_file_path"><code class="docutils literal notranslate"><span class="pre">BaseSimSettings.weather_file_path</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BooleanSetting"><code class="docutils literal notranslate"><span class="pre">BooleanSetting</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BooleanSetting.check_value"><code class="docutils literal notranslate"><span class="pre">BooleanSetting.check_value()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.add_shadings"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.add_shadings</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.add_space_boundaries"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.add_space_boundaries</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.ahu_cooling_overwrite"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.ahu_cooling_overwrite</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.ahu_dehumidification_overwrite"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.ahu_dehumidification_overwrite</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.ahu_heat_recovery_efficiency_overwrite"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.ahu_heat_recovery_efficiency_overwrite</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.ahu_heat_recovery_overwrite"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.ahu_heat_recovery_overwrite</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.ahu_heating_overwrite"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.ahu_heating_overwrite</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.ahu_humidification_overwrite"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.ahu_humidification_overwrite</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.ahu_tz_overwrite"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.ahu_tz_overwrite</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.base_infiltration_rate_overwrite"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.base_infiltration_rate_overwrite</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.close_space_boundary_gaps"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.close_space_boundary_gaps</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.construction_class_doors"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.construction_class_doors</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.construction_class_walls"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.construction_class_walls</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.construction_class_windows"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.construction_class_windows</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.cooling_tz_overwrite"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.cooling_tz_overwrite</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.correct_space_boundaries"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.correct_space_boundaries</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.create_plots"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.create_plots</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.heating_tz_overwrite"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.heating_tz_overwrite</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.layers_and_materials"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.layers_and_materials</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.plot_singe_zone_guid"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.plot_singe_zone_guid</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.prj_custom_usages"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.prj_custom_usages</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.prj_use_conditions"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.prj_use_conditions</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.run_period_end_day"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.run_period_end_day</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.run_period_end_month"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.run_period_end_month</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.run_period_start_day"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.run_period_start_day</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.run_period_start_month"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.run_period_start_month</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.set_run_period"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.set_run_period</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.setpoints_from_template"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.setpoints_from_template</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.sim_results"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.sim_results</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.split_bounds"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.split_bounds</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.split_shadings"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.split_shadings</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.use_constant_infiltration_overwrite"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.use_constant_infiltration_overwrite</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.use_maintained_illuminance"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.use_maintained_illuminance</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.BuildingSimSettings.year_of_construction_overwrite"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings.year_of_construction_overwrite</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.ChoiceSetting"><code class="docutils literal notranslate"><span class="pre">ChoiceSetting</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.ChoiceSetting.check_setting_config"><code class="docutils literal notranslate"><span class="pre">ChoiceSetting.check_setting_config()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.ChoiceSetting.check_value"><code class="docutils literal notranslate"><span class="pre">ChoiceSetting.check_value()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.NumberSetting"><code class="docutils literal notranslate"><span class="pre">NumberSetting</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.NumberSetting.check_setting_config"><code class="docutils literal notranslate"><span class="pre">NumberSetting.check_setting_config()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.NumberSetting.check_value"><code class="docutils literal notranslate"><span class="pre">NumberSetting.check_value()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.PathSetting"><code class="docutils literal notranslate"><span class="pre">PathSetting</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.PathSetting.check_value"><code class="docutils literal notranslate"><span class="pre">PathSetting.check_value()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.PlantSimSettings"><code class="docutils literal notranslate"><span class="pre">PlantSimSettings</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.PlantSimSettings.aggregations"><code class="docutils literal notranslate"><span class="pre">PlantSimSettings.aggregations</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.PlantSimSettings.tolerance_connect_by_position"><code class="docutils literal notranslate"><span class="pre">PlantSimSettings.tolerance_connect_by_position</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.PlantSimSettings.verify_connection_by_position"><code class="docutils literal notranslate"><span class="pre">PlantSimSettings.verify_connection_by_position</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.Setting"><code class="docutils literal notranslate"><span class="pre">Setting</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.Setting.check_setting_config"><code class="docutils literal notranslate"><span class="pre">Setting.check_setting_config()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.Setting.check_value"><code class="docutils literal notranslate"><span class="pre">Setting.check_value()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.Setting.initialize"><code class="docutils literal notranslate"><span class="pre">Setting.initialize()</span></code></a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.Setting.load_default"><code class="docutils literal notranslate"><span class="pre">Setting.load_default()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.SettingsManager"><code class="docutils literal notranslate"><span class="pre">SettingsManager</span></code></a><ul>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.html#bim2sim.sim_settings.SettingsManager.names"><code class="docutils literal notranslate"><span class="pre">SettingsManager.names</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="documentation-utilities">
+<h1>documentation utilities<a class="headerlink" href="#documentation-utilities" title="Permalink to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+<section id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this heading"></a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="big-picture.html" class="btn btn-neutral float-right" title="Big Picture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, RWTH Aachen University, EBC &amp; E3D; ROM Technik GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
