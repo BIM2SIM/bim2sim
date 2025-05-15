@@ -184,14 +184,10 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         # todo: log
         # only calculate intensive calc if all zones have this attribute
         if all([getattr(tz, name) is not None for tz in self.elements]):
-            prop_bool = False
             for tz in self.elements:
                 prop = getattr(tz, name)
                 if prop is not None:
-                    if prop:
-                        prop_bool = True
-                        break
-            return prop_bool
+                    return True
 
     def _get_tz_usage(self, name) -> str:
         """usage properties getter"""
