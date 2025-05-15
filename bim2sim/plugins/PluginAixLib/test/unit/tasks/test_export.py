@@ -23,9 +23,7 @@ class TestAixLibExport(TestStandardLibraryExports):
 
     def test_radiator_export(self):
         graph = self.helper.get_simple_radiator()
-        answers = ()
-        reads = (self.loaded_libs, graph)
-        modelica_model = self.run_task(answers, reads)
+        modelica_model = self.run_export(graph)
         parameters = [('rated_power', 'Q_flow_nominal'),
                       ('flow_temperature', 'T_a_nominal'),
                       ('return_temperature', 'T_b_nominal')]
@@ -35,9 +33,7 @@ class TestAixLibExport(TestStandardLibraryExports):
 
     def test_pump_export(self):
         graph, _ = self.helper.get_simple_pump()
-        answers = ()
-        reads = (self.loaded_libs, graph)
-        modelica_model = self.run_task(answers, reads)
+        modelica_model = self.run_export(graph)
         element = graph.elements[0]
         V_flow = element.rated_volume_flow.to(ureg.m ** 3 / ureg.s).magnitude
         dp = element.rated_pressure_difference.to(ureg.pascal).magnitude
@@ -49,9 +45,7 @@ class TestAixLibExport(TestStandardLibraryExports):
 
     def test_consumer_export(self):
         graph, _ = self.helper.get_simple_consumer()
-        answers = ()
-        reads = (self.loaded_libs, graph)
-        modelica_model = self.run_task(answers, reads)
+        modelica_model = self.run_export(graph)
         parameters = [('rated_power', 'Q_flow_fixed')]
         expected_units = [ureg.watt]
         self.run_parameter_test(graph, modelica_model, parameters,
@@ -72,8 +66,7 @@ class TestAixLibExport(TestStandardLibraryExports):
     def test_three_way_valve_export(self):
         graph = self.helper.get_simple_three_way_valve()
         answers = (1 * ureg.kg / ureg.s,)
-        reads = (self.loaded_libs, graph)
-        modelica_model = self.run_task(answers, reads)
+        modelica_model = self.run_export(graph, answers)
         parameters = [('nominal_pressure_difference', 'dpValve_nominal'),
                       ('nominal_mass_flow_rate', 'm_flow_nominal')]
         expected_units = [ureg.pascal, ureg.kg / ureg.s]
@@ -82,9 +75,7 @@ class TestAixLibExport(TestStandardLibraryExports):
 
     def test_heat_pump_export(self):
         graph = self.helper.get_simple_heat_pump()
-        answers = ()
-        reads = (self.loaded_libs, graph)
-        modelica_model = self.run_task(answers, reads)
+        modelica_model = self.run_export(graph)
         parameters = [('rated_power', 'Q_useNominal')]
         expected_units = [ureg.watt]
         self.run_parameter_test(graph, modelica_model, parameters,
@@ -92,9 +83,7 @@ class TestAixLibExport(TestStandardLibraryExports):
 
     def test_chiller_export(self):
         graph = self.helper.get_simple_chiller()
-        answers = ()
-        reads = (self.loaded_libs, graph)
-        modelica_model = self.run_task(answers, reads)
+        modelica_model = self.run_export(graph)
         parameters = [('rated_power', 'Q_useNominal')]
         expected_units = [ureg.watt]
         self.run_parameter_test(graph, modelica_model, parameters,
@@ -106,9 +95,7 @@ class TestAixLibExport(TestStandardLibraryExports):
 
     def test_storage_export(self):
         graph = self.helper.get_simple_storage()
-        answers = ()
-        reads = (self.loaded_libs, graph)
-        modelica_model = self.run_task(answers, reads)
+        modelica_model = self.run_export(graph)
         parameters = [('height', 'hTank'), ('diameter', 'dTank')]
         expected_units = [ureg.meter, ureg.meter]
         element = graph.elements[0]
@@ -123,13 +110,11 @@ class TestAixLibExport(TestStandardLibraryExports):
     def test_radiator_export_with_heat_ports(self):
         """Test export of two radiators, focus on correct heat port export."""
         graph = self.helper.get_two_radiators()
-        answers = ()
 
         # export outer heat ports
-        self.export_task.playground.sim_settings.outer_heat_ports = True
+        self.test_task.playground.sim_settings.outer_heat_ports = True
 
-        reads = (self.loaded_libs, graph)
-        modelica_model = self.run_task(answers, reads)
+        modelica_model = self.run_export(graph)
         # ToDo: as elements are unsorted, testing with names is not robust
         # connections_heat_ports_conv_expected = [
         #     ('heatPortOuterCon[1]',
