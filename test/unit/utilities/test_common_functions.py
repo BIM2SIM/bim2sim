@@ -163,7 +163,7 @@ class TestCommonFunctions(unittest.TestCase):
         """test all_subclasses function"""
         all_subclasses = cf.all_subclasses(BPSProduct)
         self.assertIsInstance(all_subclasses, set)
-        self.assertEqual(len(all_subclasses), 29)
+        self.assertEqual(len(all_subclasses), 28)
 
 
 class TestConstructionClassChoices(unittest.TestCase):
