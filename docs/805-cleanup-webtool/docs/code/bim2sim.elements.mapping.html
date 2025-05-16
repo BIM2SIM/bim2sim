@@ -482,6 +482,42 @@ critical_for_creation: if True, the element will not be created if the</p>
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.StoreyFilter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.filter.</span></span><span class="sig-name descname"><span class="pre">StoreyFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">storey_guids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.StoreyFilter" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.mapping.filter.Filter" title="bim2sim.elements.mapping.filter.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></a></p>
+<p>A filter that removes building storeys not in a specified list of GUIDs.</p>
+<p>This filter removes building storeys that don’t match the provided GUIDs,
+along with all their spatial and hierarchical children.</p>
+<dl class="simple">
+<dt>Attributes:</dt><dd><p>storey_guids: A list of GlobalId strings for storeys to keep.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.StoreyFilter.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entity_type_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unknown</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.StoreyFilter.run" title="Permalink to this definition"></a></dt>
+<dd><p>Run the filter to remove unwanted storeys and their children.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>ifc_file: The IfcOpenShell file object to process.
+entity_type_dict: Dictionary mapping entities to their types.
+unknown: List of entities with unknown types.</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>tuple: A tuple containing:</dt><dd><ul class="simple">
+<li><p>Updated entity_type_dict with unwanted entities removed</p></li>
+<li><p>Updated unknown list with unwanted entities removed</p></li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt>Raises:</dt><dd><p>TypeError: If the ifc_file is not a valid IfcOpenShell file.
+RuntimeError: If there is an error processing the storeys.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.TextFilter">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.filter.</span></span><span class="sig-name descname"><span class="pre">TextFilter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements_classes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.ProductBased" title="bim2sim.elements.base_elements.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optional_locations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.TextFilter" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.mapping.filter.Filter" title="bim2sim.elements.mapping.filter.Filter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Filter</span></code></a></p>
@@ -489,9 +525,11 @@ critical_for_creation: if True, the element will not be created if the</p>
 <p>This class provides functionality to filter IFC entities by analyzing text
 fragments to determine their potential element classes.</p>
 <dl class="simple">
-<dt>Attributes:</dt><dd><p>elements_classes: Collection of ProductBased classes to check for matches.
+<dt>Attributes:</dt><dd><p>elements_classes: Collection of ProductBased classes to check for
+matches.
 ifc_units: Dictionary containing IFC unit information.
-optional_locations: Additional locations to check patterns beyond names.</p>
+optional_locations: Additional locations to check patterns beyond
+names.</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -501,7 +539,8 @@ optional_locations: Additional locations to check patterns beyond names.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>entity: The IFC entity to check.</p>
 </dd>
-<dt>Returns:</dt><dd><p>dict: Dictionary with matching classes as keys and their match fragments as values.</p>
+<dt>Returns:</dt><dd><p>dict: Dictionary with matching classes as keys and their match
+fragments as values.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -510,13 +549,18 @@ optional_locations: Additional locations to check patterns beyond names.</p>
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.TextFilter.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_entities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.filter.TextFilter.run" title="Permalink to this definition"></a></dt>
 <dd><p>Run the filter on a list of IFC entities.</p>
-<dl class="simple">
+<dl>
 <dt>Args:</dt><dd><p>ifc_entities: List of IFC entities to filter.</p>
 </dd>
-<dt>Returns:</dt><dd><dl class="simple">
+<dt>Returns:</dt><dd><dl>
 <dt>tuple:</dt><dd><ul class="simple">
-<li><p>filter_results: Dictionary mapping IFC entities to matching classes
-and their fragments.</p></li>
+<li><p>filter_results: Dictionary mapping IFC entities to</p></li>
+</ul>
+<dl class="simple">
+<dt>matching classes</dt><dd><p>and their fragments.</p>
+</dd>
+</dl>
+<ul class="simple">
 <li><p>unknown: List of IFC entities that didn’t match any class.</p></li>
 </ul>
 </dd>
@@ -541,8 +585,15 @@ and their fragments.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.filter.TypeFilter.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.ProductBased" title="bim2sim.elements.base_elements.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.elements.mapping.filter.TypeFilter.run" title="Permalink to this definition"></a></dt>
-<dd><p>Scan ifc by ifc_types.</p>
-<p>:returns dict of ifc_types and suggested entities, list of unknown entities</p>
+<dd><p>Scan IFC file by IFC types.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>ifc: The IFC file to scan</p>
+</dd>
+<dt>Returns:</dt><dd><p>A tuple containing:
+- Dict mapping IFC entities to their types
+- List of unknown IFC entities</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -710,6 +761,28 @@ filtered_tools = filter_source_tools(source_tools)</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.check_guid">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">check_guid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">guid_to_check</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.check_guid" title="Permalink to this definition"></a></dt>
+<dd><p>Validates if a string is a valid IFC GUID.</p>
+<p>This function is copied from IfcOpenShell v0.8 as it was not available in
+previous versions. When we update to IfcOpenShell v0.8 this will be
+replaced by ifcopenshell.validate.validate_guid.</p>
+<dl>
+<dt>Args:</dt><dd><p>guid_to_check: A string representing the IFC GUID to validate.</p>
+</dd>
+<dt>Returns:</dt><dd><p>bool: True if the GUID is valid, False otherwise.</p>
+</dd>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">check_guid</span><span class="p">(</span><span class="s2">&quot;0uNn8l9HL3BO$dCqBNQRCZ&quot;</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">check_guid</span><span class="p">(</span><span class="s2">&quot;invalid_guid&quot;</span><span class="p">)</span>
+<span class="go">False  # Also logs an error message</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.convertToSI">
 <span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">convertToSI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifcUnit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.convertToSI" title="Permalink to this definition"></a></dt>
 <dd><p>Return the value in basic SI units, conversion according to ifcUnit.</p>
@@ -796,7 +869,8 @@ filtered_tools = filter_source_tools(source_tools)</p>
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.get_layers_ifc">
 <span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">get_layers_ifc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">entity_instance</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.ProductBased" title="bim2sim.elements.base_elements.ProductBased"><span class="pre">ProductBased</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.get_layers_ifc" title="Permalink to this definition"></a></dt>
 <dd><p>Returns layers information of an element as list. It can be applied to
-an IFCProduct directly or a Bim2Sim Instance. This only used to pre instance
+an IFCProduct directly or a Bim2Sim Instance. This only used to pre
+instance
 creation check of IFC file now.
 Args:</p>
 <blockquote>
@@ -906,12 +980,11 @@ Y-axis. 45 °C Degree means middle between X- and Y-Axis</p>
 <dd><p>Returns all PropertySets of element’s types</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>element</strong> – The element in which you want to search for the PropertySets</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>dict(of dicts)</p>
+<dd class="field-odd"><p><strong>element</strong> – The element in which you want to search for the</p>
 </dd>
 </dl>
+<p>PropertySets
+:return: dict(of dicts)</p>
 </dd></dl>
 
 <dl class="py function">
@@ -931,10 +1004,12 @@ instance</p>
 <dt class="sig sig-object py" id="bim2sim.elements.mapping.ifc2python.property_set2dict">
 <span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.ifc2python.</span></span><span class="sig-name descname"><span class="pre">property_set2dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">property_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">entity_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#bim2sim.elements.mapping.ifc2python.property_set2dict" title="Permalink to this definition"></a></dt>
 <dd><p>Converts IfcPropertySet and IfcQuantitySet to python dict</p>
-<dl class="simple">
-<dt>Takes all IfcPropertySet and IfcQuantitySet properties and quantities of the</dt><dd><p>given IfcPropertySet or IfcQuantitySet and converts them into a dictionary.</p>
-</dd>
-</dl>
+<p>Takes all IfcPropertySet and IfcQuantitySet properties and quantities of
+the</p>
+<blockquote>
+<div><p>given IfcPropertySet or IfcQuantitySet and converts them into a
+dictionary.</p>
+</div></blockquote>
 <p>Also takes care of setting the correct unit to every property/quantity by
 using the units defined in the IFC.</p>
 <dl class="simple">
