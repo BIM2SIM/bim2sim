@@ -80,6 +80,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.BooleanSetting"><code class="docutils literal notranslate"><span class="pre">BooleanSetting</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.BuildingSimSettings"><code class="docutils literal notranslate"><span class="pre">BuildingSimSettings</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.ChoiceSetting"><code class="docutils literal notranslate"><span class="pre">ChoiceSetting</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.GuidListSetting"><code class="docutils literal notranslate"><span class="pre">GuidListSetting</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.NumberSetting"><code class="docutils literal notranslate"><span class="pre">NumberSetting</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.PathSetting"><code class="docutils literal notranslate"><span class="pre">PathSetting</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#bim2sim.sim_settings.PlantSimSettings"><code class="docutils literal notranslate"><span class="pre">PlantSimSettings</span></code></a></li>
@@ -443,12 +444,6 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundary2B"><code class="docutils literal notranslate"><span class="pre">SpaceBoundary2B</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundaryRepresentation"><code class="docutils literal notranslate"><span class="pre">SpaceBoundaryRepresentation</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundaryRepresentation.ifc_types"><code class="docutils literal notranslate"><span class="pre">SpaceBoundaryRepresentation.ifc_types</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundaryRepresentation.key"><code class="docutils literal notranslate"><span class="pre">SpaceBoundaryRepresentation.key</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.SpaceBoundaryRepresentation.pattern_ifc_type"><code class="docutils literal notranslate"><span class="pre">SpaceBoundaryRepresentation.pattern_ifc_type</span></code></a></li>
-</ul>
-</li>
 <li class="toctree-l3"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Storey"><code class="docutils literal notranslate"><span class="pre">Storey</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Storey.air_per_person"><code class="docutils literal notranslate"><span class="pre">Storey.air_per_person</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Storey.cooling_load"><code class="docutils literal notranslate"><span class="pre">Storey.cooling_load</span></code></a></li>
@@ -1601,6 +1596,21 @@ all simulations</p>
 <span class="sig-name descname"><span class="pre">reset_guids</span></span><a class="headerlink" href="#bim2sim.sim_settings.BaseSimSettings.reset_guids" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BaseSimSettings.stories_to_load_guids">
+<span class="sig-name descname"><span class="pre">stories_to_load_guids</span></span><a class="headerlink" href="#bim2sim.sim_settings.BaseSimSettings.stories_to_load_guids" title="Permalink to this definition"></a></dt>
+<dd><p>Define a setting that accepts a list of IFC GUIDs.</p>
+<p>This setting type is used for storing collections of IFC GUIDs,
+where each GUID is validated to ensure it follows IFC GUID format.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default list of GUIDs (if any) that will be applied when calling load_default()
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+mandatory: whether a setting needs to be set</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.BaseSimSettings.update_from_config">
 <span class="sig-name descname"><span class="pre">update_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.BaseSimSettings.update_from_config" title="Permalink to this definition"></a></dt>
@@ -1836,6 +1846,37 @@ value: value that should be checked for correctness</p>
 <dt>Returns:</dt><dd><p>True: if check was successful</p>
 </dd>
 <dt>Raises:</dt><dd><p>ValueError: if check was not successful</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.GuidListSetting">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">GuidListSetting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.GuidListSetting" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.Setting" title="bim2sim.sim_settings.Setting"><code class="xref py py-class docutils literal notranslate"><span class="pre">Setting</span></code></a></p>
+<p>Define a setting that accepts a list of IFC GUIDs.</p>
+<p>This setting type is used for storing collections of IFC GUIDs,
+where each GUID is validated to ensure it follows IFC GUID format.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>default: default list of GUIDs (if any) that will be applied when calling load_default()
+description: description of what the settings does as Str
+for_frontend: should this setting be shown in the frontend
+mandatory: whether a setting needs to be set</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.GuidListSetting.check_value">
+<span class="sig-name descname"><span class="pre">check_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound_simulation_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.GuidListSetting.check_value" title="Permalink to this definition"></a></dt>
+<dd><p>Checks if each GUID in the list is valid according to IFC standards.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>bound_simulation_settings: the sim setting belonging to the value
+value: list of GUIDs that should be checked for correctness</p>
+</dd>
+<dt>Returns:</dt><dd><p>True: if all GUIDs in the list are valid</p>
+</dd>
+<dt>Raises:</dt><dd><p>ValueError: if any GUID in the list is invalid or value is not a list</p>
 </dd>
 </dl>
 </dd></dl>
