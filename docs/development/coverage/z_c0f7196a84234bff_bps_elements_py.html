@@ -54,8 +54,8 @@
             </div>
         </aside>
         <h2>
-            <span class="text">804 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">400<span class="text"> run</span></button>
+            <span class="text">801 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">397<span class="text"> run</span></button>
             <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">404<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_7bb0873fb2223d01___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.8.0">coverage.py v7.8.0</a>,
-            created at 2025-05-16 07:53 +0000
+            created at 2025-05-16 08:28 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -2022,27 +2022,15 @@
     <p class="pln"><span class="n"><a id="t1940" href="#t1940">1940</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1941" href="#t1941">1941</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1942" href="#t1942">1942</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1943" href="#t1943">1943</a></span><span class="t"><span class="key">class</span> <span class="nam">SpaceBoundaryRepresentation</span><span class="op">(</span><span class="nam">BPSProduct</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1944" href="#t1944">1944</a></span><span class="t">    <span class="str">"""describes the geometric representation of space boundaries which are</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1945" href="#t1945">1945</a></span><span class="t"><span class="str">    created by the webtool to allow the """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1946" href="#t1946">1946</a></span><span class="t">    <span class="nam">ifc_types</span> <span class="op">=</span> <span class="op">{</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1947" href="#t1947">1947</a></span><span class="t">        <span class="str">"IFCBUILDINGELEMENTPROXY"</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1948" href="#t1948">1948</a></span><span class="t">            <span class="op">[</span><span class="str">'USERDEFINED'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1949" href="#t1949">1949</a></span><span class="t">    <span class="op">}</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1950" href="#t1950">1950</a></span><span class="t">    <span class="nam">pattern_ifc_type</span> <span class="op">=</span> <span class="op">[</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1951" href="#t1951">1951</a></span><span class="t">        <span class="nam">re</span><span class="op">.</span><span class="nam">compile</span><span class="op">(</span><span class="str">'ProxyBound'</span><span class="op">,</span> <span class="nam">flags</span><span class="op">=</span><span class="nam">re</span><span class="op">.</span><span class="nam">IGNORECASE</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1952" href="#t1952">1952</a></span><span class="t">    <span class="op">]</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1953" href="#t1953">1953</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1954" href="#t1954">1954</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1955" href="#t1955">1955</a></span><span class="t"><span class="com"># collect all domain classes</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1956" href="#t1956">1956</a></span><span class="t"><span class="nam">items</span><span class="op">:</span> <span class="nam">Set</span><span class="op">[</span><span class="nam">BPSProduct</span><span class="op">]</span> <span class="op">=</span> <span class="nam">set</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1957" href="#t1957">1957</a></span><span class="t"><span class="key">for</span> <span class="nam">name</span><span class="op">,</span> <span class="nam">cls</span> <span class="key">in</span> <span class="nam">inspect</span><span class="op">.</span><span class="nam">getmembers</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1958" href="#t1958">1958</a></span><span class="t">        <span class="nam">sys</span><span class="op">.</span><span class="nam">modules</span><span class="op">[</span><span class="nam">__name__</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1959" href="#t1959">1959</a></span><span class="t">        <span class="key">lambda</span> <span class="nam">member</span><span class="op">:</span> <span class="nam">inspect</span><span class="op">.</span><span class="nam">isclass</span><span class="op">(</span><span class="nam">member</span><span class="op">)</span>  <span class="com"># class at all</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1960" href="#t1960">1960</a></span><span class="t">        <span class="key">and</span> <span class="nam">issubclass</span><span class="op">(</span><span class="nam">member</span><span class="op">,</span> <span class="nam">BPSProduct</span><span class="op">)</span>  <span class="com"># domain subclass</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1961" href="#t1961">1961</a></span><span class="t">        <span class="key">and</span> <span class="nam">member</span> <span class="key">is</span> <span class="key">not</span> <span class="nam">BPSProduct</span>  <span class="com"># but not base class</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t1962" href="#t1962">1962</a></span><span class="t">        <span class="key">and</span> <span class="nam">member</span><span class="op">.</span><span class="nam">__module__</span> <span class="op">==</span> <span class="nam">__name__</span><span class="op">)</span><span class="op">:</span>  <span class="com"># declared here</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t1963" href="#t1963">1963</a></span><span class="t">    <span class="nam">items</span><span class="op">.</span><span class="nam">add</span><span class="op">(</span><span class="nam">cls</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1943" href="#t1943">1943</a></span><span class="t"><span class="com"># collect all domain classes</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1944" href="#t1944">1944</a></span><span class="t"><span class="nam">items</span><span class="op">:</span> <span class="nam">Set</span><span class="op">[</span><span class="nam">BPSProduct</span><span class="op">]</span> <span class="op">=</span> <span class="nam">set</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1945" href="#t1945">1945</a></span><span class="t"><span class="key">for</span> <span class="nam">name</span><span class="op">,</span> <span class="nam">cls</span> <span class="key">in</span> <span class="nam">inspect</span><span class="op">.</span><span class="nam">getmembers</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1946" href="#t1946">1946</a></span><span class="t">        <span class="nam">sys</span><span class="op">.</span><span class="nam">modules</span><span class="op">[</span><span class="nam">__name__</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1947" href="#t1947">1947</a></span><span class="t">        <span class="key">lambda</span> <span class="nam">member</span><span class="op">:</span> <span class="nam">inspect</span><span class="op">.</span><span class="nam">isclass</span><span class="op">(</span><span class="nam">member</span><span class="op">)</span>  <span class="com"># class at all</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1948" href="#t1948">1948</a></span><span class="t">        <span class="key">and</span> <span class="nam">issubclass</span><span class="op">(</span><span class="nam">member</span><span class="op">,</span> <span class="nam">BPSProduct</span><span class="op">)</span>  <span class="com"># domain subclass</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1949" href="#t1949">1949</a></span><span class="t">        <span class="key">and</span> <span class="nam">member</span> <span class="key">is</span> <span class="key">not</span> <span class="nam">BPSProduct</span>  <span class="com"># but not base class</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1950" href="#t1950">1950</a></span><span class="t">        <span class="key">and</span> <span class="nam">member</span><span class="op">.</span><span class="nam">__module__</span> <span class="op">==</span> <span class="nam">__name__</span><span class="op">)</span><span class="op">:</span>  <span class="com"># declared here</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1951" href="#t1951">1951</a></span><span class="t">    <span class="nam">items</span><span class="op">.</span><span class="nam">add</span><span class="op">(</span><span class="nam">cls</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -2052,7 +2040,7 @@
             <a class="nav" href="z_7bb0873fb2223d01___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.8.0">coverage.py v7.8.0</a>,
-            created at 2025-05-16 07:53 +0000
+            created at 2025-05-16 08:28 +0000
         </p>
     </div>
 </footer>
