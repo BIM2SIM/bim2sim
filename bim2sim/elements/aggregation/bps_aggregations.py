@@ -177,7 +177,12 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
     def _bool_calc(self, name) -> bool:
         """bool properties getter
         bool_attributes = ['with_cooling', 'with_heating', 'with_ahu',
-        'use_maintained_illuminance']"""
+        'use_maintained_illuminance']
+
+        If the attribute is True for at least one zone, the aggregations
+        attribute will be set to True as well. This is a simplified approach
+        and  might need adjustments  in the future depending on the attribute.
+        """
         # todo: log
         # only calculate intensive calc if all zones have this attribute
         if all([getattr(tz, name) is not None for tz in self.elements]):
