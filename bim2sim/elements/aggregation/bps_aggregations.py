@@ -170,7 +170,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
     def _extensive_calc(self, name) -> ureg.Quantity:
         """extensive properties getter
         intensive_attributes = ['gross_area', 'net_area', 'volume']"""
-        # only calculate intensive calc if all zones have this attribute
+        # only calculate extensive calc if all zones have this attribute
         if all([getattr(tz, name) is not None for tz in self.elements]):
             return sum(getattr(tz, name) for tz in self.elements)
 
