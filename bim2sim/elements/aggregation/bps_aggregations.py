@@ -184,7 +184,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
         and  might need adjustments  in the future depending on the attribute.
         """
         # todo: log
-        # only calculate intensive calc if all zones have this attribute
+        # only calculate bool calc if all zones have this attribute
         if all([getattr(tz, name) is not None for tz in self.elements]):
             prop_bool = False
             for tz in self.elements:
