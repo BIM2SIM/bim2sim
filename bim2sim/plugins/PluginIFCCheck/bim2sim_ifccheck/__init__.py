@@ -12,6 +12,7 @@ class PluginTemplate(Plugin):
     sim_settings = BuildingSimSettings
     default_tasks = [
         common.LoadIFC,
+        common.CheckIfcNew,
         common.CheckIfc,
         # common.CreateElementsOnIfcTypes,
         # bps.CreateSpaceBoundaries,

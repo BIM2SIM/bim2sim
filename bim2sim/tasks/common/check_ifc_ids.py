@@ -6,7 +6,20 @@ import ifctester.ids
 import ifctester.reporter
 import webbrowser
 
+from bim2sim.tasks.base import ITask#, Playground
 
+class CheckIfcNew(ITask):
+    """
+    Check ifc file for their quality regarding simulation.
+    TODO rename Task CheckIfcNew >> CheckIfc and remove the old CheckIfc
+    """
+
+    def run(self):
+        """
+        dummy for testing
+        """
+        print("Task CheckIfcNew says Hello")
+        pass
 
 def run_check_guid_unique(ifc_file: str) -> (bool, dict):
     """check the uniqueness of the guids of the IFC file
