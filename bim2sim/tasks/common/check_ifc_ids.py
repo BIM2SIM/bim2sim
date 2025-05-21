@@ -6,59 +6,81 @@ import ifctester.ids
 import ifctester.reporter
 import webbrowser
 
-from bim2sim.tasks.base import ITask#, Playground
+from bim2sim.tasks.base import ITask, Playground
+
+from bim2sim.kernel.ifc_file import IfcFileClass
 
 class CheckIfcNew(ITask):
     """
     Check ifc file for their quality regarding simulation.
     TODO rename Task CheckIfcNew >> CheckIfc and remove the old CheckIfc
     """
+    reads = ('ifc_files',)
 
-    def run(self):
+    # def __init__(self, playground: Playground):
+    #     super().__init__(playground)
+    #     self.error_summary_sub_inst: dict = {}
+    #     self.error_summary_inst: dict = {}
+    #     self.error_summary_prop: dict = {}
+    #     self.sub_inst: list = []
+    #     self.id_list: list = []
+    #     self.elements: list = []
+    #     self.ps_summary: dict = {}
+    #     self.ifc_units: dict = {}
+    #     self.sub_inst_cls = None
+    #     self.plugin = None
+
+    def run(self, ifc_files: [IfcFileClass]):
         """
-        dummy for testing
+        Analyzes sub_elements and elements of an IFC file for the validation
+        functions and export the errors found as .json and .html files.
+
         """
         print("Task CheckIfcNew says Hello")
-        pass
+        self.logger.info(f"Processing IFC Check without ifcTester")
+        paths = self.paths
+        for ifc_file in ifc_files:
+            print(ifc_file)
+    
 
-def run_check_guid_unique(ifc_file: str) -> (bool, dict):
-    """check the uniqueness of the guids of the IFC file
+    def run_check_guid_unique(ifc_file: str) -> (bool, dict):
+        """check the uniqueness of the guids of the IFC file
 
-    Input:
-        ifc_file: path of the IFC file, which is checked
+        Input:
+            ifc_file: path of the IFC file, which is checked
 
-    Returns:
-        all_guids_unique: boolean
-                      (true: all guids are unique
-                       false: one or more guids are not unique)
+        Returns:
+            all_guids_unique: boolean
+                          (true: all guids are unique
+                           false: one or more guids are not unique)
 
-       double_guid: dict
+           double_guid: dict
 
-    """
-    model = ifcopenshell.open(ifc_file)
+        """
+        model = ifcopenshell.open(ifc_file)
 
-    used_guids: dict[str, ifcopenshell.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
-    double_guids: dict[str, ifcopenshell.entity_instance] = dict() # dict of elements with guids, which are not unique
-    all_guids_unique = True
+        used_guids: dict[str, ifcopenshell.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
+        double_guids: dict[str, ifcopenshell.entity_instance] = dict() # dict of elements with guids, which are not unique
+        all_guids_unique = True
 
-    for inst in model:
-       if hasattr(inst, "GlobalId"):
-           guid = inst.GlobalId
-           name = inst.Name
-           # print(guid)
-           if guid in used_guids:
-               double_guids[guid] = inst
-               all_guids_unique = False
-           else:
-               used_guids[guid] = inst
+        for inst in model:
+           if hasattr(inst, "GlobalId"):
+               guid = inst.GlobalId
+               name = inst.Name
+               # print(guid)
+               if guid in used_guids:
+                   double_guids[guid] = inst
+                   all_guids_unique = False
+               else:
+                   used_guids[guid] = inst
 
-    list_guids_non_unique = list(double_guids.keys())
-    print(">>>>>> ")
-    print("the GUIDs of all elements are unique: {}".format(all_guids_unique))
-    if all_guids_unique is False:
-        print("non-unique GUIDs: {}".format(list_guids_non_unique))
-    print("<<<<<<")
-    return (all_guids_unique, double_guids)
+        list_guids_non_unique = list(double_guids.keys())
+        print(">>>>>> ")
+        print("the GUIDs of all elements are unique: {}".format(all_guids_unique))
+        if all_guids_unique is False:
+            print("non-unique GUIDs: {}".format(list_guids_non_unique))
+        print("<<<<<<")
+        return (all_guids_unique, double_guids)
 
 def run_check_guid_empty(ifc_file: str) -> (bool, dict):
     """check it there is/are guid/s, which is/are empty in the IFC file
