@@ -109,7 +109,7 @@
    },
    "Brandschutzklappe": {
       "oekobaudat_uuid": "e8f279e9-d72d-4645-bb33-5651d9ec07c0",
-      "oekobaudat_calculation_factor": 6.827,
+      "oekobaudat_calculation_factor": 0.146,
       "A1-A3": 20.7,
       "A4": 0.177,
       "A5": 0.112,
@@ -698,5 +698,43 @@
       "C3": 0.189,
       "C4": 0.000364,
       "D": -3.01
+   },
+   "Volumenstromregler_VRE": {
+      "okebaudat_uuid": "29e922f6-d872-4a67-b579-38bb8cd82abf",
+      "oekobaudat_calculation_factor": 0.348432,
+         "A1-A3": 19.08,
+         "A4": 0.01129,
+         "A5": 0.647,
+         "B1": 0.0,
+         "B2": 0.0,
+         "B3": 0.0,
+         "B4": 0.0,
+         "B5": 2.51,
+         "B6": 0.0,
+         "B7": 0.0,
+         "C1": 0.0,
+         "C2": 0.005655,
+         "C3": 0.9554,
+         "C4": 0.00004088,
+         "D": -3.804
+   },
+   "Volumenstromregler_VKE": {
+      "okebaudat_uuid": "04112cf2-ea25-4e30-abe5-92f11a893198",
+      "oekobaudat_calculation_factor": 0.203665,
+         "A1-A3": 25.58,
+         "A4": 0.0229,
+         "A5": 0.964,
+         "B1": 0.0,
+         "B2": 0.0,
+         "B3": 0.0,
+         "B4": 0.0,
+         "B5": 2.51,
+         "B6": 0.0,
+         "B7": 0.0,
+         "C1": 0.0,
+         "C2": 0.01145,
+         "C3": 0.8169,
+         "C4": 0.00004088,
+         "D": -7.945
    }
 }

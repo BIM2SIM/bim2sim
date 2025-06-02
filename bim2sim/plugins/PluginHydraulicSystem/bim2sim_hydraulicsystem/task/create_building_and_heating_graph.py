@@ -85,8 +85,8 @@ class CreateBuildingAndHeatingGraph(ITask):
             self.logger.info("Load heating network graph")
             heating_graph = self.load_json_graph(filename="heating_circle.json")
             self.logger.info("Finished loading heating network graph")
-
-        self.visualzation_networkx_3D(heating_graph)
+        # deactive graph plot by default
+        # self.visualzation_networkx_3D(heating_graph)
 
         return building_graph, heating_graph
 

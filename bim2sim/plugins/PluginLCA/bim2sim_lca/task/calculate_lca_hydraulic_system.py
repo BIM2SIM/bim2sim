@@ -9,7 +9,8 @@ class CalculateEmissionHydraulicSystem(ITask):
 
     reads = ('material_emission_dict', 'material_cost_dict')
     touches = ('total_gwp_hydraulic_pipe', 'total_gwp_hydraulic_component',
-               'total_cost_hydraulic_pipe', 'total_cost_hydraulic_component')
+               'total_cost_hydraulic_pipe', 'total_cost_hydraulic_component',
+               'total_gwp_fbh_room', 'total_cost_fbh_room')
 
     def run(self, material_emission_dict, material_cost_dict):
 
@@ -27,7 +28,8 @@ class CalculateEmissionHydraulicSystem(ITask):
                     sheet_name=self.playground.sim_settings.hydraulic_components_data_file_radiator_sheet)
 
             (component_material_emission_cost, pump_component, 
-             total_gwp_hydraulic_component, total_cost_hydraulic_component) = self.calulcate_components(
+             total_gwp_hydraulic_component, total_cost_hydraulic_component,
+             total_gwp_fbh, total_cost_fbh) = self.calulcate_components(
                                                                                     component_dict=component_dict,
                                                                                     material_emission_dict=material_emission_dict,
                                                                                     radiator_dict=radiator_dict,
@@ -40,8 +42,9 @@ class CalculateEmissionHydraulicSystem(ITask):
 
             # ToDo dja: Maintenance costs for hydraulic system
             # Add maintenance costs
-            total_cost_hydraulic_pipe += total_cost_hydraulic_pipe * 40 * material_cost_dict["HydraulicSystem"]
-            total_cost_hydraulic_component += total_cost_hydraulic_component * 40 * material_cost_dict["HydraulicSystem"]
+            rbf = (1.0-(1.0+0.03)**(-40.0))/0.03
+            total_cost_hydraulic_pipe += total_cost_hydraulic_pipe * rbf * material_cost_dict["HydraulicSystem"]
+            total_cost_hydraulic_component += total_cost_hydraulic_component * rbf * material_cost_dict["HydraulicSystem"]
 
             self.write_xlsx(pipe_dict=pipe_dict,
                             component_material_emission_cost=component_material_emission_cost,
@@ -51,9 +54,11 @@ class CalculateEmissionHydraulicSystem(ITask):
                             total_gwp_pipe=total_gwp_hydraulic_pipe,
                             total_gwp_component=total_gwp_hydraulic_component,
                             total_cost_pipe=total_cost_hydraulic_pipe,
-                            total_cost_component=total_cost_hydraulic_component)
+                            total_cost_component=total_cost_hydraulic_component,
+                            total_gwp_fbh=total_gwp_fbh,
+                            total_cost_fbh=total_cost_fbh)
 
-        return total_gwp_hydraulic_pipe, total_gwp_hydraulic_component, total_cost_hydraulic_pipe, total_cost_hydraulic_component
+        return total_gwp_hydraulic_pipe, total_gwp_hydraulic_component, total_cost_hydraulic_pipe, total_cost_hydraulic_component, total_gwp_fbh, total_cost_fbh
 
     def load_pipe_data(self):
         with open(self.playground.sim_settings.hydraulic_system_material_xlsx, "rb") as excel_file:
@@ -249,6 +254,8 @@ class CalculateEmissionHydraulicSystem(ITask):
         pump_component = {}
         total_gwp_component = 0
         total_cost_component = 0
+        total_gwp_fbh = 0
+        total_cost_fbh = 0
 
 
         for node, material_value in component_dict.items():
@@ -263,6 +270,8 @@ class CalculateEmissionHydraulicSystem(ITask):
                                                 f"{int(material_value['UFH Laying Distance [mm]'])}mm_m2")
                                 material_amount = material_value["UFH Area [m²]"]
                                 cost = material_amount * material_cost_dict[heat_delivery_mapping[key]]
+                                total_cost_fbh += round(cost, 2)
+                                total_gwp_fbh += round(material_amount *material_emission_dict[heat_delivery_mapping[key]],2)
                             else:
                                 heat_delivery_mapping[key] = "Heizkoerper"
                                 material_amount = material_value["Mass [kg]"]
@@ -307,7 +316,7 @@ class CalculateEmissionHydraulicSystem(ITask):
                         pump_component[node] = {}
                         pump_component[node]["Power [kW]"] = material_value["Power [kW]"]
 
-        return component_material_emission_cost, pump_component, total_gwp_component, total_cost_component
+        return component_material_emission_cost, pump_component, total_gwp_component, total_cost_component, total_gwp_fbh, total_cost_fbh
 
     def write_xlsx(self,
                    pipe_dict,
@@ -318,7 +327,10 @@ class CalculateEmissionHydraulicSystem(ITask):
                    total_gwp_pipe,
                    total_gwp_component,
                    total_cost_pipe,
-                   total_cost_component):
+                   total_cost_component,
+                   total_gwp_fbh,
+                   total_cost_fbh
+                   ):
 
 
         data = {}
@@ -350,10 +362,12 @@ class CalculateEmissionHydraulicSystem(ITask):
         data["Totals"]["GWP [kg CO2-eq]"] = {}
         data["Totals"]["GWP [kg CO2-eq]"]["Pipe"] = total_gwp_pipe
         data["Totals"]["GWP [kg CO2-eq]"]["Component"] = total_gwp_component
+        data["Totals"]["GWP [kg CO2-eq]"]["FBH"] = total_gwp_fbh
         data["Totals"]["GWP [kg CO2-eq]"]["Total"] = total_gwp_pipe + total_gwp_component
         data["Totals"]["Cost [€]"] = {}
         data["Totals"]["Cost [€]"]["Pipe"] = total_cost_pipe
         data["Totals"]["Cost [€]"]["Component"] = total_cost_component
+        data["Totals"]["Cost [€]"]["FBH"] = total_cost_fbh
         data["Totals"]["Cost [€]"]["Total"] = total_cost_pipe + total_cost_component
 
         with pd.ExcelWriter(self.paths.export / "lca_lcc_hydraulic_system.xlsx") as writer:
