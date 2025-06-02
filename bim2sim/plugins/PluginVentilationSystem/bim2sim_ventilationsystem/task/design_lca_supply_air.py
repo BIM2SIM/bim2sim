@@ -24,12 +24,11 @@ from OCC.Core.BRepClass3d import BRepClass3d_SolidClassifier
 from OCC.Core.gp import gp_Pnt
 from OCC.Core.TopAbs import TopAbs_IN, TopAbs_ON
 
-
 class DesignSupplyLCA(ITask):
     """Design of the LCA
 
     Assumptions:
-    Inputs: IFC Modell, Räume,
+    Inputs: IFC model, rooms,
 
     Args:
         elements: bim2sim elements
@@ -53,20 +52,24 @@ class DesignSupplyLCA(ITask):
         self.lock = self.playground.sim_settings.lock
 
         self.elements = elements
+
+        # Todo add the following to sim settings
         main_line = [(1.6, 8, -0.3), (41, 8, -0.3), (41, 2.8, -0.3),
                      (1.6, 8, 2.7), (41, 8, 2.7), (41, 2.8, 2.7),
                      (1.6, 8, 5.7), (41, 8, 5.7), (41, 2.8, 5.7),
                      (1.6, 8, 8.7), (41, 8, 8.7), (41, 2.8, 8.7)]
 
-        self.export_graphs = self.playground.sim_settings.export_graphs
-
+        # y-axis of shaft and AHU must be identical
         building_shaft_supply_air = [41, 2.8, -2]  # building shaft supply air
         position_ahu = [25, building_shaft_supply_air[1], building_shaft_supply_air[2]]
-        # y-axis of shaft and AHU must be identical
-        cross_section_type = "optimal"  # Wähle zwischen round, angular und optimal
+
+        cross_section_type = "optimal"  # choose between round, angular and optimal
         suspended_ceiling_space = 200 * ureg.millimeter  # The available height (in [mmm]) in the suspended ceiling is
         # specified here! This corresponds to the available distance between UKRD (lower edge of raw ceiling) and OKFD
         # (upper edge of finished ceiling), see https://www.ctb.de/_wiki/swb/Massbezuege.php
+
+        self.export_graphs = self.playground.sim_settings.export_graphs
+
 
         self.logger.info("Start design LCA")
         thermal_zones = filter_elements(self.elements, 'ThermalZone')
@@ -80,50 +83,40 @@ class DesignSupplyLCA(ITask):
         # the height of the room. The point at the UKRD (lower edge of the bare ceiling) in the middle of the room is
         # therefore calculated. This is where the ventilation outlet is to be positioned later on
 
-        (center,
+        (center_points,
          airflow_volume_per_storey,
          dict_coordinate_with_space_type,
-         dataframe_rooms) = self.center(thermal_zones,
+         dataframe_rooms) = self.calculate_center_points(thermal_zones,
                                         building_shaft_supply_air)
-        self.logger.info("Finished calculating points of the ventilation outlet at the ceiling")
 
         self.logger.info("Calculating the Coordinates of the ceiling heights")
         # Here the coordinates of the heights at the UKRD are calculated and summarized in a set, as these values are
         # frequently needed in the further course, so they do not have to be recalculated again and again:
-        z_coordinate_list = self.calculate_z_coordinate(center)
-
-        self.logger.info("Sort ventilation outlets at ceiling by space type")
-        #center_points_traffic_area, center_points_non_traffic_area = self.sort_center_points_by_space(
-        #    dataframe_rooms, center, z_coordinate_list, building_shaft_supply_air)
+        z_coordinate_list = self.calculate_z_coordinate(center_points)
 
         self.logger.info("Calculating intersection points")
         # The intersections of all points per storey are calculated here. A grid is created on the respective storey.
         # It is defined as the installation grid for the supply air. The individual points of the ventilation outlets
         # are not connected directly, but in practice and according to the standard, ventilation ducts are not laid
         # diagonally through a building
-        intersection_points = self.intersection_points(center,
-                                                       z_coordinate_list
-                                                       )
-        self.logger.info("Calculating intersection points successful")
+        intersection_points = self.intersection_points(center_points,
+                                                       z_coordinate_list)
 
         intersection_points_main_line = self.intersection_points(main_line,
-                                                                 z_coordinate_list
-                                                                 )
+                                                                 z_coordinate_list)
+        
         self.logger.info("Create main graph in traffic areas for each floor")
-
         main_line_graph = self.create_main_graph(main_line,
                                                  intersection_points_main_line,
                                                  z_coordinate_list,
                                                  building_shaft_supply_air)
-
-        self.logger.info("Graph created for each floor")
 
         (dict_steiner_tree_with_duct_length,
          dict_steiner_tree_with_duct_cross_section,
          dict_steiner_tree_with_air_volume_supply_air,
          dict_steinertree_with_shell,
          dict_steiner_tree_with_calculated_cross_section) = self.create_graph(main_line_graph,
-                                                                              center,
+                                                                              center_points,
                                                                               z_coordinate_list,
                                                                               building_shaft_supply_air,
                                                                               cross_section_type,
@@ -134,7 +127,7 @@ class DesignSupplyLCA(ITask):
          dict_steiner_tree_with_duct_cross_section,
          dict_steiner_tree_with_air_volume_supply_air,
          dict_steinertree_with_shell,
-         dict_steiner_tree_with_calculated_cross_section) = self.rlt_shaft(z_coordinate_list,
+         dict_steiner_tree_with_calculated_cross_section) = self.ahu_shaft(z_coordinate_list,
                                                                            building_shaft_supply_air,
                                                                            airflow_volume_per_storey,
                                                                            position_ahu,
@@ -144,11 +137,11 @@ class DesignSupplyLCA(ITask):
                                                                            dict_steinertree_with_shell,
                                                                            dict_steiner_tree_with_calculated_cross_section)
 
-        self.logger.info("3D-Graph erstellen")
+        self.logger.info("Create 3D-Graph")
         (graph_ventilation_duct_length_supply_air,
-         graph_luftmengen,
-         graph_kanalquerschnitt,
-         graph_mantelflaeche,
+         graph_air_volume_flow,
+         graph_duct_cross_section,
+         graph_shell_surface,
          graph_calculated_diameter,
          dataframe_distribution_network_supply_air) = self.three_dimensional_graph(dict_steiner_tree_with_duct_length,
                                                                                     dict_steiner_tree_with_duct_cross_section,
@@ -157,31 +150,29 @@ class DesignSupplyLCA(ITask):
                                                                                     dict_steiner_tree_with_calculated_cross_section,
                                                                                     position_ahu,
                                                                                     dict_coordinate_with_space_type)
-        self.logger.info("3D-Graph erstellt")
 
-        self.logger.info("Starte pressure_lossberechnung")
-        pressure_loss, dataframe_distribution_network_supply_air = self.pressure_loss(dict_steiner_tree_with_duct_length,
-                                                                                    z_coordinate_list,
-                                                                                    position_ahu,
-                                                                                    building_shaft_supply_air,
-                                                                                    graph_ventilation_duct_length_supply_air,
-                                                                                    graph_luftmengen,
-                                                                                    graph_kanalquerschnitt,
-                                                                                    graph_mantelflaeche,
-                                                                                    graph_calculated_diameter,
-                                                                                    dataframe_distribution_network_supply_air
+        self.logger.info("Start pressure loss calculation")
+        pressure_loss, dataframe_distribution_network_supply_air = self.calculate_pressure_loss(dict_steiner_tree_with_duct_length,
+                                                                                      z_coordinate_list,
+                                                                                      position_ahu,
+                                                                                      building_shaft_supply_air,
+                                                                                      graph_ventilation_duct_length_supply_air,
+                                                                                      graph_air_volume_flow,
+                                                                                      graph_duct_cross_section,
+                                                                                      graph_shell_surface,
+                                                                                      graph_calculated_diameter,
+                                                                                      dataframe_distribution_network_supply_air
                                                                                     )
-        self.logger.info("pressure_lossberechnung erfolgreich")
 
-        self.logger.info("Starte Berechnung der room_connection")
+        self.logger.info("Connect rooms to graph")
         dataframe_rooms = self.room_connection(cross_section_type, suspended_ceiling_space, dataframe_rooms)
 
-        self.logger.info("Starte C02 Berechnung")
+        self.logger.info("Calculate material quantities")
         (pressure_loss_supply_air,
          dataframe_rooms_supply_air,
-         dataframe_distribution_network_supply_air) = self.co2(pressure_loss,
-                                                               dataframe_rooms,
-                                                               dataframe_distribution_network_supply_air)
+         dataframe_distribution_network_supply_air) = self.calculate_material_quantities(pressure_loss,
+                                                                                         dataframe_rooms,
+                                                                                         dataframe_distribution_network_supply_air)
 
         return (dataframe_rooms,
                 building_shaft_supply_air,
@@ -193,19 +184,6 @@ class DesignSupplyLCA(ITask):
                 z_coordinate_list,
                 dict_steiner_tree_with_duct_cross_section)
 
-    def round_decimal(self, number, places):
-        """
-        Function defines how to round
-        Args:
-            number: Number to be rounded
-            places: Number of decimal places
-        Returns:
-            Rounded number as float
-        """
-
-        number_decimal = Decimal(number)
-        rounding_rule = Decimal('1').scaleb(-places)  # Specifies the number of decimal places
-        return float(number_decimal.quantize(rounding_rule, rounding=ROUND_HALF_UP))
 
     def check_ceiling_height(self, thermal_zones, suspended_ceiling_space):
         min_ceiling_height = 3 * ureg.meter
@@ -213,7 +191,7 @@ class DesignSupplyLCA(ITask):
             if tz.height - suspended_ceiling_space < min_ceiling_height:
                 self.logger.warning(f"Room {tz.name} (GUID: {tz.guid}) short of minimum ceiling height!")
 
-    def center(self, thermal_zones, building_shaft_supply_air):
+    def calculate_center_points(self, thermal_zones, building_shaft_supply_air):
         """Function calculates position of the outlet of the LVA
 
         Args:
@@ -228,10 +206,9 @@ class DesignSupplyLCA(ITask):
 
         for tz in thermal_zones:
             if tz.with_ahu:
-                room_ceiling_ventilation_outlet.append([self.round_decimal(tz.space_center.X(), 1),
-                                                        self.round_decimal(tz.space_center.Y(), 1),
-                                                        self.round_decimal(tz.space_center.Z() + tz.height.magnitude / 2,
-                                                                           2),
+                room_ceiling_ventilation_outlet.append([round(tz.space_center.X(), 1),
+                                                        round(tz.space_center.Y(), 1),
+                                                        round(tz.space_center.Z() + tz.height.magnitude / 2, 2),
                                                         math.ceil(tz.air_flow.magnitude) * ureg.meter**3 / ureg.hour,
                                                         tz.usage])
                 room_type.append(tz.usage)
@@ -269,7 +246,7 @@ class DesignSupplyLCA(ITask):
                 x_avg = total_x / count
                 for _ in range(i, j):
                     _, y, z, a, u = sort[i]
-                    adjusted_coords_x.append((self.round_decimal(x_avg, 1), y, z, a, u))
+                    adjusted_coords_x.append((round(x_avg, 1), y, z, a, u))
                     i += 1
 
         # Creates a Dictonary sorted by Z-coordinates
@@ -310,7 +287,7 @@ class DesignSupplyLCA(ITask):
                 # Add the coordinates with the average of the y-coordinates to the new list
                 for k in range(i, j):
                     x, _, z, a, u = room_ceiling_ventilation_outlet[k]
-                    adjusted_coords_y.append((x, self.round_decimal(average_y, 1), z, a, u))
+                    adjusted_coords_y.append((x, round(average_y, 1), z, a, u))
 
                 # Update the outer loop variable i to the next unprocessed index
                 i = j
@@ -370,10 +347,10 @@ class DesignSupplyLCA(ITask):
 
         return ceiling_points_in_traffic_area, ceiling_points_not_in_traffic_area
 
-    def calculate_z_coordinate(self, center):
+    def calculate_z_coordinate(self, center_points):
         z_coordinate_list = set()
-        for i in range(len(center)):
-            z_coordinate_list.add(center[i][2])
+        for i in range(len(center_points)):
+            z_coordinate_list.add(center_points[i][2])
         return sorted(z_coordinate_list)
 
     def intersection_points(self, ceiling_point, z_coordinate_list):
@@ -405,35 +382,6 @@ class DesignSupplyLCA(ITask):
                 filtered_intersection_points.append(ip)
 
         return filtered_intersection_points
-
-
-    @staticmethod
-    def arrow3D(ax, x, y, z, dx, dy, dz, length, arrowstyle="-|>", color="black"):
-        """
-
-                Args:
-                    ax ():
-                    x ():
-                    y ():
-                    z ():
-                    dx ():
-                    dy ():
-                    dz ():
-                    length ():
-                    arrowstyle ():
-                    color ():
-                """
-        if length != 0:
-            arrow = 0.1 / length
-        else:
-            arrow = 0.1 / 0.0001
-
-        if isinstance(arrow, Quantity):
-            arrow = arrow.magnitude
-
-        ax.quiver(x, y, z, dx, dy, dz, color=color, arrow_length_ratio=arrow)
-        # ax.quiver(x, y, z, dx, dy, dz, color=color, normalize=True)
-
 
     def write_json_graph(self, graph, filename):
 
@@ -470,7 +418,7 @@ class DesignSupplyLCA(ITask):
                              ):
         """
         :param G: Graph
-        :param graph_steiner_tree: Steinerbaum
+        :param graph_steiner_tree: Steiner stree
         :param z_value: Z-Achse
         :param coordinates_without_airflow: Schnittpunkte
         :param filtered_coords_ceiling_without_airflow: Koordinaten ohne Volume_flow
@@ -1099,7 +1047,7 @@ class DesignSupplyLCA(ITask):
                                          filtered_coords_main_line,
                                          filtered_coords_intersection,
                                          edge_label="length",
-                                         name=f"Steinerbaum 0. Optimierung",
+                                         name=f"Steiner stree - Initial optimization",
                                          unit_edge="m",
                                          total_coat_area=False,
                                          building_shaft_supply_air=starting_point
@@ -1166,7 +1114,7 @@ class DesignSupplyLCA(ITask):
                                          filtered_coords_main_line,
                                          filtered_coords_intersection,
                                          edge_label="length",
-                                         name=f"Steinerbaum 1. Optimierung",
+                                         name=f"Steiner tree - 1. optimization",
                                          unit_edge="m",
                                          total_coat_area=False,
                                          building_shaft_supply_air=starting_point
@@ -1239,7 +1187,7 @@ class DesignSupplyLCA(ITask):
                                          filtered_coords_main_line,
                                          filtered_coords_intersection,
                                          edge_label="length",
-                                         name=f"Steinerbaum 2. Optimierung",
+                                         name=f"Steiner stree - 2. optimization",
                                          unit_edge="m",
                                          total_coat_area=False,
                                          building_shaft_supply_air=starting_point
@@ -1275,7 +1223,7 @@ class DesignSupplyLCA(ITask):
                                          filtered_coords_main_line,
                                          filtered_coords_intersection,
                                          edge_label="length",
-                                         name=f"Steinerbaum 3. Optimierung",
+                                         name=f"Steiner stree - 3. optimization",
                                          unit_edge="m",
                                          total_coat_area=False,
                                          building_shaft_supply_air=starting_point
@@ -1455,7 +1403,7 @@ class DesignSupplyLCA(ITask):
                                          filtered_coords_ceiling_without_airflow,
                                          None,
                                          edge_label="length",
-                                         name=f"Steinerbaum mit Luftauslässen",
+                                         name=f"Steiner stree with air outlets",
                                          unit_edge="m³/h",
                                          total_coat_area=False,
                                          building_shaft_supply_air=starting_point
@@ -1467,7 +1415,7 @@ class DesignSupplyLCA(ITask):
                 duct_length = abs(u[0] - v[0]) + abs(u[1] - v[1])
                 filtered_main_graph[u][v]["length"] = duct_length * ureg.meter
 
-            # Steinerbaum with ventilation duct lengths
+            # Steiner stree with ventilation duct lengths
             dict_steinerbaum_mit_leitungslaenge[z_value] = deepcopy(filtered_main_graph)
 
             # The start point for the leaves is set here
@@ -1504,7 +1452,7 @@ class DesignSupplyLCA(ITask):
                                           filtered_coords_ceiling_without_airflow,
                                           None,
                                           edge_label="volume_flow",
-                                          name=f"Steinerbaum mit Luftmenge in m³ pro h",
+                                          name=f"Steiner stree with air volume flow in m³ / h",
                                           unit_edge="m³/h",
                                           total_coat_area=False,
                                           building_shaft_supply_air=starting_point
@@ -1528,7 +1476,7 @@ class DesignSupplyLCA(ITask):
                                          filtered_coords_ceiling_without_airflow,
                                          None,
                                          edge_label="cross_section",
-                                          name=f"Steinerbaum mit Querschnitt in mm",
+                                          name=f"Steiner stree with duct cross section in mm",
                                           unit_edge="mm",
                                           total_coat_area=False,
                                           building_shaft_supply_air=starting_point
@@ -1554,7 +1502,7 @@ class DesignSupplyLCA(ITask):
                                           filtered_coords_ceiling_without_airflow,
                                           None,
                                           edge_label="equivalent_diameter",
-                                          name=f"Steinerbaum mit rechnerischem Durchmesser in mm",
+                                          name=f"Steiner stree with calculated duct diameter in mm",
                                           unit_edge="mm",
                                           total_coat_area=False,
                                           building_shaft_supply_air=starting_point
@@ -1585,7 +1533,7 @@ class DesignSupplyLCA(ITask):
                                           filtered_coords_ceiling_without_airflow,
                                           None,
                                          edge_label="circumference",
-                                          name=f"Steinerbaum mit Mantelfläche",
+                                          name=f"Steiner stree with surface area",
                                           unit_edge="m²/m",
                                           total_coat_area="",
                                           building_shaft_supply_air=starting_point
@@ -1599,7 +1547,7 @@ class DesignSupplyLCA(ITask):
             dict_steinertree_with_shell, dict_steiner_tree_with_equivalent_cross_section)
 
 
-    def rlt_shaft(self,
+    def ahu_shaft(self,
                     z_coordinate_list,
                     building_shaft_supply_air,
                     airflow_volume_per_storey,
@@ -1967,7 +1915,7 @@ class DesignSupplyLCA(ITask):
                 # Find width and height, decompose the cross-section value and update the corresponding values in the database
                 width, height = self.find_dimension(duct_cross_section)
                 database_distribution_network.at[index, 'width'] = str(width)
-                database_distribution_network.at[index, 'hight'] = str(height)
+                database_distribution_network.at[index, 'height'] = str(height)
 
         if self.export_graphs:
             # Display of the 3D graph:
@@ -2014,7 +1962,7 @@ class DesignSupplyLCA(ITask):
                 database_distribution_network
                 )
 
-    def pressure_loss(self,
+    def calculate_pressure_loss(self,
                       dict_steiner_tree_with_duct_length,
                       z_coordinate_list,
                       building_shaft_supply_air,
@@ -2032,7 +1980,7 @@ class DesignSupplyLCA(ITask):
             :param input: Air inlet in T-piece
             :param duct: duct for losses
             :param output: Bending duct
-            :return: grafic
+            :return: graphic
             """
             # Creating a 3D plot
             fig = plt.figure()
@@ -2090,11 +2038,11 @@ class DesignSupplyLCA(ITask):
 
         def drag_coefficient_arc_round(angle: int, mean_radius: float, diameter: float) -> float:
             """
-            Calculates the resistance coefficient for a curve round A01 according to VDI 3803-6
+            Calculates the loss coefficient for a curve round (A01 -VDI 3803-6)
             :param angle: angle in degree
             :param mean_radius: Average radius of the arc in meters
             :param diameter: Diameter of the duct in meters
-            :return: Resistance coefficient curve round A01 according to VDI 3803-6
+            :return: loss coefficient curve round
             """
 
             a = 1.6094 - 1.60868 * math.exp(-0.01089 * angle)
@@ -2111,13 +2059,13 @@ class DesignSupplyLCA(ITask):
 
         def drag_coefficient_arc_angular(angle, mean_radius, height, width, calculated_diameter):
             """
-            Calculates the resistance coefficient for a bend angular A02 according to VDI 3803-6
+            Calculates the loss coefficient for a bend angular (A02 - VDI 3803-6)
             :param angle: angle in degree
             :param mean_radius: Average radius of the arc in meters
             :param height: Height of the duct in meters
             :param width: width of the duct in meters
             :param calculated_diameter: calculated diameter of the duct
-            :return: drag coefficient arc angular
+            :return: loss coefficient arc angular
             """
 
             a = 1.6094 - 1.60868 * math.exp(-0.01089 * angle)
@@ -2137,10 +2085,10 @@ class DesignSupplyLCA(ITask):
 
         def drag_coefficient_cross_sectional_narrowing_continuous(d_1, d_2):
             """
-            Berechnet den WiderstandsCoefficient bei einer Querschnittsverengung A15 nach VDI 3803 Blatt 6
+            Calculates the loss coefficient for a cross section narrowing (A15 - VDI 3803-6)
             :param d_1: diameter Air inlet in meters
             :param d_2: diameter Air outlet in meters
-            :return: Wdrag coefficient
+            :return: loss coefficient for a cross section narrowing
             """
 
             if d_1 <= d_2:
@@ -2172,7 +2120,7 @@ class DesignSupplyLCA(ITask):
                                                       v_A: float,
                                                       direction: str) -> float:
             """
-            Berechnet den WiderstandCoefficient für eine T-Trennung A22 nach VDI 3803 Blatt 6
+            Calculates the loss coefficient for a T-separation (type A22 - VDI 3803-6)
             :param d: Diameter of the entrance in meters
             :param v: Volume flow of the input in m³/h
             :param d_D: Diameter of the passage in meters
@@ -2180,7 +2128,7 @@ class DesignSupplyLCA(ITask):
             :param d_A: Diameter of the outlet in meters
             :param v_A: Volume flow of the outlet in m³/h
             :param direction: "direction of passage" or "branching direction"
-            :return: WiderstandCoefficient für eine T-Trennung A22
+            :return: loss coefficient for a T-separation
             """
 
             # cross_section entrance:
@@ -2215,7 +2163,7 @@ class DesignSupplyLCA(ITask):
         def drag_coefficient_T_piece_separation_angular(d: float, v: float, d_D: float, v_D: float, d_A: float,
                                                        v_A: float, direction: str) -> float:
             """
-            Berechnet den WiderstandCoefficient für eine T-Trennung A24 nach VDI 3803 Blatt 6
+            Calculates the loss coefficient for a T-separation (type A24 - VDI 3803-6)
             :param d: Diameter of the entrance in meters
             :param v: Volume flow of the input in m³/h
             :param d_D: Diameter of the passage in meters
@@ -2223,7 +2171,7 @@ class DesignSupplyLCA(ITask):
             :param d_A: Diameter of the outlet in meters
             :param v_A: Volume flow of the outlet in m³/h
             :param direction: "direction of passage" or "branching direction"
-            :return: WiderstandCoefficient für eine T-Trennung A24
+            :return: loss coefficient for a T-separation
             """
 
             # cross_section entrance:
@@ -2263,14 +2211,14 @@ class DesignSupplyLCA(ITask):
 
         def drag_coefficient_kruemmerendstueck_angular(a: float, b: float, d: float, v: float, d_A: float, v_A: float):
             """
-            Berechnet den WiderstandsCoefficient für Krümmerabzweig A25 nach VDI 3803
-            :param a: Höhe des Eingangs in Metern
-            :param b: width des Eingangs in Metern
-            :param d: rechnerischer diameter des Eingangs in Metern
-            :param v: Volume_flow des Eingangs in m³/h
-            :param d_A: rechnerischer diameter des Abzweiges in Metern
-            :param v_A: Volume_flow des Abzweiges in m³/h
-            :return: WiderstandsCoefficient für Krümmerabzweig A25 nach VDI 3803
+            Calculates the loss coefficient for a manifold branch (A25 - VDI 3803-6)
+            :param a: Height of inlet in m
+            :param b: width of inlet in m
+            :param d: calculated diameter of inlet in m
+            :param v: volume flow of inlet in m³/h
+            :param d_A: calculated diameter of branch in m
+            :param v_A: volume flow of branch in m³/h
+            :return: loss coefficient for a manifold branch
             """
 
             # cross_section entrance:
@@ -2294,12 +2242,12 @@ class DesignSupplyLCA(ITask):
 
         def drag_coefficient_T_end_piece_round(d: float, v: float, d_A: float, v_A: float):
             """
-            Calculates the drag coefficient for a T-piece round A27 according to VDI 3803
+            Calculates the loss coefficient for a round T-piece (A27 - VDI 3803-6)
             :param d: calculated diameter of the inlet in meters
-            :param v: Volume_flow of the inlet in m³/h
+            :param v: volume flow of the inlet in m³/h
             :param d_A: calculated diameter of the branch in meters
-            :param v_A: Volume_flow of the branch in m³/h
-            :return: Wiederstandsbeiwert für ein T-Stück round A27 nach VDI 3803
+            :param v_A: volume flow of the branch in m³/h
+            :return: loss coefficient for a round T-piece
             """
 
             # cross_section entrance:
@@ -2322,8 +2270,9 @@ class DesignSupplyLCA(ITask):
 
             return zeta_A
 
-        building_shaft_supply_air = (
-        building_shaft_supply_air[0], building_shaft_supply_air[1], building_shaft_supply_air[2])
+        building_shaft_supply_air = (building_shaft_supply_air[0],
+                                     building_shaft_supply_air[1], 
+                                     building_shaft_supply_air[2])
 
         # Creation of a BFS sequence from the starting point
         bfs_edges = list(nx.edge_bfs(graph_ventilation_duct_length_supply_air, building_shaft_supply_air))
@@ -2536,7 +2485,7 @@ class DesignSupplyLCA(ITask):
                     graph_duct_cross_section.get_edge_data(incoming_edge[0], incoming_edge[1])[
                         "cross_section"]
 
-                """ Daten für WiderstandsCoefficiente"""
+                """ Data for loss coefficients"""
                 # diameter des Eingangs:
                 d = graph_calculated_diameter.get_edge_data(incoming_edge[0], incoming_edge[1])[
                     "equivalent_diameter"].to(ureg.meter)
@@ -2549,18 +2498,18 @@ class DesignSupplyLCA(ITask):
                 v_D = graph_air_volumes.get_edge_data(duct[0], duct[1])["volume_flow"]
 
                 if d > d_D:
-                    zeta_reduzierung = drag_coefficient_cross_sectional_narrowing_continuous(d, d_D)
+                    zeta_reduction = drag_coefficient_cross_sectional_narrowing_continuous(d, d_D)
 
-                    # self.logger.info(f"Zeta T-Reduzierung: {zeta_reduzierung}")
+                    # self.logger.info(f"Zeta T-Reduzierung: {zeta_reduction}")
 
-                    net['pipe'].at[pipe, 'loss_coefficient'] += zeta_reduzierung
+                    net['pipe'].at[pipe, 'loss_coefficient'] += zeta_reduction
 
                     database_distribution_network.loc[database_distribution_network[
                                                     'target_node'] == to_junction[
-                                                    pipe], 'Zeta Reduzierung'] = zeta_reduzierung
+                                                    pipe], 'zeta_reduction'] = zeta_reduction
 
-            """T-Stücke"""
-            if len(neighbors) == 3:  # T-Stücke finden
+            """T-Pieces"""
+            if len(neighbors) == 3:  # find T-pieces
                 duct = name_pipe[pipe]
                 duct_neighbor = to_junction[pipe]
                 dimensions_duct = graph_duct_cross_section.get_edge_data(from_junction[pipe], to_junction[pipe])[
@@ -2580,7 +2529,7 @@ class DesignSupplyLCA(ITask):
                     graph_duct_cross_section.get_edge_data(incoming_edge[0], incoming_edge[1])[
                         "cross_section"]
 
-                """ Data for draf coefficients"""
+                """ Data for loss coefficients"""
                 # diameter of the entrance:
                 d = graph_calculated_diameter.get_edge_data(incoming_edge[0], incoming_edge[1])[
                     "equivalent_diameter"].to(ureg.meter)
@@ -2613,7 +2562,7 @@ class DesignSupplyLCA(ITask):
                     #    |
                     #  Eingang
 
-                    # self.logger.info("T-Stück geht durch ")
+                    # self.logger.info("T-Piece geht durch ")
 
                     if "Ø" in dimensions_incoming_edge:
 
@@ -2624,8 +2573,6 @@ class DesignSupplyLCA(ITask):
                                                                                   d_A=d_A,
                                                                                   v_A=v_A,
                                                                                   direction="direction of passage")
-
-                        # self.logger.info(f"Zeta T-Stück: {zeta_t_piece}")
 
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_piece
 
@@ -2643,22 +2590,16 @@ class DesignSupplyLCA(ITask):
                         else:
                             zeta_cross_section_narrowing = 0
 
-                        # self.logger.info(f"Zeta T-Stück: {zeta_t_piece + zeta_cross_section_narrowing}")
-
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_piece + zeta_cross_section_narrowing
-
-
 
 
                 elif check_if_lines_are_aligned(incoming_edge, kinking_line) == True:
 
-                    #  Ausgang
+                    #  Outlet
                     #    |
-                    #    |---- duct für Verlust
+                    #    |---- duct for loss
                     #    |
-                    #  Eingang
-
-                    # self.logger.info("T-Stück knickt ab ")
+                    #  Inlet
 
                     if "Ø" in dimensions_incoming_edge:
 
@@ -2670,10 +2611,7 @@ class DesignSupplyLCA(ITask):
                                                                                   v_A=v_A,
                                                                                   direction="branching direction")
 
-                        # self.logger.info(f"Zeta T-Stück: {zeta_t_piece}")
-
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_piece
-
 
                     elif "x" in dimensions_incoming_edge:
                         zeta_t_piece = drag_coefficient_T_piece_separation_angular(d=d,
@@ -2684,17 +2622,12 @@ class DesignSupplyLCA(ITask):
                                                                                    v_A=v_A,
                                                                                    direction="branching direction")
 
-                        # self.logger.info(f"Zeta T-Stück: {zeta_t_piece}")
-
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_piece
 
-
-
                 elif check_if_lines_are_aligned(duct, kinking_line):
-                    # Ausgang ---------- duct für Verlust
-                    #              |
-                    #           Eingang
-                    # self.logger.info("T-Stück ist Verteiler")
+                    # Outlet ---------- duct for loss
+                    #            |
+                    #          Inlet
 
                     if "Ø" in dimensions_incoming_edge:
                         zeta_t_piece = drag_coefficient_T_end_piece_round(d=d,
@@ -2702,14 +2635,12 @@ class DesignSupplyLCA(ITask):
                                                                             d_A=max(d_A, d_D),
                                                                             v_A=max(v_A, v_D)
                                                                             )
-                        # Wenn der diameter des Rohres kleiner ist als der des Abzweiges, muss noch eine
-                        # Querschnittsverengung berücksichtigt werden
+                        # If the diameter of the pipe is smaller than that of the branch, 
+                        # a cross section constriction must also be taken into account
                         if d_D < d_A:
                             zeta_cross_section_narrowing = drag_coefficient_cross_sectional_narrowing_continuous(d_A, d_D)
                         else:
                             zeta_cross_section_narrowing = 0
-
-                        # self.logger.info(f"Zeta T-Stück: {zeta_t_piece}")
 
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_piece + zeta_cross_section_narrowing
 
@@ -2723,14 +2654,11 @@ class DesignSupplyLCA(ITask):
                                                                                    d_A=d_D,
                                                                                    v_A=v_D
                                                                                    )
-
-                        # self.logger.info(f"Zeta T-Stück: {zeta_t_piece}")
-
                         net['pipe'].at[pipe, 'loss_coefficient'] += zeta_t_piece
 
                 database_distribution_network.loc[database_distribution_network[
                                                 'target_node'] == to_junction[
-                                                pipe], 'Zeta T-Stück'] = zeta_t_piece + zeta_cross_section_narrowing
+                                                pipe], 'Zeta T-Piece'] = zeta_t_piece + zeta_cross_section_narrowing
 
         # Air volumes from graph
         air_volume = nx.get_node_attributes(graph_air_volumes, 'weight')
@@ -2743,7 +2671,7 @@ class DesignSupplyLCA(ITask):
         # Create an external grid, as the visualization is then better
         pp.create_ext_grid(net, junction=index_ahu, p_bar=0, t_k=293.15, name="Air handling unit")
 
-        # Hinzufügen der Air handling unit zum Netz
+        # Add air handling unit to network
         pp.create_source(net,
                          mdot_kg_per_s=mdot_kg_per_s_rlt.magnitude,
                          junction=index_ahu,
@@ -2823,8 +2751,6 @@ class DesignSupplyLCA(ITask):
 
 
         # Export
-        # dataframe_pipes.to_excel(pipes_excel_pfad)
-
         with pd.ExcelWriter(pipes_excel_pfad) as writer:
             dataframe_pipes.to_excel(writer, sheet_name="Pipes")
             dataframe_junctions.to_excel(writer, sheet_name="Junctions")
@@ -2855,12 +2781,12 @@ class DesignSupplyLCA(ITask):
 
             plot.draw_collections(collections=collections, ax=ax, axes_visible=(True, True))
 
-            # Titel hinzufügen
+            # Add title
             ax.set_title("pressure_loss supply_air", fontsize=14, fontweight='bold')
 
             # Adds the text annotations for the pressures
             for idx, junction in enumerate(net.res_junction.index):
-                pressure = net.res_junction.iloc[idx]['p_bar']  # Druck am nodes
+                pressure = net.res_junction.iloc[idx]['p_bar']  # Node pressure
                 # Coordinates of the nodes
                 if junction in net.junction_geodata.index:
                     coords = net.junction_geodata.loc[junction, ['x', 'y']]
@@ -2913,7 +2839,6 @@ class DesignSupplyLCA(ITask):
             plt.savefig(path_and_name)
 
             # plt.show()
-
             plt.close()
 
         return greatest_pressure_loss * 100000, database_distribution_network
@@ -2928,56 +2853,58 @@ class DesignSupplyLCA(ITask):
 
         if "Ø" in dimensions:
             diameter = self.find_dimension(dimensions).to(ureg.meter)
-
+            
+            # Following data according to MKK Shop Datenblatt Best. Nr. 10782 (Unit: m)
             if diameter <= 0.2 * ureg.meter:
                 sheet_metal_thickness = (0.5 * ureg.millimeter).to(
-                    ureg.meter)  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+                    ureg.meter)
             elif 0.2 * ureg.meter < diameter <= 0.4 * ureg.meter:
                 sheet_metal_thickness = (0.6 * ureg.millimeter).to(
-                    ureg.meter)  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+                    ureg.meter)
             elif 0.4 * ureg.meter < diameter <= 0.5 * ureg.meter:
                 sheet_metal_thickness = (0.7 * ureg.millimeter).to(
-                    ureg.meter)  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+                    ureg.meter)  
             elif 0.5 * ureg.meter < diameter <= 0.63 * ureg.meter:
                 sheet_metal_thickness = (0.9 * ureg.millimeter).to(
-                    ureg.meter)  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+                    ureg.meter)  
             elif 0.63 * ureg.meter < diameter <= 1.25 * ureg.meter:
                 sheet_metal_thickness = (1.25 * ureg.millimeter).to(
-                    ureg.meter)  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+                    ureg.meter)  
 
         elif "x" in dimensions:
             width, height = self.find_dimension(dimensions)
             longest_edge = max(width.to(ureg.meter), height.to(ureg.meter))
 
+            # Following data according to BerlinerLuft Gesamtkatalog Seite 53 (Unit: m)
             if pressure_loss <= 1000:
                 if longest_edge <= 0.500 * ureg.meter:
                     sheet_metal_thickness = (0.6 * ureg.millimeter).to(
-                        ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                        ureg.meter)
                 elif 0.500 * ureg.meter < longest_edge <= 1.000 * ureg.meter:
                     sheet_metal_thickness = (0.8 * ureg.millimeter).to(
-                        ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                        ureg.meter)
                 elif 1.000 * ureg.meter < longest_edge <= 2.000 * ureg.meter:
                     sheet_metal_thickness = (1.0 * ureg.millimeter).to(
-                        ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                        ureg.meter)
 
             elif 1000 < pressure_loss <= 2000:
                 if longest_edge <= 0.500 * ureg.meter:
                     sheet_metal_thickness = (0.7 * ureg.millimeter).to(
-                        ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                        ureg.meter)
                 elif 0.500 * ureg.meter < longest_edge <= 1.000 * ureg.meter:
                     sheet_metal_thickness = (0.9 * ureg.millimeter).to(
-                        ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                        ureg.meter)
                 elif 1.000 * ureg.meter < longest_edge <= 2.000 * ureg.meter:
                     sheet_metal_thickness = (1.1 * ureg.millimeter).to(
-                        ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                        ureg.meter)
 
             elif 2000 < pressure_loss <= 3000:
                 if longest_edge <= 1.000 * ureg.meter:
                     sheet_metal_thickness = (0.95 * ureg.millimeter).to(
-                        ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                        ureg.meter)
                 elif 1.000 * ureg.meter < longest_edge <= 2.000 * ureg.meter:
                     sheet_metal_thickness = (1.15 * ureg.millimeter).to(
-                        ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                        ureg.meter)
 
         return sheet_metal_thickness
 
@@ -2996,7 +2923,7 @@ class DesignSupplyLCA(ITask):
         dataframe_rooms['duct length'] = 2 * ureg.meter
         dataframe_rooms['diameter'] = None
         dataframe_rooms['width'] = None
-        dataframe_rooms['hight'] = None
+        dataframe_rooms['height'] = None
 
         for index, duct_cross_section in enumerate(dataframe_rooms["duct cross section"]):
             if "Ø" in duct_cross_section:
@@ -3004,7 +2931,7 @@ class DesignSupplyLCA(ITask):
 
             elif "x" in duct_cross_section:
                 dataframe_rooms.at[index, 'width'] = self.find_dimension(duct_cross_section)[0]
-                dataframe_rooms.at[index, 'hight'] = self.find_dimension(duct_cross_section)[1]
+                dataframe_rooms.at[index, 'height'] = self.find_dimension(duct_cross_section)[1]
 
         dataframe_rooms['Surface area'] = dataframe_rooms.apply(
             lambda row: self.coat_area_ventilation_duct(
@@ -3055,14 +2982,14 @@ class DesignSupplyLCA(ITask):
         dataframe_rooms['silencer'] = dataframe_rooms['room type'].apply(
             lambda x: 1 if x in list_rooms_silencers else 0)
 
-        # Volume_flow_controller
-        dataframe_rooms["Volume_flow_controller"] = 1
+        # volume flow controller
+        dataframe_rooms["volume flow controller"] = 1
 
         # Calculation of the sheet volume
-        dataframe_rooms["Sheet volume"] = dataframe_rooms["sheet thickness"] * dataframe_rooms['Surface area']
+        dataframe_rooms["sheet volume"] = dataframe_rooms["sheet thickness"] * dataframe_rooms['Surface area']
 
         list_dataframe_rooms_sheet_weight = [v * (7850 * ureg.kilogram / ureg.meter ** 3) for v in
-                                             dataframe_rooms["Sheet volume"]]
+                                             dataframe_rooms["sheet volume"]]
         # density steel 7850 kg/m³
 
         # Calculation of the sheet weight
@@ -3070,85 +2997,37 @@ class DesignSupplyLCA(ITask):
 
         return dataframe_rooms
 
-    def co2(self,
-            pressure_loss,
-            dataframe_rooms,
-            dataframe_distribution_network_supply_air):
-
-        def gwp(uuid: str):
-            """
-            Returns the global warming potential by ÖKOBAUDAT in categories
-            :param uuid: UUID according to ÖKOBAUDAT
-            :return: Global warming potential according to ÖKOBAUDAT, ReferenceUnit
-            """
-            # A1-A3: Production
-            # C2: Transportation
-            # C3: Waste treatment
-            # D: Recycling potential
-
-            OKOBAU_URL = "https://oekobaudat.de/OEKOBAU.DAT/resource/datastocks/c391de0f-2cfd-47ea-8883-c661d294e2ba"
-
-            """Fetches the data of a specific EPD given its UUID"""
-            response = requests.get(f"{OKOBAU_URL}/processes/{uuid}?format=json&view=extended")
-
-            response.raise_for_status()
-            data = response.json()
-
-            # Extract the values for modules A1-A3, C2, C3, D
-            results = {}
-            # Loop through all 'LCIAResults' entries
-            for entry in data['LCIAResults']['LCIAResult']:
-                # Initialize an empty dictionary for each entry
-                results[entry['referenceToLCIAMethodDataSet']['shortDescription'][0]['value']] = {}
-                # Loop through all 'other' elements
-                for sub_entry in entry['other']['anies']:
-                    # Check whether 'module' exists as a key in 'sub_entry'
-                    if 'module' in sub_entry:
-                        # Adding the value to the dictionary
-                        results[entry['referenceToLCIAMethodDataSet']['shortDescription'][0]['value']][
-                            sub_entry['module']] = \
-                            sub_entry['value']
-
-            wp_reference_unit = data['exchanges']['exchange'][0]['flowProperties'][1]['referenceUnit']
-
-            # Return of the results
-            return results['Global Warming Potential - total (GWP-total)'], wp_reference_unit
+    def calculate_material_quantities(self,
+                                      pressure_loss,
+                                      dataframe_rooms,
+                                      dataframe_distribution_network_supply_air):
 
         """
-        Berechnung des CO2 des Lüftungsverteilernetztes des Blechs der supply_air des Verteilernetzes
+        Calculation of necessary sheet metal of the supply air distribution system 
         """
         # Determining the sheet thickness
         dataframe_distribution_network_supply_air["sheet thickness"] = dataframe_distribution_network_supply_air.apply(
             lambda row: self.sheet_metal_thickness(pressure_loss, row["duct cross section"]), axis=1)
 
-        # Berechnung des BlechvolumensCalculation of the sheet volume
-        dataframe_distribution_network_supply_air["Sheet volume"] = dataframe_distribution_network_supply_air[
+        # Calculation of the sheet volume
+        dataframe_distribution_network_supply_air["sheet volume"] = dataframe_distribution_network_supply_air[
                                                                         "sheet thickness"] * \
                                                                     dataframe_distribution_network_supply_air[
                                                                         'Surface area']
-
-        list_dataframe_distribution_network_supply_air_blechgewicht = [v * (7850 * ureg.kilogram / ureg.meter ** 3) for
+        # density steel 7850 kg/m³
+        list_dataframe_distribution_network_supply_air_steel_weight = [v * (7850 * ureg.kilogram / ureg.meter ** 3) for
                                                                        v in
                                                                        dataframe_distribution_network_supply_air[
-                                                                           "Sheet volume"]]
-        # density steel 7850 kg/m³
+                                                                           "sheet volume"]]
 
         # Calculation of the sheet weight
         dataframe_distribution_network_supply_air[
-            "Sheet weight"] = [x.magnitude for x in list_dataframe_distribution_network_supply_air_blechgewicht]
+            "Sheet weight"] = [x.magnitude for x in list_dataframe_distribution_network_supply_air_steel_weight]
 
-        # Determination of the CO2 of the duct
-        # dataframe_distribution_network_supply_air["CO2-Kanal"] = dataframe_distribution_network_supply_air[
-        #                                                              "Sheet weight"] * (
-        #                                                                  float(
-        #                                                                      gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[
-        #                                                                          0]["A1-A3"]) + float(
-        #                                                              gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0][
-        #                                                                  "C2"]))
 
         def cross_sectional_area_duct_insulation(row):
             """
-            Berechnet die Querschnittsfläche der Dämmung
+            Calculates cross section of insulation
             """
             cross_sectional_area = 0
             if 'Ø' in row['duct cross section']:
@@ -3156,109 +3035,83 @@ class DesignSupplyLCA(ITask):
                     diameter = ureg(row['diameter'])
                 except AttributeError:
                     diameter = row['diameter']
+
                 cross_sectional_area = math.pi * ((diameter + 0.04 * ureg.meter) ** 2) / 4 - math.pi * (
-                        diameter ** 2) / 4  # 20mm Dämmung des Lüftungskanals nach anerkannten
-                # Regeln der Technik nach Missel Seite 42
+                        diameter ** 2) / 4
 
             elif 'x' in row['duct cross section']:
                 try:
                     width = ureg(row['width'])
-                    height = ureg(row['hight'])
+                    height = ureg(row['height'])
                 except AttributeError:
                     width = row['width']
-                    height = row['hight']
+                    height = row['height']
+                # 20mm of insulation according to state of the art (Missel S. 42)
                 cross_sectional_area = ((width + 0.04 * ureg.meter) * (height + 0.04 * ureg.meter)) - (
-                        width * height)  # 20mm Dämmung des Lüftungskanals nach aneredges Regeln der Technik nach Missel Seite 42
+                        width * height)
 
             return cross_sectional_area.to(ureg.meter ** 2)
 
         # Calculation of the insulation
         dataframe_distribution_network_supply_air[
-            'Cross-sectional area of insulation'] = dataframe_distribution_network_supply_air.apply(
+            'cross section of insulation'] = dataframe_distribution_network_supply_air.apply(
             cross_sectional_area_duct_insulation, axis=1)
 
         list_dataframe_isolation_volume_distribution_network_supply_air = list(dataframe_distribution_network_supply_air[
-                                                                           'Cross-sectional area of insulation'] * \
+                                                                           'cross section of insulation'] * \
                                                                        dataframe_distribution_network_supply_air[
                                                                            'duct length'])
 
         dataframe_distribution_network_supply_air['Isolation volume'] = [x.magnitude for x in list_dataframe_isolation_volume_distribution_network_supply_air]
-
-        # gwp_isulation = (
-        #             121.8 * ureg.kilogram / ureg.meter ** 3 + 1.96 * ureg.kilogram / ureg.meter ** 3 + 10.21 * ureg.kilogram / ureg.meter ** 3)
-        # https://www.oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?lang=de&uuid=eca9691f-06d7-48a7-94a9-ea808e2d67e8
-
-        # list_dataframe_distribution_network_supply_air_CO2_duct_isolation = [v * gwp_isulation for v in
-        #                                                                     dataframe_distribution_network_supply_air[
-        #                                                                         "Isolation volume"]]
-        #
-        # dataframe_distribution_network_supply_air[
-        #     "CO2 Duct Isolation"] = list_dataframe_distribution_network_supply_air_CO2_duct_isolation
-
 
         # Export to Excel
         export_path = Path(self.paths.export, 'ventilation system', 'supply air')
         dataframe_distribution_network_supply_air.to_excel(export_path / 'dataframe_supply_air.xlsx', index=False)
 
         """
-        Berechnung des CO2 für die room_connection
+        Volume flow controllers
         """
-        # Ermittlung des CO2-Kanal
-        # dataframe_rooms["CO2-Kanal"] = dataframe_rooms["Sheet weight"] * (
-        #             float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0][
-        #                       "A1-A3"]) + float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
 
-        # Vordefinierte Daten für Trox RN Volume_flow_controller
+        # Data for Trox RN volume flow controller
         # https://cdn.trox.de/4ab7c57caaf55be6/3450dc5eb9d7/TVR_PD_2022_08_03_DE_de.pdf
-        trox_tvr_diameter_gewicht = {
+        trox_tvr_diameter_weight = {
             'diameter': [100 * ureg.millimeter, 125 * ureg.millimeter, 160 * ureg.millimeter, 200 * ureg.millimeter,
                             250 * ureg.millimeter, 315 * ureg.millimeter, 400 * ureg.millimeter],
-            'Gewicht': [3.3 * ureg.kilogram, 3.6 * ureg.kilogram, 4.2 * ureg.kilogram, 5.1 * ureg.kilogram,
+            'weight': [3.3 * ureg.kilogram, 3.6 * ureg.kilogram, 4.2 * ureg.kilogram, 5.1 * ureg.kilogram,
                         6.1 * ureg.kilogram, 7.2 * ureg.kilogram, 9.4 * ureg.kilogram]
         }
-        df_trox_tvr_diameter_gewicht = pd.DataFrame(trox_tvr_diameter_gewicht)
+        df_trox_tvr_diameter_weight = pd.DataFrame(trox_tvr_diameter_weight)
 
-        # Funktion, um das nächstgrößere Gewicht zu finden
-        def gewicht_runde_volumenstromregler(row):
-            if row['Volume_flow_controller'] == 1 and 'Ø' in row['duct cross section']:
-                calculated_diameter = row['calculated diameter']
-                next_diameter = df_trox_tvr_diameter_gewicht[
-                    df_trox_tvr_diameter_gewicht['diameter'] >= calculated_diameter]['diameter'].min()
-                return \
-                    df_trox_tvr_diameter_gewicht[df_trox_tvr_diameter_gewicht['diameter'] == next_diameter][
-                        'Gewicht'].values[0]
-            return None
-
-        # Tabelle mit width, Höhe und Gewicht für Trox TVJ Volume_flow_controller
+        # Data for Trox TVJ volume flow controller
         # https://cdn.trox.de/502e3cb43dff27e2/af9a822951e1/TVJ_PD_2021_07_19_DE_de.pdf
-        df_trox_tvj_diameter_gewicht = pd.DataFrame({
+        df_trox_tvj_diameter_weight = pd.DataFrame({
             'width': [200 * ureg.millimeter, 300 * ureg.millimeter, 400 * ureg.millimeter, 500 * ureg.millimeter,
-                       600 * ureg.millimeter,
+                      600 * ureg.millimeter,
 
-                       200 * ureg.millimeter, 300 * ureg.millimeter, 400 * ureg.millimeter, 500 * ureg.millimeter,
-                       600 * ureg.millimeter, 700 * ureg.millimeter, 800 * ureg.millimeter,
+                      200 * ureg.millimeter, 300 * ureg.millimeter, 400 * ureg.millimeter, 500 * ureg.millimeter,
+                      600 * ureg.millimeter, 700 * ureg.millimeter, 800 * ureg.millimeter,
 
-                       300 * ureg.millimeter, 400 * ureg.millimeter, 500 * ureg.millimeter, 600 * ureg.millimeter,
-                       700 * ureg.millimeter, 800 * ureg.millimeter, 900 * ureg.millimeter, 1000 * ureg.millimeter,
+                      300 * ureg.millimeter, 400 * ureg.millimeter, 500 * ureg.millimeter, 600 * ureg.millimeter,
+                      700 * ureg.millimeter, 800 * ureg.millimeter, 900 * ureg.millimeter, 1000 * ureg.millimeter,
 
-                       400 * ureg.millimeter, 500 * ureg.millimeter, 600 * ureg.millimeter, 700 * ureg.millimeter,
-                       800 * ureg.millimeter, 900 * ureg.millimeter, 1000 * ureg.millimeter
-                       ],
+                      400 * ureg.millimeter, 500 * ureg.millimeter, 600 * ureg.millimeter, 700 * ureg.millimeter,
+                      800 * ureg.millimeter, 900 * ureg.millimeter, 1000 * ureg.millimeter
+                      ],
 
-            'hight': [100 * ureg.millimeter, 100 * ureg.millimeter, 100 * ureg.millimeter, 100 * ureg.millimeter,
-                     100 * ureg.millimeter,
+            'height': [100 * ureg.millimeter, 100 * ureg.millimeter, 100 * ureg.millimeter, 100 * ureg.millimeter,
+                      100 * ureg.millimeter,
 
-                     200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter,
-                     200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter,
+                      200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter,
+                      200 * ureg.millimeter, 200 * ureg.millimeter, 200 * ureg.millimeter,
 
-                     300 * ureg.millimeter, 300 * ureg.millimeter, 300 * ureg.millimeter, 300 * ureg.millimeter,
-                     300 * ureg.millimeter, 300 * ureg.millimeter, 300 * ureg.millimeter, 300 * ureg.millimeter,
+                      300 * ureg.millimeter, 300 * ureg.millimeter, 300 * ureg.millimeter, 300 * ureg.millimeter,
+                      300 * ureg.millimeter, 300 * ureg.millimeter, 300 * ureg.millimeter, 300 * ureg.millimeter,
 
-                     400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter,
-                     400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter
-                     ],
+                      400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter,
+                      400 * ureg.millimeter, 400 * ureg.millimeter, 400 * ureg.millimeter
+                      ],
 
-            'Gewicht': [6 * ureg.kilogram, 7 * ureg.kilogram, 8 * ureg.kilogram, 9 * ureg.kilogram, 10 * ureg.kilogram,
+            'weight': [6 * ureg.kilogram, 7 * ureg.kilogram, 8 * ureg.kilogram, 9 * ureg.kilogram, 10 * ureg.kilogram,
                         9 * ureg.kilogram, 10 * ureg.kilogram, 11 * ureg.kilogram, 12 * ureg.kilogram,
                         13 * ureg.kilogram, 14 * ureg.kilogram, 15 * ureg.kilogram,
                         10 * ureg.kilogram, 11 * ureg.kilogram, 12 * ureg.kilogram, 13 * ureg.kilogram,
@@ -3267,132 +3120,116 @@ class DesignSupplyLCA(ITask):
                         18 * ureg.kilogram, 21 * ureg.kilogram, 20 * ureg.kilogram]
         })
 
-        # Funktion, um das entsprechende oder nächstgrößere Gewicht zu finden
-        def gewicht_angulare_volumenstromregler(row):
-            if row['Volume_flow_controller'] == 1 and 'x' in row['duct cross section']:
-                width, height = row['width'], row['hight']
-                passende_zeilen = df_trox_tvj_diameter_gewicht[
-                    (df_trox_tvj_diameter_gewicht['width'] >= width) & (
-                            df_trox_tvj_diameter_gewicht['hight'] >= height)]
-                if not passende_zeilen.empty:
-                    return passende_zeilen.sort_values(by=['width', 'hight', 'Gewicht']).iloc[0]['Gewicht']
+        # function to find the weight of necessary round volume flow controller
+        def weight_round_volume_flow_controller(row):
+            if row['volume flow controller'] == 1 and 'Ø' in row['duct cross section']:
+                calculated_diameter = row['calculated diameter']
+                next_diameter = df_trox_tvr_diameter_weight[
+                    df_trox_tvr_diameter_weight['diameter'] >= calculated_diameter]['diameter'].min()
+                return \
+                    df_trox_tvr_diameter_weight[df_trox_tvr_diameter_weight['diameter'] == next_diameter][
+                        'weight'].values[0]
+            return None
+        
+        # function to find the weight of necessary angular volume flow controller
+        def weight_angular_volume_flow_controller(row):
+            if row['volume flow controller'] == 1 and 'x' in row['duct cross section']:
+                width, height = row['width'], row['height']
+                matching_volume_flow_controllers = df_trox_tvj_diameter_weight[
+                    (df_trox_tvj_diameter_weight['width'] >= width) & (
+                            df_trox_tvj_diameter_weight['height'] >= height)]
+                if not matching_volume_flow_controllers.empty:
+                    return matching_volume_flow_controllers.sort_values(by=['width', 'height', 'weight']).iloc[0]['weight']
             return None
 
-        # Kombinierte Funktion, die beide Funktionen ausführt
-        def gewicht_volumenstromregler(row):
-            gewicht_rn = gewicht_runde_volumenstromregler(row)
-            if gewicht_rn is not None:
-                return gewicht_rn
-            return gewicht_angulare_volumenstromregler(row)
+        def weight_volume_flow_controller(row):
+            weight_rn = weight_round_volume_flow_controller(row)
+            if weight_rn is not None:
+                return weight_rn
+            return weight_angular_volume_flow_controller(row)
 
         # Anwenden der Funktion auf jede Zeile
-        dataframe_rooms['Gewicht Volume_flow_controller'] = dataframe_rooms.apply(gewicht_volumenstromregler, axis=1)
+        dataframe_rooms['weight volume flow controller'] = dataframe_rooms.apply(weight_volume_flow_controller, axis=1)
 
-        # dataframe_rooms["CO2-Volume_flow_controller"] = dataframe_rooms['Gewicht Volume_flow_controller'] * (
-        #         19.08 + 0.01129 + 0.647) * 0.348432
-        # Nach Ökobaudat https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=29e922f6-d872-4a67-b579-38bb8cd82abf&version=00.02.000&stock=OBD_2023_I&lang=de
+        """
+        Silencer
+        """
 
-        # CO2 für Schallfämpfer
-        # Tabelle Daten für Berechnung nach Trox CA
+        # Data for Trox CA silencer
         # https://cdn.trox.de/97af1ba558b3669e/e3aa6ed495df/CA_PD_2023_04_26_DE_de.pdf
         diameter_tabelle = pd.DataFrame({
             'diameter': [80 * ureg.millimeter, 100 * ureg.millimeter, 125 * ureg.millimeter, 160 * ureg.millimeter,
                             200 * ureg.millimeter, 250 * ureg.millimeter, 315 * ureg.millimeter, 400 * ureg.millimeter,
                             450 * ureg.millimeter, 500 * ureg.millimeter, 560 * ureg.millimeter, 630 * ureg.millimeter,
                             710 * ureg.millimeter, 800 * ureg.millimeter],
-            'Innendiameter': [80 * ureg.millimeter, 100 * ureg.millimeter, 125 * ureg.millimeter,
+            'inner diameter': [80 * ureg.millimeter, 100 * ureg.millimeter, 125 * ureg.millimeter,
                                  160 * ureg.millimeter, 200 * ureg.millimeter, 250 * ureg.millimeter,
                                  315 * ureg.millimeter, 400 * ureg.millimeter, 450 * ureg.millimeter,
                                  500 * ureg.millimeter, 560 * ureg.millimeter, 630 * ureg.millimeter,
                                  710 * ureg.millimeter, 800 * ureg.millimeter],
-            'Aussendiameter': [184 * ureg.millimeter, 204 * ureg.millimeter, 228 * ureg.millimeter,
+            'outer diameter': [184 * ureg.millimeter, 204 * ureg.millimeter, 228 * ureg.millimeter,
                                   254 * ureg.millimeter, 304 * ureg.millimeter, 354 * ureg.millimeter,
                                   405 * ureg.millimeter, 505 * ureg.millimeter, 636 * ureg.millimeter,
                                   716 * ureg.millimeter, 806 * ureg.millimeter, 806 * ureg.millimeter,
                                   908 * ureg.millimeter, 1008 * ureg.millimeter]
         })
 
-        # Funktion zur Berechnung der Fläche des Kreisrings
-        def volumen_daemmung_schalldaempfer(row):
+        # Calculate shell surface
+        def insulation_volume_silcencer(row):
             calculated_diameter = row['calculated diameter']
-            passende_zeilen = diameter_tabelle[diameter_tabelle['diameter'] >= calculated_diameter]
-            if not passende_zeilen.empty:
-                naechster_diameter = passende_zeilen.iloc[0]
-                innen = naechster_diameter['Innendiameter']
-                aussen = naechster_diameter['Aussendiameter']
-                volumen = math.pi * (aussen ** 2 - innen ** 2) / 4 * 0.88 * ureg.meter  # Für einen Meter Länge des
-                # Schalldämpfers, entspricht nach Datenblatt einer Länge des Dämmkerns von 0.88m,
+            mathcing_silencers = diameter_tabelle[diameter_tabelle['diameter'] >= calculated_diameter]
+            if not mathcing_silencers.empty:
+                next_diameter = mathcing_silencers.iloc[0]
+                inner = next_diameter['inner diameter']
+                outer = next_diameter['outer diameter']
+                # 1m of silencer corresponds to 0.88m of inner core insulation
+                volumen = math.pi * (outer ** 2 - inner ** 2) / 4 * 0.88 * ureg.meter
                 return volumen.to(ureg.meter ** 3)
             return None
 
-        # Gewicht Dämmung silencer
-        dataframe_rooms['Isolation volume silencer'] = dataframe_rooms.apply(volumen_daemmung_schalldaempfer,
+        # insulation weight silencer
+        dataframe_rooms['Isolation volume silencer'] = dataframe_rooms.apply(insulation_volume_silcencer,
                                                                                  axis=1)
 
-        # gwp_daemmung_schalldaempfer = (117.4 + 2.132 + 18.43) * (ureg.kilogram / (ureg.meter ** 3))
-        # # https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=89b4bfdf-8587-48ae-9178-33194f6d1314&version=00.02.000&stock=OBD_2023_I&lang=de
-        #
-        # list_dataframe_distribution_network_supply_air_CO2_schalldaempferdaemmung = [v * gwp_daemmung_schalldaempfer for
-        #                                                                              v in dataframe_rooms[
-        #                                                                                  "Isolation volume silencer"]]
 
-        # dataframe_rooms[
-        #     "CO2-Dämmung silencer"] = list_dataframe_distribution_network_supply_air_CO2_schalldaempferdaemmung
-
-        # Gewicht des Metalls des Schalldämpfers für Trox CA für Packungsdicke 50 bis 400mm danach Packungsdicke 100
-        # vordefinierte Daten für Trox CA silencer
-        trox_ca_diameter_gewicht = {
+        # Data for Trox CA silencer
+        trox_ca_diameter_weight = {
             'diameter': [80 * ureg.millimeter, 100 * ureg.millimeter, 125 * ureg.millimeter, 160 * ureg.millimeter,
                             200 * ureg.millimeter, 250 * ureg.millimeter, 315 * ureg.millimeter, 400 * ureg.millimeter,
                             450 * ureg.millimeter, 500 * ureg.millimeter, 560 * ureg.millimeter, 630 * ureg.millimeter,
                             710 * ureg.millimeter, 800 * ureg.millimeter],
-            'Gewicht': [6 * ureg.kilogram, 6 * ureg.kilogram, 7 * ureg.kilogram, 8 * ureg.kilogram, 10 * ureg.kilogram,
+            'weight': [6 * ureg.kilogram, 6 * ureg.kilogram, 7 * ureg.kilogram, 8 * ureg.kilogram, 10 * ureg.kilogram,
                         12 * ureg.kilogram, 14 * ureg.kilogram, 18 * ureg.kilogram, 24 * ureg.kilogram,
                         28 * ureg.kilogram, 45 * ureg.kilogram * 2 / 3, 47 * ureg.kilogram * 2 / 3,
                         54 * ureg.kilogram * 2 / 3, 62 * ureg.kilogram * 2 / 3]
         }
-        df_trox_ca_diameter_gewicht = pd.DataFrame(trox_ca_diameter_gewicht)
+        df_trox_ca_diameter_weight = pd.DataFrame(trox_ca_diameter_weight)
 
-        # Funktion, um das nächstgrößere Gewicht zu finden
-        def gewicht_schalldaempfer_ohne_daemmung(row):
+        def weight_silencer_without_insulation(row):
             if row['silencer'] == 1:
                 calculated_diameter = row['calculated diameter']
-                passende_zeilen = df_trox_ca_diameter_gewicht[
-                    df_trox_ca_diameter_gewicht['diameter'] >= calculated_diameter]
-                if not passende_zeilen.empty:
-                    next_diameter = passende_zeilen['diameter'].min()
-                    gewicht_schalldaempfer = \
-                        df_trox_ca_diameter_gewicht[
-                            df_trox_ca_diameter_gewicht['diameter'] == next_diameter][
-                            'Gewicht'].values[0]
-                    daemmung_gewicht = row[
-                        "Gewicht Dämmung silencer"] if "Gewicht Dämmung silencer" in row and not pd.isnull(
-                        row["Gewicht Dämmung silencer"]) else 0
-                    return gewicht_schalldaempfer - daemmung_gewicht
+                matching_silencers = df_trox_ca_diameter_weight[
+                    df_trox_ca_diameter_weight['diameter'] >= calculated_diameter]
+                if not matching_silencers.empty:
+                    next_diameter = matching_silencers['diameter'].min()
+                    weight_silencer = \
+                        df_trox_ca_diameter_weight[
+                            df_trox_ca_diameter_weight['diameter'] == next_diameter][
+                            'weight'].values[0]
+                    weight_insulation_silencer = row[
+                        "weight insulation silencer"] if "weight insulation silencer" in row and not pd.isnull(
+                        row["weight insulation silencer"]) else 0
+                    return weight_silencer - weight_insulation_silencer
             return None
 
-        dataframe_rooms['Gewicht Blech silencer'] = dataframe_rooms.apply(gewicht_schalldaempfer_ohne_daemmung,
+        dataframe_rooms['weight metal silencer'] = dataframe_rooms.apply(weight_silencer_without_insulation,
                                                                                axis=1)
-
-        # dataframe_rooms["CO2-Blech Schalldämfer"] = dataframe_rooms["Gewicht Blech silencer"] * (
-        #         float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["A1-A3"]) + float(
-        #     gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
-
-        # Berechnung der Dämmung
-        dataframe_rooms['Cross-sectional area of insulation'] = dataframe_rooms.apply(cross_sectional_area_duct_insulation,
+        # Calculation of insulation
+        dataframe_rooms['cross section of insulation'] = dataframe_rooms.apply(cross_sectional_area_duct_insulation,
                                                                               axis=1)
-
-        dataframe_rooms['Isolation volume'] = dataframe_rooms['Cross-sectional area of insulation'] * dataframe_rooms[
+        dataframe_rooms['Isolation volume'] = dataframe_rooms['cross section of insulation'] * dataframe_rooms[
             'duct length']
 
-        # gwp_kanaldaemmung = (
-        #             121.8 * (ureg.kilogram / ureg.meter ** 3) + 1.96 * (ureg.kilogram / ureg.meter ** 3) + 10.21 * (
-        #                 ureg.kilogram / ureg.meter ** 3))
-        # # https://www.oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?lang=de&uuid=eca9691f-06d7-48a7-94a9-ea808e2d67e8
-        #
-        # list_dataframe_rooms_CO2_kanaldaemmung = [v * gwp_kanaldaemmung for v in dataframe_rooms["Isolation volume"]]
-        #
-        # dataframe_rooms['CO2 Duct Isolation'] = list_dataframe_rooms_CO2_kanaldaemmung
 
 
         # Export to Excel
