@@ -929,7 +929,7 @@ class DesignSupplyLCA(ITask):
 
             return M
 
-        def steiner_tree(G, terminal_nodes, weight="weight"):
+        def calculate_steiner_tree(G, terminal_nodes, weight="weight"):
             """Return an approximation to the minimum Steiner tree of a graph.
 
             The minimum Steiner tree of `G` w.r.t a set of `terminal_nodes`
@@ -1037,7 +1037,7 @@ class DesignSupplyLCA(ITask):
                         G.add_edge(nodes_on_same_axis[i], nodes_on_same_axis[i + 1], length=weight_edge_x)
 
             # Create Steiner tree
-            graph_steiner_tree = steiner_tree(G, terminals, weight="length")
+            graph_steiner_tree = calculate_steiner_tree(G, terminals, weight="length")
 
             if self.export_graphs:
                 self.visualization_graph(graph_steiner_tree,
@@ -1104,7 +1104,7 @@ class DesignSupplyLCA(ITask):
                 terminals.append(coord)
 
             # Creation of the new Steiner tree
-            graph_steiner_tree = steiner_tree(G, terminals, weight="length")
+            graph_steiner_tree = calculate_steiner_tree(G, terminals, weight="length")
 
             if self.export_graphs:
                 self.visualization_graph(graph_steiner_tree,
@@ -1132,8 +1132,8 @@ class DesignSupplyLCA(ITask):
                     while neighbor_outlet_one not in filtered_coords_main_line:
                         temp.append(neighbor_outlet_one)
                         new_neighbors = list(nx.all_neighbors(graph_steiner_tree, neighbor_outlet_one))
-                        new_neighbors = [koord for koord in new_neighbors if koord != ventilation_outlet]
-                        neighbor_outlet_one = [koord for koord in new_neighbors if koord != temp[i - 1]]
+                        new_neighbors = [coord for coord in new_neighbors if coord != ventilation_outlet]
+                        neighbor_outlet_one = [coord for coord in new_neighbors if coord != temp[i - 1]]
                         neighbor_outlet_one = neighbor_outlet_one[0]
                         i += 1
                         if neighbor_outlet_one in filtered_coords_main_line:
@@ -1145,8 +1145,8 @@ class DesignSupplyLCA(ITask):
                     while neighbor_outlet_two not in filtered_coords_main_line:
                         temp.append(neighbor_outlet_two)
                         new_neighbors = list(nx.all_neighbors(graph_steiner_tree, neighbor_outlet_two))
-                        new_neighbors = [koord for koord in new_neighbors if koord != ventilation_outlet]
-                        neighbor_outlet_two = [koord for koord in new_neighbors if koord != temp[i - 1]]
+                        new_neighbors = [coord for coord in new_neighbors if coord != ventilation_outlet]
+                        neighbor_outlet_two = [coord for coord in new_neighbors if coord != temp[i - 1]]
                         neighbor_outlet_two = neighbor_outlet_two[0]
                         i += 1
                         if neighbor_outlet_two in filtered_coords_main_line:
@@ -1177,7 +1177,7 @@ class DesignSupplyLCA(ITask):
                                 terminals.append((neighbor_outlet_two[0], ventilation_outlet[1], z_value))
 
             # Creation of the new Steiner tree
-            graph_steiner_tree = steiner_tree(G, terminals, weight="length")
+            graph_steiner_tree = calculate_steiner_tree(G, terminals, weight="length")
 
             if self.export_graphs:
                 self.visualization_graph(graph_steiner_tree,
@@ -1203,7 +1203,7 @@ class DesignSupplyLCA(ITask):
                     terminals.remove(blatt)
 
             # Creation of the new Steiner tree
-            graph_steiner_tree = steiner_tree(G, terminals, weight="length")
+            graph_steiner_tree = calculate_steiner_tree(G, terminals, weight="length")
 
             # Add unit
             for u, v, data in graph_steiner_tree.edges(data=True):
@@ -1517,8 +1517,7 @@ class DesignSupplyLCA(ITask):
                                                                               self.required_ventilation_duct_cross_section(
                                                                                   filtered_main_graph[u][v][
                                                                                       "volume_flow"]),
-                                                                              suspended_ceiling_space), 2
-                                                     )
+                                                                              suspended_ceiling_space), 2)
 
                 total_sheath_area_air_duct += round(filtered_main_graph[u][v]["circumference"], 2)
 
@@ -1532,8 +1531,8 @@ class DesignSupplyLCA(ITask):
                                           list(filtered_main_graph.nodes()),
                                           filtered_coords_ceiling_without_airflow,
                                           None,
-                                         edge_label="circumference",
-                                          name=f"Steiner stree with surface area",
+                                          edge_label="circumference",
+                                          name=f"Steiner stree with shell surface area",
                                           unit_edge="m²/m",
                                           total_coat_area="",
                                           building_shaft_supply_air=starting_point
@@ -1542,9 +1541,11 @@ class DesignSupplyLCA(ITask):
             self.write_json_graph(graph=filtered_main_graph,
                                   filename=f"supply_air_floor_Z_{z_value}.json")
 
-        return (
-            dict_steinerbaum_mit_leitungslaenge, dict_steiner_tree_with_duct_cross_section, dict_steiner_tree_with_air_quantities,
-            dict_steinertree_with_shell, dict_steiner_tree_with_equivalent_cross_section)
+        return (dict_steinerbaum_mit_leitungslaenge,
+                dict_steiner_tree_with_duct_cross_section,
+                dict_steiner_tree_with_air_quantities,
+                dict_steinertree_with_shell,
+                dict_steiner_tree_with_equivalent_cross_section)
 
 
     def ahu_shaft(self,
@@ -1642,26 +1643,24 @@ class DesignSupplyLCA(ITask):
 
         # The air volumes along the line are added up here
         for shaftpoint_to_ahu in shaft_to_ahu:
-            for startpunkt, zielpunkt in shaftpoint_to_ahu:
+            for startingpoint, targetpoint in shaftpoint_to_ahu:
                 # Search for the ventilation volume to coordinate:
-                wert = int()
+                value = int()
                 for x, y, z, a in nodes_shaft:
                     if x == shaftpoint_to_ahu[0][0][0] and y == shaftpoint_to_ahu[0][0][1] and z == \
                             shaftpoint_to_ahu[0][0][2]:
-                        wert = a
-                shaft[startpunkt][zielpunkt]["volume_flow"] += wert
+                        value = a
+                shaft[startingpoint][targetpoint]["volume_flow"] += value
 
         # Add to dict
         dict_steiner_tree_with_air_volume_supply_air["shaft"] = deepcopy(shaft)
 
-        # duct_cross_section shaft und RLT zu shaft bestimmen
+        # determine duct_cross_section shaft and ahu <-> shaft
         for u, v in shaft.edges():
             shaft[u][v]["cross_section"] = self.dimensions_ventilation_duct("angular",
                                                                                self.required_ventilation_duct_cross_section(
-                                                                                   shaft[u][v][
-                                                                                       "volume_flow"]),
-                                                                               suspended_ceiling_space=2000 * ureg.millimeter
-                                                                               )
+                                                                                   shaft[u][v]["volume_flow"]),
+                                                                               suspended_ceiling_space=2000 * ureg.millimeter)
 
         # Add to dict
         dict_steiner_tree_with_duct_cross_section["shaft"] = deepcopy(shaft)
@@ -1671,7 +1670,7 @@ class DesignSupplyLCA(ITask):
             shaft[u][v]["circumference"] = round(self.coat_area_ventilation_duct("angular",
                                                                      self.required_ventilation_duct_cross_section(
                                                                          shaft[u][v]["volume_flow"]),
-                                                                     suspended_ceiling_space=2000 ),2)
+                                                                     suspended_ceiling_space=2000), 2)
 
         # Add to dict
         dict_steiner_tree_with_sheath_area["shaft"] = deepcopy(shaft)
