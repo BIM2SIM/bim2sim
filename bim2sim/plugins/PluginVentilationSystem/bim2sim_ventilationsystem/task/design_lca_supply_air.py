@@ -1556,7 +1556,7 @@ class DesignSupplyLCA(ITask):
                     dict_steiner_tree_with_duct_length,
                     dict_steiner_tree_with_duct_cross_section,
                     dict_steiner_tree_with_air_volume_supply_air,
-                    dict_steiner_tree_with_sheath_area,
+                    dict_steiner_tree_with_shell_surface_area,
                     dict_steiner_tree_with_calculated_cross_section):
 
         nodes_shaft = list()
@@ -1673,7 +1673,7 @@ class DesignSupplyLCA(ITask):
                                                                      suspended_ceiling_space=2000), 2)
 
         # Add to dict
-        dict_steiner_tree_with_sheath_area["shaft"] = deepcopy(shaft)
+        dict_steiner_tree_with_shell_surface_area["shaft"] = deepcopy(shaft)
 
         # The equivalent diameter of the duct is assigned to the pipe here
         for u, v in shaft.edges():
@@ -1691,7 +1691,7 @@ class DesignSupplyLCA(ITask):
         return (dict_steiner_tree_with_duct_length,
                 dict_steiner_tree_with_duct_cross_section,
                 dict_steiner_tree_with_air_volume_supply_air,
-                dict_steiner_tree_with_sheath_area,
+                dict_steiner_tree_with_shell_surface_area,
                 dict_steiner_tree_with_calculated_cross_section)
 
     def check_if_graph_in_building_boundaries(self, graph, z_value):
@@ -1804,7 +1804,7 @@ class DesignSupplyLCA(ITask):
                                  dict_steiner_tree_with_duct_length,
                                  dict_steiner_tree_with_duct_cross_section,
                                  dict_steiner_tree_with_air_volume_supply_air,
-                                 dict_steiner_tree_with_sheath_area,
+                                 dict_steiner_tree_with_shell_surface_area,
                                  dict_steiner_tree_with_calculated_cross_section,
                                  position_ahu,
                                  dict_coordinate_with_space_type):
@@ -1857,7 +1857,7 @@ class DesignSupplyLCA(ITask):
         add_edges_and_nodes(graph_duct_cross_section_directional, position_ahu, graph_duct_cross_section)
 
         # for sheath area
-        for tree in dict_steiner_tree_with_sheath_area.values():
+        for tree in dict_steiner_tree_with_shell_surface_area.values():
             graph_sheath_area = nx.compose(graph_sheath_area, tree)
 
         # Graph für Mantelfläche in einen gerichteten Graphen umwandeln
@@ -1962,61 +1962,16 @@ class DesignSupplyLCA(ITask):
                 )
 
     def calculate_pressure_loss(self,
-                      dict_steiner_tree_with_duct_length,
-                      z_coordinate_list,
-                      building_shaft_supply_air,
-                      position_shaft,
-                      graph_ventilation_duct_length_supply_air,
-                      graph_air_volumes,
-                      graph_duct_cross_section,
-                      graph_coat_area,
-                      graph_calculated_diameter,
-                      database_distribution_network):
-
-        def presentation_t_piece(input, duct, output):
-            """
-            Create a 3D graph of the T-piece
-            :param input: Air inlet in T-piece
-            :param duct: duct for losses
-            :param output: Bending duct
-            :return: graphic
-            """
-            # Creating a 3D plot
-            fig = plt.figure()
-            ax = fig.add_subplot(111, projection='3d')
-
-            # Function for drawing an arrow
-            def draw_arrow(start, ende, farbe, stil='solid'):
-                ax.quiver(start[0], start[1], start[2], ende[0] - start[0], ende[1] - start[1], ende[2] - start[2],
-                          color=farbe, linestyle=stil, arrow_length_ratio=0.1)
-
-            # Drawing the lines with arrows
-            draw_arrow(input[0], input[1], 'red')  # Entrance in red
-            draw_arrow(duct[0], duct[1], 'red')  # Duct in red
-            draw_arrow(output[0], output[1], 'blue',
-                          'dashed')  #Bending duct dashed in blue
-
-            # Setting the axis labels
-            ax.set_xlabel('X axis')
-            ax.set_ylabel('Y axis')
-            ax.set_zlabel('Z axis')
-
-            # Title of the plot
-            ax.set_title('3D representation of the ducts')
-
-            # Adjust the axis limits based on the coordinates
-            alle_koordinaten = duct + output + input
-            x_min, x_max = min(k[0] for k in alle_koordinaten), max(k[0] for k in alle_koordinaten)
-            y_min, y_max = min(k[1] for k in alle_koordinaten), max(k[1] for k in alle_koordinaten)
-            z_min, z_max = min(k[2] for k in alle_koordinaten), max(k[2] for k in alle_koordinaten)
-
-            ax.set_xlim([x_min - 1, x_max + 1])
-            ax.set_ylim([y_min - 1, y_max + 1])
-            ax.set_zlim([z_min - 1, z_max + 1])
-
-            # show plot
-            # plt.show()
-            plt.close()
+                                dict_steiner_tree_with_duct_length,
+                                z_coordinate_list,
+                                building_shaft_supply_air,
+                                position_shaft,
+                                graph_duct_length,
+                                graph_air_volumes,
+                                graph_duct_cross_section,
+                                graph_shell_surface,
+                                graph_calculated_diameter,
+                                database_distribution_network):
 
         def check_if_lines_are_aligned(line1, line2):
             """
@@ -2208,7 +2163,7 @@ class DesignSupplyLCA(ITask):
             else:
                 self.logger.error("No or incorrect direction input")
 
-        def drag_coefficient_kruemmerendstueck_angular(a: float, b: float, d: float, v: float, d_A: float, v_A: float):
+        def drag_coefficient_bend_end_piece_angular(a: float, b: float, d: float, v: float, d_A: float, v_A: float):
             """
             Calculates the loss coefficient for a manifold branch (A25 - VDI 3803-6)
             :param a: Height of inlet in m
@@ -2239,7 +2194,7 @@ class DesignSupplyLCA(ITask):
 
             return zeta_A
 
-        def drag_coefficient_T_end_piece_round(d: float, v: float, d_A: float, v_A: float):
+        def drag_coefficient_T_seperation_round(d: float, v: float, d_A: float, v_A: float):
             """
             Calculates the loss coefficient for a round T-piece (A27 - VDI 3803-6)
             :param d: calculated diameter of the inlet in meters
@@ -2274,7 +2229,7 @@ class DesignSupplyLCA(ITask):
                                      building_shaft_supply_air[2])
 
         # Creation of a BFS sequence from the starting point
-        bfs_edges = list(nx.edge_bfs(graph_ventilation_duct_length_supply_air, building_shaft_supply_air))
+        bfs_edges = list(nx.edge_bfs(graph_duct_length, building_shaft_supply_air))
 
         graph_duct_length_sorted = nx.Graph()
 
@@ -2304,17 +2259,17 @@ class DesignSupplyLCA(ITask):
         """Create 2D coordinates"""
         # Since only 3D coordinates are available, but 3D coordinates are needed, a dict is created which
         # assigns a 2D coordinate to
-        two_d_codrinates = dict()
+        two_dim_coordinates = dict()
         position_shaft_graph = (position_shaft[0], position_shaft[1], position_shaft[2])
 
         # Duct from AHU to shaft
         path_ahu_to_shaft = list(
-            nx.all_simple_paths(graph_ventilation_duct_length_supply_air, building_shaft_supply_air,
+            nx.all_simple_paths(graph_duct_length, building_shaft_supply_air,
                                 position_shaft_graph))[0]
         number_of_points_path_ahu_to_shaft = -len(path_ahu_to_shaft)
 
-        for punkt in path_ahu_to_shaft:
-            two_d_codrinates[punkt] = (number_of_points_path_ahu_to_shaft, 0)
+        for node in path_ahu_to_shaft:
+            two_dim_coordinates[node] = (number_of_points_path_ahu_to_shaft, 0)
             number_of_points_path_ahu_to_shaft += 1
 
         # Try to convert all keys into numbers and sort them
@@ -2344,8 +2299,8 @@ class DesignSupplyLCA(ITask):
             x = 0
 
             for point in sorted_pathes[0]:
-                if point not in two_d_codrinates:
-                    two_d_codrinates[point] = (x, y)
+                if point not in two_dim_coordinates:
+                    two_dim_coordinates[point] = (x, y)
                 x += 2
             x = -2
             y += 2
@@ -2359,9 +2314,9 @@ class DesignSupplyLCA(ITask):
                 counter_new_points = 0
                 counter_points_present = 0
                 for point in path:
-                    if point not in two_d_codrinates:
+                    if point not in two_dim_coordinates:
                         counter_new_points += 1
-                        two_d_codrinates[point] = (x, y)
+                        two_dim_coordinates[point] = (x, y)
 
                         if path_counter == 0:
                             x += 2
@@ -2373,7 +2328,7 @@ class DesignSupplyLCA(ITask):
                                 y += 2
                                 i += 2
 
-                    elif point in two_d_codrinates:
+                    elif point in two_dim_coordinates:
                         counter_points_present += 1
                         x += 2
                         rest_length_path -= 1
@@ -2393,7 +2348,7 @@ class DesignSupplyLCA(ITask):
                                index=index_junction[junction],
                                pn_bar=0,
                                tfluid_k=293.15,
-                               geodata=two_d_codrinates[name_junction[junction]],
+                               geodata=two_dim_coordinates[name_junction[junction]],
                                x=x_coordinate[junction],
                                y=y_coordinate[junction],
                                height_m=z_coordinate[junction]
@@ -2402,7 +2357,7 @@ class DesignSupplyLCA(ITask):
         # Definition of the parameters for the pipes
         name_pipe = [pipe for pipe in
                      list(graph_duct_length_sorted.edges())]  # Designation is the start and end coordinate
-        length_pipe = [graph_ventilation_duct_length_supply_air.get_edge_data(pipe[0], pipe[1])["length"] for pipe in
+        length_pipe = [graph_duct_length.get_edge_data(pipe[0], pipe[1])["length"] for pipe in
                        name_pipe]  # The length is read from the graph with line lengths
 
         from_junction = [pipe[0] for pipe in name_pipe]  # Start junction of the pipe
@@ -2427,12 +2382,12 @@ class DesignSupplyLCA(ITask):
         for pipe in range(len(name_pipe)):
 
             # Neighbors of the start node
-            neighbors = list(nx.all_neighbors(graph_ventilation_duct_length_supply_air, from_junction[pipe]))
+            neighbors = list(nx.all_neighbors(graph_duct_length, from_junction[pipe]))
 
             """Kinks:"""
-            if len(neighbors) == 2:  # Bögen finden
-                incoming_edge = list(graph_ventilation_duct_length_supply_air.in_edges(from_junction[pipe]))[0]
-                ausgehende_kante = list(graph_ventilation_duct_length_supply_air.out_edges(from_junction[pipe]))[0]
+            if len(neighbors) == 2:  # Find kinks
+                incoming_edge = list(graph_duct_length.in_edges(from_junction[pipe]))[0]
+                outgoing_edge = list(graph_duct_length.out_edges(from_junction[pipe]))[0]
                 # Calculated diameter of the line
                 calculated_diameter = \
                     graph_calculated_diameter.get_edge_data(from_junction[pipe], to_junction[pipe])[
@@ -2442,7 +2397,7 @@ class DesignSupplyLCA(ITask):
                 dimension_duct = graph_duct_cross_section.get_edge_data(from_junction[pipe], to_junction[pipe])[
                     "cross_section"]
 
-                if not check_if_lines_are_aligned(incoming_edge, ausgehende_kante):
+                if not check_if_lines_are_aligned(incoming_edge, outgoing_edge):
 
                     zeta_arch = None
                     if "Ø" in dimension_duct:
@@ -2456,11 +2411,10 @@ class DesignSupplyLCA(ITask):
                         width = self.find_dimension(dimension_duct)[0].to(ureg.meter)
                         height = self.find_dimension(dimension_duct)[1].to(ureg.meter)
                         zeta_arch = drag_coefficient_arc_angular(angle=90,
-                                                                    mean_radius=0.75 * ureg.meter,
-                                                                    height=height,
-                                                                    width=width,
-                                                                    calculated_diameter=calculated_diameter
-                                                                    )
+                                                                 mean_radius=0.75 * ureg.meter,
+                                                                 height=height,
+                                                                 width=width,
+                                                                 calculated_diameter=calculated_diameter)
                         # self.logger.info(f"Zeta Bogen angular: {zeta_arch}")
 
                     # Changing the loss_coefficient value
@@ -2476,9 +2430,9 @@ class DesignSupplyLCA(ITask):
                 dimensions_duct = graph_duct_cross_section.get_edge_data(from_junction[pipe], to_junction[pipe])[
                     "cross_section"]
 
-                outgoing_edge = graph_ventilation_duct_length_supply_air.out_edges(from_junction[pipe])
+                outgoing_edge = graph_duct_length.out_edges(from_junction[pipe])
 
-                incoming_edge = list(graph_ventilation_duct_length_supply_air.in_edges(from_junction[pipe]))[0]
+                incoming_edge = list(graph_duct_length.in_edges(from_junction[pipe]))[0]
                 incoming_neighbor_nodes = incoming_edge[1]
                 dimensions_incoming_edge = \
                     graph_duct_cross_section.get_edge_data(incoming_edge[0], incoming_edge[1])[
@@ -2514,7 +2468,7 @@ class DesignSupplyLCA(ITask):
                 dimensions_duct = graph_duct_cross_section.get_edge_data(from_junction[pipe], to_junction[pipe])[
                     "cross_section"]
 
-                outgoing_edge = graph_ventilation_duct_length_supply_air.out_edges(from_junction[pipe])
+                outgoing_edge = graph_duct_length.out_edges(from_junction[pipe])
 
                 kinking_line = [p for p in outgoing_edge if p != duct][0]
                 kinking_line_nodes = kinking_line[1]
@@ -2522,7 +2476,7 @@ class DesignSupplyLCA(ITask):
                     graph_duct_cross_section.get_edge_data(kinking_line[0], kinking_line[1])[
                         "cross_section"]
 
-                incoming_edge = list(graph_ventilation_duct_length_supply_air.in_edges(from_junction[pipe]))[0]
+                incoming_edge = list(graph_duct_length.in_edges(from_junction[pipe]))[0]
                 incoming_neighbor_nodes = incoming_edge[1]
                 dimensions_incoming_edge = \
                     graph_duct_cross_section.get_edge_data(incoming_edge[0], incoming_edge[1])[
@@ -2550,18 +2504,13 @@ class DesignSupplyLCA(ITask):
                 zeta_t_piece = 0
                 zeta_cross_section_narrowing = 0
 
-                # 3D representation of the T-piece
-                # presentation_t_piece(incoming_edge, duct, kinking_line)
-
                 if check_if_lines_are_aligned(incoming_edge, duct) == True:
 
-                    #   duct für Verlust
+                    #   duct for loss
                     #    |
-                    #    |---- Ausgang
+                    #    |---- outlet
                     #    |
-                    #  Eingang
-
-                    # self.logger.info("T-Piece geht durch ")
+                    #  inlet
 
                     if "Ø" in dimensions_incoming_edge:
 
@@ -2629,7 +2578,7 @@ class DesignSupplyLCA(ITask):
                     #          Inlet
 
                     if "Ø" in dimensions_incoming_edge:
-                        zeta_t_piece = drag_coefficient_T_end_piece_round(d=d,
+                        zeta_t_piece = drag_coefficient_T_seperation_round(d=d,
                                                                             v=v,
                                                                             d_A=max(d_A, d_D),
                                                                             v_A=max(v_A, v_D)
@@ -2646,7 +2595,7 @@ class DesignSupplyLCA(ITask):
                     elif "x" in dimensions_incoming_edge:
                         width = self.find_dimension(dimensions_incoming_edge)[0].to(ureg.meter)
                         height = self.find_dimension(dimensions_incoming_edge)[1].to(ureg.meter)
-                        zeta_t_piece = drag_coefficient_kruemmerendstueck_angular(a=height,
+                        zeta_t_piece = drag_coefficient_bend_end_piece_angular(a=height,
                                                                                    b=width,
                                                                                    d=d,
                                                                                    v=v,

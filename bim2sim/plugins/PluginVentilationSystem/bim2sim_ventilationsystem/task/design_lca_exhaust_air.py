@@ -115,7 +115,7 @@ class DesignExaustLCA(ITask):
         (dict_steiner_tree_with_duct_length,
          dict_steiner_tree_with_duct_cross_section,
          dict_steiner_tree_with_air_volume_exhaust_air,
-         dict_steinertree_with_shell,
+         dict_steiner_tree_with_shell_surface_area,
          dict_steiner_tree_with_calculated_cross_section) = self.create_graph(corner_points,
                                                                              intersection_points,
                                                                              z_coordinate_list,
@@ -127,7 +127,7 @@ class DesignExaustLCA(ITask):
         (dict_steiner_tree_with_duct_length,
          dict_steiner_tree_with_duct_cross_section,
          dict_steiner_tree_with_air_volume_exhaust_air,
-         dict_steinertree_with_shell,
+         dict_steiner_tree_with_shell_surface_area,
          dict_steiner_tree_with_calculated_cross_section) = self.ahu_shaft(z_coordinate_list,
                                                                            building_shaft_exhaust_air,
                                                                            airflow_volume_per_storey,
@@ -135,7 +135,7 @@ class DesignExaustLCA(ITask):
                                                                            dict_steiner_tree_with_duct_length,
                                                                            dict_steiner_tree_with_duct_cross_section,
                                                                            dict_steiner_tree_with_air_volume_exhaust_air,
-                                                                           dict_steinertree_with_shell,
+                                                                           dict_steiner_tree_with_shell_surface_area,
                                                                            dict_steiner_tree_with_calculated_cross_section)
 
         self.logger.info("Create 3D-Graph")
@@ -147,7 +147,7 @@ class DesignExaustLCA(ITask):
          dataframe_distribution_network_exhaust_air) = self.three_dimensional_graph(dict_steiner_tree_with_duct_length,
                                                                                     dict_steiner_tree_with_duct_cross_section,
                                                                                     dict_steiner_tree_with_air_volume_exhaust_air,
-                                                                                    dict_steinertree_with_shell,
+                                                                                    dict_steiner_tree_with_shell_surface_area,
                                                                                     dict_steiner_tree_with_calculated_cross_section,
                                                                                     position_rlt,
                                                                                     dict_coordinate_with_space_type)
@@ -545,8 +545,8 @@ class DesignExaustLCA(ITask):
         :param steiner_tree: Steiner tree
         :param z_value: Z-axis
         :param coordinates_without_airflow: Schnittpunkte
-        :param filtered_coords_ceiling_without_airflow: Koordinaten ohne Volumenstrom
-        :param filtered_coords_intersection_without_airflow: Schnittpunkte ohne Volumenstrom
+        :param filtered_coords_ceiling_without_airflow: coordinates ohne volume flow
+        :param filtered_coords_intersection_without_airflow: Schnittpunkte ohne volume flow
         :param name: name of plot
         :param edge_unit: unit of edge for legend
         :param total_shell_surface: sum of shell surface area
@@ -602,9 +602,9 @@ class DesignExaustLCA(ITask):
                     edge_labels_without_unit[key] = f"Ø{zahl}"
                 elif "x" in value:
                     zahlen = value.split(" x ")
-                    breite = zahlen[0].split()[0]
-                    hoehe = zahlen[1].split()[0]
-                    edge_labels_without_unit[key] = f"{breite} x {hoehe}"
+                    width = zahlen[0].split()[0]
+                    height = zahlen[1].split()[0]
+                    edge_labels_without_unit[key] = f"{width} x {height}"
             except:
                 None
 
@@ -911,7 +911,7 @@ class DesignExaustLCA(ITask):
 
     def calculated_diameter(self, cross_section_type, duct_cross_section, suspended_ceiling_space=2000):
         """
-        :param cross_section_type: round, angular oder optimal
+        :param cross_section_type: round, angular or optimal
         :param duct_cross_section: duct cross section in m²
         :param suspended_ceiling_space: available height in the suspended ceiling
         :return: calculated diameter of the ventilation duct
@@ -1303,7 +1303,7 @@ class DesignExaustLCA(ITask):
         dict_steiner_tree_with_air_volume_exhaust_air = {i: None for i in z_coordinate_list}
         dict_steiner_tree_with_duct_cross_section = {i: None for i in z_coordinate_list}
         dict_steiner_tree_with_calculated_cross_section = {i: None for i in z_coordinate_list}
-        dict_steinertree_with_shell = {i: None for i in z_coordinate_list}
+        dict_steiner_tree_with_shell_surface_area = {i: None for i in z_coordinate_list}
 
         for z_value in z_coordinate_list:
 
@@ -1677,7 +1677,7 @@ class DesignExaustLCA(ITask):
                 total_shell_sruface_area_duct += round(graph_steiner_tree[u][v]["volume_flow"], 2)
 
             # Adding the graph to the dict
-            dict_steinertree_with_shell[z_value] = deepcopy(graph_steiner_tree)
+            dict_steiner_tree_with_shell_surface_area[z_value] = deepcopy(graph_steiner_tree)
 
             if self.export_graphs:
                 self.visualization_graph(graph_steiner_tree,
@@ -1699,7 +1699,7 @@ class DesignExaustLCA(ITask):
         return (dict_steiner_tree_with_duct_length,
                 dict_steiner_tree_with_duct_cross_section,
                 dict_steiner_tree_with_air_volume_exhaust_air,
-                dict_steinertree_with_shell,
+                dict_steiner_tree_with_shell_surface_area,
                 dict_steiner_tree_with_calculated_cross_section)
 
     def ahu_shaft(self,
@@ -1862,78 +1862,76 @@ class DesignExaustLCA(ITask):
             height = ureg(number[1])
             return width, height
 
-    # Todo Ab hier weiter aufräumen
     def three_dimensional_graph(self,
                                 dict_steiner_tree_with_duct_length,
                                 dict_steiner_tree_with_duct_cross_section,
                                 dict_steiner_tree_with_air_volume_exhaust_air,
-                                dict_steinertree_with_shell,
+                                dict_steiner_tree_with_shell_surface_area,
                                 dict_steiner_tree_with_calculated_cross_section,
-                                position_rlt,
+                                position_ahu,
                                 dict_coordinate_with_space_type):
 
-        # Eine Hilfsfunktion, um den Graphen rekursiv zu durchlaufen, die Kanten zu richten und die Gewichte zu übernehmen
+        # A helper function to recursively traverse the graph, align the edges and apply the weights
         def add_edges_and_nodes(G, current_node, H, parent=None):
-            # Kopieren Sie die Knotenattribute von H zu G
+            # Copy the node attributes from H to G
             G.add_node(current_node, **H.nodes[current_node])
             for neighbor in H.neighbors(current_node):
                 if neighbor != parent:
-                    # Das Gewicht und ggf. weitere Attribute für die Kante abrufen
+                    # Retrieve the weight and any other attributes for the edge
                     edge_data = H.get_edge_data(current_node, neighbor)
-                    # Fügen Sie eine gerichtete Kante mit den kopierten Attributen hinzu
+                    # Add a directed edge with the copied attributes
                     G.add_edge(current_node, neighbor, **edge_data)
-                    # Rekursiver Aufruf für den Nachbarn
+                    # Recursive appeal for the neighbor
                     add_edges_and_nodes(G, neighbor, H, current_node)
 
-        # Hier werden leere Graphen erstellt. Diese werden im weiteren Verlauf mit den Graphen der einzelnen Ebenen
-        # angereichert
+        # Empty graphs are created here. These are then enriched with the graphs of the individual levels
         graph_leitungslaenge = nx.Graph()
         graph_air_volume_flow = nx.Graph()
         graph_duct_cross_section = nx.Graph()
         graph_shell_surface = nx.Graph()
         graph_calculated_diameter = nx.Graph()
 
-        position_rlt = (position_rlt[0], position_rlt[1], position_rlt[2])
+        position_ahu = (position_ahu[0], position_ahu[1], position_ahu[2])
 
-        # für Leitungslänge
+        # for duct length
         for baum in dict_steiner_tree_with_duct_length.values():
             graph_leitungslaenge = nx.compose(graph_leitungslaenge, baum)
 
-        # Graph für Leitungslänge in einen gerichteten Graphen umwandeln
+        # Convert graph for duct length into a directed graph
         graph_leitungslaenge_gerichtet = nx.DiGraph()
-        add_edges_and_nodes(graph_leitungslaenge_gerichtet, position_rlt, graph_leitungslaenge)
+        add_edges_and_nodes(graph_leitungslaenge_gerichtet, position_ahu, graph_leitungslaenge)
 
-        # für Luftmengen
+        # for air volumes
         for baum in dict_steiner_tree_with_air_volume_exhaust_air.values():
             graph_air_volume_flow = nx.compose(graph_air_volume_flow, baum)
 
-        # Graph für Luftmengen in einen gerichteten Graphen umwandeln
+        # Convert graph for air volumes into a directed graph
         graph_luftmengen_gerichtet = nx.DiGraph()
-        add_edges_and_nodes(graph_luftmengen_gerichtet, position_rlt, graph_air_volume_flow)
+        add_edges_and_nodes(graph_luftmengen_gerichtet, position_ahu, graph_air_volume_flow)
 
-        # für Kanalquerschnitt
+        # for duct cross section
         for baum in dict_steiner_tree_with_duct_cross_section.values():
             graph_duct_cross_section = nx.compose(graph_duct_cross_section, baum)
 
-        # Graph für Kanalquerschnitt in einen gerichteten Graphen umwandeln
-        graph_kanalquerschnitt_gerichtet = nx.DiGraph()
-        add_edges_and_nodes(graph_kanalquerschnitt_gerichtet, position_rlt, graph_duct_cross_section)
+        # Convert graph for duct cross section into a directed graph
+        graph_duct_cross_section_gerichtet = nx.DiGraph()
+        add_edges_and_nodes(graph_duct_cross_section_gerichtet, position_ahu, graph_duct_cross_section)
 
-        # für Mantelfläche
-        for baum in dict_steinertree_with_shell.values():
+        # for shell surface
+        for baum in dict_steiner_tree_with_shell_surface_area.values():
             graph_shell_surface = nx.compose(graph_shell_surface, baum)
 
-        # Graph für Mantelfläche in einen gerichteten Graphen umwandeln
+        # Convert graph for shell surface into a directed graph
         graph_mantelflaeche_gerichtet = nx.DiGraph()
-        add_edges_and_nodes(graph_mantelflaeche_gerichtet, position_rlt, graph_shell_surface)
+        add_edges_and_nodes(graph_mantelflaeche_gerichtet, position_ahu, graph_shell_surface)
 
-        # für rechnerischen Querschnitt
+        # for calculated cross section
         for baum in dict_steiner_tree_with_calculated_cross_section.values():
             graph_calculated_diameter = nx.compose(graph_calculated_diameter, baum)
 
-        # Graph für rechnerischen Querschnitt in einen gerichteten Graphen umwandeln
+        # Convert graph for calculated cross section into a directed graph
         graph_rechnerischer_durchmesser_gerichtet = nx.DiGraph()
-        add_edges_and_nodes(graph_rechnerischer_durchmesser_gerichtet, position_rlt, graph_calculated_diameter)
+        add_edges_and_nodes(graph_rechnerischer_durchmesser_gerichtet, position_ahu, graph_calculated_diameter)
 
         dataframe_distribution_network_exhaust_air = pd.DataFrame(columns=[
             'starting_node',
@@ -1942,238 +1940,189 @@ class DesignExaustLCA(ITask):
             'room type starting_node',
             'room type target_node',
             'duct length',
-            'Air volume',
-            'duct cross section',
+            'volume_flow',
+            'cross section',
             'Surface area',
-            'calculated diameter'
+            "equivalent diameter"
         ])
 
-        # Daten der Datenbank hinzufügen
+        # Add data to the database
         for u, v in graph_leitungslaenge_gerichtet.edges():
             temp_df = pd.DataFrame({
-                'starting_node': [v],  # Gedreht da Abluft
-                'target_node': [u],  # Gedreht da Abluft
-                'edge': [(v, u)],  # Gedreht da Abluft
+                'starting_node': [v],  # Reversed because exhaust air
+                'target_node': [u],  # Reversed because exhaust air
+                'edge': [(v, u)],  # Reversed because exhaust air
                 'room type starting_node': [dict_coordinate_with_space_type.get(v, None)],
                 'room type target_node': [dict_coordinate_with_space_type.get(u, None)],
                 'duct length': [graph_leitungslaenge_gerichtet.get_edge_data(u, v)["length"]],
-                'Air volume': [graph_luftmengen_gerichtet.get_edge_data(u, v)["volume_flow"]],
-                'duct cross section': [graph_kanalquerschnitt_gerichtet.get_edge_data(u, v)["cross_section"]],
+                'volume_flow': [graph_luftmengen_gerichtet.get_edge_data(u, v)["volume_flow"]],
+                'cross section': [graph_duct_cross_section_gerichtet.get_edge_data(u, v)["cross_section"]],
                 'Surface area': [graph_mantelflaeche_gerichtet.get_edge_data(u, v)["circumference"] *
                                  graph_leitungslaenge_gerichtet.get_edge_data(u, v)["length"]],
-                'calculated diameter': [graph_rechnerischer_durchmesser_gerichtet.get_edge_data(u, v)["equivalent_diameter"]]
+                "equivalent diameter": [graph_rechnerischer_durchmesser_gerichtet.get_edge_data(u, v)["equivalent_diameter"]]
             })
             dataframe_distribution_network_exhaust_air = pd.concat([dataframe_distribution_network_exhaust_air, temp_df],
                                                                   ignore_index=True)
 
         for index, zeile in dataframe_distribution_network_exhaust_air.iterrows():
-            kanalquerschnitt = zeile['duct cross section']
+            duct_cross_section = zeile['cross section']
 
-            if "Ø" in kanalquerschnitt:
-                # Finde den Durchmesser und aktualisiere den entsprechenden Wert in der Datenbank
+            if "Ø" in duct_cross_section:
+                # Find the diameter and update the corresponding value in the database
                 dataframe_distribution_network_exhaust_air.at[index, 'diameter'] = str(
-                    self.find_dimension(kanalquerschnitt))
+                    self.find_dimension(duct_cross_section))
 
-            elif "x" in kanalquerschnitt:
-                # Finde Breite und Höhe, zerlege den Querschnittswert und aktualisiere die entsprechenden Werte in der Datenbank
-                breite, hoehe = self.find_dimension(kanalquerschnitt)
-                dataframe_distribution_network_exhaust_air.at[index, 'width'] = str(breite)
-                dataframe_distribution_network_exhaust_air.at[index, 'height'] = str(hoehe)
+            elif "x" in duct_cross_section:
+                # Find width and height, decompose the cross-section value, and update the corresponding values in the database
+                width, height = self.find_dimension(duct_cross_section)
+                dataframe_distribution_network_exhaust_air.at[index, 'width'] = str(width)
+                dataframe_distribution_network_exhaust_air.at[index, 'height'] = str(height)
 
         if self.export_graphs:
-            # Darstellung des 3D-Graphens:
+            # Display of the 3D graph:
             fig = plt.figure()
             ax = fig.add_subplot(111, projection='3d')
 
-            # Knotenpositionen in 3D
+            # Nodes positions in 3D
             pos = {coord: (coord[0], coord[1], coord[2]) for coord in list(graph_air_volume_flow.nodes())}
 
-            # Knoten zeichnen
+            # Draw nodes
             for node, weight in nx.get_node_attributes(graph_air_volume_flow, 'weight').items():
-                if weight > 0:  # Überprüfen, ob das Gewicht größer als 0 ist
+                if weight > 0:  # Check whether the weight is greater than 0
                     color = 'blue'
                 else:
-                    color = 'red'  # Andernfalls rot (oder eine andere Farbe für Gewicht = 0)
+                    color = 'red'  # Otherwise, red (or another color for weight = 0)
 
-                # Zeichnen des Knotens mit der bestimmten Farbe
+                # Drawing the nodes with the specified color
                 ax.scatter(*node, color=color)
 
-            # Kanten zeichnen
+            # Draw edges
             for edge in graph_air_volume_flow.edges():
                 start, end = edge
                 x_start, y_start, z_start = pos[start]
                 x_end, y_end, z_end = pos[end]
                 ax.plot([x_start, x_end], [y_start, y_end], [z_start, z_end], "black")
 
-            # Achsenbeschriftungen und Titel
-            ax.set_xlabel('X-Achse [m]')
-            ax.set_ylabel('Y-Achse [m]')
-            ax.set_zlabel('Z-Achse [m]')
-            ax.set_title("3D Graph Zuluft")
+            # Axis labels and titles
+            ax.set_xlabel('X-axis [m]')
+            ax.set_ylabel('Y-axis [m]')
+            ax.set_zlabel('Z-axis [m]')
+            ax.set_title("3D Graph exhaust air")
 
-            # Füge eine Legende hinzu, falls gewünscht
+            # Add a legend
             ax.legend()
 
-            # Diagramm anzeigen
+            # Show diagram
             plt.close()
 
         return (graph_leitungslaenge_gerichtet,
                 graph_luftmengen_gerichtet,
-                graph_kanalquerschnitt_gerichtet,
+                graph_duct_cross_section_gerichtet,
                 graph_mantelflaeche_gerichtet,
                 graph_rechnerischer_durchmesser_gerichtet,
                 dataframe_distribution_network_exhaust_air
                 )
 
     def calculate_pressure_loss(self,
-                     dict_steiner_tree_with_duct_length,
-                     z_coordinate_list,
-                     position_rlt,
-                     position_schacht,
-                     graph_leitungslaenge,
-                     graph_air_volume_flow,
-                     graph_duct_cross_section,
-                     graph_shell_surface,
-                     graph_calculated_diameter,
-                     dataframe_distribution_network_exhaust_air):
-        # Standardwerte für Berechnung
-        rho = 1.204 * (ureg.kilogram / (ureg.meter ** 3))  # Dichte der Luft bei Standardbedingungen
-        nu = 1.33 * 0.00001  # Dynamische Viskosität der Luft
-
-        def darstellung_t_stueck(eingang1, eingang2, kanal):
-            """
-            Erstelle eine 3D-Graphen des T-Stücks
-            :param eingang1: Lufteinleitung 1 in T-Stück
-            :param eingang2: Lufteinleitung 2 in T-Stück
-            :param kanal: Kanal
-            :return: Grafik
-            """
-            # Erstellen eines 3D-Plots
-            fig = plt.figure()
-            ax = fig.add_subplot(111, projection='3d')
-
-            # Funktion zum Zeichnen eines Pfeils
-            def zeichne_pfeil(start, ende, farbe, stil='solid'):
-                ax.quiver(start[0], start[1], start[2], ende[0] - start[0], ende[1] - start[1], ende[2] - start[2],
-                          color=farbe, linestyle=stil, arrow_length_ratio=0.1)
-
-            # Zeichnen der Linien mit Pfeilen
-            zeichne_pfeil(eingang1[0], eingang1[1], 'green',
-                          'dashed')  # Eingang1
-            zeichne_pfeil(eingang2[0], eingang2[1], 'red',
-                          'dashed')  # Eingang2
-            zeichne_pfeil(kanal[0], kanal[1], 'blue')  # Kanal gestrichelt in Blau
-
-            # Setzen der Achsenbeschriftungen
-            ax.set_xlabel('X Achse')
-            ax.set_ylabel('Y Achse')
-            ax.set_zlabel('Z Achse')
-
-            # Titel des Plots
-            ax.set_title('3D Darstellung der Leitungen')
-
-            # Anpassen der Achsengrenzen basierend auf den Koordinaten
-            alle_koordinaten = eingang1 + eingang2 + kanal
-            x_min, x_max = min(k[0] for k in alle_koordinaten), max(k[0] for k in alle_koordinaten)
-            y_min, y_max = min(k[1] for k in alle_koordinaten), max(k[1] for k in alle_koordinaten)
-            z_min, z_max = min(k[2] for k in alle_koordinaten), max(k[2] for k in alle_koordinaten)
-
-            ax.set_xlim([x_min - 1, x_max + 1])
-            ax.set_ylim([y_min - 1, y_max + 1])
-            ax.set_zlim([z_min - 1, z_max + 1])
-
-            # Anzeigen des Plots
-            # plt.show()
-
-            plt.close()
+                                dict_steiner_tree_with_duct_length,
+                                z_coordinate_list,
+                                position_ahu,
+                                position_shaft,
+                                graph_duct_length,
+                                graph_air_volume_flow,
+                                graph_duct_cross_section,
+                                graph_shell_surface,
+                                graph_calculated_diameter,
+                                dataframe_distribution_network):
 
         def check_if_lines_are_aligned(line1, line2):
             """
-            Überprüft ob zwei Geraden im Raum paralell sind
+            Checks whether two straight lines in space are parallel
             :param line1: Linie 1 (x,y,z)
             :param line2: Linie 2 (x,y,z)
             :return: True or False
             """
-            # Berechnung der Richtungsvektoren für beide Geraden
+            # Calculation of the direction vectors for both lines
             vector1 = np.array([line1[1][0] - line1[0][0], line1[1][1] - line1[0][1], line1[1][2] - line1[0][2]])
             vector2 = np.array([line2[1][0] - line2[0][0], line2[1][1] - line2[0][1], line2[1][2] - line2[0][2]])
 
-            # Überprüfen, ob die Vektoren Vielfache voneinander sind
-            # Dies erfolgt durch Kreuzprodukt, das null sein sollte, wenn sie ausgerichtet sind
+            # Check if the vectors are multiples of each other
+            # This is done by cross product, which should be zero if they are aligned
             cross_product = np.cross(vector1, vector2)
 
             return np.all(cross_product == 0)
 
-        def widerstandsbeiwert_bogen_rund(winkel: int, mittlerer_radius: float, durchmesser: float) -> float:
+        def loss_coefficient_arc_round(angle: int, mean_radius: float, diameter: float) -> float:
             """
-            Berechnet den Widerstandsbeiwert fpr einen Bogen rund A01 nach VDI 3803 Blatt 6
-            :param winkel: Winkel in Grad
-            :param mittlerer_radius: Mittlerer Radius des Bogens in Metern
-            :param durchmesser: Durchmesser der Leitung in Metern
-            :return: Widerstandsbeiwert Bogen rund A01 nach VDI 3803 Blatt 6
+            Calculates the loss coefficient for a round arc (A01 -VDI 3803-6)
+            :param angle: angle in °
+            :param mean_radius: average radius of the arc in m
+            :param diameter: Diameter of the duct in m
+            :return: loss coefficient for a round arc
             """
 
-            a = 1.6094 - 1.60868 * math.exp(-0.01089 * winkel)
+            a = 1.6094 - 1.60868 * math.exp(-0.01089 * angle)
 
             b = None
-            if 0.5 <= mittlerer_radius / durchmesser <= 1.0:
-                b = 0.21 / ((mittlerer_radius / durchmesser) ** 2.5)
-            elif 1 <= mittlerer_radius / durchmesser:
-                b = (0.21 / (math.sqrt(mittlerer_radius / durchmesser)))
+            if 0.5 <= mean_radius / diameter <= 1.0:
+                b = 0.21 / ((mean_radius / diameter) ** 2.5)
+            elif 1 <= mean_radius / diameter:
+                b = (0.21 / (math.sqrt(mean_radius / diameter)))
 
             c = 1
 
             return a * b * c
 
-        def widerstandsbeiwert_bogen_eckig(winkel, mittlerer_radius, hoehe, breite, rechnerischer_durchmesser):
+        def loss_coefficient_arc_angular(angle: int, mean_radius: float,
+                                         height: float, width: float, calculated_diameter: float):
             """
-            Berechnet den Widerstandsbeiwert für einen Bogen eckig A02 nach VDI 3803 Blatt 6
-            :param winkel: Winkel in Grad
-            :param mittlerer_radius: mittlerer Radius des Bogens in Metern
-            :param hoehe: Hoehe der Leitung in Metern
-            :param breite: Breite der Leiutung in Metern
-            :param rechnerischer_durchmesser: Rechnerischer Durchmesser der Leitung in Metern
-            :return: Widerstandsbeiwert Bogen eckig
+            Calculates the loss coefficient for a angular arc (A02 - VDI 3803-6)
+            :param angle: angle in °
+            :param mean_radius: average radius of the arc in m
+            :param height: height of the duct in m
+            :param width: width of the duct in m
+            :param calculated_diameter: calculated diameter of the duct in m
+            :return: loss coefficient for a angular arc
             """
 
-            a = 1.6094 - 1.60868 * math.exp(-0.01089 * winkel)
+            a = 1.6094 - 1.60868 * math.exp(-0.01089 * angle)
 
             b = 0
-            if 0.5 <= (mittlerer_radius / rechnerischer_durchmesser) <= 1.0:
-                b = 0.21 / ((mittlerer_radius / rechnerischer_durchmesser) ** 2.5)
-            elif 1 <= mittlerer_radius / rechnerischer_durchmesser:
-                b = (0.21 / (math.sqrt(mittlerer_radius / rechnerischer_durchmesser)))
+            if 0.5 <= (mean_radius / calculated_diameter) <= 1.0:
+                b = 0.21 / ((mean_radius / calculated_diameter) ** 2.5)
+            elif 1 <= mean_radius / calculated_diameter:
+                b = (0.21 / (math.sqrt(mean_radius / calculated_diameter)))
 
-            c = (- 1.03663 * 10 ** (-4) * (hoehe / breite) ** 5 + 0.00338 * (hoehe / breite) ** 4 - 0.04277 * (
-                    hoehe / breite)
-                 ** 3 + 0.25496 * (hoehe / breite) ** 2 - 0.66296 * (hoehe / breite) + 1.4499)
+            c = (- 1.03663 * 10 ** (-4) * (height / width) ** 5 + 0.00338 * (height / width) ** 4 - 0.04277 * (
+                    height / width)
+                 ** 3 + 0.25496 * (height / width) ** 2 - 0.66296 * (height / width) + 1.4499)
 
             return a * b * c
 
-        def widerstandsbeiwert_querschnittsverengung_stetig(d_1, d_2):
+        def loss_coefficient_cross_sectional_narrowing_continuous(d_1, d_2):
             """
-            Berechnet den Widerstandsbeiwert bei einer Querschnittsverengung A15 nach VDI 3803 Blatt 6
-            :param d_1: Durchmesser Lufteingang in Metern
-            :param d_2: Durchmesser Luftausgang in Metern
-            :return: Widerstandsbeiwert für Querschnittsverengung
+            Calculates the loss coefficient for a cross section narrowing (A15 - VDI 3803-6)
+            :param d_1: diameter Air inlet in meters
+            :param d_2: diameter Air outlet in meters
+            :return: loss coefficient for a cross section narrowing
             """
 
             if d_1 <= d_2:
-                self.logger.error("Durchmesser 2 darf nicht größer als Durchmesser 1 sein!")
+                self.logger.error("diameter 2 can't be larger than diameter 1!")
 
             else:
-                l = 0.3 * ureg.meter  # Als Standardlänge werden 0,5 Meter festgelegt
+                l = 0.3 * ureg.meter  # The standard length is set at 0.5 meters
 
-                # Winkel
+                # angle
                 beta = math.degrees(math.atan((d_1 - d_2) / (2 * l)))
 
-                # Beiwert:
+                # coefficient:
                 k_1 = - 0.0125 + 0.00135 * beta
 
-                # Querschnitt 1:
+                # cross_section 1:
                 A_1 = math.pi * d_1 ** 2 / 4
 
-                # Querschnitt 2:
+                # cross_section 2:
                 A_2 = math.pi * d_2 ** 2 / 4
 
                 zeta_1 = - (k_1) * (A_2 / A_1) ** 2 + k_1
@@ -2183,110 +2132,110 @@ class DesignExaustLCA(ITask):
 
                 return zeta_1
 
-        def widerstandsbeiwert_querschnittserweiterung_stetig(d_1, d_2):
+        def loss_coefficient_cross_sectional_extension_continuous(d_1, d_2):
             """
-            Berechnet den Widerstandsbeiwert bei einer Querschnittserweiterung A14 nach VDI 3803 Blatt 6
-            :param d_1: Durchmesser Lufteingang in Metern
-            :param d_2: Durchmesser Luftausgang in Metern
-            :return: Widerstandsbeiwert für Querschnittserweiterung
+            Calculates the loss coefficient for a cross section extension (A14 - VDI 3803-6)
+            :param d_1: diameter Air inlet in meters
+            :param d_2: diameter Air outlet in meters
+            :return: loss coefficient for a cross section extension
             """
 
             if d_1 >= d_2:
-                self.logger.error("Durchmesser 1 darf nicht größer als Durchmesser 2 sein!")
+                self.logger.error("diameter 1 can't be larger than diameter 2!")
 
             else:
-                l = 0.3 * ureg.meter  # Als Standardlänge werden 0,5 Meter festgelegt
+                l = 0.3 * ureg.meter  # The standard length is set at 0.5 meters
 
-                # Winkel
+                # angle
                 beta = math.degrees(math.atan((d_2 - d_1) / (2 * l)))
 
-                # Beiwert:
+                # epsilon:
                 eta_D = 1.01 / (1 + 10 ** (-0.05333 * (24.15 - beta)))
 
-                # Querschnitt 1:
+                # cross section 1:
                 A_1 = math.pi * d_1 ** 2 / 4
 
-                # Querschnitt 2:
+                # cross section 2:
                 A_2 = math.pi * d_2 ** 2 / 4
 
                 zeta_1 = (1 - A_1 / A_2) ** 2 * (1 - eta_D)
 
                 return zeta_1
 
-        def widerstandsbeiwert_T_stueck_trennung_rund(d: float, v: float, d_D: float, v_D: float, d_A: float,
+        def loss_coefficient_T_separation_round(d: float, v: float, d_D: float, v_D: float, d_A: float,
                                                       v_A: float,
-                                                      richtung: str) -> float:
+                                                      direction: str) -> float:
             """
-            Berechnet den Widerstandbeiwert für eine T-Trennung A22 nach VDI 3803 Blatt 6
-            :param d: Durchmesser des Eingang in Metern
-            :param v: Volumenstrom des Eingangs in m³/h
-            :param d_D: Durchmesser des Durchgangs in Metern
-            :param v_D: Volumenstrom des Durchgangs in m³/h
-            :param d_A: Durchmesser des Abgangs in Metern
-            :param v_A: Volumenstrom des Abgangs in m³/h
-            :param richtung: "Durchgangsrichtung" oder "abzweigende Richtung"
-            :return: Widerstandbeiwert für eine T-Trennung A22
+            Calculates the loss coefficient for a T-separation (type A22 - VDI 3803-6)
+            :param d: Diameter of the entrance in meters
+            :param v: Volume flow of the input in m³/h
+            :param d_D: Diameter of the passage in meters
+            :param v_D: Volume flow of the passage in m³/h
+            :param d_A: Diameter of the outlet in meters
+            :param v_A: Volume flow of the outlet in m³/h
+            :param direction: "direction of passage" or "branching direction"
+            :return: loss coefficient for a T-separation
             """
 
-            # Querschnitt Eingang:
+            # cross_section entrance:
             A = math.pi * d ** 2 / 4
-            # Strömungsgeschwindigkeit Eingang
+            # Inlet flow velocity
             w = (v / A).to(ureg.meter / ureg.second)
 
-            # Querschnitt Durchgang:
+            # cross_section passageway:
             A_D = math.pi * d_D ** 2 / 4
-            # Strömunggeschwindkigkeit Durchgang
+            # Flow velocity Passage
             w_D = (v_D / A_D).to(ureg.meter / ureg.second)
 
-            # Querschnitt Abzweigung:
+            # cross_section Junction:
             A_A = math.pi * d_A ** 2 / 4
-            # Strömungsgeschwindigkeit Abzweig
+            # Flow velocity branch
             w_A = (v_A / A_A).to(ureg.meter / ureg.second)
 
-            # Beiwert
+            # Coefficient
             K_D = 0.4
 
-            if richtung == "Durchgangsrichtung":
+            if direction == "direction of passage":
                 zeta_D = (K_D * (1 - w_D / w) ** 2) / (w_D / w) ** 2
                 return zeta_D
-            elif richtung == "abzweigende Richtung":
-                # Es wird Form "a" nach VDI 3803 Blatt 6 gewählt
+            elif direction == "branching direction":
+                # Es wird Form "a" nach VDI 3803-6 gewählt
                 zeta_A = 0.26 + 55.29 * math.exp(-(w_A / w) / 0.1286) + 555.26 * math.exp(
                     -(w_A / w) / 0.041) + 5.73 * math.exp(-(w_A / w) / 0.431)
                 return zeta_A
             else:
-                self.logger.error("Keine oder falsche Richtungseingabe")
+                self.logger.error("No or incorrect direction input")
 
-        def widerstandsbeiwert_T_stueck_trennung_eckig(d: float, v: float, d_D: float, v_D: float, d_A: float,
-                                                       v_A: float, richtung: str) -> float:
+        def loss_coefficient_T_separation_angular(d: float, v: float, d_D: float, v_D: float, d_A: float,
+                                                        v_A: float, direction: str) -> float:
             """
-            Berechnet den Widerstandbeiwert für eine T-Trennung A24 nach VDI 3803 Blatt 6
-            :param d: rechnerischer Durchmesser des Eingang in Metern
-            :param v: Volumenstrom des Eingangs in m³/h
-            :param d_D: rechnerischer Durchmesser des Durchgangs in Metern
-            :param v_D: Volumenstrom des Durchgangs in m³/h
-            :param d_A: rechnerischer Durchmesser des Abgangs in Metern
-            :param v_A: Volumenstrom des Abgangs in m³/h
-            :param richtung: "Durchgangsrichtung" oder "abzweigende Richtung"
-            :return: Widerstandbeiwert für eine T-Trennung A24
+            Calculates the loss coefficient for a T-separation (type A24 - VDI 3803-6)
+            :param d: Diameter of the entrance in meters
+            :param v: Volume flow of the input in m³/h
+            :param d_D: Diameter of the passage in meters
+            :param v_D: Volume flow of the passage in m³/h
+            :param d_A: Diameter of the outlet in meters
+            :param v_A: Volume flow of the outlet in m³/h
+            :param direction: "direction of passage" or "branching direction"
+            :return: loss coefficient for a T-separation
             """
 
-            # Querschnitt Eingang:
+            # cross_section entrance:
             A = math.pi * d ** 2 / 4
-            # Strömungsgeschwindigkeit Eingang
+            # Inlet flow velocity
             w = (v / A).to(ureg.meter / ureg.second)
 
-            # Querschnitt Durchgang:
+            # cross_section passageway:
             A_D = math.pi * d_D ** 2 / 4
-            # Strömunggeschwindkigkeit Durchgang
+            # Flow velocity Passage
             w_D = (v_D / A_D).to(ureg.meter / ureg.second)
 
-            # Querschnitt Abzweigung:
+            # cross_section Junction:
             A_A = math.pi * d_A ** 2 / 4
-            # Strömungsgeschwindigkeit Abzweig
+            # Flow velocity branch
             w_A = (v_A / A_A).to(ureg.meter / ureg.second)
 
-            if richtung == "Durchgangsrichtung":
+            if direction == "direction of passage":
                 K_1 = 183.3
                 K_2 = 0.06
                 K_3 = 0.17
@@ -2295,7 +2244,7 @@ class DesignExaustLCA(ITask):
 
                 return zeta_D
 
-            elif richtung == "abzweigende Richtung":
+            elif direction == "branching direction":
                 K_1 = 301.95
                 K_2 = 0.06
                 K_3 = 0.75
@@ -2304,28 +2253,28 @@ class DesignExaustLCA(ITask):
 
                 return zeta_D
             else:
-                self.logger.error("Keine oder falsche Richtungseingabe")
+                self.logger.error("No or incorrect direction input")
 
-        def widerstandsbeiwert_kruemmerendstueck_eckig(a: float, b: float, d: float, v: float, d_A: float, v_A: float):
+        def loss_coefficient_bend_end_piece_angular(a: float, b: float, d: float, v: float, d_A: float, v_A: float):
             """
-            Berechnet den Widerstandsbeiwert für Krümmerabzweig A25 nach VDI 3803
-            :param a: Höhe des Eingangs in Metern
-            :param b: Breite des Eingangs in Metern
-            :param d: rechnerischer Durchmesser des Eingangs in Metern
-            :param v: Volumenstrom des Eingangs in m³/h
-            :param d_A: rechnerischer Durchmesser des Abzweiges in Metern
-            :param v_A: Volumenstrom des Abzweiges in m³/h
-            :return: Widerstandsbeiwert für Krümmerabzweig A25 nach VDI 3803
+            Calculates the loss coefficient for a manifold branch (A25 - VDI 3803-6)
+            :param a: Height of inlet in m
+            :param b: width of inlet in m
+            :param d: calculated diameter of inlet in m
+            :param v: volume flow of inlet in m³/h
+            :param d_A: calculated diameter of branch in m
+            :param v_A: volume flow of branch in m³/h
+            :return: loss coefficient for a manifold branch
             """
 
-            # Querschnitt Eingang:
+            # cross_section entrance:
             A = math.pi * d ** 2 / 4
-            # Strömungsgeschwindigkeit Eingang
+            # Inlet flow velocity
             w = (v / A).to(ureg.meter / ureg.second)
 
-            # Querschnitt Abzweigung:
+            # cross_section Junction:
             A_A = math.pi * d_A ** 2 / 4
-            # Strömungsgeschwindigkeit Abzweig
+            # Flow velocity branch
             w_A = (v_A / A_A).to(ureg.meter / ureg.second)
 
             K_1 = 0.0644
@@ -2337,24 +2286,24 @@ class DesignExaustLCA(ITask):
 
             return zeta_A
 
-        def widerstandsbeiwert_T_endstueck_rund(d: float, v: float, d_A: float, v_A: float):
+        def loss_coefficient_T_seperation_round(d: float, v: float, d_A: float, v_A: float):
             """
-            Berechnet den Widerstandsbeiwert für ein T-Stück rund A27 nach VDI 3803
-            :param d: rechnerischer Durchmesser des Eingangs in Metern
-            :param v: Volumenstrom des Eingangs in m³/h
-            :param d_A: rechnerischer Durchmesser des Abzweiges in Metern
-            :param v_A: Volumenstrom des Abzweiges in m³/h
-            :return: Widerstandsbeiwert für ein T-Stück rund A27 nach VDI 3803
+            Calculates the loss coefficient for a round T-piece (A27 - VDI 3803-6)
+            :param d: calculated diameter of the inlet in meters
+            :param v: volume flow of the inlet in m³/h
+            :param d_A: calculated diameter of the branch in meters
+            :param v_A: volume flow of the branch in m³/h
+            :return: loss coefficient for a round T-piece
             """
 
-            # Querschnitt Eingang:
+            # cross_section entrance:
             A = math.pi * d ** 2 / 4
-            # Strömungsgeschwindigkeit Eingang
+            # Inlet flow velocity
             w = (v / A).to(ureg.meter / ureg.second)
 
-            # Querschnitt Abzweigung:
+            # cross_section Junction:
             A_A = math.pi * d_A ** 2 / 4
-            # Strömungsgeschwindigkeit Abzweig
+            # Flow velocity branch
             w_A = (v_A / A_A).to(ureg.meter / ureg.second)
 
             Y_0 = 0.662
@@ -2367,16 +2316,15 @@ class DesignExaustLCA(ITask):
 
             return zeta_A
 
-        def wiederstandsbeiwert_T_endstueck_stromvereinigung_rund(d_A: float, v_A: float, d: float, v: float):
+        def loss_coefficient_90_degree_T_merger_round(d_A: float, v_A: float, d: float, v: float):
             """
-            Berechnet den Widerstandsbeiwert für ein T-Stück rund A30 nach VDI 3803 Blatt 6
-            :param d_A: rechnerischer Durchmesser des Eingangs in Metern
-            :param v_A: Volumenstrom des Eingangs in m³/h
-            :param d: rechnerischer Durchmesser des HAuptstroms Kanals in Metern
-            :param v: Volumenstrom des Hauptstrom Kanals in m³/h
-            :return: Widerstandsbeiwert für ein T-Stück rund A30 nach VDI 3803
+            Calculates the loss coefficient for a 90°-T-piece round (A30 - VDI 3803-6)
+            :param d_A: calculated diameter of inlet in m
+            :param v_A: volume flow of inlet in m³/h
+            :param d: calculated diameter of main duct in m
+            :param v: volume flow of main duct in m³/h
+            :return: loss coefficient for a T-piece round
             """
-            # Beiwerte
             K_1 = 109.63
             K_2 = -35.79
             K_3 = 0.013
@@ -2384,14 +2332,14 @@ class DesignExaustLCA(ITask):
             K_5 = 1.829
             K_6 = -0.38
 
-            # Querschnitt Kanal:
+            # cross section duct:
             A = math.pi * d ** 2 / 4
-            # Strömungsgeschwindigkeit Hauptkanal
+            # flow velocity main duct
             w = (v / A).to(ureg.meter / ureg.second)
 
-            # Querschnitt Teilstrom:
+            # cross section partial volume flow:
             A_A = math.pi * d_A ** 2 / 4
-            # Strömungsgeschwindigkeit Teilstrom
+            # flow velocity partial volume flow
             w_A = (v_A / A_A).to(ureg.meter / ureg.second)
 
             zeta = (K_1 / (A_A / A) + K_2) * math.exp((-w_A / w) / (K_3 / (A_A / A + K_4))) + (
@@ -2399,48 +2347,48 @@ class DesignExaustLCA(ITask):
 
             return zeta
 
-        def wiederstandsbeiwert_T_endstueck_stromvereinigung_eckig():
+        def loss_coefficient_bend_end_piece_merger_angular():
             """
-            Berechnet den Widerstandsbeiwert für ein T-Stück eckig A31 nach VDI 3803 Blatt 6
-            :return: Wiederstandsbeiwert auf der sicheren Seite
+            Calculates the loss coefficient for a bend end piece merger angular (A31 - VDI 3803-6)
+            :return: safely estimated loss coefficient
             """
             return 0.28
 
-        def wiederstandsbeiwert_T_stueck_stromvereinigung_rund(d: float, v: float, d_D: float, v_D: float, d_A: float,
-                                                               v_A: float, richtung: str, alpha: float = 90) -> float:
+        def loss_coefficient_T_merger_round(d: float, v: float, d_D: float, v_D: float, d_A: float,
+                                            v_A: float, direction: str, alpha: float = 90) -> float:
             """
-            Berechnet den Widerstandbeiwert für eine T-Vereinigung A28 nach VDI 3803 Blatt 6
-            :param d: rechnerischer Durchmesser des Kanals in Metern
-            :param v: Volumenstrom des Kanals in m³/h
-            :param d_D: rechnerischer Durchmesser des Eingangs des Durchgangs in Metern
-            :param v_D: Volumenstrom des Eingangs des Durchgangs in m³/h
-            :param d_A: rechnerischer Durchmesser des Abgangs in Metern
-            :param v_A: Volumenstrom des Abgangs in m³/h
-            :param richtung: "Durchgangsrichtung" oder "zuströmende Richtung"
-            :param alpha: Winkel in Grad
-            :return: Widerstandbeiwert für eine T-Vereinigung A28
+            Calculates the loss coefficient for a T-merger round (A28 - VDI 3803-6)
+            :param d: calculated diameter of duct in m
+            :param v: volume flow of duct in m³/h
+            :param d_D: calculated diameter of inlet of transit duct in m
+            :param v_D: volume flow of inlet of transit duct in m³/h
+            :param d_A: calculated diameter of outlet in m
+            :param v_A: volume flow of outlet in m³/h
+            :param direction: "through direction" or "inflowing direction"
+            :param alpha: angle in °
+            :return: loss coefficient for a T-merger round
             """
 
-            # ToDo This function doesnt work if there is an additional air inlet/outlet at the junction,
-            # which creates a 4 way junction instead of a t-fitting, since A_D + A_A might be smaller than A.
-            # This case also isnt included in VDI 3803 Blatt 6
+            # ToDo This function doesnt work if there is an additional air inlet/outlet at the junction, 
+            #  which creates a 4 way junction instead of a t-fitting, since A_D + A_A might be smaller than A. 
+            #  This case also isnt included in VDI 3803-6
 
-            # Querschnitt Kanals:
+            # cross section ducts:
             A = math.pi * d ** 2 / 4
-            # Strömungsgeschwindigkeit Kanals
+            # flow velocity ducts
             w = (v / A).to(ureg.meter / ureg.second)
 
-            # Querschnitt Durchgangsrichtung Eingang:
+            # cross section through direction inlet:
             A_D = math.pi * d_D ** 2 / 4
-            # Strömunggeschwindkigkeit Durchgangrichtung Eingang
+            # flow velocity through direction inlet
             w_D = (v_D / A_D).to(ureg.meter / ureg.second)
 
-            # Querschnitt Abzweigung:
+            # cross section junction:
             A_A = math.pi * d_A ** 2 / 4
-            # Strömungsgeschwindigkeit Abzweig
+            # flow velocity junction
             w_A = (v_A / A_A).to(ureg.meter / ureg.second)
 
-            if richtung == "Durchgangsrichtung":
+            if direction == "through direction":
                 if A_A + A_D > A or A_D == A:
                     # Beiwerte
                     K1 = -906.220
@@ -2484,9 +2432,8 @@ class DesignExaustLCA(ITask):
 
                     return zeta
 
-            elif richtung == "zuströmende Richtung":
+            elif direction == "inflowing direction":
                 if A_A + A_D > A or A_D == A:
-                    # Beiwerte
                     K1 = 80.953
                     K2 = -64.126
                     K3 = 0.17
@@ -2500,7 +2447,6 @@ class DesignExaustLCA(ITask):
                 # elif A_A + A_D == A:
                 # Temporary solution for problem described above
                 elif A_A + A_D <= A:
-                    # Beiwerte
                     K1 = -232.1
                     K2 = -38.743
                     K3 = 0.171
@@ -2511,148 +2457,142 @@ class DesignExaustLCA(ITask):
 
                     return zeta
 
-        def wiederstandsbeiwert_T_stueck_stromvereinigung_eckig(d: float, v: float, d_D: float, v_D: float, d_A: float,
-                                                                v_A: float, richtung: str) -> float:
+        def loss_coefficient_bend_merger_angular(d: float, v: float, d_D: float, v_D: float, d_A: float,
+                                                                v_A: float, direction: str) -> float:
             """
-            Berechnet den Widerstandbeiwert für eine T-Vereinigung A28 nach VDI 3803 Blatt 6
-            :param d: rechnerischer Durchmesser des Kanals in Metern
-            :param v: Volumenstrom des Kanals in m³/h
-            :param d_D: rechnerischer Durchmesser des Eingangs des Durchgangs in Metern
-            :param v_D: Volumenstrom des Eingangs des Durchgangs in m³/h
-            :param d_A: rechnerischer Durchmesser des Abgangs in Metern
-            :param v_A: Volumenstrom des Abgangs in m³/h
-            :param richtung: "Durchgangsrichtung" oder "zuströmende Richtung"
-            :return: Widerstandbeiwert für eine T-Vereinigung A29 nach VDI 3803-6
+            Calculates the loss coefficient for a bend merger angular (A29 - VDI 3803-6)
+            :param d: calculated diameter of duct in m
+            :param v: volume flow of duct in m³/h
+            :param d_D: calculated diameter of inlet of transit duct in m
+            :param v_D: volume flow of inlet of transit duct in m³/h
+            :param d_A: calculated diameter of outlet in m
+            :param v_A: volume flow of outlet in m³/h
+            :param direction: "through direction" or "inflowing direction"
+            :return: loss coefficient for a bend merger angular
             """
-            # Querschnitt Kanals:
+            # cross section ducts:
             A = math.pi * d ** 2 / 4
-            # Strömungsgeschwindigkeit Kanals
+            # flow velocity ducts
             w = (v / A).to(ureg.meter / ureg.second)
 
-            # Querschnitt Durchgangsrichtung Eingang:
+            # cross section through direction inlet:
             A_D = math.pi * d_D ** 2 / 4
-            # Strömunggeschwindkigkeit Durchgangrichtung Eingang
+            # flow velocity through direction inlet
             w_D = (v_D / A_D).to(ureg.meter / ureg.second)
 
-            # Querschnitt Abzweigung:
+            # cross section junction:
             A_A = math.pi * d_A ** 2 / 4
-            # Strömungsgeschwindigkeit Abzweig
+            # flow velocity junction
             w_A = (v_A / A_A).to(ureg.meter / ureg.second)
 
-            if richtung == "Durchgangsrichtung":
-                # Eingabewerte
+            if direction == "through direction":
+                # Inputs
                 input_points = np.array([
-                    [1.0, 0.5],  # A_D/A, A_A/A für die erste Zeile
-                    [0.5, 0.5],  # A_D/A, A_A/A für die zweite Zeile
-                    [1.0, 1.0]  # A_D/A, A_A/A für die dritte Zeile
+                    [1.0, 0.5],  # A_D/A, A_A/A for first row
+                    [0.5, 0.5],  # A_D/A, A_A/A for second row
+                    [1.0, 1.0]  # A_D/A, A_A/A for third row
                 ])
 
-                # a-Werte
+                # a-values
                 a2_values = np.array([-0.5604, -1.8281, -0.2756])
                 a1_values = np.array([1.0706, 2.8312, 1.7256])
                 a0_values = np.array([-0.2466, -0.6536, -1.8292])
 
-                # Zweidimensionale Interpolationsfunktionen für a2, a1, a0
-                def interpolate_2d_durchgehende_richtung(A_D, A_A, A):
+                # two dimensional interpolation for a2, a1, a0
+                def interpolate_2d_through_direction(A_D, A_A, A):
                     input_point = np.array([(A_D / A, A_A / A)])
 
-                    # Verwendung von 'nearest' als Workaround für Extrapolation
+                    # 'nearest' as workaround for extrapolation
                     a2 = griddata(input_points, a2_values, input_point, method='nearest')[0]
                     a1 = griddata(input_points, a1_values, input_point, method='nearest')[0]
                     a0 = griddata(input_points, a0_values, input_point, method='nearest')[0]
 
                     return a2, a1, a0
 
-                a2, a1, a0 = interpolate_2d_durchgehende_richtung(A_D, A_A, A)
+                a2, a1, a0 = interpolate_2d_through_direction(A_D, A_A, A)
 
                 zeta = a2 * (1 / (w_D / w)) ** 2 + a1 * (1 / (w_D / w)) + a0
 
                 return zeta
 
-            elif richtung == "zuströmende Richtung":
-                # Eingabewerte
+            elif direction == "inflowing direction":
                 input_points = np.array([
-                    [1.0, 0.5],  # A_D/A, A_A/A für die erste Zeile
-                    [0.5, 0.5],  # A_D/A, A_A/A für die zweite Zeile
-                    [1.0, 1.0]  # A_D/A, A_A/A für die dritte Zeile
+                    [1.0, 0.5],  # A_D/A, A_A/A for first row
+                    [0.5, 0.5],  # A_D/A, A_A/A for second row
+                    [1.0, 1.0]  # A_D/A, A_A/A for third row
                 ])
 
-                # b-Werte
+                # b-values
                 b2_values = np.array([-0.5769, -2.644, -0.8982])
                 b1_values = np.array([0.5072, 2.7448, 2.8556])
                 b0_values = np.array([0.4924, -0.1258, -1.5221])
 
-                # Zweidimensionale Interpolationsfunktionen für b2, b1, b0
-                def interpolate_2d_abzweigende_richtung(A_D, A_A, A):
+                # two dimensional interpolation for b2, b1, b0
+                def interpolate_2d_inflowing_direction(A_D, A_A, A):
                     input_point = np.array([(A_D / A, A_A / A)])
 
-                    # Verwendung von 'nearest' als Workaround für Extrapolation
+                    # 'nearest' as workaround for extrapolation
                     b2 = griddata(input_points, b2_values, input_point, method='nearest')[0]
                     b1 = griddata(input_points, b1_values, input_point, method='nearest')[0]
                     b0 = griddata(input_points, b0_values, input_point, method='nearest')[0]
 
                     return b2, b1, b0
 
-                b2, b1, b0 = interpolate_2d_abzweigende_richtung(A_D, A_A, A)
+                b2, b1, b0 = interpolate_2d_inflowing_direction(A_D, A_A, A)
 
                 zeta = b2 * (1 / (w_A / w)) ** 2 + b1 * (1 / (w_A / w)) + b0
 
                 return zeta
 
-        # Position der RLT-Auslesen
-        position_rlt = (position_rlt[0], position_rlt[1], position_rlt[2])
+        position_ahu = (position_ahu[0], position_ahu[1], position_ahu[2])
 
-        # Erstellung einer BFS-Reihenfolge ab dem Startpunkt
-        lueftungskanal_zuluft_richtung = list(nx.edge_bfs(graph_leitungslaenge, position_rlt))
+        # Creation of a BFS sequence from the starting point
+        bfs_edges = list(nx.edge_bfs(graph_duct_length, position_ahu))
 
-        # Für die Abluft muss die Luft vom Deckeneinlass zur RLT strömen. Daher muss die Richtung der Koordinaten
-        # umgedreht werden
+        # For the exhaust air, the air must flow from the ceiling inlet to the AHU. Therefore, the direction of the coordinates
+        # must be reversed
+        ventilation_duct_exhaust = [(b, a) for a, b in bfs_edges]
 
-        lueftungskanal_abluft_richtung = [(b, a) for a, b in lueftungskanal_zuluft_richtung]
+        graph_duct_length_sorted = nx.DiGraph()
 
-        graph_leitungslaenge_abluft = nx.DiGraph()
+        # Add edges to the new graph in the BFS order
+        for edge in ventilation_duct_exhaust:
+            graph_duct_length_sorted.add_edge(*edge)
 
-        # Kanten in der BFS-Reihenfolge zum neuen Graphen hinzufügen
-        for edge in lueftungskanal_abluft_richtung:
-            graph_leitungslaenge_abluft.add_edge(*edge)
-
-        # Druckverlustberechnung
-        # Netz erstellen:
+        ###################################
+        # Pressure loss calculation
         net = pp.create_empty_network(fluid="air")
 
-        # Auslesen des Fluides
         fluid = pp.get_fluid(net)
+        density = fluid.get_density(temperature=293.15) * ureg.kilogram / ureg.meter ** 3
 
-        # Auslesen der Dichte
-        dichte = fluid.get_density(temperature=293.15) * ureg.kilogram / ureg.meter ** 3
-
-        # Definition der Parameter für die Junctions
-        name_junction = [coordinate for coordinate in list(graph_leitungslaenge_abluft.nodes())]
+        # Definition of the parameters for the junctions
+        name_junction = [coordinate for coordinate in list(graph_duct_length_sorted.nodes())]
         index_junction = [index for index, value in enumerate(name_junction)]
 
-        # Erstellen einer Liste für jede Koordinatenachse
-        x_koordinaten = [coordinate[0] for coordinate in list(graph_leitungslaenge_abluft.nodes())]
-        y_koordinaten = [coordinate[1] for coordinate in list(graph_leitungslaenge_abluft.nodes())]
-        z_koordinaten = [coordinate[2] for coordinate in list(graph_leitungslaenge_abluft.nodes())]
+        # Create a list for each coordinate axis
+        x_coordinate = [coordinate[0] for coordinate in list(graph_duct_length_sorted.nodes())]
+        y_coordinate = [coordinate[1] for coordinate in list(graph_duct_length_sorted.nodes())]
+        z_coordinate = [coordinate[2] for coordinate in list(graph_duct_length_sorted.nodes())]
 
-        """2D-Koordinaten erstellen"""
-        # Da nur 3D Koordinaten vorhanden sind, jedoch 3D Koordinaten gebraucht werden wird ein Dict erstellt, welches
-        # jeder 3D coordinate einen 2D-coordinate zuweist
-        zwei_d_koodrinaten = dict()
-        position_schacht_graph = (position_schacht[0], position_schacht[1], position_schacht[2])
+        """Create 2D coordinates"""
+        # Since only 3D coordinates are available, but 3D coordinates are needed, a dict is created which
+        # assigns a 2D coordinate to
+        two_dim_coordinates = dict()
+        position_shaft_graph = (position_shaft[0], position_shaft[1], position_shaft[2])
 
-        # Leitung von RLT zu Schacht
-        pfad_rlt_zu_schacht = list(nx.all_simple_paths(graph_leitungslaenge, position_rlt, position_schacht_graph))[0]
-        anzahl_punkte_pfad_rlt_zu_schacht = len(pfad_rlt_zu_schacht)
+        # Duct from AHU to shaft
+        path_ahu_to_shaft = list(nx.all_simple_paths(graph_duct_length, position_ahu, position_shaft_graph))[0]
+        number_of_points_path_ahu_to_shaft = len(path_ahu_to_shaft)
 
-        for point in pfad_rlt_zu_schacht:
-            zwei_d_koodrinaten[point] = (-anzahl_punkte_pfad_rlt_zu_schacht, 0)
-            anzahl_punkte_pfad_rlt_zu_schacht -= 1
+        for point in path_ahu_to_shaft:
+            two_dim_coordinates[point] = (-number_of_points_path_ahu_to_shaft, 0)
+            number_of_points_path_ahu_to_shaft -= 1
 
-        anzahl_knoten_mit_mindestens_drei_kanten = len(
-            [node for node, degree in graph_leitungslaenge.degree() if degree >= 3])
+        number_of_nodes_with_three_or_more_edges = len(
+            [node for node, degree in graph_duct_length.degree() if degree >= 3])
 
-        # Versuch, alle Keys in Zahlen umzuwandeln und zu sortieren
+        # Try to convert all keys into numbers and sort them
         sorted_keys = sorted(
             (key for key in dict_steiner_tree_with_duct_length.keys() if key != "shaft"),
             key=lambda x: float(x)
@@ -2660,10 +2600,8 @@ class DesignExaustLCA(ITask):
 
         y = 0  # Start y-coordinate
 
-
-
         for key in sorted_keys:
-            graph_geschoss = dict_steiner_tree_with_duct_length[key]
+            graph_floor = dict_steiner_tree_with_duct_length[key]
 
             # TODO Pressure loss coefficient for collisions of exhaust and supply air distribution systems should be
             #  added here (
@@ -2672,106 +2610,86 @@ class DesignExaustLCA(ITask):
             #       - If sum of height of both systems at crossing point < height of suspended ceiling => "Cable bridge"
             #       - Else rejuvenation and expansion of one or both
 
-            """
-            supply_graph_cross_section = self.dict_supply_graph_cross_section[key]
-            colinear_edges, crossing_edges, crossing_points = self.find_collisions(supply_graph_cross_section, graph_geschoss)
-            exhaust_crossing_edges = [edge[0] for edge in crossing_edges]
-            supply_crossing_edges = [edge[1] for edge in crossing_edges]
+            shaft_nodes = [node for node in graph_floor.nodes()
+                              if node[0] == position_shaft[0] and node[1] == position_ahu[1]][0]
 
-            for edge in list(colinear_edges):
-                collisions[edge] = {}
-                collisions[edge]["pos"] = edge
-            for i in range(len(supply_crossing_edges)-1):
-                if (crossing_points[i] not in (supply_crossing_edges[i][0][:2], supply_crossing_edges[i][1][:2])) or \
-                  (crossing_points[i] == supply_crossing_edges[i][0][:2] and graph_geschoss.degree[supply_crossing_edges[i][0][:2]] != 1) or \
-                  (crossing_points[i] == supply_crossing_edges[i][1][:2] and graph_geschoss.degree[supply_crossing_edges[i][1][:2]] != 1):
-                    collisions.append(supply_crossing_edges[i])
-                    collisions[supply_crossing_edges[i]] = {}
-                    collisions[supply_crossing_edges[i]]["pos"] = supply_crossing_edges[i]
-            """
+            # Identify leaf nodes (nodes with degree 1)
+            leaf_nodes = [node for node in graph_floor.nodes()
+                            if graph_floor.degree(node) == 1 and node != shaft_nodes]
 
-
-
-            schacht_knoten = [node for node in graph_geschoss.nodes()
-                              if node[0] == position_schacht[0] and node[1] == position_rlt[1]][0]
-
-            # Blattknoten identifizieren (Knoten mit Grad 1)
-            blatt_knoten = [node for node in graph_geschoss.nodes()
-                            if graph_geschoss.degree(node) == 1 and node != schacht_knoten]
-
-            # Pfade vom Startknoten zu jedem Blattknoten berechnen
-            pfade = [nx.shortest_path(graph_geschoss, source=schacht_knoten, target=blatt) for blatt in blatt_knoten]
+            # Calculate path from starting_node to each leaf node
+            path = [nx.shortest_path(graph_floor, source=shaft_nodes, target=blatt) for blatt in leaf_nodes]
 
             # Pfade nach ihrer Länge sortieren
-            sortierte_pfade = sorted(pfade, key=len, reverse=True)
+            sorted_pathes = sorted(path, key=len, reverse=True)
 
             x = 0
 
-            for point in sortierte_pfade[0]:
-                if point not in zwei_d_koodrinaten:
-                    zwei_d_koodrinaten[point] = (x, y)
+            for point in sorted_pathes[0]:
+                if point not in two_dim_coordinates:
+                    two_dim_coordinates[point] = (x, y)
                 x += 2
             x = -2
             y += 2
 
-            pfad_zaehler = 0
-            wieder_runter = 0
+            path_counter = 0
+            run_again = 0
 
-            for pfad in sortierte_pfade[1:]:
+            for path in sorted_pathes[1:]:
                 i = 0
-                rest_laenge_pfad = len(pfad)
-                zaehler_neue_punkte = 0
-                zaehler_punkte_vorhanden = 0
-                for point in pfad:
-                    if point not in zwei_d_koodrinaten:
-                        zaehler_neue_punkte += 1
-                        zwei_d_koodrinaten[point] = (x, y)
+                rest_length_path = len(path)
+                counter_new_points = 0
+                counter_points_present = 0
+                for point in path:
+                    if point not in two_dim_coordinates:
+                        counter_new_points += 1
+                        two_dim_coordinates[point] = (x, y)
 
-                        if pfad_zaehler == 0:
+                        if path_counter == 0:
                             x += 2
 
-                        if pfad_zaehler >= 1:
-                            if i >= pfad_zaehler:
+                        if path_counter >= 1:
+                            if i >= path_counter:
                                 x += 2
                             else:
                                 y += 2
                                 i += 2
 
-                    elif point in zwei_d_koodrinaten:
-                        zaehler_punkte_vorhanden += 1
+                    elif point in two_dim_coordinates:
+                        counter_points_present += 1
                         x += 2
-                        rest_laenge_pfad -= 1
+                        rest_length_path -= 1
 
                 y -= i
                 x = -2
-                pfad_zaehler += 1
+                path_counter += 1
 
-            wieder_runter = max(wieder_runter, i) + 4
-            y += wieder_runter
+            run_again = max(run_again, i) + 4
+            y += run_again
 
-        """2D-Koordinaten erstellt"""
+        """2D-coordinates created"""
 
-        # Erstelle mehrerer Junctions
+        # Create multiple junctions
         for junction in range(len(index_junction)):
             pp.create_junction(net,
                                name=str(name_junction[junction]),
                                index=index_junction[junction],
                                pn_bar=0,
                                tfluid_k=293.15,
-                               geodata=zwei_d_koodrinaten[name_junction[junction]],
-                               x=x_koordinaten[junction],
-                               y=y_koordinaten[junction],
-                               height_m=z_koordinaten[junction]
+                               geodata=two_dim_coordinates[name_junction[junction]],
+                               x=x_coordinate[junction],
+                               y=y_coordinate[junction],
+                               height_m=z_coordinate[junction]
                                )
 
-        # Definition der Parameter für die Pipe
-        name_pipe = dataframe_distribution_network_exhaust_air["edge"].tolist()
-        length_pipe = dataframe_distribution_network_exhaust_air["duct length"].tolist()
-        from_junction = dataframe_distribution_network_exhaust_air["starting_node"].tolist()
-        to_junction = dataframe_distribution_network_exhaust_air["target_node"].tolist()
-        diameter_pipe = dataframe_distribution_network_exhaust_air["calculated diameter"].tolist()
+        # Definition of the parameters for the pipes
+        name_pipe = dataframe_distribution_network["edge"].tolist()
+        length_pipe = dataframe_distribution_network["duct length"].tolist()
+        from_junction = dataframe_distribution_network["starting_node"].tolist()
+        to_junction = dataframe_distribution_network["target_node"].tolist()
+        diameter_pipe = dataframe_distribution_network["equivalent diameter"].tolist()
 
-        # Hinzufügen der Rohre zum Netz
+        # Adding the ducts to the network
         for index, pipe in enumerate(name_pipe):
             pp.create_pipe_from_parameters(net,
                                            from_junction=int(name_junction.index(from_junction[index])),
@@ -2784,323 +2702,312 @@ class DesignExaustLCA(ITask):
                                            loss_coefficient=0
                                            )
 
-        """Ab hier werden die Verlustbeiwerte der Rohre angepasst"""
+        """From here, the loss coefficients of the pipes are adjusted"""
         for index, pipe in enumerate(name_pipe):
 
-            # Nachbarn des Startknotens
-            neighbors = list(nx.all_neighbors(graph_leitungslaenge_abluft, from_junction[index]))
+            # Neighbors of the start node
+            neighbors = list(nx.all_neighbors(graph_duct_length_sorted, from_junction[index]))
 
-            """Bögen:"""
-            if len(neighbors) == 2:  # Bögen finden
-                eingehende_kante = list(graph_leitungslaenge_abluft.in_edges(from_junction[index]))[0]
-                ausgehende_kante = list(graph_leitungslaenge_abluft.out_edges(from_junction[index]))[0]
+            """Kinks:"""
+            if len(neighbors) == 2:  # Find kinks
+                incoming_edge = list(graph_duct_length_sorted.in_edges(from_junction[index]))[0]
+                outgoing_edge = list(graph_duct_length_sorted.out_edges(from_junction[index]))[0]
 
-                # Rechnerischer Durchmesser des Kanals
-                rechnerischer_durchmesser = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['starting_node'] == from_junction[index]) &
-                    (dataframe_distribution_network_exhaust_air['target_node'] == to_junction[index]),
-                    'calculated diameter'
+                # calculated diameter of duct
+                calculated_diameter = dataframe_distribution_network.loc[
+                    (dataframe_distribution_network['starting_node'] == from_junction[index]) &
+                    (dataframe_distribution_network['target_node'] == to_junction[index]),
+                    "equivalent diameter"
                 ].iloc[0].to(ureg.meter)
 
-                # Abmessung des Kanals
-                abmessung_kanal = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['starting_node'] == from_junction[index]) &
-                    (dataframe_distribution_network_exhaust_air['target_node'] == to_junction[index]),
-                    'duct cross section'
+                # Dimension of the duct
+                dimensions_duct = dataframe_distribution_network.loc[
+                    (dataframe_distribution_network['starting_node'] == from_junction[index]) &
+                    (dataframe_distribution_network['target_node'] == to_junction[index]),
+                    'cross section'
                 ].iloc[0]
 
-                if not check_if_lines_are_aligned(eingehende_kante, ausgehende_kante):
+                if not check_if_lines_are_aligned(incoming_edge, outgoing_edge):
 
-                    zeta_bogen = None
-                    if "Ø" in abmessung_kanal:
-                        durchmesser = self.find_dimension(abmessung_kanal)
-                        zeta_bogen = widerstandsbeiwert_bogen_rund(winkel=90,
-                                                                   mittlerer_radius=0.75 * ureg.meter,
-                                                                   durchmesser=durchmesser)
-                        # self.logger.info(f"Zeta-Bogen rund: {zeta_bogen}")
+                    zeta_kink = None
+                    if "Ø" in dimensions_duct:
+                        duct_diameter = self.find_dimension(dimensions_duct)
+                        zeta_kink = loss_coefficient_arc_round(angle=90,
+                                                               mean_radius=0.75 * ureg.meter,
+                                                               diameter=duct_diameter)
+                        # self.logger.info(f"Zeta kink round: {zeta_kink}")
 
-                    elif "x" in abmessung_kanal:
-                        breite = self.find_dimension(abmessung_kanal)[0].to(ureg.meter)
-                        hoehe = self.find_dimension(abmessung_kanal)[1].to(ureg.meter)
-                        zeta_bogen = widerstandsbeiwert_bogen_eckig(winkel=90,
-                                                                    mittlerer_radius=0.75 * ureg.meter,
-                                                                    hoehe=hoehe,
-                                                                    breite=breite,
-                                                                    rechnerischer_durchmesser=rechnerischer_durchmesser
-                                                                    )
-                        # self.logger.info(f"Zeta Bogen eckig: {zeta_bogen}")
+                    elif "x" in dimensions_duct:
+                        duct_width = self.find_dimension(dimensions_duct)[0].to(ureg.meter)
+                        duct_height = self.find_dimension(dimensions_duct)[1].to(ureg.meter)
+                        zeta_kink = loss_coefficient_arc_angular(angle=90,
+                                                                 mean_radius=0.75 * ureg.meter,
+                                                                 height=duct_height,
+                                                                 width=duct_width,
+                                                                 calculated_diameter=calculated_diameter)
+                        # self.logger.info(f"Zeta Bogen eckig: {zeta_kink}")
 
-                    # Ändern des loss_coefficient-Werts
-                    net['pipe'].at[index, 'loss_coefficient'] += zeta_bogen
+                    # Changing the loss_coefficient value
+                    net['pipe'].at[index, 'loss_coefficient'] += zeta_kink
 
-                    dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
+                    dataframe_distribution_network.loc[dataframe_distribution_network[
                                                                       'target_node'] == to_junction[
-                                                                      index], 'Zeta Bogen'] = zeta_bogen
+                                                                      index], 'Zeta Kink'] = zeta_kink
 
-            """Reduzierungen"""
+            """Reductions"""
             if len(neighbors) == 2:
-                kanal = name_pipe[index]
+                duct = name_pipe[index]
 
-                eingehende_kante = list(graph_leitungslaenge_abluft.in_edges(from_junction[index]))[0]
-                ausgehende_kante = list(graph_leitungslaenge_abluft.out_edges(from_junction[index]))[0]
+                incoming_edge = list(graph_duct_length_sorted.in_edges(from_junction[index]))[0]
+                outgoing_edge = list(graph_duct_length_sorted.out_edges(from_junction[index]))[0]
 
-                """ Daten für Widerstandsbeiwerte"""
-                # Durchmesser des Eingangs:
-                d = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['starting_node'] == eingehende_kante[0]) &
-                    (dataframe_distribution_network_exhaust_air['target_node'] == eingehende_kante[1]),
-                    'calculated diameter'
+                """ Data for loss coefficients"""
+                # diameter of inlet:
+                d = dataframe_distribution_network.loc[
+                    (dataframe_distribution_network['starting_node'] == incoming_edge[0]) &
+                    (dataframe_distribution_network['target_node'] == incoming_edge[1]),
+                    "equivalent diameter"
                 ].iloc[0].to(ureg.meter)
 
-                # Durchmesser des Durchgangs:
-                d_D = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['starting_node'] == ausgehende_kante[0]) &
-                    (dataframe_distribution_network_exhaust_air['target_node'] == ausgehende_kante[1]),
-                    'calculated diameter'
+                # diameter of duct:
+                d_D = dataframe_distribution_network.loc[
+                    (dataframe_distribution_network['starting_node'] == outgoing_edge[0]) &
+                    (dataframe_distribution_network['target_node'] == outgoing_edge[1]),
+                    "equivalent diameter"
                 ].iloc[0].to(ureg.meter)
 
                 if d > d_D:
-                    zeta_reduzierung = widerstandsbeiwert_querschnittsverengung_stetig(d, d_D)
+                    zeta_reductions = loss_coefficient_cross_sectional_narrowing_continuous(d, d_D)
 
-                    # self.logger.info(f"Zeta Reduzierung: {zeta_reduzierung}")
+                    # self.logger.info(f"Zeta reduction: {zeta_reductions}")
 
-                    net['pipe'].at[index, 'loss_coefficient'] += zeta_reduzierung
+                    net['pipe'].at[index, 'loss_coefficient'] += zeta_reductions
 
-                    dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
+                    dataframe_distribution_network.loc[dataframe_distribution_network[
                                                                       'target_node'] == to_junction[
-                                                                      index], 'Zeta Reduzierung'] = zeta_reduzierung
+                                                                      index], 'Zeta reduction'] = zeta_reductions
 
                 elif d_D > d:
-                    zeta_erweiterung = widerstandsbeiwert_querschnittserweiterung_stetig(d, d_D)
+                    zeta_extension = loss_coefficient_cross_sectional_extension_continuous(d, d_D)
 
-                    # self.logger.info(f"Zeta Erweiterung: {zeta_erweiterung}")
+                    # self.logger.info(f"Zeta extension: {zeta_extension}")
 
-                    net['pipe'].at[index, 'loss_coefficient'] += zeta_erweiterung
+                    net['pipe'].at[index, 'loss_coefficient'] += zeta_extension
 
-                    dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
+                    dataframe_distribution_network.loc[dataframe_distribution_network[
                                                                       'target_node'] == to_junction[
-                                                                      index], 'Zeta Erweiterung'] = zeta_erweiterung
+                                                                      index], 'Zeta extension'] = zeta_extension
 
-            """T-Stücke"""
-            if len(neighbors) == 3:  # T-Stücke finden
-                kanal = name_pipe[index]
+            """T-Pieces"""
+            if len(neighbors) == 3:  
+                duct = name_pipe[index]
 
-                # Rechnerischer Durchmesser des Kanals
-                rechnerischer_durchmesser_kanal = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['starting_node'] == from_junction[index]) &
-                    (dataframe_distribution_network_exhaust_air['target_node'] == to_junction[index]),
-                    'calculated diameter'
+                # calculated diameter of duct
+                d = dataframe_distribution_network.loc[
+                    (dataframe_distribution_network['starting_node'] == from_junction[index]) &
+                    (dataframe_distribution_network['target_node'] == to_junction[index]),
+                    "equivalent diameter"
                 ].iloc[0].to(ureg.meter)
 
-                # Abmessung des Kanals
-                abmessung_kanal = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['starting_node'] == from_junction[index]) &
-                    (dataframe_distribution_network_exhaust_air['target_node'] == to_junction[index]),
-                    'duct cross section'
+                # dimensions of duct
+                dimensions_duct = dataframe_distribution_network.loc[
+                    (dataframe_distribution_network['starting_node'] == from_junction[index]) &
+                    (dataframe_distribution_network['target_node'] == to_junction[index]),
+                    'cross section'
                 ].iloc[0]
 
-                luftmenge_kanal = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['starting_node'] == from_junction[index]) &
-                    (dataframe_distribution_network_exhaust_air['target_node'] == to_junction[index]),
-                    'Air volume'
+                v = dataframe_distribution_network.loc[
+                    (dataframe_distribution_network['starting_node'] == from_junction[index]) &
+                    (dataframe_distribution_network['target_node'] == to_junction[index]),
+                    'volume_flow'
                 ].iloc[0]
 
-                # Liste der eingehenden Kanten
-                eingehende_kanten = list(graph_leitungslaenge_abluft.in_edges(from_junction[index]))
+                incoming_edge = list(graph_duct_length_sorted.in_edges(from_junction[index]))
 
-                # Aufteilen in eingehende Kante 1
-                eingehende_kante_1 = eingehende_kanten[0]
-                # Aufteilen in eingenden Kante 2
-                eingehende_kante_2 = eingehende_kanten[1]
+                incoming_edge_1 = incoming_edge[0]
+                incoming_edge_2 = incoming_edge[1]
 
-                # Lage überprüfen, sonst tauschen
-                if check_if_lines_are_aligned(eingehende_kante_2, kanal):
-                    eingehende_kante_1 = eingehende_kanten[1]
-                    eingehende_kante_2 = eingehende_kanten[0]
+                if check_if_lines_are_aligned(incoming_edge_2, duct):
+                    incoming_edge_1 = incoming_edge[1]
+                    incoming_edge_2 = incoming_edge[0]
 
-                # Rechnerischer Durchmesser eingehende Kante 1
-                rechnerischer_durchmesser_eingehende_kante_1 = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['starting_node'] == eingehende_kante_1[0]) &
-                    (dataframe_distribution_network_exhaust_air['target_node'] == eingehende_kante_1[1]),
-                    'calculated diameter'
+                d_D = dataframe_distribution_network.loc[
+                    (dataframe_distribution_network['starting_node'] == incoming_edge_1[0]) &
+                    (dataframe_distribution_network['target_node'] == incoming_edge_1[1]),
+                    "equivalent diameter"
                 ].iloc[0].to(ureg.meter)
 
-                # Abmessung des Kanals eingehende Kante 1
-                abmessung_kanal_eingehende_kante_1 = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['starting_node'] == eingehende_kante_1[0]) &
-                    (dataframe_distribution_network_exhaust_air['target_node'] == eingehende_kante_1[1]),
-                    'duct cross section'
+                dimensions_incoming_edge = dataframe_distribution_network.loc[
+                    (dataframe_distribution_network['starting_node'] == incoming_edge_1[0]) &
+                    (dataframe_distribution_network['target_node'] == incoming_edge_1[1]),
+                    'cross section'
                 ].iloc[0]
 
-                luftmenge_eingehende_kante_1 = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['starting_node'] == eingehende_kante_1[0]) &
-                    (dataframe_distribution_network_exhaust_air['target_node'] == eingehende_kante_1[1]),
-                    'Air volume'
+                v_D = dataframe_distribution_network.loc[
+                    (dataframe_distribution_network['starting_node'] == incoming_edge_1[0]) &
+                    (dataframe_distribution_network['target_node'] == incoming_edge_1[1]),
+                    'volume_flow'
                 ].iloc[0]
 
-                # Rechnerischer Durchmesser eingehende Kante 2
-                rechnerischer_durchmesser_eingehende_kante_2 = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['starting_node'] == eingehende_kante_2[0]) &
-                    (dataframe_distribution_network_exhaust_air['target_node'] == eingehende_kante_2[1]),
-                    'calculated diameter'
+                d_A = dataframe_distribution_network.loc[
+                    (dataframe_distribution_network['starting_node'] == incoming_edge_2[0]) &
+                    (dataframe_distribution_network['target_node'] == incoming_edge_2[1]),
+                    "equivalent diameter"
                 ].iloc[0].to(ureg.meter)
 
-                # Abmessung des Kanals eingehende Kante 1
-                abmessung_kanal_eingehende_kante_2 = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['starting_node'] == eingehende_kante_2[0]) &
-                    (dataframe_distribution_network_exhaust_air['target_node'] == eingehende_kante_2[1]),
-                    'duct cross section'
+                dimensions_outgoing_edge = dataframe_distribution_network.loc[
+                    (dataframe_distribution_network['starting_node'] == incoming_edge_2[0]) &
+                    (dataframe_distribution_network['target_node'] == incoming_edge_2[1]),
+                    'cross section'
                 ].iloc[0]
 
-                luftmenge_eingehende_kante_2 = dataframe_distribution_network_exhaust_air.loc[
-                    (dataframe_distribution_network_exhaust_air['starting_node'] == eingehende_kante_2[0]) &
-                    (dataframe_distribution_network_exhaust_air['target_node'] == eingehende_kante_2[1]),
-                    'Air volume'
+                v_A = dataframe_distribution_network.loc[
+                    (dataframe_distribution_network['starting_node'] == incoming_edge_2[0]) &
+                    (dataframe_distribution_network['target_node'] == incoming_edge_2[1]),
+                    'volume_flow'
                 ].iloc[0]
 
-                # 3D Darstellung des T-Stücks
-                # darstellung_t_stueck(eingehende_kante_1, eingehende_kante_2, kanal)
-
-                """ Daten für Widerstandsbeiwerte"""
-                if check_if_lines_are_aligned(eingehende_kante_1, eingehende_kante_2) == True:
-                    # Eingehende Kante 1 --→ ←-- Eingehende Kante 2
+                # ToDo Hier weiter aufräumen
+                """ Loss coefficients """
+                if check_if_lines_are_aligned(incoming_edge_1, incoming_edge_2) == True:
+                    # incoming edge 1 --→ ←-- incoming edge 2
                     #                       ↓
-                    #                     Kanal
+                    #                     duct
 
-                    if "Ø" in abmessung_kanal:
-                        if rechnerischer_durchmesser_eingehende_kante_1 > rechnerischer_durchmesser_eingehende_kante_2:
-                            zeta_eingehende_kante_1 = wiederstandsbeiwert_T_endstueck_stromvereinigung_rund(
-                                d_A=rechnerischer_durchmesser_eingehende_kante_1,
-                                v_A=luftmenge_eingehende_kante_1,
-                                d=rechnerischer_durchmesser_kanal,
-                                v=luftmenge_kanal)
-
-                            net['pipe'].at[
-                                name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
-                            dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                              'edge'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
-
-                            zeta_eingehende_kante_2 = wiederstandsbeiwert_T_endstueck_stromvereinigung_rund(
-                                d_A=rechnerischer_durchmesser_eingehende_kante_2,
-                                v_A=luftmenge_eingehende_kante_2,
-                                d=rechnerischer_durchmesser_kanal,
-                                v=luftmenge_kanal) + widerstandsbeiwert_querschnittserweiterung_stetig(
-                                rechnerischer_durchmesser_eingehende_kante_2,
-                                rechnerischer_durchmesser_eingehende_kante_1)
+                    if "Ø" in dimensions_duct:
+                        if d_D > d_A:
+                            zeta_incoming_edge_1 = loss_coefficient_90_degree_T_merger_round(
+                                d_A=d_D,
+                                v_A=v_D,
+                                d=d,
+                                v=v)
 
                             net['pipe'].at[
-                                name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
-                            dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                              'edge'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
+                                name_pipe.index(incoming_edge_1), 'loss_coefficient'] += zeta_incoming_edge_1
+                            dataframe_distribution_network.loc[dataframe_distribution_network[
+                                                                              'edge'] == incoming_edge_1, 'Zeta T-Stück'] = zeta_incoming_edge_1
 
-                        elif rechnerischer_durchmesser_eingehende_kante_2 > rechnerischer_durchmesser_eingehende_kante_1:
-                            zeta_eingehende_kante_2 = wiederstandsbeiwert_T_endstueck_stromvereinigung_rund(
-                                d_A=rechnerischer_durchmesser_eingehende_kante_2,
-                                v_A=luftmenge_eingehende_kante_2,
-                                d=rechnerischer_durchmesser_kanal,
-                                v=luftmenge_kanal)
-
-                            net['pipe'].at[
-                                name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
-                            dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                              'edge'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
-
-                            zeta_eingehende_kante_1 = wiederstandsbeiwert_T_endstueck_stromvereinigung_rund(
-                                d_A=rechnerischer_durchmesser_eingehende_kante_1,
-                                v_A=luftmenge_eingehende_kante_1,
-                                d=rechnerischer_durchmesser_kanal,
-                                v=luftmenge_kanal) + widerstandsbeiwert_querschnittserweiterung_stetig(
-                                rechnerischer_durchmesser_eingehende_kante_1,
-                                rechnerischer_durchmesser_eingehende_kante_2)
+                            zeta_eingehende_kante_2 = loss_coefficient_90_degree_T_merger_round(
+                                d_A=d_A,
+                                v_A=v_A,
+                                d=d,
+                                v=v) + loss_coefficient_cross_sectional_extension_continuous(
+                                d_A,
+                                d_D)
 
                             net['pipe'].at[
-                                name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
-                            dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                              'edge'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
-                    elif "x" in abmessung_kanal:
-                        zeta_eingehende_kante_1 = wiederstandsbeiwert_T_endstueck_stromvereinigung_eckig()
+                                name_pipe.index(incoming_edge_2), 'loss_coefficient'] += zeta_eingehende_kante_2
+                            dataframe_distribution_network.loc[dataframe_distribution_network[
+                                                                              'edge'] == incoming_edge_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
+
+                        elif d_A > d_D:
+                            zeta_eingehende_kante_2 = loss_coefficient_90_degree_T_merger_round(
+                                d_A=d_A,
+                                v_A=v_A,
+                                d=d,
+                                v=v)
+
+                            net['pipe'].at[
+                                name_pipe.index(incoming_edge_2), 'loss_coefficient'] += zeta_eingehende_kante_2
+                            dataframe_distribution_network.loc[dataframe_distribution_network[
+                                                                              'edge'] == incoming_edge_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
+
+                            zeta_incoming_edge_1 = loss_coefficient_90_degree_T_merger_round(
+                                d_A=d_D,
+                                v_A=v_D,
+                                d=d,
+                                v=v) + loss_coefficient_cross_sectional_extension_continuous(
+                                d_D,
+                                d_A)
+
+                            net['pipe'].at[
+                                name_pipe.index(incoming_edge_1), 'loss_coefficient'] += zeta_incoming_edge_1
+                            dataframe_distribution_network.loc[dataframe_distribution_network[
+                                                                              'edge'] == incoming_edge_1, 'Zeta T-Stück'] = zeta_incoming_edge_1
+                    elif "x" in dimensions_duct:
+                        zeta_incoming_edge_1 = loss_coefficient_bend_end_piece_merger_angular()
 
                         net['pipe'].at[
-                            name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
-                        dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                          'edge'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
+                            name_pipe.index(incoming_edge_1), 'loss_coefficient'] += zeta_incoming_edge_1
+                        dataframe_distribution_network.loc[dataframe_distribution_network[
+                                                                          'edge'] == incoming_edge_1, 'Zeta T-Stück'] = zeta_incoming_edge_1
 
-                        zeta_eingehende_kante_2 = wiederstandsbeiwert_T_endstueck_stromvereinigung_eckig()
+                        zeta_eingehende_kante_2 = loss_coefficient_bend_end_piece_merger_angular()
 
                         net['pipe'].at[
-                            name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
-                        dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                          'edge'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
+                            name_pipe.index(incoming_edge_2), 'loss_coefficient'] += zeta_eingehende_kante_2
+                        dataframe_distribution_network.loc[dataframe_distribution_network[
+                                                                          'edge'] == incoming_edge_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
 
-                if check_if_lines_are_aligned(eingehende_kante_1, kanal) == True:
-                    # Eingehende Kante 1 --→ --→ Kanal
+                if check_if_lines_are_aligned(incoming_edge_1, duct) == True:
+                    # incoming edge 1 --→ --→ duct
                     #                       ↑
-                    #               Eingehende Kante 2
-                    if "Ø" in abmessung_kanal:
-                        zeta_eingehende_kante_1 = wiederstandsbeiwert_T_stueck_stromvereinigung_rund(
-                            d=rechnerischer_durchmesser_kanal,
-                            v=luftmenge_kanal,
-                            d_D=rechnerischer_durchmesser_eingehende_kante_1,
-                            v_D=luftmenge_eingehende_kante_1,
-                            d_A=rechnerischer_durchmesser_eingehende_kante_2,
+                    #               incoming edge 2
+                    if "Ø" in dimensions_duct:
+                        zeta_incoming_edge_1 = loss_coefficient_T_merger_round(
+                            d=d,
+                            v=v,
+                            d_D=d_D,
+                            v_D=v_D,
+                            d_A=d_A,
                             v_A=luftmenge_eingehende_kante_2,
-                            richtung="Durchgangsrichtung")
+                            direction="through direction")
 
                         net['pipe'].at[
-                            name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
-                        dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                          'edge'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
+                            name_pipe.index(incoming_edge_1), 'loss_coefficient'] += zeta_incoming_edge_1
+                        dataframe_distribution_network.loc[dataframe_distribution_network[
+                                                                          'edge'] == incoming_edge_1, 'Zeta T-Stück'] = zeta_incoming_edge_1
 
-                        zeta_eingehende_kante_2 = wiederstandsbeiwert_T_stueck_stromvereinigung_rund(
-                            d=rechnerischer_durchmesser_kanal,
-                            v=luftmenge_kanal,
-                            d_D=rechnerischer_durchmesser_eingehende_kante_1,
-                            v_D=luftmenge_eingehende_kante_1,
-                            d_A=rechnerischer_durchmesser_eingehende_kante_2,
+                        zeta_eingehende_kante_2 = loss_coefficient_T_merger_round(
+                            d=d,
+                            v=v,
+                            d_D=d_D,
+                            v_D=v_D,
+                            d_A=d_A,
                             v_A=luftmenge_eingehende_kante_2,
-                            richtung="zuströmende Richtung")
+                            direction="inflowing direction")
 
                         net['pipe'].at[
-                            name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
-                        dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                          'edge'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
+                            name_pipe.index(incoming_edge_2), 'loss_coefficient'] += zeta_eingehende_kante_2
+                        dataframe_distribution_network.loc[dataframe_distribution_network[
+                                                                          'edge'] == incoming_edge_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
 
-                    if "x" in abmessung_kanal:
-                        zeta_eingehende_kante_1 = wiederstandsbeiwert_T_stueck_stromvereinigung_eckig(
-                            d=rechnerischer_durchmesser_kanal,
-                            v=luftmenge_kanal,
-                            d_D=rechnerischer_durchmesser_eingehende_kante_1,
-                            v_D=luftmenge_eingehende_kante_1,
-                            d_A=rechnerischer_durchmesser_eingehende_kante_2,
+                    if "x" in dimensions_duct:
+                        zeta_incoming_edge_1 = loss_coefficient_bend_merger_angular(
+                            d=d,
+                            v=v,
+                            d_D=d_D,
+                            v_D=v_D,
+                            d_A=d_A,
                             v_A=luftmenge_eingehende_kante_2,
-                            richtung="Durchgangsrichtung")
+                            direction="through direction")
 
                         net['pipe'].at[
-                            name_pipe.index(eingehende_kante_1), 'loss_coefficient'] += zeta_eingehende_kante_1
-                        dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                          'edge'] == eingehende_kante_1, 'Zeta T-Stück'] = zeta_eingehende_kante_1
+                            name_pipe.index(incoming_edge_1), 'loss_coefficient'] += zeta_incoming_edge_1
+                        dataframe_distribution_network.loc[dataframe_distribution_network[
+                                                                          'edge'] == incoming_edge_1, 'Zeta T-Stück'] = zeta_incoming_edge_1
 
-                        zeta_eingehende_kante_2 = wiederstandsbeiwert_T_stueck_stromvereinigung_eckig(
-                            d=rechnerischer_durchmesser_kanal,
-                            v=luftmenge_kanal,
-                            d_D=rechnerischer_durchmesser_eingehende_kante_1,
-                            v_D=luftmenge_eingehende_kante_1,
-                            d_A=rechnerischer_durchmesser_eingehende_kante_2,
+                        zeta_eingehende_kante_2 = loss_coefficient_bend_merger_angular(
+                            d=d,
+                            v=v,
+                            d_D=d_D,
+                            v_D=v_D,
+                            d_A=d_A,
                             v_A=luftmenge_eingehende_kante_2,
-                            richtung="zuströmende Richtung")
+                            direction="inflowing direction")
 
                         net['pipe'].at[
-                            name_pipe.index(eingehende_kante_2), 'loss_coefficient'] += zeta_eingehende_kante_2
-                        dataframe_distribution_network_exhaust_air.loc[dataframe_distribution_network_exhaust_air[
-                                                                          'edge'] == eingehende_kante_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
+                            name_pipe.index(incoming_edge_2), 'loss_coefficient'] += zeta_eingehende_kante_2
+                        dataframe_distribution_network.loc[dataframe_distribution_network[
+                                                                          'edge'] == incoming_edge_2, 'Zeta T-Stück'] = zeta_eingehende_kante_2
 
         # Luftmengen aus Graphen
         luftmengen = nx.get_node_attributes(graph_air_volume_flow, 'weight')
 
         # Index der RLT-Anlage finden
-        index_rlt = name_junction.index(tuple(position_rlt))
-        luftmenge_rlt = luftmengen[position_rlt]
-        mdot_kg_per_s_rlt = (luftmenge_rlt * dichte).to(ureg.kilogram / ureg.second)
+        index_rlt = name_junction.index(tuple(position_ahu))
+        luftmenge_rlt = luftmengen[position_ahu]
+        mdot_kg_per_s_rlt = (luftmenge_rlt * density).to(ureg.kilogram / ureg.second)
 
         # Externes Grid erstellen, da dann die Visualisierung besser ist
         pp.create_ext_grid(net, junction=index_rlt, p_bar=0, t_k=293.15, name="RLT-Anlage")
@@ -3117,15 +3024,15 @@ class DesignExaustLCA(ITask):
 
         # Hinzugen der Lüftungsauslässe
         for index, element in enumerate(luftmengen):
-            if element == tuple(position_rlt):
+            if element == tuple(position_ahu):
                 continue  # Überspringt den aktuellen Durchlauf
-            if element[0] == position_schacht[0] and element[1] == position_schacht[1]:
+            if element[0] == position_shaft[0] and element[1] == position_shaft[1]:
                 continue
             if luftmengen[element] == 0:
                 continue
             pp.create_sink(net,
                            junction=name_junction.index(element),
-                           mdot_kg_per_s=(-luftmengen[element] * dichte).to(ureg.kilogram / ureg.second).magnitude,
+                           mdot_kg_per_s=(-luftmengen[element] * density).to(ureg.kilogram / ureg.second).magnitude,
                            )
             liste_lueftungsauslaesse.append(name_junction.index(element))
 
@@ -3136,9 +3043,9 @@ class DesignExaustLCA(ITask):
         maxr_druckverlust = abs(net.res_junction["p_bar"].min())
         differenz = net.res_junction["p_bar"].min()
 
-        # Identifizierung der Quelle durch ihren Namen oder Index
+        # Identifizierung der Quelle durch ihren Namen or Index
         source_index = net['source'].index[net['source']['name'] == "RLT-Anlage"][0]
-        # Identifizieren des externen Grids durch seinen Namen oder Index
+        # Identifizieren des externen Grids durch seinen Namen or Index
         ext_grid_index = net['ext_grid'].index[net['ext_grid']['name'] == "RLT-Anlage"][0]
 
         # Ändern des Druckwerts
@@ -3151,9 +3058,9 @@ class DesignExaustLCA(ITask):
 
         maxr_druckverlust = net.res_junction["p_bar"].min()
 
-        # Identifizierung der Quelle durch ihren Namen oder Index
+        # Identifizierung der Quelle durch ihren Namen or Index
         source_index = net['source'].index[net['source']['name'] == "RLT-Anlage"][0]
-        # Identifizieren des externen Grids durch seinen Namen oder Index
+        # Identifizieren des externen Grids durch seinen Namen or Index
         ext_grid_index = net['ext_grid'].index[net['ext_grid']['name'] == "RLT-Anlage"][0]
 
         maxr_druckverlust -= 0.00100  # 30 Pa für Lüftungseinlass und 50 Pa für Schalldämpfer + 20 Reserve
@@ -3170,14 +3077,14 @@ class DesignExaustLCA(ITask):
         dataframe_pipes = pd.concat([net.pipe, net.res_pipe], axis=1)
         dataframe_junctions = pd.concat([net.junction, net.res_junction], axis=1)
 
-        for kanal in dataframe_distribution_network_exhaust_air["edge"]:
-            p_from_pa = int(dataframe_pipes.loc[dataframe_pipes["name"] == str(kanal), "p_from_bar"].iloc[0] * 100000)
-            p_to_pa = int(dataframe_pipes.loc[dataframe_pipes["name"] == str(kanal), "p_to_bar"].iloc[0] * 100000)
+        for duct in dataframe_distribution_network["edge"]:
+            p_from_pa = int(dataframe_pipes.loc[dataframe_pipes["name"] == str(duct), "p_from_bar"].iloc[0] * 100000)
+            p_to_pa = int(dataframe_pipes.loc[dataframe_pipes["name"] == str(duct), "p_to_bar"].iloc[0] * 100000)
 
-            dataframe_distribution_network_exhaust_air.loc[
-                dataframe_distribution_network_exhaust_air["edge"] == kanal, "p_from_pa"] = p_from_pa
-            dataframe_distribution_network_exhaust_air.loc[
-                dataframe_distribution_network_exhaust_air["edge"] == kanal, "p_to_pa"] = p_to_pa
+            dataframe_distribution_network.loc[
+                dataframe_distribution_network["edge"] == duct, "p_from_pa"] = p_from_pa
+            dataframe_distribution_network.loc[
+                dataframe_distribution_network["edge"] == duct, "p_to_pa"] = p_to_pa
 
 
         # Export
@@ -3221,7 +3128,7 @@ class DesignExaustLCA(ITask):
             # Fügt die Text-Annotationen für die Drücke hinzu
             for idx, junction in enumerate(net.res_junction.index):
                 pressure = net.res_junction.iloc[idx]['p_bar']  # Druck am Knoten
-                # Koordinaten des Knotens
+                # coordinates des Knotens
                 if junction in net.junction_geodata.index:
                     coords = net.junction_geodata.loc[junction, ['x', 'y']]
                     ax.text(coords['x'], coords['y'], f'{pressure * 100000:.0f} [Pa]', fontsize=8,
@@ -3242,76 +3149,76 @@ class DesignExaustLCA(ITask):
 
             plt.close()
 
-        return maxr_druckverlust * 100000, dataframe_distribution_network_exhaust_air
+        return maxr_druckverlust * 100000, dataframe_distribution_network
 
     #
     def blechstaerke(self, pressure_loss, abmessung):
         """
-        Berechnet die Blechstärke in Abhängigkeit vom Kanal
+        Berechnet die Blechstärke in Abhängigkeit vom duct
         :param pressure_loss: Durckverlust des Systems
-        :param abmessung: Abmessung des Kanals (400x300 oder Ø60)
+        :param abmessung: Abmessung of duct (400x300 or Ø60)
         :return: Blechstärke
         """
 
         if "Ø" in abmessung:
-            durchmesser = self.find_dimension(abmessung).to(ureg.meter)
+            diameter = self.find_dimension(abmessung).to(ureg.meter)
 
-            if durchmesser <= 0.2 * ureg.meter:
+            if diameter <= 0.2 * ureg.meter:
                 blechstaerke = (0.5 * ureg.millimeter).to(
-                    ureg.meter)  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
-            elif 0.2 * ureg.meter < durchmesser <= 0.4 * ureg.meter:
+                    ureg.meter)  # In m nach MKK Shop Datenblatt Best. Nr. 10782
+            elif 0.2 * ureg.meter < diameter <= 0.4 * ureg.meter:
                 blechstaerke = (0.6 * ureg.millimeter).to(
-                    ureg.meter)  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
-            elif 0.4 * ureg.meter < durchmesser <= 0.5 * ureg.meter:
+                    ureg.meter)  # In m nach MKK Shop Datenblatt Best. Nr. 10782
+            elif 0.4 * ureg.meter < diameter <= 0.5 * ureg.meter:
                 blechstaerke = (0.7 * ureg.millimeter).to(
-                    ureg.meter)  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
-            elif 0.5 * ureg.meter < durchmesser <= 0.63 * ureg.meter:
+                    ureg.meter)  # In m nach MKK Shop Datenblatt Best. Nr. 10782
+            elif 0.5 * ureg.meter < diameter <= 0.63 * ureg.meter:
                 blechstaerke = (0.9 * ureg.millimeter).to(
-                    ureg.meter)  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
-            elif 0.63 * ureg.meter < durchmesser <= 1.25 * ureg.meter:
+                    ureg.meter)  # In m nach MKK Shop Datenblatt Best. Nr. 10782
+            elif 0.63 * ureg.meter < diameter <= 1.25 * ureg.meter:
                 blechstaerke = (1.25 * ureg.millimeter).to(
-                    ureg.meter)  # In Metern nach MKK Shop Datenblatt Best. Nr. 10782
+                    ureg.meter)  # In m nach MKK Shop Datenblatt Best. Nr. 10782
 
 
         elif "x" in abmessung:
-            breite, hoehe = self.find_dimension(abmessung)
-            laengste_kante = max(breite.to(ureg.meter), hoehe.to(ureg.meter))
+            width, height = self.find_dimension(abmessung)
+            laengste_kante = max(width.to(ureg.meter), height.to(ureg.meter))
 
             if pressure_loss <= 1000:
                 if laengste_kante <= 0.500 * ureg.meter:
                     blechstaerke = (0.6 * ureg.millimeter).to(
-                        ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                        ureg.meter)  # In m nach BerlinerLuft Gesamtkatalog Seite 53
                 elif 0.500 * ureg.meter < laengste_kante <= 1.000 * ureg.meter:
                     blechstaerke = (0.8 * ureg.millimeter).to(
-                        ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                        ureg.meter)  # In m nach BerlinerLuft Gesamtkatalog Seite 53
                 elif 1.000 * ureg.meter < laengste_kante <= 2.000 * ureg.meter:
                     blechstaerke = (1.0 * ureg.millimeter).to(
-                        ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                        ureg.meter)  # In m nach BerlinerLuft Gesamtkatalog Seite 53
 
             elif 1000 < pressure_loss <= 2000:
                 if laengste_kante <= 0.500 * ureg.meter:
                     blechstaerke = (0.7 * ureg.millimeter).to(
-                        ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                        ureg.meter)  # In m nach BerlinerLuft Gesamtkatalog Seite 53
                 elif 0.500 * ureg.meter < laengste_kante <= 1.000 * ureg.meter:
                     blechstaerke = (0.9 * ureg.millimeter).to(
-                        ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                        ureg.meter)  # In m nach BerlinerLuft Gesamtkatalog Seite 53
                 elif 1.000 * ureg.meter < laengste_kante <= 2.000 * ureg.meter:
                     blechstaerke = (1.1 * ureg.millimeter).to(
-                        ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                        ureg.meter)  # In m nach BerlinerLuft Gesamtkatalog Seite 53
 
             elif 2000 < pressure_loss <= 3000:
                 if laengste_kante <= 1.000 * ureg.meter:
                     blechstaerke = (0.95 * ureg.millimeter).to(
-                        ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                        ureg.meter)  # In m nach BerlinerLuft Gesamtkatalog Seite 53
                 elif 1.000 * ureg.meter < laengste_kante <= 2.000 * ureg.meter:
                     blechstaerke = (1.15 * ureg.millimeter).to(
-                        ureg.meter)  # In Metern nach BerlinerLuft Gesamtkatalog Seite 53
+                        ureg.meter)  # In m nach BerlinerLuft Gesamtkatalog Seite 53
 
         return blechstaerke
 
     def connect_rooms(self, cross_section_type, suspended_ceiling_space, dataframe_rooms):
 
-        # Ermittlung des Kanalquerschnittes
+        # Ermittlung des duct_cross_sectiones
         dataframe_rooms["duct cross section"] = \
             dataframe_rooms.apply(lambda row: self.dimensions_ventilation_duct(cross_section_type,
                                                                      self.necessary_cross_section(
@@ -3326,13 +3233,13 @@ class DesignExaustLCA(ITask):
         dataframe_rooms['width'] = None
         dataframe_rooms['height'] = None
 
-        for index, kanalquerschnitt in enumerate(dataframe_rooms["duct cross section"]):
-            if "Ø" in kanalquerschnitt:
-                dataframe_rooms.at[index, 'diameter'] = self.find_dimension(kanalquerschnitt)
+        for index, duct_cross_section in enumerate(dataframe_rooms["duct cross section"]):
+            if "Ø" in duct_cross_section:
+                dataframe_rooms.at[index, 'diameter'] = self.find_dimension(duct_cross_section)
 
-            elif "x" in kanalquerschnitt:
-                dataframe_rooms.at[index, 'width'] = self.find_dimension(kanalquerschnitt)[0]
-                dataframe_rooms.at[index, 'height'] = self.find_dimension(kanalquerschnitt)[1]
+            elif "x" in duct_cross_section:
+                dataframe_rooms.at[index, 'width'] = self.find_dimension(duct_cross_section)[0]
+                dataframe_rooms.at[index, 'height'] = self.find_dimension(duct_cross_section)[1]
 
         dataframe_rooms["Surface area"] = dataframe_rooms.apply(
             lambda row: self.coat_area_ventilation_duct(
@@ -3341,7 +3248,7 @@ class DesignExaustLCA(ITask):
                 suspended_ceiling_space
             ) * row["duct length"], axis=1)
 
-        dataframe_rooms["calculated diameter"] = dataframe_rooms.apply(
+        dataframe_rooms["equivalent diameter"] = dataframe_rooms.apply(
             lambda row: round(self.calculated_diameter(cross_section_type,
                                                        self.necessary_cross_section(row["volume_flow"]),
                                                        suspended_ceiling_space),
@@ -3385,7 +3292,7 @@ class DesignExaustLCA(ITask):
         dataframe_rooms['silencer'] = dataframe_rooms['room type'].apply(
             lambda x: 1 if x in liste_raeume_schalldaempfer else 0)
 
-        # Volumenstromregler
+        # volume_flow_controller
         dataframe_rooms["Volume_flow_controller"] = 1
 
         # Berechnung des Blechvolumens
@@ -3469,8 +3376,8 @@ class DesignExaustLCA(ITask):
         dataframe_distribution_network_exhaust_air[
             "Sheet weight"] = [x.magnitude for x in list_dataframe_distribution_network_exhaust_air_blechgewicht]
 
-        # # Ermittlung des CO2-Kanal
-        # dataframe_distribution_network_exhaust_air["CO2-Kanal"] = dataframe_distribution_network_exhaust_air[
+        # # Ermittlung des CO2-duct
+        # dataframe_distribution_network_exhaust_air["CO2-duct"] = dataframe_distribution_network_exhaust_air[
         #                                                              "Blechgewicht"] * (
         #                                                                  float(
         #                                                                      gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[
@@ -3480,19 +3387,19 @@ class DesignExaustLCA(ITask):
 
         def cross_sectional_area_duct_insulation(row):
             """
-            Berechnet die Querschnittsfläche der Dämmung
+            Berechnet die cross sectionsfläche der Dämmung
             """
             cross_sectional_area = 0
-            if 'Ø' in row['duct cross section']:
+            if 'Ø' in row['cross section']:
                 try:
                     diameter = ureg(row['diameter'])
                 except AttributeError:
                     diameter = row['diameter']
                 cross_sectional_area = math.pi * ((diameter + 0.04 * ureg.meter) ** 2) / 4 - math.pi * (
-                        diameter ** 2) / 4  # 20mm Dämmung des Lüftungskanals nach anerkannten
+                        diameter ** 2) / 4  # 20mm Dämmung des Lüftungsducts nach anerkannten
                 # Regeln der Technik nach Missel Seite 42
 
-            elif 'x' in row['duct cross section']:
+            elif 'x' in row['cross section']:
                 try:
                     width = ureg(row['width'])
                     height = ureg(row['height'])
@@ -3500,7 +3407,7 @@ class DesignExaustLCA(ITask):
                     width = row['width']
                     height = row['height']
                 cross_sectional_area = ((width + 0.04 * ureg.meter) * (height + 0.04 * ureg.meter)) - (
-                        width * height)  # 20mm Dämmung des Lüftungskanals nach aneredges Regeln der Technik nach Missel Seite 42
+                        width * height)  # 20mm Dämmung des Lüftungsducts nach aneredges Regeln der Technik nach Missel Seite 42
 
             return cross_sectional_area.to(ureg.meter ** 2)
 
@@ -3533,8 +3440,8 @@ class DesignExaustLCA(ITask):
         """
         Berechnung des CO2 für die room_connection
         """
-        # Ermittlung des CO2-Kanal
-        # dataframe_rooms["CO2-Kanal"] = dataframe_rooms["Sheet weight"] * (
+        # Ermittlung des CO2-duct
+        # dataframe_rooms["CO2-duct"] = dataframe_rooms["Sheet weight"] * (
         #             float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0][
         #                       "A1-A3"]) + float(gwp("ffa736f4-51b1-4c03-8cdd-3f098993b363")[0]["C2"]))
 
@@ -3549,9 +3456,9 @@ class DesignExaustLCA(ITask):
         df_trox_tvr_diameter_gewicht = pd.DataFrame(trox_tvr_diameter_gewicht)
 
         # Funktion, um das nächstgrößere Gewicht zu finden
-        def gewicht_runde_volumenstromregler(row):
-            if row['Volume_flow_controller'] == 1 and 'Ø' in row['duct cross section']:
-                calculated_diameter = row['calculated diameter']
+        def gewicht_runde_volume_flow_controller(row):
+            if row['Volume_flow_controller'] == 1 and 'Ø' in row['cross section']:
+                calculated_diameter = row["equivalent diameter"]
                 next_diameter = df_trox_tvr_diameter_gewicht[
                     df_trox_tvr_diameter_gewicht['diameter'] >= calculated_diameter]['diameter'].min()
                 return \
@@ -3597,9 +3504,9 @@ class DesignExaustLCA(ITask):
                         18 * ureg.kilogram, 21 * ureg.kilogram, 20 * ureg.kilogram]
         })
 
-        # Funktion, um das entsprechende oder nächstgrößere Gewicht zu finden
-        def gewicht_angulare_volumenstromregler(row):
-            if row['Volume_flow_controller'] == 1 and 'x' in row['duct cross section']:
+        # Funktion, um das entsprechende or nächstgrößere Gewicht zu finden
+        def gewicht_angulare_volume_flow_controller(row):
+            if row['Volume_flow_controller'] == 1 and 'x' in row['cross section']:
                 width, height = row['width'], row['height']
                 passende_zeilen = df_trox_tvj_diameter_gewicht[
                     (df_trox_tvj_diameter_gewicht['width'] >= width) & (
@@ -3609,14 +3516,14 @@ class DesignExaustLCA(ITask):
             return None
 
         # Kombinierte Funktion, die beide Funktionen ausführt
-        def gewicht_volumenstromregler(row):
-            gewicht_rn = gewicht_runde_volumenstromregler(row)
+        def gewicht_volume_flow_controller(row):
+            gewicht_rn = gewicht_runde_volume_flow_controller(row)
             if gewicht_rn is not None:
                 return gewicht_rn
-            return gewicht_angulare_volumenstromregler(row)
+            return gewicht_angulare_volume_flow_controller(row)
 
         # Anwenden der Funktion auf jede Zeile
-        dataframe_rooms['Gewicht Volume_flow_controller'] = dataframe_rooms.apply(gewicht_volumenstromregler, axis=1)
+        dataframe_rooms['Gewicht Volume_flow_controller'] = dataframe_rooms.apply(gewicht_volume_flow_controller, axis=1)
 
         # dataframe_rooms["CO2-Volume_flow_controller"] = dataframe_rooms['Gewicht Volume_flow_controller'] * (
         #         19.08 + 0.01129 + 0.647) * 0.348432
@@ -3644,7 +3551,7 @@ class DesignExaustLCA(ITask):
 
         # Funktion zur Berechnung der Fläche des Kreisrings
         def volumen_daemmung_schalldaempfer(row):
-            calculated_diameter = row['calculated diameter']
+            calculated_diameter = row["equivalent diameter"]
             passende_zeilen = diameter_tabelle[diameter_tabelle['diameter'] >= calculated_diameter]
             if not passende_zeilen.empty:
                 naechster_diameter = passende_zeilen.iloc[0]
@@ -3686,7 +3593,7 @@ class DesignExaustLCA(ITask):
         # Funktion, um das nächstgrößere Gewicht zu finden
         def gewicht_schalldaempfer_ohne_daemmung(row):
             if row['silencer'] == 1:
-                calculated_diameter = row['calculated diameter']
+                calculated_diameter = row["equivalent diameter"]
                 passende_zeilen = df_trox_ca_diameter_gewicht[
                     df_trox_ca_diameter_gewicht['diameter'] >= calculated_diameter]
                 if not passende_zeilen.empty:
@@ -3715,14 +3622,14 @@ class DesignExaustLCA(ITask):
         dataframe_rooms['Isolation volume'] = dataframe_rooms['Cross-sectional area of insulation'] * dataframe_rooms[
             'duct length']
 
-        # gwp_kanaldaemmung = (
+        # gwp_ductdaemmung = (
         #             121.8 * (ureg.kilogram / ureg.meter ** 3) + 1.96 * (ureg.kilogram / ureg.meter ** 3) + 10.21 * (
         #                 ureg.kilogram / ureg.meter ** 3))
         # # https://www.oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?lang=de&uuid=eca9691f-06d7-48a7-94a9-ea808e2d67e8
         #
-        # list_dataframe_rooms_CO2_kanaldaemmung = [v * gwp_kanaldaemmung for v in dataframe_rooms["Isolation volume"]]
+        # list_dataframe_rooms_CO2_ductdaemmung = [v * gwp_ductdaemmung for v in dataframe_rooms["Isolation volume"]]
         #
-        # dataframe_rooms['CO2 Duct Isolation'] = list_dataframe_rooms_CO2_kanaldaemmung
+        # dataframe_rooms['CO2 Duct Isolation'] = list_dataframe_rooms_CO2_ductdaemmung
 
 
         # Export to Excel
