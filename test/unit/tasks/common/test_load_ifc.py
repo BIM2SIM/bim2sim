@@ -8,27 +8,30 @@ import bim2sim
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.tasks.common import LoadIFC
 
+from test.unit.tasks import TestTask
+from test.unit.elements.helper import SetupHelper
+from bim2sim.sim_settings import BaseSimSettings
+
 test_rsrc_path = Path(__file__).parent.parent.parent.parent / 'resources'
 
-
-class TestLoadIFC(unittest.TestCase):
-    load_task = None
-    export_path = None
-    playground = None
+class TestLoadIFC(TestTask):
+    @classmethod
+    def simSettingsClass(cls):
+        return BaseSimSettings()
 
     @classmethod
-    def setUpClass(cls) -> None:
-        # Set up playground, project and paths via mocks
-        cls.playground = mock.Mock()
-        project = mock.Mock()
-        paths = mock.Mock()
-        cls.playground.project = project
+    def testTask(cls):
+        return LoadIFC(cls.playground)
 
-        # Instantiate export task and set required values via mocks
-        cls.load_ifc_task = LoadIFC(cls.playground)
-        cls.load_ifc_task.prj_name = 'TestLoadIFC'
-        cls.load_ifc_task.paths = paths
-        cls.load_ifc_task.paths.finder = (
+    @classmethod
+    def helper(cls):
+        return SetupHelper()
+
+    # define setUpClass
+    @classmethod
+    def setUpClass(cls) -> None:
+        super().setUpClass()
+        cls.test_task.paths.finder = (
                 Path(bim2sim.__file__).parent /
                 'assets/finder/template_ArchiCAD.json')
 
@@ -42,8 +45,8 @@ class TestLoadIFC(unittest.TestCase):
         destination_file = subdir_path / source_file.name
         shutil.copy2(source_file, destination_file)
 
-        self.load_ifc_task.paths.ifc_base = temp_path / 'ifc'
-        touches = DebugDecisionHandler(answers=()).handle(self.load_ifc_task.run())
+        self.test_task.paths.ifc_base = temp_path / 'ifc'
+        touches = DebugDecisionHandler(answers=()).handle(self.test_task.run())
 
         ifc_file_name = touches[0][0].ifc_file_name
         ifc_schema = touches[0][0].schema
@@ -62,9 +65,9 @@ class TestLoadIFC(unittest.TestCase):
         destination_file = subdir_path / source_file.name
         shutil.copy2(source_file, destination_file)
 
-        self.load_ifc_task.paths.ifc_base = temp_path / 'ifc'
+        self.test_task.paths.ifc_base = temp_path / 'ifc'
         touches = DebugDecisionHandler(
-            answers=()).handle(self.load_ifc_task.run())
+            answers=()).handle(self.test_task.run())
 
         ifc_file_name = touches[0][0].ifc_file_name
         ifc_schema = touches[0][0].schema
@@ -85,9 +88,9 @@ class TestLoadIFC(unittest.TestCase):
         destination_file = subdir_path / source_file.name
         shutil.copy2(source_file, destination_file)
 
-        self.load_ifc_task.paths.ifc_base = temp_path / 'ifc'
+        self.test_task.paths.ifc_base = temp_path / 'ifc'
         touches = DebugDecisionHandler(
-            answers=()).handle(self.load_ifc_task.run())
+            answers=()).handle(self.test_task.run())
 
         ifc_file_name = touches[0][0].ifc_file_name
         ifc_schema = touches[0][0].schema
