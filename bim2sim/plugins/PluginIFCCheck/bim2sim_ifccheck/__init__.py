@@ -7,8 +7,8 @@ from bim2sim.tasks import common, bps
 from bim2sim.sim_settings import BuildingSimSettings
 
 
-class PluginTemplate(Plugin):
-    name = 'Template'
+class PluginIFCCheck(Plugin):
+    name = 'IFCCheck'
     sim_settings = BuildingSimSettings
     default_tasks = [
         common.LoadIFC,
