@@ -36,12 +36,10 @@ class CheckIfc(ITask):
         functions and export the errors found as .json and .html files.
 
         """
-        print("Task CheckIfcNew says Hello")
+        print("Task CheckIfc says Hello")
         self.logger.info(f"Processing IFC Check without ifcTester")
         paths = self.paths
-        print(ifc_files)
         for ifc_file in ifc_files:
-            print(ifc_file)
             self.run_check_guid_unique(ifc_file)
     
 
