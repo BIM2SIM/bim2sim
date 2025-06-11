@@ -16,7 +16,7 @@ from bim2sim.project import Project
 from bim2sim.sim_settings import BaseSimSettings
 from bim2sim.utilities.types import IFCDomain
 
-from bim2sim.tasks.common.check_ifc_ids import CheckIfcNew
+from bim2sim.tasks.common.check_ifc_ids import CheckIfc
 
 class PluginDummy(Plugin):
     name = 'test'
@@ -68,7 +68,7 @@ class TestCheckIFC(unittest.TestCase):
 
         for ifc_file in ifc_files:
             # self.run_check_guid_unique(ifc_file)
-            all_guids_checks_passed, non_unique_guids = CheckIfcNew.run_check_guid_unique(self, ifc_file)
+            all_guids_checks_passed, non_unique_guids = CheckIfc.run_check_guid_unique(self, ifc_file)
             self.assertEqual(all_guids_checks_passed, True, "Should be True")
 
 
