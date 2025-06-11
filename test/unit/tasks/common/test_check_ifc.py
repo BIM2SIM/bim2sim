@@ -1,14 +1,76 @@
 """Tests for the ifc check of bim2sim
 
-Based on ifctester and IDS (Information Delivery Specification)
+Based on ifctester and IDS (Information Delivery Specification), but also checks not
+based on ifctester (some requirements are not able to check with IDS v10)
 """
 
 import unittest
-import bim2sim.tasks.common.check_ifc_ids as check_ifc_ids
+import tempfile
 from pathlib import Path
 
+import bim2sim.tasks.common.load_ifc
+from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
+from bim2sim.elements.base_elements import ProductBased
+from bim2sim.plugins import Plugin
+from bim2sim.project import Project
+from bim2sim.sim_settings import BaseSimSettings
+from bim2sim.utilities.types import IFCDomain
+
+from bim2sim.tasks.common.check_ifc_ids import CheckIfcNew
+
+class PluginDummy(Plugin):
+    name = 'test'
+    sim_settings = BaseSimSettings
+    default_tasks = [
+        bim2sim.tasks.common.load_ifc.LoadIFC,
+    ]
 
 test_rsrc_path = Path(__file__).parent.parent.parent.parent / 'resources'
+
+
+class TestCheckIFC(unittest.TestCase):
+    """Tests for function checking IFC files, which are self made (these needed
+       features are not included in the library ifctester respectifly in IDS
+       standard
+
+    """
+
+    def tearDown(self):
+        self.project.finalize(True)
+        self.test_dir.cleanup()
+
+    def test_checkIFC_guid_unique_pass(self):
+        """test the boolean of the GUID uniqueness check, check pass
+           the following represent a project using the DummyPlugin
+        """
+        # TODO move test ifc file into resources and adapt path
+        ifc_file_guid_ok = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc'
+
+        self.test_dir = tempfile.TemporaryDirectory()
+        ifc_paths = {
+            IFCDomain.arch:
+                Path(bim2sim.__file__).parent.parent /
+                'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
+        }
+        self.project = Project.create(self.test_dir.name, ifc_paths,
+                                 plugin=PluginDummy, )
+        # TODO remove, mock or use default weather data path, because not needed
+        # for test ifc check
+        # but " = mock.Mock()" not works
+        self.project.sim_settings.weather_file_path = (
+                test_rsrc_path / 'weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+        # put project.run into DebugDecisionHandler is need, otherwise the
+        # playground.state() is empty and ifc_files are not available
+        handler = DebugDecisionHandler([ProductBased.key])
+        handler.handle(self.project.run(cleanup=False))
+
+        ifc_files = self.project.playground.state['ifc_files']
+
+        for ifc_file in ifc_files:
+            # self.run_check_guid_unique(ifc_file)
+            all_guids_checks_passed, non_unique_guids = CheckIfcNew.run_check_guid_unique(self, ifc_file)
+            self.assertEqual(all_guids_checks_passed, True, "Should be True")
+
 
 class TestCheckIFCSelfMade(unittest.TestCase):
     """Tests for function checking IFC files, which are self made (these needed
@@ -18,17 +80,18 @@ class TestCheckIFCSelfMade(unittest.TestCase):
     """
 # TODO Maybe seperate test cases: 1. with IDS/ifc_tester (without task ifc
 # load), 2. selfmade check (with task ifc load)
+# TODO bring some tests to class TestCheckIFC
     @classmethod
     def setUpClass(cls) -> None:
         print("run setUpClass")
 
-    def test_checkIFC_guid_unique_pass(self):
-        """test the boolean of the GUID uniqueness check, check pass
-        """
-        # TODO move test ifc file into resources and adapt path
-        ifc_file_guid_ok = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc'
-        all_guids_checks_passed, non_unique_guids = check_ifc_ids.run_check_guid_unique(ifc_file_guid_ok)
-        self.assertEqual(all_guids_checks_passed, True, "Should be True")
+    # def test_checkIFC_guid_unique_pass(self):
+    #     """test the boolean of the GUID uniqueness check, check pass
+    #     """
+    #     # TODO move test ifc file into resources and adapt path
+    #     ifc_file_guid_ok = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc'
+    #     all_guids_checks_passed, non_unique_guids = check_ifc_ids.run_check_guid_unique(ifc_file_guid_ok)
+    #     self.assertEqual(all_guids_checks_passed, True, "Should be True")
 
     def test_checkIFC_guid_unique_fail(self):
         """test the boolean of the GUID uniqueness check, check fails
@@ -165,3 +228,7 @@ class TestCheckIFCIfctester(unittest.TestCase):
         ids_file = '/home/cudok/Documents/12_ifc_check_ids/check_2LSB.ids'
         all_checks_passed = check_ifc_ids.run_ids_check_on_ifc(ifc_file, ids_file)
         self.assertEqual(all_checks_passed, False, "Should be false")
+
+
+if __name__ == "__main__":
+    unittest.main()
