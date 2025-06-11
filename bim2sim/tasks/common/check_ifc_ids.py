@@ -10,7 +10,7 @@ from bim2sim.tasks.base import ITask, Playground
 
 from bim2sim.kernel.ifc_file import IfcFileClass
 
-class CheckIfcNew(ITask):
+class CheckIfc(ITask):
     """
     Check ifc file for their quality regarding simulation.
     TODO rename Task CheckIfcNew >> CheckIfc and remove the old CheckIfc
@@ -39,11 +39,13 @@ class CheckIfcNew(ITask):
         print("Task CheckIfcNew says Hello")
         self.logger.info(f"Processing IFC Check without ifcTester")
         paths = self.paths
+        print(ifc_files)
         for ifc_file in ifc_files:
             print(ifc_file)
+            self.run_check_guid_unique(ifc_file)
     
 
-    def run_check_guid_unique(ifc_file: str) -> (bool, dict):
+    def run_check_guid_unique(self, ifc_file) -> (bool, dict):
         """check the uniqueness of the guids of the IFC file
 
         Input:
@@ -57,13 +59,14 @@ class CheckIfcNew(ITask):
            double_guid: dict
 
         """
-        model = ifcopenshell.open(ifc_file)
-
+        # TODO check this function with "false" ifc files
+        # TODO and adapt the tests in test folder
+        # TODO bring output into the log
         used_guids: dict[str, ifcopenshell.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
         double_guids: dict[str, ifcopenshell.entity_instance] = dict() # dict of elements with guids, which are not unique
         all_guids_unique = True
 
-        for inst in model:
+        for inst in ifc_file.file:
            if hasattr(inst, "GlobalId"):
                guid = inst.GlobalId
                name = inst.Name
