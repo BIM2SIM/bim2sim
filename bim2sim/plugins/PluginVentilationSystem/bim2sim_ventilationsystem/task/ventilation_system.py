@@ -58,7 +58,7 @@ class DesignVentilationSystem(ITask):
         self.export_graphs = self.playground.sim_settings.export_graphs
         air_flow_building = air_flow_building.to('m**3 / hour')
 
-        self.logger.info("Plot 3D Graph")
+        self.logger.info("Plot 3D graph")
         if self.export_graphs:
             self.plot_3d_graphs(graph_ventilation_duct_length_supply_air,
                                 graph_ventilation_duct_length_exhaust_air)
@@ -71,7 +71,7 @@ class DesignVentilationSystem(ITask):
                                               building_shaft_exhaust_air,
                                               z_coordinate_list)
 
-        self.logger.info("Calculate Fire Dampers")
+        self.logger.info("Calculate fire dampers")
         (dataframe_fire_dampers_supply_air,
          dataframe_fire_dampers_exhaust_air) = self.fire_dampers(corners_building,
                                                                  building_shaft_supply_air,
@@ -79,7 +79,7 @@ class DesignVentilationSystem(ITask):
                                                                  building_shaft_exhaust_air,
                                                                  dataframe_distribution_network_exhaust_air)
 
-        self.logger.info("CO2-Calcualtion for the complete ventilation system")
+        self.logger.info("CO2-Calculation for the complete ventilation system")
         total_gwp_supply_air, total_gwp_exhaust_air = self.co2_ventilation_system(air_flow_building,
                                                                                     dataframe_rooms_supply_air,
                                                                                     dataframe_rooms_exhaust_air,
@@ -117,28 +117,21 @@ class DesignVentilationSystem(ITask):
         draw_graph(graph_ventilation_duct_length_exhaust_air, 'orange', 'orange')  # Colors for the second graph
 
         # Axis labels and title
-        ax.set_xlabel('X-Achse in m')
-        ax.set_ylabel('Y-Achse in m')
-        ax.set_zlabel('Z-Achse in m')
-        ax.set_title("Lüftungskanäle Gebäude")
+        ax.set_xlabel('X-Axis in m')
+        ax.set_ylabel('Y-Axis in m')
+        ax.set_zlabel('Z-Axis in m')
+        ax.set_title("Ducts of the building")
 
         # Create custom legends
         legend_elements = [
-            Line2D([0], [0], marker='o', color='w', markerfacecolor='blue', markersize=10, label='Zuluft'),
-            Line2D([0], [0], marker='o', color='w', markerfacecolor='orange', markersize=10, label='Abluft')]
+            Line2D([0], [0], marker='o', color='w', markerfacecolor='blue', markersize=10, label='Supply air'),
+            Line2D([0], [0], marker='o', color='w', markerfacecolor='orange', markersize=10, label='Exhaust air')]
         ax.legend(handles=legend_elements)
 
-        # Setze den Pfad für den neuen Ordner
-        ordner_pfad = Path(self.paths.export / 'ventilation system' / 'complete system')
-
-        # Erstelle den Ordner
-        ordner_pfad.mkdir(parents=True, exist_ok=True)
-
-        pfad_plus_name = self.paths.export / 'ventilation system' / 'complete system' / '3D.png'
-        plt.savefig(pfad_plus_name)
-
-        # plt.show()
-
+        folder_path = Path(self.paths.export / 'ventilation system' / 'complete system')
+        folder_path.mkdir(parents=True, exist_ok=True)
+        path_and_name = self.paths.export / 'ventilation system' / 'complete system' / '3D.png'
+        plt.savefig(path_and_name)
         plt.close()
 
     def graph_supply_and_exhaust_air(self,
@@ -154,32 +147,31 @@ class DesignVentilationSystem(ITask):
 
             # Plot
             plt.figure(figsize=(8.3, 5.8) )
-            plt.xlabel('X-Achse in m',
+            plt.xlabel('X-Axis in m',
                        fontsize=12
                        )
-            plt.ylabel('Y-Achse in m',
+            plt.ylabel('Y-Axis in m',
                        fontsize=12
                        )
-            plt.title(f"Gesamtsystem {z_value}",
+            plt.title(f"Complete ventilation system {z_value}",
                       fontsize=12
                       )
             plt.grid(False)
             plt.subplots_adjust(left=0.03, bottom=0.04, right=0.99,
-                                top=0.96)  # Removes the border around the diagram, diagram quasi full screen
-            plt.axis('equal')  # Sorgt dafür das Plot maßstabsgebtreu ist
+                                top=0.96)
+            plt.axis('equal')  
 
-            # Positionen der Knoten festlegen
             pos_supply = {node: (node[0], node[1]) for node in
                           dict_steiner_tree_with_air_volume_supply_air[z_value].nodes()}
             pos_exhaust = {node: (node[0], node[1]) for node in
                            dict_steiner_tree_with_air_volume_exhaust_air[z_value].nodes()}
 
-            x_werte = [pos[0] for pos in pos_supply.values()] + [pos[0] for pos in pos_exhaust.values()]
-            y_werte = [pos[1] for pos in pos_supply.values()] + [pos[1] for pos in pos_exhaust.values()]
-            plt.xlim(min(x_werte) - 1, max(x_werte) + 1)
-            plt.ylim(min(y_werte) - 1, max(y_werte) + 1)
+            x_values = [pos[0] for pos in pos_supply.values()] + [pos[0] for pos in pos_exhaust.values()]
+            y_values = [pos[1] for pos in pos_supply.values()] + [pos[1] for pos in pos_exhaust.values()]
+            plt.xlim(min(x_values) - 1, max(x_values) + 1)
+            plt.ylim(min(y_values) - 1, max(y_values) + 1)
 
-            # Für Supply Air
+            # Supply air
             node_weights_supply = nx.get_node_attributes(dict_steiner_tree_with_air_volume_supply_air[z_value],
                                                          'weight')
             filtered_nodes_supply = [node for node, weight in node_weights_supply.items() if
@@ -187,13 +179,13 @@ class DesignVentilationSystem(ITask):
 
             nx.draw_networkx_nodes(dict_steiner_tree_with_air_volume_supply_air[z_value],
                                    pos_supply,
-                                   nodelist=filtered_nodes_supply,  # Verwenden der gefilterten Liste
+                                   nodelist=filtered_nodes_supply,  
                                    node_shape='s',
                                    node_color='blue',
                                    node_size=10
                                    )
 
-            # Für Exhaust Air
+            # Exhaust air
             node_weights_exhaust = nx.get_node_attributes(dict_steiner_tree_with_air_volume_exhaust_air[z_value],
                                                           'weight')
             filtered_nodes_exhaust = [node for node, weight in node_weights_exhaust.items() if
@@ -201,25 +193,25 @@ class DesignVentilationSystem(ITask):
 
             nx.draw_networkx_nodes(dict_steiner_tree_with_air_volume_exhaust_air[z_value],
                                    pos_exhaust,
-                                   nodelist=filtered_nodes_exhaust,  # Verwenden der gefilterten Liste
+                                   nodelist=filtered_nodes_exhaust, 
                                    node_shape='s',
                                    node_color='orange',
                                    node_size=10
                                    )
 
-            # Kanten zeichnen
+            # Draw edges
             nx.draw_networkx_edges(dict_steiner_tree_with_air_volume_supply_air[z_value], pos_supply, width=1,
                                    edge_color="blue")
             nx.draw_networkx_edges(dict_steiner_tree_with_air_volume_exhaust_air[z_value], pos_exhaust, width=1,
                                    edge_color="orange")
 
-            # Lüftungsschächte als grüne Vierecke zeichnen
+            # Draw ventilation shafts as green rectangles
             plt.scatter(building_shaft_supply_air[0], building_shaft_supply_air[1], s=10, marker='s',
-                        color='green', label='Lüftungsschacht Zuluft')
+                        color='green', label='shaft supply air')
             plt.scatter(building_shaft_exhaust_air[0], building_shaft_exhaust_air[1], s=10, marker='s',
-                        color='green', label='Lüftungsschacht Abluft')
+                        color='green', label='shaft exhaust air')
 
-            # Knotengewichte für Supply Air anpassen und Labels zeichnen
+            # node labels 
             node_labels_supply = nx.get_node_attributes(dict_steiner_tree_with_air_volume_supply_air[z_value],
                                                         'weight')
             filtered_labels_supply = {k: v.magnitude for k, v in node_labels_supply.items() if v != 0}
@@ -227,7 +219,6 @@ class DesignVentilationSystem(ITask):
             nx.draw_networkx_labels(dict_steiner_tree_with_air_volume_supply_air[z_value],
                                     pos_supply, labels=filtered_labels_supply, font_size=8, font_color="white")
 
-            # Knotengewichte für Exhaust Air anpassen und Labels zeichnen
             node_labels_exhaust = nx.get_node_attributes(dict_steiner_tree_with_air_volume_exhaust_air[z_value],
                                                          'weight')
             filtered_labels_exhaust = {k: v.magnitude for k, v in node_labels_exhaust.items() if v != 0}
@@ -235,35 +226,27 @@ class DesignVentilationSystem(ITask):
             nx.draw_networkx_labels(dict_steiner_tree_with_air_volume_exhaust_air[z_value],
                                     pos_exhaust, labels=filtered_labels_exhaust, font_size=8, font_color="white")
 
-            # Legende für Knoten
-            legend_knoten_supply = plt.Line2D([0], [0], marker='s', color='w', label='Lüftungsauslässe in m³/h',
+            # Node legend
+            legend_nodes_supply_air = plt.Line2D([0], [0], marker='s', color='w', label='ventilation outlet in m³/h',
                                               markerfacecolor='blue', markersize=8)
-            legend_knoten_exhaust = plt.Line2D([0], [0], marker='s', color='w', label='Lüftungseinlässe  in m³/h',
+            legend_nodes_exhaust_air = plt.Line2D([0], [0], marker='s', color='w', label='ventilation inlet  in m³/h',
                                                markerfacecolor='orange', markersize=8)
-            legend_shaft = plt.Line2D([0], [0], marker='s', color='w', label='Schacht in m³/h',
+            legend_shaft = plt.Line2D([0], [0], marker='s', color='w', label='shaft in m³/h',
                                       markerfacecolor='green', markersize=8)
 
-            # Legende für Kanten
-            edge_supply_air = plt.Line2D([0], [0], color='blue', lw=1, linestyle='-', label='Zuluftkanal')
-            edge_exhaust_air = plt.Line2D([0], [0], color='orange', lw=1, linestyle='-', label='Abluftkanal')
-
-            # Legende zum Plot hinzufügen
-            plt.legend(handles=[legend_knoten_supply, legend_knoten_exhaust, legend_shaft,edge_supply_air,edge_exhaust_air],
+            edge_supply_air = plt.Line2D([0], [0], color='blue', lw=1, linestyle='-', label='supply duct')
+            edge_exhaust_air = plt.Line2D([0], [0], color='orange', lw=1, linestyle='-', label='exhaust duct')
+            plt.legend(handles=[legend_nodes_supply_air, legend_nodes_exhaust_air, legend_shaft,edge_supply_air,edge_exhaust_air],
                        loc='best',
                        fontsize=8)
-
-            # Setze den Pfad für den neuen Ordner
-            ordner_pfad = Path(self.paths.export / 'ventilation system' / 'complete system')
-
-            # Erstelle den Ordner
-            ordner_pfad.mkdir(parents=True, exist_ok=True)
-
-            pfad_plus_name = ordner_pfad / f'complete system {z_value}.png'
+            
+            folder_path = Path(self.paths.export / 'ventilation system' / 'complete system')
+            folder_path.mkdir(parents=True, exist_ok=True)
+            path_and_name = folder_path / f'complete system {z_value}.png'
             plt.gca().patch.set_alpha(0)
             plt.xlim(-5, 50)
             plt.ylim(-5, 30)
-            plt.savefig(pfad_plus_name, transparent=True)
-
+            plt.savefig(path_and_name, transparent=True)
             plt.close()
 
     def fire_dampers(self,
@@ -275,8 +258,8 @@ class DesignVentilationSystem(ITask):
         """
         The function fire dampers calculates the number of needed firedampers.
         Assumptions: 400m² rule according to Bau Ord. NRW. for example
-                     number of fire dampers per floor: fire section = floor area/400m²
-                     number of fire dampers = (fire_sections + 1) / 2
+                     number_fire_dampers per floor: fire section = floor area/400m²
+                     number_fire_dampers = (fire_sections + 1) / 2
                      It is assumed that the duct cross-section constantly decreases away from the ventilation shaft.
                      The first fire damper therefore has the full size and the other fire dampers are selected smaller
                      as a percentage.
@@ -306,12 +289,12 @@ class DesignVentilationSystem(ITask):
                 400 * ureg.millimeter: 22.89 * ureg.kilogram,
                 450 * ureg.millimeter: 25.84 * ureg.kilogram,
                 500 * ureg.millimeter: 28.75 * ureg.kilogram,
-                550 * ureg.millimeter: 31.69 * ureg.kilogram,  # Extrapoliert
-                600 * ureg.millimeter: 34.60 * ureg.kilogram,  # Extrapoliert
-                650 * ureg.millimeter: 37.51 * ureg.kilogram,  # Extrapoliert
-                700 * ureg.millimeter: 40.42 * ureg.kilogram,  # Extrapoliert
-                750 * ureg.millimeter: 43.33 * ureg.kilogram,  # Extrapoliert
-                800 * ureg.millimeter: 46.24 * ureg.kilogram  # Extrapoliert
+                550 * ureg.millimeter: 31.69 * ureg.kilogram,  
+                600 * ureg.millimeter: 34.60 * ureg.kilogram,  
+                650 * ureg.millimeter: 37.51 * ureg.kilogram,  
+                700 * ureg.millimeter: 40.42 * ureg.kilogram,  
+                750 * ureg.millimeter: 43.33 * ureg.kilogram,  
+                800 * ureg.millimeter: 46.24 * ureg.kilogram  
             }
             # Sort the nominal sizes in ascending order
             sorted_nominal_sizes = sorted(nominal_size_weight_dict.keys())
@@ -330,10 +313,10 @@ class DesignVentilationSystem(ITask):
         fire_dampers_per_floor = (fire_sections + 1) / 2
 
         # dataframe fire damper supply air:
-        dataframe_fire_dampers_supply_air = pd.DataFrame(columns=['Startknoten',
-                                                                  'Zielknoten',
-                                                                  'Kante',
-                                                                  'rechnerischer Durchmesser'])  # dataframe for fire
+        dataframe_fire_dampers_supply_air = pd.DataFrame(columns=['starting_node',
+                                                                  'target_node',
+                                                                  'edge',
+                                                                  'equivalent_diameter'])  # dataframe for fire
         # fire dampers for supply air
         for index, line in dataframe_distribution_network_supply_air.iterrows():
             starting_point = line['starting_node']
@@ -342,13 +325,13 @@ class DesignVentilationSystem(ITask):
                     starting_point[1] == building_shaft_supply_air[1] and (
                     starting_point[2] == end_point[2]
             )):
-                new_rows = [{'Startknoten': dataframe_distribution_network_supply_air.at[index, 'starting_node'],
-                             'Zielknoten': dataframe_distribution_network_supply_air.at[index, 'target_node'],
-                             'Kante': dataframe_distribution_network_supply_air.at[index, 'edge'],
-                             'rechnerischer Durchmesser': dataframe_distribution_network_supply_air.at[
-                                 index, 'calculated diameter'],
-                             'Gewicht Brandschutzklappe': get_next_larger_weight_fire_damp(
-                                 dataframe_distribution_network_supply_air.at[index, 'calculated diameter'])}
+                new_rows = [{'starting_node': dataframe_distribution_network_supply_air.at[index, 'starting_node'],
+                             'target_node': dataframe_distribution_network_supply_air.at[index, 'target_node'],
+                             'edge': dataframe_distribution_network_supply_air.at[index, 'edge'],
+                             'equivalent_diameter': dataframe_distribution_network_supply_air.at[
+                                 index, 'equivalent_diameter'],
+                             'weight_fire_damper': get_next_larger_weight_fire_damp(
+                                 dataframe_distribution_network_supply_air.at[index, 'equivalent_diameter'])}
                             ]
 
                 # Add to dataframe
@@ -356,13 +339,13 @@ class DesignVentilationSystem(ITask):
                     [dataframe_fire_dampers_supply_air, pd.DataFrame(new_rows)],
                     ignore_index=True)
 
-        dataframe_fire_dampers_supply_air['Number of Fire Dampers'] = fire_dampers_per_floor
+        dataframe_fire_dampers_supply_air['number_fire_dampers'] = fire_dampers_per_floor
 
         # dataframe fire damper exhaust air:
-        dataframe_fire_dampers_exhaust_air = pd.DataFrame(columns=['Startknoten',
-                                                                  'Zielknoten',
-                                                                  'Kante',
-                                                                  'rechnerischer Durchmesser'])  # dataframe for fire dampers for supply air
+        dataframe_fire_dampers_exhaust_air = pd.DataFrame(columns=['starting_node',
+                                                                  'target_node',
+                                                                  'edge',
+                                                                  'equivalent_diameter'])  # dataframe for fire dampers for supply air
 
         for index, line in dataframe_distribution_network_exhaust_air.iterrows():
             starting_point = line['starting_node']
@@ -371,57 +354,52 @@ class DesignVentilationSystem(ITask):
                     end_point[1] == building_shaft_exhaust_air[1]) and (
                     starting_point[2] == end_point[2]
             ):
-                new_rows = [{'Startknoten': dataframe_distribution_network_exhaust_air.at[index, 'starting_node'],
-                             'Zielknoten': dataframe_distribution_network_exhaust_air.at[index, 'target_node'],
-                             'Kante': dataframe_distribution_network_exhaust_air.at[index, 'edge'],
-                             'rechnerischer Durchmesser': dataframe_distribution_network_exhaust_air.at[
-                                 index, 'calculated diameter'],
-                             'Gewicht Brandschutzklappe': get_next_larger_weight_fire_damp(
-                                 dataframe_distribution_network_exhaust_air.at[index, 'calculated diameter'])}
+                new_rows = [{'starting_node': dataframe_distribution_network_exhaust_air.at[index, 'starting_node'],
+                             'target_node': dataframe_distribution_network_exhaust_air.at[index, 'target_node'],
+                             'edge': dataframe_distribution_network_exhaust_air.at[index, 'edge'],
+                             'equivalent_diameter': dataframe_distribution_network_exhaust_air.at[
+                                 index, 'equivalent_diameter'],
+                             'weight_fire_damper': get_next_larger_weight_fire_damp(
+                                 dataframe_distribution_network_exhaust_air.at[index, 'equivalent_diameter'])}
                             ]
 
                 # Add to dataframe
                 dataframe_fire_dampers_exhaust_air = pd.concat(
                     [dataframe_fire_dampers_exhaust_air, pd.DataFrame(new_rows)], ignore_index=True)
 
-        dataframe_fire_dampers_exhaust_air['Number of Fire Dampers'] = fire_dampers_per_floor
+        dataframe_fire_dampers_exhaust_air['number_fire_dampers'] = fire_dampers_per_floor
 
         gwp_fire_damper_per_kilo = (20.7 + 0.177 + 0.112 + 2.84) / 6.827
         # https://oekobaudat.de/OEKOBAU.DAT/datasetdetail/process.xhtml?uuid=e8f279e9-d72d-4645-bb33-5651d9ec07c0&version=00.01.000&stock=OBD_2023_I&lang=de
 
-        dataframe_fire_dampers_supply_air['Gewicht Brandschutzklappe ges'] = dataframe_fire_dampers_supply_air[
-                                                                                 'Gewicht Brandschutzklappe'] * \
+        dataframe_fire_dampers_supply_air['sum_weight_fire_damper'] = dataframe_fire_dampers_supply_air[
+                                                                                 'weight_fire_damper'] * \
                                                                              dataframe_fire_dampers_supply_air[
-                                                                                 'Number of Fire Dampers'].astype(float)
-        dataframe_fire_dampers_exhaust_air['Gewicht Brandschutzklappe ges'] = dataframe_fire_dampers_exhaust_air[
-                                                                                  'Gewicht Brandschutzklappe'] * \
+                                                                                 'number_fire_dampers'].astype(float)
+        dataframe_fire_dampers_exhaust_air['sum_weight_fire_damper'] = dataframe_fire_dampers_exhaust_air[
+                                                                                  'weight_fire_damper'] * \
                                                                               dataframe_fire_dampers_exhaust_air[
-                                                                                  'Number of Fire Dampers'].astype(
+                                                                                  'number_fire_dampers'].astype(
                                                                                   float)
 
         # Calculating CO2
         list_dataframe_fire_dampers_supply_air_CO2_fire_dampers = [v * gwp_fire_damper_per_kilo for v in
                                                                    dataframe_fire_dampers_supply_air[
-                                                                       'Gewicht Brandschutzklappe ges']]
-        dataframe_fire_dampers_supply_air['CO2 Fire Damper'] = list_dataframe_fire_dampers_supply_air_CO2_fire_dampers
+                                                                       'sum_weight_fire_damper']]
+        dataframe_fire_dampers_supply_air['co2_fire_damper'] = list_dataframe_fire_dampers_supply_air_CO2_fire_dampers
 
         list_dataframe_fire_dampers_exhaust_air_CO2_fire_dampers = [v * gwp_fire_damper_per_kilo for v in
                                                                     dataframe_fire_dampers_exhaust_air[
-                                                                        'Gewicht Brandschutzklappe ges']]
-        dataframe_fire_dampers_exhaust_air['CO2 Fire Damper'] = list_dataframe_fire_dampers_exhaust_air_CO2_fire_dampers
+                                                                        'sum_weight_fire_damper']]
+        dataframe_fire_dampers_exhaust_air['co2_fire_damper'] = list_dataframe_fire_dampers_exhaust_air_CO2_fire_dampers
 
 
-        # Pfad für die Exportdatei definieren
-        export_pfad = self.paths.export / 'ventilation system' / 'complete system'
-        export_pfad.mkdir(parents=True, exist_ok=True)
+        path = self.paths.export / 'ventilation system' / 'complete system'
+        path.mkdir(parents=True, exist_ok=True)
 
-        # ExcelWriter verwenden, um mehrere dataframes in einer Excel-Datei zu speichern
-        with pd.ExcelWriter(export_pfad / 'fire_dampers.xlsx') as writer:
-            # Speichern des ersten dataframes in einem Tabellenblatt
-            dataframe_fire_dampers_supply_air.to_excel(writer, sheet_name='Brandschutzklappen Zuluft', index=False)
-
-            # Speichern des anderen dataframes in einem anderen Tabellenblatt
-            dataframe_fire_dampers_exhaust_air.to_excel(writer, sheet_name='Brandschutzklappen Abluft', index=False)
+        with pd.ExcelWriter(path / 'fire_dampers.xlsx') as writer:
+            dataframe_fire_dampers_supply_air.to_excel(writer, sheet_name='fire dampers supply air', index=False)
+            dataframe_fire_dampers_exhaust_air.to_excel(writer, sheet_name='fire dampers exhaust air', index=False)
 
         return dataframe_fire_dampers_supply_air, dataframe_fire_dampers_exhaust_air
 
