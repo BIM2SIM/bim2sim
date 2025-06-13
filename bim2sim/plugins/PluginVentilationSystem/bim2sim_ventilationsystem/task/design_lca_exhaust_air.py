@@ -1813,7 +1813,7 @@ class DesignExhaustLCA(ITask):
             shaft[u][v]['cross_section'] = self.dimensions_ventilation_duct('angular',
                                                                               self.necessary_cross_section(
                                                                                   shaft[u][v]['volume_flow']),
-                                                                              suspended_ceiling_space=2000)
+                                                                              suspended_ceiling_space=2000 * ureg.millimeter)
 
         # Add to dict
         dict_steiner_tree_with_duct_cross_section['shaft'] = deepcopy(shaft)

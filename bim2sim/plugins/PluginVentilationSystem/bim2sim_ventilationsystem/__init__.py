@@ -3,7 +3,7 @@
 Holds logic to create an optimal ventilation system based on ifc data
 """
 from bim2sim.plugins import Plugin
-from bim2sim.plugins.PluginVentilationSystem.bim2sim_ventilationsystem.task import (CalcAirFlow, DesignExaustLCA, DesignSupplyLCA,
+from bim2sim.plugins.PluginVentilationSystem.bim2sim_ventilationsystem.task import (CalcAirFlow, DesignExhaustLCA, DesignSupplyLCA,
                                                         DesignVentilationSystem)
 from bim2sim.tasks import common, bps
 from bim2sim.plugins.PluginVentilationSystem.bim2sim_ventilationsystem.sim_settings import VentilationSystemSimSettings
@@ -26,6 +26,6 @@ class PluginVentilationSystem(Plugin):
         # bps.EnrichMaterial,
         CalcAirFlow,
         DesignSupplyLCA,
-        DesignExaustLCA,
+        DesignExhaustLCA,
         DesignVentilationSystem,
     ]
