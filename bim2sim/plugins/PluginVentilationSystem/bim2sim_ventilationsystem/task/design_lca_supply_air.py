@@ -1434,7 +1434,7 @@ class DesignSupplyLCA(ITask):
                                          filtered_coords_ceiling_without_airflow,
                                          None,
                                          edge_label='volume_flow',
-                                         name=f'Steiner stree with air volume flow in m³ / h',
+                                         name=f'Steiner stree with air volume flow in m³ per h',
                                          unit_edge='m³/h',
                                          total_shell_surface=False,
                                          building_shaft_supply_air=starting_point

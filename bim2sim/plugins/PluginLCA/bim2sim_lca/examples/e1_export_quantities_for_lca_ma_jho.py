@@ -49,7 +49,7 @@ def run_example_complex_building_lca(lock,
         project.sim_settings.update_emission_parameter_from_oekobdauat = False
 
         project.sim_settings.calculate_lca_building = True
-        project.sim_settings.calculate_lca_hydraulic_system = True
+        project.sim_settings.calculate_lca_hydraulic_system = False
         project.sim_settings.calculate_lca_ventilation_system = True
 
         project.sim_settings.calculate_costs_building = True
@@ -78,9 +78,11 @@ def run_example_complex_building_lca(lock,
         project.sim_settings.heat_delivery_type = heat_delivery_type
         project.sim_settings.ufh_pipe_type = "PEX"
 
-        project.sim_settings.hydraulic_system_material_xlsx = Path(project_path, "export", "hydraulic system", "material_quantities_hydraulic_system.xlsx")
-        project.sim_settings.ventilation_supply_system_material_xlsx = Path(project_path / "export" / "ventilation system" / "supply air" / "dataframe_supply_air.xlsx")
-        project.sim_settings.ventilation_exhaust_system_material_xlsx = Path(project_path / "export" / "ventilation system" / "exhaust air" / "dataframe_exhaust_air.xlsx")
+        if project.sim_settings.calculate_lca_hydraulic_system:
+            project.sim_settings.hydraulic_system_material_xlsx = Path(project_path, "export", "hydraulic system", "material_quantities_hydraulic_system.xlsx")
+        if project.sim_settings.calculate_lca_ventilation_system:
+            project.sim_settings.ventilation_supply_system_material_xlsx = Path(project_path / "export" / "ventilation system" / "supply air" / "dataframe_supply_air.xlsx")
+            project.sim_settings.ventilation_exhaust_system_material_xlsx = Path(project_path / "export" / "ventilation system" / "exhaust air" / "dataframe_exhaust_air.xlsx")
 
     answers = (bldg_year,)
     handler = DebugDecisionHandler(answers)

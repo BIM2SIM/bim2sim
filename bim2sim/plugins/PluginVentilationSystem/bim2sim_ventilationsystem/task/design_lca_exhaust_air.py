@@ -1604,7 +1604,7 @@ class DesignExhaustLCA(ITask):
                                          filtered_coords_ceiling_without_airflow,
                                          filtered_coords_intersection_without_airflow,
                                          edge_label='volume_flow',
-                                         name=f'Steiner tree with air volume flow in m³ / h',
+                                         name=f'Steiner tree with air volume flow in m³ per h',
                                          edge_unit='m³/h',
                                          total_shell_surface=False,
                                          building_shaft_exhaust_air=building_shaft_exhaust_air
@@ -3201,7 +3201,7 @@ class DesignExhaustLCA(ITask):
     def connect_rooms(self, cross_section_type, suspended_ceiling_space, dataframe_rooms):
 
         # Determining the duct cross-section
-        dataframe_rooms['duct_cross_section'] = \
+        dataframe_rooms['cross_section'] = \
             dataframe_rooms.apply(lambda row: self.dimensions_ventilation_duct(cross_section_type,
                                                                      self.necessary_cross_section(
                                                                          row['volume_flow']),
@@ -3214,7 +3214,7 @@ class DesignExhaustLCA(ITask):
         dataframe_rooms['width'] = None
         dataframe_rooms['height'] = None
 
-        for index, duct_cross_section in enumerate(dataframe_rooms['duct_cross_section']):
+        for index, duct_cross_section in enumerate(dataframe_rooms['cross_section']):
             if 'Ø' in duct_cross_section:
                 dataframe_rooms.at[index, 'diameter'] = self.find_dimension(duct_cross_section)
 
@@ -3238,7 +3238,7 @@ class DesignExhaustLCA(ITask):
 
         # Determining the sheet thickness
         dataframe_rooms['sheet_thickness'] = dataframe_rooms.apply(
-            lambda row: self.calculate_sheet_metal_thickness(70, row['duct_cross_section']), axis=1)
+            lambda row: self.calculate_sheet_metal_thickness(70, row['cross_section']), axis=1)
 
         # Check whether a silencer is required
         list_rooms_silencers = ['Bed room',
@@ -3298,7 +3298,7 @@ class DesignExhaustLCA(ITask):
         Calculation of necessary sheet metal of the exhaust air distribution system
         """
         dataframe_distribution_network_exhaust_air['sheet_thickness'] = dataframe_distribution_network_exhaust_air.apply(
-            lambda row: self.calculate_sheet_metal_thickness(pressure_loss, row['duct_cross_section']), axis=1)
+            lambda row: self.calculate_sheet_metal_thickness(pressure_loss, row['cross_section']), axis=1)
 
         # Determining the sheet thickness
         dataframe_distribution_network_exhaust_air['sheet_volume'] = dataframe_distribution_network_exhaust_air[

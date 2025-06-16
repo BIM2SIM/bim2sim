@@ -36,23 +36,23 @@ class CalculateEmissionVentilationSystem(ITask):
                                                          material_cost_dict)
 
             (supply_dict, total_gwp_supply, total_cost_supply,
-             total_pipe_mass_supply, total_isolation_mass_supply) = self.calulcate_pipe(
+             total_pipe_weight_supply, total_insulation_weight_supply) = self.calulcate_pipe(
                                                                         duct_dict=supply_dict,
                                                                         material_emission_dict=material_emission_dict,
                                                                         material_cost_dict=material_cost_dict)
 
             (exhaust_dict, total_gwp_exhaust, total_cost_exhaust,
-             total_pipe_mass_exhaust, total_isolation_mass_exhaust) = self.calulcate_pipe(
+             total_pipe_weight_exhaust, total_insulation_weight_exhaust) = self.calulcate_pipe(
                                                                         duct_dict=exhaust_dict,
                                                                         material_emission_dict=material_emission_dict,
                                                                         material_cost_dict=material_cost_dict)
 
             self.write_xlsx(supply_dict=supply_dict,
                             exhaust_dict=exhaust_dict,
-                            total_pipe_mass_supply=total_pipe_mass_supply,
-                            total_pipe_mass_exhaust=total_pipe_mass_exhaust,
-                            total_isolation_mass_supply=total_isolation_mass_supply,
-                            total_isolation_mass_exhaust=total_isolation_mass_exhaust,
+                            total_pipe_weight_supply=total_pipe_weight_supply,
+                            total_pipe_weight_exhaust=total_pipe_weight_exhaust,
+                            total_insulation_weight_supply=total_insulation_weight_supply,
+                            total_insulation_weight_exhaust=total_insulation_weight_exhaust,
                             total_gwp_supply=total_gwp_supply,
                             total_gwp_exhaust=total_gwp_exhaust,
                             total_cost_supply=total_cost_supply,
@@ -85,9 +85,9 @@ class CalculateEmissionVentilationSystem(ITask):
         pipe_dict = {}
         for index, row in df.iterrows():
 
-            pipe_dict[index] = {"Duct weight [kg]": row["Sheet weight"],
-                                "Isolation Volume [m³]": row["Isolation volume"],
-                                "Surface Area [m²]": row["Surface area"]}
+            pipe_dict[index] = {"Duct weight in kg": row["sheet_weight"],
+                                "Insulation Volume in m³": row["insulation_volume"],
+                                "Surface Area in m²": row["surface_area"]}
         pipe_dict.pop(len(pipe_dict) - 1)
 
         return pipe_dict
@@ -98,34 +98,34 @@ class CalculateEmissionVentilationSystem(ITask):
                        material_emission_dict:dict,
                        material_cost_dict:dict):
 
-        total_pipe_mass = 0
-        total_isolation_mass = 0
+        total_pipe_weight = 0
+        total_insulation_weight = 0
         total_gwp = 0
         total_cost = 0
 
         emission_pipe = material_emission_dict["Lueftungskanal"]
-        emission_isolation = material_emission_dict["Mineralwolle-Daemmstoff"]
+        emission_insulation = material_emission_dict["Mineralwolle-Daemmstoff"]
         cost_pipe = material_cost_dict["Lueftungskanal_m2"]
 
         copy_duct_dict = duct_dict.copy()
         for pipe in copy_duct_dict:
-            mass_pipe = copy_duct_dict[pipe]["Duct weight [kg]"]
+            weight_pipe = copy_duct_dict[pipe]["Duct weight in kg"]
             # we need to recalculate this *100 because rho=100kg/m3
-            mass_isolation = copy_duct_dict[pipe]["Isolation Volume [m³]"] * 100
-            surface_area = ureg(copy_duct_dict[pipe]["Surface Area [m²]"]).magnitude
+            weight_insulation = copy_duct_dict[pipe]["Insulation Volume in m³"] * 100
+            surface_area = ureg(copy_duct_dict[pipe]["Surface Area in m²"]).magnitude
 
-            emission = round(mass_pipe * emission_pipe + mass_isolation * emission_isolation, 2)
+            emission = round(weight_pipe * emission_pipe + weight_insulation * emission_insulation, 2)
             cost = round(surface_area * cost_pipe, 2)
-            copy_duct_dict[pipe]["GWP [kg CO2-eq]"] = emission
-            copy_duct_dict[pipe]["Cost [€]"] = cost
+            copy_duct_dict[pipe]["GWP in kg CO2-eq"] = emission
+            copy_duct_dict[pipe]["Cost in €"] = cost
 
-            total_pipe_mass += mass_pipe
-            total_isolation_mass += mass_isolation
+            total_pipe_weight += weight_pipe
+            total_insulation_weight += weight_insulation
             total_gwp += emission
             total_cost += cost
 
 
-        return copy_duct_dict, total_gwp, total_cost, total_pipe_mass, total_isolation_mass
+        return copy_duct_dict, total_gwp, total_cost, total_pipe_weight, total_insulation_weight
 
     def calculate_components(
             self, room_supply_dict: dict, room_exhaust_dict: dict,
@@ -141,7 +141,7 @@ class CalculateEmissionVentilationSystem(ITask):
 
         emission_fire_damper_spec = material_emission_dict[
             "Brandschutzklappe"]  # per kg
-        emission_isolation_spec = material_emission_dict[
+        emission_insulation_spec = material_emission_dict[
             "Mineralwolle-Daemmstoff"]  # per kg
         emission_duct_sheet_spec = material_emission_dict[
             "Lueftungskanal"]  # per kg
@@ -156,25 +156,25 @@ class CalculateEmissionVentilationSystem(ITask):
         room_supply_dict_cp = room_supply_dict.copy()
         for room in room_supply_dict_cp:
             # Safely extract values with default of 0 for NaN or missing values
-            mass_vav = self._safe_get_value(room_supply_dict_cp[room],
-                                            "VAV Weight [kg]", 0)
+            weight_vav = self._safe_get_value(room_supply_dict_cp[room],
+                                            "weight_volume_flow_controller", 0)
             insulation_volume = self._safe_get_value(room_supply_dict_cp[room],
-                                                     "Isolation volume Silencer [m³]",
+                                                     "insulation_volume_silencer",
                                                      0)
-            mass_sheet_silencer = self._safe_get_value(
-                room_supply_dict_cp[room], "Gewicht Blech Silencer [kg]", 0)
+            weight_sheet_silencer = self._safe_get_value(
+                room_supply_dict_cp[room], "weight_insulation_silencer", 0)
 
             # Only calculate if we have valid data
-            if mass_vav > 0:
-                emission_vav = mass_vav * emission_vav_spec
+            if weight_vav > 0:
+                emission_vav = weight_vav * emission_vav_spec
                 total_gwp_vav += emission_vav
                 total_cost_vav += cost_vav_spec
 
             # Calculate silencer emissions only if we have valid silencer data
-            if insulation_volume > 0 or mass_sheet_silencer > 0:
+            if insulation_volume > 0 or weight_sheet_silencer > 0:
                 # We need to recalculate this *100 because rho=100kg/m3
-                mass_insulation_silencer = insulation_volume * 100
-                emission_silencer = mass_insulation_silencer * emission_isolation_spec + mass_sheet_silencer * emission_duct_sheet_spec
+                weight_insulation_silencer = insulation_volume * 100
+                emission_silencer = weight_insulation_silencer * emission_insulation_spec + weight_sheet_silencer * emission_duct_sheet_spec
                 total_gwp_silencer += emission_silencer
                 total_cost_silencer += cost_silencer_spec
 
@@ -183,36 +183,36 @@ class CalculateEmissionVentilationSystem(ITask):
         # room_exhaust_dict_cp = room_exhaust_dict.copy()
         # for room in room_exhaust_dict_cp:
         #     # Safely extract values with default of 0 for NaN or missing values
-        #     mass_vav = self._safe_get_value(room_exhaust_dict_cp[room],
-        #                                     "VAV Weight [kg]", 0)
+        #     weight_vav = self._safe_get_value(room_exhaust_dict_cp[room],
+        #                                     "VAV Weight in kg", 0)
         #     insulation_volume = self._safe_get_value(
-        #         room_exhaust_dict_cp[room], "Isolation volume Silencer [m³]",
+        #         room_exhaust_dict_cp[room], "Insulation volume Silencer in m³",
         #         0)
-        #     mass_sheet_silencer = self._safe_get_value(
-        #         room_exhaust_dict_cp[room], "Gewicht Blech Silencer [kg]", 0)
+        #     weight_sheet_silencer = self._safe_get_value(
+        #         room_exhaust_dict_cp[room], "Gewicht Blech Silencer in kg", 0)
         #
         #     # Only calculate if we have valid data
-        #     if mass_vav > 0:
-        #         emission_vav = mass_vav * emission_vav_spec
+        #     if weight_vav > 0:
+        #         emission_vav = weight_vav * emission_vav_spec
         #         total_gwp_vav += emission_vav
         #         total_cost_vav += cost_vav_spec
         #
         #     # Calculate silencer emissions only if we have valid silencer data
-        #     if insulation_volume > 0 or mass_sheet_silencer > 0:
+        #     if insulation_volume > 0 or weight_sheet_silencer > 0:
         #         # We need to recalculate this *100 because rho=100kg/m3
-        #         mass_insulation_silencer = insulation_volume * 100
-        #         emission_silencer = mass_insulation_silencer * emission_isolation_spec + mass_sheet_silencer * emission_duct_sheet_spec
+        #         weight_insulation_silencer = insulation_volume * 100
+        #         emission_silencer = weight_insulation_silencer * emission_insulation_spec + weight_sheet_silencer * emission_duct_sheet_spec
         #         total_gwp_silencer += emission_silencer
         #         total_cost_silencer += cost_silencer_spec
 
 
         fire_damper_dict_cp = fire_damper_dict.copy()
         for idx in fire_damper_dict_cp:
-            mass_fire_damper = self._safe_get_value(
-                fire_damper_dict_cp[idx], "Gewicht Brandschutzklappe[kg]",
+            weight_fire_damper = self._safe_get_value(
+                fire_damper_dict_cp[idx], "weight_fire_damper",
                 0)
-            if mass_fire_damper > 0:
-                total_gwp_fire_damper += mass_fire_damper * emission_fire_damper_spec
+            if weight_fire_damper > 0:
+                total_gwp_fire_damper += weight_fire_damper * emission_fire_damper_spec
                 total_cost_fire_damper += cost_fire_damper_spec
 
         return (total_gwp_fire_damper, total_cost_fire_damper,
@@ -260,10 +260,10 @@ class CalculateEmissionVentilationSystem(ITask):
     def write_xlsx(self,
                    supply_dict,
                    exhaust_dict,
-                   total_pipe_mass_supply,
-                   total_pipe_mass_exhaust,
-                   total_isolation_mass_supply,
-                   total_isolation_mass_exhaust,
+                   total_pipe_weight_supply,
+                   total_pipe_weight_exhaust,
+                   total_insulation_weight_supply,
+                   total_insulation_weight_exhaust,
                    total_gwp_supply,
                    total_gwp_exhaust,
                    total_cost_supply,
@@ -282,32 +282,32 @@ class CalculateEmissionVentilationSystem(ITask):
         # data["Component"] = component_material_emission
         # data["Component"]["Total"] = total_gwp_component
         data["Supply Duct"] = supply_dict
-        data["Supply Duct"]["Total"] = {"Mass Duct [kg]": total_pipe_mass_supply,
-                                        "Mass Isolation [kg]": total_isolation_mass_supply,
-                                        "GWP [kg CO2-eq]": total_gwp_supply,
-                                         "Cost [€]": total_cost_supply}
+        data["Supply Duct"]["Total"] = {"Duct weight in kg": total_pipe_weight_supply,
+                                        "Insulation weight in kg": total_insulation_weight_supply,
+                                        "GWP in kg CO2-eq": total_gwp_supply,
+                                        "Cost in €": total_cost_supply}
         data["Exhaust Duct"] = exhaust_dict
-        data["Exhaust Duct"]["Total"] = {"Mass Duct [kg]": total_pipe_mass_exhaust,
-                                         "Mass Isolation [kg]": total_isolation_mass_exhaust,
-                                         "GWP [kg CO2-eq]": total_gwp_exhaust,
-                                         "Cost [€]": total_cost_exhaust}
+        data["Exhaust Duct"]["Total"] = {"Duct weight in kg": total_pipe_weight_exhaust,
+                                         "Insulation weight in kg": total_insulation_weight_exhaust,
+                                         "GWP in kg CO2-eq": total_gwp_exhaust,
+                                         "Cost in €": total_cost_exhaust}
         data["Totals"] = {}
-        data["Totals"]["GWP [kg CO2-eq]"] = {}
-        data["Totals"]["GWP [kg CO2-eq]"]["Supply"] = total_gwp_supply
-        data["Totals"]["GWP [kg CO2-eq]"]["Exhaust"] = total_gwp_exhaust
-        data["Totals"]["GWP [kg CO2-eq]"]["Fire Dampers"] = total_gwp_fire_damper
-        data["Totals"]["GWP [kg CO2-eq]"]["VAVs"] = total_gwp_vav
-        data["Totals"]["GWP [kg CO2-eq]"]["Silencer"] = total_gwp_silencer
-        data["Totals"]["GWP [kg CO2-eq]"]["Total"] = total_gwp_supply + total_gwp_exhaust + total_gwp_fire_damper + total_gwp_vav + total_gwp_silencer
+        data["Totals"]["GWP in kg CO2-eq"] = {}
+        data["Totals"]["GWP in kg CO2-eq"]["Supply"] = total_gwp_supply
+        data["Totals"]["GWP in kg CO2-eq"]["Exhaust"] = total_gwp_exhaust
+        data["Totals"]["GWP in kg CO2-eq"]["Fire Dampers"] = total_gwp_fire_damper
+        data["Totals"]["GWP in kg CO2-eq"]["Volume Flow Controller"] = total_gwp_vav
+        data["Totals"]["GWP in kg CO2-eq"]["Silencer"] = total_gwp_silencer
+        data["Totals"]["GWP in kg CO2-eq"]["Total"] = total_gwp_supply + total_gwp_exhaust + total_gwp_fire_damper + total_gwp_vav + total_gwp_silencer
 
-        data["Totals"]["Cost [€]"] = {}
-        data["Totals"]["Cost [€]"]["Supply"] = total_cost_supply
-        data["Totals"]["Cost [€]"]["Exhaust"] = total_cost_exhaust
-        data["Totals"]["Cost [€]"]["Fire Dampers"] = total_cost_fire_damper
-        data["Totals"]["Cost [€]"]["VAVs"] = total_cost_vav
-        data["Totals"]["Cost [€]"]["Silencer"] = total_cost_silencer
+        data["Totals"]["Cost in €"] = {}
+        data["Totals"]["Cost in €"]["Supply"] = total_cost_supply
+        data["Totals"]["Cost in €"]["Exhaust"] = total_cost_exhaust
+        data["Totals"]["Cost in €"]["Fire Damper"] = total_cost_fire_damper
+        data["Totals"]["Cost in €"]["Volume Flow Controller"] = total_cost_vav
+        data["Totals"]["Cost in €"]["Silencer"] = total_cost_silencer
 
-        data["Totals"]["Cost [€]"]["Total"] = total_cost_supply + total_cost_exhaust + total_cost_fire_damper + total_cost_vav + total_cost_silencer
+        data["Totals"]["Cost in €"]["Total"] = total_cost_supply + total_cost_exhaust + total_cost_fire_damper + total_cost_vav + total_cost_silencer
 
         with pd.ExcelWriter(self.paths.export / "lca_lcc_ventilation_system.xlsx") as writer:
             for key, values in data.items():
@@ -322,9 +322,9 @@ class CalculateEmissionVentilationSystem(ITask):
         room_dict = {}
         for index, row in df.iterrows():
 
-            room_dict[index] = {"VAV Weight [kg]": row["Gewicht Volume_flow_controller"],
-                                "Isolation volume Silencer [m³]": row["Isolation volume silencer"],
-                                "Gewicht Blech Silencer [kg]": row["Gewicht Blech silencer"]}
+            room_dict[index] = {"Weight of Volume Flow Controller in kg": row["weight_volume_flow_controller"],
+                                "insulation volume of Silencer in m³": row["insulation_volume_silencer"],
+                                "Sheet weight of Silencer in kg": row["weight_metal_silencer"]}
         room_dict.pop(len(room_dict) - 1)
 
         return room_dict
@@ -336,21 +336,21 @@ class CalculateEmissionVentilationSystem(ITask):
         # Load supply data
         with open(data_path, "rb") as excel_file:
             df_supply = pd.read_excel(excel_file, engine="openpyxl",
-                                      sheet_name="Brandschutzklappen Zuluft")
+                                      sheet_name="fire dampers supply air")
 
         for _, row in df_supply.iterrows():
-            fire_damper_dict[counter] = {"Gewicht Brandschutzklappe[kg]": row[
-                "Gewicht Brandschutzklappe ges"]}
+            fire_damper_dict[counter] = {"Fire damper weight in kg": row[
+                "sum_weight_fire_damper"]}
             counter += 1
 
         # Load exhaust data
         with open(data_path, "rb") as excel_file:
             df_exhaust = pd.read_excel(excel_file, engine="openpyxl",
-                                       sheet_name="Brandschutzklappen Abluft")
+                                       sheet_name="fire dampers exhaust air")
 
         for _, row in df_exhaust.iterrows():
-            fire_damper_dict[counter] = {"Gewicht Brandschutzklappe[kg]": row[
-                "Gewicht Brandschutzklappe ges"]}
+            fire_damper_dict[counter] = {"Fire damper weight in kg": row[
+                "sum_weight_fire_damper"]}
             counter += 1
 
         return fire_damper_dict
