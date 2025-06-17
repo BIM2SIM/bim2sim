@@ -39,6 +39,10 @@ class TestCheckIFC(unittest.TestCase):
         self.project.finalize(True)
         self.test_dir.cleanup()
 
+    def weather_file_path(self) -> Path:
+        return (test_rsrc_path /
+                'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
+
     def test_checkIFC_guid_unique_pass(self):
         """test the boolean of the GUID uniqueness check, check pass
            the following represent a project using the DummyPlugin
@@ -54,11 +58,9 @@ class TestCheckIFC(unittest.TestCase):
         }
         self.project = Project.create(self.test_dir.name, ifc_paths,
                                  plugin=PluginDummy, )
-        # TODO remove, mock or use default weather data path, because not needed
-        # for test ifc check
-        # but " = mock.Mock()" not works
-        self.project.sim_settings.weather_file_path = (
-                test_rsrc_path / 'weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+        # weather data path is mandatory and "mocking" is not working
+        # so use a central defintion of weather file
+        self.project.sim_settings.weather_file_path = self.weather_file_path()
         # put project.run into DebugDecisionHandler is need, otherwise the
         # playground.state() is empty and ifc_files are not available
         handler = DebugDecisionHandler([ProductBased.key])
