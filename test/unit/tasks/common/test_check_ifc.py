@@ -43,18 +43,20 @@ class TestCheckIFC(unittest.TestCase):
         return (test_rsrc_path /
                 'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
 
+    # TODO move test ifc file into resources and adapt path
+    #
+    ifc_file_fkz = Path(bim2sim.__file__).parent.parent / 'test/resources/arch/ifc/AC20-FZK-Haus.ifc'
+    ifc_file_fkz_DoubleAndNoneGUID = Path(
+        '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_NoneAndDoubleGUID.ifc')
+
     def test_checkIFC_guid_unique_pass(self):
         """test the boolean of the GUID uniqueness check, check pass
            the following represent a project using the DummyPlugin
         """
-        # TODO move test ifc file into resources and adapt path
-        ifc_file_guid_ok = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc'
 
         self.test_dir = tempfile.TemporaryDirectory()
         ifc_paths = {
-            IFCDomain.arch:
-                Path(bim2sim.__file__).parent.parent /
-                'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
+            IFCDomain.arch: self.ifc_file_fkz,
         }
         self.project = Project.create(self.test_dir.name, ifc_paths,
                                  plugin=PluginDummy, )
@@ -72,6 +74,32 @@ class TestCheckIFC(unittest.TestCase):
             # self.run_check_guid_unique(ifc_file)
             all_guids_checks_passed, non_unique_guids = CheckIfc.run_check_guid_unique(self, ifc_file)
             self.assertEqual(all_guids_checks_passed, True, "Should be True")
+
+    def test_checkIFC_guid_unique_fail(self):
+        """test the boolean of the GUID uniqueness check, check fail
+           the following represent a project using the DummyPlugin
+        """
+
+        self.test_dir = tempfile.TemporaryDirectory()
+        ifc_paths = {
+            IFCDomain.arch: self.ifc_file_fkz_DoubleAndNoneGUID,
+        }
+        self.project = Project.create(self.test_dir.name, ifc_paths,
+                                 plugin=PluginDummy, )
+        # weather data path is mandatory and "mocking" is not working
+        # so use a central defintion of weather file
+        self.project.sim_settings.weather_file_path = self.weather_file_path()
+        # put project.run into DebugDecisionHandler is need, otherwise the
+        # playground.state() is empty and ifc_files are not available
+        handler = DebugDecisionHandler([ProductBased.key])
+        handler.handle(self.project.run(cleanup=False))
+
+        ifc_files = self.project.playground.state['ifc_files']
+
+        for ifc_file in ifc_files:
+            # self.run_check_guid_unique(ifc_file)
+            all_guids_checks_passed, non_unique_guids = CheckIfc.run_check_guid_unique(self, ifc_file)
+            self.assertEqual(all_guids_checks_passed, False, "Should be False")
 
 
 class TestCheckIFCSelfMade(unittest.TestCase):
