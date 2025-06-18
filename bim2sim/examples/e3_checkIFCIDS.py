@@ -7,6 +7,7 @@ from bim2sim.elements import bps_elements
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.types import IFCDomain
 from bim2sim.elements.base_elements import Material
+from bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck import PluginIFCCheck
 
 
 def run_simple_project():
@@ -32,7 +33,7 @@ def run_simple_project():
     }
 
     project = Project.create(
-        project_path, ifc_paths, 'IFCCheck')
+        project_path, ifc_paths, PluginIFCCheck)
 
     # Next to the plugin that should be used we can do further configuration
     # by using the `sim_settings`. `sim_settings` are meant to configure the
@@ -48,6 +49,11 @@ def run_simple_project():
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 
+    # assign an IDS file, which is needed to check the ifc file by ifctester
+    project.sim_settings.ids_file_path = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/ids/fail-a_minimal_ids_can_check_a_minimal_ifc_1_2.ids'
+    )
     # Assign the enrichment for use conditions of thermal zones.
 
     # bim2sim allows to enrich the use conditions, e.g. how many persons are
