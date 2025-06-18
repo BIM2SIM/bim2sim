@@ -14,13 +14,15 @@ from bim2sim.elements.base_elements import ProductBased
 from bim2sim.plugins import Plugin
 from bim2sim.project import Project
 from bim2sim.sim_settings import BaseSimSettings
+from bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck.sim_settings import \
+    CheckIFCSimSettings
 from bim2sim.utilities.types import IFCDomain
 
 from bim2sim.tasks.common.check_ifc_ids import CheckIfc
 
 class PluginDummy(Plugin):
     name = 'test'
-    sim_settings = BaseSimSettings
+    sim_settings = CheckIFCSimSettings
     default_tasks = [
         bim2sim.tasks.common.load_ifc.LoadIFC,
     ]
