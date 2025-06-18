@@ -137,6 +137,33 @@ class TestCheckIFC(unittest.TestCase):
             list_guids_non_unique = list(non_unique_guids.keys())
             self.assertEqual(list_guids_non_unique, predicted_result, "Should be a list of 2 GUIDs")
 
+    def test_run_check_guid_empty_fail(self):
+        """test the boolean of all GUIDs has a value check, check fails
+        """
+        self.test_dir = tempfile.TemporaryDirectory()
+        ifc_paths = {
+            IFCDomain.arch: self.ifc_file_fkz_SB55_DoubleAndNoneGUID,
+        }
+        self.project = Project.create(self.test_dir.name, ifc_paths,
+                                 plugin=PluginDummy, )
+        # weather data path is mandatory and "mocking" is not working
+        # so use a central defintion of weather file
+        self.project.sim_settings.weather_file_path = self.weather_file_path()
+        # put project.run into DebugDecisionHandler is need, otherwise the
+        # playground.state() is empty and ifc_files are not available
+        # default answer for decision questions
+        answers = ('Other', 'Other',)
+        handler = DebugDecisionHandler(answers)
+        handler.handle(self.project.run(cleanup=False))
+
+        ifc_files = self.project.playground.state['ifc_files']
+
+        for ifc_file in ifc_files:
+            # self.run_check_guid_unique(ifc_file)
+            all_guids_filled_passed, empty_guids = CheckIfc.run_check_guid_empty(self, ifc_file)
+            self.assertEqual(all_guids_filled_passed, False, "Should be false")
+
+
 class TestCheckIFCSelfMade(unittest.TestCase):
     """Tests for function checking IFC files, which are self made (these needed
        features are not included in the library ifctester respectifly in IDS
