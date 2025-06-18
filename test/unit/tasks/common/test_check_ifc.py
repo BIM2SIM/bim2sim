@@ -112,7 +112,6 @@ class TestCheckIFC(unittest.TestCase):
         """test the guid return of a failed GUID uniqueness check
            the following represent a project using the DummyPlugin
         """
-        # TODO move test ifc file into resources and adapt path
         self.test_dir = tempfile.TemporaryDirectory()
         ifc_paths = {
             IFCDomain.arch: self.ifc_file_fkz_SB55_DoubleAndNoneGUID,
