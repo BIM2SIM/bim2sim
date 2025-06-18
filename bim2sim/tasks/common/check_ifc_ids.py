@@ -41,6 +41,7 @@ class CheckIfc(ITask):
         paths = self.paths
         for ifc_file in ifc_files:
             self.run_check_guid_unique(ifc_file)
+            self.run_check_guid_empty(ifc_file)
     
 
     def run_check_guid_unique(self, ifc_file) -> (bool, dict):
@@ -57,8 +58,6 @@ class CheckIfc(ITask):
            double_guid: dict
 
         """
-        # TODO check this function with "false" ifc files
-        # TODO and adapt the tests in test folder
         # TODO bring output into the log
         used_guids: dict[str, ifcopenshell.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
         double_guids: dict[str, ifcopenshell.entity_instance] = dict() # dict of elements with guids, which are not unique
@@ -83,51 +82,50 @@ class CheckIfc(ITask):
         print("<<<<<<")
         return (all_guids_unique, double_guids)
 
-def run_check_guid_empty(ifc_file: str) -> (bool, dict):
-    """check it there is/are guid/s, which is/are empty in the IFC file
+    def run_check_guid_empty(self, ifc_file) -> (bool, dict):
+        """check it there is/are guid/s, which is/are empty in the IFC file
 
-    Input:
-        ifc_file: path of the IFC file, which is checked
+        Input:
+            ifc_file: path of the IFC file, which is checked
 
-    Returns:
-        all_guids_filled: boolean
-                      (true: all guids has a value (not empty)
-                       false: one or more guids has not value (empty))
+        Returns:
+            all_guids_filled: boolean
+                          (true: all guids has a value (not empty)
+                           false: one or more guids has not value (empty))
 
-       empty_guid: dict
+           empty_guid: dict
 
-    """
-    model = ifcopenshell.open(ifc_file)
+        """
 
-    used_guids: dict[str, ifcopenshell.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
-    empty_guids: dict[str, ifcopenshell.entity_instance] = dict() # dict of elements with guids, which are empty
-    all_guids_filled = True
-    guid_empty_no = 0 # count the number of guids without value (empty), this number is used to make unique identifier
-    for inst in model:
-       if hasattr(inst, "GlobalId"):
-           guid = inst.GlobalId
-           name = inst.Name
-           # print(guid)
-           # if guid in used_guids:
-           #     double_guids[guid] = inst
-           #     all_guids_unique = False
-           if guid == '':
-               all_guids_filled = False
-               guid_empty_no = guid_empty_no + 1
-               name_dict = name + '--' + str(guid_empty_no)
-               print("none: {}".format(name))
+        used_guids: dict[str, ifcopenshell.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
+        empty_guids: dict[str, ifcopenshell.entity_instance] = dict() # dict of elements with guids, which are empty
+        all_guids_filled = True
+        guid_empty_no = 0 # count the number of guids without value (empty), this number is used to make unique identifier
+        for inst in ifc_file.file:
+           if hasattr(inst, "GlobalId"):
+               guid = inst.GlobalId
+               name = inst.Name
+               # print(guid)
+               # if guid in used_guids:
+               #     double_guids[guid] = inst
+               #     all_guids_unique = False
+               if guid == '':
+                   all_guids_filled = False
+                   guid_empty_no = guid_empty_no + 1
+                   name_dict = name + '--' + str(guid_empty_no)
+                   print("none: {}".format(name))
 
-               empty_guids[name_dict] = inst
-           else:
-               used_guids[guid] = inst
+                   empty_guids[name_dict] = inst
+               else:
+                   used_guids[guid] = inst
 
-    list_guids_empty = list(empty_guids.keys())
-    print(">>>>>> ")
-    print("the GUIDs of all elements are filled (NOT empty): {}".format(all_guids_filled))
-    if all_guids_filled is False:
-        print("empty GUIDs: {}".format(list_guids_empty))
-    print("<<<<<<")
-    return (all_guids_filled, empty_guids)
+        list_guids_empty = list(empty_guids.keys())
+        print(">>>>>> ")
+        print("the GUIDs of all elements are filled (NOT empty): {}".format(all_guids_filled))
+        if all_guids_filled is False:
+            print("empty GUIDs: {}".format(list_guids_empty))
+        print("<<<<<<")
+        return (all_guids_filled, empty_guids)
 
 def run_ids_check_on_ifc(ifc_file: str, ids_file: str, report_html: bool = False) -> bool:
     """run check on IFC file based on IDS
