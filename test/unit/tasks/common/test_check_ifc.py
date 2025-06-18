@@ -52,7 +52,7 @@ class TestCheckIFC(unittest.TestCase):
     ifc_file_fkz_SB55 = Path(
         '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc')
 
-    def test_checkIFC_guid_unique_pass(self):
+    def test_check_guid_unique_pass(self):
         """test the boolean of the GUID uniqueness check, check pass
            the following represent a project using the DummyPlugin
         """
@@ -80,7 +80,7 @@ class TestCheckIFC(unittest.TestCase):
             all_guids_checks_passed, non_unique_guids = CheckIfc.run_check_guid_unique(self, ifc_file)
             self.assertEqual(all_guids_checks_passed, True, "Should be True")
 
-    def test_checkIFC_guid_unique_fail(self):
+    def test_check_guid_unique_fail(self):
         """test the boolean of the GUID uniqueness check, check fail
            the following represent a project using the DummyPlugin
         """
@@ -108,7 +108,7 @@ class TestCheckIFC(unittest.TestCase):
             all_guids_checks_passed, non_unique_guids = CheckIfc.run_check_guid_unique(self, ifc_file)
             self.assertEqual(all_guids_checks_passed, False, "Should be False")
 
-    def test_checkIFC_guid_unique_specific_guid_return(self):
+    def test_check_guid_unique_specific_guid_return(self):
         """test the guid return of a failed GUID uniqueness check
            the following represent a project using the DummyPlugin
         """
