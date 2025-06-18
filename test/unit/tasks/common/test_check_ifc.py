@@ -44,10 +44,13 @@ class TestCheckIFC(unittest.TestCase):
                 'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
 
     # TODO move test ifc file into resources and adapt path
-    #
     ifc_file_fkz = Path(bim2sim.__file__).parent.parent / 'test/resources/arch/ifc/AC20-FZK-Haus.ifc'
     ifc_file_fkz_DoubleAndNoneGUID = Path(
         '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_NoneAndDoubleGUID.ifc')
+    ifc_file_fkz_SB55_DoubleAndNoneGUID = Path(
+        '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55_NoneAndDoubleGUID.ifc')
+    ifc_file_fkz_SB55 = Path(
+        '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc')
 
     def test_checkIFC_guid_unique_pass(self):
         """test the boolean of the GUID uniqueness check, check pass
@@ -56,7 +59,7 @@ class TestCheckIFC(unittest.TestCase):
 
         self.test_dir = tempfile.TemporaryDirectory()
         ifc_paths = {
-            IFCDomain.arch: self.ifc_file_fkz,
+            IFCDomain.arch: self.ifc_file_fkz_SB55,
         }
         self.project = Project.create(self.test_dir.name, ifc_paths,
                                  plugin=PluginDummy, )
@@ -65,7 +68,9 @@ class TestCheckIFC(unittest.TestCase):
         self.project.sim_settings.weather_file_path = self.weather_file_path()
         # put project.run into DebugDecisionHandler is need, otherwise the
         # playground.state() is empty and ifc_files are not available
-        handler = DebugDecisionHandler([ProductBased.key])
+        # default answer for decision questions
+        answers = ('Other',)
+        handler = DebugDecisionHandler(answers)
         handler.handle(self.project.run(cleanup=False))
 
         ifc_files = self.project.playground.state['ifc_files']
@@ -82,7 +87,7 @@ class TestCheckIFC(unittest.TestCase):
 
         self.test_dir = tempfile.TemporaryDirectory()
         ifc_paths = {
-            IFCDomain.arch: self.ifc_file_fkz_DoubleAndNoneGUID,
+            IFCDomain.arch: self.ifc_file_fkz_SB55_DoubleAndNoneGUID,
         }
         self.project = Project.create(self.test_dir.name, ifc_paths,
                                  plugin=PluginDummy, )
@@ -91,7 +96,9 @@ class TestCheckIFC(unittest.TestCase):
         self.project.sim_settings.weather_file_path = self.weather_file_path()
         # put project.run into DebugDecisionHandler is need, otherwise the
         # playground.state() is empty and ifc_files are not available
-        handler = DebugDecisionHandler([ProductBased.key])
+        # default answer for decision questions
+        answers = ('Other', 'Other',)
+        handler = DebugDecisionHandler(answers)
         handler.handle(self.project.run(cleanup=False))
 
         ifc_files = self.project.playground.state['ifc_files']
@@ -108,7 +115,7 @@ class TestCheckIFC(unittest.TestCase):
         # TODO move test ifc file into resources and adapt path
         self.test_dir = tempfile.TemporaryDirectory()
         ifc_paths = {
-            IFCDomain.arch: self.ifc_file_fkz_DoubleAndNoneGUID,
+            IFCDomain.arch: self.ifc_file_fkz_SB55_DoubleAndNoneGUID,
         }
         self.project = Project.create(self.test_dir.name, ifc_paths,
                                  plugin=PluginDummy, )
@@ -117,7 +124,9 @@ class TestCheckIFC(unittest.TestCase):
         self.project.sim_settings.weather_file_path = self.weather_file_path()
         # put project.run into DebugDecisionHandler is need, otherwise the
         # playground.state() is empty and ifc_files are not available
-        handler = DebugDecisionHandler([ProductBased.key])
+        # default answer for decision questions
+        answers = ('Other', 'Other',)
+        handler = DebugDecisionHandler(answers)
         handler.handle(self.project.run(cleanup=False))
 
         ifc_files = self.project.playground.state['ifc_files']
