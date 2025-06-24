@@ -311,7 +311,7 @@ class ConsumerHeatingDistributorModule(AixLib):
 class BoilerAggregation(AixLib):
     # TODO: the model does not exists in AiLib
     """Modelica AixLib representation of the GeneratorOneFluid aggregation."""
-    path = "AixLib.Systems.ModularEnergySystems.ModularBoiler.ModularBoiler"
+    path = "AixLib.Systems.ScalableGenerationModules.ScalableBoiler.ScalableBoiler"
     represents = [hvac_aggregations.GeneratorOneFluid]
 
     def __init__(self, element):
