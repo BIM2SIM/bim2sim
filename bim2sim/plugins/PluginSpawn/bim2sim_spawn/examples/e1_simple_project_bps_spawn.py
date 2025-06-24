@@ -4,27 +4,30 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project, ConsoleDecisionHandler
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.kernel.log import default_logging_setup
+# from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain
 
 
 def run_example_spawn_1():
     """Export a SpawnOfEnergyPlus simulation model.
 
-
     This example exports a SpawnOfEnergyPlus Co-Simulation model. The HVAC
     model is generated via the PluginAixLib using the AixLib Modelica library.
     The building model is generated using PluginEnergyPlus. The used IFC file
     holds both, HVAC and building in one file.
+
+    Currently required versions:
+    EnergyPlus >= 9.6.0
+    AixLib branch: issue1147_GenericBoiler (future: main)
+    Modelica Buildings: 11.1.0
     """
     # Create the default logging to for quality log and bim2sim main log (
     # see logging documentation for more information
-    default_logging_setup()
+    # default_logging_setup()
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_example_spawn').name)
+    project_path = Path(r"D:\02_Daten\Testing\Spawn\example1")
 
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
@@ -40,9 +43,8 @@ def run_example_spawn_1():
 
     # Set the install path to your EnergyPlus installation according to your
     # system requirements
-    project.sim_settings.ep_install_path = Path(
-        'C:/EnergyPlusV9-6-0/')
-    project.sim_settings.ep_version = "9-6-0"
+    project.sim_settings.ep_install_path = Path("D:\99_Programme\EnergyPlus")
+    project.sim_settings.ep_version = "9-4-0"
     project.sim_settings.weather_file_path_ep = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')

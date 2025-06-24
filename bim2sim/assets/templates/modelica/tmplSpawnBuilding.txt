@@ -11,7 +11,7 @@ model ${model_name} "${model_comment}"
 
   final parameter Modelica.Units.SI.MassFlowRate mOut_flow[nZones]=0.3/3600 * fill(1, nZones) * 1.2
     "Outside air infiltration for each exterior room";
-
+   // TODO Strings must be in "" in export
   parameter String zoneNames[nZones] = ${ep_zone_lists}
     "Name of the thermal zone as specified in the EnergyPlus input";
 
