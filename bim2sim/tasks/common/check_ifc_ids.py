@@ -38,11 +38,29 @@ class CheckIfc(ITask):
         """
         print("Task CheckIfc says Hello")
         self.logger.info(f"Processing IFC Check without ifcTester")
-        paths = self.paths
+
+        base_path = self.paths.ifc_base
+        # begin part from load_ifc.py
+        # used to get path of the ifc file for ifctester
+        if not base_path.is_dir():
+            raise AssertionError(f"Given base_path {base_path} is not a"
+                                 f" directory. Please provide a directory.")
+
+        ifc_files_paths = list(base_path.glob("**/*.ifc")) + list(
+            base_path.glob("**/*.ifcxml")) + list(
+            base_path.glob("**/*.ifczip"))
+        print(ifc_files_paths)
+        self.logger.info(f"Found {len(ifc_files_paths)} IFC files in project "
+                         f"directory.")
+
+        # end part from load_ifc.py
+        ids_file_path = self.playground.sim_settings.ids_file_path
+        for ifc_file_path in ifc_files_paths:
+            self.run_ids_check_on_ifc(ifc_file_path, ids_file_path)
+
         for ifc_file in ifc_files:
             self.run_check_guid_unique(ifc_file)
             self.run_check_guid_empty(ifc_file)
-    
 
     def run_check_guid_unique(self, ifc_file) -> (bool, dict):
         """check the uniqueness of the guids of the IFC file
@@ -127,38 +145,38 @@ class CheckIfc(ITask):
         print("<<<<<<")
         return (all_guids_filled, empty_guids)
 
-def run_ids_check_on_ifc(ifc_file: str, ids_file: str, report_html: bool = False) -> bool:
-    """run check on IFC file based on IDS
+    def run_ids_check_on_ifc(self, ifc_file: str, ids_file: str, report_html: bool = False) -> bool:
+        """run check on IFC file based on IDS
 
-    print the check of specifications pass(true) or fail(false)
-    and the name of the specification
-    and if all specifications of one IDS pass
+        print the check of specifications pass(true) or fail(false)
+        and the name of the specification
+        and if all specifications of one IDS pass
 
-    Input:
-        ifc_file: path of the IFC file, which is checked
-        ids_file: path of the IDS file, which includes the specifications
-        TODO: implete report_html feature, see howto use report down below
-        report_html: generate, save and open the report about checking
-                     default = False
-    Returns:
-        all_spec_pass: boolean
-                      (true: all specification passed,
-                       false: one or more specification not passed)
-    """
-    model = ifcopenshell.open(ifc_file)
-    my_ids = ifctester.ids.open(ids_file)
-    my_ids.validate(model)
-    all_spec_pass = True
-    print(">>>>>> ")
-    for spec in my_ids.specifications:
-        print("name: {}, passed: {}".format(spec.name, spec.status))
-        if not spec.status:
-            all_spec_pass = False
-    print("---")
-    print("all checks of the specifications of this IDS pass: {}".format(all_spec_pass))
-    print("---")
-    print("<<<<<<")
-    return all_spec_pass
+        Input:
+            ifc_file: path of the IFC file, which is checked
+            ids_file: path of the IDS file, which includes the specifications
+            TODO: implete report_html feature, see howto use report down below
+            report_html: generate, save and open the report about checking
+                         default = False
+        Returns:
+            all_spec_pass: boolean
+                          (true: all specification passed,
+                           false: one or more specification not passed)
+        """
+        model = ifcopenshell.open(ifc_file)
+        my_ids = ifctester.ids.open(ids_file)
+        my_ids.validate(model)
+        all_spec_pass = True
+        print(">>>>>> ")
+        for spec in my_ids.specifications:
+            print("name: {}, passed: {}".format(spec.name, spec.status))
+            if not spec.status:
+                all_spec_pass = False
+        print("---")
+        print("all checks of the specifications of this IDS pass: {}".format(all_spec_pass))
+        print("---")
+        print("<<<<<<")
+        return all_spec_pass
 
 # for check the results of return above
 # ifctester.reporter.Console(my_ids).report()
