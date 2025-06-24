@@ -26,6 +26,8 @@ def run_simple_project():
     # This is done via a dictionary, where the key is the domain and the value
     # the path to the IFC file. We are using an architecture domain IFC file
     # here from the FZK-Haus which is a simple IFC provided by KIT.
+    # ifc_file = test_rsrc_path / 'ids/fail-a_minimal_ids_can_check_a_minimal_ifc_1_2.ifc'
+    # test_rsrc_path = Path(__file__).parent.parent.parent.parent / 'resources'
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
