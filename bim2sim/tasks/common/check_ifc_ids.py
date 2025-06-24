@@ -172,8 +172,13 @@ class CheckIfc(ITask):
                 ("name: {}, passed: {}".format(spec.name, spec.status)))
             if not spec.status:
                 all_spec_pass = False
-        self.logger.info(
-            "all checks of the specifications of this IDS pass: {}".format(all_spec_pass))
+        if all_spec_pass:
+            self.logger.info(
+                "all checks of the specifications of this IDS pass: {}".format(all_spec_pass))
+        else:
+            self.logger.warning(
+                "all checks of the specifications of this IDS pass: {}".format(all_spec_pass))
+
         return all_spec_pass
 
 # for check the results of return above
