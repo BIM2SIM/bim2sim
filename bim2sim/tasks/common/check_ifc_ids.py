@@ -190,10 +190,4 @@ class CheckIfc(ITask):
 #+end_src
 
 if __name__ == '__main__':
-
-    # TODO: Remove, only needed while develope first prototype
-    ifc_file = '/home/cudok/Documents/10_Git/bim2sim/test/resources/arch/ifc/AC20-FZK-Haus_with_SB55.ifc'
-    ifc_file_copy = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55_copyGUID.ifc'
-    ifc_file_guid_error = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55_NoneAndDoubleGUID.ifc'
-    # ids_file = '/home/cudok/Documents/12_ifc_check_ids/ifc_check_spaces(3).ids'
-    guid_check_passed, double_guid = run_check_guid_unique(ifc_file_guid_error)
+    pass
