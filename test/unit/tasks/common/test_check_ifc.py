@@ -193,15 +193,6 @@ class TestCheckIFC(unittest.TestCase):
             all_guids_filled_passed, empty_guids = CheckIfc.run_check_guid_empty(self, ifc_file)
             self.assertEqual(all_guids_filled_passed, True, "Should be true")
 
-class TestCheckIFCSelfMade(unittest.TestCase):
-    """Tests for function checking IFC files, which are self made (these needed
-       features are not included in the library ifctester respectifly in IDS
-       standard
-
-       TODO Remove class, when all "old" tests transfered into "new" class above
-    """
-    pass
-
 
 class TestCheckIFCIfctester(unittest.TestCase):
     """Tests for function checking IFC files, which are based on IDS file
@@ -218,7 +209,7 @@ class TestCheckIFCIfctester(unittest.TestCase):
 
         ifc_file = test_rsrc_path / 'ids/fail-a_minimal_ids_can_check_a_minimal_ifc_1_2.ifc'
         ids_file = test_rsrc_path / 'ids/fail-a_minimal_ids_can_check_a_minimal_ifc_1_2.ids'
-        all_checks_passed = check_ifc_ids.run_ids_check_on_ifc(ifc_file, ids_file)
+        all_checks_passed = CheckIfc.run_ids_check_on_ifc(ifc_file, ids_file)
         self.assertEqual(all_checks_passed, False, "Should be false")
 
     def test_checkIFC_IDS_examples_required_specifications_fail(self):
@@ -231,7 +222,7 @@ class TestCheckIFCIfctester(unittest.TestCase):
 
         ifc_file = test_rsrc_path / 'ids/fail-required_specifications_need_at_least_one_applicable_entity_2_2.ifc'
         ids_file = test_rsrc_path / 'ids/fail-required_specifications_need_at_least_one_applicable_entity_2_2.ids'
-        all_checks_passed = check_ifc_ids.run_ids_check_on_ifc(ifc_file, ids_file)
+        all_checks_passed = CheckIfc.run_ids_check_on_ifc(ifc_file, ids_file)
         self.assertEqual(all_checks_passed, False, "Should be false")
 
     def test_checkIFC_IDS_examples_a_specification_pass(self):
@@ -244,7 +235,7 @@ class TestCheckIFCIfctester(unittest.TestCase):
 
         ifc_file = test_rsrc_path / 'ids/pass-a_specification_passes_only_if_all_requirements_pass_2_2.ifc'
         ids_file = test_rsrc_path / 'ids/pass-a_specification_passes_only_if_all_requirements_pass_2_2.ids'
-        all_checks_passed = check_ifc_ids.run_ids_check_on_ifc(ifc_file, ids_file)
+        all_checks_passed = CheckIfc.run_ids_check_on_ifc(ifc_file, ids_file)
         self.assertEqual(all_checks_passed, True, "Should be true")
 
 
@@ -263,7 +254,7 @@ class TestCheckIFCIfctester(unittest.TestCase):
 
         ifc_file = test_rsrc_path / 'ids/pass-specification_optionality_and_facet_optionality_can_be_combined.ifc'
         ids_file = test_rsrc_path / 'ids/pass-specification_optionality_and_facet_optionality_can_be_combined.ids'
-        all_checks_passed = check_ifc_ids.run_ids_check_on_ifc(ifc_file, ids_file)
+        all_checks_passed = CheckIfc.run_ids_check_on_ifc(ifc_file, ids_file)
         self.assertEqual(all_checks_passed, True, "Should be true, fails because of issue in ifcTester, 2025-03-12")
 
 
@@ -273,7 +264,7 @@ class TestCheckIFCIfctester(unittest.TestCase):
         # TODO move test ifc file into resources and adapt path
         ifc_file = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc'
         ids_file = '/home/cudok/Documents/12_ifc_check_ids/check_guid_length_equals_22_character.ids'
-        all_checks_passed = check_ifc_ids.run_ids_check_on_ifc(ifc_file, ids_file)
+        all_checks_passed = CheckIfc.run_ids_check_on_ifc(ifc_file, ids_file)
         self.assertEqual(all_checks_passed, True, "Should be true")
 
     def test_checkIFC_IDS_guid_length_22_fail(self):
@@ -282,7 +273,7 @@ class TestCheckIFCIfctester(unittest.TestCase):
         # TODO move test ifc file into resources and adapt path
         ifc_file = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55_NoneAndDoubleGUID.ifc'
         ids_file = '/home/cudok/Documents/12_ifc_check_ids/check_guid_length_equals_22_character.ids'
-        all_checks_passed = check_ifc_ids.run_ids_check_on_ifc(ifc_file, ids_file)
+        all_checks_passed = CheckIfc.run_ids_check_on_ifc(ifc_file, ids_file)
         self.assertEqual(all_checks_passed, False, "Should be true")
 
     def test_checkIFC_IDS_2LSB_pass(self):
@@ -291,7 +282,7 @@ class TestCheckIFCIfctester(unittest.TestCase):
         # TODO move test ifc file into resources and adapt path
         ifc_file = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc'
         ids_file = '/home/cudok/Documents/12_ifc_check_ids/check_2LSB.ids'
-        all_checks_passed = check_ifc_ids.run_ids_check_on_ifc(ifc_file, ids_file)
+        all_checks_passed = CheckIfc.run_ids_check_on_ifc(ifc_file, ids_file)
         self.assertEqual(all_checks_passed, True, "Should be true")
 
     def test_checkIFC_IDS_2LSB_fail(self):
@@ -300,7 +291,7 @@ class TestCheckIFCIfctester(unittest.TestCase):
         # TODO move test ifc file into resources and adapt path
         ifc_file = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus.ifc'
         ids_file = '/home/cudok/Documents/12_ifc_check_ids/check_2LSB.ids'
-        all_checks_passed = check_ifc_ids.run_ids_check_on_ifc(ifc_file, ids_file)
+        all_checks_passed = CheckIfc.run_ids_check_on_ifc(ifc_file, ids_file)
         self.assertEqual(all_checks_passed, False, "Should be false")
 
 
