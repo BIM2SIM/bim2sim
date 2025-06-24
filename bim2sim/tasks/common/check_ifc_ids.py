@@ -145,8 +145,7 @@ class CheckIfc(ITask):
         print("<<<<<<")
         return (all_guids_filled, empty_guids)
 
-    @staticmethod
-    def run_ids_check_on_ifc(ifc_file: str, ids_file: str, report_html: bool = False) -> bool:
+    def run_ids_check_on_ifc(self, ifc_file: str, ids_file: str, report_html: bool = False) -> bool:
         """run check on IFC file based on IDS
 
         print the check of specifications pass(true) or fail(false)
@@ -168,15 +167,13 @@ class CheckIfc(ITask):
         my_ids = ifctester.ids.open(ids_file)
         my_ids.validate(model)
         all_spec_pass = True
-        print(">>>>>> ")
         for spec in my_ids.specifications:
-            print("name: {}, passed: {}".format(spec.name, spec.status))
+            self.logger.info(
+                ("name: {}, passed: {}".format(spec.name, spec.status)))
             if not spec.status:
                 all_spec_pass = False
-        print("---")
-        print("all checks of the specifications of this IDS pass: {}".format(all_spec_pass))
-        print("---")
-        print("<<<<<<")
+        self.logger.info(
+            "all checks of the specifications of this IDS pass: {}".format(all_spec_pass))
         return all_spec_pass
 
 # for check the results of return above
