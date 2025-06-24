@@ -37,8 +37,8 @@ class CheckIfc(ITask):
 
         """
         print("Task CheckIfc says Hello")
-        self.logger.info(f"Processing IFC Check without ifcTester")
 
+        self.logger.info(f"Processing IFC Checks with ifcTester")
         base_path = self.paths.ifc_base
         # begin part from load_ifc.py
         # used to get path of the ifc file for ifctester
@@ -49,7 +49,6 @@ class CheckIfc(ITask):
         ifc_files_paths = list(base_path.glob("**/*.ifc")) + list(
             base_path.glob("**/*.ifcxml")) + list(
             base_path.glob("**/*.ifczip"))
-        print(ifc_files_paths)
         self.logger.info(f"Found {len(ifc_files_paths)} IFC files in project "
                          f"directory.")
 
@@ -58,6 +57,7 @@ class CheckIfc(ITask):
         for ifc_file_path in ifc_files_paths:
             self.run_ids_check_on_ifc(ifc_file_path, ids_file_path)
 
+        self.logger.info(f"Processing IFC Checks without ifcTester")
         for ifc_file in ifc_files:
             self.run_check_guid_unique(ifc_file)
             self.run_check_guid_empty(ifc_file)
