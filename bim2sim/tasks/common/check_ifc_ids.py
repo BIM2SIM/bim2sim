@@ -145,7 +145,8 @@ class CheckIfc(ITask):
         print("<<<<<<")
         return (all_guids_filled, empty_guids)
 
-    def run_ids_check_on_ifc(self, ifc_file: str, ids_file: str, report_html: bool = False) -> bool:
+    @staticmethod
+    def run_ids_check_on_ifc(ifc_file: str, ids_file: str, report_html: bool = False) -> bool:
         """run check on IFC file based on IDS
 
         print the check of specifications pass(true) or fail(false)
