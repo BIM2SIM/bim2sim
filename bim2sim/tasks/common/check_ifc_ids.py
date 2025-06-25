@@ -51,7 +51,6 @@ class CheckIfc(ITask):
             base_path.glob("**/*.ifczip"))
         self.logger.info(f"Found {len(ifc_files_paths)} IFC files in project "
                          f"directory.")
-
         # end part from load_ifc.py
         ids_file_path = self.playground.sim_settings.ids_file_path
         for ifc_file_path in ifc_files_paths:
@@ -67,8 +66,17 @@ class CheckIfc(ITask):
 
         self.logger.info(f"Processing IFC Checks without ifcTester")
         for ifc_file in ifc_files:
-            self.run_check_guid_unique(ifc_file)
-            self.run_check_guid_empty(ifc_file)
+            all_guids_unique, double_guids = self.run_check_guid_unique(ifc_file)
+            list_guids_non_unique = list(double_guids.keys())
+            self.logger.info("the GUIDs of all elements are unique: {}".format(all_guids_unique))
+            if all_guids_unique is False:
+                self.logger.warning("non-unique GUIDs: {}".format(list_guids_non_unique))
+
+            all_guids_filled, empty_guids = self.run_check_guid_empty(ifc_file)
+            list_guids_empty = list(empty_guids.keys())
+            self.logger.info("the GUIDs of all elements are filled (NOT empty): {}".format(all_guids_filled))
+            if all_guids_filled is False:
+                self.logger.warning("empty GUIDs: {}".format(list_guids_empty))
 
     def run_check_guid_unique(self, ifc_file) -> (bool, dict):
         """check the uniqueness of the guids of the IFC file
@@ -100,12 +108,6 @@ class CheckIfc(ITask):
                else:
                    used_guids[guid] = inst
 
-        list_guids_non_unique = list(double_guids.keys())
-        print(">>>>>> ")
-        print("the GUIDs of all elements are unique: {}".format(all_guids_unique))
-        if all_guids_unique is False:
-            print("non-unique GUIDs: {}".format(list_guids_non_unique))
-        print("<<<<<<")
         return (all_guids_unique, double_guids)
 
     def run_check_guid_empty(self, ifc_file) -> (bool, dict):
@@ -131,26 +133,14 @@ class CheckIfc(ITask):
            if hasattr(inst, "GlobalId"):
                guid = inst.GlobalId
                name = inst.Name
-               # print(guid)
-               # if guid in used_guids:
-               #     double_guids[guid] = inst
-               #     all_guids_unique = False
                if guid == '':
                    all_guids_filled = False
                    guid_empty_no = guid_empty_no + 1
                    name_dict = name + '--' + str(guid_empty_no)
-                   print("none: {}".format(name))
-
                    empty_guids[name_dict] = inst
                else:
                    used_guids[guid] = inst
 
-        list_guids_empty = list(empty_guids.keys())
-        print(">>>>>> ")
-        print("the GUIDs of all elements are filled (NOT empty): {}".format(all_guids_filled))
-        if all_guids_filled is False:
-            print("empty GUIDs: {}".format(list_guids_empty))
-        print("<<<<<<")
         return (all_guids_filled, empty_guids)
 
     @staticmethod
