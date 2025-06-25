@@ -320,11 +320,11 @@ class BoilerAggregation(AixLib):
                             unit=None,
                             required=False,
                             value=MEDIUM_WATER)
-        self._set_parameter(name='hasPump',
+        self._set_parameter(name='hasPum',
                             unit=None,
                             required=False,
                             attributes=['has_pump'])
-        self._set_parameter(name='hasFeedback',
+        self._set_parameter(name='hasFedBac',
                             unit=None,
                             required=False,
                             attributes=['has_bypass'])
