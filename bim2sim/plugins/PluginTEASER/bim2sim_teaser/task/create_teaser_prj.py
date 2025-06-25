@@ -68,7 +68,7 @@ class CreateTEASER(ITask):
             instance.collect_params()
 
         self.prepare_export(exported_buildings)
-
+        teaser_prj.calc_all_buildings()
         orig_heat_loads, orig_cool_loads =\
             self.overwrite_heatloads(exported_buildings)
         teaser_prj.weather_file_path = weather_file
@@ -130,21 +130,23 @@ class CreateTEASER(ITask):
         # outer elements or without windows, causes singularity problem
         if len(tz.outer_walls + tz.rooftops) == 0:
             ow_min = OuterWall(parent=tz)
+            ow_min.name = 'min_outer_wall'
             ow_min.area = 0.01
             ow_min.load_type_element(
-                year=bldg.year_of_construction,
+                year=2000,
                 construction='iwu_heavy',
             )
             ow_min.tilt = 90
             ow_min.orientation = 0
         if len(tz.windows) == 0:
-            ow_min = Window(parent=tz)
-            ow_min.area = 0.01
-            ow_min.load_type_element(
-                year=bldg.year_of_construction,
+            win_min = Window(parent=tz)
+            win_min.name = 'min_window'
+            win_min.area = 0.01
+            win_min.load_type_element(
+                year=2000,
                 construction='EnEv',
             )
-            ow_min.orientation = 0
+            win_min.orientation = 0
 
     @staticmethod
     def rotate_teaser_building(bldg: Building, true_north: float):

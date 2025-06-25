@@ -24,8 +24,9 @@ from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopoDS import topods_Face, TopoDS_Shape
 from OCC.Core.gp import gp_Pnt, gp_Trsf, gp_XYZ, gp_Vec
 
-from bim2sim.elements.bps_elements import ExternalSpatialElement, SpaceBoundary, \
-    SpaceBoundary2B
+from bim2sim.elements.bps_elements import ExternalSpatialElement, \
+    SpaceBoundary, \
+    SpaceBoundary2B, ExtSpatialSpaceBoundary
 from bim2sim.tasks.base import ITask
 from bim2sim.tasks.common.inner_loop_remover import convex_decomposition, \
     is_convex_no_holes, is_convex_slow
@@ -166,9 +167,7 @@ class CorrectSpaceBoundaries(ITask):
                         trsf.SetTranslation(vec)
                         opening_obj.bound_shape = BRepBuilderAPI_Transform(
                             opening_obj.bound_shape, trsf).Shape()
-                    # update bound center attribute for new shape location
-                    opening_obj.bound_center = SpaceBoundary.get_bound_center(
-                        opening_obj)
+                    opening_obj.reset('bound_center')
 
     @staticmethod
     def fix_surface_orientation(elements: dict):
@@ -263,7 +262,7 @@ class CorrectSpaceBoundaries(ITask):
                             gp_Pnt(face_center)) < 1e-6:
                         bound.bound_shape = fc
                         if hasattr(bound, 'bound_normal'):
-                            del bound.__dict__['bound_normal']
+                            bound.reset('bound_normal')
                         break
 
     def split_non_convex_bounds(self, elements: dict, split_bounds: bool):
@@ -290,7 +289,7 @@ class CorrectSpaceBoundaries(ITask):
         # filter for boundaries, that are not opening boundaries
         bounds_except_openings = [b for b in bounds if not b.parent_bound]
         conv = []  # list of new convex shapes (for debugging)
-        non_conv = []  # list of old non-convex shapes (for debugging
+        non_conv = []  # list of old non-convex shapes (for debugging)
         for bound in bounds_except_openings:
             try:
                 # check if bound has already been processed
@@ -319,7 +318,7 @@ class CorrectSpaceBoundaries(ITask):
                     convex_shapes = convex_decomposition(bound.bound_shape)
                 non_conv.append(bound)
                 if hasattr(bound, 'bound_normal'):
-                    del bound.__dict__['bound_normal']
+                    bound.reset('bound_normal')
                 # create new space boundaries from list of convex shapes,
                 # for both the bound itself and its corresponding bound (if it
                 # has
@@ -359,24 +358,32 @@ class CorrectSpaceBoundaries(ITask):
                                f"{type(ex)}")
 
     @staticmethod
-    def create_copy_of_space_boundary(bound: SpaceBoundary) -> SpaceBoundary:
+    def create_new_boundary(
+            bound: SpaceBoundary,
+            shape: TopoDS_Shape) -> SpaceBoundary:
         """Create a copy of a SpaceBoundary instance.
 
-        This function creates a copy of a space boundary and deletes the
-        cached properties bound_center and bound_normal. These properties are
-        recomputed at the next usage of this attribute. This function can be
-        used when the original geometry of the space boundary is modified.
-        The new SpaceBoundary has its own unique guid.
+        This function creates a new space boundary based on the existing one.
 
         Args:
             bound: SpaceBoundary
+            shape: Shape for new boundary
         """
-        new_bound = copy.copy(bound)
+        if isinstance(bound, SpaceBoundary2B):
+            new_bound = SpaceBoundary2B(elements={})
+        elif isinstance(bound, ExtSpatialSpaceBoundary):
+            new_bound = ExtSpatialSpaceBoundary(elements={})
+        else:
+            new_bound = SpaceBoundary(elements={})
         new_bound.guid = guid.new()
-        if hasattr(new_bound, 'bound_center'):
-            del new_bound.__dict__['bound_center']
-        if hasattr(new_bound, 'bound_normal'):
-            del new_bound.__dict__['bound_normal']
+        new_bound.bound_element = bound.bound_element
+        new_bound.bound_thermal_zone = bound.bound_thermal_zone
+        new_bound.ifc = bound.ifc
+        new_bound.non_convex_guid = bound.non_convex_guid
+        new_bound.bound_shape = shape
+        new_bound.related_bound = bound.related_bound
+        new_bound.related_adb_bound = bound.related_adb_bound
+        new_bound.reset('is_external')
         return new_bound
 
     def create_new_convex_bounds(self, convex_shapes: list[TopoDS_Shape],
@@ -408,9 +415,7 @@ class CorrectSpaceBoundaries(ITask):
             # of the original bound) and copy the original boundary to keep
             # their properties. This new_bound has its own unique guid.
             # bound_shape and bound_area are modified to the new_convex shape.
-            new_bound = self.create_copy_of_space_boundary(bound)
-            new_bound.bound_shape = shape
-            new_bound.bound_area = SpaceBoundary.get_bound_area(new_bound)
+            new_bound = self.create_new_boundary(bound, shape)
             if openings:
                 new_bound.opening_bounds = []
                 for opening in openings:
@@ -434,9 +439,6 @@ class CorrectSpaceBoundaries(ITask):
                 distance = BRepExtrema_DistShapeShape(
                     bound.bound_shape, related_bound.bound_shape,
                     Extrema_ExtFlag_MIN).Value()
-                # make copy of related bound
-                new_rel_bound = self.create_copy_of_space_boundary(
-                    related_bound)
                 related_bound.non_convex_guid = related_bound.guid
                 # move shape of the current bound to the position of the
                 # related bound if they have not been at the same position
@@ -449,13 +451,14 @@ class CorrectSpaceBoundaries(ITask):
                     new_rel_shape = new_bound.bound_shape
                 # assign bound_shape to related_bound, flip surface
                 # orientation and recompute bound_normal and bound_area.
-                new_rel_bound.bound_shape = new_rel_shape
+                new_rel_bound = self.create_new_boundary(
+                    related_bound, new_rel_shape)
                 new_rel_bound.bound_shape = PyOCCTools.flip_orientation_of_face(
                     new_rel_bound.bound_shape)
                 new_rel_bound.bound_normal = PyOCCTools.simple_face_normal(
                     new_rel_bound.bound_shape)
-                new_rel_bound.bound_area = SpaceBoundary.get_bound_area(
-                    new_rel_bound)
+                # new_rel_bound.reset('bound_area')
+                # new_rel_bound.bound_area = new_rel_bound.bound_area
                 # handle opening bounds of related bound
                 if new_bound.opening_bounds:
                     for op in new_bound.opening_bounds:

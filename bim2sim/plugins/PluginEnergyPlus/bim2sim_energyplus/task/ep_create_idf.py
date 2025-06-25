@@ -29,6 +29,7 @@ from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements, \
     get_spaces_with_bounds, all_subclasses
 from bim2sim.utilities.pyocc_tools import PyOCCTools
+from bim2sim.utilities.types import BoundaryOrientation
 
 if TYPE_CHECKING:
     from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
@@ -176,18 +177,25 @@ class CreateIdf(ITask):
                 Volume=volume
             )
             self.set_heating_and_cooling(idf, zone_name=zone.Name, space=space)
-            self.set_infiltration(idf, name=zone.Name, zone_name=zone.Name,
-                                  space=space)
-            if (not self.playground.sim_settings.cooling and
+            self.set_infiltration(
+                idf, name=zone.Name, zone_name=zone.Name, space=space,
+                ep_version=sim_settings.ep_version)
+            if (not self.playground.sim_settings.cooling_tz_overwrite and
                     self.playground.sim_settings.add_natural_ventilation):
-                self.set_natural_ventilation(idf, name=zone.Name,
-                                             zone_name=zone.Name, space=space)
-            self.set_people(sim_settings, idf, name=zone.Name, zone_name=zone.Name,
-                            space=space)
+                self.set_natural_ventilation(
+                    idf, name=zone.Name, zone_name=zone.Name, space=space,
+                    ep_version=sim_settings.ep_version)
+            self.set_people(sim_settings, idf, name=zone.Name,
+                            zone_name=zone.Name, space=space)
             self.set_equipment(sim_settings, idf, name=zone.Name,
                                zone_name=zone.Name, space=space)
             self.set_lights(sim_settings, idf, name=zone.Name, zone_name=zone.Name,
                             space=space)
+            if sim_settings.building_rotation_overwrite != 0:
+                idf.idfobjects['BUILDING'][0].North_Axis = (
+                    sim_settings.building_rotation_overwrite)
+                idf.idfobjects['GLOBALGEOMETRYRULES'][0].Coordinate_System =\
+                    'Relative'
 
     @staticmethod
     def init_zonelist(
@@ -664,7 +672,8 @@ class CreateIdf(ITask):
                 Zone_or_ZoneList_Name=zone_name,
                 Schedule_Name=schedule_name,
                 Design_Level_Calculation_Method="Watts/Area",
-                Watts_per_Zone_Floor_Area=space.machines.to(ureg.watt).m
+                Watts_per_Zone_Floor_Area=space.machines.to(
+                    ureg.watt / ureg.meter ** 2).m
             )
         else:
             idf.newidfobject(
@@ -673,7 +682,8 @@ class CreateIdf(ITask):
                 Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
                 Schedule_Name=schedule_name,
                 Design_Level_Calculation_Method="Watts/Area",
-                Watts_per_Zone_Floor_Area=space.machines.to(ureg.watt).m
+                Watts_per_Zone_Floor_Area=space.machines.to(
+                    ureg.watt / ureg.meter ** 2).m
             )
 
     def set_lights(self, sim_settings: EnergyPlusSimSettings, idf: IDF, name: str,
@@ -696,7 +706,8 @@ class CreateIdf(ITask):
         self.set_day_week_year_schedule(idf, space.lighting_profile[:24],
                                         profile_name, schedule_name)
         mode = "Watts/Area"
-        watts_per_zone_floor_area = space.lighting_power.to(ureg.watt).m
+        watts_per_zone_floor_area = space.lighting_power.to(
+            ureg.watt / ureg.meter ** 2).m
         return_air_fraction = 0.0
         fraction_radiant = 0.42  # fraction radiant: cf. Table 1.28 in
         # InputOutputReference EnergyPlus (Version 9.4.0), p. 506
@@ -728,8 +739,9 @@ class CreateIdf(ITask):
             )
 
     @staticmethod
-    def set_infiltration(idf: IDF, name: str, zone_name: str,
-                         space: ThermalZone):
+    def set_infiltration(idf: IDF,
+                         name: str, zone_name: str,
+                         space: ThermalZone, ep_version: str):
         """Set infiltration rate.
 
         This function sets the infiltration rate per space based on the
@@ -741,19 +753,30 @@ class CreateIdf(ITask):
             name: name of the new people idf object
             zone_name: name of zone or zone_list
             space: ThermalZone instance
+            ep_version: Used version of EnergyPlus
         """
-        idf.newidfobject(
-            "ZONEINFILTRATION:DESIGNFLOWRATE",
-            Name=name,
-            Zone_or_ZoneList_Name=zone_name,
-            Schedule_Name="Continuous",
-            Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-            Air_Changes_per_Hour=space.infiltration_rate
-        )
+        if ep_version in ["9-2-0", "9-4-0"]:
+            idf.newidfobject(
+                "ZONEINFILTRATION:DESIGNFLOWRATE",
+                Name=name,
+                Zone_or_ZoneList_Name=zone_name,
+                Schedule_Name="Continuous",
+                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                Air_Changes_per_Hour=space.base_infiltration
+            )
+        else:
+            idf.newidfobject(
+                "ZONEINFILTRATION:DESIGNFLOWRATE",
+                Name=name,
+                Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
+                Schedule_Name="Continuous",
+                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                Air_Changes_per_Hour=space.base_infiltration
+            )
 
     @staticmethod
     def set_natural_ventilation(idf: IDF, name: str, zone_name: str,
-                                space: ThermalZone):
+                                space: ThermalZone, ep_version):
         """Set natural ventilation.
 
         This function sets the natural ventilation per space based on the
@@ -767,51 +790,97 @@ class CreateIdf(ITask):
             name: name of the new people idf object
             zone_name: name of zone or zone_list
             space: ThermalZone instance
+            ep_version: Used version of EnergyPlus
+
         """
+        if ep_version in ["9-2-0", "9-4-0"]:
+            idf.newidfobject(
+                "ZONEVENTILATION:DESIGNFLOWRATE",
+                Name=name + '_winter',
+                Zone_or_ZoneList_Name=zone_name,
+                Schedule_Name="Continuous",
+                Ventilation_Type="Natural",
+                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                Air_Changes_per_Hour=space.winter_reduction_infiltration[0],
+                Minimum_Outdoor_Temperature=
+                space.winter_reduction_infiltration[1] - 273.15,
+                Maximum_Outdoor_Temperature=
+                space.winter_reduction_infiltration[2] - 273.15,
+            )
 
-        idf.newidfobject(
-            "ZONEVENTILATION:DESIGNFLOWRATE",
-            Name=name + '_winter',
-            Zone_or_ZoneList_Name=zone_name,
-            Schedule_Name="Continuous",
-            Ventilation_Type="Natural",
-            Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-            Air_Changes_per_Hour=space.winter_reduction_infiltration[0],
-            Minimum_Outdoor_Temperature=
-            space.winter_reduction_infiltration[1] - 273.15,
-            Maximum_Outdoor_Temperature=
-            space.winter_reduction_infiltration[2] - 273.15,
-        )
+            idf.newidfobject(
+                "ZONEVENTILATION:DESIGNFLOWRATE",
+                Name=name + '_summer',
+                Zone_or_ZoneList_Name=zone_name,
+                Schedule_Name="Continuous",
+                Ventilation_Type="Natural",
+                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                Air_Changes_per_Hour=space.max_summer_infiltration[0],
+                Minimum_Outdoor_Temperature
+                =space.max_summer_infiltration[1] - 273.15,
+                Maximum_Outdoor_Temperature
+                =space.max_summer_infiltration[2] - 273.15,
+            )
 
-        idf.newidfobject(
-            "ZONEVENTILATION:DESIGNFLOWRATE",
-            Name=name + '_summer',
-            Zone_or_ZoneList_Name=zone_name,
-            Schedule_Name="Continuous",
-            Ventilation_Type="Natural",
-            Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-            Air_Changes_per_Hour=space.max_summer_infiltration[0],
-            Minimum_Outdoor_Temperature
-            =space.max_summer_infiltration[1] - 273.15,
-            Maximum_Outdoor_Temperature
-            =space.max_summer_infiltration[2] - 273.15,
-        )
+            idf.newidfobject(
+                "ZONEVENTILATION:DESIGNFLOWRATE",
+                Name=name + '_overheating',
+                Zone_or_ZoneList_Name=zone_name,
+                Schedule_Name="Continuous",
+                Ventilation_Type="Natural",
+                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                # calculation of overheating infiltration is a simplification
+                # compared to the corresponding TEASER implementation which
+                # dynamically computes thresholds for overheating infiltration
+                # based on the zone temperature and additional factors.
+                Air_Changes_per_Hour=space.max_overheating_infiltration[0],
+                Minimum_Outdoor_Temperature
+                =space.max_summer_infiltration[2] - 273.15,
+            )
+        else:
+            idf.newidfobject(
+                "ZONEVENTILATION:DESIGNFLOWRATE",
+                Name=name + '_winter',
+                Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
+                Schedule_Name="Continuous",
+                Ventilation_Type="Natural",
+                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                Air_Changes_per_Hour=space.winter_reduction_infiltration[0],
+                Minimum_Outdoor_Temperature=
+                space.winter_reduction_infiltration[1] - 273.15,
+                Maximum_Outdoor_Temperature=
+                space.winter_reduction_infiltration[2] - 273.15,
+            )
 
-        idf.newidfobject(
-            "ZONEVENTILATION:DESIGNFLOWRATE",
-            Name=name + '_overheating',
-            Zone_or_ZoneList_Name=zone_name,
-            Schedule_Name="Continuous",
-            Ventilation_Type="Natural",
-            Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-            # calculation of overheating infiltration is a simplification
-            # compared to the corresponding TEASER implementation which
-            # dynamically computes thresholds for overheating infiltration
-            # based on the zone temperature and additional factors.
-            Air_Changes_per_Hour=space.max_overheating_infiltration[0],
-            Minimum_Outdoor_Temperature
-            =space.max_summer_infiltration[2] - 273.15,
-        )
+            idf.newidfobject(
+                "ZONEVENTILATION:DESIGNFLOWRATE",
+                Name=name + '_summer',
+                Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
+                Schedule_Name="Continuous",
+                Ventilation_Type="Natural",
+                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                Air_Changes_per_Hour=space.max_summer_infiltration[0],
+                Minimum_Outdoor_Temperature
+                =space.max_summer_infiltration[1] - 273.15,
+                Maximum_Outdoor_Temperature
+                =space.max_summer_infiltration[2] - 273.15,
+            )
+
+            idf.newidfobject(
+                "ZONEVENTILATION:DESIGNFLOWRATE",
+                Name=name + '_overheating',
+                Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
+                Schedule_Name="Continuous",
+                Ventilation_Type="Natural",
+                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                # calculation of overheating infiltration is a simplification
+                # compared to the corresponding TEASER implementation which
+                # dynamically computes thresholds for overheating infiltration
+                # based on the zone temperature and additional factors.
+                Air_Changes_per_Hour=space.max_overheating_infiltration[0],
+                Minimum_Outdoor_Temperature
+                =space.max_summer_infiltration[2] - 273.15,
+            )
 
     def set_day_hvac_template(self, idf: IDF, space: ThermalZone, name: str):
         """Set 24 hour hvac template.
@@ -1389,23 +1458,33 @@ class CreateIdf(ITask):
 
         # remove erroneous fenestration surfaces which do may crash
         # EnergyPlus simulation
-        fenestration = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
-        for f in fenestration:
-            if not f.Building_Surface_Name:
-                logger.info('Removed Fenestration: %s' % f.Name)
-                idf.removeidfobject(f)
-            fbco = f.Building_Surface_Name
-            bs = idf.getobject('BUILDINGSURFACE:DETAILED', fbco)
-            if bs.Outside_Boundary_Condition == 'Adiabatic':
-                logger.info('Removed Fenestration: %s' % f.Name)
-                idf.removeidfobject(f)
-        for f in fenestration:
-            fbco = f.Building_Surface_Name
-            bs = idf.getobject('BUILDINGSURFACE:DETAILED', fbco)
-            if bs.Outside_Boundary_Condition == 'Adiabatic':
-                logger.info(
-                    'Removed Fenestration in second try: %s' % f.Name)
-                idf.removeidfobject(f)
+        fenestrations = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
+
+        # Create a list of fenestrations to remove
+        to_remove = []
+
+        for fenestration in fenestrations:
+            should_remove = False
+
+            # Check for missing building surface reference
+            if not fenestration.Building_Surface_Name:
+                should_remove = True
+            else:
+                # Check if the referenced surface is adiabatic
+                building_surface = idf.getobject(
+                    'BUILDINGSURFACE:DETAILED',
+                    fenestration.Building_Surface_Name
+                )
+                if building_surface and building_surface.Outside_Boundary_Condition == 'Adiabatic':
+                    should_remove = True
+
+            if should_remove:
+                to_remove.append(fenestration)
+
+        # Remove the collected fenestrations
+        for fenestration in to_remove:
+            logger.info('Removed Fenestration: %s' % fenestration.Name)
+            idf.removeidfobject(fenestration)
 
         # Check if shading control elements contain unavailable fenestration
         fenestration_updated = idf.idfobjects['FENESTRATIONSURFACE:DETAILED']
@@ -1697,11 +1776,11 @@ class IdfObject:
                     surface_type = "Floor"
                 elif any([isinstance(elem, floor) for floor in all_subclasses(
                         InnerFloor, include_self=True)]):
-                    if inst_obj.top_bottom == "BOTTOM":
+                    if inst_obj.top_bottom == BoundaryOrientation.bottom:
                         surface_type = "Floor"
-                    elif inst_obj.top_bottom == "TOP":
+                    elif inst_obj.top_bottom == BoundaryOrientation.top:
                         surface_type = "Ceiling"
-                    elif inst_obj.top_bottom == "VERTICAL":
+                    elif inst_obj.top_bottom == BoundaryOrientation.vertical:
                         surface_type = "Wall"
                         logger.warning(f"InnerFloor with vertical orientation "
                                        f"found, exported as wall, "
@@ -1720,21 +1799,21 @@ class IdfObject:
             #             surface_type = 'Ceiling'
             #     elif elem.ifc.is_a('IfcColumn'):
             #         surface_type = 'Wall'
-            elif inst_obj.top_bottom == "BOTTOM":
+            elif inst_obj.top_bottom == BoundaryOrientation.bottom:
                 surface_type = "Floor"
-            elif inst_obj.top_bottom == "TOP":
+            elif inst_obj.top_bottom == BoundaryOrientation.top:
                 surface_type = "Ceiling"
                 if inst_obj.related_bound is None or inst_obj.is_external:
                     surface_type = "Roof"
-            elif inst_obj.top_bottom == "VERTICAL":
+            elif inst_obj.top_bottom == BoundaryOrientation.vertical:
                 surface_type = "Wall"
             else:
                 if not PyOCCTools.compare_direction_of_normals(
                         inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
                     surface_type = 'Wall'
-                elif inst_obj.top_bottom == "BOTTOM":
+                elif inst_obj.top_bottom == BoundaryOrientation.bottom:
                     surface_type = "Floor"
-                elif inst_obj.top_bottom == "TOP":
+                elif inst_obj.top_bottom == BoundaryOrientation.top:
                     surface_type = "Ceiling"
                     if inst_obj.related_bound is None or inst_obj.is_external:
                         surface_type = "Roof"
@@ -1745,9 +1824,9 @@ class IdfObject:
                     inst_obj.bound_normal, gp_XYZ(0, 0, 1)):
                 surface_type = 'Wall'
             else:
-                if inst_obj.top_bottom == "BOTTOM":
+                if inst_obj.top_bottom == BoundaryOrientation.bottom:
                     surface_type = "Floor"
-                elif inst_obj.top_bottom == "TOP":
+                elif inst_obj.top_bottom == BoundaryOrientation.top:
                     surface_type = "Ceiling"
         else:
             logger.warning(f"No surface type matched for {inst_obj}!")
