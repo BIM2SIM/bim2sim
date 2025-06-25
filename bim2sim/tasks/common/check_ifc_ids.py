@@ -55,7 +55,15 @@ class CheckIfc(ITask):
         # end part from load_ifc.py
         ids_file_path = self.playground.sim_settings.ids_file_path
         for ifc_file_path in ifc_files_paths:
-            self.run_ids_check_on_ifc(ifc_file_path, ids_file_path)
+            all_spec_pass = self.run_ids_check_on_ifc(
+                ifc_file_path, ids_file_path)
+
+            if all_spec_pass:
+                self.logger.info(
+                    "all checks of the specifications of this IDS pass: {}".format(all_spec_pass))
+            else:
+                self.logger.warning(
+                    "all checks of the specifications of this IDS pass: {}".format(all_spec_pass))
 
         self.logger.info(f"Processing IFC Checks without ifcTester")
         for ifc_file in ifc_files:
@@ -145,7 +153,8 @@ class CheckIfc(ITask):
         print("<<<<<<")
         return (all_guids_filled, empty_guids)
 
-    def run_ids_check_on_ifc(self, ifc_file: str, ids_file: str, report_html: bool = False) -> bool:
+    @staticmethod
+    def run_ids_check_on_ifc(ifc_file: str, ids_file: str, report_html: bool = False) -> bool:
         """run check on IFC file based on IDS
 
         print the check of specifications pass(true) or fail(false)
@@ -168,16 +177,8 @@ class CheckIfc(ITask):
         my_ids.validate(model)
         all_spec_pass = True
         for spec in my_ids.specifications:
-            self.logger.info(
-                ("name: {}, passed: {}".format(spec.name, spec.status)))
             if not spec.status:
                 all_spec_pass = False
-        if all_spec_pass:
-            self.logger.info(
-                "all checks of the specifications of this IDS pass: {}".format(all_spec_pass))
-        else:
-            self.logger.warning(
-                "all checks of the specifications of this IDS pass: {}".format(all_spec_pass))
 
         return all_spec_pass
 
