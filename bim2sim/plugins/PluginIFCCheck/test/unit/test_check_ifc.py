@@ -27,7 +27,7 @@ class PluginDummy(Plugin):
         bim2sim.tasks.common.load_ifc.LoadIFC,
     ]
 
-test_rsrc_path = Path(__file__).parent.parent.parent.parent / 'resources'
+test_rsrc_path = Path(__file__).parent.parent.parent.parent.parent.parent / 'test/resources'
 
 
 class TestCheckIFC(unittest.TestCase):
