@@ -111,3 +111,17 @@ class BoundaryOrientation(Enum):
     top = auto()
     bottom = auto()
     vertical = auto()
+
+
+class FlowDirection(Enum):
+    """Used to describe the flow direction of ports."""
+    sink_and_source = 0
+    sink = -1
+    source = 1
+    unknown = 2
+
+
+class FlowSide(Enum):
+    supply_flow = 1
+    return_flow = -1
+    unknown = 0

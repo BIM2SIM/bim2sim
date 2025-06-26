@@ -702,10 +702,6 @@ class SpaceBoundary(RelationBased):
 
         return position
 
-    @classmethod
-    def pre_validate(cls, ifc) -> bool:
-        return True
-
     def validate_creation(self) -> bool:
         if self.bound_area and self.bound_area < 1e-2 * ureg.meter ** 2:
             return True
@@ -1282,10 +1278,6 @@ class Layer(BPSProduct):
             raise AttributeError("Max prefix length is 10!")
         ifcopenshell_guid = guid.new()[prefix_length + 1:]
         return f"{prefix}{ifcopenshell_guid}"
-
-    @classmethod
-    def pre_validate(cls, ifc) -> bool:
-        return True
 
     def validate_creation(self) -> bool:
         return True
@@ -1940,18 +1932,6 @@ class Storey(BPSProduct):
         default_ps=("Qto_BuildingStoreyBaseQuantities", "Height"),
         unit=ureg.meter
     )
-
-
-class SpaceBoundaryRepresentation(BPSProduct):
-    """describes the geometric representation of space boundaries which are
-    created by the webtool to allow the """
-    ifc_types = {
-        "IFCBUILDINGELEMENTPROXY":
-            ['USERDEFINED']
-    }
-    pattern_ifc_type = [
-        re.compile('ProxyBound', flags=re.IGNORECASE)
-    ]
 
 
 # collect all domain classes

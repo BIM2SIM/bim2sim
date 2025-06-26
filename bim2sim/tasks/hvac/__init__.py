@@ -7,3 +7,4 @@ from .export import CreateModelicaModel
 from .export import Export
 from .connect_elements import ConnectElements
 from .load_standardlibrary import LoadLibrariesStandardLibrary
+from .enrich_flow_direction import EnrichFlowDirection

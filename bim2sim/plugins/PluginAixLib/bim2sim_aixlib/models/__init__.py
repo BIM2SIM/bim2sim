@@ -300,9 +300,9 @@ class ConsumerHeatingDistributorModule(AixLib):
                             value=10000 * n_consumers)
 
     def get_port_name(self, port):
-        if port.verbose_flow_direction == 'SINK':
+        if port.flow_direction.name == 'sink':
             return 'port_a'
-        if port.verbose_flow_direction == 'SOURCE':
+        if port.flow_direction.name == 'source':
             return 'port_b'
         else:
             return super().get_port_name(port)
@@ -367,9 +367,9 @@ class BoilerAggregation(AixLib):
                             value=0.7*ureg.m**3/ureg.hour / ureg.bar**0.5)
 
     def get_port_name(self, port):
-        if port.verbose_flow_direction == 'SINK':
+        if port.flow_direction.name == 'sink':
             return 'port_a'
-        if port.verbose_flow_direction == 'SOURCE':
+        if port.flow_direction.name == 'source':
             return 'port_b'
         else:
             return super().get_port_name(port)
