@@ -1,0 +1,7 @@
+bim2sim.plugins.PluginIFCCheck.test package
+===========================================
+
+.. automodule:: bim2sim.plugins.PluginIFCCheck.test
+   :members:
+   :undoc-members:
+   :show-inheritance:

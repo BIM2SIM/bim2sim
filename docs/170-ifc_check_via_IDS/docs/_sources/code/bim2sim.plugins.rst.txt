@@ -1,0 +1,22 @@
+bim2sim.plugins package
+=======================
+
+.. automodule:: bim2sim.plugins
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   bim2sim.plugins.PluginAixLib
+   bim2sim.plugins.PluginComfort
+   bim2sim.plugins.PluginEnergyPlus
+   bim2sim.plugins.PluginHKESim
+   bim2sim.plugins.PluginIFCCheck
+   bim2sim.plugins.PluginLCA
+   bim2sim.plugins.PluginTEASER
+   bim2sim.plugins.PluginTemplate

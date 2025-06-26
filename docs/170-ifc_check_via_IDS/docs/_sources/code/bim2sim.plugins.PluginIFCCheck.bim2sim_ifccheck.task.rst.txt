@@ -1,0 +1,18 @@
+bim2sim.plugins.PluginIFCCheck.bim2sim\_ifccheck.task package
+=============================================================
+
+.. automodule:: bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck.task
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+bim2sim.plugins.PluginIFCCheck.bim2sim\_ifccheck.task.template\_task module
+---------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck.task.template_task
+   :members:
+   :undoc-members:
+   :show-inheritance:
