@@ -96,13 +96,15 @@ def help_package_order(path: Path, package_list: List[str], addition=None,
                                   "assets/templates/modelica/package_order.txt"
     package_order_template = Template(filename=str(
         template_package_order_path))
-    with open(path / 'package.order', 'w') as out_file:
-        out_file.write(package_order_template.render_unicode(
-            list=package_list,
-            addition=addition,
-            extra=extra))
-        out_file.close()
 
+    rendered_content = package_order_template.render_unicode(
+        list=package_list,
+        addition=addition,
+        extra=extra
+    )
+    final_output = rendered_content.rstrip()
+    with open(path / 'package.order', 'w', newline='\n') as out_file:
+        out_file.write(final_output)
 
 class ModelicaModel:
     """Modelica model"""
