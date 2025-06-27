@@ -50,9 +50,9 @@ class Boiler(AixLib):
                             )
 
     def get_port_name(self, port):
-        if port.verbose_flow_direction == 'SINK':
+        if port.flow_direction.name == 'sink':
             return 'port_a'
-        if port.verbose_flow_direction == 'SOURCE':
+        if port.flow_direction.name == 'source':
             return 'port_b'
         else:
             return super().get_port_name(port)  # ToDo: Gas connection
@@ -93,9 +93,9 @@ class Radiator(AixLib):
                             attributes=['return_temperature'])
 
     def get_port_name(self, port):
-        if port.verbose_flow_direction == 'SINK':
+        if port.flow_direction.name == 'sink':
             return 'port_a'
-        if port.verbose_flow_direction == 'SOURCE':
+        if port.flow_direction.name == 'source':
             return 'port_b'
         else:
             return super().get_port_name(port)
@@ -135,9 +135,9 @@ class Pump(AixLib):
                                 'dp': self.parameters['dp']}})
 
     def get_port_name(self, port):
-        if port.verbose_flow_direction == 'SINK':
+        if port.flow_direction.name == 'sink':
             return 'port_a'
-        if port.verbose_flow_direction == 'SOURCE':
+        if port.flow_direction.name == 'source':
             return 'port_b'
         else:
             return super().get_port_name(port)
@@ -189,9 +189,9 @@ class Consumer(AixLib):
                              * ureg.kg / ureg.meter ** 3))
 
     def get_port_name(self, port):
-        if port.verbose_flow_direction == 'SINK':
+        if port.flow_direction.name == 'sink':
             return 'port_a'
-        if port.verbose_flow_direction == 'SOURCE':
+        if port.flow_direction.name == 'source':
             return 'port_b'
         else:
             return super().get_port_name(port)
@@ -498,9 +498,9 @@ class Heatpump(AixLib):
 
     def get_port_name(self, port):
         # TODO: heat pumps might have 4 ports (if source is modeled in BIM)
-        if port.verbose_flow_direction == 'SINK':
+        if port.flow_direction.name == 'sink':
             return 'port_a'
-        if port.verbose_flow_direction == 'SOURCE':
+        if port.flow_direction.name == 'source':
             return 'port_b'
         else:
             return super().get_port_name(port)
@@ -528,9 +528,9 @@ class Chiller(AixLib):
 
     def get_port_name(self, port):
         # TODO heat pumps might have 4 ports (if source is modeld in BIM)
-        if port.verbose_flow_direction == 'SINK':
+        if port.flow_direction.name == 'sink':
             return 'port_a'
-        if port.verbose_flow_direction == 'SOURCE':
+        if port.flow_direction.name == 'source':
             return 'port_b'
         else:
             return super().get_port_name(port)

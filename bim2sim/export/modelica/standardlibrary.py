@@ -51,9 +51,9 @@ class StaticPipe(StandardLibrary):
                             attributes=['diameter'])
 
     def get_port_name(self, port):
-        if port.verbose_flow_direction == 'SINK':
+        if port.flow_direction.name == 'sink':
             return 'port_a'
-        if port.verbose_flow_direction == 'SOURCE':
+        if port.flow_direction.name == 'source':
             return 'port_b'
         # TODO #733 find port if sourceandsink or sinkdansource
         # if port.flow_direction == 0.  # SOURCEANDSINK and SINKANDSOURCE
