@@ -381,25 +381,26 @@ class Distributor(AixLib):
 
     def __init__(self, element: hvac.Distributor):
         super().__init__(element)
-        # n_ports = self.get_n_ports()
+        n_ports = self.get_n_ports()
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
                             value=MEDIUM_WATER)
-        # self._set_parameter(name='n',
-        #                     unit=None,
-        #                     required=False,
-        #                     value=n_ports)
+        self._set_parameter(name='n',
+                            unit=None,
+                            required=False,
+                            value=int(n_ports))
         self._set_parameter(name='m_flow_nominal',
                             unit=ureg.kg / ureg.s,
                             required=False,
                             check=check_numeric(min_value=0 * ureg.kg / ureg.s),
+                            value=0.05 * ureg.kg / ureg.s, # ToDo this is a random value, since no specific information has been found in ifc yet
                             attributes=['rated_mass_flow'])
 
     def get_n_ports(self):
         ports = {port.guid: port for port in self.element.ports if
                  port.connection}
-        return len(ports) / 2 - 1
+        return len(ports) / 2 - 2
 
     def get_port_name(self, port):
         try:
