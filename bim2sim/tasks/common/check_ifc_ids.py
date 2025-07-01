@@ -1,5 +1,7 @@
 """check ifc input file manly based on IDS files"""
 
+from pathlib import Path
+
 import ifcopenshell
 import ifctester
 import ifctester.ids
@@ -52,10 +54,12 @@ class CheckIfc(ITask):
         self.logger.info(f"Found {len(ifc_files_paths)} IFC files in project "
                          f"directory.")
         # end part from load_ifc.py
+        log_path = self.paths.log
         ids_file_path = self.playground.sim_settings.ids_file_path
         for ifc_file_path in ifc_files_paths:
             all_spec_pass = self.run_ids_check_on_ifc(
-                ifc_file_path, ids_file_path)
+                ifc_file_path, ids_file_path,
+                report_html=True, log_path=log_path)
 
             if all_spec_pass:
                 self.logger.info(
@@ -144,7 +148,7 @@ class CheckIfc(ITask):
         return (all_guids_filled, empty_guids)
 
     @staticmethod
-    def run_ids_check_on_ifc(ifc_file: str, ids_file: str, report_html: bool = False) -> bool:
+    def run_ids_check_on_ifc(ifc_file: str, ids_file: str, report_html: bool = False, log_path: str = None) -> bool:
         """run check on IFC file based on IDS
 
         print the check of specifications pass(true) or fail(false)
@@ -154,7 +158,7 @@ class CheckIfc(ITask):
         Input:
             ifc_file: path of the IFC file, which is checked
             ids_file: path of the IDS file, which includes the specifications
-            TODO: implete report_html feature, see howto use report down below
+            log_path: path of the log folder as part of the project structur 
             report_html: generate, save and open the report about checking
                          default = False
         Returns:
@@ -170,17 +174,16 @@ class CheckIfc(ITask):
             if not spec.status:
                 all_spec_pass = False
 
+        # generate html report
+        if report_html:
+            engine = ifctester.reporter.Html(my_ids)
+            engine.report()
+            output_file = Path(log_path / 'ifc_ids_check.html')
+            engine.to_file(output_file)
+            # can comment out, if not the browser should show the report
+            webbrowser.open(f"file://{output_file}")
+
         return all_spec_pass
-
-# for check the results of return above
-# ifctester.reporter.Console(my_ids).report()
-
-# engine = ifctester.reporter.Html(my_ids)
-# engine.report()
-# output_path = '/home/cudok/Documents/12_ifc_check_ids/02_development/test2.html'
-# engine.to_file(output_path)
-# webbrowser.open(f"file://{output_path}")
-#+end_src
 
 if __name__ == '__main__':
     pass
