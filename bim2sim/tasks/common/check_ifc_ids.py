@@ -15,7 +15,6 @@ from bim2sim.kernel.ifc_file import IfcFileClass
 class CheckIfc(ITask):
     """
     Check ifc files for their quality regarding simulation.
-    TODO rename Task CheckIfcNew >> CheckIfc and remove the old CheckIfc
     """
     reads = ('ifc_files',)
 
