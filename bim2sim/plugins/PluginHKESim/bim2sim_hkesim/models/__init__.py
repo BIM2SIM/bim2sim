@@ -33,9 +33,9 @@ class Boiler(HKESim):
                             attributes=['return_temperature'])
 
     def get_port_name(self, port):
-        if port.verbose_flow_direction == 'SINK':
+        if port.flow_direction.name == 'sink':
             return 'port_a'
-        if port.verbose_flow_direction == 'SOURCE':
+        if port.flow_direction.name == 'source':
             return 'port_b'
         else:
             return super().get_port_name(port)
@@ -63,9 +63,9 @@ class Radiator(HKESim):
                             attributes=['return_temperature'])
 
     def get_port_name(self, port):
-        if port.verbose_flow_direction == 'SINK':
+        if port.flow_direction.name == 'sink':
             return 'port_a'
-        if port.verbose_flow_direction == 'SOURCE':
+        if port.flow_direction.name == 'source':
             return 'port_b'
         else:
             return super().get_port_name(port)
@@ -99,9 +99,9 @@ class Pump(HKESim):
                             check=check_numeric(min_value=0 * ureg.watt))
 
     def get_port_name(self, port):
-        if port.verbose_flow_direction == 'SINK':
+        if port.flow_direction.name == 'sink':
             return 'port_a'
-        if port.verbose_flow_direction == 'SOURCE':
+        if port.flow_direction.name == 'source':
             return 'port_b'
         else:
             return super().get_port_name(port)
@@ -188,9 +188,9 @@ class ConsumerHeatingDistributorModule(HKESim):
         except ValueError:
             # unknown port
             index = -1
-        if port.verbose_flow_direction == 'SINK':
+        if port.flow_direction.name == 'sink':
             return "port_a_consumer"
-        elif port.verbose_flow_direction == 'SOURCE':
+        elif port.flow_direction.name == 'source':
             return "port_b_consumer"
         elif (index % 2) == 0:
             return "port_a_consumer{}".format(
@@ -233,9 +233,9 @@ class BoilerModule(HKESim):
                             attributes=['has_bypass'])
 
     def get_port_name(self, port):
-        if port.verbose_flow_direction == 'SINK':
+        if port.flow_direction.name == 'sink':
             return 'port_a'
-        if port.verbose_flow_direction == 'SOURCE':
+        if port.flow_direction.name == 'source':
             return 'port_b'
         else:
             return super().get_port_name(port)
@@ -263,9 +263,9 @@ class HeatPump(HKESim):
 
     def get_port_name(self, port):
         # TODO: heat pump might have 4 ports (if source is modeled in BIM)
-        if port.verbose_flow_direction == 'SINK':
+        if port.flow_direction.name == 'sink':
             return 'port_a_con'
-        if port.verbose_flow_direction == 'SOURCE':
+        if port.flow_direction.name == 'source':
             return 'port_b_con'
         else:
             return super().get_port_name(port)
@@ -299,9 +299,9 @@ class Chiller(HKESim):
 
     def get_port_name(self, port):
         # TODO: chiller might have 4 ports (if source is modeled in BIM)
-        if port.verbose_flow_direction == 'SINK':
+        if port.flow_direction.name == 'sink':
             return 'port_a_con'
-        if port.verbose_flow_direction == 'SOURCE':
+        if port.flow_direction.name == 'source':
             return 'port_b_con'
         else:
             return super().get_port_name(port)
@@ -324,9 +324,9 @@ class CHP(HKESim):
                             attributes=['rated_power'])
 
     def get_port_name(self, port):
-        if port.verbose_flow_direction == 'SINK':
+        if port.flow_direction.name == 'sink':
             return 'port_a'
-        if port.verbose_flow_direction == 'SOURCE':
+        if port.flow_direction.name == 'source':
             return 'port_b'
         else:
             return super().get_port_name(port)
@@ -349,9 +349,9 @@ class CoolingTower(HKESim):
                             attributes=['rated_power'])
 
     def get_port_name(self, port):
-        if port.verbose_flow_direction == 'SINK':
+        if port.flow_direction.name == 'sink':
             return 'port_a'
-        if port.verbose_flow_direction == 'SOURCE':
+        if port.flow_direction.name == 'source':
             return 'port_b'
         else:
             return super().get_port_name(port)

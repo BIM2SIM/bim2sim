@@ -138,17 +138,6 @@ class HVACPort(Port):
     #         raise AttributeError("Invalid value. Use one of (-1, 0, 1, None).")
     #     self._flow_direction = value
 
-    # @property
-    # def verbose_flow_direction(self):
-    #     """Flow direction of port"""
-    #     if self.flow_direction == -1:
-    #         return 'SINK'
-    #     if self.flow_direction == 0:
-    #         return 'SINKANDSOURCE'
-    #     if self.flow_direction == 1:
-    #         return 'SOURCE'
-    #     return 'UNKNOWN'
-
     @property
     def flow_side(self):
         """

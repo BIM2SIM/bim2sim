@@ -9,7 +9,6 @@ from bim2sim.export.modelica import HeatPort
 MEDIUM_WATER = 'AixLib.Media.Water'
 
 
-# TODO get_port_name functions: use verbose_flow_direction instead index
 class AixLib(modelica.ModelicaElement):
     library = "AixLib"
 
@@ -309,7 +308,6 @@ class ConsumerHeatingDistributorModule(AixLib):
 
 
 class BoilerAggregation(AixLib):
-    # TODO: the model does not exists in AiLib
     """Modelica AixLib representation of the GeneratorOneFluid aggregation."""
     path = "AixLib.Systems.ScalableGenerationModules.ScalableBoiler.ScalableBoiler"
     represents = [hvac_aggregations.GeneratorOneFluid]
