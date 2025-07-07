@@ -11,6 +11,7 @@ import webbrowser
 from bim2sim.tasks.base import ITask, Playground
 
 from bim2sim.kernel.ifc_file import IfcFileClass
+from bim2sim.utilities.types import IFCDomain
 
 class CheckIfc(ITask):
     """
@@ -18,18 +19,19 @@ class CheckIfc(ITask):
     """
     reads = ('ifc_files',)
 
-    # def __init__(self, playground: Playground):
-    #     super().__init__(playground)
-    #     self.error_summary_sub_inst: dict = {}
-    #     self.error_summary_inst: dict = {}
-    #     self.error_summary_prop: dict = {}
-    #     self.sub_inst: list = []
-    #     self.id_list: list = []
-    #     self.elements: list = []
-    #     self.ps_summary: dict = {}
-    #     self.ifc_units: dict = {}
-    #     self.sub_inst_cls = None
-    #     self.plugin = None
+    # TODO remove self attributes, which not needed
+    def __init__(self, playground: Playground):
+        super().__init__(playground)
+        self.error_summary_sub_inst: dict = {}
+        self.error_summary_inst: dict = {}
+        self.error_summary_prop: dict = {}
+        self.sub_inst: list = []
+        self.id_list: list = []
+        self.elements: list = []
+        self.ps_summary: dict = {}
+        self.ifc_units: dict = {}
+        self.sub_inst_cls = None
+        self.plugin = None
 
     def run(self, ifc_files: [IfcFileClass]):
         """
@@ -80,6 +82,11 @@ class CheckIfc(ITask):
             self.logger.info("the GUIDs of all elements are filled (NOT empty): {}".format(all_guids_filled))
             if all_guids_filled is False:
                 self.logger.warning("empty GUIDs: {}".format(list_guids_empty))
+
+            # write reportes self made checks
+            base_name = f"/{ifc_file.domain.name.upper()}_" \
+                        f"{ifc_file.ifc_file_name[:-4]}"
+            self._write_errors_to_html_table(base_name, ifc_file.domain)
 
     def run_check_guid_unique(self, ifc_file) -> (bool, dict):
         """check the uniqueness of the guids of the IFC file
@@ -183,6 +190,88 @@ class CheckIfc(ITask):
             webbrowser.open(f"file://{output_file}")
 
         return all_spec_pass
+
+    def get_html_templates(self):
+        """
+        Gets all stored html templates that will be used to export the errors
+        summaries
+
+        Returns:
+            templates: dictionary containing all error html templates
+        """
+        templates = {}
+        path_templates = os.path.join(
+            self.paths.assets, "templates", "check_ifc")
+        lookup = TemplateLookup(directories=[path_templates])
+        templates["inst_template"] = Template(
+            filename=os.path.join(path_templates, "inst_template"),
+            lookup=lookup)
+        templates["prop_template"] = Template(
+            filename=os.path.join(path_templates, "prop_template"),
+            lookup=lookup)
+        templates["summary_template"] = Template(
+            filename=os.path.join(path_templates, "summary_template"),
+            lookup=lookup)
+        return templates
+
+    def _write_errors_to_html_table(self, base_name: str, domain: IFCDomain):
+        """
+        Writes all errors in the html templates in a summarized way
+
+        Args:
+            base_name: str of file base name for reports
+            domain: IFCDomain of the checked IFC
+        """
+
+        # templates = self.get_html_templates()
+        # summary_inst = self._categorize_errors(self.error_summary_inst)
+        # summary_sbs = self._categorize_errors(self.error_summary_sub_inst)
+        # summary_props = self._categorize_errors(self.error_summary_prop)
+        # all_errors = {**summary_inst['per_type'], **summary_sbs['per_type']}
+
+        # TODO delete after it is general running
+        # test stuff
+        with open(str(self.paths.log) +
+                  base_name +
+                  '_error_summary_inst.html', 'w+') as \
+                out_file:
+            out_file.write("test writing  Falk")
+            # out_file.write(templates["inst_template"].render_unicode(
+            #     task=self,
+            #     summary_inst=summary_inst,
+            #     summary_sbs=summary_sbs,
+            #     all_errors=all_errors))
+            out_file.close()
+
+        # with open(str(self.paths.log) +
+        #           base_name +
+        #           '_error_summary_inst.html', 'w+') as \
+        #         out_file:
+        #     out_file.write(templates["inst_template"].render_unicode(
+        #         task=self,
+        #         summary_inst=summary_inst,
+        #         summary_sbs=summary_sbs,
+        #         all_errors=all_errors))
+        #     out_file.close()
+        # with open(str(self.paths.log) +
+        #           base_name +
+        #           '_error_summary_prop.html', 'w+') as \
+        #         out_file:
+        #     out_file.write(templates["prop_template"].render_unicode(
+        #         task=self,
+        #         summary_props=summary_props))
+        #     out_file.close()
+        # with open(str(self.paths.log) +
+        #           base_name +
+        #           '_error_summary.html', 'w+') as out_file:
+        #     out_file.write(templates["summary_template"].render_unicode(
+        #         task=self,
+        #         plugin_name=domain.name.upper(),
+        #         base_name=base_name[1:],
+        #         summary_inst=summary_inst,
+        #         summary_sbs=summary_sbs,
+        #         summary_props=summary_props))
+        #     out_file.close()
 
 if __name__ == '__main__':
     pass
