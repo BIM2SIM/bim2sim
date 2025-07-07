@@ -1,5 +1,7 @@
 """check ifc input file manly based on IDS files"""
 
+import os
+
 from pathlib import Path
 
 import ifcopenshell
@@ -7,6 +9,10 @@ import ifctester
 import ifctester.ids
 import ifctester.reporter
 import webbrowser
+
+
+from mako.lookup import TemplateLookup
+from mako.template import Template
 
 from bim2sim.tasks.base import ITask, Playground
 
@@ -214,6 +220,38 @@ class CheckIfc(ITask):
             lookup=lookup)
         return templates
 
+    @staticmethod
+    def _categorize_errors(error_dict: dict):
+        """
+        categorizes the resulting errors in a dictionary containing two groups:
+            'per_error' where the key is the error name and the value is the
+                number of errors with this name
+            'per type' where the key is the ifc_type and the values are the
+                each element with its respective errors
+        Args:
+            error_dict: dictionary containing all errors without categorization
+
+        Returns:
+            categorized_dict: dictionary containing all errors categorized
+
+        """
+        categorized_dict = {'per_error': {}, 'per_type': {}}
+        for instance, errors in error_dict.items():
+            if ' ' in instance:
+                guid, ifc_type = instance.split(' ')
+            else:
+                guid = '-'
+                ifc_type = instance
+            if ifc_type not in categorized_dict['per_type']:
+                categorized_dict['per_type'][ifc_type] = {}
+            categorized_dict['per_type'][ifc_type][guid] = errors
+            for error in errors:
+                error_com = error.split(' - ')
+                if error_com[0] not in categorized_dict['per_error']:
+                    categorized_dict['per_error'][error_com[0]] = 0
+                categorized_dict['per_error'][error_com[0]] += 1
+        return categorized_dict
+
     def _write_errors_to_html_table(self, base_name: str, domain: IFCDomain):
         """
         Writes all errors in the html templates in a summarized way
@@ -223,55 +261,41 @@ class CheckIfc(ITask):
             domain: IFCDomain of the checked IFC
         """
 
-        # templates = self.get_html_templates()
-        # summary_inst = self._categorize_errors(self.error_summary_inst)
-        # summary_sbs = self._categorize_errors(self.error_summary_sub_inst)
-        # summary_props = self._categorize_errors(self.error_summary_prop)
-        # all_errors = {**summary_inst['per_type'], **summary_sbs['per_type']}
+        templates = self.get_html_templates()
+        summary_inst = self._categorize_errors(self.error_summary_inst)
+        summary_sbs = self._categorize_errors(self.error_summary_sub_inst)
+        summary_props = self._categorize_errors(self.error_summary_prop)
+        all_errors = {**summary_inst['per_type'], **summary_sbs['per_type']}
 
-        # TODO delete after it is general running
-        # test stuff
         with open(str(self.paths.log) +
                   base_name +
                   '_error_summary_inst.html', 'w+') as \
                 out_file:
-            out_file.write("test writing  Falk")
-            # out_file.write(templates["inst_template"].render_unicode(
-            #     task=self,
-            #     summary_inst=summary_inst,
-            #     summary_sbs=summary_sbs,
-            #     all_errors=all_errors))
+            out_file.write(templates["inst_template"].render_unicode(
+                task=self,
+                summary_inst=summary_inst,
+                summary_sbs=summary_sbs,
+                all_errors=all_errors))
             out_file.close()
-
-        # with open(str(self.paths.log) +
-        #           base_name +
-        #           '_error_summary_inst.html', 'w+') as \
-        #         out_file:
-        #     out_file.write(templates["inst_template"].render_unicode(
-        #         task=self,
-        #         summary_inst=summary_inst,
-        #         summary_sbs=summary_sbs,
-        #         all_errors=all_errors))
-        #     out_file.close()
-        # with open(str(self.paths.log) +
-        #           base_name +
-        #           '_error_summary_prop.html', 'w+') as \
-        #         out_file:
-        #     out_file.write(templates["prop_template"].render_unicode(
-        #         task=self,
-        #         summary_props=summary_props))
-        #     out_file.close()
-        # with open(str(self.paths.log) +
-        #           base_name +
-        #           '_error_summary.html', 'w+') as out_file:
-        #     out_file.write(templates["summary_template"].render_unicode(
-        #         task=self,
-        #         plugin_name=domain.name.upper(),
-        #         base_name=base_name[1:],
-        #         summary_inst=summary_inst,
-        #         summary_sbs=summary_sbs,
-        #         summary_props=summary_props))
-        #     out_file.close()
+        with open(str(self.paths.log) +
+                  base_name +
+                  '_error_summary_prop.html', 'w+') as \
+                out_file:
+            out_file.write(templates["prop_template"].render_unicode(
+                task=self,
+                summary_props=summary_props))
+            out_file.close()
+        with open(str(self.paths.log) +
+                  base_name +
+                  '_error_summary.html', 'w+') as out_file:
+            out_file.write(templates["summary_template"].render_unicode(
+                task=self,
+                plugin_name=domain.name.upper(),
+                base_name=base_name[1:],
+                summary_inst=summary_inst,
+                summary_sbs=summary_sbs,
+                summary_props=summary_props))
+            out_file.close()
 
 if __name__ == '__main__':
     pass
