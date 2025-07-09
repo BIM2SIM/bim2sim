@@ -4,7 +4,8 @@ import os
 
 from pathlib import Path
 
-import ifcopenshell
+import ifcopenshell # TODO check which modules are used and append them to the line below
+from ifcopenshell import file
 import ifctester
 import ifctester.ids
 import ifctester.reporter
@@ -77,18 +78,20 @@ class CheckIfc(ITask):
 
         self.logger.info(f"Processing IFC Checks without ifcTester")
         for ifc_file in ifc_files:
+            # check uniqueness of GUIDs
             all_guids_unique, double_guids = self.run_check_guid_unique(ifc_file)
             list_guids_non_unique = list(double_guids.keys())
             self.logger.info("the GUIDs of all elements are unique: {}".format(all_guids_unique))
             if all_guids_unique is False:
                 self.logger.warning("non-unique GUIDs: {}".format(list_guids_non_unique))
-
+            # check emptyness of GUID fields
             all_guids_filled, empty_guids = self.run_check_guid_empty(ifc_file)
             list_guids_empty = list(empty_guids.keys())
             self.logger.info("the GUIDs of all elements are filled (NOT empty): {}".format(all_guids_filled))
             if all_guids_filled is False:
                 self.logger.warning("empty GUIDs: {}".format(list_guids_empty))
-
+            # check ifc version
+            self.run_check_ifc_version(ifc_file)
             # write reportes self made checks
             base_name = f"/{ifc_file.domain.name.upper()}_" \
                         f"{ifc_file.ifc_file_name[:-4]}"
@@ -158,6 +161,24 @@ class CheckIfc(ITask):
                    used_guids[guid] = inst
 
         return (all_guids_filled, empty_guids)
+
+    @staticmethod
+    def run_check_ifc_version(ifc: file):
+        """
+        Checks the IFC version.
+
+        Only IFC4 files are valid for bim2sim.
+
+        Args:
+            ifc: ifc file loaded with IfcOpenShell
+        Raises:
+            TypeError: if loaded IFC is not IFC4
+        """
+        schema = ifc.schema
+        if "IFC4" not in schema:
+            raise TypeError(f"Loaded IFC file is of type {schema} but only IFC4"
+                            f"is supported. Please ask the creator of the model"
+                            f" to provide a valid IFC4 file.")
 
     @staticmethod
     def run_ids_check_on_ifc(ifc_file: str, ids_file: str, report_html: bool = False, log_path: str = None) -> bool:
