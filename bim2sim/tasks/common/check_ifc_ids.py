@@ -4,8 +4,7 @@ import os
 
 from pathlib import Path
 
-import ifcopenshell # TODO check which modules are used and append them to the line below
-from ifcopenshell import file
+import ifcopenshell as ifcos # TODO check which modules are used and append them to the line below
 import ifctester
 import ifctester.ids
 import ifctester.reporter
@@ -112,8 +111,8 @@ class CheckIfc(ITask):
 
         """
         # TODO bring output into the log
-        used_guids: dict[str, ifcopenshell.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
-        double_guids: dict[str, ifcopenshell.entity_instance] = dict() # dict of elements with guids, which are not unique
+        used_guids: dict[str, ifcos.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
+        double_guids: dict[str, ifcos.entity_instance] = dict() # dict of elements with guids, which are not unique
         all_guids_unique = True
 
         for inst in ifc_file.file:
@@ -144,8 +143,8 @@ class CheckIfc(ITask):
 
         """
 
-        used_guids: dict[str, ifcopenshell.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
-        empty_guids: dict[str, ifcopenshell.entity_instance] = dict() # dict of elements with guids, which are empty
+        used_guids: dict[str, ifcos.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
+        empty_guids: dict[str, ifcos.entity_instance] = dict() # dict of elements with guids, which are empty
         all_guids_filled = True
         guid_empty_no = 0 # count the number of guids without value (empty), this number is used to make unique identifier
         for inst in ifc_file.file:
@@ -163,7 +162,7 @@ class CheckIfc(ITask):
         return (all_guids_filled, empty_guids)
 
     @staticmethod
-    def run_check_ifc_version(ifc: file):
+    def run_check_ifc_version(ifc: ifcos.file):
         """
         Checks the IFC version.
 
@@ -199,7 +198,7 @@ class CheckIfc(ITask):
                           (true: all specification passed,
                            false: one or more specification not passed)
         """
-        model = ifcopenshell.open(ifc_file)
+        model = ifcos.open(ifc_file)
         my_ids = ifctester.ids.open(ids_file)
         my_ids.validate(model)
         all_spec_pass = True
