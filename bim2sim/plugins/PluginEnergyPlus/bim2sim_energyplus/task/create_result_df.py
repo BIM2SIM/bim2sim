@@ -258,19 +258,18 @@ class CreateResultDF(ITask):
 
     @staticmethod
     def oriented_surface_names(idf, space_guid):
-        from diss.utils.ep_utils import true_azimuth, azimuth_orientations
         space_bounds_renamed = {}
         temp_name_list = []
         for ib in idf.getobject("ZONE", space_guid).zonesurfaces:
             temp_name = None
             if ib is not None:
                 try:
-                    az = true_azimuth(ib)
+                    az = PostprocessingUtils.true_azimuth(ib)
                 except:
                     az = None
                 if az is None:
                     continue
-                for key in azimuth_orientations:
+                for key in PostprocessingUtils.azimuth_orientations:
                     if (float(key) - 22.5) <= az < (float(key) + 22.5):
                         if ib.Outside_Boundary_Condition == 'Surface':
                             temp_name = 'Inner'
@@ -287,7 +286,7 @@ class CreateResultDF(ITask):
                             surface_type = ib.Construction_Name
                         temp_name = temp_name + surface_type
                         if ib.Surface_Type == 'Wall':
-                            temp_name = temp_name + "_" + azimuth_orientations[key]
+                            temp_name = temp_name + "_" + PostprocessingUtils.azimuth_orientations[key]
                         if temp_name not in temp_name_list:
                             temp_name_list.append(temp_name)
                         else:
