@@ -969,17 +969,20 @@ class SpaceBoundary(RelationBased):
             # scale newly created shape of space boundary to correct size
             conv_factor = (1 * length_unit).to(
                 ureg.metre).m
-            shape = PyOCCTools.scale_shape(shape, conv_factor, gp_Pnt(0, 0, 0))
+            # shape scaling seems to be covered by ifcopenshell, obsolete
+            # shape = PyOCCTools.scale_shape(shape, conv_factor, gp_Pnt(0, 0,
+            # 0))
 
         if self.ifc.RelatingSpace.ObjectPlacement:
             lp = PyOCCTools.local_placement(
                 self.ifc.RelatingSpace.ObjectPlacement).tolist()
             # transform newly created shape of space boundary to correct
             # position if a unit conversion is required.
-            # todo: check if x-, y-coord of "vec" also need to be transformed.
             if conv_required:
-                z_coord = lp[2][3] * length_unit
-                lp[2][3] = z_coord.to(ureg.meter).m
+                for i in range(len(lp)):
+                    for j in range(len(lp[i])):
+                        coord = lp[i][j] * length_unit
+                        lp[i][j] = coord.to(ureg.meter).m
             mat = gp_Mat(lp[0][0], lp[0][1], lp[0][2], lp[1][0], lp[1][1],
                          lp[1][2], lp[2][0], lp[2][1], lp[2][2])
             vec = gp_Vec(lp[0][3], lp[1][3], lp[2][3])
