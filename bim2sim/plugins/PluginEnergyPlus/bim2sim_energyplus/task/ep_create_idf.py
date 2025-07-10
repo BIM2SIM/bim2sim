@@ -275,7 +275,9 @@ class CreateIdf(ITask):
                 self.set_natural_ventilation(
                     idf, name=zone.Name, zone_name=zone.Name, space=space,
                     ep_version=sim_settings.ep_version,
-                    residential=sim_settings.residential)
+                    residential=sim_settings.residential,
+                    ventilation_method=
+                    sim_settings.natural_ventilation_approach)
             self.set_people(sim_settings, idf, name=zone.Name,
                             zone_name=zone.Name, space=space)
             self.set_equipment(sim_settings, idf, name=zone.Name,
@@ -992,7 +994,8 @@ class CreateIdf(ITask):
     @staticmethod
     def set_natural_ventilation(idf: IDF, name: str, zone_name: str,
                                 space: ThermalZone, ep_version,
-                                min_in_temp=22, residential=False):
+                                min_in_temp=22, residential=False,
+                                ventilation_method="Simple"):
         """Set natural ventilation.
 
         This function sets the natural ventilation per space based on the
@@ -1010,152 +1013,197 @@ class CreateIdf(ITask):
 
         """
         if ep_version in ["9-2-0", "9-4-0"]:
-            space_volume = space.space_shape_volume.m
-            space_area = space.net_area.m
-            if residential:
-                occupied_air_exchange = 0.5
-                unoccupied_air_exchange = 0.5
-                occupied_increased_exchange = 3
-                unoccupied_increased_exchange = 2
-            else:
-                occupied_air_exchange = 4 * space_area/space_volume
-                unoccupied_air_exchange = 0.24
-                occupied_increased_exchange = 3
-                unoccupied_increased_exchange = 2
+            if ventilation_method == 'DIN4108':
+                space_volume = space.space_shape_volume.m
+                space_area = space.net_area.m
+                if residential:
+                    occupied_air_exchange = 0.5
+                    unoccupied_air_exchange = 0.5
+                    occupied_increased_exchange = 3
+                    unoccupied_increased_exchange = 2
+                else:
+                    occupied_air_exchange = 4 * space_area/space_volume
+                    unoccupied_air_exchange = 0.24
+                    occupied_increased_exchange = 3
+                    unoccupied_increased_exchange = 2
 
-            if residential:
-                occupied_schedule_name = 'residential_occupied_hours'
-                unoccupied_schedule_name = 'residential_unoccupied_hours'
-                if idf.getobject("SCHEDULE:COMPACT",
-                                 occupied_schedule_name) is None:
-                    idf.newidfobject("SCHEDULE:COMPACT",
-                                     Name=occupied_schedule_name,
-                                     Schedule_Type_Limits_Name='Continuous',
-                                     Field_1='Through: 12/31',
-                                     Field_2='For: AllDays',
-                                     Field_3='Until: 6:00',
-                                     Field_4='0',
-                                     Field_5='Until: 23:00',
-                                     Field_6='1',
-                                     Field_7='Until: 24:00',
-                                     Field_8='0',
-                                     )
-                if idf.getobject("SCHEDULE:COMPACT",
-                                 unoccupied_schedule_name) is None:
-                    idf.newidfobject("SCHEDULE:COMPACT",
-                                     Name=unoccupied_schedule_name,
-                                     Schedule_Type_Limits_Name='Continuous',
-                                     Field_1='Through: 12/31',
-                                     Field_2='For: AllDays',
-                                     Field_3='Until: 6:00',
-                                     Field_4='1',
-                                     Field_5='Until: 23:00',
-                                     Field_6='0',
-                                     Field_7='Until: 24:00',
-                                     Field_8='1',
-                                     )
+                if residential:
+                    occupied_schedule_name = 'residential_occupied_hours'
+                    unoccupied_schedule_name = 'residential_unoccupied_hours'
+                    if idf.getobject("SCHEDULE:COMPACT",
+                                     occupied_schedule_name) is None:
+                        idf.newidfobject("SCHEDULE:COMPACT",
+                                         Name=occupied_schedule_name,
+                                         Schedule_Type_Limits_Name='Continuous',
+                                         Field_1='Through: 12/31',
+                                         Field_2='For: AllDays',
+                                         Field_3='Until: 6:00',
+                                         Field_4='0',
+                                         Field_5='Until: 23:00',
+                                         Field_6='1',
+                                         Field_7='Until: 24:00',
+                                         Field_8='0',
+                                         )
+                    if idf.getobject("SCHEDULE:COMPACT",
+                                     unoccupied_schedule_name) is None:
+                        idf.newidfobject("SCHEDULE:COMPACT",
+                                         Name=unoccupied_schedule_name,
+                                         Schedule_Type_Limits_Name='Continuous',
+                                         Field_1='Through: 12/31',
+                                         Field_2='For: AllDays',
+                                         Field_3='Until: 6:00',
+                                         Field_4='1',
+                                         Field_5='Until: 23:00',
+                                         Field_6='0',
+                                         Field_7='Until: 24:00',
+                                         Field_8='1',
+                                         )
+                else:
+                    occupied_schedule_name = 'non_residential_occupied_hours'
+                    unoccupied_schedule_name = 'non_residential_unoccupied_hours'
+                    if idf.getobject("SCHEDULE:COMPACT",
+                                     occupied_schedule_name) is None:
+                        idf.newidfobject("SCHEDULE:COMPACT",
+                                         Name=occupied_schedule_name,
+                                         Schedule_Type_Limits_Name='Continuous',
+                                         Field_1='Through: 12/31',
+                                         Field_2='For: AllDays',
+                                         Field_3='Until: 7:00',
+                                         Field_4='0',
+                                         Field_5='Until: 18:00',
+                                         Field_6='1',
+                                         Field_7='Until: 24:00',
+                                         Field_8='0',
+                                         )
+                    if idf.getobject("SCHEDULE:COMPACT",
+                                     unoccupied_schedule_name) is None:
+                        idf.newidfobject("SCHEDULE:COMPACT",
+                                         Name=unoccupied_schedule_name,
+                                         Schedule_Type_Limits_Name='Continuous',
+                                         Field_1='Through: 12/31',
+                                         Field_2='For: AllDays',
+                                         Field_3='Until: 7:00',
+                                         Field_4='1',
+                                         Field_5='Until: 18:00',
+                                         Field_6='0',
+                                         Field_7='Until: 24:00',
+                                         Field_8='1',
+                                         )
+                idf.newidfobject(
+                    "ZONEVENTILATION:DESIGNFLOWRATE",
+                    Name=name + '_occupied_ventilation',
+                    Zone_or_ZoneList_Name=zone_name,
+                    Schedule_Name=occupied_schedule_name,
+                    Ventilation_Type="Natural",
+                    Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                    Air_Changes_per_Hour=occupied_air_exchange,
+                )
+                idf.newidfobject(
+                    "ZONEVENTILATION:DESIGNFLOWRATE",
+                    Name=name + '_occupied_ventilation_increased',
+                    Zone_or_ZoneList_Name=zone_name,
+                    Schedule_Name=occupied_schedule_name,
+                    Ventilation_Type="Natural",
+                    Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                    Air_Changes_per_Hour=max(
+                        occupied_increased_exchange-occupied_air_exchange, 0),
+                    Minimum_Indoor_Temperature=23,
+                    Maximum_Indoor_Temperature=26,
+                    Minimum_Outdoor_Temperature=12,
+                    Delta_Temperature=0,
+                )
+                idf.newidfobject(
+                    "ZONEVENTILATION:DESIGNFLOWRATE",
+                    Name=name + '_occupied_ventilation_increased_overheating',
+                    Zone_or_ZoneList_Name=zone_name,
+                    Schedule_Name=occupied_schedule_name,
+                    Ventilation_Type="Natural",
+                    Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                    Air_Changes_per_Hour=max(
+                        occupied_increased_exchange-occupied_air_exchange, 0),
+                    Minimum_Indoor_Temperature=26,
+                    Delta_Temperature=0,
+                )
+                idf.newidfobject(
+                    "ZONEVENTILATION:DESIGNFLOWRATE",
+                    Name=name + '_unoccupied_ventilation',
+                    Zone_or_ZoneList_Name=zone_name,
+                    Schedule_Name=unoccupied_schedule_name,
+                    Ventilation_Type="Natural",
+                    Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                    Air_Changes_per_Hour=unoccupied_air_exchange,
+                )
+                idf.newidfobject(
+                    "ZONEVENTILATION:DESIGNFLOWRATE",
+                    Name=name + '_unoccupied_ventilation_increased',
+                    Zone_or_ZoneList_Name=zone_name,
+                    Schedule_Name=unoccupied_schedule_name,
+                    Ventilation_Type="Natural",
+                    Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                    Air_Changes_per_Hour=max(
+                        unoccupied_increased_exchange-unoccupied_air_exchange, 0),
+                    Minimum_Indoor_Temperature=23,
+                    Maximum_Indoor_Temperature=26,
+                    Minimum_Outdoor_Temperature=15,
+                    Delta_Temperature=0,
+                )
+                idf.newidfobject(
+                    "ZONEVENTILATION:DESIGNFLOWRATE",
+                    Name=name + '_unoccupied_ventilation_increased_overheating',
+                    Zone_or_ZoneList_Name=zone_name,
+                    Schedule_Name=unoccupied_schedule_name,
+                    Ventilation_Type="Natural",
+                    Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                    Air_Changes_per_Hour=max(
+                        unoccupied_increased_exchange-unoccupied_air_exchange, 0),
+                    Minimum_Indoor_Temperature=26,
+                    # Minimum_Outdoor_Temperature=10,
+                    Delta_Temperature=0,
+                )
             else:
-                occupied_schedule_name = 'non_residential_occupied_hours'
-                unoccupied_schedule_name = 'non_residential_unoccupied_hours'
-                if idf.getobject("SCHEDULE:COMPACT",
-                                 occupied_schedule_name) is None:
-                    idf.newidfobject("SCHEDULE:COMPACT",
-                                     Name=occupied_schedule_name,
-                                     Schedule_Type_Limits_Name='Continuous',
-                                     Field_1='Through: 12/31',
-                                     Field_2='For: AllDays',
-                                     Field_3='Until: 7:00',
-                                     Field_4='0',
-                                     Field_5='Until: 18:00',
-                                     Field_6='1',
-                                     Field_7='Until: 24:00',
-                                     Field_8='0',
-                                     )
-                if idf.getobject("SCHEDULE:COMPACT",
-                                 unoccupied_schedule_name) is None:
-                    idf.newidfobject("SCHEDULE:COMPACT",
-                                     Name=unoccupied_schedule_name,
-                                     Schedule_Type_Limits_Name='Continuous',
-                                     Field_1='Through: 12/31',
-                                     Field_2='For: AllDays',
-                                     Field_3='Until: 7:00',
-                                     Field_4='1',
-                                     Field_5='Until: 18:00',
-                                     Field_6='0',
-                                     Field_7='Until: 24:00',
-                                     Field_8='1',
-                                     )
-            idf.newidfobject(
-                "ZONEVENTILATION:DESIGNFLOWRATE",
-                Name=name + '_occupied_ventilation',
-                Zone_or_ZoneList_Name=zone_name,
-                Schedule_Name=occupied_schedule_name,
-                Ventilation_Type="Natural",
-                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-                Air_Changes_per_Hour=occupied_air_exchange,
-            )
-            idf.newidfobject(
-                "ZONEVENTILATION:DESIGNFLOWRATE",
-                Name=name + '_occupied_ventilation_increased',
-                Zone_or_ZoneList_Name=zone_name,
-                Schedule_Name=occupied_schedule_name,
-                Ventilation_Type="Natural",
-                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-                Air_Changes_per_Hour=max(
-                    occupied_increased_exchange-occupied_air_exchange, 0),
-                Minimum_Indoor_Temperature=23,
-                Maximum_Indoor_Temperature=26,
-                Minimum_Outdoor_Temperature=12,
-                Delta_Temperature=0,
-            )
-            idf.newidfobject(
-                "ZONEVENTILATION:DESIGNFLOWRATE",
-                Name=name + '_occupied_ventilation_increased_overheating',
-                Zone_or_ZoneList_Name=zone_name,
-                Schedule_Name=occupied_schedule_name,
-                Ventilation_Type="Natural",
-                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-                Air_Changes_per_Hour=max(
-                    occupied_increased_exchange-occupied_air_exchange, 0),
-                Minimum_Indoor_Temperature=26,
-                Delta_Temperature=0,
-            )
-            idf.newidfobject(
-                "ZONEVENTILATION:DESIGNFLOWRATE",
-                Name=name + '_unoccupied_ventilation',
-                Zone_or_ZoneList_Name=zone_name,
-                Schedule_Name=unoccupied_schedule_name,
-                Ventilation_Type="Natural",
-                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-                Air_Changes_per_Hour=unoccupied_air_exchange,
-            )
-            idf.newidfobject(
-                "ZONEVENTILATION:DESIGNFLOWRATE",
-                Name=name + '_unoccupied_ventilation_increased',
-                Zone_or_ZoneList_Name=zone_name,
-                Schedule_Name=unoccupied_schedule_name,
-                Ventilation_Type="Natural",
-                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-                Air_Changes_per_Hour=max(
-                    unoccupied_increased_exchange-unoccupied_air_exchange, 0),
-                Minimum_Indoor_Temperature=23,
-                Maximum_Indoor_Temperature=26,
-                Minimum_Outdoor_Temperature=15,
-                Delta_Temperature=0,
-            )
-            idf.newidfobject(
-                "ZONEVENTILATION:DESIGNFLOWRATE",
-                Name=name + '_unoccupied_ventilation_increased_overheating',
-                Zone_or_ZoneList_Name=zone_name,
-                Schedule_Name=unoccupied_schedule_name,
-                Ventilation_Type="Natural",
-                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-                Air_Changes_per_Hour=max(
-                    unoccupied_increased_exchange-unoccupied_air_exchange, 0),
-                Minimum_Indoor_Temperature=26,
-                # Minimum_Outdoor_Temperature=10,
-                Delta_Temperature=0,
-            )
+                idf.newidfobject(
+                    "ZONEVENTILATION:DESIGNFLOWRATE",
+                    Name=name + '_winter',
+                    Zone_or_ZoneList_Name=zone_name,
+                    Schedule_Name="Continuous",
+                    Ventilation_Type="Natural",
+                    Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                    Air_Changes_per_Hour=space.winter_reduction_infiltration[0],
+                    Minimum_Outdoor_Temperature=
+                    space.winter_reduction_infiltration[1] - 273.15,
+                    Maximum_Outdoor_Temperature=
+                    space.winter_reduction_infiltration[2] - 273.15,
+                )
+
+                idf.newidfobject(
+                    "ZONEVENTILATION:DESIGNFLOWRATE",
+                    Name=name + '_summer',
+                    Zone_or_ZoneList_Name=zone_name,
+                    Schedule_Name="Continuous",
+                    Ventilation_Type="Natural",
+                    Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                    Air_Changes_per_Hour=space.max_summer_infiltration[0],
+                    Minimum_Outdoor_Temperature
+                    =space.max_summer_infiltration[1] - 273.15,
+                    Maximum_Outdoor_Temperature
+                    =space.max_summer_infiltration[2] - 273.15,
+                )
+
+                idf.newidfobject(
+                    "ZONEVENTILATION:DESIGNFLOWRATE",
+                    Name=name + '_overheating',
+                    Zone_or_ZoneList_Name=zone_name,
+                    Schedule_Name="Continuous",
+                    Ventilation_Type="Natural",
+                    Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                    # calculation of overheating infiltration is a simplification
+                    # compared to the corresponding TEASER implementation which
+                    # dynamically computes thresholds for overheating infiltration
+                    # based on the zone temperature and additional factors.
+                    Air_Changes_per_Hour=space.max_overheating_infiltration[0],
+                    Minimum_Outdoor_Temperature
+                    =space.max_summer_infiltration[2] - 273.15,
+                )
         else:
             idf.newidfobject(
                 "ZONEVENTILATION:DESIGNFLOWRATE",
@@ -1758,6 +1806,24 @@ class CreateIdf(ITask):
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
                 Variable_Name="Surface Inside Face Temperature",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name=
+                "Surface Inside Face Conduction Heat Transfer Rate per Area",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name=
+                "Surface Inside Face Conduction Heat Transfer Rate",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name=
+                "Surface Window Net Heat Transfer Rate",
                 Reporting_Frequency="Hourly",
             )
         idf.newidfobject("OUTPUT:DIAGNOSTICS",

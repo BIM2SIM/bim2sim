@@ -251,3 +251,11 @@ class EnergyPlusSimSettings(BuildingSimSettings):
                                    'for natural ventilation, False for '
                                    'non-residential houses.'
     )
+    natural_ventilation_approach = ChoiceSetting(
+        default= "Simple",
+        description='Choose calculation approach for natural ventilation.',
+        choices = {
+        "Simple": "use simplified ventilation based on TEASER templates.",
+        "DIN4108" : "use DIN4108-2 for natural ventilation."
+    }
+    )

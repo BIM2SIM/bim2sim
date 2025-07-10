@@ -1,6 +1,7 @@
 import json
 import logging
 from pathlib import Path
+from textwrap import wrap
 from typing import List
 
 import matplotlib as mpl
@@ -11,6 +12,7 @@ from matplotlib import pyplot as plt
 from matplotlib.colors import ListedColormap, Normalize, BoundaryNorm
 import seaborn as sns
 
+from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.bps import PlotBEPSResults
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.types import BoundaryOrientation
@@ -62,7 +64,7 @@ class PlotComfortResults(PlotBEPSResults):
             return
         logger.info("Visualization of Comfort Results started ...")
         plot_single_guid = self.playground.sim_settings.plot_singe_zone_guid
-
+        new_zone_names = None
         zone_dict_path = sim_results_path / self.prj_name / 'zone_dict.json'
         with open(zone_dict_path) as j:
             zone_dict = json.load(j)
@@ -75,8 +77,14 @@ class PlotComfortResults(PlotBEPSResults):
         if self.playground.sim_settings.rename_plot_keys:
             with open(self.playground.sim_settings.rename_plot_keys_path) as rk:
                 rename_keys = json.load(rk)
-            zone_dict = self.rename_zone_usage(zone_dict, rename_keys)
-
+            zone_dict_ext_path = sim_results_path / self.prj_name / 'zone_dict_ifc_names.json'
+            with open(zone_dict_ext_path) as j:
+                zone_dict_ifc_names = json.load(j)
+            zone_dict, new_zone_names = self.rename_zone_usage(zone_dict,
+                                                  zone_dict_ifc_names,
+                                               rename_keys, sim_results_path)
+        if new_zone_names:
+            zone_dict = new_zone_names
         for bldg_name, df in df_finals.items():
             export_path = sim_results_path / bldg_name / 'plots'
             if not export_path.exists():
@@ -122,7 +130,9 @@ class PlotComfortResults(PlotBEPSResults):
             self.table_bar_plot_16798(cat_analysis_occ, export_path, tag='occ')
             self.table_bar_plot_16798(cat_analysis_occ_hours, export_path,
                                       tag='occ_hours', normalize=False,
-                                      unit=u'degree hours', y_scale='linear')
+                                      unit=f"{ureg.kelvin*ureg.hour:~P}",
+                                      unit_name='Degree hours',
+                                      y_scale='linear')
 
             fanger_pmv = df[[col for col in df.columns if 'fanger_pmv' in col]]
             if plot_single_guid:
@@ -148,7 +158,7 @@ class PlotComfortResults(PlotBEPSResults):
 
     @staticmethod
     def visualize_heatmap(df, col, export_path, save_as='',
-                          add_title=True, save=True, zone_dict='', year='',
+                          add_title=False, save=True, zone_dict='', year='',
                           color_categories='', guid=''):
         def color_mapper_pmv(value):
             if -0.2 < value < 0.2:
@@ -191,51 +201,62 @@ class PlotComfortResults(PlotBEPSResults):
 
         # Aggregate the data (for example, taking the mean)
         heatmap_data = series.unstack(level='Hour')
-        plt.figure(figsize=(12, 6))
+        plt.figure(figsize=(14 / INCH, 8 / INCH))
 
-        plt.title('Heatmap of Hourly Data')
+        # plt.title('Heatmap of Hourly Data')
         if color_categories:
+            ncol = None
             if color_categories == 'PMV':
                 color_data = heatmap_data.apply(
                     lambda col: col.map(color_mapper_pmv))
                 color_counts_absolute = color_data.stack().value_counts()
                 color_counts_relative = (
-                        round(color_counts_absolute/color_counts_absolute.sum(
-                            ),3))
-                unique_colors = ['green', 'lightblue', 'yellow', 'mediumblue',
+                    round((color_counts_absolute / color_counts_absolute.sum(
+                    )) * 100, 1))
+                unique_colors = ['green',
+                                 'white',  # dummy color for legend
+                                 'lightblue', 'yellow',
+                                 'mediumblue',
                                  'orange', 'darkblue', 'red', 'black']
                 for color in unique_colors:
                     if color not in color_counts_relative.index:
                         color_counts_relative[color] = 0
                 labels = {
-                    f'CAT I ({color_counts_relative["green"]})':
-                        'green',
-                    f'CAT II low ({color_counts_relative["lightblue"]})': 'lightblue',
-                    f'CAT II high ({color_counts_relative["yellow"]})': 'yellow',
-                    f'CAT III low ({color_counts_relative["mediumblue"]})': 'mediumblue',
-                    f'CAT III high ({color_counts_relative["orange"]})': 'orange',
-                    f'CAT IV low ({color_counts_relative["darkblue"]})': 'darkblue',
-                    f'CAT IV high ({color_counts_relative["red"]})': 'red'
+                    f'CAT I ({color_counts_relative["green"]}%)': 'green',
+                    '': 'white',  # add dummy color for legend arrangement
+                    f'CAT II low ({color_counts_relative["lightblue"]}%)':
+                        'lightblue',
+                    f'CAT II high ({color_counts_relative["yellow"]}%)': 'yellow',
+                    f'CAT III low ({color_counts_relative["mediumblue"]}%)': 'mediumblue',
+                    f'CAT III high ({color_counts_relative["orange"]}%)': 'orange',
+                    f'CAT IV low ({color_counts_relative["darkblue"]}%)': 'darkblue',
+                    f'CAT IV high ({color_counts_relative["red"]}%)': 'red'
                 }
+                ncol = 4
             if color_categories == 'PPD':
                 color_data = heatmap_data.apply(
                     lambda col: col.map(color_mapper_ppd))
                 color_counts_absolute = color_data.stack().value_counts()
                 color_counts_relative = (
-                    round(color_counts_absolute / color_counts_absolute.sum(
-                    ), 3))
-                unique_colors = ['green', 'yellow', 'orange', 'red', 'purple',
+                    round((color_counts_absolute / color_counts_absolute.sum(
+                    ) * 100), 1))
+                unique_colors = ['green',
+                                 'white', # dummy color for legend arrangement
+                                 'yellow', 'orange', 'red',
+                                 'purple',
                                  'black']
                 for color in unique_colors:
                     if color not in color_counts_relative.index:
                         color_counts_relative[color] = 0
                 labels = {
-                    f'CAT I ({color_counts_relative["green"]})': 'green',
-                    f'CAT II ({color_counts_relative["yellow"]})': 'yellow',
-                    f'CAT III ({color_counts_relative["orange"]})': 'orange',
-                    f'CAT IV ({color_counts_relative["red"]})': 'red',
-                    f'Out of range ({color_counts_relative["purple"]})': 'purple',
+                    f'CAT I ({color_counts_relative["green"]}%)': 'green',
+                    '': 'white', # dummy color for legend arrangement
+                    f'CAT II ({color_counts_relative["yellow"]}%)': 'yellow',
+                    f'CAT III ({color_counts_relative["orange"]}%)': 'orange',
+                    f'CAT IV ({color_counts_relative["red"]}%)': 'red',
+                    f'Out of range ({color_counts_relative["purple"]}%)': 'purple',
                 }
+                ncol = 3
             cmap = ListedColormap(unique_colors)
             color_to_num = {color: num for num, color in
                             enumerate(unique_colors)}
@@ -243,10 +264,15 @@ class PlotComfortResults(PlotBEPSResults):
             norm = BoundaryNorm(range(len(unique_colors) + 1), cmap.N)
             sns.heatmap(numeric_data.T, cmap=cmap, norm=norm, cbar=False)
             handles = [plt.Line2D([0], [0], marker='o', color='w', label=label,
-                                  markerfacecolor=color, markersize=10) for
+                                  markerfacecolor=color, markersize=4) for
                        label, color in labels.items()]
-            plt.legend(handles=handles, title='Categories', bbox_to_anchor=(1, 1),
-                       loc='upper left')
+            plt.subplots_adjust(right=0.9, bottom=0.3, top=0.9,
+                                left=0.1)  # Adjust right side to
+            plt.legend(handles=handles, bbox_to_anchor=(-0.1, -0.2),
+                       loc='upper left', frameon=False, ncol=ncol,
+                       columnspacing=0.8,
+                       handletextpad=-0.05, # borderaxespad=0.5,
+                       fontsize=8)
         else:
             sns.heatmap(heatmap_data.T, cmap='viridis', cbar=True)
 
@@ -265,19 +291,26 @@ class PlotComfortResults(PlotBEPSResults):
                            days if day.day == 1]
 
         # Set x-ticks with abbreviated month names only at desired positions
-        plt.xticks(ticks=filtered_ticks, labels=filtered_labels, rotation=45)
-
+        plt.xticks(ticks=filtered_ticks, labels=filtered_labels, rotation=45,
+                   fontsize=8)
+        plt.ylim([24.01, 0])
+        plt.yticks(np.arange(0, 25, step=4), np.arange(0, 25, step=4),
+                   rotation=0,
+                   fontsize=8)
+        plt.ylabel('Hour of the day', size=8)
+        plt.xlabel('', size=8)
         title_name = col
         for key, item in zone_dict.items():
             if key in title_name:
-                title_name = title_name.replace(key, item) + '_' + guid
+                title_name = title_name.replace(key, item) #+ '_' +
+                # guid
         if add_title:
-            plt.title(str(year) + ' ' + title_name)
+            plt.title(str(year) + ' ' + title_name, fontsize=3)
         if save:
-            plt.savefig(export_path / str(save_as + title_name + f"_{year}_"
-                                          + color_categories +'.pdf'),
-                        bbox_inches='tight')
-
+            plt.savefig(export_path / str(
+                save_as.replace('/','_')
+                + title_name.replace('/', '_') + f"_{year}_"
+                + color_categories + '.pdf'), bbox_inches='tight')
 
     def limited_local_comfort_DIN16798_NA(self, df, elements, export_path,
                                           occupied=True):
@@ -561,13 +594,51 @@ class PlotComfortResults(PlotBEPSResults):
             renamed_dict[key] = new_value
         return renamed_dict
 
-    def rename_zone_usage(self, zone_dict, rename_keys):
+    def rename_zone_usage(self, zone_dict, zone_dict_ifc_names, rename_keys,
+                          sim_results_path,
+                          rename_duplicates=False):
+        new_zone_names = {}
         for key in zone_dict.keys():
+            new_name = None
+            if '-' in zone_dict_ifc_names[key]['Name']:
+                room_name = zone_dict_ifc_names[key]['Name'].split('-')[
+                    1]
+                if '_' in room_name:
+                    room_name = room_name.split('_')[0]
+            else:
+                room_name = zone_dict_ifc_names[key]['Name']
+            if '_' in zone_dict_ifc_names[key]['StoreyName']:
+                storey_name = \
+                    zone_dict_ifc_names[key]['StoreyName'].split(
+                        '_')[0]
+            else:
+                storey_name = zone_dict_ifc_names[key]['StoreyName']
+                if storey_name.upper() == 'Erdgeschoss'.upper():
+                    storey_name = 'EG'
+                elif storey_name.upper() == 'Dachgeschoss'.upper():
+                    storey_name = 'OG'
+                elif storey_name.upper() == 'UNTERGESCHOSS':
+                    storey_name = 'UG'
             for key2 in rename_keys.keys():
                 if zone_dict[key] == key2:
                     zone_dict[key] = rename_keys[key2]
-        zone_usage = self.rename_duplicates(zone_dict)
-        return zone_usage
+                if zone_dict_ifc_names[key]['ZoneUsage'] == key2:
+                    new_name = (f"{storey_name}-{int(room_name):02d}"
+                                f" {rename_keys[key2]}")
+            if not new_name:
+                new_name = (f"{storey_name}-{int(room_name):02d}"
+                            f" {zone_dict_ifc_names[key]['ZoneUsage']}")
+            new_zone_names.update({key: new_name})
+
+        with open(sim_results_path / self.prj_name / 'short_room_keys.json',
+                  'w+') as f:
+            json.dump(new_zone_names, f, indent=4)
+        if rename_duplicates:
+            zone_usage = self.rename_duplicates(zone_dict)
+            new_zone_names = self.rename_duplicates(new_zone_names)
+        else:
+            zone_usage = zone_dict
+        return zone_usage, new_zone_names
 
     @staticmethod
     def pmv_plot(df, save_path, file_name):
@@ -600,13 +671,13 @@ class PlotComfortResults(PlotBEPSResults):
                 (temp_cat_analysis, temp_cat_analysis_occ,
                  temp_cat_analysis_occ_hours) = (
                     self.plot_en16798_adaptive_count_NA(
-                        df, guid, room_name + '_' + guid, export_path))
+                        df, guid, room_name, export_path))
                 cat_analysis_occ_hours = pd.concat([cat_analysis_occ_hours,
                                                     temp_cat_analysis_occ_hours])
             else:
                 temp_cat_analysis, temp_cat_analysis_occ = (
                     self.plot_new_en16798_adaptive_count(
-                        df, guid, room_name + '_' + guid, export_path))
+                        df, guid, room_name, export_path))
             cat_analysis = pd.concat([cat_analysis, temp_cat_analysis])
             cat_analysis_occ = pd.concat([cat_analysis_occ,
                                           temp_cat_analysis_occ])
@@ -744,15 +815,15 @@ class PlotComfortResults(PlotBEPSResults):
             plt.plot(cc3ux, cc3uy, linestyle='dashed', color='red')
 
             # Customize plot
-            plt.xlabel('Running Mean Outdoor Temperature (\u00B0C)',
+            plt.xlabel('Running Mean Outdoor Temperature [\u00B0C]',
                        fontsize=8)
-            plt.ylabel('Operative Temperature (\u00B0C)', fontsize=8)
+            plt.ylabel('Operative Temperature [\u00B0C]', fontsize=8)
             plt.xlim([lim_min, lim_max])
             plt.ylim([16.5, 35.5])
             plt.grid()
             lgnd = plt.legend(loc="upper left", scatterpoints=1, fontsize=8)
             plt.savefig(
-                path / str('DIN_EN_16798_new_' + name + '.pdf'))
+                path / str('DIN_EN_16798_new_' + name.replace('/','_') + '.pdf'))
 
         lim_min = 10
         lim_max = 30
@@ -919,6 +990,94 @@ class PlotComfortResults(PlotBEPSResults):
                 else:
                     return 0
 
+        def plot_scatter_en16798_three_colors(in_df, above_df, below_df,
+                                         out_above_df,
+                                 out_below_df,
+                                 path, name):
+            plt.figure(figsize=(10 / INCH, 8 / INCH))
+
+            plt.scatter(in_df.iloc[:, 0],
+                        in_df.iloc[:, 1],
+                        s=0.05,
+                        color='green', marker=".", label='Within '
+                                                         'acceptability range')
+            plt.scatter(above_df.iloc[:, 0],
+                        above_df.iloc[:, 1],
+                        s=0.05,
+                        color='darkorange', marker=".", label='Within 2K '
+                                                              'range')
+            plt.scatter(out_above_df.iloc[:, 0],
+                        out_above_df.iloc[:, 1],
+                        s=0.05,
+                        color='crimson', marker=".", label='Out of 2K range')
+            plt.scatter(below_df.iloc[:, 0],
+                        below_df.iloc[:, 1],
+                        s=0.05,
+                        color='darkorange', marker=".")
+            plt.scatter(out_below_df.iloc[:, 0],
+                        out_below_df.iloc[:, 1],
+                        s=0.05,
+                        color='crimson', marker=".")
+            coord_cat1_low = [
+                [10, 22 - 2],
+                [16, 18 + 0.25 * 16 - 2],
+                [32, 18 + 0.25 * 32 - 2],
+                [36, 26 - 2]]
+            coord_cat1_up = [
+                [10, 22 + 2],
+                [16, 18 + 0.25 * 16 + 2],
+                [32, 18 + 0.25 * 32 + 2],
+                [36, 26 + 2]]
+            cc1lx, cc1ly = zip(*coord_cat1_low)
+            cc1ux, cc1uy = zip(*coord_cat1_up)
+            plt.plot(cc1lx, cc1ly, linestyle='dashed', color='darkorange',
+                     label='Acceptability range',
+                     linewidth=0.8, alpha=0.5)
+            plt.plot(cc1ux, cc1uy, linestyle='dashed', color='darkorange',
+                     linewidth=0.8, alpha=0.5)
+            coord_2Kmax_low = [
+                [10, 22 - 4],
+                [16, 18 + 0.25 * 16 - 4],
+                [32, 18 + 0.25 * 32 - 4],
+                [36, 26 - 4]]
+            coord_2Kmax_up = [
+                [10, 22 + 4],
+                [16, 18 + 0.25 * 16 + 4],
+                [32, 18 + 0.25 * 32 + 4],
+                [36, 26 + 4]]
+            cc2lx, cc2ly = zip(*coord_2Kmax_low)
+            cc2ux, cc2uy = zip(*coord_2Kmax_up)
+            plt.plot(cc2lx, cc2ly, linestyle='dashed', color='crimson',
+                     linewidth=0.8,
+                     label='Additional 2K range', alpha=0.5)
+            plt.plot(cc2ux, cc2uy, linestyle='dashed', color='crimson',
+                     linewidth=0.8, alpha=0.5)
+
+            # Customize plot
+            plt.xlabel('Hourly Mean Outdoor Temperature [\u00B0C]',
+                       fontsize=8)
+            plt.ylabel('Operative Temperature [\u00B0C]', fontsize=8)
+            plt.tick_params(labelsize=8)
+            plt.xlim([lim_min, lim_max])
+            plt.ylim([17, 33])
+            plt.grid()
+            plt.subplots_adjust(right=0.9, bottom=0.3,
+                                left=0.1)  # Adjust right side to
+            # make
+            handles, labels = plt.gca().get_legend_handles_labels()
+            wrapped_labels = ['\n'.join(wrap(l, 30)) for l in labels]
+            lgnd = plt.legend(
+                labels=wrapped_labels, handles=handles, loc="upper left",
+                fontsize=8,
+                bbox_to_anchor=(-0.05, -0.2),
+                scatterpoints=3, markerscale=5,
+                handletextpad=0.3,
+                frameon=False,
+                borderaxespad=0.5,
+                labelspacing=0.5, ncol=2)
+            plt.savefig(
+                path / str('DIN_EN_16798_NA_' + name.replace('/','_') + '.pdf'))
+
         def plot_scatter_en16798(in_df, above_df, below_df, out_above_df,
                                  out_below_df,
                                  path, name):
@@ -926,32 +1085,33 @@ class PlotComfortResults(PlotBEPSResults):
 
             plt.scatter(in_df.iloc[:, 0],
                         in_df.iloc[:, 1],
-                        s=0.1,
+                        s=0.15,
                         color='green', marker=".", label='within range of DIN '
                                                          'EN '
                                                          '16798-1 NA (GER)')
             plt.scatter(above_df.iloc[:, 0],
                         above_df.iloc[:, 1],
-                        s=0.1,
-                        color='orange', marker=".", label='above range of DIN '
+                        s=0.15,
+                        color='darkorange', marker=".", label='above range of '
+                                                            'DIN '
                                                           'EN 16798-1 NA ('
                                                           'GER), within 2K '
                                                           'range')
             plt.scatter(out_above_df.iloc[:, 0],
                         out_above_df.iloc[:, 1],
-                        s=0.1,
+                        s=0.15,
                         color='red', marker=".", label='above range of '
                                                        'DIN EN 16798-1 NA ('
                                                        'GER), out of 2K range')
             plt.scatter(below_df.iloc[:, 0],
                         below_df.iloc[:, 1],
-                        s=0.1,
+                        s=0.15,
                         color='cyan', marker=".", label='below range of DIN '
                                                         'EN 16798-1 NA ('
                                                         'GER), within 2K range')
             plt.scatter(out_below_df.iloc[:, 0],
                         out_below_df.iloc[:, 1],
-                        s=0.1,
+                        s=0.15,
                         color='blue', marker=".", label='below range of DIN '
                                                         'EN 16798-1 NA ('
                                                         'GER), out of 2K range')
@@ -967,9 +1127,11 @@ class PlotComfortResults(PlotBEPSResults):
                 [36, 26 + 2]]
             cc1lx, cc1ly = zip(*coord_cat1_low)
             cc1ux, cc1uy = zip(*coord_cat1_up)
-            plt.plot(cc1lx, cc1ly, linestyle='dashed', color='black',
-                     label='DIN EN 16798-1 NA (GER): Acceptability range')
-            plt.plot(cc1ux, cc1uy, linestyle='dashed', color='black')
+            plt.plot(cc1lx, cc1ly, linestyle='dashed', color='goldenrod',
+                     label='DIN EN 16798-1 NA (GER): Acceptability range',
+                     linewidth=1)
+            plt.plot(cc1ux, cc1uy, linestyle='dashed', color='goldenrod',
+                     linewidth=1)
             coord_2Kmax_low = [
                 [10, 22 - 4],
                 [16, 18 + 0.25 * 16 - 4],
@@ -982,21 +1144,34 @@ class PlotComfortResults(PlotBEPSResults):
                 [36, 26 + 4]]
             cc2lx, cc2ly = zip(*coord_2Kmax_low)
             cc2ux, cc2uy = zip(*coord_2Kmax_up)
-            plt.plot(cc2lx, cc2ly, linestyle='dashed', color='purple',
+            plt.plot(cc2lx, cc2ly, linestyle='dashed', color='darkred',
+                     linewidth=1,
                      label='DIN EN 16798-1 NA (GER): Limit for additional 2K '
                            'range')
-            plt.plot(cc2ux, cc2uy, linestyle='dashed', color='purple')
+            plt.plot(cc2ux, cc2uy, linestyle='dashed', color='darkred',
+                     linewidth=1)
 
             # Customize plot
-            plt.xlabel('Hourly Mean Outdoor Temperature (\u00B0C)',
+            plt.xlabel('Hourly Mean Outdoor Temperature [\u00B0C]',
                        fontsize=8)
-            plt.ylabel('Operative Temperature (\u00B0C)', fontsize=8)
+            plt.ylabel('Operative Temperature [\u00B0C]', fontsize=8)
+            plt.tick_params(labelsize=8)
             plt.xlim([lim_min, lim_max])
             plt.ylim([18, 34])
             plt.grid()
-            lgnd = plt.legend(loc="upper left", scatterpoints=1, fontsize=8)
+            plt.subplots_adjust(right=0.65, bottom=0.12,
+                                left=0.1)  # Adjust right side to
+            # make
+            handles, labels = plt.gca().get_legend_handles_labels()
+            wrapped_labels = ['\n'.join(wrap(l, 25)) for l in labels]
+            lgnd = plt.legend(
+                labels=wrapped_labels, handles=handles, loc="center left",
+                fontsize=8,
+                bbox_to_anchor=(1, 0.45), scatterpoints=3, markerscale=5,
+                frameon=False,
+                labelspacing=0.7)
             plt.savefig(
-                path / str('DIN_EN_16798_NA_' + name + '.pdf'))
+                path / str('DIN_EN_16798_NA_' + name.replace('/','_') + '.pdf'))
 
         lim_min = 10
         lim_max = 36
@@ -1179,11 +1354,11 @@ class PlotComfortResults(PlotBEPSResults):
         cat_analysis_hours_occ_df.to_csv(analysis_hours_occ_file, mode='a+',
                                          header=False, sep=';')
 
-        plot_scatter_en16798(filtered_df_within_NA, filtered_df_above_NA,
+        plot_scatter_en16798_three_colors(filtered_df_within_NA, filtered_df_above_NA,
                              filtered_df_below_NA, filtered_df_out_above_NA,
                              filtered_df_out_below_NA,
                              export_path, room_name)
-        plot_scatter_en16798(filtered_df_within_NA_occ,
+        plot_scatter_en16798_three_colors(filtered_df_within_NA_occ,
                              filtered_df_above_NA_occ,
                              filtered_df_below_NA_occ,
                              filtered_df_out_above_NA_occ,
@@ -1194,7 +1369,7 @@ class PlotComfortResults(PlotBEPSResults):
 
     @staticmethod
     def table_bar_plot_16798(df, export_path, tag='', normalize=True,
-                             unit='', y_scale='linear'):
+                             unit='', unit_name='', y_scale='linear'):
         """Create bar plot with a table below for EN 16798 thermal comfort.
 
         This function creates a bar plot with a table below along with the
@@ -1219,21 +1394,24 @@ class PlotComfortResults(PlotBEPSResults):
 
         # Set 'ROOM' column as the index
         df.set_index('ROOM', inplace=True)
+        sorted_df = df.sort_index(axis=0)
+
         if normalize:
-            row_sums = df.loc[:, df.columns != 'total'].sum(axis=1)
+            row_sums = sorted_df.loc[:, sorted_df.columns != 'total'].sum(axis=1)
             # Create a new DataFrame by dividing the original DataFrame by the row
             # sums
-            normalized_df = df.loc[:, df.columns != 'total'].div(row_sums, axis=0)
+            normalized_df = sorted_df.loc[:, sorted_df.columns != 'total'].div(row_sums, axis=0)
             normalized_df = normalized_df * 100
         else:
-            normalized_df = df.loc[:, df.columns != 'total']
+            normalized_df = sorted_df.loc[:, sorted_df.columns != 'total']
+        # normalized_df = normalized_df.sort_index(axis=0)
         if normalize:
             fig, ax = plt.subplots(
                 figsize=(0.5*len(normalized_df.index)+2, 12))  # Adjust figure
             # size
         else:
             fig, ax = plt.subplots(
-                figsize=(1*len(normalized_df.index)+2, 12))  # Adjust figure
+                figsize=(1.05*len(normalized_df.index)+2, 12))  # Adjust figure
             # size
         # to allow more space
 
@@ -1272,9 +1450,9 @@ class PlotComfortResults(PlotBEPSResults):
         # Set consistent font size for all elements
         common_fontsize = 11
         if normalize:
-            ax.set_ylabel(u'% of hours per category', fontsize=common_fontsize)
+            ax.set_ylabel(u'Hours per category [%]', fontsize=common_fontsize)
         else:
-            ax.set_ylabel(unit, fontsize=common_fontsize)
+            ax.set_ylabel(f"{unit_name} [{unit}]", fontsize=common_fontsize)
 
         ax.tick_params(axis='y',
                        labelsize=common_fontsize)  # Match font size for y-axis ticks
@@ -1292,26 +1470,28 @@ class PlotComfortResults(PlotBEPSResults):
                 lambda x: x.map(lambda y: f'{y:.1f}'))
         else:
             def format_value(x, index):
-                total = df.loc[index, "total"]
-                return f'{x:.1f} ({(x / (total * 2)) * 100:.1f} %)'
+                total = sorted_df.loc[index, "total"]
+                return f'{x:.1f} ({(x / (total * 2)) * 100:.1f}%)'
 
             formatted_df = normalized_df.apply(
                 lambda row: row.apply(lambda x: format_value(x, row.name)),
                 axis=1)
-        cell_text = [formatted_df[column] for column in formatted_df.columns]
+        cell_text = [formatted_df.sort_index(axis=0)[column] for column in formatted_df.columns]
 
         if normalize:
         # Create the table
             table = plt.table(cellText=cell_text,
-                              rowLabels=formatted_df.columns + u' / %',
+                              rowLabels=formatted_df.columns + u' [%]',
                               colLabels=formatted_df.index,
                               cellLoc='center',
                               loc='bottom')
         else:
-            cell_text.insert(0, df['total'])
+            cell_text.insert(0, sorted_df['total'])
             table = plt.table(cellText=cell_text,
-                              rowLabels=['occupied hours / hours'] + list(
-                                  formatted_df.columns + f' / {unit}'),
+                              rowLabels=[f'occupied [{ureg.hour:~P}]'] +
+                                        list(
+                                  formatted_df.columns + f' ['
+                                                         f'{unit}]'),
                               colLabels=formatted_df.index,
                               cellLoc='center',
                               loc='bottom')
@@ -1390,18 +1570,18 @@ class PlotComfortResults(PlotBEPSResults):
             title_name = calendar_df.columns[0]
             for key, item in zone_dict.items():
                 if key in title_name:
-                    title_name = title_name.replace(key, item) + '_' + guid
+                    title_name = title_name.replace(key, item)# + '_' + guid
             if add_title:
                 plt.title(str(year) + ' ' + title_name)
             if save:
-                plt.savefig(export_path / str(construction +
-                                              save_as + title_name
-                                              + '.pdf'),
+                plt.savefig(export_path /
+                            str(construction + save_as.replace('/', '_') +
+                                title_name.replace('/', '_') + '.pdf'),
                             bbox_inches='tight')
                 if skip_legend:
-                    plt.savefig(export_path / 'subplots' / str(construction +
-                                                               save_as + title_name
-                                                               + '.pdf'),
+                    plt.savefig(export_path / 'subplots' / str(
+                        construction + save_as.replace('/','_') +
+                        title_name.replace('/','_') + '.pdf'),
                                 bbox_inches='tight')
             plt.draw()
             plt.close()

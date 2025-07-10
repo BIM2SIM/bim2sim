@@ -2,6 +2,7 @@ import copy
 import logging
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from typing import Union
 
 import ifcopenshell.geom
 
@@ -234,8 +235,8 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
                 namespaces=ns)
             if text_elements is not None:
                 for text_element in text_elements:
-                    all_space_text_elements.remove(text_element)
-                    if text_element is not None:
+                    if text_element is not None and text != 'nan':
+                        all_space_text_elements.remove(text_element)
                         att = text_element.attrib
                         text_element.clear()
                         tspan_element = ET.SubElement(
@@ -246,9 +247,10 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
                         else:
                             style = "fill:#FFFFFF"
                         style += ";font-weight:bold"
-                        style += ";font-size:14px"
+                        style += ";font-size:18px"
                         tspan_element.set('style', style)
                         tspan_element.text = text
+                        tspan_element.set("dy", "0.4em")
                         text_element.attrib = att
 
         # for spaces without data add a placeholder
@@ -264,7 +266,7 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
                 else:
                     style = "fill:#FFFFFF"
                 style += ";font-weight:bold"
-                style += ";font-size:14px"
+                style += ";font-size:18px"
                 tspan_element.set('style', style)
                 tspan_element.text = "-"
                 text_element.attrib = att
@@ -272,8 +274,110 @@ def modify_svg_elements(svg_adjust_dict: dict, path: Path):
         tree.write(Path(f"{path}/{storey_guid}_modified.svg"))
 
 
+def modify_svg_elements_for_floor_plan(svg_adjust_dict: dict, path: Path):
+    """Adjusts SVG floor plan for based on input data.
+
+    Based on the inputs, you can add text to the space for each storey. The
+    input is a nested dictionary that holds the relevant data.
+
+    Args:
+        svg_adjust_dict: nexted dict that holds guid of storey, spaces and the
+        attributes for "text" to overwrite existing data in the
+        floor plan.
+        path: Path where the basic SVG files are stored.
+    """
+    # Define the SVG namespaces.
+    ET.register_namespace("", "http://www.w3.org/2000/svg")
+    ET.register_namespace("xlink", "http://www.w3.org/1999/xlink")
+    ns = {'svg': 'http://www.w3.org/2000/svg'}
+
+    # Loop over your SVG files / storeys.
+    for storey_guid, storey_data in svg_adjust_dict.items():
+        spaces_data = storey_data["space_data"]
+        # get file path for SVG file
+        file_path = Path(f"{path}/{storey_guid}.svg")
+        tree = ET.parse(file_path)
+        root = tree.getroot()
+
+        namespace = {'svg': 'http://www.w3.org/2000/svg'}
+        style_element = root.find('.//svg:style', namespace)
+        all_space_text_elements = root.findall(
+            f'.//svg:g[@class="IfcSpace"]/svg:text',
+            namespaces=ns)
+
+        # Loop over the spaces.
+        for space_guid, adjust_data in spaces_data.items():
+            color = adjust_data['color']
+            text = adjust_data['text']
+
+            # Update fill color of matching path elements.
+            path_elements = root.findall(
+                f".//svg:g[@data-guid='{space_guid}']/svg:path",
+                namespaces=ns)
+            if path_elements is not None:
+                for path_element in path_elements:
+                    if path_element is not None:
+                        path_element.set('style', f'fill: {color};')
+
+            # Find and update corresponding text elements.
+            text_elements = root.findall(
+                f".//svg:g[@data-guid='{space_guid}']/svg:text",
+                namespaces=ns)
+            if text_elements is not None:
+                for text_element in text_elements:
+                    if text_element is not None and text != 'nan':
+                        # Remove from the overall list if needed.
+                        if text_element in all_space_text_elements:
+                            all_space_text_elements.remove(text_element)
+
+                        # Backup existing attributes and clear the element.
+                        attributes = text_element.attrib
+                        text_element.clear()
+                        text_element.attrib.update(attributes)
+
+                        base_x = text_element.get('x', '0')
+                        base_y = text_element.get('y', '0')
+                        try:
+                            base_y = float(base_y)
+                        except ValueError:
+                            # If not a valid float, default to 0.
+                            base_y = 0.0
+
+                        font_size = 9.0  # in pixels
+
+                        # tspan_style = "font-weight:bold;font-size:9px"
+                        tspan_style = \
+                            ("font-family:Times-Roman;font-weight:normal;font"
+                             "-size:9px")
+
+                        # Split the text into two lines (split at first space).
+                        parts = text.split(" ", 1)
+                        line1 = parts[0]
+                        line2 = parts[1] if len(parts) > 1 else ""
+
+                        tspan1_y = base_y - 0.3 * font_size
+
+                        # Create the first tspan element with the absolute y position.
+                        tspan1 = ET.SubElement(text_element, "tspan")
+                        tspan1.set("x", base_x)
+                        tspan1.set("y", str(tspan1_y))
+                        tspan1.set("style", tspan_style)
+                        tspan1.text = line1
+                        if line2:
+                            tspan2_y = tspan1_y + 0.9 * font_size
+                            tspan2 = ET.SubElement(text_element, "tspan")
+                            tspan2.set("x", base_x)
+                            tspan2.set("y", str(tspan2_y))
+                            tspan2.set("style", tspan_style)
+                            tspan2.text = line2
+
+        # Write the modified SVG file.
+        tree.write(Path(f"{path}/{storey_guid}_modified.svg"))
+
+
 def combine_two_svgs(
-        main_svg_path: Path, color_svg_path: Path, output_svg_path: Path):
+        main_svg_path: Path, color_svg_path: Union[None, Path], output_svg_path:
+        Path):
     """Combines the content of a child SVG file into a parent SVG file.
 
     Args:
@@ -290,36 +394,118 @@ def combine_two_svgs(
     # Load the main SVG file
     main_svg = svg2rlg(main_svg_path)
 
-    # Load the color mapping SVG file
-    color_svg = svg2rlg(color_svg_path)
-
     # Get the dimensions of the main SVG
     main_width = main_svg.width
     main_height = main_svg.height
 
-    # Get the dimensions of the color mapping SVG
-    color_width = color_svg.width
-    color_height = color_svg.height
+    if color_svg_path:
+        # Load the color mapping SVG file
+        color_svg = svg2rlg(color_svg_path)
 
-    # Calculate the position to place the color mapping SVG
-    color_x = main_width + 10  # Add some spacing between the SVGs
-    color_y = (main_height - color_height) / 2  # Center vertically
+        # Get the dimensions of the color mapping SVG
+        color_width = color_svg.width
+        color_height = color_svg.height
 
-    # Create a new drawing with the combined width
-    combined_width = main_width + color_width + 10
-    combined_height = max(main_height, color_height)
+        # Calculate the position to place the color mapping SVG
+        color_x = main_width + 5  # Add some spacing between the SVGs
+        color_y = (main_height - color_height) / 2  # Center vertically
+
+        # Create a new drawing with the combined width
+        combined_width = main_width + color_width + 10
+        combined_height = max(main_height, color_height)
+        arrow_xpos = color_x + color_width / 2
+        arrow_ypos = color_y - color_height / 2.5
+    else:
+        combined_width = main_width + 110
+        combined_height = main_height
+        arrow_xpos = main_width + 10
+        arrow_ypos = combined_height / 4
     drawing = Drawing(combined_width, combined_height)
 
     # Add the main SVG to the drawing
     drawing.add(main_svg)
 
-    # Create a group to hold the color mapping SVG
-    color_group = Group(color_svg)
-    color_group.translate(color_x, color_y)  # Position the color mapping SVG
-    drawing.add(color_group)
+    if color_svg_path:
+        # Create a group to hold the color mapping SVG
+        color_group = Group(color_svg)
+        color_group.translate(color_x,
+                              color_y)  # Position the color mapping SVG
+        drawing.add(color_group)
 
     # Save the combined SVG
     renderSVG.drawToFile(drawing, output_svg_path)
+    svg_target_path = output_svg_path
+    # Output SVG file with north arrow
+    add_north_arrow(
+        svg_path=svg_target_path,
+        output_path=svg_target_path,
+        position=(arrow_xpos, arrow_ypos),
+    )
+
+
+def add_north_arrow(svg_path, output_path, position=(50, 50), length=100,
+                    halfwidth=40,
+                    color="black"):
+    """
+    Adds a north arrow to an existing SVG file.
+
+    Args:
+        svg_path: Path to the input SVG file.
+        output_path: Path to save the modified SVG file.
+        position: Tuple (x, y) for the arrow's starting position.
+        length: Length of the arrow in SVG units.
+        halfwidth: Half width of the arrow in SVG units.
+        color: Color of the arrow.
+    """
+    # Register the SVG namespace
+    ET.register_namespace("", "http://www.w3.org/2000/svg")
+    tree = ET.parse(svg_path)
+    root = tree.getroot()
+
+    # Define namespaces
+    ns = {'svg': 'http://www.w3.org/2000/svg'}
+
+    # Create or get the <defs> section
+    defs = root.find('svg:defs', ns)
+    if defs is None:
+        defs = ET.SubElement(root, 'defs')
+
+    # Create a group for the north arrow
+    g = ET.SubElement(root, 'g', {
+        'id': 'north_arrow',
+        'transform': f"translate({position[0]},{position[1]})"
+    })
+
+    # Define points for the left triangle (white fill with black stroke)
+    left_triangle_points = f"{-halfwidth},{length} 0,{length / 2} 0,0"
+    ET.SubElement(g, 'polygon', {
+        'points': left_triangle_points,
+        'fill': "white",
+        'stroke': color,
+        'stroke-width': "2"
+    })
+
+    # Define points for the right triangle (black fill)
+    right_triangle_points = f"{halfwidth},{length} 0,{length / 2} 0,0"
+    ET.SubElement(g, 'polygon', {
+        'points': right_triangle_points,
+        'fill': color
+    })
+
+    # Add the "N" label at the bottom center
+    text = ET.SubElement(g, 'text', {
+        'x': "0",
+        'y': "-15",
+        'fill': color,
+        'font-size': "48",
+        'font-family': "Times-Roman, Arial, Helvetica, sans-serif",
+        'text-anchor': "middle",
+        'dominant-baseline': "middle"
+    })
+    text.text = "N"
+
+    # Save the modified SVG
+    tree.write(output_path)
 
 
 def combine_svgs_complete(
@@ -344,3 +530,17 @@ def combine_svgs_complete(
                     f"couldn't be removed.")
             except OSError as e:
                 logger.warning(f"Error: {e.filename} - {e.strerror}")
+
+
+def add_floor_plan_with_room_names(ifc_file_class_inst: IfcFileClass,
+        target_path: Path,
+        svg_adjust_dict: dict):
+
+    svg_path = convert_ifc_to_svg(ifc_file_class_inst, target_path)
+    split_svg_by_storeys(svg_path)
+    modify_svg_elements_for_floor_plan(svg_adjust_dict, target_path)
+    for storey_guid in svg_adjust_dict.keys():
+        combine_two_svgs(
+            Path(f"{target_path}/{storey_guid}_modified.svg"),
+            color_svg_path=None,
+            output_svg_path=Path(f"{target_path}/{storey_guid}_full.svg"))

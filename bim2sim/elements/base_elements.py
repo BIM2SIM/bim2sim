@@ -545,6 +545,17 @@ class ProductBased(IFCBased):
         """Calculate the cost group according to DIN276"""
         return None
 
+    def calc_product_shape(self):
+        """Calculate the product shape based on IfcProduct representation."""
+        if hasattr(self.ifc, 'Representation'):
+            try:
+                shape = ifcopenshell.geom.create_shape(
+                            settings_products, self.ifc).geometry
+                return shape
+            except:
+                logger.warning(f"No calculation of product shape possible "
+                               f"for {self.ifc}.")
+
     def calc_volume_from_ifc_shape(self):
         # todo use more efficient iterator to calc all shapes at once
         #  with multiple cores:
