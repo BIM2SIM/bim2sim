@@ -29,7 +29,7 @@ class ExportSpawnTotal(ITask):
         'elements', 'weather_file_modelica', 'weather_file_ep',
         'model_name_hydraulic', 'model_name_building',
         'export_elements', 'connections', 'cons_heat_ports_conv',
-        'cons_heat_ports_rad', 'package_name'
+        'cons_heat_ports_rad', 'package_name', 'ep_zone_lists',
     )
     final = True
 
@@ -43,7 +43,8 @@ class ExportSpawnTotal(ITask):
             connections: List[Tuple[str, str]],
             cons_heat_ports_conv: List[Tuple[str, str]],
             cons_heat_ports_rad: List[Tuple[str, str]],
-            package_name: str):
+            package_name: str,
+            ep_zone_lists: List[str]):
         """Run the export process to generate the Modelica code.
 
         Args:
@@ -57,6 +58,7 @@ class ExportSpawnTotal(ITask):
             cons_heat_ports_conv: List of convective heat port connections.
             cons_heat_ports_rad: List of radiative heat port connections.
             package_name: The package name of the modelica package.
+            ep_zone_lists: List of zones in energy plus idf file
         """
 
         # Exports the total model
@@ -69,7 +71,7 @@ class ExportSpawnTotal(ITask):
 
         # Group heaters by their corresponding zones
         zone_to_heaters = self._group_space_heaters_by_zone(
-            tz_elements, space_heater_elements
+            tz_elements, ep_zone_lists, space_heater_elements
         )
 
         # Map heat ports between building and HVAC models
@@ -116,23 +118,28 @@ class ExportSpawnTotal(ITask):
 
     @staticmethod
     def _group_space_heaters_by_zone(tz_elements: List,
+                                     ep_zone_lists: List,
                                      space_heater_elements: List) \
             -> Dict[str, List[str]]:
-        """Group space heaters by their respective zones.
+        """Group space heaters by their respective zones according to the zone list order in the idf file
 
         Args:
             tz_elements: List of thermal zone elements.
+            ep_zone_lists: List of zones in energy plus idf file
             space_heater_elements: List of space heater elements.
 
         Returns:
              A dictionary mapping zone GUIDs to lists of heater GUIDs.
         """
         zone_to_heaters = defaultdict(list)
-        for tz in tz_elements:
-            for space_heater in space_heater_elements:
-                if PyOCCTools.obj2_in_obj1(
-                        obj1=tz.space_shape, obj2=space_heater.shape):
-                    zone_to_heaters[tz.guid].append(space_heater.guid)
+        for ep_zone in ep_zone_lists:
+            zone_to_heaters[ep_zone] = []
+            for tz in tz_elements:
+                if tz.guid == ep_zone:
+                    for space_heater in space_heater_elements:
+                        if PyOCCTools.obj2_in_obj1(
+                                obj1=tz.space_shape, obj2=space_heater.shape):
+                            zone_to_heaters[tz.guid].append(space_heater.guid)
         return zone_to_heaters
 
     def _save_total_modelica_model(
