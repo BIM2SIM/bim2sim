@@ -54,6 +54,8 @@ def run_example_spawn_1():
     # Generate outer heat ports for spawn HVAC sub model
     project.sim_settings.outer_heat_ports = True
 
+    project.sim_settings.hvac_modelica_library = "AixLib"
+
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.aggregations = [
         'PipeStrand',
