@@ -1,0 +1,696 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PluginEnergyPlus &mdash; bim2sim  0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+      <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="PluginComfort" href="PluginComfort.html" />
+    <link rel="prev" title="PluginTEASER" href="PluginTEASER.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/b2s_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../user-guide.html">User-Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="PluginTemplate.html">PluginTemplate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginTEASER.html">PluginTEASER</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">PluginEnergyPlus</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-install">How to install?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#step-by-step">Step by step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#trouble-shooting">Trouble Shooting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test-install">Test install</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#structure-of-the-plugin">Structure of the plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-create-a-project">How to create a project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-load-an-ifc-file">How to load an IFC file?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-configure-my-project">How to configure my project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#simulation-settings">Simulation settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#configuration-file">Configuration file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#default-tasks">Default tasks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#additional-templates">Additional templates</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-run-the-project">How to run the project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-run-the-simulation">How to run the simulation?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-analyze-the-project">How to analyze the project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#what-kind-of-results-exist">What kind of results exist?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#what-programs-tools-to-use-for-further-analysis">What programs/tools to use for further analysis?</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#energyplus-specific-tasks">EnergyPlus specific tasks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#validation-of-the-ifc-file">Validation of the IFC file</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#geometric-preprocessing-for-energyplus-export">Geometric Preprocessing for EnergyPlus Export</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#add-2b-space-boundaries">Add 2b Space Boundaries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#set-the-weather-file">Set the Weather File</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#initialize-and-export-the-energyplus-idf-file">Initialize and Export the EnergyPlus IDF File</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#idf-postprocessing">IDF Postprocessing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#export-idf-geometry-for-cfd-processing">Export IDF Geometry for CFD Processing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-energyplus-simulation">Run EnergyPlus Simulation</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#energyplussimsettings">EnergyPlusSimSettings</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="PluginComfort.html">PluginComfort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginAixLib.html">PluginAixLib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginHKESim.html">PluginHKESim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginLCA.html">PluginLCA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="User_hints.html">General hints and howtos</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced-user-guide.html">Advanced User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer-guide.html">Developer-Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../code/modules.html">bim2sim</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">bim2sim </a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../user-guide.html">User-Guide</a></li>
+      <li class="breadcrumb-item active">PluginEnergyPlus</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user-guide/PluginEnergyPlus.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pluginenergyplus">
+<h1>PluginEnergyPlus<a class="headerlink" href="#pluginenergyplus" title="Permalink to this heading"></a></h1>
+<section id="how-to-install">
+<span id="howtoinstallep"></span><h2>How to install?<a class="headerlink" href="#how-to-install" title="Permalink to this heading"></a></h2>
+<section id="step-by-step">
+<h3>Step by step<a class="headerlink" href="#step-by-step" title="Permalink to this heading"></a></h3>
+<p>To install <code class="docutils literal notranslate"><span class="pre">PluginEnergyPlus</span></code>: you need to do the following
+(in the root directory of the repo, here is the pyproject.toml file)</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;.[PluginEnergyPlus]&#39;</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="PluginTemplate.html#coreinstalltion"><span class="std std-ref">bim2sim core installation</span></a> needs to be done before.</p>
+</section>
+<section id="trouble-shooting">
+<h3>Trouble Shooting<a class="headerlink" href="#trouble-shooting" title="Permalink to this heading"></a></h3>
+<p>For python &gt; 3.9: make sure that the correct geomeppy is installed (using requirements.txt in the plugin): in this fork of geomeppy, we fixed the imports working from python &gt;= 3.10: https://github.com/BIM2SIM/geomeppy/tree/fix_dependencies</p>
+</section>
+<section id="test-install">
+<h3>Test install<a class="headerlink" href="#test-install" title="Permalink to this heading"></a></h3>
+</section>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
+<p>Please also take a look at
+<code class="docutils literal notranslate"><span class="pre">bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/examples</span></code>, which provides some
+runnable examples for the EnergyPlus plugin. You can use these examples to test your
+installation and learn from them. Additionally, they serve as good starting
+points for your own projects.”</p>
+<p>For running example jupyter notebooks (.ipynb) see: <a class="reference internal" href="User_hints.html#jupyter-notebook"><span class="std std-ref">hints jupyter notebook</span></a>.</p>
+</section>
+<section id="structure-of-the-plugin">
+<h2>Structure of the plugin<a class="headerlink" href="#structure-of-the-plugin" title="Permalink to this heading"></a></h2>
+<p>The following figure shows the structure of the EnergyPlus plugin. Here you see which tasks are used and how they are combined.</p>
+<!--- 
+the following code is pasted from the a file from /bim2sim/docs/source/img/dynamic/plugindiagram
+this figure is generated by the function generate_plugin_structure_fig in file template_mermaid.py
+-->
+<p>(Hint: firefox has issue display mermaid figures completely, for more infos see
+issue <a class="reference external" href="https://github.com/BIM2SIM/bim2sim/issues/766">#766</a>)</p>
+<pre  class="mermaid">
+        ---
+title: plugin EnergyPlus
+---
+flowchart TB
+    
+subgraph taskLoadIFC[&quot;task LoadIFC&quot;]
+ subgraph &quot;&quot; 
+
+  tLoadIFC[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ LoadIFC&quot;]
+  extLoadIFC(&quot; Load all IFC files from PROJECT. &quot; )
+ end
+
+stateLoadIFC[(&quot;state
+ (reads/touches)&quot;)]
+    
+tLoadIFC -- ifc_files --&gt; stateLoadIFC
+
+end
+    
+subgraph taskCheckIfc[&quot;task CheckIfc&quot;]
+ subgraph &quot;&quot; 
+
+  tCheckIfc[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ CheckIfc&quot;]
+  extCheckIfc(&quot;  Check an IFC file, for a number of conditions
+(missing information, incorrect information, etc)
+that could lead on future tasks to fatal errors. &quot; )
+ end
+
+stateCheckIfc[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCheckIfc -- ifc_files --&gt; tCheckIfc
+direction RL
+end
+    
+subgraph taskCreateElements[&quot;task CreateElements&quot;]
+ subgraph &quot;&quot; 
+
+  tCreateElements[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ CreateElements&quot;]
+  extCreateElements(&quot; Create bim2sim elements based on information in
+IFC. &quot; )
+ end
+
+stateCreateElements[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCreateElements -- ifc_files --&gt; tCreateElements
+
+tCreateElements -- elements, ifc_files --&gt; stateCreateElements
+
+end
+    
+subgraph taskCreateSpaceBoundaries[&quot;task CreateSpaceBoundaries&quot;]
+ subgraph &quot;&quot; 
+
+  tCreateSpaceBoundaries[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ CreateSpaceBoundaries&quot;]
+  extCreateSpaceBoundaries(&quot; Create space boundary elements from ifc. &quot; )
+ end
+
+stateCreateSpaceBoundaries[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCreateSpaceBoundaries -- ifc_files, elements --&gt; tCreateSpaceBoundaries
+
+tCreateSpaceBoundaries -- space_boundaries --&gt; stateCreateSpaceBoundaries
+
+end
+    
+subgraph taskCorrectSpaceBoundaries[&quot;task CorrectSpaceBoundaries&quot;]
+ subgraph &quot;&quot; 
+
+  tCorrectSpaceBoundaries[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ CorrectSpaceBoundaries&quot;]
+  extCorrectSpaceBoundaries(&quot; Advanced geometric preprocessing for Space
+Boundaries. &quot; )
+ end
+
+stateCorrectSpaceBoundaries[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCorrectSpaceBoundaries -- elements, space_boundaries --&gt; tCorrectSpaceBoundaries
+direction RL
+end
+    
+subgraph taskAddSpaceBoundaries2B[&quot;task AddSpaceBoundaries2B&quot;]
+ subgraph &quot;&quot; 
+
+  tAddSpaceBoundaries2B[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ AddSpaceBoundaries2B&quot;]
+  extAddSpaceBoundaries2B(&quot; Fill gaps in set of space boundary per space with
+2B space boundaries. &quot; )
+ end
+
+stateAddSpaceBoundaries2B[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateAddSpaceBoundaries2B -- elements --&gt; tAddSpaceBoundaries2B
+
+tAddSpaceBoundaries2B -- elements --&gt; stateAddSpaceBoundaries2B
+
+end
+    
+subgraph taskFilterTZ[&quot;task FilterTZ&quot;]
+ subgraph &quot;&quot; 
+
+  tFilterTZ[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ FilterTZ&quot;]
+  extFilterTZ(&quot; Filters the thermal zones for later usage and
+stores them in state. &quot; )
+ end
+
+stateFilterTZ[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateFilterTZ -- elements --&gt; tFilterTZ
+
+tFilterTZ -- tz_elements --&gt; stateFilterTZ
+
+end
+    
+subgraph taskBindStoreys[&quot;task BindStoreys&quot;]
+ subgraph &quot;&quot; 
+
+  tBindStoreys[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ BindStoreys&quot;]
+  extBindStoreys(&quot; None. &quot; )
+ end
+
+stateBindStoreys[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateBindStoreys -- elements --&gt; tBindStoreys
+
+tBindStoreys -- elements --&gt; stateBindStoreys
+
+end
+    
+subgraph taskEnrichUseConditions[&quot;task EnrichUseConditions&quot;]
+ subgraph &quot;&quot; 
+
+  tEnrichUseConditions[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ EnrichUseConditions&quot;]
+  extEnrichUseConditions(&quot; Enriches Use Conditions of thermal zones based on
+decisions and translation of zone names. &quot; )
+ end
+
+stateEnrichUseConditions[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateEnrichUseConditions -- tz_elements --&gt; tEnrichUseConditions
+
+tEnrichUseConditions -- enriched_tz --&gt; stateEnrichUseConditions
+
+end
+    
+subgraph taskVerifyLayersMaterials[&quot;task VerifyLayersMaterials&quot;]
+ subgraph &quot;&quot; 
+
+  tVerifyLayersMaterials[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ VerifyLayersMaterials&quot;]
+  extVerifyLayersMaterials(&quot; Verifies if layers and materials and their
+properties are meaningful. &quot; )
+ end
+
+stateVerifyLayersMaterials[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateVerifyLayersMaterials -- elements --&gt; tVerifyLayersMaterials
+
+tVerifyLayersMaterials -- invalid --&gt; stateVerifyLayersMaterials
+
+end
+    
+subgraph taskEnrichMaterial[&quot;task EnrichMaterial&quot;]
+ subgraph &quot;&quot; 
+
+  tEnrichMaterial[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ EnrichMaterial&quot;]
+  extEnrichMaterial(&quot; Enriches material properties that were recognized
+as invalid LOD. &quot; )
+ end
+
+stateEnrichMaterial[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateEnrichMaterial -- elements, invalid --&gt; tEnrichMaterial
+
+tEnrichMaterial -- elements --&gt; stateEnrichMaterial
+
+end
+    
+subgraph taskWeather[&quot;task Weather&quot;]
+ subgraph &quot;&quot; 
+
+  tWeather[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ Weather&quot;]
+  extWeather(&quot; Task to get the weather file for later simulation. &quot; )
+ end
+
+stateWeather[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateWeather -- elements --&gt; tWeather
+
+tWeather -- weather_file --&gt; stateWeather
+
+end
+    
+subgraph taskCreateIdf[&quot;task CreateIdf&quot;]
+ subgraph &quot;&quot; 
+
+  tCreateIdf[&quot;bim2sim &gt; plugins &gt; PluginEnergyPlus &gt; 
+bim2sim_energyplus &gt; task &gt;  
+ CreateIdf&quot;]
+  extCreateIdf(&quot; Create an EnergyPlus Input file. &quot; )
+ end
+
+stateCreateIdf[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCreateIdf -- elements, weather_file --&gt; tCreateIdf
+
+tCreateIdf -- idf, sim_results_path --&gt; stateCreateIdf
+
+end
+    
+subgraph taskIdfPostprocessing[&quot;task IdfPostprocessing&quot;]
+ subgraph &quot;&quot; 
+
+  tIdfPostprocessing[&quot;bim2sim &gt; plugins &gt; PluginEnergyPlus &gt; 
+bim2sim_energyplus &gt; task &gt;  
+ IdfPostprocessing&quot;]
+  extIdfPostprocessing(&quot; None. &quot; )
+ end
+
+stateIdfPostprocessing[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateIdfPostprocessing -- elements, idf, ifc_files, sim_results_path --&gt; tIdfPostprocessing
+direction RL
+end
+    
+subgraph taskExportIdfForCfd[&quot;task ExportIdfForCfd&quot;]
+ subgraph &quot;&quot; 
+
+  tExportIdfForCfd[&quot;bim2sim &gt; plugins &gt; PluginEnergyPlus &gt; 
+bim2sim_energyplus &gt; task &gt;  
+ ExportIdfForCfd&quot;]
+  extExportIdfForCfd(&quot; Export Idf shapes as . &quot; )
+ end
+
+stateExportIdfForCfd[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateExportIdfForCfd -- elements, idf --&gt; tExportIdfForCfd
+direction RL
+end
+    
+subgraph taskRunEnergyPlusSimulation[&quot;task RunEnergyPlusSimulation&quot;]
+ subgraph &quot;&quot; 
+
+  tRunEnergyPlusSimulation[&quot;bim2sim &gt; plugins &gt; PluginEnergyPlus &gt; 
+bim2sim_energyplus &gt; task &gt;  
+ RunEnergyPlusSimulation&quot;]
+  extRunEnergyPlusSimulation(&quot; None. &quot; )
+ end
+
+stateRunEnergyPlusSimulation[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateRunEnergyPlusSimulation -- idf, sim_results_path --&gt; tRunEnergyPlusSimulation
+direction RL
+end
+    
+subgraph taskCreateResultDF[&quot;task CreateResultDF&quot;]
+ subgraph &quot;&quot; 
+
+  tCreateResultDF[&quot;bim2sim &gt; plugins &gt; PluginEnergyPlus &gt; 
+bim2sim_energyplus &gt; task &gt;  
+ CreateResultDF&quot;]
+  extCreateResultDF(&quot; This ITask creates a result dataframe for
+EnergyPlus BEPS simulations. &quot; )
+ end
+
+stateCreateResultDF[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCreateResultDF -- idf, sim_results_path --&gt; tCreateResultDF
+
+tCreateResultDF -- df_finals --&gt; stateCreateResultDF
+
+end
+    
+subgraph taskPlotBEPSResults[&quot;task PlotBEPSResults&quot;]
+ subgraph &quot;&quot; 
+
+  tPlotBEPSResults[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ PlotBEPSResults&quot;]
+  extPlotBEPSResults(&quot; Plots the results for BEPS simulations. &quot; )
+ end
+
+statePlotBEPSResults[(&quot;state
+ (reads/touches)&quot;)]
+    
+statePlotBEPSResults -- df_finals, sim_results_path, ifc_files --&gt; tPlotBEPSResults
+direction RL
+end
+    taskLoadIFC --&gt; taskCheckIfc 
+taskCheckIfc --&gt; taskCreateElements 
+taskCreateElements --&gt; taskCreateSpaceBoundaries 
+taskCreateSpaceBoundaries --&gt; taskCorrectSpaceBoundaries 
+taskCorrectSpaceBoundaries --&gt; taskAddSpaceBoundaries2B 
+taskAddSpaceBoundaries2B --&gt; taskFilterTZ 
+taskFilterTZ --&gt; taskBindStoreys 
+taskBindStoreys --&gt; taskEnrichUseConditions 
+taskEnrichUseConditions --&gt; taskVerifyLayersMaterials 
+taskVerifyLayersMaterials --&gt; taskEnrichMaterial 
+taskEnrichMaterial --&gt; taskWeather 
+taskWeather --&gt; taskCreateIdf 
+taskCreateIdf --&gt; taskIdfPostprocessing 
+taskIdfPostprocessing --&gt; taskExportIdfForCfd 
+taskExportIdfForCfd --&gt; taskRunEnergyPlusSimulation 
+taskRunEnergyPlusSimulation --&gt; taskCreateResultDF 
+taskCreateResultDF --&gt; taskPlotBEPSResults 
+    </pre><p>This figure is generated by the script template_mermaid.py (see <a class="reference internal" href="../developer-guide/doc-utilities/gen_plugin_visu.html#genvisplugins"><span class="std std-ref">Visualization of bim2sim plugin structure</span></a>).</p>
+</section>
+<section id="how-to-create-a-project">
+<h2>How to create a project?<a class="headerlink" href="#how-to-create-a-project" title="Permalink to this heading"></a></h2>
+</section>
+<section id="how-to-load-an-ifc-file">
+<h2>How to load an IFC file?<a class="headerlink" href="#how-to-load-an-ifc-file" title="Permalink to this heading"></a></h2>
+</section>
+<section id="how-to-configure-my-project">
+<h2>How to configure my project?<a class="headerlink" href="#how-to-configure-my-project" title="Permalink to this heading"></a></h2>
+<section id="simulation-settings">
+<h3>Simulation settings<a class="headerlink" href="#simulation-settings" title="Permalink to this heading"></a></h3>
+</section>
+<section id="configuration-file">
+<h3>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this heading"></a></h3>
+</section>
+<section id="default-tasks">
+<h3>Default tasks<a class="headerlink" href="#default-tasks" title="Permalink to this heading"></a></h3>
+</section>
+<section id="additional-templates">
+<h3>Additional templates<a class="headerlink" href="#additional-templates" title="Permalink to this heading"></a></h3>
+</section>
+</section>
+<section id="how-to-run-the-project">
+<h2>How to run the project?<a class="headerlink" href="#how-to-run-the-project" title="Permalink to this heading"></a></h2>
+</section>
+<section id="how-to-run-the-simulation">
+<h2>How to run the simulation?<a class="headerlink" href="#how-to-run-the-simulation" title="Permalink to this heading"></a></h2>
+</section>
+<section id="how-to-analyze-the-project">
+<h2>How to analyze the project?<a class="headerlink" href="#how-to-analyze-the-project" title="Permalink to this heading"></a></h2>
+<section id="what-kind-of-results-exist">
+<h3>What kind of results exist?<a class="headerlink" href="#what-kind-of-results-exist" title="Permalink to this heading"></a></h3>
+</section>
+<section id="what-programs-tools-to-use-for-further-analysis">
+<h3>What programs/tools to use for further analysis?<a class="headerlink" href="#what-programs-tools-to-use-for-further-analysis" title="Permalink to this heading"></a></h3>
+<p>#TODO
+Copy to correct positions:</p>
+<p><a class="reference internal" href="#energyplus-specific-tasks"><span class="std std-ref">Go to EnergyPlus specific tasks</span></a>
+<a class="reference internal" href="../advanced-user-guide/concepts/sim_settings.html#energyplus-sim-settings"><span class="std std-ref">Go to EnergyPlusSimSettings</span></a></p>
+<p>The Plugin EnergyPlus exports the preprocessed IFC data to en EnergyPlus
+Input file (idf). This Plugin contains EnergyPlus specific modifications of
+the geometry and further enrichment for the export. General simulation
+control settings are set here as well as the output variables.</p>
+<p>Other IFC requirements (optional, improve model accuracy):</p>
+<ul class="simple">
+<li><p>Material definitions</p></li>
+<li><p>Shading Space Boundaries</p></li>
+</ul>
+<p>The Plugin consists of multiple individual tasks that are executed
+consecutively. The default tasks are defined in the PluginEnergyPlus class.
+These tasks can be split in two main blocks: general preparation tasks that
+are used for both BPS workflows (TEASER and EnergyPlus) and EnergyPlus
+specific tasks.</p>
+<ul class="simple">
+<li><p>general tasks (common and BPS-specific):</p>
+<ul>
+<li><p><a class="reference internal" href="../code/bim2sim.tasks.common.html#bim2sim.tasks.common.load_ifc.LoadIFC" title="bim2sim.tasks.common.load_ifc.LoadIFC"><span class="xref myst py py-class">LoadIFC</span></a></p></li>
+<li><p><a class="reference internal" href="#CreateElements"><span class="xref myst">CreateElements</span></a></p></li>
+<li><p><a class="reference internal" href="../code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries" title="bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries"><span class="xref myst py py-class">CreateSpaceBoundaries</span></a></p></li>
+<li><p><a class="reference internal" href="#Prepare"><span class="xref myst">Prepare</span></a></p></li>
+<li><p><a class="reference internal" href="#BindStoreys"><span class="xref myst">BindStoreys</span></a></p></li>
+<li><p><a class="reference internal" href="../code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.enrich_use_cond.EnrichUseConditions" title="bim2sim.tasks.bps.enrich_use_cond.EnrichUseConditions"><span class="xref myst py py-class">EnrichUseConditions</span></a></p></li>
+<li><p><a class="reference internal" href="#Verification"><span class="xref myst">Verification</span></a></p></li>
+<li><p><a class="reference internal" href="../code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.enrich_material.EnrichMaterial" title="bim2sim.tasks.bps.enrich_material.EnrichMaterial"><span class="xref myst py py-class">EnrichMaterial</span></a></p></li>
+<li><p><a class="reference internal" href="#DisaggregationCreation"><span class="xref myst">DisaggregationCreation</span></a></p></li>
+<li><p><a class="reference internal" href="#BindThermalZones"><span class="xref myst">BindThermalZones</span></a></p></li>
+</ul>
+</li>
+<li><p>EnergyPlus specific tasks:</p>
+<ul>
+<li><p><a class="reference internal" href="#ep-ifc-valid"><span class="std std-ref">IfcValidation</span></a></p></li>
+<li><p><a class="reference internal" href="#ep-geom-preproc"><span class="std std-ref">EPGeomPreprocessing</span></a></p></li>
+<li><p><a class="reference internal" href="#ep-add-2b-sbs"><span class="std std-ref">AddSpaceBoundaries2B</span></a></p></li>
+<li><p><a class="reference internal" href="#ep-set-weather"><span class="std std-ref">WeatherEnergyPlus</span></a></p></li>
+<li><p><a class="reference internal" href="#ep-create-idf-for-export"><span class="std std-ref">CreateIdf</span></a></p></li>
+<li><p><a class="reference internal" href="#ep-postprocess"><span class="std std-ref">IdfPostprocessing</span></a></p></li>
+<li><p><a class="reference internal" href="#ep-cfd-export"><span class="std std-ref">ExportIdfForCfd</span></a></p></li>
+<li><p><a class="reference internal" href="#ep-run-sim"><span class="std std-ref">RunEnergyPlusSimulation</span></a></p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="energyplus-specific-tasks">
+<span id="id1"></span><h2>EnergyPlus specific tasks<a class="headerlink" href="#energyplus-specific-tasks" title="Permalink to this heading"></a></h2>
+<section id="validation-of-the-ifc-file">
+<h3>Validation of the IFC file<a class="headerlink" href="#validation-of-the-ifc-file" title="Permalink to this heading"></a></h3>
+<p id="ep-ifc-valid"><a class="reference internal" href="#IfcValidation"><span class="xref myst">Go to IfcValidation</span></a></p>
+<p>The EnergyPlus specific tasks start with an EnergyPlus specific validation
+of the space boundaries provided by the IFC file. This validation algorihtm
+is included in the default workflow to give an insight in the quality of the
+provided IFC.</p>
+</section>
+<section id="geometric-preprocessing-for-energyplus-export">
+<h3>Geometric Preprocessing for EnergyPlus Export<a class="headerlink" href="#geometric-preprocessing-for-energyplus-export" title="Permalink to this heading"></a></h3>
+<p id="ep-geom-preproc"><a class="reference internal" href="#EPGeomPreprocessing"><span class="xref myst">Go to EPGeomPreprocessing</span></a></p>
+<p>The preprocessed geometry and material needs an additional preprocessing to
+cover all requirements for the EnergyPlus export. This is done in the
+<a class="reference internal" href="#EPGeomPreprocessing"><span class="xref myst">EPGeomPreprocessing</span></a>. The space boundaries which are
+further used to model the building geometry are <a class="reference internal" href="../code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.add_bounds_to_elements" title="bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries.add_bounds_to_elements"><span class="xref myst py py-meth">added</span></a>
+to the elements. Minor geometric displacements are fixed by
+<a class="reference internal" href="../code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.move_children_to_parents" title="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.move_children_to_parents"><span class="xref myst py py-meth">moving children to their parents</span></a>. This covers all
+cases, where opening space boundaries are displaced by the thickness of the wall.
+The surface orientation is <a class="reference internal" href="../code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.fix_surface_orientation" title="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.fix_surface_orientation"><span class="xref myst py py-meth">fixed</span></a> if needed
+(all surface normals are supposed to point outwards the relating space). To
+improve shading calculations and remove inner loops from surfaces,
+<a class="reference internal" href="../code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.split_non_convex_bounds" title="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.split_non_convex_bounds"><span class="xref myst py py-meth">non-convex space boundaries can be split up</span></a>. Similarly,
+<a class="reference internal" href="../code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.add_and_split_bounds_for_shadings" title="bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries.add_and_split_bounds_for_shadings"><span class="xref myst py py-meth">shadings can be added and split if needed</span></a>.</p>
+<p>Use the <a class="reference internal" href="#settings"><span class="xref myst">settings</span></a> to decide if boundaries should be split up and
+if shadings should be added.</p>
+</section>
+<section id="add-2b-space-boundaries">
+<h3>Add 2b Space Boundaries<a class="headerlink" href="#add-2b-space-boundaries" title="Permalink to this heading"></a></h3>
+<p id="ep-add-2b-sbs"><a class="reference internal" href="../code/bim2sim.tasks.bps.html#bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B" title="bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B"><span class="xref myst py py-class">Go to AddSpaceBoundaries2B</span></a></p>
+<p>Space Boundaries of type 2b can be added here if gaps are located in the
+provided set of space boundaries. The resulting set of space boundaries
+then forms a watertight model that can be further used for other simulation
+purposes such as <a class="reference internal" href="#ExportIdfForCfd"><span class="xref myst">CFD export</span></a>.</p>
+</section>
+<section id="set-the-weather-file">
+<h3>Set the Weather File<a class="headerlink" href="#set-the-weather-file" title="Permalink to this heading"></a></h3>
+<p id="ep-set-weather"><a class="reference internal" href="#WeatherEnergyPlus"><span class="xref myst">Go to WeatherEnergyPlus</span></a></p>
+<p>Set the Weather File for the EnergyPlus Simulation.</p>
+</section>
+<section id="initialize-and-export-the-energyplus-idf-file">
+<h3>Initialize and Export the EnergyPlus IDF File<a class="headerlink" href="#initialize-and-export-the-energyplus-idf-file" title="Permalink to this heading"></a></h3>
+<p id="ep-create-idf-for-export"><a class="reference internal" href="#CreateIdf"><span class="xref myst">Go to CreateIdf</span></a></p>
+<p>Write all preprocessed geometric data, materials, and boundary conditions
+to an EnergyPlus input file (IDF).</p>
+</section>
+<section id="idf-postprocessing">
+<h3>IDF Postprocessing<a class="headerlink" href="#idf-postprocessing" title="Permalink to this heading"></a></h3>
+<p id="ep-postprocess"><a class="reference internal" href="#IdfPostprocessing"><span class="xref myst">Go to IdfPostprocessing</span></a></p>
+<p>Export data to csv. Some modifications may be required to meet your
+individual postprocessing needs here.</p>
+</section>
+<section id="export-idf-geometry-for-cfd-processing">
+<h3>Export IDF Geometry for CFD Processing<a class="headerlink" href="#export-idf-geometry-for-cfd-processing" title="Permalink to this heading"></a></h3>
+<p id="ep-cfd-export"><a class="reference internal" href="#ExportIdfForCfd"><span class="xref myst">Go to ExportIdfForCfd</span></a></p>
+<p>Use the <a class="reference internal" href="#settings"><span class="xref myst">settings</span></a> to specify, if the IDF geometry should be
+converted to .stl for further use in CFD applications.</p>
+</section>
+<section id="run-energyplus-simulation">
+<h3>Run EnergyPlus Simulation<a class="headerlink" href="#run-energyplus-simulation" title="Permalink to this heading"></a></h3>
+<p id="ep-run-sim"><a class="reference internal" href="#RunEnergyPlusSimulation"><span class="xref myst">Go to RunEnergyPlusSimulation</span></a></p>
+<p>Run the EnergyPlus simulation. Use the <a class="reference internal" href="#settings"><span class="xref myst">settings</span></a> for further
+runtime specifications.</p>
+</section>
+</section>
+<section id="energyplussimsettings">
+<h2>EnergyPlusSimSettings<a class="headerlink" href="#energyplussimsettings" title="Permalink to this heading"></a></h2>
+<p>EnergyPlus has its own set of EnergyPlus specific
+<a class="reference internal" href="../advanced-user-guide/concepts/sim_settings.html#simulation-setting"><span class="std std-ref">Simulation Settings</span></a> that can be found here:</p>
+<p><a class="reference internal" href="../advanced-user-guide/concepts/sim_settings.html#energyplus-sim-settings"><span class="std std-ref">Go to EnergyPlusSimSettings</span></a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="PluginTEASER.html" class="btn btn-neutral float-left" title="PluginTEASER" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="PluginComfort.html" class="btn btn-neutral float-right" title="PluginComfort" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, RWTH Aachen University, EBC &amp; E3D; ROM Technik GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
