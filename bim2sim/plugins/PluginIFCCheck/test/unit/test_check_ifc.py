@@ -53,6 +53,8 @@ class TestCheckIFC(unittest.TestCase):
         '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55_NoneAndDoubleGUID.ifc')
     ifc_file_fkz_SB55 = Path(
         '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc')
+    ifc_file_fkz_ifc23 = Path(
+        '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_ifc23.ifc')
 
     def test_check_guid_unique_pass(self):
         """test the boolean of the GUID uniqueness check, check pass
@@ -193,6 +195,34 @@ class TestCheckIFC(unittest.TestCase):
             all_guids_filled_passed, empty_guids = CheckIfc.run_check_guid_empty(self, ifc_file)
             self.assertEqual(all_guids_filled_passed, True, "Should be true")
 
+    def test_run_check_ifc_version_pass(self):
+        """test the error raise regarding the requiered ifc schema of the
+        checked ifc file, check pass (the TypeError will raise)
+        the following represent a project using the DummyPlugin defined above
+        """
+
+        self.test_dir = tempfile.TemporaryDirectory()
+        ifc_paths = {
+            IFCDomain.arch: self.ifc_file_fkz_ifc23,
+        }
+        self.project = Project.create(self.test_dir.name, ifc_paths,
+                                 plugin=PluginDummy, )
+        # weather data path is mandatory and "mocking" is not working
+        # so use a central defintion of weather file
+        self.project.sim_settings.weather_file_path = self.weather_file_path()
+        # put project.run into DebugDecisionHandler is need, otherwise the
+        # playground.state() is empty and ifc_files are not available
+        # default answer for decision questions
+        answers = ('Other', 'Other',)
+        handler = DebugDecisionHandler(answers)
+        handler.handle(self.project.run(cleanup=False))
+
+        ifc_files = self.project.playground.state['ifc_files']
+
+        for ifc_file in ifc_files:
+            # self.run_check_guid_unique(ifc_file)
+            with self.assertRaises(TypeError):
+                CheckIfc.run_check_ifc_version(ifc_file)
 
 class TestCheckIFCIfctester(unittest.TestCase):
     """Tests for function checking IFC files, which are based on IDS file
