@@ -31,6 +31,8 @@ class CheckIfc(ITask):
         self.error_summary_sub_inst: dict = {}
         self.error_summary_inst: dict = {}
         self.error_summary_prop: dict = {}
+        self.error_version: bool = False
+        self.ifc_version: str = None
         self.sub_inst: list = []
         self.id_list: list = []
         self.elements: list = []
@@ -90,7 +92,7 @@ class CheckIfc(ITask):
             if all_guids_filled is False:
                 self.logger.warning("empty GUIDs: {}".format(list_guids_empty))
             # check ifc version
-            self.run_check_ifc_version(ifc_file)
+            self.version_error, self.ifc_version = self.run_check_ifc_version(ifc_file)
             # write reportes self made checks
             base_name = f"/{ifc_file.domain.name.upper()}_" \
                         f"{ifc_file.ifc_file_name[:-4]}"
@@ -162,7 +164,7 @@ class CheckIfc(ITask):
         return (all_guids_filled, empty_guids)
 
     @staticmethod
-    def run_check_ifc_version(ifc: ifcos.file):
+    def run_check_ifc_version(ifc: ifcos.file) -> (bool, str):
         """
         Checks the IFC version.
 
@@ -172,12 +174,19 @@ class CheckIfc(ITask):
             ifc: ifc file loaded with IfcOpenShell
         Raises:
             TypeError: if loaded IFC is not IFC4
+        Return:
+            version_error: True if version NOT fit
+            ifc_version: version of the ifc file
         """
         schema = ifc.schema
         if "IFC4" not in schema:
+            version_error = True
             raise TypeError(f"Loaded IFC file is of type {schema} but only IFC4"
                             f"is supported. Please ask the creator of the model"
                             f" to provide a valid IFC4 file.")
+        else:
+            version_error = False
+        return (version_error, schema)
 
     @staticmethod
     def run_ids_check_on_ifc(ifc_file: str, ids_file: str, report_html: bool = False, log_path: str = None) -> bool:
@@ -315,6 +324,8 @@ class CheckIfc(ITask):
                   base_name +
                   '_error_summary.html', 'w+') as out_file:
             out_file.write(templates["summary_template"].render_unicode(
+                ifc_version=self.ifc_version,
+                version_error = self.version_error,
                 task=self,
                 plugin_name=domain.name.upper(),
                 base_name=base_name[1:],
