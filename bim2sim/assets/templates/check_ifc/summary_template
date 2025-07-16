@@ -32,20 +32,20 @@
         <tr>
             <td class="tg-dvpl">Total IFCProduct with errors:</td>
             <td class="tg-dvpl">
-            ${len(task.error_summary_inst)}/${len(task.elements)}</th>
+            ${len(task.error_summary_inst)}/${len(task.elements)}</td>
         </tr>
         <tr>
             <td class="tg-dvpl">Total errors in IFCProducts:</td>
-            <td class="tg-dvpl">${sum(summary_inst['per_error'].values())}</th>
+            <td class="tg-dvpl">${sum(summary_inst['per_error'].values())}</td>
         </tr>
         <tr>
             <td class="tg-dvpl">Total ${task.sub_inst_cls} with errors:</td>
             <td class="tg-dvpl">
-            ${len(task.error_summary_sub_inst)}/${len(task.sub_inst)}</th>
+            ${len(task.error_summary_sub_inst)}/${len(task.sub_inst)}</td>
         </tr>
         <tr>
             <td class="tg-dvpl">Total errors in ${task.sub_inst_cls}:</td>
-            <td class="tg-dvpl">${sum(summary_sbs['per_error'].values())}</th>
+            <td class="tg-dvpl">${sum(summary_sbs['per_error'].values())}</td>
         </tr>
         <tr>
             <th  colspan=2 class="tg-7btt"><a href=
@@ -56,11 +56,11 @@
         <tr>
             <td class="tg-dvpl">Total IFCProduct with missing properties:</td>
             <td class="tg-dvpl">
-            ${len(task.error_summary_prop)}/${len(task.elements)}</th>
+            ${len(task.error_summary_prop)}/${len(task.elements)}</td>
         </tr>
         <tr>
             <td class="tg-dvpl">Total missing properties in IFCProducts:</td>
-            <td class="tg-dvpl">${sum(summary_props['per_error'].values())}</th>
+            <td class="tg-dvpl">${sum(summary_props['per_error'].values())}</td>
         </tr>
     </tbody>
 </table>
