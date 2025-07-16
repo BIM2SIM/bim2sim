@@ -280,7 +280,7 @@ class CheckIfc(ITask):
             base_name: str of file base name for reports
             domain: IFCDomain of the checked IFC
         """
-
+        show_report = True # enable the automatic popup of the reports
         templates = self.get_html_templates()
         summary_inst = self._categorize_errors(self.error_summary_inst)
         summary_sbs = self._categorize_errors(self.error_summary_sub_inst)
@@ -297,6 +297,9 @@ class CheckIfc(ITask):
                 summary_sbs=summary_sbs,
                 all_errors=all_errors))
             out_file.close()
+            if show_report:
+                # can comment out, if not the browser should show the report
+                webbrowser.open(f"file://{out_file.buffer.name}")
         with open(str(self.paths.log) +
                   base_name +
                   '_error_summary_prop.html', 'w+') as \
@@ -305,6 +308,9 @@ class CheckIfc(ITask):
                 task=self,
                 summary_props=summary_props))
             out_file.close()
+            if show_report:
+                # can comment out, if not the browser should show the report
+                webbrowser.open(f"file://{out_file.buffer.name}")
         with open(str(self.paths.log) +
                   base_name +
                   '_error_summary.html', 'w+') as out_file:
@@ -316,6 +322,9 @@ class CheckIfc(ITask):
                 summary_sbs=summary_sbs,
                 summary_props=summary_props))
             out_file.close()
+            if show_report:
+                # can comment out, if not the browser should show the report
+                webbrowser.open(f"file://{out_file.buffer.name}")
 
 if __name__ == '__main__':
     pass
