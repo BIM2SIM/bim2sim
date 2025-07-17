@@ -62,7 +62,7 @@ class DesignExhaustLCA(ITask):
 
         # Todo add the following to sim settings
         building_shaft_exhaust_air = [1, 2.8, -2]
-        position_rlt = [25, building_shaft_exhaust_air[1], building_shaft_exhaust_air[2]]
+        position_ahu = [25, building_shaft_exhaust_air[1], building_shaft_exhaust_air[2]]
         # y-axis of shaft and ahu must be identical
         cross_section_type = 'optimal'  # choose between round, angular and optimal
         suspended_ceiling_space = 200 * ureg.millimeter  # The available height (in [mmm]) in the suspended ceiling is
@@ -131,7 +131,7 @@ class DesignExhaustLCA(ITask):
          dict_steiner_tree_with_calculated_cross_section) = self.ahu_shaft(z_coordinate_list,
                                                                            building_shaft_exhaust_air,
                                                                            airflow_volume_per_storey,
-                                                                           position_rlt,
+                                                                           position_ahu,
                                                                            dict_steiner_tree_with_duct_length,
                                                                            dict_steiner_tree_with_duct_cross_section,
                                                                            dict_steiner_tree_with_air_volume_exhaust_air,
@@ -149,13 +149,13 @@ class DesignExhaustLCA(ITask):
                                                                                     dict_steiner_tree_with_air_volume_exhaust_air,
                                                                                     dict_steiner_tree_with_shell_surface_area,
                                                                                     dict_steiner_tree_with_calculated_cross_section,
-                                                                                    position_rlt,
+                                                                                    position_ahu,
                                                                                     dict_coordinate_with_space_type)
 
         self.logger.info('Start pressure loss calculation')
         pressure_loss, dataframe_distribution_network_exhaust_air = self.calculate_pressure_loss(dict_steiner_tree_with_duct_length,
                                                                                     z_coordinate_list,
-                                                                                    position_rlt,
+                                                                                    position_ahu,
                                                                                     building_shaft_exhaust_air,
                                                                                     graph_ventilation_duct_length_exhaust_air,
                                                                                     graph_air_volume_flow,
