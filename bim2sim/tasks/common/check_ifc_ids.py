@@ -245,7 +245,7 @@ class CheckIfc(ITask):
             filename=os.path.join(path_templates, "prop_template"),
             lookup=lookup)
         templates["summary_template"] = Template(
-            filename=os.path.join(path_templates, "summary_template"),
+            filename=os.path.join(path_templates, "summary_template_extend"),
             lookup=lookup)
         return templates
 
