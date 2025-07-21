@@ -195,9 +195,9 @@ class TestCheckIFC(unittest.TestCase):
             all_guids_filled_passed, empty_guids = CheckIfc.run_check_guid_empty(self, ifc_file)
             self.assertEqual(all_guids_filled_passed, True, "Should be true")
 
-    def test_run_check_ifc_version_pass(self):
-        """test the error raise regarding the requiered ifc schema of the
-        checked ifc file, check pass (the TypeError will raise)
+    def test_run_check_ifc_version_error(self):
+        """test the version check of ifc file,
+        check: there is an error regarding the ifc version
         the following represent a project using the DummyPlugin defined above
         """
 
@@ -220,9 +220,36 @@ class TestCheckIFC(unittest.TestCase):
         ifc_files = self.project.playground.state['ifc_files']
 
         for ifc_file in ifc_files:
-            # self.run_check_guid_unique(ifc_file)
-            with self.assertRaises(TypeError):
-                CheckIfc.run_check_ifc_version(ifc_file)
+            check_error, ifc_version = CheckIfc.run_check_ifc_version(ifc_file)
+            self.assertEqual(check_error, True, "Should be True (ifc file has wrong ifc version))")
+
+    def test_run_check_ifc_version_no_error(self):
+        """test the version check of ifc file,
+        check: there is no error regarding the ifc version
+        the following represent a project using the DummyPlugin defined above
+        """
+
+        self.test_dir = tempfile.TemporaryDirectory()
+        ifc_paths = {
+            IFCDomain.arch: self.ifc_file_fkz,
+        }
+        self.project = Project.create(self.test_dir.name, ifc_paths,
+                                 plugin=PluginDummy, )
+        # weather data path is mandatory and "mocking" is not working
+        # so use a central defintion of weather file
+        self.project.sim_settings.weather_file_path = self.weather_file_path()
+        # put project.run into DebugDecisionHandler is need, otherwise the
+        # playground.state() is empty and ifc_files are not available
+        # default answer for decision questions
+        answers = ('Other', 'Other',)
+        handler = DebugDecisionHandler(answers)
+        handler.handle(self.project.run(cleanup=False))
+
+        ifc_files = self.project.playground.state['ifc_files']
+
+        for ifc_file in ifc_files:
+            check_error, ifc_version = CheckIfc.run_check_ifc_version(ifc_file)
+            self.assertEqual(check_error, False, "Should be False (ifc file has fitting ifc version))")
 
 class TestCheckIFCIfctester(unittest.TestCase):
     """Tests for function checking IFC files, which are based on IDS file
