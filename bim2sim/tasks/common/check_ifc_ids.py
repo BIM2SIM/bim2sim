@@ -93,6 +93,10 @@ class CheckIfc(ITask):
                 self.logger.warning("empty GUIDs: {}".format(list_guids_empty))
             # check ifc version
             self.version_error, self.ifc_version = self.run_check_ifc_version(ifc_file)
+            # for doc string
+            #   Logs:
+            #       critical: if loaded IFC is not IFC4
+            self.logger.critical(f"ifc Version is not fitting. Should be IFC4, but here: " + self.ifc_version)
             # write reportes self made checks
             base_name = f"/{ifc_file.domain.name.upper()}_" \
                         f"{ifc_file.ifc_file_name[:-4]}"
@@ -170,10 +174,10 @@ class CheckIfc(ITask):
 
         Only IFC4 files are valid for bim2sim.
 
+        Attention: no Error is raised anymore.
+
         Args:
             ifc: ifc file loaded with IfcOpenShell
-        Raises:
-            TypeError: if loaded IFC is not IFC4
         Return:
             version_error: True if version NOT fit
             ifc_version: version of the ifc file
@@ -181,9 +185,9 @@ class CheckIfc(ITask):
         schema = ifc.schema
         if "IFC4" not in schema:
             version_error = True
-            raise TypeError(f"Loaded IFC file is of type {schema} but only IFC4"
-                            f"is supported. Please ask the creator of the model"
-                            f" to provide a valid IFC4 file.")
+            # raise TypeError(f"Loaded IFC file is of type {schema} but only IFC4"
+            #                 f"is supported. Please ask the creator of the model"
+            #                 f" to provide a valid IFC4 file.")
         else:
             version_error = False
         return (version_error, schema)
