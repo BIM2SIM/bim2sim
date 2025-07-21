@@ -20,7 +20,7 @@ def run_simple_project():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(tempfile.TemporaryDirectory(
-        prefix='bim2sim_example3').name)
+        prefix='bim2sim_e1_checkifc').name)
 
     # Set the ifc path to use and define which domain the IFC belongs to.
     # This is done via a dictionary, where the key is the domain and the value
@@ -28,10 +28,19 @@ def run_simple_project():
     # here from the FZK-Haus which is a simple IFC provided by KIT.
     # ifc_file = test_rsrc_path / 'ids/fail-a_minimal_ids_can_check_a_minimal_ifc_1_2.ifc'
     # test_rsrc_path = Path(__file__).parent.parent.parent.parent / 'resources'
+    #
+    # no error ifc file
+    # ifc_paths = {
+    #     IFCDomain.arch:
+    #         Path(bim2sim.__file__).parent.parent /
+    #         'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
+    # }
+    #
+    # ifc file with not fitting ifc version
     ifc_paths = {
         IFCDomain.arch:
-            Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
+            Path(bim2sim.__file__).parent.parent.parent.parent /
+            '12_ifc_check_ids/AC20-FZK-Haus_ifc23.ifc',
     }
 
     project = Project.create(
