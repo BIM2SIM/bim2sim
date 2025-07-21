@@ -84,13 +84,13 @@ class CheckIfc(ITask):
             list_guids_non_unique = list(double_guids.keys())
             self.logger.info("the GUIDs of all elements are unique: {}".format(all_guids_unique))
             if all_guids_unique is False:
-                self.logger.warning("non-unique GUIDs: {}".format(list_guids_non_unique))
+                self.logger.critical("non-unique GUIDs: {}".format(list_guids_non_unique))
             # check emptyness of GUID fields
             all_guids_filled, empty_guids = self.run_check_guid_empty(ifc_file)
             list_guids_empty = list(empty_guids.keys())
             self.logger.info("the GUIDs of all elements are filled (NOT empty): {}".format(all_guids_filled))
             if all_guids_filled is False:
-                self.logger.warning("empty GUIDs: {}".format(list_guids_empty))
+                self.logger.critical("empty GUIDs: {}".format(list_guids_empty))
             # check ifc version
             self.version_error, self.ifc_version = self.run_check_ifc_version(ifc_file)
             # for doc string
