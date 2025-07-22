@@ -39,7 +39,7 @@
         </tr>
         <tr>
             <th colspan=2 class="tg-7btt">
-            <a>GUID general</a>
+            <a href="${base_name}_error_summary_guid.html">GUID general</a>
             </th>
         </tr>
         <tr>
