@@ -33,6 +33,10 @@ class CheckIfc(ITask):
         self.error_summary_prop: dict = {}
         self.error_version: bool = False
         self.ifc_version: str = None
+        self.all_guids_unique: bool = True
+        self.double_guids: dict = {}
+        self.all_guids_filled: bool = True
+        self.empty_guids: dict = {}
         self.sub_inst: list = []
         self.id_list: list = []
         self.elements: list = []
@@ -80,16 +84,16 @@ class CheckIfc(ITask):
         self.logger.info(f"Processing IFC Checks without ifcTester")
         for ifc_file in ifc_files:
             # check uniqueness of GUIDs
-            all_guids_unique, double_guids = self.run_check_guid_unique(ifc_file)
-            list_guids_non_unique = list(double_guids.keys())
-            self.logger.info("the GUIDs of all elements are unique: {}".format(all_guids_unique))
-            if all_guids_unique is False:
+            self.all_guids_unique, self.double_guids = self.run_check_guid_unique(ifc_file)
+            list_guids_non_unique = list(self.double_guids.keys())
+            self.logger.info("the GUIDs of all elements are unique: {}".format(self.all_guids_unique))
+            if self.all_guids_unique is False:
                 self.logger.critical("non-unique GUIDs: {}".format(list_guids_non_unique))
             # check emptyness of GUID fields
-            all_guids_filled, empty_guids = self.run_check_guid_empty(ifc_file)
-            list_guids_empty = list(empty_guids.keys())
-            self.logger.info("the GUIDs of all elements are filled (NOT empty): {}".format(all_guids_filled))
-            if all_guids_filled is False:
+            self.all_guids_filled, self.empty_guids = self.run_check_guid_empty(ifc_file)
+            list_guids_empty = list(self.empty_guids.keys())
+            self.logger.info("the GUIDs of all elements are filled (NOT empty): {}".format(self.all_guids_filled))
+            if self.all_guids_filled is False:
                 self.logger.critical("empty GUIDs: {}".format(list_guids_empty))
             # check ifc version
             self.version_error, self.ifc_version = self.run_check_ifc_version(ifc_file)
@@ -330,6 +334,10 @@ class CheckIfc(ITask):
             out_file.write(templates["summary_template"].render_unicode(
                 ifc_version=self.ifc_version,
                 version_error = self.version_error,
+                all_guids_unique = self.all_guids_unique,
+                double_guids = self.double_guids,
+                all_guids_filled = self.all_guids_filled,
+                empty_guid = self.empty_guids,
                 task=self,
                 plugin_name=domain.name.upper(),
                 base_name=base_name[1:],
