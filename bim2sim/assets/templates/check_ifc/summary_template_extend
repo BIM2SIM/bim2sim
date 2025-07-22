@@ -39,6 +39,27 @@
         </tr>
         <tr>
             <th colspan=2 class="tg-7btt">
+            <a>GUID general</a>
+            </th>
+        </tr>
+        <tr>
+            <td class="tg-dvpl">Unique GUID:</td>
+            <td class="tg-dvpl"> ${all_guids_unique}</td>
+        </tr>
+        <tr>
+            <td class="tg-dvpl">Total non-unique GUIDs:</td>
+            <td class="tg-dvpl"> ${len(double_guids)}</td>
+        </tr>
+        <tr>
+            <td class="tg-dvpl">Empty GUID:</td>
+            <td class="tg-dvpl"> ${all_guids_filled}</td>
+        </tr>
+        <tr>
+            <td class="tg-dvpl">Total Empty GUIDs:</td>
+            <td class="tg-dvpl"> ${len(empty_guid)}</td>
+        </tr>
+        <tr>
+            <th colspan=2 class="tg-7btt">
             <a href="${base_name}_error_summary_inst.html">Errors in IFC</a>
             </th>
         </tr>
