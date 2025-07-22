@@ -60,3 +60,22 @@
     %endfor
     </tbody>
 </table><br>
+
+<h2 id="EmptyGUID">Empty GUIDs</h2>
+<table class="tg">
+    <thead>
+        <tr>
+            <th class="tg-1wig">Generated Key (bim2sim)</th>
+            <th class="tg-1wig">Name</th>
+            <th class="tg-1wig">GlobalID</th>
+        </tr>
+    </thead>
+    %for key, values in empty_guid.items():
+        <tr>
+            <td class="tg-1wig">${key}</td>
+            <td class="tg-1wig">${values.Name}</td>
+            <td class="tg-1wig">${values.GlobalId}</td>
+        </tr>
+    %endfor
+    </tbody>
+</table><br>
