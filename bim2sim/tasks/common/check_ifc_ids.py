@@ -352,9 +352,8 @@ class CheckIfc(ITask):
                 # can comment out, if not the browser should show the report
                 webbrowser.open(f"file://{out_file.buffer.name}")
 
-        with open(str(self.paths.log) +
-                  base_name +
-                  '_error_summary_guid.html', 'w+') as \
+        with open(str(self.paths.log) + base_name + '_error_summary_guid.html',
+                  'w+') as \
                 out_file:
             out_file.write(templates["guid_template"].render_unicode(
                 task=self,
