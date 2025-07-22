@@ -255,6 +255,9 @@ class CheckIfc(ITask):
         templates["summary_template"] = Template(
             filename=os.path.join(path_templates, "summary_template_extend"),
             lookup=lookup)
+        templates["guid_template"] = Template(
+            filename=os.path.join(path_templates, "guid_template"),
+            lookup=lookup)
         return templates
 
     @staticmethod
@@ -344,6 +347,22 @@ class CheckIfc(ITask):
                 summary_inst=summary_inst,
                 summary_sbs=summary_sbs,
                 summary_props=summary_props))
+            out_file.close()
+            if show_report:
+                # can comment out, if not the browser should show the report
+                webbrowser.open(f"file://{out_file.buffer.name}")
+
+        with open(str(self.paths.log) +
+                  base_name +
+                  '_error_summary_guid.html', 'w+') as \
+                out_file:
+            out_file.write(templates["guid_template"].render_unicode(
+                task=self,
+                double_guids = self.double_guids,
+                empty_guid = self.empty_guids,
+                summary_inst=summary_inst,
+                summary_sbs=summary_sbs,
+                all_errors=all_errors))
             out_file.close()
             if show_report:
                 # can comment out, if not the browser should show the report
