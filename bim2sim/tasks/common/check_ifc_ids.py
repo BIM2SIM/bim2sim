@@ -340,7 +340,7 @@ class CheckIfc(ITask):
                 all_guids_unique = self.all_guids_unique,
                 double_guids = self.double_guids,
                 all_guids_filled = self.all_guids_filled,
-                empty_guid = self.empty_guids,
+                empty_guids = self.empty_guids,
                 task=self,
                 plugin_name=domain.name.upper(),
                 base_name=base_name[1:],
@@ -358,7 +358,7 @@ class CheckIfc(ITask):
             out_file.write(templates["guid_template"].render_unicode(
                 task=self,
                 double_guids = self.double_guids,
-                empty_guid = self.empty_guids,
+                empty_guids = self.empty_guids,
                 summary_inst=summary_inst,
                 summary_sbs=summary_sbs,
                 all_errors=all_errors))

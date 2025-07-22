@@ -56,7 +56,7 @@
         </tr>
         <tr>
             <td class="tg-dvpl">Total Empty GUIDs:</td>
-            <td class="tg-dvpl"> ${len(empty_guid)}</td>
+            <td class="tg-dvpl"> ${len(empty_guids)}</td>
         </tr>
         <tr>
             <th colspan=2 class="tg-7btt">

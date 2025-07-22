@@ -39,7 +39,7 @@
         </tr>
         <tr>
             <td class="tg-fymr">Total Empty GUIDs:</td>
-            <td class="tg-dvpl"> ${len(empty_guid)}</td>
+            <td class="tg-dvpl"> ${len(empty_guids)}</td>
         </tr>
     </tbody>
 </table><br>
@@ -70,7 +70,7 @@
             <th class="tg-1wig">GlobalID</th>
         </tr>
     </thead>
-    %for key, values in empty_guid.items():
+    %for key, values in empty_guids.items():
         <tr>
             <td class="tg-1wig">${key}</td>
             <td class="tg-1wig">${values.Name}</td>
