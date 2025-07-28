@@ -77,9 +77,9 @@ class Playground:
         self.sim_settings = project.plugin_cls.sim_settings()
         # Note: Add and set attribute manually (temporary workaround)
         # Overwrites dymola_simulation_pydantic pydantic attribute
-        # project.plugin_cls.sim_settings().dymola_simulation_pydantic.value
+        # project.plugin_cls.sim_settings().dymola_simulation.value or True/False
         setattr(self.sim_settings, project.plugin_cls.sim_settings().dymola_simulation.name,
-                False)
+                project.plugin_cls.sim_settings().dymola_simulation.value)
 
         self.sim_settings.update_from_config(config=project.config)
         self.state = {}

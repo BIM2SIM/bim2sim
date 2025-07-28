@@ -121,9 +121,11 @@ class SettingsManager(dict):
 
 
 class SettingPydantic(BaseModel):
+    # value: None
     name: str = Field(default="set automatically")
     description: Union[str, None]
-    for_frontend: bool
+    for_frontend: bool = Field(default="False")
+    any_string: bool =  Field(default="False")
 
 
 class Setting:
@@ -380,7 +382,7 @@ class PathSetting(Setting):
 
 class BooleanSettingPydantic(SettingPydantic):
     # Note: To make a field mandatory in pydantic you must not set a default value
-    value: bool = Field(default=None)
+    value: bool # = Field(default=False)
 
 
 class BooleanSetting(Setting):
@@ -548,6 +550,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                         f"{setting.name} before running your project.")
 
     dymola_simulation = BooleanSettingPydantic(
+        value=False, #default
         description="Run a Simulation with Dymola after model export?",
         for_frontend=True,
     )
