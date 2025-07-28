@@ -150,6 +150,8 @@ class Setting:
     ):
         self.name = None  # set by AutoSettingNameMeta
         self.default = default
+        # Note: Created with None value, real value is set later.
+        # Have to be done with Pydantic setting too.
         self.value = None
         self.description = description
         self.for_webapp = for_frontend
@@ -377,6 +379,7 @@ class PathSetting(Setting):
             self._inner_set(bound_simulation_settings, value)
 
 class BooleanSettingPydantic(SettingPydantic):
+    # Note: To make a field mandatory in pydantic you must not set a default value
     value: bool = Field(default=None)
 
 

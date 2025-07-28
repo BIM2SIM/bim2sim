@@ -75,6 +75,12 @@ class Playground:
     def __init__(self, project: Project):
         self.project = project
         self.sim_settings = project.plugin_cls.sim_settings()
+        # Note: Add and set attribute manually (temporary workaround)
+        # Overwrites dymola_simulation_pydantic pydantic attribute
+        # project.plugin_cls.sim_settings().dymola_simulation_pydantic.value
+        setattr(self.sim_settings, project.plugin_cls.sim_settings().dymola_simulation_pydantic.name,
+                False)
+
         self.sim_settings.update_from_config(config=project.config)
         self.state = {}
         self.history = []
