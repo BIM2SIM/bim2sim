@@ -17,7 +17,7 @@ def run_example_simple_building_teaser():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     # ToDo set your project directory here
-    project_path = Path(r"...\example1")
+    project_path = Path(r"/home/chris/src/bim2sim_up/projects/e1")
 
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {

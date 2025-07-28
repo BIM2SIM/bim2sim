@@ -2,12 +2,14 @@
 This targets both, settings to set for the later simulation and settings for
 the model generation process in bim2sim.
 """
+
 import logging
 import ast
 import os.path
 from pathlib import Path
 from typing import Union
 import sys
+from pydantic import BaseModel, Field
 
 from bim2sim.utilities import types
 from bim2sim.utilities.types import LOD
@@ -56,7 +58,7 @@ class AutoSettingNameMeta(type):
         >>> my_awesome_settings.load_default_settings()
         >>> print(my_awesome_settings.make_simulation_extra_fast)
         True
-"""
+    """
 
     def __init__(cls, name, bases, namespace):
         super(AutoSettingNameMeta, cls).__init__(name, bases, namespace)
@@ -65,6 +67,8 @@ class AutoSettingNameMeta(type):
             # filter for settings of simulaiton
             if isinstance(obj, Setting):
                 # provide name of the setting as attribute
+                obj.name = name
+            elif isinstance(obj, SettingPydantic):
                 obj.name = name
 
 
@@ -90,17 +94,36 @@ class SettingsManager(dict):
     def _create_settings(self):
         """Add all listed settings from the simulation in its attributes."""
         for name in self.names:
+            # Loads setting by name
             setting = getattr(type(self.bound_simulation_settings), name)
-            setting.initialize(self)
+            if name == 'dymola_simulation_pydantic':
+                self[name] = setting
+                self[name].value = None
+            else:
+                setting.initialize(self)
+
 
     @property
     def names(self):
-        """Returns a generator object with all settings that the
-         bound_simulation_settings owns."""
-        return (name for name in dir(type(self.bound_simulation_settings))
-                if
-                isinstance(getattr(type(self.bound_simulation_settings), name),
-                           Setting))
+        """
+        Returns a generator object with all settings that the bound_simulation_settings owns.
+        """
+        # Note: Property code changed for better readability
+        bound_simulation_settings_class = type(self.bound_simulation_settings)
+
+        for attribute_name in dir(bound_simulation_settings_class):
+            # Retrieve the attribute from the class using the name
+            attribute = getattr(bound_simulation_settings_class, attribute_name)
+
+            if isinstance(attribute, Setting) or isinstance(attribute, SettingPydantic):
+                # If it is, yield the name of the attribute
+                yield attribute_name
+
+
+class SettingPydantic(BaseModel):
+    name: str = Field(default="set automatically")
+    description: Union[str, None]
+    for_frontend: bool
 
 
 class Setting:
@@ -132,7 +155,6 @@ class Setting:
         self.for_webapp = for_frontend
         self.any_string = any_string
         self.mandatory = mandatory
-        self.manager = None
 
     def initialize(self, manager):
         """Link between manager stored setting and direct setting of simulation
@@ -140,9 +162,9 @@ class Setting:
         if not self.name:
             raise AttributeError("Attribute.name not set!")
         self.check_setting_config()
-        self.manager = manager
-        self.manager[self.name] = self
-        self.manager[self.name].value = None
+        # Note: Now done in SettingsManager
+        manager[self.name] = self
+        manager[self.name].value = None
 
     def check_setting_config(self):
         """Checks if the setting is configured correctly"""
@@ -354,6 +376,9 @@ class PathSetting(Setting):
         if self.check_value(bound_simulation_settings, value):
             self._inner_set(bound_simulation_settings, value)
 
+class BooleanSettingPydantic(SettingPydantic):
+    value: bool = Field(default=None)
+
 
 class BooleanSetting(Setting):
     def check_value(self, bound_simulation_settings, value):
@@ -433,8 +458,9 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
     """Specification of basic bim2sim simulation settings which are common for
     all simulations"""
 
-    def __init__(self,
-                 filters: list = None):
+    # Note: Only relevant call of SettingsManager
+    def __init__(self, filters: list = None):
+        # Note: What are these bound_simulation_settings good for?
         self.manager = SettingsManager(bound_simulation_settings=self)
 
         self.relevant_elements = {}
@@ -444,7 +470,8 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
     def load_default_settings(self):
         """loads default values for all settings"""
         for setting in self.manager.values():
-            setting.load_default()
+            if setting.name != 'dymola_simulation_pydantic':
+                setting.load_default()
 
     def update_from_config(self, config):
         """Updates the simulation settings specification from the config
@@ -509,13 +536,18 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
     def check_mandatory(self):
         """Check if mandatory settings have a value."""
         for setting in self.manager.values():
-            if setting.mandatory:
+            if setting.name != "dymola_simulation_pydantic" and setting.mandatory:
                 if not setting.value:
                     raise ValueError(
                         f"Attempted to run project. Simulation setting "
                         f"{setting.name} is not specified, "
                         f"but is marked as mandatory. Please configure "
                         f"{setting.name} before running your project.")
+
+    dymola_simulation_pydantic = BooleanSettingPydantic(
+        description="Run a Simulation with Dymola after model export?",
+        for_frontend=True,
+    )
 
     dymola_simulation = BooleanSetting(
         default=False,
@@ -681,7 +713,8 @@ class PlantSimSettings(BaseSimSettings):
         default=True
     )
 
-
+# Note: BaseSimSettings contains dymola_simulation_pydantic
+# self.TEASERSimSettings as BooleanSettingPydantic not as str like the other settings
 class BuildingSimSettings(BaseSimSettings):
 
     def __init__(self):
