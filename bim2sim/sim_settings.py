@@ -96,7 +96,7 @@ class SettingsManager(dict):
         for name in self.names:
             # Loads setting by name
             setting = getattr(type(self.bound_simulation_settings), name)
-            if name == 'dymola_simulation_pydantic':
+            if name == 'dymola_simulation':
                 self[name] = setting
                 self[name].value = None
             else:
@@ -473,7 +473,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
     def load_default_settings(self):
         """loads default values for all settings"""
         for setting in self.manager.values():
-            if setting.name != 'dymola_simulation_pydantic':
+            if setting.name != 'dymola_simulation':
                 setting.load_default()
 
     def update_from_config(self, config):
@@ -539,7 +539,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
     def check_mandatory(self):
         """Check if mandatory settings have a value."""
         for setting in self.manager.values():
-            if setting.name != "dymola_simulation_pydantic" and setting.mandatory:
+            if setting.name != "dymola_simulation" and setting.mandatory:
                 if not setting.value:
                     raise ValueError(
                         f"Attempted to run project. Simulation setting "
@@ -547,12 +547,12 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                         f"but is marked as mandatory. Please configure "
                         f"{setting.name} before running your project.")
 
-    dymola_simulation_pydantic = BooleanSettingPydantic(
+    dymola_simulation = BooleanSettingPydantic(
         description="Run a Simulation with Dymola after model export?",
         for_frontend=True,
     )
 
-    dymola_simulation = BooleanSetting(
+    dymola_simulation_ = BooleanSetting(
         default=False,
         description='Run a Simulation with Dymola after model export?',
         for_frontend=True
