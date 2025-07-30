@@ -1,22 +1,125 @@
 import json
 import time
-from bim2sim.tcp_connection import TCPClient  # Beispielklasse für TCP-Interaktion
+from pathlib import Path
+from bim2sim.tcp_connection import TCPClient
 from bim2sim.kernel.decision.decisionhandler import DecisionHandler
 from bim2sim.kernel.decision import DecisionBunch, DecisionSkip, DecisionCancel
 
 
 class TCPDecisionHandler(DecisionHandler):
-    """DecisionHandler mit TCP-Kommunikation."""
+    """DecisionHandler mit TCP-Kommunikation und IFC-Pfad-Anfrage von Blender."""
 
     def __init__(self, tcp_client: TCPClient):
         super().__init__()
         self.tcp_client = tcp_client
+        self.ifc_path = None
         self.ensure_client_running()
 
     def ensure_client_running(self):
         """Stellt sicher, dass der TCP-Client läuft."""
         if not self.tcp_client.running:
             self.tcp_client.start()
+
+    def get_ifc_path_from_blender(self, timeout=30.0):
+        """
+        Fordert den IFC-Pfad von Blender an und gibt ihn zurück.
+
+        Args:
+            timeout: Maximale Wartezeit in Sekunden
+
+        Returns:
+            str: IFC-Pfad von Blender oder None wenn nicht verfügbar
+        """
+        print("Fordere IFC-Pfad von Blender an...")
+
+        # Spezielle Anfrage für IFC-Pfad erstellen
+        path_request = {
+            "ifc_path_request_001": {
+                "question": "IFC file path from current Blender project",
+                "type": "StringDecision",
+                "identifier": "ifc_path_request_001"
+            }
+        }
+
+        try:
+            # Anfrage senden
+            self.tcp_client.send_message(json.dumps(path_request))
+            print("IFC-Pfad-Anfrage gesendet")
+
+            # Auf Antwort warten
+            response = self.tcp_client.receive_message(timeout=timeout)
+
+            if not response:
+                print("Keine Antwort auf IFC-Pfad-Anfrage erhalten")
+                return None
+
+            print(f"Antwort erhalten: {response}")
+
+            # Antwort parsen
+            try:
+                parsed_response = json.loads(response)
+
+                # Verschiedene Antwortformate unterstützen
+                ifc_path = None
+
+                # Format 1: Liste von Objekten mit decision_id
+                if isinstance(parsed_response, list):
+                    for item in parsed_response:
+                        if (isinstance(item, dict) and
+                                item.get("decision_id") == "ifc_path_request_001" and
+                                "answer" in item):
+                            ifc_path = item["answer"]
+                            break
+
+                # Format 2: Dictionary mit identifier als Key
+                elif isinstance(parsed_response, dict):
+                    if "ifc_path_request_001" in parsed_response:
+                        answer_data = parsed_response["ifc_path_request_001"]
+                        if isinstance(answer_data, dict) and "answer" in answer_data:
+                            ifc_path = answer_data["answer"]
+                        else:
+                            ifc_path = answer_data
+
+                if ifc_path and ifc_path.strip():
+                    print(f"IFC-Pfad von Blender erhalten: {ifc_path}")
+                    self.ifc_path = ifc_path
+                    return ifc_path
+                else:
+                    print("Leerer IFC-Pfad von Blender erhalten")
+                    return None
+
+            except json.JSONDecodeError as e:
+                print(f"Fehler beim Parsen der IFC-Pfad-Antwort: {e}")
+                return None
+
+        except Exception as e:
+            print(f"Fehler beim Anfordern des IFC-Pfads: {e}")
+            return None
+
+    def validate_ifc_path(self, ifc_path):
+        """
+        Validiert den erhaltenen IFC-Pfad.
+
+        Args:
+            ifc_path: Zu validierender Pfad
+
+        Returns:
+            bool: True wenn Pfad gültig ist
+        """
+        if not ifc_path:
+            return False
+
+        try:
+            path = Path(ifc_path)
+            if path.exists() and path.suffix.lower() == '.ifc':
+                print(f"IFC-Pfad validiert: {ifc_path}")
+                return True
+            else:
+                print(f"IFC-Pfad ungültig oder Datei existiert nicht: {ifc_path}")
+                return False
+        except Exception as e:
+            print(f"Fehler bei der IFC-Pfad-Validierung: {e}")
+            return False
 
     # Antwortverarbeitung: Sicherstellen, dass das Antwortformat korrekt ist
     def get_answers_for_bunch(self, bunch: DecisionBunch) -> list:
@@ -41,8 +144,11 @@ class TCPDecisionHandler(DecisionHandler):
                 "options": self.get_options(decision),
                 "default": decision.default if decision.default is not None else "",
                 "type": type(decision).__name__,
-                "body": self.get_body(decision) if hasattr(decision, "get_body") else []
+                "body": self.get_body(decision) if hasattr(decision, "get_body") else [],
+                "context": decision.context
             }
+
+        print(f"Sende {len(message)} Entscheidungen an Blender...")
 
         # Nachricht an Client senden
         try:
@@ -59,11 +165,11 @@ class TCPDecisionHandler(DecisionHandler):
 
         while retry_count < max_retries:
             try:
-                response = self.tcp_client.receive_message(timeout=10.0)  # 10 Sekunden Timeout
+                response = self.tcp_client.receive_message(timeout=60.0)  # Längerer Timeout für Decision-Verarbeitung
                 if response is None:
                     print("Keine Antwort erhalten (Timeout)")
                     retry_count += 1
-                    time.sleep(1)  # Kurze Pause vor dem nächsten Versuch
+                    time.sleep(2)  # Längere Pause für Decision-Verarbeitung
                     continue
 
                 print(f"Received from server: {response}")
@@ -86,7 +192,7 @@ class TCPDecisionHandler(DecisionHandler):
                 if parsed_responses is None:
                     # Sende Fehlermeldung und versuche es erneut
                     retry_count += 1
-                    time.sleep(1)
+                    time.sleep(2)
                     continue
 
                 # Antworten in der richtigen Reihenfolge zusammenstellen
@@ -95,7 +201,19 @@ class TCPDecisionHandler(DecisionHandler):
                     # Identifier aus dem gespeicherten Mapping holen
                     identifier = decision_to_identifier.get(decision)
                     if identifier in parsed_responses:
-                        answers.append(parsed_responses[identifier])
+                        answer = parsed_responses[identifier]
+
+                        # Skip-Behandlung
+                        if answer is None or answer == "skip":
+                            print(f"Skip erkannt für Entscheidung {identifier}")
+                            # Je nach Decision-Typ passenden Skip-Wert setzen
+                            if hasattr(decision, 'skip_value'):
+                                answers.append(decision.skip_value)
+                            else:
+                                # Standard-Skip-Verhalten
+                                raise DecisionSkip(f"Decision {identifier} was skipped")
+                        else:
+                            answers.append(answer)
                     else:
                         # Fallback: Standardwert verwenden
                         print(
@@ -112,27 +230,35 @@ class TCPDecisionHandler(DecisionHandler):
                 print(f"Parsed answers: {answers}")
                 return answers
 
+            except DecisionSkip as e:
+                print(f"Decision skip erkannt: {e}")
+                raise  # Skip weiterleiten
+            except DecisionCancel as e:
+                print(f"Decision cancel erkannt: {e}")
+                raise  # Cancel weiterleiten
             except Exception as e:
                 print(f"Fehler bei der Verarbeitung: {e}")
                 retry_count += 1
-                time.sleep(1)
+                time.sleep(2)
 
         # Wenn alle Versuche fehlschlagen, verwenden wir Standardwerte
         print("Maximale Anzahl an Versuchen erreicht. Verwende Standardwerte.")
         return [decision.default if decision.default is not None else 0 for decision in bunch]
 
     def send_decision_to_client(self, decision):
-        """Sendet eine Entscheidung an den TCP-Client und erhält die Antwort."""
+        """Sendet eine einzelne Entscheidung an den TCP-Client und erhält die Antwort."""
         message = {
-            "question": self.get_question(decision),
-            "identifier": decision.related,
-            "options": self.get_options(decision),
-            "default": decision.default,
-            "type": type(decision).__name__,
-            # "related": decision.related
+            decision.related or f"single_decision_{id(decision)}": {
+                "question": self.get_question(decision),
+                "identifier": decision.related,
+                "options": self.get_options(decision),
+                "default": decision.default,
+                "type": type(decision).__name__,
+            }
         }
+
         if hasattr(decision, "get_body"):
-            message["body"] = decision.get_body()
+            message[list(message.keys())[0]]["body"] = decision.get_body()
 
         try:
             self.tcp_client.send_message(json.dumps(message))
@@ -146,7 +272,7 @@ class TCPDecisionHandler(DecisionHandler):
 
         while retry_count < max_retries:
             try:
-                response = self.tcp_client.receive_message(timeout=10.0)
+                response = self.tcp_client.receive_message(timeout=30.0)
                 if response is None:
                     print("Keine Antwort erhalten (Timeout)")
                     retry_count += 1
@@ -181,10 +307,17 @@ class TCPDecisionHandler(DecisionHandler):
     def shutdown(self, success):
         """Schließt die TCP-Verbindung, wenn erforderlich."""
         try:
-            self.tcp_client.send_message("SHUTDOWN")
-        except:
-            pass
-        self.tcp_client.stop()
+            shutdown_message = {
+                "command": "finish",
+                "success": success,
+                "message": "bim2sim execution completed"
+            }
+            self.tcp_client.send_message(json.dumps(shutdown_message))
+            print("Shutdown-Nachricht an Blender gesendet")
+        except Exception as e:
+            print(f"Fehler beim Senden der Shutdown-Nachricht: {e}")
+        finally:
+            self.tcp_client.stop()
 
     def extract_answers(self, response, identifier_map: dict):
         """
