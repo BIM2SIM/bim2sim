@@ -489,13 +489,15 @@ functions and export the errors found as .json and .html files.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc_ids.CheckIfc.run_check_ifc_version">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run_check_ifc_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc_ids.CheckIfc.run_check_ifc_version" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">run_check_ifc_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc:</span> <span class="pre">~ifcopenshell.file.file)</span> <span class="pre">-&gt;</span> <span class="pre">(&lt;class</span> <span class="pre">'bool'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'str'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc_ids.CheckIfc.run_check_ifc_version" title="Permalink to this definition"></a></dt>
 <dd><p>Checks the IFC version.</p>
 <p>Only IFC4 files are valid for bim2sim.</p>
+<p>Attention: no Error is raised anymore.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>ifc: ifc file loaded with IfcOpenShell</p>
 </dd>
-<dt>Raises:</dt><dd><p>TypeError: if loaded IFC is not IFC4</p>
+<dt>Return:</dt><dd><p>version_error: True if version NOT fit
+ifc_version: version of the ifc file</p>
 </dd>
 </dl>
 </dd></dl>

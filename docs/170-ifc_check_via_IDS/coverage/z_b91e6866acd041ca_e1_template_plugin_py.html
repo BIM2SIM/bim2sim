@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Coverage for bim2sim/examples/e1_template_plugin.py: 0%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
-    <link rel="stylesheet" href="style_cb_81f8c14c.css" type="text/css">
+    <link rel="stylesheet" href="style_cb_6b508a39.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
 </head>
 <body class="pyfile">
@@ -64,8 +64,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_b91e6866acd041ca_e2_interactive_project_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.9.2">coverage.py v7.9.2</a>,
-            created at 2025-07-16 06:59 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.10.1">coverage.py v7.10.1</a>,
+            created at 2025-07-31 10:12 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -102,17 +102,17 @@
     <p class="pln"><span class="n"><a id="t20" href="#t20">20</a></span><span class="t">    <span class="com"># Create a temp directory for the project, feel free to use a "normal"</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t21" href="#t21">21</a></span><span class="t">    <span class="com"># directory</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">    <span class="nam">project_path</span> <span class="op">=</span> <span class="nam">Path</span><span class="op">(</span><span class="nam">tempfile</span><span class="op">.</span><span class="nam">TemporaryDirectory</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">        <span class="nam">prefix</span><span class="op">=</span><span class="str">'bim2sim_example2'</span><span class="op">)</span><span class="op">.</span><span class="nam">name</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">        <span class="nam">prefix</span><span class="op">=</span><span class="str">'bim2sim_example2'</span><span class="op">)</span><span class="op">.</span><span class="nam">name</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">    <span class="com"># Set the ifc path to use and define which domain the IFC belongs to.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">    <span class="com"># This is done via a dictionary, where the key is the domain and the value</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">    <span class="com"># the path to the IFC file. We are using an architecture domain IFC file</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">    <span class="com"># here from the FZK-Haus which is a simple IFC provided by KIT.</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">    <span class="nam">ifc_paths</span> <span class="op">=</span> <span class="op">{</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">        <span class="nam">IFCDomain</span><span class="op">.</span><span class="nam">arch</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">            <span class="nam">Path</span><span class="op">(</span><span class="nam">bim2sim</span><span class="op">.</span><span class="nam">__file__</span><span class="op">)</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">parent</span> <span class="op">/</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">            <span class="str">'test/resources/arch/ifc/AC20-FZK-Haus.ifc'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">    <span class="op">}</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">        <span class="nam">IFCDomain</span><span class="op">.</span><span class="nam">arch</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">            <span class="nam">Path</span><span class="op">(</span><span class="nam">bim2sim</span><span class="op">.</span><span class="nam">__file__</span><span class="op">)</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">parent</span> <span class="op">/</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">            <span class="str">'test/resources/arch/ifc/AC20-FZK-Haus.ifc'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">    <span class="op">}</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">    <span class="com"># Create a new project, based on the created temporary directory, the</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">    <span class="com"># defined ifc_paths and the template plugin. The template plugin is just</span>&nbsp;</span><span class="r"></span></p>
@@ -133,7 +133,7 @@
     <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">    <span class="com"># please have a look at their documentation.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t">    <span class="nam">project</span> <span class="op">=</span> <span class="nam">Project</span><span class="op">.</span><span class="nam">create</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t">        <span class="nam">project_path</span><span class="op">,</span> <span class="nam">ifc_paths</span><span class="op">,</span> <span class="str">'Template'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t">        <span class="nam">project_path</span><span class="op">,</span> <span class="nam">ifc_paths</span><span class="op">,</span> <span class="str">'Template'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t">    <span class="com"># Next to the plugin that should be used we can do further configuration</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t">    <span class="com"># by using the `sim_settings`. `sim_settings` are meant to configure the</span>&nbsp;</span><span class="r"></span></p>
@@ -146,8 +146,8 @@
     <p class="pln"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t">    <span class="com"># Let's assign a weather file first. This is currently needed, even if no</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t">    <span class="com"># simulation is performed</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t">    <span class="nam">project</span><span class="op">.</span><span class="nam">sim_settings</span><span class="op">.</span><span class="nam">weather_file_path</span> <span class="op">=</span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t">            <span class="nam">Path</span><span class="op">(</span><span class="nam">bim2sim</span><span class="op">.</span><span class="nam">__file__</span><span class="op">)</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">parent</span> <span class="op">/</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t">            <span class="str">'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t">            <span class="nam">Path</span><span class="op">(</span><span class="nam">bim2sim</span><span class="op">.</span><span class="nam">__file__</span><span class="op">)</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">parent</span> <span class="op">/</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t">            <span class="str">'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t">    <span class="com"># Assign the enrichment for use conditions of thermal zones.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -174,8 +174,8 @@
     <p class="pln"><span class="n"><a id="t92" href="#t92">92</a></span><span class="t">    <span class="com"># have a look at it.</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t93" href="#t93">93</a></span><span class="t">    <span class="com"># In the next step we assign this file to the project by setting:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t94" href="#t94">94</a></span><span class="t">    <span class="nam">project</span><span class="op">.</span><span class="nam">sim_settings</span><span class="op">.</span><span class="nam">prj_custom_usages</span> <span class="op">=</span> <span class="op">(</span><span class="nam">Path</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t">        <span class="nam">bim2sim</span><span class="op">.</span><span class="nam">__file__</span><span class="op">)</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">parent</span> <span class="op">/</span> <span class="str">"test/resources/arch/custom_usages/"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">            <span class="str">"customUsagesAC20-FZK-Haus.json"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t95" href="#t95">95</a></span><span class="t">        <span class="nam">bim2sim</span><span class="op">.</span><span class="nam">__file__</span><span class="op">)</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">parent</span> <span class="op">/</span> <span class="str">"test/resources/arch/custom_usages/"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">            <span class="str">"customUsagesAC20-FZK-Haus.json"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t">    <span class="com"># If we don't want to use the standard data for usage conditions, we</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t">    <span class="com"># can change them. We created a project specific UseConditions file for</span>&nbsp;</span><span class="r"></span></p>
@@ -186,8 +186,8 @@
     <p class="pln"><span class="n"><a id="t104" href="#t104">104</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t105" href="#t105">105</a></span><span class="t">    <span class="com"># Let's assign this use conditions file:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t106" href="#t106">106</a></span><span class="t">    <span class="nam">project</span><span class="op">.</span><span class="nam">sim_settings</span><span class="op">.</span><span class="nam">prj_use_conditions</span> <span class="op">=</span> <span class="op">(</span><span class="nam">Path</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t">        <span class="nam">bim2sim</span><span class="op">.</span><span class="nam">__file__</span><span class="op">)</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">parent</span> <span class="op">/</span> <span class="str">"test/resources/arch/custom_usages/"</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t">            <span class="str">"UseConditionsAC20-FZK-Haus.json"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t107" href="#t107">107</a></span><span class="t">        <span class="nam">bim2sim</span><span class="op">.</span><span class="nam">__file__</span><span class="op">)</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">parent</span> <span class="op">/</span> <span class="str">"test/resources/arch/custom_usages/"</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t108" href="#t108">108</a></span><span class="t">            <span class="str">"UseConditionsAC20-FZK-Haus.json"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t109" href="#t109">109</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t110" href="#t110">110</a></span><span class="t">    <span class="com"># By default bim2sim tries to calculate the heating profile based on given</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t111" href="#t111">111</a></span><span class="t">    <span class="com"># information from the IFC. As the used IFC has information about the set</span>&nbsp;</span><span class="r"></span></p>
@@ -250,8 +250,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_b91e6866acd041ca_e2_interactive_project_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.9.2">coverage.py v7.9.2</a>,
-            created at 2025-07-16 06:59 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.10.1">coverage.py v7.10.1</a>,
+            created at 2025-07-31 10:12 +0000
         </p>
     </div>
 </footer>

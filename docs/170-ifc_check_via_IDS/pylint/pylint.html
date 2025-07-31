@@ -2703,6 +2703,16 @@
             </tr>
             
             <tr>
+                <td>450</td>
+                <td>1</td>
+                <td>warning</td>
+                <td><code>fixme</code></td>
+                <td>W0511</td>
+                <td></td>
+                <td><pre>TODO remove one of both classes RelationBased (see above)</pre></td>
+            </tr>
+            
+            <tr>
                 <td>451</td>
                 <td>0</td>
                 <td>convention</td>
@@ -9522,110 +9532,6 @@
             
         </table>
         
-        <h3>Module <code>bim2sim.examples.e3_checkIFCIDS</code> (<code>bim2sim/examples/e3_checkIFCIDS.py</code>)</h3>
-        <table>
-            <tr>
-                <th>Line</th>
-                <th>Col.</th>
-                <th>Type</th>
-                <th>Symbol</th>
-                <th>ID</th>
-                <th>Obj</th>
-                <th>Message</th>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>missing-module-docstring</code></td>
-                <td>C0114</td>
-                <td></td>
-                <td><pre>Missing module docstring</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>invalid-name</code></td>
-                <td>C0103</td>
-                <td></td>
-                <td><pre>Module name &#34;e3_checkIFCIDS&#34; doesn&#39;t conform to snake_case naming style</pre></td>
-            </tr>
-            
-            <tr>
-                <td>6</td>
-                <td>0</td>
-                <td>warning</td>
-                <td><code>unused-import</code></td>
-                <td>W0611</td>
-                <td></td>
-                <td><pre>Unused bps_elements imported from bim2sim.elements</pre></td>
-            </tr>
-            
-            <tr>
-                <td>7</td>
-                <td>0</td>
-                <td>warning</td>
-                <td><code>unused-import</code></td>
-                <td>W0611</td>
-                <td></td>
-                <td><pre>Unused filter_elements imported from bim2sim.utilities.common_functions</pre></td>
-            </tr>
-            
-            <tr>
-                <td>9</td>
-                <td>0</td>
-                <td>warning</td>
-                <td><code>unused-import</code></td>
-                <td>W0611</td>
-                <td></td>
-                <td><pre>Unused Material imported from bim2sim.elements.base_elements</pre></td>
-            </tr>
-            
-            <tr>
-                <td>22</td>
-                <td>24</td>
-                <td>refactor</td>
-                <td><code>consider-using-with</code></td>
-                <td>R1732</td>
-                <td>run_simple_project</td>
-                <td><pre>Consider using &#39;with&#39; for resource-allocating operations</pre></td>
-            </tr>
-            
-            <tr>
-                <td>29</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>line-too-long</code></td>
-                <td>C0301</td>
-                <td></td>
-                <td><pre>Line too long (90/80)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>57</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>line-too-long</code></td>
-                <td>C0301</td>
-                <td></td>
-                <td><pre>Line too long (83/80)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>145</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>line-too-long</code></td>
-                <td>C0301</td>
-                <td></td>
-                <td><pre>Line too long (81/80)</pre></td>
-            </tr>
-            
-        </table>
-        
         <h3>Module <code>bim2sim.export.modelica.__init__</code> (<code>bim2sim/export/modelica/__init__.py</code>)</h3>
         <table>
             <tr>
@@ -9648,7 +9554,7 @@
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings:[24:64]
 ==bim2sim.sim_settings:[1055:1095]
-        ],
+                 ],
         choices={
             &#34;heat_demand_total&#34;:
                 &#34;Total heating demand (power) as time series data&#34;,
@@ -9700,7 +9606,7 @@
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.ep_comfort_visualization:[184:229]
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[391:435]
-                                                               + &#39;.pdf&#39;),
+                                                             + &#39;.pdf&#39;),
                                 bbox_inches=&#39;tight&#39;)
             plt.draw()
             plt.close()
@@ -9743,7 +9649,8 @@
             # Minor ticks
             ax.set_xticks(np.arange(-.5, len(calendar[0]), 1), minor=True)
             ax.set_yticks(np.arange(-.5, len(calendar[:,0]), 1), minor=True)
-</pre></td>
+
+            # Gridlines based on minor ticks</pre></td>
             </tr>
             
             <tr>
@@ -9775,7 +9682,6 @@
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = False
         project.sim_settings.run_full_simulation = False
-        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
         answers = (space_boundary_genenerator,
                    *handle_proxies,
                    construction_year,
@@ -10195,7 +10101,7 @@ plt.rcParams.update({
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.tasks.common.check_ifc:[292:323]
-==bim2sim.tasks.common.check_ifc_ids:[257:282]
+==bim2sim.tasks.common.check_ifc_ids:[278:303]
         categorized_dict = {&#39;per_error&#39;: {}, &#39;per_type&#39;: {}}
         for instance, errors in error_dict.items():
             if &#39; &#39; in instance:
@@ -10213,14 +10119,20 @@ plt.rcParams.update({
                 categorized_dict[&#39;per_error&#39;][error_com[0]] += 1
         return categorized_dict
 
-    def _write_errors_to_html_table(self, base_name: str, domain: IFCDomain):
+    # general check functions
+    @staticmethod
+    def _check_unique(inst: entity_instance, id_list: list):
         &#34;&#34;&#34;
-        Writes all errors in the html templates in a summarized way
+        Check that the global id (GUID) is unique for the analyzed instance
 
         Args:
-            base_name: str of file base name for reports
-            domain: IFCDomain of the checked IFC
-        &#34;&#34;&#34;</pre></td>
+            inst: IFC instance
+            id_list: list of all GUID&#39;s in IFC File
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        &#34;&#34;&#34;
+        # Materials have no GlobalId</pre></td>
             </tr>
             
             <tr>
@@ -10252,8 +10164,8 @@ class TestWeather(unittest.TestCase):
         self.project.finalize(True)
         self.test_dir.cleanup()
 
-    def test_weather_energyplus(self):
-        &#34;&#34;&#34;Test if the weather file is correctly set for energyplus.&#34;&#34;&#34;
+    def test_weather_modelica(self):
+        &#34;&#34;&#34;Test if the weather file is correctly set for modelica.&#34;&#34;&#34;
         self.test_dir = tempfile.TemporaryDirectory()
         ifc_paths = {
             IFCDomain.arch: test_rsrc_path / &#39;arch/ifc/AC20-FZK-Haus.ifc&#39;}
@@ -10297,7 +10209,7 @@ class TestWeather(unittest.TestCase):
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.tasks.common.check_ifc:[433:449]
-==bim2sim.tasks.common.check_ifc_ids:[283:299]
+==bim2sim.tasks.common.check_ifc_ids:[304:320]
         templates = self.get_html_templates()
         summary_inst = self._categorize_errors(self.error_summary_inst)
         summary_sbs = self._categorize_errors(self.error_summary_sub_inst)
@@ -10378,29 +10290,25 @@ class TestWeather(unittest.TestCase):
                 <td><pre>Similar lines in 2 files
 ==bim2sim.export.modelica.__init__:[669:692]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__:[280:299]
-    if not isinstance(min_value, (pint.Quantity, type(None))):
-        raise AssertionError(&#34;min_value is no pint quantity with unit&#34;)
-    if not isinstance(max_value, (pint.Quantity, type(None))):
-        raise AssertionError(&#34;max_value is no pint quantity with unit&#34;)
+        if not isinstance(min_value, (pint.Quantity, type(None))):
+            raise AssertionError(&#34;min_value is no pint quantity with unit&#34;)
+        if not isinstance(max_value, (pint.Quantity, type(None))):
+            raise AssertionError(&#34;max_value is no pint quantity with unit&#34;)
 
-    def inner_check(value):
-        if not isinstance(value, pint.Quantity):
-            return False
-        if min_value is None and max_value is None:
-            return True
-        if min_value is not None and max_value is None:
-            return min_value &lt;= value
-        if max_value is not None:
-            return value &lt;= max_value
-        return min_value &lt;= value &lt;= max_value
+        def inner_check(value):
+            if not isinstance(value, pint.Quantity):
+                return False
+            if min_value is None and max_value is None:
+                return True
+            if min_value is not None and max_value is None:
+                return min_value &lt;= value
+            if max_value is not None:
+                return value &lt;= max_value
+            return min_value &lt;= value &lt;= max_value
 
-    return inner_check
+        return inner_check
 
-
-def check_none():
-    &#34;&#34;&#34; Generates a function to check if a given value is not None.&#34;&#34;&#34;
-
-    def inner_check(value):</pre></td>
+    def __repr__(self):</pre></td>
             </tr>
             
             <tr>
@@ -10489,48 +10397,6 @@ def check_none():
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.tasks.common.check_ifc:[409:433]
-==bim2sim.tasks.common.check_ifc_ids:[227:257]
-        templates = {}
-        path_templates = os.path.join(
-            self.paths.assets, &#34;templates&#34;, &#34;check_ifc&#34;)
-        lookup = TemplateLookup(directories=[path_templates])
-        templates[&#34;inst_template&#34;] = Template(
-            filename=os.path.join(path_templates, &#34;inst_template&#34;),
-            lookup=lookup)
-        templates[&#34;prop_template&#34;] = Template(
-            filename=os.path.join(path_templates, &#34;prop_template&#34;),
-            lookup=lookup)
-        templates[&#34;summary_template&#34;] = Template(
-            filename=os.path.join(path_templates, &#34;summary_template&#34;),
-            lookup=lookup)
-        return templates
-
-    @staticmethod
-    def _categorize_errors(error_dict: dict):
-        &#34;&#34;&#34;
-        categorizes the resulting errors in a dictionary containing two groups:
-            &#39;per_error&#39; where the key is the error name and the value is the
-                number of errors with this name
-            &#39;per type&#39; where the key is the ifc_type and the values are the
-                each element with its respective errors
-        Args:
-            error_dict: dictionary containing all errors without categorization
-
-        Returns:
-            categorized_dict: dictionary containing all errors categorized
-
-        &#34;&#34;&#34;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[47:60]
 ==bim2sim.plugins.PluginTEASER.test.regression.test_teaser:[169:182]
         project.sim_settings.prj_use_conditions = Path(
@@ -10574,8 +10440,9 @@ def check_none():
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-
-</pre></td>
+    @unittest.skip(&#34;Skipped due to performance for CI&#34;)
+    def test_base_14_EDC_SB_full_run(self):
+        &#34;&#34;&#34;Test KIT KHH 3 storey IFC with generated Space Boundaries&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -10600,7 +10467,6 @@ def check_none():
             bim2sim.__file__).parent.parent / \
             &#34;test/resources/arch/custom_usages/&#34; \
             &#34;customUsagesFM_ARC_DigitalHub_with_SB89.json&#34;
-        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
         space_boundary_genenerator = &#39;Other&#39;</pre></td>
             </tr>
             
@@ -10628,51 +10494,6 @@ def check_none():
             &#34;customUsagesFM_ARC_DigitalHub_with_SB89.json&#34;
         # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
         space_boundary_genenerator = &#39;Other&#39;</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
-==bim2sim.tasks.common.check_ifc:[24:57]
-==bim2sim.tasks.common.check_ifc_ids:[21:47]
-class CheckIfc(ITask):
-    &#34;&#34;&#34;
-    Check an IFC file, for a number of conditions (missing information,
-    incorrect information, etc) that could lead on future tasks to fatal errors.
-    &#34;&#34;&#34;
-    reads = (&#39;ifc_files&#39;,)
-
-    def __init__(self, playground: Playground):
-        super().__init__(playground)
-        self.error_summary_sub_inst: dict = {}
-        self.error_summary_inst: dict = {}
-        self.error_summary_prop: dict = {}
-        self.sub_inst: list = []
-        self.id_list: list = []
-        self.elements: list = []
-        self.ps_summary: dict = {}
-        self.ifc_units: dict = {}
-        self.sub_inst_cls = None
-        self.plugin = None
-
-    def run(self, ifc_files: [IfcFileClass]) -&gt; [dict, dict]:
-        &#34;&#34;&#34;
-        Analyzes sub_elements and elements of an IFC file for the validation
-        functions and export the errors found as .json and .html files.
-
-        Args:
-            ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc
-                instance
-
-        Returns:
-            error_summary_sub_inst: summary of errors related to sub_elements
-            error_summary_inst: summary of errors related to elements
-        &#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -10896,6 +10717,8 @@ class CheckIfc(ITask):
         &#34;operative_temp_rooms&#34;, &#34;air_temp_rooms&#34;, &#34;air_temp_out&#34;
     ]
     project.sim_settings.create_plots = True
+    # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
+
     # Just select the tasks that are needed to load the previous simulation
     # results and create the result plots
     project.plugin_cls.default_tasks = [
@@ -10911,21 +10734,19 @@ class CheckIfc(ITask):
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.tasks.common.check_ifc:[457:470]
-==bim2sim.tasks.common.check_ifc_ids:[313:324]
-        with open(str(self.paths.log) +
-                  base_name +
-                  &#39;_error_summary.html&#39;, &#39;w+&#39;) as out_file:
-            out_file.write(templates[&#34;summary_template&#34;].render_unicode(
-                task=self,
-                plugin_name=domain.name.upper(),
-                base_name=base_name[1:],
-                summary_inst=summary_inst,
-                summary_sbs=summary_sbs,
-                summary_props=summary_props))
-            out_file.close()
-
-</pre></td>
+==bim2sim.tasks.common.check_ifc:[409:420]
+==bim2sim.tasks.common.check_ifc_ids:[245:256]
+        templates = {}
+        path_templates = os.path.join(
+            self.paths.assets, &#34;templates&#34;, &#34;check_ifc&#34;)
+        lookup = TemplateLookup(directories=[path_templates])
+        templates[&#34;inst_template&#34;] = Template(
+            filename=os.path.join(path_templates, &#34;inst_template&#34;),
+            lookup=lookup)
+        templates[&#34;prop_template&#34;] = Template(
+            filename=os.path.join(path_templates, &#34;prop_template&#34;),
+            lookup=lookup)
+        templates[&#34;summary_template&#34;] = Template(</pre></td>
             </tr>
             
             <tr>
@@ -10996,9 +10817,9 @@ class CheckIfc(ITask):
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    # @unittest.skip(&#34;Skipped due to performance for CI&#34;)
-    def test_base_13_EDC_SB_design_day(self):
-        &#34;&#34;&#34;Test KIT KHH 3 storey IFC with generated Space Boundaries&#34;&#34;&#34;</pre></td>
+    @unittest.skip(&#34;Skipped due to performance for CI&#34;)
+    def test_base_09_DH_design_day(self):
+        &#34;&#34;&#34;Test DigitalHub IFC&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -11070,7 +10891,6 @@ class CheckIfc(ITask):
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[170:186]
         project.sim_settings.create_external_elements = True
         # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
-
         project.sim_settings.prj_custom_usages = Path(
             bim2sim.__file__).parent.parent / \
             &#34;test/resources/arch/custom_usages/&#34; \
@@ -11221,10 +11041,7 @@ class CheckIfc(ITask):
         reg_test_res = self.run_regression_test()
         self.assertEqual(True, reg_test_res,
                          &#34;EnergyPlus Regression test did not finish &#34;
-                         &#34;successfully or created deviations.&#34;)
-
-    def test_regression_AC20_FZK_Haus(self):
-        &#34;&#34;&#34;Run EnergyPlus regression test with AC20-FZK-Haus.ifc.&#34;&#34;&#34;</pre></td>
+                         &#34;successfully or created deviations.&#34;)</pre></td>
             </tr>
             
             <tr>
@@ -11396,7 +11213,10 @@ if __name__ == &#39;__main__&#39;:
         aggregated = Counter((type(item) for item in graph.element_graph.nodes))
         self.assertIn(ConsumerHeatingDistributorModule, aggregated)
         self.assertEqual(0, handler.return_value,
-                         &#34;Project did not finish successfully.&#34;)</pre></td>
+                         &#34;Project did not finish successfully.&#34;)
+
+    def test_run_b03_heating_with_all_aggregations(self):
+        &#34;&#34;&#34;Run project with 2022_11_21_update_B03_Heating_ownCells&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -11507,6 +11327,7 @@ if __name__ == &#39;__main__&#39;:
         project.sim_settings.create_external_elements = True
         answers = (2015,)
         # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
+
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -11557,14 +11378,16 @@ if __name__ == &#39;__main__&#39;:
             bim2sim.__file__).parent.parent / \
             &#34;test/resources/arch/custom_usages/&#34; \
             &#34;customUsagesAC20-FZK-Haus_with_SB55.json&#34;
+        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
         answers = (&#39;Other&#39;,)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    # @unittest.skip(&#34;&#34;)
-    def test_base_05_KIT_Inst_design_day(self):
-        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;</pre></td>
+    @unittest.skip(&#34;&#34;)
+    def test_base_04_FZK_SB_full_run(self):
+        &#34;&#34;&#34;Test IFC File from FZK-Haus (KIT) with generated Space Boundaries&#34;&#34;&#34;
+        # ifc_names = {IFCDomain.arch:  &#39;AC20-FZK-Haus_with_SB44.ifc&#39;}</pre></td>
             </tr>
             
             <tr>
@@ -11621,7 +11444,7 @@ if __name__ == &#39;__main__&#39;:
                 <td></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.tasks.common.check_ifc:[449:457]
-==bim2sim.tasks.common.check_ifc_ids:[302:310]
+==bim2sim.tasks.common.check_ifc_ids:[323:331]
         with open(str(self.paths.log) +
                   base_name +
                   &#39;_error_summary_prop.html&#39;, &#39;w+&#39;) as \
@@ -11630,85 +11453,6 @@ if __name__ == &#39;__main__&#39;:
                 task=self,
                 summary_props=summary_props))
             out_file.close()</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
-==bim2sim.examples.e1_template_plugin:[93:138]
-==bim2sim.examples.e3_checkIFCIDS:[82:149]
-    project.sim_settings.prj_custom_usages = (Path(
-        bim2sim.__file__).parent.parent / &#34;test/resources/arch/custom_usages/&#34;
-            &#34;customUsagesAC20-FZK-Haus.json&#34;)
-
-    # If we don&#39;t want to use the standard data for usage conditions, we
-    # can change them. We created a project specific UseConditions file for
-    # this in the test resources section. In this we assume that our residents
-    # like to sleep at quite cold conditions of 16 °C. So we adjusted the
-    # &#34;heating_profile&#34; entry. We leave the data for the other usages
-    # untouched.
-
-    # Let&#39;s assign this use conditions file:
-    project.sim_settings.prj_use_conditions = (Path(
-        bim2sim.__file__).parent.parent / &#34;test/resources/arch/custom_usages/&#34;
-            &#34;UseConditionsAC20-FZK-Haus.json&#34;)
-
-    # By default bim2sim tries to calculate the heating profile based on given
-    # information from the IFC. As the used IFC has information about the set
-    # temperature, we need an additional `sim_setting` to force the overwrite
-    # of the existing data in the IFC.
-    project.sim_settings.setpoints_from_template = True
-
-    # Before we can run the project, we need to assign a DecisionHandler. To
-    # understand this, we need to understand why we need such a handler.
-    # Decisions in bim2sim are used to get user input whenever information in
-    # the IFC are unclear. E.g. if the usage type of a room can&#39;t be
-    # identified, we use a decision to query the user what usage the room has.
-    # As we don&#39;t know at which point a decision comes up, we are using
-    # generators and yield to iterate over them. If you want to understand
-    # deeper how this works, have a look at the decision documentation.
-    # For usage as console tool, we implemented the ConsoleDecisionHandler,
-    # which we are going to assign in the next step.
-    # There are multiple ways to run a project. One is to use the run_project()
-    # function and assign which project to run and which decision handler to
-    # use. In our case this is:
-    run_project(project, ConsoleDecisionHandler())
-
-    # After the project is finished, we can review the results. As we don&#39;t
-    # create any simulation model with the template Plugin, our results are
-    # mainly the identified bim2sim elements and the enriched data in this
-    # elements. Let&#39;s get the created bim2sim elements. Everything that is
-    # created by the different tasks during the runtime is stored in the
-    # playground state. The playground manages the different tasks and their
-    # information. To get the bim2sim elements, we can simply get them from the
-    # state with the following command:
-    # b2s_elements = project.playground.state[&#39;elements&#39;]
-
-    # # Let&#39;s filter all ThermalZone entities, we can do this by a loop, or use
-    # # a pre-build function of bim2sim:
-    # all_thermal_zones = filter_elements(b2s_elements, &#39;ThermalZone&#39;)
-
-    # # Let&#39;s print some data about our zones and review the enriched data for
-    # # our zones:
-    # for tz in all_thermal_zones:
-    #     print(&#39;##########&#39;)
-    #     print(f&#34;Name of the zone: {tz.name}&#34;)
-    #     print(f&#34;Area of the zone: {tz.net_area}&#34;)
-    #     print(f&#34;Volume of the zone: {tz.volume}&#34;)
-    #     print(f&#34;Daily heating profile of the zone: {tz.heating_profile}&#34;)
-    #     print(&#39;##########&#39;)
-
-    # # We can see that our provided heating profiles are correctly taken into
-    # # account. The enriched thermal zones now hold all information required for
-    # # a building performance simulation. For complete examples with model
-    # # creation and simulations please go the examples of the plugins.
-
-</pre></td>
             </tr>
             
             <tr>
@@ -11760,13 +11504,6 @@ if __name__ == &#39;__main__&#39;:
 ==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.create_result_df:[43:51]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df:[38:53]
 }
-
-# bim2sim_teaser_indirect_mapping = {
-#     &#34;n_persons_rooms&#34;: [
-#         &#34;*&#34;,
-#         &#34;multizone.zone[numZones].humanSenHeaDependent.specificPersons&#34;,
-#         &#34;multizone.zone[numZones].humanSenHeaDependent.roomArea&#34;]
-# }
 
 pint_pandas.PintType.ureg = ureg
 unit_mapping = {
@@ -11858,7 +11595,7 @@ unit_mapping = {
                          &#34;Project did not finish successfully.&#34;)
 
     def test_run_b03_heating(self):
-        &#34;&#34;&#34;Run project with 2022_11_21_update_B03_Heating_ownCells&#34;&#34;&#34;
+        &#34;&#34;&#34;Run project with 2022_11_21_update_B03_Heating_ownCells.ifc&#34;&#34;&#34;
         ifc_names = {IFCDomain.hydraulic:
                          &#39;2022_11_21_update_B03_Heating_ownCells.ifc&#39;}</pre></td>
             </tr>
@@ -11882,8 +11619,6 @@ unit_mapping = {
             return &#39;port_b&#39;
         else:
             return super().get_port_name(port)
-        # TODO: Gas and electric connection see
-        #  https://github.com/BIM2SIM/bim2sim/issues/80
 
 </pre></td>
             </tr>
@@ -11905,7 +11640,7 @@ unit_mapping = {
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    # @unittest.skip(&#34;Skipped due to performance for CI&#34;)
+    @unittest.skip(&#34;Skipped due to performance for CI&#34;)
     def test_base_07_KIT_Inst_SB_design_day(self):
         &#34;&#34;&#34;Test IFC File from Institute (KIT) with generated Space Boundaries&#34;&#34;&#34;
         ifc_names = {IFCDomain.arch:  &#39;AC20-Institute-Var-2_with_SB-1-0.ifc&#39;}</pre></td>
@@ -11941,14 +11676,16 @@ unit_mapping = {
 ==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[140:152]
 ==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[22:32]
         answers = (2015,)
+        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
                          &#34;Project did not finish successfully.&#34;)
 
-    def test_run_kitoffice_spaces_low_layers_low(self):
-        &#34;&#34;&#34;Run project with AC20-Institute-Var-2.ifc&#34;&#34;&#34;
+    @unittest.skip(&#34;&#34;)
+    def test_base_06_KIT_Inst_full_run(self):
+        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;
         ifc_names = {IFCDomain.arch:  &#39;AC20-Institute-Var-2.ifc&#39;}</pre></td>
             </tr>
             
@@ -12043,6 +11780,60 @@ unit_mapping = {
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
+==bim2sim.tasks.common.check_ifc:[461:470]
+==bim2sim.tasks.common.check_ifc_ids:[344:351]
+                task=self,
+                plugin_name=domain.name.upper(),
+                base_name=base_name[1:],
+                summary_inst=summary_inst,
+                summary_sbs=summary_sbs,
+                summary_props=summary_props))
+            out_file.close()
+
+</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.tasks.common.check_ifc:[36:57]
+==bim2sim.tasks.common.check_ifc_ids:[39:53]
+        self.sub_inst: list = []
+        self.id_list: list = []
+        self.elements: list = []
+        self.ps_summary: dict = {}
+        self.ifc_units: dict = {}
+        self.sub_inst_cls = None
+        self.plugin = None
+
+    def run(self, ifc_files: [IfcFileClass]) -&gt; [dict, dict]:
+        &#34;&#34;&#34;
+        Analyzes sub_elements and elements of an IFC file for the validation
+        functions and export the errors found as .json and .html files.
+
+        Args:
+            ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc
+                instance
+
+        Returns:
+            error_summary_sub_inst: summary of errors related to sub_elements
+            error_summary_inst: summary of errors related to elements
+        &#34;&#34;&#34;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
 ==bim2sim.elements.bps_elements:[1151:1163]
 ==bim2sim.elements.mapping.condition:[138:146]
             if layer.thickness:
@@ -12052,11 +11843,7 @@ unit_mapping = {
 
         if layers_r &gt; 0:
             return 1 / layers_r
-        return None
-
-    def get_thickness_by_layers(self, name):
-        &#34;&#34;&#34;calculate the total thickness of the product based on the thickness
-        of each layer.&#34;&#34;&#34;</pre></td>
+        return None</pre></td>
             </tr>
             
             <tr>
@@ -12071,9 +11858,8 @@ unit_mapping = {
 ==bim2sim.elements.hvac_elements:[987:1001]
     )
 
-    def _calc_dT_water(self, name) -&gt; ureg.Quantity:
-        &#34;&#34;&#34;Function to calculate the delta temperature of the boiler using the
-        return and flow temperature&#34;&#34;&#34;
+    def _calc_dT_water(self, name):
+        &#34;&#34;&#34; Water dt of consumer.&#34;&#34;&#34;
         return self.flow_temperature - self.return_temperature
 
     dT_water = attribute.Attribute(
@@ -12082,7 +11868,8 @@ unit_mapping = {
         functions=[_calc_dT_water],
     )
 
-</pre></td>
+    def _calc_body_mass(self, name):
+        &#34;&#34;&#34; Body mass of consumer.&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -12135,12 +11922,12 @@ unit_mapping = {
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib:[41:47]
 ==bim2sim.plugins.PluginAixLib.test.integration.test_aixlib:[63:69]
-        project.sim_settings.aggregations = [
-            &#39;UnderfloorHeating&#39;,
-            &#39;Consumer&#39;,
-            &#39;PipeStrand&#39;,
-            &#39;ParallelPump&#39;,
-            &#39;ConsumerHeatingDistributorModule&#39;,</pre></td>
+    project.sim_settings.aggregations = [
+        &#39;UnderfloorHeating&#39;,
+        &#39;Consumer&#39;,
+        &#39;PipeStrand&#39;,
+        &#39;ParallelPump&#39;,
+        &#39;ConsumerHeatingDistributorModule&#39;,</pre></td>
             </tr>
             
             <tr>
@@ -12159,9 +11946,9 @@ unit_mapping = {
         self.assertEqual(0, handler.return_value,
                          &#34;Project did not finish successfully.&#34;)
 
-    @unittest.skip(&#34;&#34;)
-    def test_base_06_KIT_Inst_full_run(self):
-        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;
+    @unittest.skip(&#39;skip layers_full test until new answers are created&#39;)
+    def test_run_kitoffice_spaces_full_layers_full(self):
+        &#34;&#34;&#34;Run project with AC20-Institute-Var-2.ifc&#34;&#34;&#34;
         ifc_names = {IFCDomain.arch:  &#39;AC20-Institute-Var-2.ifc&#39;}</pre></td>
             </tr>
             
@@ -12464,12 +12251,12 @@ unit_mapping = {
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim:[38:44]
 ==bim2sim.plugins.PluginHKESim.test.integration.test_hkesim:[62:68]
-    project.sim_settings.aggregations = [
-        &#39;UnderfloorHeating&#39;,
-        &#39;Consumer&#39;,
-        &#39;PipeStrand&#39;,
-        &#39;ParallelPump&#39;,
-        &#39;ConsumerHeatingDistributorModule&#39;,</pre></td>
+        project.sim_settings.aggregations = [
+            &#39;UnderfloorHeating&#39;,
+            &#39;Consumer&#39;,
+            &#39;PipeStrand&#39;,
+            &#39;ParallelPump&#39;,
+            &#39;ConsumerHeatingDistributorModule&#39;,</pre></td>
             </tr>
             
             <tr>
@@ -12515,9 +12302,9 @@ unit_mapping = {
         self.assertEqual(0, handler.return_value,
                          &#34;Project did not finish successfully.&#34;)
 
-    @unittest.skip(&#34;&#34;)
-    def test_base_06_KIT_Inst_full_run(self):
-        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;
+    @unittest.skip(&#39;skip layers_full test until new answers are created&#39;)
+    def test_run_kitoffice_spaces_medium_layers_full(self):
+        &#34;&#34;&#34;Run project with AC20-Institute-Var-2.ifc&#34;&#34;&#34;
         ifc_names = {IFCDomain.arch:  &#39;AC20-Institute-Var-2.ifc&#39;}</pre></td>
             </tr>
             
@@ -12584,13 +12371,40 @@ unit_mapping = {
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
+==bim2sim.tasks.common.check_ifc:[24:36]
+==bim2sim.tasks.common.check_ifc_ids:[21:33]
+class CheckIfc(ITask):
+    &#34;&#34;&#34;
+    Check an IFC file, for a number of conditions (missing information,
+    incorrect information, etc) that could lead on future tasks to fatal errors.
+    &#34;&#34;&#34;
+    reads = (&#39;ifc_files&#39;,)
+
+    def __init__(self, playground: Playground):
+        super().__init__(playground)
+        self.error_summary_sub_inst: dict = {}
+        self.error_summary_inst: dict = {}
+        self.error_summary_prop: dict = {}</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>duplicate-code</code></td>
+                <td>R0801</td>
+                <td></td>
+                <td><pre>Similar lines in 2 files
+==bim2sim.examples.e1_template_plugin:[28:53]
 ==bim2sim.examples.e2_interactive_project:[27:37]
-==bim2sim.examples.e3_checkIFCIDS:[30:37]
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
             &#39;test/resources/arch/ifc/AC20-FZK-Haus.ifc&#39;,
     }
+    # With open_conf the default created config file will be opened and can be
+    # adjusted by the user and saved afterwards.
+    # todo open_conf is currently only tested under windows
 
     project = Project.create(</pre></td>
             </tr>
@@ -12624,11 +12438,13 @@ unit_mapping = {
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e2_complex_project_energyplus:[84:91]
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[197:202]
-        answers = (space_boundary_genenerator,
-                   *handle_proxies,
-                   construction_year)
-        handler = DebugDecisionHandler(answers)
-        handler.handle(project.run())</pre></td>
+    answers = (space_boundary_genenerator,
+               *handle_proxies,
+               construction_year)
+    handler = DebugDecisionHandler(answers)
+    handler.handle(project.run())
+
+</pre></td>
             </tr>
             
             <tr>
@@ -12686,8 +12502,9 @@ unit_mapping = {
         self.assertEqual(0, handler.return_value,
                          &#34;Project did not finish successfully.&#34;)
 
-    def test_DH_spaces_medium_material_low(self):
-        &#34;&#34;&#34;Test DigitalHub IFC&#34;&#34;&#34;</pre></td>
+    @unittest.skip(&#34;&#34;)
+    def test_base_06_KIT_Inst_full_run(self):
+        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -12743,7 +12560,11 @@ if __name__ == &#39;__main__&#39;:
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
-                         &#34;Project export did not finish successfully.&#34;)</pre></td>
+                         &#34;Project export did not finish successfully.&#34;)
+
+    @unittest.skip(&#39;skip layers_full test until new answers are created&#39;)
+    def test_ERC_Full(self):
+        &#34;&#34;&#34;Test ERC Main Building&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -12888,7 +12709,9 @@ if __name__ == &#39;__main__&#39;:
         self._set_parameter(name=&#39;redeclare package Medium&#39;,
                             unit=None,
                             required=False,
-                            value=MEDIUM_WATER)</pre></td>
+                            value=MEDIUM_WATER)
+
+</pre></td>
             </tr>
             
             <tr>
@@ -13015,9 +12838,7 @@ if __name__ == &#39;__main__&#39;:
         self._set_parameter(name=&#39;redeclare package Medium&#39;,
                             unit=None,
                             required=False,
-                            value=MEDIUM_WATER)
-
-    def get_port_name(self, port):</pre></td>
+                            value=MEDIUM_WATER)</pre></td>
             </tr>
             
             <tr>
@@ -13086,7 +12907,11 @@ if __name__ == &#39;__main__&#39;:
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
-                         &#34;Project did not finish successfully.&#34;)</pre></td>
+                         &#34;Project did not finish successfully.&#34;)
+
+    # @unittest.skip(&#39;Skip because takes to long in CI&#39;)
+    def test_ERC_Low(self):
+        &#34;&#34;&#34;Test ERC Main Building&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -13120,10 +12945,7 @@ if __name__ == &#39;__main__&#39;:
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
-                         &#34;Project did not finish successfully.&#34;)
-
-    def test_run_b03_heating(self):
-        &#34;&#34;&#34;Run project with 2022_11_21_update_B03_Heating_ownCells.ifc&#34;&#34;&#34;</pre></td>
+                         &#34;Project did not finish successfully.&#34;)</pre></td>
             </tr>
             
             <tr>
@@ -13245,9 +13067,7 @@ if __name__ == &#39;__main__&#39;:
         project.sim_settings.split_bounds = True
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
-        project.sim_settings.run_full_simulation = False
-        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
-</pre></td>
+        project.sim_settings.run_full_simulation = False</pre></td>
             </tr>
             
             <tr>
@@ -13285,9 +13105,8 @@ if __name__ == &#39;__main__&#39;:
         self.assertEqual(0, handler.return_value,
                          &#34;Project did not finish successfully.&#34;)
 
-    @unittest.skip(&#34;&#34;)
-    def test_base_06_KIT_Inst_full_run(self):
-        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;</pre></td>
+    def test_run_ERC_lca(self):
+        &#34;&#34;&#34;Run project with AC20-FZK-Haus.ifc&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -13465,44 +13284,13 @@ if __name__ == &#39;__main__&#39;:
                 <td>R0801</td>
                 <td></td>
                 <td><pre>Similar lines in 2 files
-==bim2sim.tasks.common.check_ifc_ids:[57:63]
+==bim2sim.tasks.common.check_ifc_ids:[63:69]
 ==bim2sim.tasks.common.load_ifc:[39:44]
         ifc_files_paths = list(base_path.glob(&#34;**/*.ifc&#34;)) + list(
             base_path.glob(&#34;**/*.ifcxml&#34;)) + list(
             base_path.glob(&#34;**/*.ifczip&#34;))
         self.logger.info(f&#34;Found {len(ifc_files_paths)} IFC files in project &#34;
-                         f&#34;directory.&#34;)
-        # end part from load_ifc.py</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>duplicate-code</code></td>
-                <td>R0801</td>
-                <td></td>
-                <td><pre>Similar lines in 2 files
-==bim2sim.tasks.common.check_ifc:[133:151]
-==bim2sim.tasks.common.check_ifc_ids:[175:200]
-        schema = ifc.schema
-        if &#34;IFC4&#34; not in schema:
-            raise TypeError(f&#34;Loaded IFC file is of type {schema} but only IFC4&#34;
-                            f&#34;is supported. Please ask the creator of the model&#34;
-                            f&#34; to provide a valid IFC4 file.&#34;)
-
-    @staticmethod
-    def _get_ifc_type_classes(plugin: types.ModuleType):
-        &#34;&#34;&#34;
-        Gets all the classes of a plugin, that represent an IFCProduct,
-        and organize them on a dictionary for each ifc_type
-        Args:
-            plugin: plugin used in the check tasks (bps or hvac)
-
-        Returns:
-            cls_summary: dictionary containing all the ifc_types on the
-            plugin with the corresponding class
-        &#34;&#34;&#34;</pre></td>
+                         f&#34;directory.&#34;)</pre></td>
             </tr>
             
             <tr>
@@ -13557,7 +13345,9 @@ if __name__ == &#39;__main__&#39;:
             raise AttributeError(&#34;Max prefix length is 10!&#34;)
         ifcopenshell_guid = guid.new()[prefix_length + 1:]
         return f&#34;{prefix}{ifcopenshell_guid}&#34;
-</pre></td>
+
+    @classmethod
+    def pre_validate(cls, ifc) -&gt; bool:</pre></td>
             </tr>
             
             <tr>
@@ -13567,7 +13357,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -13597,167 +13387,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.disaggr_creation -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
                 <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.serialize_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_relations -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc_ids -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -13777,7 +13407,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -13787,7 +13417,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -13797,7 +13427,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.combine_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -13807,7 +13437,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -13817,7 +13447,187 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_correction -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.disaggr_creation -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_relations -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc_ids -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.weather -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.check_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.combine_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_2b_generation -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_correction -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -30713,7 +30523,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>too-many-instance-attributes</code></td>
                 <td>R0902</td>
                 <td>CheckIfc</td>
-                <td><pre>Too many instance attributes (10/7)</pre></td>
+                <td><pre>Too many instance attributes (17/7)</pre></td>
             </tr>
             
             <tr>
@@ -30727,7 +30537,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>42</td>
+                <td>48</td>
                 <td>4</td>
                 <td>warning</td>
                 <td><code>arguments-differ</code></td>
@@ -30737,7 +30547,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>42</td>
+                <td>48</td>
                 <td>4</td>
                 <td>warning</td>
                 <td><code>arguments-differ</code></td>
@@ -30747,17 +30557,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>42</td>
-                <td>4</td>
-                <td>refactor</td>
-                <td><code>too-many-locals</code></td>
-                <td>R0914</td>
-                <td>CheckIfc.run</td>
-                <td><pre>Too many local variables (16/15)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>50</td>
+                <td>56</td>
                 <td>25</td>
                 <td>warning</td>
                 <td><code>f-string-without-interpolation</code></td>
@@ -30767,7 +30567,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>73</td>
+                <td>79</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -30777,7 +30577,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>73</td>
+                <td>79</td>
                 <td>20</td>
                 <td>convention</td>
                 <td><code>consider-using-f-string</code></td>
@@ -30787,7 +30587,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>76</td>
+                <td>82</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -30797,7 +30597,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>76</td>
+                <td>82</td>
                 <td>20</td>
                 <td>convention</td>
                 <td><code>consider-using-f-string</code></td>
@@ -30807,7 +30607,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>78</td>
+                <td>84</td>
                 <td>25</td>
                 <td>warning</td>
                 <td><code>f-string-without-interpolation</code></td>
@@ -30817,53 +30617,13 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>81</td>
+                <td>87</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
                 <td>C0301</td>
                 <td></td>
-                <td><pre>Line too long (81/80)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>83</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>line-too-long</code></td>
-                <td>C0301</td>
-                <td></td>
-                <td><pre>Line too long (97/80)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>83</td>
-                <td>29</td>
-                <td>convention</td>
-                <td><code>consider-using-f-string</code></td>
-                <td>C0209</td>
-                <td>CheckIfc.run</td>
-                <td><pre>Formatting a regular string which could be a f-string</pre></td>
-            </tr>
-            
-            <tr>
-                <td>85</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>line-too-long</code></td>
-                <td>C0301</td>
-                <td></td>
-                <td><pre>Line too long (89/80)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>85</td>
-                <td>36</td>
-                <td>convention</td>
-                <td><code>consider-using-f-string</code></td>
-                <td>C0209</td>
-                <td>CheckIfc.run</td>
-                <td><pre>Formatting a regular string which could be a f-string</pre></td>
+                <td><pre>Line too long (91/80)</pre></td>
             </tr>
             
             <tr>
@@ -30873,7 +30633,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>line-too-long</code></td>
                 <td>C0301</td>
                 <td></td>
-                <td><pre>Line too long (109/80)</pre></td>
+                <td><pre>Line too long (102/80)</pre></td>
             </tr>
             
             <tr>
@@ -30888,7 +30648,17 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>91</td>
-                <td>36</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (90/80)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>91</td>
+                <td>37</td>
                 <td>convention</td>
                 <td><code>consider-using-f-string</code></td>
                 <td>C0209</td>
@@ -30897,7 +30667,87 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>113</td>
+                <td>93</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (89/80)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>95</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (114/80)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>95</td>
+                <td>29</td>
+                <td>convention</td>
+                <td><code>consider-using-f-string</code></td>
+                <td>C0209</td>
+                <td>CheckIfc.run</td>
+                <td><pre>Formatting a regular string which could be a f-string</pre></td>
+            </tr>
+            
+            <tr>
+                <td>97</td>
+                <td>37</td>
+                <td>convention</td>
+                <td><code>consider-using-f-string</code></td>
+                <td>C0209</td>
+                <td>CheckIfc.run</td>
+                <td><pre>Formatting a regular string which could be a f-string</pre></td>
+            </tr>
+            
+            <tr>
+                <td>99</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (87/80)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>99</td>
+                <td>12</td>
+                <td>warning</td>
+                <td><code>attribute-defined-outside-init</code></td>
+                <td>W0201</td>
+                <td>CheckIfc.run</td>
+                <td><pre>Attribute &#39;version_error&#39; defined outside __init__</pre></td>
+            </tr>
+            
+            <tr>
+                <td>104</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (114/80)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>104</td>
+                <td>37</td>
+                <td>warning</td>
+                <td><code>f-string-without-interpolation</code></td>
+                <td>W1309</td>
+                <td>CheckIfc.run</td>
+                <td><pre>Using an f-string that does not have any interpolated variables</pre></td>
+            </tr>
+            
+            <tr>
+                <td>124</td>
                 <td>9</td>
                 <td>warning</td>
                 <td><code>fixme</code></td>
@@ -30907,7 +30757,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>114</td>
+                <td>125</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -30917,7 +30767,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>114</td>
+                <td>125</td>
                 <td>55</td>
                 <td>refactor</td>
                 <td><code>use-dict-literal</code></td>
@@ -30927,7 +30777,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>115</td>
+                <td>126</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -30937,7 +30787,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>115</td>
+                <td>126</td>
                 <td>57</td>
                 <td>refactor</td>
                 <td><code>use-dict-literal</code></td>
@@ -30947,7 +30797,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>119</td>
+                <td>130</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>bad-indentation</code></td>
@@ -30957,7 +30807,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>120</td>
+                <td>131</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>bad-indentation</code></td>
@@ -30967,7 +30817,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>121</td>
+                <td>132</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>bad-indentation</code></td>
@@ -30977,7 +30827,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>121</td>
+                <td>132</td>
                 <td>15</td>
                 <td>warning</td>
                 <td><code>unused-variable</code></td>
@@ -30987,7 +30837,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>123</td>
+                <td>134</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>bad-indentation</code></td>
@@ -30997,7 +30847,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>124</td>
+                <td>135</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>bad-indentation</code></td>
@@ -31007,7 +30857,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>125</td>
+                <td>136</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>bad-indentation</code></td>
@@ -31017,7 +30867,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>126</td>
+                <td>137</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>bad-indentation</code></td>
@@ -31027,117 +30877,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>127</td>
-                <td>0</td>
-                <td>warning</td>
-                <td><code>bad-indentation</code></td>
-                <td>W0311</td>
-                <td></td>
-                <td><pre>Bad indentation. Found 19 spaces, expected 20</pre></td>
-            </tr>
-            
-            <tr>
-                <td>146</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>line-too-long</code></td>
-                <td>C0301</td>
-                <td></td>
-                <td><pre>Line too long (125/80)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>146</td>
-                <td>55</td>
-                <td>refactor</td>
-                <td><code>use-dict-literal</code></td>
-                <td>R1735</td>
-                <td>CheckIfc.run_check_guid_empty</td>
-                <td><pre>Consider using &#39;{}&#39; instead of a call to &#39;dict&#39;.</pre></td>
-            </tr>
-            
-            <tr>
-                <td>147</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>line-too-long</code></td>
-                <td>C0301</td>
-                <td></td>
-                <td><pre>Line too long (109/80)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>147</td>
-                <td>56</td>
-                <td>refactor</td>
-                <td><code>use-dict-literal</code></td>
-                <td>R1735</td>
-                <td>CheckIfc.run_check_guid_empty</td>
-                <td><pre>Consider using &#39;{}&#39; instead of a call to &#39;dict&#39;.</pre></td>
-            </tr>
-            
-            <tr>
-                <td>149</td>
-                <td>0</td>
-                <td>convention</td>
-                <td><code>line-too-long</code></td>
-                <td>C0301</td>
-                <td></td>
-                <td><pre>Line too long (122/80)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>151</td>
-                <td>0</td>
-                <td>warning</td>
-                <td><code>bad-indentation</code></td>
-                <td>W0311</td>
-                <td></td>
-                <td><pre>Bad indentation. Found 11 spaces, expected 12</pre></td>
-            </tr>
-            
-            <tr>
-                <td>152</td>
-                <td>0</td>
-                <td>warning</td>
-                <td><code>bad-indentation</code></td>
-                <td>W0311</td>
-                <td></td>
-                <td><pre>Bad indentation. Found 15 spaces, expected 16</pre></td>
-            </tr>
-            
-            <tr>
-                <td>153</td>
-                <td>0</td>
-                <td>warning</td>
-                <td><code>bad-indentation</code></td>
-                <td>W0311</td>
-                <td></td>
-                <td><pre>Bad indentation. Found 15 spaces, expected 16</pre></td>
-            </tr>
-            
-            <tr>
-                <td>154</td>
-                <td>0</td>
-                <td>warning</td>
-                <td><code>bad-indentation</code></td>
-                <td>W0311</td>
-                <td></td>
-                <td><pre>Bad indentation. Found 15 spaces, expected 16</pre></td>
-            </tr>
-            
-            <tr>
-                <td>155</td>
-                <td>0</td>
-                <td>warning</td>
-                <td><code>bad-indentation</code></td>
-                <td>W0311</td>
-                <td></td>
-                <td><pre>Bad indentation. Found 19 spaces, expected 20</pre></td>
-            </tr>
-            
-            <tr>
-                <td>156</td>
+                <td>138</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>bad-indentation</code></td>
@@ -31149,25 +30889,65 @@ if __name__ == &#39;__main__&#39;:
             <tr>
                 <td>157</td>
                 <td>0</td>
-                <td>warning</td>
-                <td><code>bad-indentation</code></td>
-                <td>W0311</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
                 <td></td>
-                <td><pre>Bad indentation. Found 19 spaces, expected 20</pre></td>
+                <td><pre>Line too long (125/80)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>157</td>
+                <td>55</td>
+                <td>refactor</td>
+                <td><code>use-dict-literal</code></td>
+                <td>R1735</td>
+                <td>CheckIfc.run_check_guid_empty</td>
+                <td><pre>Consider using &#39;{}&#39; instead of a call to &#39;dict&#39;.</pre></td>
             </tr>
             
             <tr>
                 <td>158</td>
                 <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (109/80)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>158</td>
+                <td>56</td>
+                <td>refactor</td>
+                <td><code>use-dict-literal</code></td>
+                <td>R1735</td>
+                <td>CheckIfc.run_check_guid_empty</td>
+                <td><pre>Consider using &#39;{}&#39; instead of a call to &#39;dict&#39;.</pre></td>
+            </tr>
+            
+            <tr>
+                <td>160</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (122/80)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>162</td>
+                <td>0</td>
                 <td>warning</td>
                 <td><code>bad-indentation</code></td>
                 <td>W0311</td>
                 <td></td>
-                <td><pre>Bad indentation. Found 19 spaces, expected 20</pre></td>
+                <td><pre>Bad indentation. Found 11 spaces, expected 12</pre></td>
             </tr>
             
             <tr>
-                <td>159</td>
+                <td>163</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>bad-indentation</code></td>
@@ -31177,7 +30957,27 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>160</td>
+                <td>164</td>
+                <td>0</td>
+                <td>warning</td>
+                <td><code>bad-indentation</code></td>
+                <td>W0311</td>
+                <td></td>
+                <td><pre>Bad indentation. Found 15 spaces, expected 16</pre></td>
+            </tr>
+            
+            <tr>
+                <td>165</td>
+                <td>0</td>
+                <td>warning</td>
+                <td><code>bad-indentation</code></td>
+                <td>W0311</td>
+                <td></td>
+                <td><pre>Bad indentation. Found 15 spaces, expected 16</pre></td>
+            </tr>
+            
+            <tr>
+                <td>166</td>
                 <td>0</td>
                 <td>warning</td>
                 <td><code>bad-indentation</code></td>
@@ -31187,7 +30987,87 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>183</td>
+                <td>167</td>
+                <td>0</td>
+                <td>warning</td>
+                <td><code>bad-indentation</code></td>
+                <td>W0311</td>
+                <td></td>
+                <td><pre>Bad indentation. Found 19 spaces, expected 20</pre></td>
+            </tr>
+            
+            <tr>
+                <td>168</td>
+                <td>0</td>
+                <td>warning</td>
+                <td><code>bad-indentation</code></td>
+                <td>W0311</td>
+                <td></td>
+                <td><pre>Bad indentation. Found 19 spaces, expected 20</pre></td>
+            </tr>
+            
+            <tr>
+                <td>169</td>
+                <td>0</td>
+                <td>warning</td>
+                <td><code>bad-indentation</code></td>
+                <td>W0311</td>
+                <td></td>
+                <td><pre>Bad indentation. Found 19 spaces, expected 20</pre></td>
+            </tr>
+            
+            <tr>
+                <td>170</td>
+                <td>0</td>
+                <td>warning</td>
+                <td><code>bad-indentation</code></td>
+                <td>W0311</td>
+                <td></td>
+                <td><pre>Bad indentation. Found 15 spaces, expected 16</pre></td>
+            </tr>
+            
+            <tr>
+                <td>171</td>
+                <td>0</td>
+                <td>warning</td>
+                <td><code>bad-indentation</code></td>
+                <td>W0311</td>
+                <td></td>
+                <td><pre>Bad indentation. Found 19 spaces, expected 20</pre></td>
+            </tr>
+            
+            <tr>
+                <td>191</td>
+                <td>8</td>
+                <td>refactor</td>
+                <td><code>simplifiable-if-statement</code></td>
+                <td>R1703</td>
+                <td>CheckIfc.run_check_ifc_version</td>
+                <td><pre>The if statement can be replaced with &#39;var = bool(test)&#39;</pre></td>
+            </tr>
+            
+            <tr>
+                <td>193</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (82/80)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>194</td>
+                <td>0</td>
+                <td>convention</td>
+                <td><code>line-too-long</code></td>
+                <td>C0301</td>
+                <td></td>
+                <td><pre>Line too long (82/80)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>201</td>
                 <td>0</td>
                 <td>convention</td>
                 <td><code>line-too-long</code></td>
@@ -31197,7 +31077,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>290</td>
+                <td>311</td>
                 <td>13</td>
                 <td>warning</td>
                 <td><code>unspecified-encoding</code></td>
@@ -31207,7 +31087,7 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>303</td>
+                <td>324</td>
                 <td>13</td>
                 <td>warning</td>
                 <td><code>unspecified-encoding</code></td>
@@ -31217,7 +31097,17 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>314</td>
+                <td>335</td>
+                <td>13</td>
+                <td>warning</td>
+                <td><code>unspecified-encoding</code></td>
+                <td>W1514</td>
+                <td>CheckIfc._write_errors_to_html_table</td>
+                <td><pre>Using open without explicitly specifying an encoding</pre></td>
+            </tr>
+            
+            <tr>
+                <td>356</td>
                 <td>13</td>
                 <td>warning</td>
                 <td><code>unspecified-encoding</code></td>
@@ -35827,7 +35717,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>warning</td>
-                <td>967</td>
+                <td>968</td>
             </tr>
             
             <tr>
@@ -35862,7 +35752,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>line-too-long</td>
-                <td>272</td>
+                <td>274</td>
             </tr>
             
             <tr>
@@ -35872,7 +35762,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>fixme</td>
-                <td>170</td>
+                <td>171</td>
             </tr>
             
             <tr>
@@ -35952,7 +35842,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>consider-using-with</td>
-                <td>20</td>
+                <td>19</td>
             </tr>
             
             <tr>
@@ -35962,7 +35852,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>unspecified-encoding</td>
-                <td>36</td>
+                <td>37</td>
             </tr>
             
             <tr>
@@ -35982,7 +35872,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>invalid-name</td>
-                <td>422</td>
+                <td>421</td>
             </tr>
             
             <tr>
@@ -35997,7 +35887,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>too-many-locals</td>
-                <td>48</td>
+                <td>47</td>
             </tr>
             
             <tr>
@@ -36072,7 +35962,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>missing-module-docstring</td>
-                <td>111</td>
+                <td>110</td>
             </tr>
             
             <tr>
@@ -36102,7 +35992,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>unused-import</td>
-                <td>60</td>
+                <td>57</td>
             </tr>
             
             <tr>
@@ -36242,7 +36132,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>f-string-without-interpolation</td>
-                <td>23</td>
+                <td>24</td>
             </tr>
             
             <tr>
@@ -36252,7 +36142,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>simplifiable-if-statement</td>
-                <td>1</td>
+                <td>2</td>
             </tr>
             
             <tr>
@@ -36263,6 +36153,11 @@ if __name__ == &#39;__main__&#39;:
             <tr>
                 <td>bad-indentation</td>
                 <td>18</td>
+            </tr>
+            
+            <tr>
+                <td>attribute-defined-outside-init</td>
+                <td>7</td>
             </tr>
             
             <tr>
@@ -36356,11 +36251,6 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>attribute-defined-outside-init</td>
-                <td>6</td>
-            </tr>
-            
-            <tr>
                 <td>deprecated-method</td>
                 <td>2</td>
             </tr>
@@ -36387,12 +36277,12 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>duplicate-code</td>
-                <td>160</td>
+                <td>159</td>
             </tr>
             
             <tr>
                 <td>cyclic-import</td>
-                <td>29</td>
+                <td>31</td>
             </tr>
             
         </table>
@@ -36437,7 +36327,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>bim2sim.elements.base_elements</td>
-                <td>102</td>
+                <td>103</td>
             </tr>
             
             <tr>
@@ -36496,11 +36386,6 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>bim2sim.examples.e3_checkIFCIDS</td>
-                <td>9</td>
-            </tr>
-            
-            <tr>
                 <td>bim2sim.examples.__init__</td>
                 <td>1</td>
             </tr>
@@ -36547,7 +36432,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>bim2sim.tasks.common.check_ifc_ids</td>
-                <td>55</td>
+                <td>63</td>
             </tr>
             
             <tr>
@@ -37267,7 +37152,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>bim2sim.export.modelica.__init__</td>
-                <td>191</td>
+                <td>192</td>
             </tr>
             
             <tr>
@@ -37317,7 +37202,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>bim2sim/elements/base_elements.py</td>
-                <td>102</td>
+                <td>103</td>
             </tr>
             
             <tr>
@@ -37371,11 +37256,6 @@ if __name__ == &#39;__main__&#39;:
             </tr>
             
             <tr>
-                <td>bim2sim/examples/e3_checkIFCIDS.py</td>
-                <td>9</td>
-            </tr>
-            
-            <tr>
                 <td>bim2sim/examples/__init__.py</td>
                 <td>1</td>
             </tr>
@@ -37422,7 +37302,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>bim2sim/tasks/common/check_ifc_ids.py</td>
-                <td>55</td>
+                <td>63</td>
             </tr>
             
             <tr>
@@ -38092,7 +37972,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>bim2sim/export/modelica/__init__.py</td>
-                <td>214</td>
+                <td>215</td>
             </tr>
             
         </table>

@@ -24,11 +24,3 @@ bim2sim.examples.e2\_interactive\_project module
    :members:
    :undoc-members:
    :show-inheritance:
-
-bim2sim.examples.e3\_checkIFCIDS module
----------------------------------------
-
-.. automodule:: bim2sim.examples.e3_checkIFCIDS
-   :members:
-   :undoc-members:
-   :show-inheritance:

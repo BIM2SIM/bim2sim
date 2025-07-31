@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Coverage for bim2sim/plugins/PluginComfort/bim2sim_comfort/utils/utils_comfort_templates.py: 0%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
-    <link rel="stylesheet" href="style_cb_81f8c14c.css" type="text/css">
+    <link rel="stylesheet" href="style_cb_6b508a39.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
 </head>
 <body class="pyfile">
@@ -64,8 +64,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_7617c45e2f475f6f___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.9.2">coverage.py v7.9.2</a>,
-            created at 2025-07-16 06:59 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.10.1">coverage.py v7.10.1</a>,
+            created at 2025-07-31 10:12 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -112,7 +112,7 @@
     <p class="mis show_mis"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">    <span class="op">@</span><span class="nam">staticmethod</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">    <span class="key">def</span> <span class="nam">convert_csv_to_json</span><span class="op">(</span><span class="nam">csv_name</span><span class="op">,</span> <span class="nam">json_name</span><span class="op">,</span> <span class="nam">sep</span><span class="op">=</span><span class="str">';'</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">        <span class="nam">file</span> <span class="op">=</span> <span class="nam">pd</span><span class="op">.</span><span class="nam">read_csv</span><span class="op">(</span><span class="nam">filepath_or_buffer</span><span class="op">=</span><span class="nam">csv_name</span><span class="op">,</span> <span class="nam">sep</span><span class="op">=</span><span class="nam">sep</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">                           <span class="nam">index_col</span><span class="op">=</span><span class="num">0</span><span class="op">)</span><span class="op">.</span><span class="nam">transpose</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">                           <span class="nam">index_col</span><span class="op">=</span><span class="num">0</span><span class="op">)</span><span class="op">.</span><span class="nam">transpose</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">        <span class="nam">json_file</span> <span class="op">=</span> <span class="nam">file</span><span class="op">.</span><span class="nam">to_json</span><span class="op">(</span><span class="nam">json_name</span><span class="op">,</span> <span class="nam">indent</span><span class="op">=</span><span class="num">4</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">    <span class="op">@</span><span class="nam">staticmethod</span>&nbsp;</span><span class="r"></span></p>
@@ -123,18 +123,18 @@
     <p class="pln"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">        <span class="com"># replace TEASER Template Values with new derived values from</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t">        <span class="com"># ISO7730 and ASHRAE</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t">        <span class="nam">file</span><span class="op">[</span><span class="str">'activity_degree_persons'</span><span class="op">]</span> <span class="op">=</span> <span class="xx">\</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t">            <span class="nam">new_parameters_json</span><span class="op">[</span><span class="str">'ISO7730_ASHRAE_Combined_met'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t">            <span class="nam">new_parameters_json</span><span class="op">[</span><span class="str">'ISO7730_ASHRAE_Combined_met'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t">        <span class="nam">file</span><span class="op">[</span><span class="str">'fixed_heat_flow_rate_persons'</span><span class="op">]</span> <span class="op">=</span> <span class="xx">\</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t">            <span class="nam">new_parameters_json</span><span class="op">[</span><span class="str">'ISO7730_ASHRAE_Combined_WperPerson'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t46" href="#t46">46</a></span><span class="t">            <span class="nam">new_parameters_json</span><span class="op">[</span><span class="str">'ISO7730_ASHRAE_Combined_WperPerson'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t">        <span class="com"># Set new clothing params (clo values) derived from ISO7730 and ASHRAE</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">        <span class="nam">file</span><span class="op">[</span><span class="str">'clothing_persons'</span><span class="op">]</span> <span class="op">=</span> <span class="xx">\</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">            <span class="nam">new_parameters_json</span><span class="op">[</span><span class="str">'ISO7730_ASHRAE_Combined_clo'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">            <span class="nam">new_parameters_json</span><span class="op">[</span><span class="str">'ISO7730_ASHRAE_Combined_clo'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">        <span class="nam">file</span><span class="op">[</span><span class="str">'surround_clo_persons'</span><span class="op">]</span> <span class="op">=</span> <span class="xx">\</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">            <span class="nam">new_parameters_json</span><span class="op">[</span><span class="str">'surround_insulation_combined_clo'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">            <span class="nam">new_parameters_json</span><span class="op">[</span><span class="str">'surround_insulation_combined_clo'</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t">        <span class="com"># write new comfort use conditions to the asset directory.</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t">        <span class="nam">comfort_use_conditions</span> <span class="op">=</span> <span class="nam">str</span><span class="op">(</span><span class="nam">os</span><span class="op">.</span><span class="nam">path</span><span class="op">.</span><span class="nam">splitext</span><span class="op">(</span><span class="nam">use_conditions</span><span class="op">)</span><span class="op">[</span><span class="num">0</span><span class="op">]</span><span class="op">)</span> <span class="op">+</span> <span class="xx">\</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t">                                 <span class="str">'Comfort.json'</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t">                                 <span class="str">'Comfort.json'</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t">        <span class="nam">file</span><span class="op">.</span><span class="nam">transpose</span><span class="op">(</span><span class="op">)</span><span class="op">.</span><span class="nam">to_json</span><span class="op">(</span><span class="nam">comfort_use_conditions</span><span class="op">,</span> <span class="nam">indent</span><span class="op">=</span><span class="num">4</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t58" href="#t58">58</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -146,15 +146,15 @@
     <p class="pln"><span class="n"><a id="t64" href="#t64">64</a></span><span class="t">    <span class="com">#     use_conditions_path)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t65" href="#t65">65</a></span><span class="t">    <span class="com"># ComfortUtils.new_empty_json_keeping_first_keys(use_conditions_path)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t66" href="#t66">66</a></span><span class="t">    <span class="nam">usage_path</span> <span class="op">=</span> <span class="nam">Path</span><span class="op">(</span><span class="nam">__file__</span><span class="op">)</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">parent</span> <span class="op">/</span> <span class="xx">\</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t">                 <span class="str">'assets'</span> <span class="op">/</span> <span class="str">'enrichment'</span> <span class="op">/</span> <span class="str">'usage'</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t67" href="#t67">67</a></span><span class="t">                 <span class="str">'assets'</span> <span class="op">/</span> <span class="str">'enrichment'</span> <span class="op">/</span> <span class="str">'usage'</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t68" href="#t68">68</a></span><span class="t">    <span class="nam">new_json_name</span> <span class="op">=</span> <span class="str">'activity_clothing_ISO7730_ASHRAE_V002.json'</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t">    <span class="nam">ComfortUtils</span><span class="op">.</span><span class="nam">convert_csv_to_json</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t">        <span class="str">r'C:\Users\richter\sciebo\03-Paperdrafts'</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t">        <span class="str">r'\MDPI_SpecialIssue_Comfort_Climate'</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t">        <span class="str">r'\activity_clothing_ISO7730_ASHRAE_V002.csv'</span><span class="op">,</span> <span class="nam">new_json_name</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t">        <span class="str">r'C:\Users\richter\sciebo\03-Paperdrafts'</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t">        <span class="str">r'\MDPI_SpecialIssue_Comfort_Climate'</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t">        <span class="str">r'\activity_clothing_ISO7730_ASHRAE_V002.csv'</span><span class="op">,</span> <span class="nam">new_json_name</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t">    <span class="nam">ComfortUtils</span><span class="op">.</span><span class="nam">extend_use_conditions</span><span class="op">(</span><span class="nam">new_json_name</span><span class="op">,</span> <span class="nam">usage_path</span> <span class="op">/</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t">                                       <span class="str">'UseConditions.json'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t">                                       <span class="str">'UseConditions.json'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
@@ -164,8 +164,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_7617c45e2f475f6f___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.9.2">coverage.py v7.9.2</a>,
-            created at 2025-07-16 06:59 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.10.1">coverage.py v7.10.1</a>,
+            created at 2025-07-31 10:12 +0000
         </p>
     </div>
 </footer>
