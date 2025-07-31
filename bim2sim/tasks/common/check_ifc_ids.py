@@ -100,7 +100,8 @@ class CheckIfc(ITask):
             # for doc string
             #   Logs:
             #       critical: if loaded IFC is not IFC4
-            self.logger.critical(f"ifc Version is not fitting. Should be IFC4, but here: " + self.ifc_version)
+            if self.version_error:
+                self.logger.critical(f"ifc Version is not fitting. Should be IFC4, but here: " + self.ifc_version)
             # write reportes self made checks
             base_name = f"/{ifc_file.domain.name.upper()}_" \
                         f"{ifc_file.ifc_file_name[:-4]}"
