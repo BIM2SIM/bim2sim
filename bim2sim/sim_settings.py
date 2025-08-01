@@ -9,7 +9,7 @@ import os.path
 from pathlib import Path
 from typing import Union
 import sys
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, model_validator, field_validator
 from pydantic_core import PydanticCustomError
 from typing_extensions import Self
 
@@ -220,6 +220,24 @@ class Setting:
             self._inner_set(bound_simulation_settings, value)
 
 
+class NumberSettingPydantic(SettingPydantic):
+    value: float
+    description: Union[str, None] = None
+    for_frontend: bool = False
+    any_string: bool = False
+    min_value: float = None
+    max_value: float = None
+
+    @model_validator(mode='after')
+    def check_passwords_match(self) -> Self:
+        if not (self.min_value <= self.value <= self.max_value):
+            raise PydanticCustomError(
+                "value_out_of_range",
+                f"value ({self.value}) must be between {self.min_value} and {self.max_value}"  # type: ignore[misc]
+            )
+        return self
+
+
 class NumberSetting(Setting):
     def __init__(
             self,
@@ -281,6 +299,25 @@ class NumberSetting(Setting):
             raise ValueError(
                 f"The provided value is not inside the limits: min: "
                 f"{self.min_value}, max: {self.max_value}, value: {value}")
+
+
+class ChoiceSettingPydantic(SettingPydantic):
+    value: str
+    description: Union[str, None] = None
+    for_frontend: bool = False
+    any_string: bool = False
+    choices: dict = None
+    multiple_choice: bool = False
+
+    @field_validator('choices', mode='after')
+    @classmethod
+    def check_choices(cls, choices):
+        for choice in choices:
+            if '.' in choice:
+                raise ValueError(f"Provided setting {choice} has a choice with "
+                                 f"character"
+                                 f" '.', this is prohibited.")
+        return choices
 
 
 class ChoiceSetting(Setting):
@@ -389,23 +426,6 @@ class PathSetting(Setting):
 class BooleanSettingPydantic(SettingPydantic):
     value: bool
 
-
-class NumberSettingPydantic(SettingPydantic):
-    value: float
-    description: Union[str, None] = None
-    for_frontend: bool = False
-    any_string: bool = False
-    min_value: float = None
-    max_value: float = None
-
-    @model_validator(mode='after')
-    def check_passwords_match(self) -> Self:
-        if not (self.min_value <= self.value <= self.max_value):
-            raise PydanticCustomError(
-                "value_out_of_range",
-                f"value ({self.value}) must be between {self.min_value} and {self.max_value}"  # type: ignore[misc]
-            )
-        return self
 
 class BooleanSetting(Setting):
     def check_value(self, bound_simulation_settings, value):
@@ -591,7 +611,25 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True
     )
 
-    group_unidentified = ChoiceSetting(
+    group_unidentified = ChoiceSettingPydantic(
+        value='fuzzy',
+        choices={
+            'fuzzy': 'Use fuzzy search to find ifc name similarities',
+            'name': 'Only group elements with exact same ifc name',
+            'name_and_description': 'Only group elements with the same ifc'
+                                    ' name and ifc description'
+        },
+        description='To reduce the number of decisions by user to identify '
+                    'elements which can not be identified automatically by '
+                    'the '
+                    'system, you can either use simple grouping by same name '
+                    'of'
+                    ' IFC element or fuzzy search to group based on'
+                    ' similarities in name.',
+        for_frontend=True
+    )
+
+    group_unidentified_ = ChoiceSetting(
         default='fuzzy',
         choices={
             'fuzzy': 'Use fuzzy search to find ifc name similarities',
@@ -608,6 +646,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     ' similarities in name.',
         for_frontend=True
     )
+
     fuzzy_threshold = NumberSetting(
         default=0.7,
         min_value=0.5,
