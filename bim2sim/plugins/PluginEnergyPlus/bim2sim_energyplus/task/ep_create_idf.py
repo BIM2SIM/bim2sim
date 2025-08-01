@@ -1838,6 +1838,32 @@ class IdfObject:
         Args:
             inst_obj: SpaceBoundary instance
         """
+        # ─── Centroid-based “buried” test for true exterior walls/windows ─────────
+        # Only BUILDINGSURFACE or FENESTRATIONSURFACE that have no matching
+        # interzone partner (i.e.exterior on one side)
+        if self.key in ("BUILDINGSURFACE:DETAILED", "FENESTRATIONSURFACE:DETAILED") \
+           and (inst_obj.related_bound is None
+                or inst_obj.related_bound.ifc.RelatingSpace.is_a("IfcExternalSpatialElement")):
+            try:
+                pts = PyOCCTools.get_points_of_face(inst_obj.bound_shape)
+                # compute centroid Z
+                zc = sum(p.Coord()[2] for p in pts) / len(pts)
+                if zc < 0.0:
+                    # fully buried → ground
+                    self.out_bound_cond = "Ground"
+                    self.sun_exposed   = "NoSun"
+                    self.wind_exposed = "NoWind"
+                    return
+                # if centroid >= 0.0, treat as exposed → outdoors, and return
+                self.out_bound_cond = "Outdoors"
+                self.sun_exposed   = "SunExposed"
+                self.wind_exposed = "WindExposed"
+                # for fenestration, parent GUID already set
+                return
+            except Exception:
+                # any geometry error: fall back
+                pass
+
         if inst_obj.level_description == '2b' \
                 or inst_obj.related_adb_bound is not None:
             self.out_bound_cond = 'Adiabatic'

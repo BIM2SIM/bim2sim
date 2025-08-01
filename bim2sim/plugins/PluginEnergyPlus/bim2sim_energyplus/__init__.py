@@ -33,4 +33,5 @@ class PluginEnergyPlus(Plugin):
         ep_tasks.CreateResultDF,
         # ep_tasks.VisualizeResults,
         bps.PlotBEPSResults,
+        ep_tasks.FixEPHtml
     ]

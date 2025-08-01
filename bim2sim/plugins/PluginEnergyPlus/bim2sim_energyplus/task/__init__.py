@@ -6,3 +6,4 @@ from .ep_run_simulation import RunEnergyPlusSimulation
 from .create_result_df import CreateResultDF
 from .load_energyplus_results import LoadEnergyPlusResults
 from .ep_visualize_results import VisualizeResults
+from .fix_ep_html import FixEPHtml

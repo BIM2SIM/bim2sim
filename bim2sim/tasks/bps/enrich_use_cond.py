@@ -4,11 +4,12 @@ from bim2sim.kernel.decision import ListDecision, DecisionBunch
 from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import get_use_conditions_dict, \
-    get_pattern_usage, wildcard_match, filter_elements
+    get_effective_usage_data, wildcard_match, filter_elements
 from bim2sim.tasks.base import Playground
 from bim2sim.sim_settings import BuildingSimSettings
 from bim2sim.utilities.types import AttributeDataSource
-
+import re
+from typing import Dict
 
 class EnrichUseConditions(ITask):
     """Enriches Use Conditions of thermal zones
@@ -20,7 +21,6 @@ class EnrichUseConditions(ITask):
         super().__init__(playground)
         self.enriched_tz: list = []
         self.use_conditions: dict = {}
-
     def run(self, elements: dict):
         """Enriches Use Conditions of thermal zones and central AHU settings.
 
@@ -39,9 +39,7 @@ class EnrichUseConditions(ITask):
                 self.playground.sim_settings.prj_custom_usages
 
             self.logger.info("enriches thermal zones usage")
-            self.use_conditions = get_use_conditions_dict(custom_use_cond_path)
-            pattern_usage = get_pattern_usage(self.use_conditions,
-                                              custom_usage_path)
+            self.use_conditions, pattern_usage = get_effective_usage_data(custom_usage_path, custom_use_cond_path)
             final_usages = yield from self.enrich_usages(
                 pattern_usage, tz_elements)
             for tz, usage in final_usages.items():
@@ -205,69 +203,68 @@ class EnrichUseConditions(ITask):
             cls,
             pattern_usage: dict,
             thermal_zones: Dict[str, ThermalZone]) -> Dict[str, ThermalZone]:
-        """Sets the usage of the given thermal_zones and enriches them.
-
-        Looks for fitting usages in assets/enrichment/usage based on the given
-        usage of a zone in the IFC. The way the usage is obtained is described
-        in the ThermalZone classes attribute "usage".
-        The following data is taken into account:
-            commonUsages.json: typical translations for the existing usage data
-            customUsages<prj_name>.json: project specific translations that can
-                be stored for easier simulation.
-
-        Args:
-            pattern_usage: Dict with custom and common pattern
-            thermal_zones: dict with tz elements guid as key and the element
-            itself as value
-        Returns:
-            final_usages: key: str of usage type, value: ThermalZone element
-
         """
-        # selected_usage = {}
+        Enriches the usage field of given thermal_zones using the pattern_usage.
+        """
+        def clean_usage_name(usage_str):
+            """Remove suffixes like B-EG-002 from a usage string."""
+            parts = usage_str.split()
+            return ' '.join([p for p in parts if not re.match(r'^B-[A-Z0-9]+-\d+$', p)])
+
+        def match_zone_usage(tz_usage, pattern_usage):
+            """Returns the best matching usage or a list of possible ones."""
+            original_usage = tz_usage
+            usage = clean_usage_name(tz_usage)
+            usage_words = usage.replace(' (', ' ').replace(')', ' ') \
+                            .replace(' -', ' ').replace(', ', ' ').split()
+            matches = []
+
+            for usage_key, patterns in pattern_usage.items():
+                # Check custom patterns
+                for custom in patterns.get("custom", []):
+                    if "*" in custom or "?" in custom:
+                        regex = re.compile('^' + custom.replace("*", ".*").replace("?", ".") + '$', re.IGNORECASE)
+                        if regex.match(original_usage):
+                            matches.append(usage_key)
+                            break
+                    else:
+                        if custom.lower() in usage.lower():
+                            matches.append(usage_key)
+                            break
+
+                # If no match yet, check common patterns
+                if usage_key not in matches:
+                    for common_regex in patterns.get("common", []):
+                        for word in usage_words:
+                            if common_regex.match(word):
+                                matches.append(usage_key)
+                                break
+                        if usage_key in matches:
+                            break
+
+            return matches
+
         final_usages = {}
         for tz in list(thermal_zones.values()):
             orig_usage = str(tz.usage)
             if orig_usage in pattern_usage:
                 final_usages[tz] = orig_usage
             else:
-                matches = []
-                list_org = tz.usage.replace(' (', ' ').replace(')', ' '). \
-                    replace(' -', ' ').replace(', ', ' ').split()
-                for usage in pattern_usage.keys():
-                    # check custom first
-                    if "custom" in pattern_usage[usage]:
-                        for cus_usage in pattern_usage[usage]["custom"]:
-                            # if cus_usage == tz.usage:
-                            if wildcard_match(cus_usage, tz.usage):
-                                if usage not in matches:
-                                    matches.append(usage)
-                    # if not found in custom, continue with common
-                    if len(matches) == 0:
-                        for i in pattern_usage[usage]["common"]:
-                            for i_name in list_org:
-                                if i.match(i_name):
-                                    if usage not in matches:
-                                        matches.append(usage)
-                # if just one match
+                matches = match_zone_usage(orig_usage, pattern_usage)
                 if len(matches) == 1:
-                    # case its an office
-                    if 'office_function' == matches[0]:
+                    if matches[0] == 'office_function':
                         office_use = cls.office_usage(tz)
-                        if isinstance(office_use, list):
-                            final_usages[tz] = cls.list_decision_usage(
-                                tz, office_use)
-                        else:
-                            final_usages[tz] = office_use
-                    # other zone usage
+                        final_usages[tz] = cls.list_decision_usage(tz, office_use) if isinstance(office_use, list) else office_use
                     else:
                         final_usages[tz] = matches[0]
                 # if no matches given forward all (for decision)
                 elif len(matches) == 0:
                     matches = list(pattern_usage.keys())
-                if len(matches) > 1:
-                    final_usages[tz] = cls.list_decision_usage(
-                        tz, matches)
-                # selected_usage[orig_usage] = tz.usage
+                    final_usages[tz] = cls.list_decision_usage(tz, matches)
+                elif len(matches) > 1:
+                    # Multiple matches found
+                    final_usages[tz] = cls.list_decision_usage(tz, matches)
+
         # collect decisions
         usage_dec_bunch = DecisionBunch()
         for tz, use_or_dec in final_usages.items():

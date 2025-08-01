@@ -608,7 +608,7 @@ class BuildingSimSettings(BaseSimSettings):
     year_of_construction_overwrite = NumberSetting(
         default=None,
         min_value=0,
-        max_value=2015,
+        max_value=2100,
         description="Force an overwrite of the year of construction as a "
                     "base for the selected construction set.",
         for_frontend=True,

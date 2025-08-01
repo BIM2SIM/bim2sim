@@ -83,7 +83,7 @@ def get_use_conditions_dict(custom_use_cond_path: Path) -> dict:
     else:
         raise ValueError(f"Invalid JSON file {use_cond_path}")
 
-
+# obsolete
 def get_common_pattern_usage() -> dict:
     common_pattern_path = assets / 'enrichment/usage/commonUsages.json'
     if validateJSON(common_pattern_path):
@@ -93,7 +93,7 @@ def get_common_pattern_usage() -> dict:
     else:
         raise ValueError(f"Invalid JSON file  {common_pattern_path}")
 
-
+# obsolete
 def get_custom_pattern_usage(custom_usages_path: Path) -> dict:
     """gets custom usages based on given json file."""
     custom_usages = {}
@@ -108,19 +108,13 @@ def get_custom_pattern_usage(custom_usages_path: Path) -> dict:
             raise ValueError(f"Invalid JSON file  {custom_usages_path}")
 
 
-def get_pattern_usage(use_conditions: dict, custom_usages_path: Path):
-    """get usage patterns to use it on the thermal zones get_usage"""
-    common_usages = get_common_pattern_usage()
+def compile_usage_patterns(use_conditions, custom_usages, common_usages):
+    import collections
+    pattern_usage = collections.defaultdict(lambda: {"common": [], "custom": []})
+    combined = combine_usages(common_usages, custom_usages)
 
-    custom_usages = get_custom_pattern_usage(custom_usages_path)
-    usages = combine_usages(common_usages, custom_usages)
-
-    pattern_usage_teaser = collections.defaultdict(dict)
-
-    for i in use_conditions:
-        pattern_usage_teaser[i]["common"] = []
-        pattern_usage_teaser[i]["custom"] = []
-        list_engl = re.sub(r'\((.*?)\)', '', i) \
+    for usage_label in use_conditions:
+        list_engl = re.sub(r'\((.*?)\)', '', usage_label) \
             .replace(' - ', ', ') \
             .replace(' and ', ', ') \
             .replace(' in ', ', ') \
@@ -128,23 +122,64 @@ def get_pattern_usage(use_conditions: dict, custom_usages_path: Path):
             .replace(' or ', ', ') \
             .replace(' the ', ' ') \
             .split(', ')
-        for i_eng in list_engl:
-            new_i_eng = i_eng.replace(' ', '(.*?)')
-            pattern_usage_teaser[i]["common"].append(re.compile(
-                '(.*?)%s' % new_i_eng, flags=re.IGNORECASE))
-            if i in usages:
-                for c_trans in usages[i]["common"]:
-                    pattern_usage_teaser[i]["common"].append(re.compile(
-                        '(.*?)%s' % c_trans, flags=re.IGNORECASE))
-                if "custom" in usages[i]:
-                    for clear_usage in usages[i]["custom"]:
-                        pattern_usage_teaser[i]["custom"].append(clear_usage)
+        for word in list_engl:
+            regex = re.compile(f"(.*?){word.strip().replace(' ', '(.*?)')}", re.IGNORECASE)
+            pattern_usage[usage_label]["common"].append(regex)
 
-    pattern_usage_teaser['office_function']["common"] = [re.compile(
-        '(.*?)%s' % c_trans, re.IGNORECASE)
-        for c_trans in usages['office_function']["common"]]
+        if usage_label in combined:
+            for val in combined[usage_label].get("common", []):
+                pattern_usage[usage_label]["common"].append(re.compile(f"(.*?){val}", re.IGNORECASE))
+            for val in combined[usage_label].get("custom", []):
+                pattern_usage[usage_label]["custom"].append(val)
 
-    return pattern_usage_teaser
+    return pattern_usage
+
+
+def get_effective_usage_data(custom_usage_path: Path = None, custom_conditions_path: Path = None):
+    """
+    Determines which usage and condition data to use:
+    - If both custom files are present and valid → use only them.
+    - Else → fallback to defaults in `assets/enrichment/usage`.
+    
+    Returns:
+        Tuple of:
+        - use_conditions (dict)
+        - pattern_usage (dict with compiled regex)
+    """
+    # Check custom use conditions
+    if custom_conditions_path and custom_conditions_path.exists():
+        use_conditions_path = custom_conditions_path
+    else:
+        use_conditions_path = assets / 'enrichment/usage/UseConditions.json'
+
+    if not validateJSON(use_conditions_path):
+        raise ValueError(f"Invalid use conditions file: {use_conditions_path}")
+
+    with open(use_conditions_path, 'r', encoding='utf-8') as f:
+        use_conditions = json.load(f)
+        if "version" in use_conditions:
+            del use_conditions["version"]
+
+    # Check custom usage definitions
+    custom_usages = {}
+    if custom_usage_path and custom_usage_path.exists() and validateJSON(custom_usage_path):
+        with open(custom_usage_path, 'r', encoding='utf-8') as f:
+            custom_data = json.load(f)
+            if custom_data.get("settings", {}).get("use"):
+                custom_usages = custom_data["usage_definitions"]
+
+    if custom_usages:
+        common_usages = {}  # ⛔️ skip loading common if custom is valid
+    else:
+        # fallback to defaults
+        common_usages_path = assets / 'enrichment/usage/commonUsages.json'
+        if not validateJSON(common_usages_path):
+            raise ValueError(f"Invalid fallback usage file: {common_usages_path}")
+        with open(common_usages_path, 'r', encoding='utf-8') as f:
+            common_usages = json.load(f)
+
+    pattern_usage = compile_usage_patterns(use_conditions, custom_usages, common_usages)
+    return use_conditions, pattern_usage
 
 
 def combine_usages(common_usages, custom_usages) -> dict:
