@@ -315,14 +315,8 @@ class Project:
                                  "Use Project.create() to create a new Project")
         self._made_decisions = DecisionBunch()
         self.loaded_decisions = load(self.paths.decisions)
-
-        # Note: Settings here are still Objects in project.plugin_cls.sim_settings
         self.plugin_cls = self._get_plugin(plugin)
-        # Note: Settings are getting changed here
         self.playground = Playground(self)
-
-        # link sim_settings to project to make set of settings easier
-        # Note: Not nice imho!
         self.sim_settings = self.playground.sim_settings
 
     def _get_plugin(self, plugin):

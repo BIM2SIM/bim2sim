@@ -98,7 +98,7 @@ class SettingsManager(dict):
             setting = getattr(type(self.bound_simulation_settings), name)
             if name == 'dymola_simulation':
                 self[name] = setting
-                self[name].value = None
+                # self[name].value = None
             else:
                 setting.initialize(self)
 
@@ -108,7 +108,6 @@ class SettingsManager(dict):
         """
         Returns a generator object with all settings that the bound_simulation_settings owns.
         """
-        # Note: Property code changed for better readability
         bound_simulation_settings_class = type(self.bound_simulation_settings)
 
         for attribute_name in dir(bound_simulation_settings_class):
@@ -120,13 +119,21 @@ class SettingsManager(dict):
                 yield attribute_name
 
 
-class SettingPydantic(BaseModel):
-    # value: None
+class SettingPydantic(BaseModel, validate_assignment=True):
+    value: None
+    # default:
     name: str = Field(default="set automatically")
     description: Union[str, None]
     for_frontend: bool = Field(default="False")
-    any_string: bool =  Field(default="False")
+    any_string: bool = Field(default="False")
 
+    def __set__(self, bound_simulation_settings, value):
+        bound_simulation_settings.manager[self.name].value = value
+
+    def __get__(self, bound_simulation_settings, owner):
+        if bound_simulation_settings is None:
+            return self
+        return bound_simulation_settings.manager[self.name].value
 
 class Setting:
     """Define specific settings regarding model creation and simulation.
@@ -152,8 +159,6 @@ class Setting:
     ):
         self.name = None  # set by AutoSettingNameMeta
         self.default = default
-        # Note: Created with None value, real value is set later.
-        # Have to be done with Pydantic setting too.
         self.value = None
         self.description = description
         self.for_webapp = for_frontend
@@ -166,7 +171,6 @@ class Setting:
         if not self.name:
             raise AttributeError("Attribute.name not set!")
         self.check_setting_config()
-        # Note: Now done in SettingsManager
         manager[self.name] = self
         manager[self.name].value = None
 
@@ -463,9 +467,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
     """Specification of basic bim2sim simulation settings which are common for
     all simulations"""
 
-    # Note: Only relevant call of SettingsManager
     def __init__(self, filters: list = None):
-        # Note: What are these bound_simulation_settings good for?
         self.manager = SettingsManager(bound_simulation_settings=self)
 
         self.relevant_elements = {}
@@ -555,11 +557,6 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True,
     )
 
-    dymola_simulation_ = BooleanSetting(
-        default=False,
-        description='Run a Simulation with Dymola after model export?',
-        for_frontend=True
-    )
     create_external_elements = BooleanSetting(
         default=False,
         description='Create external elements?',
@@ -719,8 +716,7 @@ class PlantSimSettings(BaseSimSettings):
         default=True
     )
 
-# Note: BaseSimSettings contains dymola_simulation_pydantic
-# self.TEASERSimSettings as BooleanSettingPydantic not as str like the other settings
+
 class BuildingSimSettings(BaseSimSettings):
 
     def __init__(self):

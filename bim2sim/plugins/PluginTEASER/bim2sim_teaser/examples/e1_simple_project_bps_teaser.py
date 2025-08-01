@@ -52,6 +52,7 @@ def run_example_simple_building_teaser():
     # Run a simulation directly with dymola after model creation
     project.sim_settings.dymola_simulation = False
     project.sim_settings.create_plots = False
+
     # Select results to output:
     project.sim_settings.sim_results = [
         "heat_demand_total", "cool_demand_total",
