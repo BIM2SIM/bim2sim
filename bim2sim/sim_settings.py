@@ -9,7 +9,9 @@ import os.path
 from pathlib import Path
 from typing import Union
 import sys
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
+from pydantic_core import PydanticCustomError
+from typing_extensions import Self
 
 from bim2sim.utilities import types
 from bim2sim.utilities.types import LOD
@@ -96,7 +98,7 @@ class SettingsManager(dict):
         for name in self.names:
             # Loads setting by name
             setting = getattr(type(self.bound_simulation_settings), name)
-            if name == 'dymola_simulation':
+            if isinstance(setting, SettingPydantic):
                 self[name] = setting
                 # self[name].value = None
             else:
@@ -385,9 +387,25 @@ class PathSetting(Setting):
             self._inner_set(bound_simulation_settings, value)
 
 class BooleanSettingPydantic(SettingPydantic):
-    # Note: To make a field mandatory in pydantic you must not set a default value
-    value: bool # = Field(default=False)
+    value: bool
 
+
+class NumberSettingPydantic(SettingPydantic):
+    value: float
+    description: Union[str, None] = None
+    for_frontend: bool = False
+    any_string: bool = False
+    min_value: float = None
+    max_value: float = None
+
+    @model_validator(mode='after')
+    def check_passwords_match(self) -> Self:
+        if not (self.min_value <= self.value <= self.max_value):
+            raise PydanticCustomError(
+                "value_out_of_range",
+                f"value ({self.value}) must be between {self.min_value} and {self.max_value}"  # type: ignore[misc]
+            )
+        return self
 
 class BooleanSetting(Setting):
     def check_value(self, bound_simulation_settings, value):
@@ -477,7 +495,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
     def load_default_settings(self):
         """loads default values for all settings"""
         for setting in self.manager.values():
-            if setting.name != 'dymola_simulation':
+            if not isinstance(setting, SettingPydantic):
                 setting.load_default()
 
     def update_from_config(self, config):
@@ -543,7 +561,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
     def check_mandatory(self):
         """Check if mandatory settings have a value."""
         for setting in self.manager.values():
-            if setting.name != "dymola_simulation" and setting.mandatory:
+            if not isinstance(setting, SettingPydantic) and setting.mandatory:
                 if not setting.value:
                     raise ValueError(
                         f"Attempted to run project. Simulation setting "
@@ -562,8 +580,9 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         description='Create external elements?',
         for_frontend=True
     )
-    max_wall_thickness = NumberSetting(
-        default=0.3,
+
+    max_wall_thickness = NumberSettingPydantic(
+        value=0.3,
         max_value=0.60,
         min_value=1e-3,
         description='Choose maximum wall thickness as a tolerance for mapping '
