@@ -141,6 +141,13 @@ class OpenFOAMSimSettings(ComfortSimSettings):
                     'recomputed or not.',
         for_frontend=True
     )
+    total_iterations = NumberSetting(
+        default=20000,
+        min_value=20,
+        max_value=50000,
+        description='Total number of iterations for the simulation.',
+        for_frontend=True
+    )
     steady_iterations = NumberSetting(
         default=2500,
         min_value=20,
