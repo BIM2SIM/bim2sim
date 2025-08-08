@@ -109,7 +109,7 @@ PluginComfort = [
 ]
 docu = [
     "sphinx==6.2.1",
-    "myst-parser",
+    # "myst-parser",
     "anybadge",
     "m2r2",
     "sphinx-material",
