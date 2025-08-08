@@ -1,9 +1,9 @@
 stages:
+  - doc
+  - code_quality
   - Test Base
   - Test Plugin
   - Test Regression
-  - doc
-  - code_quality
   - deploy
   - build
 
@@ -18,7 +18,6 @@ variables:
   GH_PAGES_URL: "https://bim2sim.github.io/${CI_PROJECT_NAME}/"
   TEST_ENGINE: "unittest"
   TEST_PATH: test
-  EXTRA_REQUIREMENTS_PIP: "[PluginTEASER,PluginEnergyPlus,PluginAixLib,PluginCFD,PluginHKESim,PluginLCA,PluginComfort]"
 
 
 include:
@@ -35,7 +34,7 @@ include:
     # if stage is doc, we need to install documentation specific dependencies
     - eval "$(micromamba shell hook --shell bash)"
     - micromamba activate base
-    - pip install -e .[docu]
+    - pip install -e .[docu,PluginTEASER,PluginEnergyPlus,PluginAixLib,PluginCFD,PluginHKESim,PluginLCA,PluginComfort]
 
 .build_template: &build_template
   image: docker:24.0.5
