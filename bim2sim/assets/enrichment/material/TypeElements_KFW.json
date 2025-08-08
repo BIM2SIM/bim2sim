@@ -72,10 +72,10 @@
                 }
             },
             "1": {
-                "thickness": 0.175,
+                "thickness": 0.200,
                 "material": {
-                    "name": "EPS_040_15",
-                    "material_id": "25d281da-3a43-11e7-8191-2cd444b2e704"
+                    "name": "XPS_30",
+                    "material_id": "2603ea80-3a43-11e7-882b-2cd444b2e704"
                 }
             },
             "2": {
@@ -121,10 +121,10 @@
                 }
             },
             "1": {
-                "thickness": 0.17,
+                "thickness": 0.2,
                 "material": {
-                    "name": "EPS_035",
-                    "material_id": "c21ad9c2-8859-11ee-af63-e8b1fc95108b"
+                    "name": "XPS_30",
+                    "material_id": "2603ea80-3a43-11e7-882b-2cd444b2e704"
                 }
             },
             "2": {
@@ -364,8 +364,8 @@
             "1": {
                 "thickness": 0.12,
                 "material": {
-                    "name": "EPS_040_15",
-                    "material_id": "25d281da-3a43-11e7-8191-2cd444b2e704"
+                    "name": "XPS_30",
+                    "material_id": "2603ea80-3a43-11e7-882b-2cd444b2e704"
                 }
             },
             "2": {
@@ -411,10 +411,10 @@
                 }
             },
             "1": {
-                "thickness": 0.13,
+                "thickness": 0.15,
                 "material": {
-                    "name": "EPS_035",
-                    "material_id": "c21ad9c2-8859-11ee-af63-e8b1fc95108b"
+                    "name": "XPS_30",
+                    "material_id": "2603ea80-3a43-11e7-882b-2cd444b2e704"
                 }
             },
             "2": {
@@ -1227,8 +1227,8 @@
             "1": {
                 "thickness": 0.04,
                 "material": {
-                    "name": "EPS_040_15",
-                    "material_id": "25d281da-3a43-11e7-8191-2cd444b2e704"
+                    "name": "XPS_30",
+                    "material_id": "2603ea80-3a43-11e7-882b-2cd444b2e704"
                 }
             },
             "2": {
@@ -1274,10 +1274,10 @@
                 }
             },
             "1": {
-                "thickness": 0.07,
+                "thickness": 0.08,
                 "material": {
-                    "name": "EPS_035",
-                    "material_id": "c21ad9c2-8859-11ee-af63-e8b1fc95108b"
+                    "name": "XPS_30",
+                    "material_id": "2603ea80-3a43-11e7-882b-2cd444b2e704"
                 }
             },
             "2": {
