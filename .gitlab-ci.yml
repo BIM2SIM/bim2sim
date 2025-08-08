@@ -18,6 +18,7 @@ variables:
   GH_PAGES_URL: "https://bim2sim.github.io/${CI_PROJECT_NAME}/"
   TEST_ENGINE: "unittest"
   TEST_PATH: test
+  EXTRA_REQUIREMENTS_PIP: "[PluginTEASER,PluginEnergyPlus,PluginAixLib,PluginCFD,PluginHKESim,PluginLCA,PluginComfort]"
 
 
 include:
