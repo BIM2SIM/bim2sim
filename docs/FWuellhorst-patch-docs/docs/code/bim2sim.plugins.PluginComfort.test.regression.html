@@ -45,10 +45,6 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user-guide.html">User-Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../advanced-user-guide.html">Advanced User-Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer-guide.html">Developer-Guide</a></li>
 </ul>
 <ul class="current">
@@ -116,8 +112,82 @@
 <dd></dd></dl>
 
 </section>
-<section id="bim2sim-plugins-plugincomfort-test-regression-test-comfort-module">
-<h2>bim2sim.plugins.PluginComfort.test.regression.test_comfort module<a class="headerlink" href="#bim2sim-plugins-plugincomfort-test-regression-test-comfort-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.plugins.PluginComfort.test.regression.test_comfort">
+<span id="bim2sim-plugins-plugincomfort-test-regression-test-comfort-module"></span><h2>bim2sim.plugins.PluginComfort.test.regression.test_comfort module<a class="headerlink" href="#module-bim2sim.plugins.PluginComfort.test.regression.test_comfort" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.test.regression.test_comfort.RegressionTestComfort">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginComfort.test.regression.test_comfort.</span></span><span class="sig-name descname"><span class="pre">RegressionTestComfort</span></span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.test.regression.test_comfort.RegressionTestComfort" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.test.RegressionTestBase" title="bim2sim.utilities.test.RegressionTestBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressionTestBase</span></code></a></p>
+<p>Class to set up and run EnergyPlus Comfort regression tests.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.test.regression.test_comfort.RegressionTestComfort.create_regression_results">
+<span class="sig-name descname"><span class="pre">create_regression_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.test.regression.test_comfort.RegressionTestComfort.create_regression_results" title="Permalink to this definition"></a></dt>
+<dd><p>Creates regression results based on simulation model.</p>
+<p>If simulation is successful and regression results differ from
+new simulation results, the user is asked if the results should be
+overwritten.
+If simulation  is successful and simulation results are same with
+regression results nothing happens.
+If simulation is not successful nothing happens.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.test.regression.test_comfort.RegressionTestComfort.create_regression_setup">
+<span class="sig-name descname"><span class="pre">create_regression_setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.test.regression.test_comfort.RegressionTestComfort.create_regression_setup" title="Permalink to this definition"></a></dt>
+<dd><p>Create a regression test setup for EnergyPlus.</p>
+<p>This method uses the energyplus_regressions library to create a
+regression test for the passed project EnergyPlus simulation model
+export.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.test.regression.test_comfort.RegressionTestComfort.run_regression_test">
+<span class="sig-name descname"><span class="pre">run_regression_test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.test.regression.test_comfort.RegressionTestComfort.run_regression_test" title="Permalink to this definition"></a></dt>
+<dd><p>Run the EnergyPlus regression test.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.test.regression.test_comfort.RegressionTestComfort.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.test.regression.test_comfort.RegressionTestComfort.setUp" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.test.regression.test_comfort.RegressionTestComfort.tearDown">
+<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.test.regression.test_comfort.RegressionTestComfort.tearDown" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.test.regression.test_comfort.RegressionTestComfort.weather_file_path">
+<span class="sig-name descname"><span class="pre">weather_file_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.test.regression.test_comfort.RegressionTestComfort.weather_file_path" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.test.regression.test_comfort.TestRegressionComfort">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginComfort.test.regression.test_comfort.</span></span><span class="sig-name descname"><span class="pre">TestRegressionComfort</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.test.regression.test_comfort.TestRegressionComfort" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginComfort.test.regression.test_comfort.RegressionTestComfort" title="bim2sim.plugins.PluginComfort.test.regression.test_comfort.RegressionTestComfort"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressionTestComfort</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<p>Regression tests for EnergyPlus.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.test.regression.test_comfort.TestRegressionComfort.test_regression_AC20_FZK_Haus">
+<span class="sig-name descname"><span class="pre">test_regression_AC20_FZK_Haus</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.test.regression.test_comfort.TestRegressionComfort.test_regression_AC20_FZK_Haus" title="Permalink to this definition"></a></dt>
+<dd><p>Run EnergyPlus regression test with AC20-FZK-Haus.ifc.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.test.regression.test_comfort.TestRegressionComfort.test_regression_AC20_FZK_Haus_SB55">
+<span class="sig-name descname"><span class="pre">test_regression_AC20_FZK_Haus_SB55</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.test.regression.test_comfort.TestRegressionComfort.test_regression_AC20_FZK_Haus_SB55" title="Permalink to this definition"></a></dt>
+<dd><p>Run EnergyPlus regression test with AC20-FZK-Haus.ifc.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.test.regression.test_comfort.TestRegressionComfort.test_regression_DigitalHub_SB89">
+<span class="sig-name descname"><span class="pre">test_regression_DigitalHub_SB89</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.test.regression.test_comfort.TestRegressionComfort.test_regression_DigitalHub_SB89" title="Permalink to this definition"></a></dt>
+<dd><p>Test DigitalHub IFC, includes regression test.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 

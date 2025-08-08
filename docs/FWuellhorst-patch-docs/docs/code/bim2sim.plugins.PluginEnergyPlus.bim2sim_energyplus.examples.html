@@ -45,10 +45,6 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user-guide.html">User-Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../advanced-user-guide.html">Advanced User-Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer-guide.html">Developer-Guide</a></li>
 </ul>
 <ul class="current">
@@ -103,22 +99,52 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="bim2sim-plugins-pluginenergyplus-bim2sim-energyplus-examples-package">
-<h1>bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples package<a class="headerlink" href="#bim2sim-plugins-pluginenergyplus-bim2sim-energyplus-examples-package" title="Permalink to this heading"></a></h1>
+  <section id="module-bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples">
+<span id="bim2sim-plugins-pluginenergyplus-bim2sim-energyplus-examples-package"></span><h1>bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples package<a class="headerlink" href="#module-bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples" title="Permalink to this heading"></a></h1>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
-<section id="bim2sim-plugins-pluginenergyplus-bim2sim-energyplus-examples-e1-simple-project-energyplus-module">
-<h2>bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_energyplus module<a class="headerlink" href="#bim2sim-plugins-pluginenergyplus-bim2sim-energyplus-examples-e1-simple-project-energyplus-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_energyplus">
+<span id="bim2sim-plugins-pluginenergyplus-bim2sim-energyplus-examples-e1-simple-project-energyplus-module"></span><h2>bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_energyplus module<a class="headerlink" href="#module-bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_energyplus" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_energyplus.run_example_1">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_energyplus.</span></span><span class="sig-name descname"><span class="pre">run_example_1</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e1_simple_project_energyplus.run_example_1" title="Permalink to this definition"></a></dt>
+<dd><p>Run a building performance simulation with the EnergyPlus backend.</p>
+<p>This example runs a BPS with the EnergyPlus backend. Specifies project
+directory and location of the IFC file. Then, it creates a bim2sim
+project with the EnergyPlus backend. Simulation settings are specified
+(EnergyPlus location needs to be specified according to your system,
+other settings are set to default if not specified otherwise),
+before the project is executed with the previously specified settings.</p>
+</dd></dl>
+
 </section>
-<section id="bim2sim-plugins-pluginenergyplus-bim2sim-energyplus-examples-e2-complex-project-energyplus-module">
-<h2>bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e2_complex_project_energyplus module<a class="headerlink" href="#bim2sim-plugins-pluginenergyplus-bim2sim-energyplus-examples-e2-complex-project-energyplus-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e2_complex_project_energyplus">
+<span id="bim2sim-plugins-pluginenergyplus-bim2sim-energyplus-examples-e2-complex-project-energyplus-module"></span><h2>bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e2_complex_project_energyplus module<a class="headerlink" href="#module-bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e2_complex_project_energyplus" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e2_complex_project_energyplus.run_example_complex_building_energyplus">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e2_complex_project_energyplus.</span></span><span class="sig-name descname"><span class="pre">run_example_complex_building_energyplus</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e2_complex_project_energyplus.run_example_complex_building_energyplus" title="Permalink to this definition"></a></dt>
+<dd><p>Run a building performance simulation with PluginEnergyPlus.</p>
+<p>This example creates a BEPS simulation model and performs the simulation
+in Dymola based on the DigitalHub IFC using PluginTEASER.</p>
+</dd></dl>
+
 </section>
 <section id="bim2sim-plugins-pluginenergyplus-bim2sim-energyplus-examples-e3-load-energyplus-simulation-results-module">
 <h2>bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e3_load_energyplus_simulation_results module<a class="headerlink" href="#bim2sim-plugins-pluginenergyplus-bim2sim-energyplus-examples-e3-load-energyplus-simulation-results-module" title="Permalink to this heading"></a></h2>
 </section>
-<section id="bim2sim-plugins-pluginenergyplus-bim2sim-energyplus-examples-e4-simple-rotated-project-energyplus-module">
-<h2>bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e4_simple_rotated_project_energyplus module<a class="headerlink" href="#bim2sim-plugins-pluginenergyplus-bim2sim-energyplus-examples-e4-simple-rotated-project-energyplus-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e4_simple_rotated_project_energyplus">
+<span id="bim2sim-plugins-pluginenergyplus-bim2sim-energyplus-examples-e4-simple-rotated-project-energyplus-module"></span><h2>bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e4_simple_rotated_project_energyplus module<a class="headerlink" href="#module-bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e4_simple_rotated_project_energyplus" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e4_simple_rotated_project_energyplus.run_example_4">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e4_simple_rotated_project_energyplus.</span></span><span class="sig-name descname"><span class="pre">run_example_4</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.examples.e4_simple_rotated_project_energyplus.run_example_4" title="Permalink to this definition"></a></dt>
+<dd><p>Run a building performance simulation with the EnergyPlus backend.</p>
+<p>This example runs a BPS with the EnergyPlus backend. Specifies project
+directory and location of the IFC file. Then, it creates a bim2sim
+project with the EnergyPlus backend. In this example, the building is
+rotated by 180° clockwise.</p>
+</dd></dl>
+
 </section>
 </section>
 

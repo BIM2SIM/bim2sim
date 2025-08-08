@@ -45,10 +45,6 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user-guide.html">User-Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../advanced-user-guide.html">Advanced User-Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer-guide.html">Developer-Guide</a></li>
 </ul>
 <ul class="current">
@@ -103,8 +99,292 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="bim2sim-plugins-pluginteaser-bim2sim-teaser-models-package">
-<h1>bim2sim.plugins.PluginTEASER.bim2sim_teaser.models package<a class="headerlink" href="#bim2sim-plugins-pluginteaser-bim2sim-teaser-models-package" title="Permalink to this heading"></a></h1>
+  <section id="module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.models">
+<span id="bim2sim-plugins-pluginteaser-bim2sim-teaser-models-package"></span><h1>bim2sim.plugins.PluginTEASER.bim2sim_teaser.models package<a class="headerlink" href="#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.models" title="Permalink to this heading"></a></h1>
+<p>Package for Python representations of TEASER models</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Building">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.</span></span><span class="sig-name descname"><span class="pre">Building</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bim2sim_element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Building" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER" title="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER"><code class="xref py py-class docutils literal notranslate"><span class="pre">TEASER</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Building</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Building.add_thermal_zones_to_building">
+<span class="sig-name descname"><span class="pre">add_thermal_zones_to_building</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Building.add_thermal_zones_to_building" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Building.represents">
+<span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Building'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Building.represents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Building.request_params">
+<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Building.request_params" title="Permalink to this definition"></a></dt>
+<dd><p>Request all required parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.BuildingAHU">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.</span></span><span class="sig-name descname"><span class="pre">BuildingAHU</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.BuildingAHU" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER" title="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER"><code class="xref py py-class docutils literal notranslate"><span class="pre">TEASER</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">BuildingAHU</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.BuildingAHU.overwrite_teaser_defaults">
+<span class="sig-name descname"><span class="pre">overwrite_teaser_defaults</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.BuildingAHU.overwrite_teaser_defaults" title="Permalink to this definition"></a></dt>
+<dd><p>Overwrites default BuildingAHU values from TEASER</p>
+<p>This is required as TEASER sets defaults for e.g. the AHU setup and in
+enrichment we only enrich not-existing values. Without setting the
+defaults back to None would lead to errors.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.BuildingAHU.represents">
+<span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.BuildingAHU.represents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.BuildingAHU.request_params">
+<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.BuildingAHU.request_params" title="Permalink to this definition"></a></dt>
+<dd><p>Request all required parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Ceiling">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.</span></span><span class="sig-name descname"><span class="pre">Ceiling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Ceiling" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers" title="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElementWithLayers</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Ceiling</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Ceiling.represents">
+<span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerFloor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.bps_aggregations.InnerFloorDisaggregated'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Ceiling.represents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Ceiling.request_params">
+<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Ceiling.request_params" title="Permalink to this definition"></a></dt>
+<dd><p>Request all required parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Door">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.</span></span><span class="sig-name descname"><span class="pre">Door</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Door" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers" title="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElementWithLayers</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Door</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Door.represents">
+<span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.OuterDoor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Door'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.bps_aggregations.OuterDoorDisaggregated'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Door.represents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Door.request_params">
+<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Door.request_params" title="Permalink to this definition"></a></dt>
+<dd><p>Request all required parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.</span></span><span class="sig-name descname"><span class="pre">ElementWithLayers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER" title="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER"><code class="xref py py-class docutils literal notranslate"><span class="pre">TEASER</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers.add_layers_to_element">
+<span class="sig-name descname"><span class="pre">add_layers_to_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers.add_layers_to_element" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Floor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.</span></span><span class="sig-name descname"><span class="pre">Floor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Floor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers" title="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElementWithLayers</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Floor</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Floor.represents">
+<span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerFloor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.bps_aggregations.InnerFloorDisaggregated'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Floor.represents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Floor.request_params">
+<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Floor.request_params" title="Permalink to this definition"></a></dt>
+<dd><p>Request all required parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.GroundFloor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.</span></span><span class="sig-name descname"><span class="pre">GroundFloor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.GroundFloor" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers" title="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElementWithLayers</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">GroundFloor</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.GroundFloor.represents">
+<span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.GroundFloor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.bps_aggregations.GroundFloorDisaggregated'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.GroundFloor.represents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.GroundFloor.request_params">
+<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.GroundFloor.request_params" title="Permalink to this definition"></a></dt>
+<dd><p>Request all required parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.InnerWall">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.</span></span><span class="sig-name descname"><span class="pre">InnerWall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.InnerWall" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers" title="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElementWithLayers</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">InnerWall</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.InnerWall.represents">
+<span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerDoor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.InnerWall'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.bps_aggregations.InnerWallDisaggregated'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.InnerWall.represents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.InnerWall.request_params">
+<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.InnerWall.request_params" title="Permalink to this definition"></a></dt>
+<dd><p>Request all required parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Layer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.</span></span><span class="sig-name descname"><span class="pre">Layer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.Layer" title="bim2sim.elements.bps_elements.Layer"><span class="pre">Layer</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Layer" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER" title="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER"><code class="xref py py-class docutils literal notranslate"><span class="pre">TEASER</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Layer.represents">
+<span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Layer'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Layer.represents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Layer.request_params">
+<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Layer.request_params" title="Permalink to this definition"></a></dt>
+<dd><p>Request all required parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Material">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.</span></span><span class="sig-name descname"><span class="pre">Material</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Material" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER" title="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER"><code class="xref py py-class docutils literal notranslate"><span class="pre">TEASER</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Material</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Material.request_params">
+<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Material.request_params" title="Permalink to this definition"></a></dt>
+<dd><p>Request all required parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.OuterWall">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.</span></span><span class="sig-name descname"><span class="pre">OuterWall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.OuterWall" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers" title="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElementWithLayers</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">OuterWall</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.OuterWall.represents">
+<span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.OuterWall'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.bps_aggregations.OuterWallDisaggregated'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.OuterWall.represents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.OuterWall.request_params">
+<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.OuterWall.request_params" title="Permalink to this definition"></a></dt>
+<dd><p>Request all required parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Rooftop">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.</span></span><span class="sig-name descname"><span class="pre">Rooftop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Rooftop" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers" title="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElementWithLayers</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Rooftop</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Rooftop.represents">
+<span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Roof'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.bps_aggregations.RoofDisaggregated'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Rooftop.represents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Rooftop.request_params">
+<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Rooftop.request_params" title="Permalink to this definition"></a></dt>
+<dd><p>Request all required parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.</span></span><span class="sig-name descname"><span class="pre">TEASER</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.TEASERExportInstance" title="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.TEASERExportInstance"><code class="xref py py-class docutils literal notranslate"><span class="pre">TEASERExportInstance</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER.library">
+<span class="sig-name descname"><span class="pre">library</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'TEASER'</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER.library" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ThermalZone">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.</span></span><span class="sig-name descname"><span class="pre">ThermalZone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ThermalZone" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER" title="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER"><code class="xref py py-class docutils literal notranslate"><span class="pre">TEASER</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ThermalZone</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ThermalZone.add_elements_to_thermal_zone">
+<span class="sig-name descname"><span class="pre">add_elements_to_thermal_zone</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ThermalZone.add_elements_to_thermal_zone" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ThermalZone.represents">
+<span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.ThermalZone'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.bps_aggregations.AggregatedThermalZone'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ThermalZone.represents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ThermalZone.request_params">
+<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ThermalZone.request_params" title="Permalink to this definition"></a></dt>
+<dd><p>Request all required parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.UseConditions">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.</span></span><span class="sig-name descname"><span class="pre">UseConditions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.UseConditions" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER" title="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER"><code class="xref py py-class docutils literal notranslate"><span class="pre">TEASER</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">UseConditions</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.UseConditions.overwrite_teaser_defaults">
+<span class="sig-name descname"><span class="pre">overwrite_teaser_defaults</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.UseConditions.overwrite_teaser_defaults" title="Permalink to this definition"></a></dt>
+<dd><p>Overwrites default use conditions values from TEASER</p>
+<p>This is required as TEASER sets defaults for e.g. the usage and in
+enrichment we only enrich not-existing values. Without setting the
+defaults back to None would lead to errors.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.UseConditions.represents">
+<span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.UseConditions.represents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.UseConditions.request_params">
+<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.UseConditions.request_params" title="Permalink to this definition"></a></dt>
+<dd><p>Request all required parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Window">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.</span></span><span class="sig-name descname"><span class="pre">Window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Window" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers" title="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers"><code class="xref py py-class docutils literal notranslate"><span class="pre">ElementWithLayers</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Window</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Window.represents">
+<span class="sig-name descname"><span class="pre">represents</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Container</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.Element" title="bim2sim.elements.base_elements.Element"><span class="pre">Element</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.elements.bps_elements.Window'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.elements.aggregation.bps_aggregations.WindowDisaggregated'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Window.represents" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Window.request_params">
+<span class="sig-name descname"><span class="pre">request_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Window.request_params" title="Permalink to this definition"></a></dt>
+<dd><p>Request all required parameters.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 
