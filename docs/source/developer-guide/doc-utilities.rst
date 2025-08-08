@@ -1,5 +1,5 @@
-# Utilities for documentation
-=============================
+Utilities for documentation
+===========================
 In this section utilities and howto use them for the bim2sim documentation will be explained.
 
 .. toctree::
