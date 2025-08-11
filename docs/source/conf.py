@@ -29,6 +29,7 @@ release = '0.1.0'
 # https://www.sphinx-doc.org/en/master/usage/configuration.ml#general-configuration
 
 extensions = [
+    'm2r2',  # Enable .md files
     'myst_parser',
     'sphinx.ext.autodoc',
     'sphinxcontrib.mermaid',
