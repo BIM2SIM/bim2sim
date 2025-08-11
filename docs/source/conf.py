@@ -3,6 +3,11 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+import logging
+
+# Configure logging to suppress verbose MyST messages
+logging.getLogger('myst_parser').setLevel(logging.WARNING)
+
 
 # -- Project information -----------------------------------------------------
 
@@ -17,7 +22,7 @@ release = '0.1.0'
 # https://www.sphinx-doc.org/en/master/usage/configuration.ml#general-configuration
 
 extensions = [
-    #'myst_parser',
+    'myst_parser',
     'sphinx.ext.autodoc',
     'sphinxcontrib.mermaid',
 ]
