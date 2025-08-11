@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Coverage for test/unit/elements/mapping/test_finder.py: 97%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
-    <link rel="stylesheet" href="style_cb_81f8c14c.css" type="text/css">
+    <link rel="stylesheet" href="style_cb_6b508a39.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
 </head>
 <body class="pyfile">
@@ -64,8 +64,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_e3f7bb075b825cf7_test_elements_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.9.2">coverage.py v7.9.2</a>,
-            created at 2025-07-17 13:41 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.10.3">coverage.py v7.10.3</a>,
+            created at 2025-08-11 10:26 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -93,9 +93,9 @@
     <p class="run"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t"><span class="key">from</span> <span class="nam">bim2sim</span><span class="op">.</span><span class="nam">elements</span><span class="op">.</span><span class="nam">mapping</span><span class="op">.</span><span class="nam">finder</span> <span class="key">import</span> <span class="nam">TemplateFinder</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="nam">IFC_PATH</span> <span class="op">=</span> <span class="op">(</span><span class="nam">Path</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">    <span class="nam">__file__</span><span class="op">)</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">parent</span> <span class="op">/</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">            <span class="str">'resources/hydraulic/ifc'</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">            <span class="str">'/KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t14" href="#t14">14</a></span><span class="t">    <span class="nam">__file__</span><span class="op">)</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">parent</span><span class="op">.</span><span class="nam">parent</span> <span class="op">/</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t15" href="#t15">15</a></span><span class="t">            <span class="str">'resources/hydraulic/ifc'</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t16" href="#t16">16</a></span><span class="t">            <span class="str">'/KM_DPM_Vereinshaus_Gruppe62_Heizung_with_pumps.ifc'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t17" href="#t17">17</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t18" href="#t18">18</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t19" href="#t19">19</a></span><span class="t"><span class="key">class</span> <span class="nam">TestTemplateFinder</span><span class="op">(</span><span class="nam">unittest</span><span class="op">.</span><span class="nam">TestCase</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -129,11 +129,11 @@
     <p class="run"><span class="n"><a id="t47" href="#t47">47</a></span><span class="t">        <span class="nam">tool</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">finder</span><span class="op">.</span><span class="nam">default_source_tool</span><span class="op">.</span><span class="nam">templ_name</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t48" href="#t48">48</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t49" href="#t49">49</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">finder</span><span class="op">.</span><span class="nam">set</span><span class="op">(</span><span class="nam">tool</span><span class="op">,</span> <span class="str">'Pipe'</span><span class="op">,</span> <span class="str">'length'</span><span class="op">,</span> <span class="str">'Abmessungen'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">                        <span class="str">'L&#228;nge'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t50" href="#t50">50</a></span><span class="t">                        <span class="str">'L&#228;nge'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t51" href="#t51">51</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">finder</span><span class="op">.</span><span class="nam">set</span><span class="op">(</span><span class="nam">tool</span><span class="op">,</span> <span class="str">'Pipe'</span><span class="op">,</span> <span class="str">'diameter'</span><span class="op">,</span> <span class="str">'Abmessungen'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t">                        <span class="str">'Innendurchmesser'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t52" href="#t52">52</a></span><span class="t">                        <span class="str">'Innendurchmesser'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t53" href="#t53">53</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">finder</span><span class="op">.</span><span class="nam">set</span><span class="op">(</span><span class="nam">tool</span><span class="op">,</span> <span class="str">'PipeFitting'</span><span class="op">,</span> <span class="str">'diameter'</span><span class="op">,</span> <span class="str">'Abmessungen'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t">                        <span class="str">'Nenndurchmesser'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t54" href="#t54">54</a></span><span class="t">                        <span class="str">'Nenndurchmesser'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t55" href="#t55">55</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t56" href="#t56">56</a></span><span class="t">        <span class="nam">l1</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">finder</span><span class="op">.</span><span class="nam">find</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">pipe1</span><span class="op">,</span> <span class="str">'length'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t57" href="#t57">57</a></span><span class="t">        <span class="nam">d1</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">finder</span><span class="op">.</span><span class="nam">find</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">pipe1</span><span class="op">,</span> <span class="str">'diameter'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -151,11 +151,11 @@
     <p class="run"><span class="n"><a id="t69" href="#t69">69</a></span><span class="t">    <span class="key">def</span> <span class="nam">test_save_load</span><span class="op">(</span><span class="nam">self</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t70" href="#t70">70</a></span><span class="t">        <span class="nam">tool</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">finder</span><span class="op">.</span><span class="nam">default_source_tool</span><span class="op">.</span><span class="nam">templ_name</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t71" href="#t71">71</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">finder</span><span class="op">.</span><span class="nam">set</span><span class="op">(</span><span class="nam">tool</span><span class="op">,</span> <span class="str">'Pipe'</span><span class="op">,</span> <span class="str">'length'</span><span class="op">,</span> <span class="str">'Abmessungen'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t">                        <span class="str">'L&#228;nge'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t72" href="#t72">72</a></span><span class="t">                        <span class="str">'L&#228;nge'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t73" href="#t73">73</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">finder</span><span class="op">.</span><span class="nam">set</span><span class="op">(</span><span class="nam">tool</span><span class="op">,</span> <span class="str">'Pipe'</span><span class="op">,</span> <span class="str">'diameter'</span><span class="op">,</span> <span class="str">'Abmessungen'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t">                        <span class="str">'Innendurchmesser'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t74" href="#t74">74</a></span><span class="t">                        <span class="str">'Innendurchmesser'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t75" href="#t75">75</a></span><span class="t">        <span class="nam">self</span><span class="op">.</span><span class="nam">finder</span><span class="op">.</span><span class="nam">set</span><span class="op">(</span><span class="nam">tool</span><span class="op">,</span> <span class="str">'PipeFitting'</span><span class="op">,</span> <span class="str">'diameter'</span><span class="op">,</span> <span class="str">'Abmessungen'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t">                        <span class="str">'Nenndurchmesser'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t76" href="#t76">76</a></span><span class="t">                        <span class="str">'Nenndurchmesser'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t77" href="#t77">77</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t78" href="#t78">78</a></span><span class="t">        <span class="nam">data</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">finder</span><span class="op">.</span><span class="nam">templates</span><span class="op">.</span><span class="nam">copy</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t79" href="#t79">79</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -179,8 +179,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_e3f7bb075b825cf7_test_elements_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.9.2">coverage.py v7.9.2</a>,
-            created at 2025-07-17 13:41 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.10.3">coverage.py v7.10.3</a>,
+            created at 2025-08-11 10:26 +0000
         </p>
     </div>
 </footer>

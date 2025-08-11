@@ -80,6 +80,70 @@
              
   <section id="welcome-to-bim2sim-s-documentation">
 <h1>Welcome to bim2sim’s documentation!<a class="headerlink" href="#welcome-to-bim2sim-s-documentation" title="Permalink to this heading"></a></h1>
+<section id="bim2sim">
+<h2><img src='https://raw.githubusercontent.com/BIM2SIM/bim2sim/development/docs/source/img/static/b2s_logo.png' width='200'> bim2sim<a class="headerlink" href="#bim2sim" title="Permalink to this heading"></a></h2>
+<p><a class="reference external" href="https://bim2sim.github.io/bim2sim/development/pylint/pylint.html"><img alt="pylint" src="https://bim2sim.github.io/bim2sim/development/pylint/pylint.svg" /></a>
+<a class="reference external" href="https://bim2sim.github.io/bim2sim/development/docs/index.html"><img alt="documentation" src="https://bim2sim.github.io/bim2sim/development/docs/doc.svg" /></a>
+<a class="reference external" href="https://bim2sim.github.io/bim2sim/development/coverage"><img alt="coverage (W/O Plugins)" src="https://bim2sim.github.io/bim2sim/development/coverage/badge.svg" /></a>
+<a class="reference external" href="https://www.gnu.org/licenses/lgpl-3.0"><img alt="License: LGPL v3" src="https://img.shields.io/badge/License-LGPL_v3-blue.svg" /></a></p>
+<p>bim2sim is a library to create simulation models for different purposes based on BIM models in the IFC format. The project is based on a base code that provides the possiblity to map the IFC data into a uniform meta strucuture. This structure can then be used to create simulation models for different purposes which is done by plugins. The corresponding project BIM2SIM (see founding section below) adressed the following four domains:</p>
+<ul class="simple">
+<li><p>Building Performance Simulation (BPS)</p></li>
+<li><p>Heating, Ventilation, Air Conditioning (HVAC)</p></li>
+<li><p>Life Cycle Assessment (LCA)</p></li>
+</ul>
+<p>The focus of the currently released tool is on BPS and HVAC but we already provide basic methods for CFD and LCA as well. The base structure is shown below:
+<img alt="Toolchain" src="https://raw.githubusercontent.com/BIM2SIM/bim2sim/development/docs/source/img/static/bim2sim_framework_overview.png" /></p>
+<section id="installation-and-usage">
+<h3>Installation and Usage<a class="headerlink" href="#installation-and-usage" title="Permalink to this heading"></a></h3>
+<p>You can find detailed documentation and description how to install and to use in our <a class="reference external" href="https://bim2sim.github.io/bim2sim//development/docs/index.html">documentation</a>. We recommend reading at least:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://bim2sim.github.io/bim2sim//development/docs/big-picture.html">Big Picture</a> to understand the concepts of bim2sim</p></li>
+<li><p><a class="reference external" href="https://bim2sim.github.io/bim2sim//development/docs/user-guide/PluginTemplate.html#how-to-install">PluginTemplate - How to install?</a> to understand how to install the Base of the framework.</p></li>
+</ul>
+</section>
+<section id="related-publications">
+<h3>Related Publications<a class="headerlink" href="#related-publications" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.tib.eu/en/search/id/TIBKAT:1819319997">Final Report of BIM2SIM project</a></p></li>
+<li><p><a class="reference external" href="https://doi.org/10.26868/25222708.2021.30228">Jansen et al., BIM2SIM - Development of semi-automated methods for the generation of simulation models using Building Information Modeling, Proceedings of Building Simulation 2021: 17th Conference of IBPSA in Bruges</a></p></li>
+<li><p><a class="reference external" href="https://doi.org/10.3384/ecp21181665">Jansen et al., Examination of Reduced Order Building Models with Different Zoning Strategies to Simulate Larger Non-Residential Buildings Based on BIM as Single Source of Truth, Proceedings of 14th Modelica Conference 2021, Linköping, Sweden</a></p></li>
+<li><p><a class="reference external" href="https://doi.org/10.26868/25746308.2022.C033">Richter et al., Validation of IFC-based Geometric Input for Building Energy Performance Simulation, 2022 Building Performance Analysis Conference and SimBuild co-organized by ASHRAE and IBPSA-USA</a></p></li>
+<li><p><a class="reference external" href="https://tuprints.ulb.tu-darmstadt.de/21521/">Richter et al., Algorithms for Overcoming Geometric and Semantic Errors in the Generation of EnergyPlus Input Files based on IFC Space Boundaries, 32. Forum Bauinformatik 2021</a></p></li>
+<li><p><a class="reference external" href="https://doi.org/10.26868/25222708.2021.30156">Fichter et al., Automatic generation of second level space boundary geometry from IFC models, Proceedings of Building Simulation 2021: 17th Conference of IBPS</a></p></li>
+<li><p><a class="reference external" href="https://doi.org/10.14459/2022md1686600">Junck et al., Geometrische Transformation von IFC-Raumbegrenzungsflächen für die normkonforme thermische Gebäudesimulation, Proceedings of 33. Forum Bauinformatik, 2022</a></p></li>
+</ul>
+</section>
+<section id="acknowledgements">
+<h3>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Permalink to this heading"></a></h3>
+<p>The tool was developed during the project “BIM2SIM - Methodenentwicklung zur Erstellung von Simulationsmodellen aus Daten des Building Information Modeling”. The project was funded by the Federal Ministry for Economic Affairs and Energy in germany under the grant number 03ET1562A. The ongoing development is funded by the follow up project “BIM2Praxis - Integration of methods for the creation of simulation models based on Building Information Modeling into practice” with funding from the Federal Ministry for Economic Affairs and Climate Action under the grant number 3EN1050A. The authors of the tool gratefully acknowledge the financial support of the German Federal Ministry for Economic Affairs and Energy and the Federal Ministry for Economic Affairs and Climate Action in Germany.</p>
+</section>
+<section id="license">
+<h3>License<a class="headerlink" href="#license" title="Permalink to this heading"></a></h3>
+<p>bim2sim is developed and released by the following three partners under the <a class="reference external" href="https://github.com/BIM2SIM/bim2sim/blob/main/LICENSE">LGPL-3.0 license</a>:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.ebc.eonerc.rwth-aachen.de/cms/~dmzz/E-ON-ERC-EBC/">Institute for Energy Efficient Buildings and Indoor Climate (RWTH Aachen University)</a></p></li>
+<li><p><a class="reference external" href="https://www.e3d.rwth-aachen.de/cms/~iyld/E3D/?lidx=1">E3D - Institute of Energy Efficiency and Sustainable Building (RWTH Aachen University)</a></p></li>
+<li><p><a class="reference external" href="https://www.rom-technik.de/home/">ROM Technik GmbH</a></p></li>
+</ul>
+<p><img alt="all_partners" src="https://user-images.githubusercontent.com/27726960/211298128-09799889-774a-49a5-a7c4-9c9163613990.png" /></p>
+</section>
+<section id="upcoming-features">
+<h3>Upcoming Features:<a class="headerlink" href="#upcoming-features" title="Permalink to this heading"></a></h3>
+<p>bim2sim is still under heavy development and you can find a lot of features that we want to improve or implement inside the issue section. Anyway here are some of the major ones that we plan to implement:</p>
+<ul class="simple">
+<li><p>[ ] release of an interactive webtool that has its own inbuilt IFC viewer to support decision making along the model geenration process</p></li>
+<li><p>[ ] interactive visualization of hydraulic networks graphs for HVAC part</p></li>
+<li><p>[ ] implementation of curtain walls for BPS part</p></li>
+<li><p>[ ] support of AHU and ventilation simulations with Modelica</p></li>
+<li><p>[ ] automated integration of weather files based of location of building</p></li>
+<li><p>[ ] … have a look at the <a class="reference external" href="https://github.com/BIM2SIM/bim2sim/issues">issues</a></p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="contents-of-this-documentation">
+<h1>Contents of this documentation<a class="headerlink" href="#contents-of-this-documentation" title="Permalink to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="big-picture.html">Big Picture</a><ul>
@@ -554,7 +618,7 @@
 </li>
 <li class="toctree-l4"><a class="reference internal" href="code/bim2sim.utilities.html">bim2sim.utilities package</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="code/bim2sim.utilities.html#submodules">Submodules</a></li>
-<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.utilities.html#bim2sim-utilities-check-docstrings-module">bim2sim.utilities.check_docstrings module</a></li>
+<li class="toctree-l5"><a class="reference internal" href="code/bim2sim.utilities.html#module-bim2sim.utilities.check_docstrings">bim2sim.utilities.check_docstrings module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="code/bim2sim.utilities.html#module-bim2sim.utilities.common_functions">bim2sim.utilities.common_functions module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="code/bim2sim.utilities.html#module-bim2sim.utilities.pyocc_tools">bim2sim.utilities.pyocc_tools module</a></li>
 <li class="toctree-l5"><a class="reference internal" href="code/bim2sim.utilities.html#module-bim2sim.utilities.svg_utils">bim2sim.utilities.svg_utils module</a></li>

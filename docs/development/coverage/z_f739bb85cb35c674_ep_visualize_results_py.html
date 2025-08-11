@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Coverage for bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/task/ep_visualize_results.py: 0%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
-    <link rel="stylesheet" href="style_cb_81f8c14c.css" type="text/css">
+    <link rel="stylesheet" href="style_cb_6b508a39.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
 </head>
 <body class="pyfile">
@@ -64,8 +64,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_f739bb85cb35c674_load_energyplus_results_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.9.2">coverage.py v7.9.2</a>,
-            created at 2025-07-17 13:41 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.10.3">coverage.py v7.10.3</a>,
+            created at 2025-08-11 10:26 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -83,8 +83,8 @@
     <p class="mis show_mis"><span class="n"><a id="t1" href="#t1">1</a></span><span class="t"><span class="key">import</span> <span class="nam">logging</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t2" href="#t2">2</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t3" href="#t3">3</a></span><span class="t"><span class="key">from</span> <span class="nam">bim2sim</span><span class="op">.</span><span class="nam">plugins</span><span class="op">.</span><span class="nam">PluginEnergyPlus</span><span class="op">.</span><span class="nam">bim2sim_energyplus</span><span class="op">.</span><span class="nam">utils</span><span class="xx">\</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t">    <span class="op">.</span><span class="nam">utils_visualization</span> <span class="key">import</span> <span class="xx">\</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t">    <span class="nam">VisualizationUtils</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t4" href="#t4">4</a></span><span class="t">    <span class="op">.</span><span class="nam">utils_visualization</span> <span class="key">import</span> <span class="xx">\</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t5" href="#t5">5</a></span><span class="t">    <span class="nam">VisualizationUtils</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t6" href="#t6">6</a></span><span class="t"><span class="key">from</span> <span class="nam">bim2sim</span><span class="op">.</span><span class="nam">tasks</span><span class="op">.</span><span class="nam">base</span> <span class="key">import</span> <span class="nam">ITask</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="key">from</span> <span class="nam">bim2sim</span><span class="op">.</span><span class="nam">utilities</span><span class="op">.</span><span class="nam">common_functions</span> <span class="key">import</span> <span class="nam">filter_elements</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -119,7 +119,7 @@
     <p class="mis show_mis"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">        <span class="key">for</span> <span class="nam">zone</span> <span class="key">in</span> <span class="nam">zone_list</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">            <span class="nam">zone_dict</span><span class="op">[</span><span class="nam">zone</span><span class="op">.</span><span class="nam">guid</span><span class="op">]</span> <span class="op">=</span> <span class="nam">zone</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">        <span class="nam">VisualizationUtils</span><span class="op">.</span><span class="nam">visualize_zones</span><span class="op">(</span><span class="nam">zone_dict</span><span class="op">,</span> <span class="nam">sim_results_path</span> <span class="op">/</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t">                                           <span class="nam">self</span><span class="op">.</span><span class="nam">prj_name</span><span class="op">,</span> <span class="nam">self</span><span class="op">.</span><span class="nam">paths</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t">                                           <span class="nam">self</span><span class="op">.</span><span class="nam">prj_name</span><span class="op">,</span> <span class="nam">self</span><span class="op">.</span><span class="nam">paths</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
@@ -129,8 +129,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_f739bb85cb35c674_load_energyplus_results_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.9.2">coverage.py v7.9.2</a>,
-            created at 2025-07-17 13:41 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.10.3">coverage.py v7.10.3</a>,
+            created at 2025-08-11 10:26 +0000
         </p>
     </div>
 </footer>

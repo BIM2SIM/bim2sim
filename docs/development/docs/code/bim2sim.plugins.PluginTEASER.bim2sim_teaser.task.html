@@ -103,28 +103,334 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="bim2sim-plugins-pluginteaser-bim2sim-teaser-task-package">
-<h1>bim2sim.plugins.PluginTEASER.bim2sim_teaser.task package<a class="headerlink" href="#bim2sim-plugins-pluginteaser-bim2sim-teaser-task-package" title="Permalink to this heading"></a></h1>
+  <section id="module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task">
+<span id="bim2sim-plugins-pluginteaser-bim2sim-teaser-task-package"></span><h1>bim2sim.plugins.PluginTEASER.bim2sim_teaser.task package<a class="headerlink" href="#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task" title="Permalink to this heading"></a></h1>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
-<section id="bim2sim-plugins-pluginteaser-bim2sim-teaser-task-create-result-df-module">
-<h2>bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df module<a class="headerlink" href="#bim2sim-plugins-pluginteaser-bim2sim-teaser-task-create-result-df-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df">
+<span id="bim2sim-plugins-pluginteaser-bim2sim-teaser-task-create-result-df-module"></span><h2>bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df module<a class="headerlink" href="#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.</span></span><span class="sig-name descname"><span class="pre">CreateResultDF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Creates result dataframe, run() method holds detailed information.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.calc_indirect_result">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calc_indirect_result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bim2sim_teaser_mapping_selected</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.calc_indirect_result" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.convert_time_index">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">convert_time_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.convert_time_index" title="Permalink to this definition"></a></dt>
+<dd><p>This converts the index of the result df to “days hh:mm:ss format</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.format_dataframe">
+<span class="sig-name descname"><span class="pre">format_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_original</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bim2sim_teaser_mapping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relevant_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.format_dataframe" title="Permalink to this definition"></a></dt>
+<dd><p>Formats the dataframe to generic bim2sim output structure.</p>
+<dl class="simple">
+<dt>This function:</dt><dd><ul class="simple">
+<li><p>adds the space GUIDs or bim2sim aggregated room names to the results</p></li>
+<li><p>selects only the selected simulation outputs from the result</p></li>
+<li><p>sets the index to the format MM/DD-hh:mm:ss</p></li>
+<li><p>uses absolute values instead negative ones for cooling</p></li>
+</ul>
+</dd>
+<dt>Args:</dt><dd><p>df_original: original dataframe directly taken from simulation
+bim2sim_teaser_mapping: dict[simulation var name:
+relevant_vars: list of simulation variables to have in dataframe</p>
+</dd>
+<dt>Returns:</dt><dd><p>df_final: converted dataframe in <cite>bim2sim</cite> result structure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.map_zonal_results">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">map_zonal_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bim2sim_teaser_mapping_selected</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.map_zonal_results" title="Permalink to this definition"></a></dt>
+<dd><p>Add zone/space guids/names to mapping dict.</p>
+<p>Dymola outputs the results just via a counting of zones/rooms
+starting with [1]. This function adds the real zone/space guids or
+aggregation names to the dict for easy readable results.
+Rooms are mapped with their space GUID, aggregated zones are mapped
+with their zone name. Therefore, we load the additional information
+like what spaces are aggregated from elements structure.</p>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>bim2sim_teaser_mapping_selected: dict holds the mapping between</dt><dd><p>simulation outputs and generic <cite>bim2sim</cite> output names. Only
+outputs selected via sim_results sim-setting are included.</p>
+</dd>
+</dl>
+<p>elements: dict[guid: element]</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>dict: A mapping between simulation results and space guids, with</dt><dd><p>appropriate adjustments for aggregated zones.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('sim_results_path',</span> <span class="pre">'bldg_names',</span> <span class="pre">'elements')</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.reads" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bldg_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.run" title="Permalink to this definition"></a></dt>
+<dd><p>Creates a result dataframe for BEPS simulations.</p>
+<dl class="simple">
+<dt>The created dataframe holds the data for the  generic plot</dt><dd><p>functionality for BEPS simulation in <cite>bim2sim</cite> post-processing,
+regardless if the simulation results come from TEASER</p>
+</dd>
+</dl>
+<p>or EnergyPlus. Therefore, the simulation results are mapped into a
+generic form with unified timestamps and only the results wanted,
+defined by the sim_settings, are exported to the dataframe.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>teaser_mat_result_paths: path to simulation result file
+bldg_names (list): list of all buildings
+elements: bim2sim elements created based on ifc data</p>
+</dd>
+<dt>Returns:</dt><dd><p>df_final: final dataframe that holds only relevant data, with
+generic <cite>bim2sim</cite> names and index in form of MM/DD-hh:mm:ss</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.select_wanted_results">
+<span class="sig-name descname"><span class="pre">select_wanted_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.select_wanted_results" title="Permalink to this definition"></a></dt>
+<dd><p>Selected only the wanted outputs based on sim_setting sim_results</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.touches">
+<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('df_finals',)</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.touches" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="bim2sim-plugins-pluginteaser-bim2sim-teaser-task-create-teaser-prj-module">
-<h2>bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj module<a class="headerlink" href="#bim2sim-plugins-pluginteaser-bim2sim-teaser-task-create-teaser-prj-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj">
+<span id="bim2sim-plugins-pluginteaser-bim2sim-teaser-task-create-teaser-prj-module"></span><h2>bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj module<a class="headerlink" href="#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.</span></span><span class="sig-name descname"><span class="pre">CreateTEASER</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Creates the TEASER project, run() method holds detailed information.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.min_admissible_elements">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">min_admissible_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tz</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bldg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.min_admissible_elements" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.overwrite_heatloads">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">overwrite_heatloads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exported_buildings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.overwrite_heatloads" title="Permalink to this definition"></a></dt>
+<dd><p>Overwrites the original heating and cooling loads for robustness.</p>
+<p>The original loads are saved and returned.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.prepare_export">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">prepare_export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exported_buildings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.prepare_export" title="Permalink to this definition"></a></dt>
+<dd><p>Export preparations for all thermal zones.</p>
+<p>The preparation includes running the calc_building_parameter function
+of TEASER for all buildings.
+Args:</p>
+<blockquote>
+<div><p>exported_buildings: list of all buildings that will be exported</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('libraries',</span> <span class="pre">'elements',</span> <span class="pre">'weather_file')</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.reads" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.rotate_teaser_building">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rotate_teaser_building</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bldg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Building</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">true_north</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.rotate_teaser_building" title="Permalink to this definition"></a></dt>
+<dd><p>rotates entire building and its components for a given true north
+value, only necessary if ifc file true north information its not
+given, but want to rotate before exporting</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">libraries</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weather_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.run" title="Permalink to this definition"></a></dt>
+<dd><p>Creates the TEASER project based on <cite>bim2sim</cite> elements.</p>
+<p>The previous created and enriched <cite>bim2sim</cite> elements are used to
+parametrize a TEASER project instance. Therefore we map each <cite>bim2sim</cite>
+element to it’s corresponding TEASER element.</p>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>libraries: previous loaded libraries. In the case this is the</dt><dd><p>TEASER library</p>
+</dd>
+</dl>
+<p>elements: dict[guid: element] with <cite>bim2sim</cite> elements
+weather_file: path to weather file</p>
+</dd>
+<dt>Returns:</dt><dd><p>teaser_prj: teaser project instance
+bldg_names: list of names of all buildings in project, needed to</p>
+<blockquote>
+<div><p>maintain the information for later tasks</p>
+</div></blockquote>
+<dl class="simple">
+<dt>orig_heat_loads: dict[tz.name: heat_load] with original heat loads</dt><dd><p>as they get overwritten</p>
+</dd>
+<dt>orig_cool_loads: dict[tz.name: cool_load] with original cool loads</dt><dd><p>as they get overwritten</p>
+</dd>
+<dt>tz_mapping: dict that holds mapping between thermal zones in TEASER</dt><dd><p>and thermal zones in IFC for later post-processing</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.touches">
+<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('teaser_prj',</span> <span class="pre">'bldg_names',</span> <span class="pre">'orig_heat_loads',</span> <span class="pre">'orig_cool_loads')</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.touches" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="bim2sim-plugins-pluginteaser-bim2sim-teaser-task-export-teaser-module">
-<h2>bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser module<a class="headerlink" href="#bim2sim-plugins-pluginteaser-bim2sim-teaser-task-export-teaser-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser">
+<span id="bim2sim-plugins-pluginteaser-bim2sim-teaser-task-export-teaser-module"></span><h2>bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser module<a class="headerlink" href="#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser.ExportTEASER">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser.</span></span><span class="sig-name descname"><span class="pre">ExportTEASER</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser.ExportTEASER" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Export TEASER prj, run() method holds detailed information.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser.ExportTEASER.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('teaser_prj',)</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser.ExportTEASER.reads" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser.ExportTEASER.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">teaser_prj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser.ExportTEASER.run" title="Permalink to this definition"></a></dt>
+<dd><p>Exports the current TEASER project to Modelica.</p>
+<p>This is the final export task that exports the created TEASER project
+into Modelica by using TEASERs inbuilt export functionality. Currently,
+the export will be done to AixLib, potentially the export_ibpsa()
+functionality could be used as well.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>teaser_prj: teaser project instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="bim2sim-plugins-pluginteaser-bim2sim-teaser-task-load-modelica-results-module">
-<h2>bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results module<a class="headerlink" href="#bim2sim-plugins-pluginteaser-bim2sim-teaser-task-load-modelica-results-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results">
+<span id="bim2sim-plugins-pluginteaser-bim2sim-teaser-task-load-modelica-results-module"></span><h2>bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results module<a class="headerlink" href="#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results.LoadModelicaResults">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results.</span></span><span class="sig-name descname"><span class="pre">LoadModelicaResults</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results.LoadModelicaResults" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Load existing results, run() method holds detailed information.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results.LoadModelicaResults.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results.LoadModelicaResults.run" title="Permalink to this definition"></a></dt>
+<dd><p>Loads existing Modelica results from a previous simulation.</p>
+<p>The .mat file from a previous simulation is loaded and stored in the
+playground state. The intended behaviour is that for the following
+tasks with post-processing and plotting there should be no difference
+if a total bim2sim plugin run is performed or the existing results are
+loaded.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>bldg_names: list of building names
+sim_results_path: path where to store the plots</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results.LoadModelicaResults.touches">
+<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('bldg_names',</span> <span class="pre">'sim_results_path')</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results.LoadModelicaResults.touches" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="bim2sim-plugins-pluginteaser-bim2sim-teaser-task-serialize-teaser-prj-module">
-<h2>bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj module<a class="headerlink" href="#bim2sim-plugins-pluginteaser-bim2sim-teaser-task-serialize-teaser-prj-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj">
+<span id="bim2sim-plugins-pluginteaser-bim2sim-teaser-task-serialize-teaser-prj-module"></span><h2>bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj module<a class="headerlink" href="#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj.SerializeTEASER">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj.</span></span><span class="sig-name descname"><span class="pre">SerializeTEASER</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj.SerializeTEASER" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Creates the TEASER project, run() method holds detailed information.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj.SerializeTEASER.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('teaser_prj',)</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj.SerializeTEASER.reads" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj.SerializeTEASER.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">teaser_prj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj.SerializeTEASER.run" title="Permalink to this definition"></a></dt>
+<dd><p>Serialize the created TEASER project.</p>
+<p>This is useful if we want to work on the created TEASER project outside
+of bim2sim and don’t want to export it directly to Modelica.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>teaser_prj: teaser project instance</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
-<section id="bim2sim-plugins-pluginteaser-bim2sim-teaser-task-simulate-dymola-ebcpy-module">
-<h2>bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy module<a class="headerlink" href="#bim2sim-plugins-pluginteaser-bim2sim-teaser-task-simulate-dymola-ebcpy-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy">
+<span id="bim2sim-plugins-pluginteaser-bim2sim-teaser-task-simulate-dymola-ebcpy-module"></span><h2>bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy module<a class="headerlink" href="#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy.SimulateModelEBCPy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy.</span></span><span class="sig-name descname"><span class="pre">SimulateModelEBCPy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy.SimulateModelEBCPy" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Simulate TEASER model, run() method holds detailed information.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy.SimulateModelEBCPy.final">
+<span class="sig-name descname"><span class="pre">final</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy.SimulateModelEBCPy.final" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy.SimulateModelEBCPy.reads">
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('bldg_names',)</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy.SimulateModelEBCPy.reads" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy.SimulateModelEBCPy.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bldg_names</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy.SimulateModelEBCPy.run" title="Permalink to this definition"></a></dt>
+<dd><p>Simulates the exported TEASER model by using ebcpy.</p>
+<p>The Modelica model that is created through TEASER is simulated by using
+ebcpy and its DymolaAPI. Modelica/Dymola stores simulation results
+in .mat files which are stored in the export folder of the <cite>bim2sim</cite>
+project.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>bldg_names: bldg_names: list of names of all buildings in project</p>
+</dd>
+<dt>Returns:</dt><dd><dl class="simple">
+<dt>teaser_mat_result_paths: dict[bldg_name: mat result path] where for</dt><dd><p>each building the corresponding result is stored</p>
+</dd>
+<dt>sim_results_path: path where the sim results are stored, including</dt><dd><p>the subdirectory with the model name</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy.SimulateModelEBCPy.touches">
+<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('sim_results_path',)</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy.SimulateModelEBCPy.touches" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 

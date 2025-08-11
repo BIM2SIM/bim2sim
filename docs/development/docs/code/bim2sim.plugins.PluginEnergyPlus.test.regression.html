@@ -116,8 +116,76 @@
 <dd></dd></dl>
 
 </section>
-<section id="bim2sim-plugins-pluginenergyplus-test-regression-test-energyplus-module">
-<h2>bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus module<a class="headerlink" href="#bim2sim-plugins-pluginenergyplus-test-regression-test-energyplus-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus">
+<span id="bim2sim-plugins-pluginenergyplus-test-regression-test-energyplus-module"></span><h2>bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus module<a class="headerlink" href="#module-bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.RegressionTestEnergyPlus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.</span></span><span class="sig-name descname"><span class="pre">RegressionTestEnergyPlus</span></span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.RegressionTestEnergyPlus" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.test.RegressionTestBase" title="bim2sim.utilities.test.RegressionTestBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressionTestBase</span></code></a></p>
+<p>Class to set up and run EnergyPlus regression tests.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.RegressionTestEnergyPlus.create_regression_results">
+<span class="sig-name descname"><span class="pre">create_regression_results</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.RegressionTestEnergyPlus.create_regression_results" title="Permalink to this definition"></a></dt>
+<dd><p>Creates regression results based on simulation model.</p>
+<p>If simulation is successful and regression results differ from
+new simulation results, the user is asked if the results should be
+overwritten.
+If simulation  is successful and simulation results are same with
+regression results nothing happens.
+If simulation is not successful nothing happens.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.RegressionTestEnergyPlus.create_regression_setup">
+<span class="sig-name descname"><span class="pre">create_regression_setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.RegressionTestEnergyPlus.create_regression_setup" title="Permalink to this definition"></a></dt>
+<dd><p>Create a regression test setup for EnergyPlus.</p>
+<p>This method uses the energyplus_regressions library to create a
+regression test for the passed project EnergyPlus simulation model
+export.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.RegressionTestEnergyPlus.run_regression_test">
+<span class="sig-name descname"><span class="pre">run_regression_test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.RegressionTestEnergyPlus.run_regression_test" title="Permalink to this definition"></a></dt>
+<dd><p>Run the EnergyPlus regression test.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.RegressionTestEnergyPlus.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.RegressionTestEnergyPlus.setUp" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.RegressionTestEnergyPlus.tearDown">
+<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.RegressionTestEnergyPlus.tearDown" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.RegressionTestEnergyPlus.weather_file_path">
+<span class="sig-name descname"><span class="pre">weather_file_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.RegressionTestEnergyPlus.weather_file_path" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.TestRegressionEnergyPlus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.</span></span><span class="sig-name descname"><span class="pre">TestRegressionEnergyPlus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.TestRegressionEnergyPlus" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.RegressionTestEnergyPlus" title="bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.RegressionTestEnergyPlus"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressionTestEnergyPlus</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<p>Regression tests for EnergyPlus.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.TestRegressionEnergyPlus.test_regression_AC20_FZK_Haus">
+<span class="sig-name descname"><span class="pre">test_regression_AC20_FZK_Haus</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.TestRegressionEnergyPlus.test_regression_AC20_FZK_Haus" title="Permalink to this definition"></a></dt>
+<dd><p>Run EnergyPlus regression test with AC20-FZK-Haus.ifc.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.TestRegressionEnergyPlus.test_regression_DigitalHub_SB89">
+<span class="sig-name descname"><span class="pre">test_regression_DigitalHub_SB89</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus.TestRegressionEnergyPlus.test_regression_DigitalHub_SB89" title="Permalink to this definition"></a></dt>
+<dd><p>Test DigitalHub IFC, includes regression test.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 
