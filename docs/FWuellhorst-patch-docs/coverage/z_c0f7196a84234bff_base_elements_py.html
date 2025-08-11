@@ -64,8 +64,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_c0f7196a84234bff_bps_elements_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.10.2">coverage.py v7.10.2</a>,
-            created at 2025-08-08 13:40 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.10.3">coverage.py v7.10.3</a>,
+            created at 2025-08-11 06:16 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -242,9 +242,9 @@
     <p class="pln"><span class="n"><a id="t160" href="#t160">160</a></span><span class="t"><span class="str">            '-Something'  start with minus to exclude</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t161" href="#t161">161</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t162" href="#t162">162</a></span><span class="t"><span class="str">        For example:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="str">        {'IfcSlab': ['*', '-SomethingSpecialWeDontWant', 'BASESLAB']}</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="str">        {'IfcRoof': ['FLAT_ROOF', 'SHED_ROOF',...],</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="str">         'IfcSlab': ['ROOF']}"""</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t163" href="#t163">163</a></span><span class="t"><span class="str">        >>> {'IfcSlab': ['*', '-SomethingSpecialWeDontWant', 'BASESLAB']}</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t164" href="#t164">164</a></span><span class="t"><span class="str">        >>> {'IfcRoof': ['FLAT_ROOF', 'SHED_ROOF',...],</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t165" href="#t165">165</a></span><span class="t"><span class="str">        >>>  'IfcSlab': ['ROOF']}"""</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t166" href="#t166">166</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t167" href="#t167">167</a></span><span class="t">    <span class="nam">ifc_types</span><span class="op">:</span> <span class="nam">Dict</span><span class="op">[</span><span class="nam">str</span><span class="op">,</span> <span class="nam">List</span><span class="op">[</span><span class="nam">str</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t168" href="#t168">168</a></span><span class="t">    <span class="nam">pattern_ifc_type</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
@@ -810,9 +810,9 @@
     <p class="pln"><span class="n"><a id="t728" href="#t728">728</a></span><span class="t"><span class="str">    https://refactoring.guru/design-patterns/factory-method/python/example</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t729" href="#t729">729</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t730" href="#t730">730</a></span><span class="t"><span class="str">    Example:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t731" href="#t731">731</a></span><span class="t"><span class="str">        factory = Factory([Pipe, Boiler], dummy)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t732" href="#t732">732</a></span><span class="t"><span class="str">        ele = factory(some_ifc_element)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t733" href="#t733">733</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t731" href="#t731">731</a></span><span class="t"><span class="str">        >>> factory = Factory([Pipe, Boiler], dummy)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t732" href="#t732">732</a></span><span class="t"><span class="str">        >>> ele = factory(some_ifc_element)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t733" href="#t733">733</a></span><span class="t"><span class="str">    """</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t734" href="#t734">734</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t735" href="#t735">735</a></span><span class="t">    <span class="key">def</span> <span class="nam">__init__</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
     <p class="run run2"><span class="n"><a id="t736" href="#t736">736</a></span><span class="t">            <span class="nam">self</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -1023,8 +1023,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_c0f7196a84234bff_bps_elements_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.10.2">coverage.py v7.10.2</a>,
-            created at 2025-08-08 13:40 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.10.3">coverage.py v7.10.3</a>,
+            created at 2025-08-11 06:16 +0000
         </p>
     </div>
 </footer>

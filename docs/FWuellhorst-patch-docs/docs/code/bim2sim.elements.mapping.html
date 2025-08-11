@@ -45,6 +45,10 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
+<li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide.html">User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced-user-guide.html">Advanced User-Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../developer-guide.html">Developer-Guide</a></li>
 </ul>
 <ul class="current">
@@ -110,15 +114,15 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.attribute.</span></span><span class="sig-name descname"><span class="pre">Attribute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">description:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">unit:</span> <span class="pre">~pint.registry.Unit</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">ifc_attr_name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'',</span> <span class="pre">default_ps:</span> <span class="pre">~typing.Tuple[str,</span> <span class="pre">str]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">default_association:</span> <span class="pre">~typing.Tuple[str,</span> <span class="pre">str]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">patterns:</span> <span class="pre">~typing.Iterable</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">ifc_postprocessing:</span> <span class="pre">~typing.Callable[[~typing.Any],</span> <span class="pre">~typing.Any]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">functions:</span> <span class="pre">~typing.Iterable[~typing.Callable[[object,</span> <span class="pre">str],</span> <span class="pre">~typing.Any]]</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">default=None,</span> <span class="pre">dependant_elements:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">None,</span> <span class="pre">attr_type:</span> <span class="pre">type</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'float'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.attribute.Attribute" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Descriptor of element attribute to get its value from various sources.</p>
-<p>value and status of attribute are stored in __dict__ of bound instance.
-Possible statuses are:</p>
-<blockquote>
-<div><p>UNKNOWN: default status at the beginning.
-REQUESTED: Attribute was already requested via a decision??.
-AVAILABLE: Attribute exists and is available.
-NOT_AVAILABLE: No way was found to obtain the attributes value.
-RESET: The Attribute was reset.</p>
-</div></blockquote>
+<p>value and status of attribute are stored in __dict__ of bound instance.</p>
+<p>Possible statuses are:</p>
+<ul class="simple">
+<li><p>UNKNOWN: default status at the beginning.</p></li>
+<li><p>REQUESTED: Attribute was already requested via a decision??.</p></li>
+<li><p>AVAILABLE: Attribute exists and is available.</p></li>
+<li><p>NOT_AVAILABLE: No way was found to obtain the attributes value.</p></li>
+<li><p>RESET: The Attribute was reset.</p></li>
+</ul>
 <p>To find more about Descriptor objects follow the explanations on
 <a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
 <dl class="py attribute">
@@ -394,15 +398,12 @@ critical_for_creation: if True, the element will not be created if the</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.elements.mapping.condition.</span></span><span class="sig-name descname"><span class="pre">RangeCondition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">incl_edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">critical_for_creation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.mapping.condition.RangeCondition" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.elements.mapping.condition.Condition" title="bim2sim.elements.mapping.condition.Condition"><code class="xref py py-class docutils literal notranslate"><span class="pre">Condition</span></code></a></p>
 <p>“Validate through a simple ValueRange</p>
-<dl>
+<dl class="simple">
 <dt>Args:</dt><dd><p>key: attribute of the element to validate
 value_min: minimum allowed value
 value_max: maximum allowed value
 incl_edges: if True, the value_min and value_max are valid as well
-critical_for_creation: if True, the element will not be created if the</p>
-<blockquote>
-<div><p>validation fails</p>
-</div></blockquote>
+critical_for_creation: if True, the element will not be created if the validation fails</p>
 </dd>
 <dt>Return:</dt><dd><p>True if valid, False if not valid</p>
 </dd>
@@ -702,14 +703,16 @@ name as key and converted json dictionary as value.</p>
 <dd><p>Removes duplicates from source_tools list.</p>
 <p>Filters a list of SourceTool objects to retain only those with unique
 combinations of ‘version’, ‘full_name’, and ‘ident’ attributes.</p>
-<dl class="simple">
+<dl>
 <dt>Args:</dt><dd><p>source_tools (list): A list of SourceTool objects to be filtered.</p>
 </dd>
 <dt>Returns:</dt><dd><p>list: A new list containing SourceTool objects with unique
 combinations of ‘version’, ‘full_name’, and ‘ident’.</p>
 </dd>
-<dt>Example:</dt><dd><p>Assuming source_tools is a list of SourceTool objects,
-filtered_tools = filter_source_tools(source_tools)</p>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Assuming source_tools is a list of SourceTool objects,</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">filtered_tools</span> <span class="o">=</span> <span class="n">filter_source_tools</span><span class="p">(</span><span class="n">source_tools</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd>
 </dl>
 </dd></dl>
