@@ -1,9 +1,9 @@
 stages:
-  - doc
-  - code_quality
   - Test Base
   - Test Plugin
   - Test Regression
+  - doc
+  - code_quality
   - deploy
   - build
 
