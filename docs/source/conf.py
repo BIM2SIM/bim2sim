@@ -6,8 +6,15 @@
 import logging
 
 # Configure logging to suppress verbose MyST messages
-logging.getLogger('myst_parser').setLevel(logging.WARNING)
+def setup(app):
+    # Suppress all loggers that start with "myst_parser"
+    for logger_name in list(logging.root.manager.loggerDict.keys()):
+        if logger_name.startswith('myst_parser'):
+            logging.getLogger(logger_name).setLevel(logging.ERROR)
 
+        # Also suppress markdown_it which is used by myst_parser
+        if logger_name.startswith('markdown_it'):
+            logging.getLogger(logger_name).setLevel(logging.ERROR)
 
 # -- Project information -----------------------------------------------------
 
