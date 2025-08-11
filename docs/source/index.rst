@@ -6,6 +6,8 @@
 Welcome to bim2sim's documentation!
 ===================================
 
+.. mdinclude::  ../../README.md
+
 .. toctree::
    :maxdepth: 5
 
