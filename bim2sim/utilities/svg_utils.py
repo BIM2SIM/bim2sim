@@ -35,32 +35,31 @@ def create_svg_floor_plan_plot(
         result_str (str): name of the results plotted (used for file naming)
 
     Example:
-        # create nested dict, where "2eyxpyOx95m90jmsXLOuR0" is the storey guid
-        # and "0Lt8gR_E9ESeGH5uY_g9e9", "17JZcMFrf5tOftUTidA0d3" and
-        path_to_ifc_file = Path("my_path_to_ifc_folder/AC20-FZK-Haus.ifc")
-        ifc_file_instance = ifcopenshell.open(path_to_ifc_file)
-        target_path = Path("my_target_path")
-
-        svg_adjust_dict = {
-            "2eyxpyOx95m90jmsXLOuR0": {
-                    {"space_data":
-                        "0Lt8gR_E9ESeGH5uY_g9e9": {
-                            "color": "#FF0000",
-                            "text": 'my_text'
-                        },
-                        "17JZcMFrf5tOftUTidA0d3": {
-                            "color": "#FF0000",
-                            "text": 'my_text2'
-                        },
-                        "2RSCzLOBz4FAK$_wE8VckM": {
-                            "color": "#FF0000",
-                            "text": 'my_text3'
-                        },
-                    },
-            }
-        }
-        create_svg_floor_plan_plot(
-            path_to_ifc_file, target_path, svg_adjust_dict)
+        >>> # create nested dict, where "2eyxpyOx95m90jmsXLOuR0" is the storey guid
+        >>> # and "0Lt8gR_E9ESeGH5uY_g9e9", "17JZcMFrf5tOftUTidA0d3" and
+        >>> path_to_ifc_file = Path("my_path_to_ifc_folder/AC20-FZK-Haus.ifc")
+        >>> ifc_file_instance = ifcopenshell.open(path_to_ifc_file)
+        >>> target_path = Path("my_target_path")
+        >>> svg_adjust_dict = {
+        >>>     "2eyxpyOx95m90jmsXLOuR0": {
+        >>>             {"space_data":
+        >>>                 "0Lt8gR_E9ESeGH5uY_g9e9": {
+        >>>                     "color": "#FF0000",
+        >>>                     "text": 'my_text'
+        >>>                 },
+        >>>                 "17JZcMFrf5tOftUTidA0d3": {
+        >>>                     "color": "#FF0000",
+        >>>                     "text": 'my_text2'
+        >>>                 },
+        >>>                 "2RSCzLOBz4FAK$_wE8VckM": {
+        >>>                     "color": "#FF0000",
+        >>>                     "text": 'my_text3'
+        >>>                 },
+        >>>             },
+        >>>     }
+        >>> }
+        >>> create_svg_floor_plan_plot(
+        >>>     path_to_ifc_file, target_path, svg_adjust_dict)
     """
     svg_path = convert_ifc_to_svg(ifc_file_class_inst, target_path)
     split_svg_by_storeys(svg_path)

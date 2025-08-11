@@ -34,7 +34,7 @@ include:
     # if stage is doc, we need to install documentation specific dependencies
     - eval "$(micromamba shell hook --shell bash)"
     - micromamba activate base
-    - pip install -e .[docu]
+    - pip install -e .[docu,PluginTEASER,PluginEnergyPlus,PluginAixLib,PluginCFD,PluginHKESim,PluginLCA,PluginComfort]
 
 .build_template: &build_template
   image: docker:24.0.5
