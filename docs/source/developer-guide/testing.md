@@ -70,5 +70,5 @@ If test resources needs to be updated, please follow the following procedure:
 ### [Main bim2sim Repository](https://github.com/BIM2SIM/bim2sim)
 11. Repeat the same steps as under step 6, but this time in step 5.1 use `main` instead `update_test_resources` as branch name
 12. again wait for the pipeline to succeed
-13. Create a PR to merge `update_resources_submodule` branch in the `main` branch and assign a reviewer
+13. Create a PR to merge `update_resources_submodule` branch in the `development` branch and assign a reviewer
 14. If pipeline has passed (what it should) and review is approved merge the PR
