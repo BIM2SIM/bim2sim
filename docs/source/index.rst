@@ -6,6 +6,12 @@
 Welcome to bim2sim's documentation!
 ===================================
 
+.. include:: ../../README.md
+   :parser: myst_parser.sphinx_
+
+Contents of this documentation
+==============================
+
 .. toctree::
    :maxdepth: 5
 
