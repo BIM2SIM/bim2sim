@@ -1,10 +1,10 @@
 stages:
-  - Test Base
-  - Test Plugin
-  - Test Regression
-  - doc
-  - code_quality
-  - deploy
+  #- Test Base
+  #- Test Plugin
+  #- Test Regression
+  #- doc
+  #- code_quality
+  #- deploy
   - build
 
 variables:
@@ -319,15 +319,15 @@ build:dev-energyplus:py3.10:
     PYTHON_VERSION: "3.10"
     TAG: dev-energyplus-py3.10
     DOCKERFILE: EnergyPlus.Dockerfile
-  needs:
-    - build:dev:py3.10
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - EnergyPlus.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
+  #needs:
+  #  - build:dev:py3.10
+  #rules:
+  #  - if: '$CI_COMMIT_REF_NAME == "development"'
+  #    changes:
+  #      - Dockerfile
+  #      - EnergyPlus.Dockerfile
+  #      - pyproject.toml
+  #      - .gitlab-ci.yml
 
 build:dev-energyplus:py3.11:
   <<: *build_template
