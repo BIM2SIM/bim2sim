@@ -14,7 +14,7 @@ ENV ENERGYPLUS_DOWNLOAD_URL $ENERGYPLUS_DOWNLOAD_BASE_URL/$ENERGYPLUS_DOWNLOAD_F
 USER root
 
 # Install necessary packages and EnergyPlus
-RUN apt-get update && apt-get install -y ca-certificates curl libx11-6 libexpat1 \
+RUN apt-get update && apt-get install -y ca-certificates wget libx11-6 libexpat1 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN wget --tries=5 --timeout=120 --waitretry=30 $ENERGYPLUS_DOWNLOAD_URL
