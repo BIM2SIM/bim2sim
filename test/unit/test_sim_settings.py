@@ -130,3 +130,105 @@ class TestSimSettings(unittest.TestCase):
         new_sim_setting.new_setting_lod = LOD.full
         self.assertEqual(
             new_sim_setting.new_setting_lod, LOD.full)
+
+    def test_guid_list_setting(self):
+        """Test the GuidListSetting class for handling IFC GUIDs"""
+
+        # Create a test settings class with GuidListSetting
+        class TestGuidSettings(sim_settings.BaseSimSettings):
+            def __init__(self):
+                super().__init__()
+
+            guid_list = sim_settings.GuidListSetting(
+                default=['0rB_VAJfDAowPYhJGd9wjZ', '3V8lRtj8n5AxfePCnKtF31'],
+                description='Test GUID list setting',
+                for_frontend=True
+            )
+
+            empty_guid_list = sim_settings.GuidListSetting(
+                description='Test empty GUID list setting',
+                for_frontend=True
+            )
+
+            mandatory_guid_list = sim_settings.GuidListSetting(
+                description='Test mandatory GUID list setting',
+                mandatory=True
+            )
+
+        # Create settings instance
+        test_settings = TestGuidSettings()
+
+        # Test default values are correctly set
+        self.assertEqual(
+            test_settings.guid_list,
+            ['0rB_VAJfDAowPYhJGd9wjZ', '3V8lRtj8n5AxfePCnKtF31']
+        )
+        self.assertEqual(test_settings.empty_guid_list, [])
+
+        # Test valid GUID updates
+        valid_guids = ['1HBLcH3L5AgRg8QXUjHQ2T', '2MBmFkSRv59wfBR9XN_dIe']
+        test_settings.guid_list = valid_guids
+        self.assertEqual(test_settings.guid_list, valid_guids)
+
+        # Test empty list
+        test_settings.guid_list = []
+        self.assertEqual(test_settings.guid_list, [])
+
+        # Test None value
+        test_settings.guid_list = None
+        self.assertIsNone(test_settings.guid_list)
+
+        # Test invalid inputs - should raise ValueError
+        with self.assertRaises(ValueError):
+            test_settings.guid_list = "not_a_list"
+
+        with self.assertRaises(ValueError):
+            test_settings.guid_list = [123, 456]  # Not strings
+
+        with self.assertRaises(ValueError):
+            test_settings.guid_list = [
+                "invalid_guid_format"]  # Invalid GUID format
+
+        with self.assertRaises(ValueError):
+            test_settings.guid_list = ["0rB_VAJfDAowPYhJGd9wjZ", "invalid_guid"]
+
+        # Test config update
+        config = configparser.ConfigParser(allow_no_value=True)
+        config.add_section('TestGuidSettings')
+        config['TestGuidSettings'][
+            'guid_list'] = '["3V8lRtj8n5AxfePCnKtF31", "0rB_VAJfDAowPYhJGd9wjZ"]'
+        test_settings.update_from_config(config)
+        self.assertEqual(
+            test_settings.guid_list,
+            ['3V8lRtj8n5AxfePCnKtF31', '0rB_VAJfDAowPYhJGd9wjZ']
+        )
+
+        # Test mandatory setting check
+        with self.assertRaises(ValueError):
+            test_settings.check_mandatory()
+
+    def test_stories_to_load_guids(self):
+        """Test the stories_to_load_guids setting in BaseSimSettings"""
+        settings = sim_settings.BaseSimSettings()
+
+        # Test default value
+        self.assertEqual(settings.stories_to_load_guids, [])
+
+        # Test valid update
+        valid_guids = ['0rB_VAJfDAowPYhJGd9wjZ', '3V8lRtj8n5AxfePCnKtF31']
+        settings.stories_to_load_guids = valid_guids
+        self.assertEqual(settings.stories_to_load_guids, valid_guids)
+
+        # Create a config that matches the exact format used in Project.config
+        config = configparser.ConfigParser(allow_no_value=True)
+        config.add_section(
+            'BaseSimSettings')  # Use the actual class name, not "Generic Simulation Settings"
+        config['BaseSimSettings'][
+            'stories_to_load_guids'] = '["1HBLcH3L5AgRg8QXUjHQ2T"]'
+
+        # Update settings from config
+        settings.update_from_config(config)
+
+        # Test the value was updated
+        self.assertEqual(settings.stories_to_load_guids,
+                         ['1HBLcH3L5AgRg8QXUjHQ2T'])
