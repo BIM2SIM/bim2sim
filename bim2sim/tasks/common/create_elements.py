@@ -6,9 +6,11 @@ from typing import Tuple, List, Any, Generator, Dict, Type, Set
 import copy
 
 from bim2sim.elements import bps_elements as bps
-from bim2sim.elements.base_elements import Factory, ProductBased, Material, Element
+from bim2sim.elements.base_elements import (Factory, ProductBased, Material,
+                                            Element)
 from bim2sim.elements.mapping import ifc2python
-from bim2sim.elements.mapping.filter import TypeFilter, TextFilter
+from bim2sim.elements.mapping.filter import (TypeFilter, TextFilter,
+                                             StoreyFilter)
 from bim2sim.kernel import IFCDomainError
 from bim2sim.kernel.decision import DecisionBunch, ListDecision, Decision
 from bim2sim.kernel.ifc_file import IfcFileClass
@@ -117,7 +119,15 @@ class CreateElementsOnIfcTypes(ITask):
             entity_best_guess_dict: dict = {}
             # filter by type
             type_filter = TypeFilter(relevant_ifc_types)
-            entity_type_dict, unknown_entities = type_filter.run(ifc_file.file)
+            entity_type_dict, unknown_entities = type_filter.run(
+                ifc_file.file)
+
+            # Extract stories if sim_setting is active
+            if self.playground.sim_settings.stories_to_load_guids:
+                storey_filter = StoreyFilter(
+                    self.playground.sim_settings.stories_to_load_guids)
+                entity_type_dict, unknown_entities = storey_filter.run(
+                    ifc_file.file, entity_type_dict, unknown_entities)
 
             # create valid elements
             # First elements are created with validation, by checking

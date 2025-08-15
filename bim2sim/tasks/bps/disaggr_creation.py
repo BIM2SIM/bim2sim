@@ -29,15 +29,15 @@ class DisaggregationCreationAndTypeCheck(ITask):
         This task disaggregates the building elements like walls, slabs etc.
         based on their SpaceBoundaries. This is needed for two reasons:
         1. If e.g. a BaseSlab in IFC is modeled as one element for whole
-         building but only parts of this BaseSlab have contact to ground,
-         we can
-         split the BaseSlab based on the space boundary information into
-         single parts that hold the correct boundary conditions and material
-         layer information in the later simulation.
+           building but only parts of this BaseSlab have contact to ground,
+           we can
+           split the BaseSlab based on the space boundary information into
+           single parts that hold the correct boundary conditions and material
+           layer information in the later simulation.
         2. In TEASER we use CombineThermalZones Task to combine multiple
-         ThermalZone elements into AggregatedThermalZones to improve simulation
-         speed and accuracy. For this we need to split all elements into the
-         parts that belong to each ThermalZone.
+           ThermalZone elements into AggregatedThermalZones to improve simulation
+           speed and accuracy. For this we need to split all elements into the
+           parts that belong to each ThermalZone.
 
         This Task also checks and corrects the type of the non disaggregated
         elements based on their SpaceBoundary information, because sometimes

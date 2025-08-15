@@ -161,9 +161,9 @@ class IFCBased(Element):
             '-Something'  start with minus to exclude
 
         For example:
-        {'IfcSlab': ['*', '-SomethingSpecialWeDontWant', 'BASESLAB']}
-        {'IfcRoof': ['FLAT_ROOF', 'SHED_ROOF',...],
-         'IfcSlab': ['ROOF']}"""
+        >>> {'IfcSlab': ['*', '-SomethingSpecialWeDontWant', 'BASESLAB']}
+        >>> {'IfcRoof': ['FLAT_ROOF', 'SHED_ROOF',...],
+        >>>  'IfcSlab': ['ROOF']}"""
 
     ifc_types: Dict[str, List[str]] = None
     pattern_ifc_type = []
@@ -740,9 +740,9 @@ class Factory:
     https://refactoring.guru/design-patterns/factory-method/python/example
 
     Example:
-        factory = Factory([Pipe, Boiler], dummy)
-        ele = factory(some_ifc_element)
-        """
+        >>> factory = Factory([Pipe, Boiler], dummy)
+        >>> ele = factory(some_ifc_element)
+    """
 
     def __init__(
             self,
