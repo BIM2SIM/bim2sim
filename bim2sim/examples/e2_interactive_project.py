@@ -38,7 +38,7 @@ def run_interactive_example():
         project_path, ifc_paths, 'template', open_conf=True)
 
     # set weather file data
-    project.sim_settings.weather_file_path = (
+    project.sim_settings.weather_file_path_modelica = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 

@@ -7,7 +7,7 @@ import os
 
 import bim2sim
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.utilities.test import IntegrationBase
+from bim2sim.utilities.test import IntegrationWeatherBase
 from bim2sim.utilities.types import IFCDomain
 
 # raise unittest.SkipTest("Integration tests not reliable for automated use")
@@ -15,7 +15,7 @@ sample_root = Path(__file__).parent.parent.parent / 'test/resources/arch/ifc'
 DEBUG_COMFORT = False
 
 
-class IntegrationBaseComfort(IntegrationBase):
+class IntegrationBaseComfort(IntegrationWeatherBase):
     # HACK: We have to remember stderr because eppy resets it currently.
     def setUp(self):
         self.old_stderr = sys.stderr
@@ -49,12 +49,13 @@ class IntegrationBaseComfort(IntegrationBase):
         sys.stderr = self.old_stderr
         super().tearDown()
 
-
     def model_domain_path(self) -> str:
         return 'arch'
 
-    def weather_file_path(self) -> Path:
-        return (self.test_resources_path() /
+    def set_test_weather_file(self):
+        """Set the weather file path."""
+        self.project.sim_settings.weather_file_path_ep = (
+                self.test_resources_path() /
                 'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
 
 

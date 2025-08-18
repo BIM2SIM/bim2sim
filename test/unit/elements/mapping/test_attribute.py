@@ -9,7 +9,6 @@ from bim2sim.elements.mapping.units import ureg
 from test.unit.elements.helper import SetupHelperHVAC
 from bim2sim.utilities.types import AttributeDataSource
 
-
 class TestElement(ProductBased):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,9 +31,18 @@ class TestElement(ProductBased):
     attr7 = Attribute(attr_type=bool)
 
 
+class TestElementOther(ProductBased):
+    def _func2(self, name):
+        return 45
+
+
 class TestElementInherited(TestElement):
     def _func1(self, name):
         return 43
+
+    attr6 = Attribute(
+        functions=[TestElementOther._func2]
+    )
 
 
 class TestAttribute(unittest.TestCase):
@@ -180,6 +188,9 @@ class TestAttribute(unittest.TestCase):
 
     def test_from_function_inheritance(self):
         self.assertEqual(43, self.subject_inherited.attr5)
+
+    def test_function_from_another_element(self):
+        self.assertEqual(45, self.subject_inherited.attr6)
 
 
 class TestAttributeDecisions(unittest.TestCase):

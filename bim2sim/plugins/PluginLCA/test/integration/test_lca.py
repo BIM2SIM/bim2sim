@@ -9,6 +9,12 @@ class IntegrationBaseLCA(IntegrationBase):
     def model_domain_path(self) -> str:
         return 'arch'
 
+    def set_test_weather_file(self):
+        """Set the weather file path."""
+        self.project.sim_settings.weather_file_path_modelica = (
+                self.test_resources_path() /
+                'weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+
 
 class TestIntegrationLCA(IntegrationBaseLCA, unittest.TestCase):
     def test_run_kitinstitute_lca(self):

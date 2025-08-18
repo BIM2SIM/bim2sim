@@ -15,6 +15,7 @@ import networkx as nx
 from networkx import json_graph
 
 from bim2sim.elements.base_elements import ProductBased, ElementEncoder
+from bim2sim.utilities.types import FlowSide, FlowDirection
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +36,9 @@ class HvacGraph(nx.Graph):
         """
 
         nodes = [port for instance in elements for port in instance.ports
-                 if port.connection]
+                 # TODO #1 add this again, this is just for testing purpose
+                 # if port.connection
+                 ]
         inner_edges = [connection for instance in elements
                        for connection in instance.inner_connections]
         edges = [(port, port.connection) for port in nodes if port.connection]
@@ -118,7 +121,7 @@ class HvacGraph(nx.Graph):
             types: Iterable[Type[ProductBased]],
             include_singles: bool = False):
         """Get lists of consecutive elements of the given types. Elements are
-        ordered in the same way as the are connected.
+        ordered in the same way as they are connected.
 
         Args:
             element_graph: Graph object with elements as nodes.
@@ -181,9 +184,6 @@ class HvacGraph(nx.Graph):
         return [edge for edge in self.edges
                 if not edge[0].parent is edge[1].parent]
 
-    # def get_nodes(self):
-    #     """Returns list of nodes represented by graph"""
-    #     return list(self.nodes)
 
     def plot(self, path: Path = None, ports: bool = False, dpi: int = 400,
              use_pyvis=False):
@@ -203,16 +203,15 @@ class HvacGraph(nx.Graph):
 
         # https://plot.ly/python/network-graphs/
         edge_colors_flow_side = {
-            1: dict(edge_color='red'),
-            -1: dict(edge_color='blue'),
-            0: dict(edge_color='grey'),
-            None: dict(edge_color='grey'),
+            FlowSide.supply_flow: dict(edge_color='red'),
+            FlowSide.return_flow: dict(edge_color='blue'),
+            FlowSide.unknown: dict(edge_color='grey'),
         }
         node_colors_flow_direction = {
-            1: dict(node_color='white', edgecolors='blue'),
-            -1: dict(node_color='blue', edgecolors='black'),
-            0: dict(node_color='grey', edgecolors='black'),
-            None: dict(node_color='grey', edgecolors='black'),
+            FlowDirection.source: dict(node_color='white', edgecolors='blue'),
+            FlowDirection.sink: dict(node_color='blue', edgecolors='black'),
+            FlowDirection.sink_and_source: dict(node_color='grey', edgecolors='black'),
+            FlowDirection.unknown: dict(node_color='grey', edgecolors='black'),
         }
 
         kwargs = {}
@@ -293,6 +292,7 @@ class HvacGraph(nx.Graph):
                     node['label'] = node['label'].split('<')[1]
                 except:
                     pass
+                # TODO #733 use is_generator(), is_consumer() etc.
                 node['label'] = node['label'].split('(ports')[0]
                 if 'agg' in node['label'].lower():
                     node['label'] = node['label'].split('Agg0')[0]
@@ -654,88 +654,7 @@ class HvacGraph(nx.Graph):
                 graphs.append(_graph)
         return graphs
 
-    def recurse_set_side(self, port, side, known: dict = None,
-                         raise_error=True):
-        """Recursive set flow_side to connected ports"""
-        if known is None:
-            known = {}
 
-        # set side suggestion
-        is_known = port in known
-        current_side = known.get(port, port.flow_side)
-        if not is_known:
-            known[port] = side
-        elif is_known and current_side == side:
-            return known
-        else:
-            # conflict
-            if raise_error:
-                raise AssertionError("Conflicting flow_side in %r" % port)
-            else:
-                logger.error("Conflicting flow_side in %r", port)
-                known[port] = None
-                return known
-
-        # call neighbours
-        for neigh in self.neighbors(port):
-            if (neigh.parent.is_consumer() or neigh.parent.is_generator()) \
-                    and port.parent is neigh.parent:
-                # switch flag over consumers / generators
-                self.recurse_set_side(neigh, -side, known, raise_error)
-            else:
-                self.recurse_set_side(neigh, side, known, raise_error)
-
-        return known
-
-    def recurse_set_unknown_sides(self, port, visited: list = None,
-                                  masters: list = None):
-        """Recursive checks neighbours flow_side.
-        :returns tuple of
-            common flow_side (None if conflict)
-            list of checked ports
-            list of ports on which flow_side s are determined"""
-
-        if visited is None:
-            visited = []
-        if masters is None:
-            masters = []
-
-        # mark as visited to prevent deadloops
-        visited.append(port)
-
-        if port.flow_side in (-1, 1):
-            # use port with known flow_side as master
-            masters.append(port)
-            return port.flow_side, visited, masters
-
-        # call neighbours
-        neighbour_sides = {}
-        for neigh in self.neighbors(port):
-            if neigh not in visited:
-                if (neigh.parent.is_consumer() or neigh.parent.is_generator()) \
-                        and port.parent is neigh.parent:
-                    # switch flag over consumers / generators
-                    side, _, _ = self.recurse_set_unknown_sides(
-                        neigh, visited, masters)
-                    side = -side
-                else:
-                    side, _, _ = self.recurse_set_unknown_sides(
-                        neigh, visited, masters)
-                neighbour_sides[neigh] = side
-
-        sides = set(neighbour_sides.values())
-        if not sides:
-            return port.flow_side, visited, masters
-        elif len(sides) == 1:
-            # all neighbours have same site
-            side = sides.pop()
-            return side, visited, masters
-        elif len(sides) == 2 and 0 in sides:
-            side = (sides - {0}).pop()
-            return side, visited, masters
-        else:
-            # conflict
-            return None, visited, masters
 
     @staticmethod
     def get_dir_paths_between(graph, nodes, include_edges=False):

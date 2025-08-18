@@ -31,7 +31,7 @@ def run_example_simple_hvac_hkesim():
     project = Project.create(project_path, ifc_paths, 'HKESim')
 
     # set weather file data
-    project.sim_settings.weather_file_path = (
+    project.sim_settings.weather_file_path_modelica = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 

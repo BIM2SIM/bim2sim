@@ -30,11 +30,14 @@ class PluginAixLib(Plugin):
         common.CreateElementsOnIfcTypes,
         hvac.ConnectElements,
         hvac.MakeGraph,
+        hvac.EnrichFlowDirection,
         hvac.ExpansionTanks,
         hvac.Reduce,
         hvac.DeadEnds,
         LoadLibrariesAixLib,
+        hvac.CreateModelicaModel,
         hvac.Export,
+
     ]
 
     def create_modelica_table_from_list(self, curve):

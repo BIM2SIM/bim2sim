@@ -34,7 +34,7 @@ def run_example_complex_hvac_aixlib():
     project = Project.create(project_path, ifc_paths, 'aixlib')
 
     # set weather file data
-    project.sim_settings.weather_file_path = (
+    project.sim_settings.weather_file_path_modelica = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 

@@ -5,10 +5,13 @@ import math
 import re
 import sys
 from datetime import date
+from pathlib import Path
 from typing import Set, List, Union
 
 import ifcopenshell
 import ifcopenshell.geom
+import numpy as np
+from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBndLib import brepbndlib_Add
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
@@ -23,7 +26,7 @@ from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Pnt, \
 from ifcopenshell import guid
 
 from bim2sim.elements.mapping import condition, attribute
-from bim2sim.elements.base_elements import ProductBased, RelationBased
+from bim2sim.elements.base_elements import ProductBased, RelationBased, Element
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.tasks.common.inner_loop_remover import remove_inner_loops
 from bim2sim.utilities.common_functions import vector_angle, angle_equivalent
@@ -40,7 +43,6 @@ class BPSProduct(ProductBased):
         super().__init__(*args, **kwargs)
         self.thermal_zones = []
         self.space_boundaries = []
-        self.storeys = []
         self.material = None
         self.disaggregations = []
         self.building = None
@@ -700,10 +702,6 @@ class SpaceBoundary(RelationBased):
 
         return position
 
-    @classmethod
-    def pre_validate(cls, ifc) -> bool:
-        return True
-
     def validate_creation(self) -> bool:
         if self.bound_area and self.bound_area < 1e-2 * ureg.meter ** 2:
             return True
@@ -1284,10 +1282,6 @@ class Layer(BPSProduct):
         ifcopenshell_guid = guid.new()[prefix_length + 1:]
         return f"{prefix}{ifcopenshell_guid}"
 
-    @classmethod
-    def pre_validate(cls, ifc) -> bool:
-        return True
-
     def validate_creation(self) -> bool:
         return True
 
@@ -1768,7 +1762,7 @@ class Building(BPSProduct):
         self.elements = []
 
     ifc_types = {"IfcBuilding": ['*']}
-    from_ifc_domains = [IFCDomain.arch]
+    from_ifc_domains = [IFCDomain.arch, IFCDomain.mixed]
 
     conditions = [
         condition.RangeCondition('year_of_construction',
@@ -1882,7 +1876,7 @@ class Building(BPSProduct):
 
 class Storey(BPSProduct):
     ifc_types = {'IfcBuildingStorey': ['*']}
-    from_ifc_domains = [IFCDomain.arch]
+    from_ifc_domains = [IFCDomain.arch, IFCDomain.mixed]
 
     def __init__(self, *args, **kwargs):
         """storey __init__ function"""

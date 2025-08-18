@@ -429,6 +429,41 @@ class GuidListSetting(Setting):
         return True
 
 
+class DeprecatedSetting(Setting):
+    """A setting that raises an error when accessed as it is deprecated."""
+
+    def __init__(self, replacement_settings, *args, **kwargs):
+        """
+        Initialize a deprecated setting.
+
+        Args:
+            replacement_settings: List of setting names that replace this
+            setting
+            *args, **kwargs: Arguments passed to the parent class
+        """
+        super().__init__(*args, **kwargs)
+        self.replacement_settings = replacement_settings
+
+    def initialize(self, manager):
+        """Sets the error message after initialization when name is known."""
+        super().initialize(manager)
+        self.error_message = (
+            f"The setting '{self.name}' is deprecated and no"
+            f" longer supported. Please use one of "
+            f" {', '.join(self.replacement_settings)} instead.")
+
+    def __get__(self, bound_simulation_settings, owner):
+        """Raise an error when the deprecated setting is accessed."""
+        if bound_simulation_settings is None:
+            return self
+
+        raise AttributeError(self.error_message)
+
+    def __set__(self, bound_simulation_settings, value):
+        """Raise an error when the deprecated setting is set."""
+        raise AttributeError(self.error_message)
+
+
 class BaseSimSettings(metaclass=AutoSettingNameMeta):
     """Specification of basic bim2sim simulation settings which are common for
     all simulations"""
@@ -496,6 +531,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                                 # handle all other strings
                                 val = set_from_cfg
                         else:
+
                             # handle all other data types
                             val = set_from_cfg
                         setattr(self, setting, val)
@@ -578,17 +614,41 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True
     )
 
-    weather_file_path = PathSetting(
+
+    # TODO fix mandatory for EP and MODELICA seperated weather files
+    weather_file_path_modelica = PathSetting(
         default=None,
         description='Path to the weather file that should be used for the '
                     'simulation. If no path is provided, we will try to get '
-                    'the'
-                    'location from the IFC and download a fitting weather'
+                    'the location from the IFC and download a fitting weather'
                     ' file. For Modelica provide .mos files, for EnergyPlus '
                     '.epw files. If the format does not fit, we will try to '
                     'convert.',
         for_frontend=True,
-        mandatory=True
+        mandatory=False
+    )
+
+    weather_file_path_ep = PathSetting(
+        default=None,
+        description='Path to the weather file that should be used for the '
+                    'simulation. If no path is provided, we will try to get '
+                    'the location from the IFC and download a fitting weather'
+                    ' file. For Modelica provide .mos files, for EnergyPlus '
+                    '.epw files. If the format does not fit, we will try to '
+                    'convert.',
+        for_frontend=True,
+        mandatory=False
+    )
+
+    weather_file_path = DeprecatedSetting(
+        replacement_settings=["weather_file_path_ep",
+                              "weather_file_path_modelica"],
+        default=None,
+        description='DEPRECATED: Use weather_file_path_ep or '
+                    'weather_file_path_modelica instead. ' +
+                    'Path to the weather file that should be used for the'
+                    ' simulation.',
+        for_frontend=False
     )
 
     building_rotation_overwrite = NumberSetting(
@@ -606,11 +666,13 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     'performance simulation and co-simulations.',
         for_frontend=True
     )
+
     correct_space_boundaries = BooleanSetting(
         default=False,
         description='Apply geometric correction to space boundaries.',
         for_frontend=True
     )
+
     close_space_boundary_gaps = BooleanSetting(
         default=False,
         description='Close gaps in the set of space boundaries by adding '
@@ -680,6 +742,13 @@ class PlantSimSettings(BaseSimSettings):
                     "ports.",
         default=True
     )
+    outer_heat_ports = BooleanSetting(
+        default=False,
+        description='Add outer heat ports to allow connections to other '
+                    'models.',
+        for_frontend=True
+    )
+
 
 
 class BuildingSimSettings(BaseSimSettings):

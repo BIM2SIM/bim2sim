@@ -1,10 +1,7 @@
-import logging
-
 from bim2sim.elements.aggregation.hvac_aggregations import UnderfloorHeating, \
     Consumer, PipeStrand, ParallelPump, ConsumerHeatingDistributorModule, \
     GeneratorOneFluid
 from bim2sim.elements.graphs.hvac_graph import HvacGraph
-from bim2sim.kernel.decision import BoolDecision, DecisionBunch
 from bim2sim.tasks.base import ITask
 
 
@@ -102,6 +99,7 @@ class Reduce(ITask):
             DecisionBunch: A collection of decisions may be yielded during the
                 task.
         """
+        # TODO #733
         # TODO: needs testing!
         # TODO: at least one master element required
         accepted = []

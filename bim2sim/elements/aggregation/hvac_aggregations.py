@@ -657,10 +657,9 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
     def _calc_rated_power(self, name) -> ureg.Quantity:
         """Calculate the rated power adding the rated power of the pump-like
         elements"""
-        if all(ele.rated_power for ele in self.pump_elements):
-            return sum([ele.rated_power for ele in self.pump_elements])
-        else:
-            return None
+        value = sum(ele.rated_power for ele in self.pump_elements)
+        if value:
+            return value
 
     rated_power = attribute.Attribute(
         unit=ureg.kilowatt,
@@ -684,7 +683,9 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
     def _calc_volume_flow(self, name) -> ureg.Quantity:
         """Calculate the volume flow, adding the volume flow of the pump-like
         elements"""
-        return sum([ele.rated_volume_flow for ele in self.pump_elements])
+        value = sum([ele.rated_volume_flow for ele in self.pump_elements])
+        if value:
+            return value
 
     rated_volume_flow = attribute.Attribute(
         description='rated volume flow',
@@ -695,7 +696,9 @@ class ParallelPump(HVACAggregationMixin, hvac.Pump):
 
     def _calc_diameter(self, name) -> ureg.Quantity:
         """Calculate the diameter, using the pump-like elements diameter"""
-        return sum(item.diameter ** 2 for item in self.pump_elements) ** 0.5
+        value = sum(item.diameter ** 2 for item in self.pump_elements) ** 0.5
+        if value:
+            return value
 
     diameter = attribute.Attribute(
         description='diameter',
@@ -821,7 +824,9 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         """ Calculate the rated power adding the rated power of the
             whitelist_classes elements.
         """
-        return sum([ele.rated_power for ele in self.whitelist_elements])
+        value = sum([ele.rated_power for ele in self.whitelist_elements])
+        if value:
+            return value
 
     rated_power = attribute.Attribute(
         description="rated power",
@@ -839,7 +844,9 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         """ Calculate the rated pump power adding the rated power of the
             pump-like elements.
         """
-        return sum([ele.rated_power for ele in self.pump_elements])
+        value = sum([ele.rated_power for ele in self.pump_elements])
+        if value:
+            return value
 
     rated_pump_power = attribute.Attribute(
         description="rated pump power",
@@ -852,7 +859,9 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         """ Calculate the volume flow, adding the volume flow of the pump-like
             elements.
         """
-        return sum([ele.rated_volume_flow for ele in self.pump_elements])
+        value = sum([ele.rated_volume_flow for ele in self.pump_elements])
+        if value:
+            return value
 
     rated_volume_flow = attribute.Attribute(
         description="rated volume flow",
@@ -865,8 +874,19 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         """ Calculate the flow temperature, using the flow temperature of the
             whitelist_classes elements.
         """
-        return sum(ele.flow_temperature.to_base_units() for ele
-                   in self.whitelist_elements) / len(self.whitelist_elements)
+        # TODO the following would work, but only if we want a medium
+        #  temperature for the consumer. If we want a list, this needs to look
+        #  different
+        value = (sum(ele.flow_temperature.to_base_units() for ele
+                     in self.whitelist_elements if
+                     ele.flow_temperature is not None)
+                 / len([ele for ele in self.whitelist_elements if
+                        ele.flow_temperature is not None]))
+        # value = (sum(ele.flow_temperature.to_base_units() for ele
+        #            in self.whitelist_elements if ele.flow_temperature)
+        #         / len(self.whitelist_elements))
+        if value:
+            return value
 
     flow_temperature = attribute.Attribute(
         description="temperature inlet",
@@ -879,8 +899,13 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
         """ Calculate the return temperature, using the return temperature of
             the whitelist_classes elements.
         """
-        return sum(ele.return_temperature.to_base_units() for ele
-                   in self.whitelist_elements) / len(self.whitelist_elements)
+        value = (sum(ele.return_temperature.to_base_units() for ele
+                     in self.whitelist_elements if
+                     ele.return_temperature is not None)
+                 / len([ele for ele in self.whitelist_elements if
+                        ele.return_temperature is not None]))
+        if value:
+            return value
 
     return_temperature = attribute.Attribute(
         description="temperature outlet",
@@ -891,7 +916,8 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
     def _calc_dT_water(self, name):
         """ Water dt of consumer."""
-        return self.flow_temperature - self.return_temperature
+        if self.flow_temperature and self.return_temperature:
+            return self.flow_temperature - self.return_temperature
 
     dT_water = attribute.Attribute(
         description="Nominal temperature difference",
@@ -901,7 +927,9 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
     def _calc_body_mass(self, name):
         """ Body mass of consumer."""
-        return sum(ele.body_mass for ele in self.whitelist_elements)
+        value = sum(ele.body_mass for ele in self.whitelist_elements)
+        if value:
+            return value
 
     body_mass = attribute.Attribute(
         description="Body mass of Consumer",
@@ -911,8 +939,9 @@ class Consumer(HVACAggregationMixin, hvac.HVACProduct):
 
     def _calc_heat_capacity(self, name):
         """ Heat capacity of consumer."""
-        return sum(ele.heat_capacity for ele in
-                   self.whitelist_elements)
+        value = sum(ele.heat_capacity for ele in self.whitelist_elements)
+        if value:
+            return value
 
     heat_capacity = attribute.Attribute(
         description="Heat capacity of Consumer",
@@ -1112,12 +1141,6 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
         """list of whitelist_classes elements present on the aggregation"""
         return [ele for ele in self.elements if type(ele) in self.whitelist_classes]
 
-    def _calc_flow_temperature(self, name) -> list:
-        """Calculate the flow temperature, using the flow temperature of the
-        whitelist_classes elements"""
-        return [ele.flow_temperature.to_base_units() for ele
-                in self.whitelist_elements]
-
     def _calc_has_pump(self, name) -> list[bool]:
         """Returns a list with boolean for every consumer if it has a pump."""
         return [con.has_pump for con in self.whitelist_elements]
@@ -1125,7 +1148,7 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
     flow_temperature = attribute.Attribute(
         description="temperature inlet",
         unit=ureg.kelvin,
-        functions=[_calc_flow_temperature],
+        functions=[Consumer._calc_flow_temperature],
         dependant_elements='whitelist_elements'
     )
 
@@ -1134,16 +1157,10 @@ class ConsumerHeatingDistributorModule(HVACAggregationMixin, hvac.HVACProduct):
         functions=[_calc_has_pump]
     )
 
-    def _calc_return_temperature(self, name) -> list:
-        """Calculate the return temperature, using the return temperature of the
-        whitelist_classes elements"""
-        return [ele.return_temperature.to_base_units() for ele
-                in self.whitelist_elements]
-
     return_temperature = attribute.Attribute(
         description="temperature outlet",
         unit=ureg.kelvin,
-        functions=[_calc_return_temperature],
+        functions=[Consumer._calc_return_temperature],
         dependant_elements='whitelist_elements'
     )
 
@@ -1443,7 +1460,10 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
     def _calc_rated_power(self, name) -> ureg.Quantity:
         """ Calculate the rated power adding the rated power of the
             whitelist_classes elements."""
-        return sum([ele.rated_power for ele in self.whitelist_elements])
+        value = sum([ele.rated_power for ele in self.whitelist_elements
+                    if ele.rated_power])
+        if value:
+            return value
 
     rated_power = attribute.Attribute(
         unit=ureg.kilowatt,
@@ -1455,7 +1475,10 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
     def _calc_min_power(self, name):
         """ Calculates the min power, adding the min power of the
             whitelist_elements."""
-        return sum([ele.min_power for ele in self.whitelist_elements])
+        min_powers =  [ele.min_power for ele in self.whitelist_elements
+                       if ele.min_power]
+        if min_powers:
+            return min(min_powers)
 
     min_power = attribute.Attribute(
         unit=ureg.kilowatt,
@@ -1466,7 +1489,8 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
 
     def _calc_min_PLR(self, name):
         """ Calculates the min PLR, using the min power and rated power."""
-        return self.min_power / self.rated_power
+        if self.min_power and self.rated_power:
+            return self.min_power / self.rated_power
 
     min_PLR = attribute.Attribute(
         description="Minimum part load ratio",
@@ -1474,35 +1498,33 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
         functions=[_calc_min_PLR],
     )
 
-    def _calc_flow_temperature(self, name) -> ureg.Quantity:
-        """ Calculate the flow temperature, using the flow temperature of the
-            whitelist_classes elements."""
-        return sum(ele.flow_temperature.to_base_units() for ele
-                   in self.whitelist_elements) / len(self.whitelist_elements)
-
     flow_temperature = attribute.Attribute(
-        description="Nominal inlet temperature",
-        unit=ureg.kelvin,
-        functions=[_calc_flow_temperature],
+        description="Nominal flow temperature",
+        unit=ureg.celsius,
+        functions=[Consumer._calc_flow_temperature],
         dependant_elements='whitelist_elements'
     )
 
     def _calc_return_temperature(self, name) -> ureg.Quantity:
         """ Calculate the return temperature, using the return temperature of
             the whitelist_classes elements."""
-        return sum(ele.return_temperature.to_base_units() for ele
-                   in self.whitelist_elements) / len(self.whitelist_elements)
+        value = (sum(ele.return_temperature.to_base_units() for ele
+                    in self.whitelist_elements if ele.return_temperature)
+                / len(self.whitelist_elements))
+        if value:
+            return value
 
     return_temperature = attribute.Attribute(
-        description="Nominal outlet temperature",
-        unit=ureg.kelvin,
+        description="Nominal return temperature",
+        unit=ureg.celsius,
         functions=[_calc_return_temperature],
         dependant_elements='whitelist_elements'
     )
 
     def _calc_dT_water(self, name):
         """ Rated power of boiler."""
-        return abs(self.return_temperature - self.flow_temperature)
+        if self.return_temperature and self.flow_temperature:
+            return abs(self.return_temperature - self.flow_temperature)
 
     dT_water = attribute.Attribute(
         description="Nominal temperature difference",
@@ -1513,8 +1535,10 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
     def _calc_diameter(self, name) -> ureg.Quantity:
         """ Calculate the diameter, using the whitelist_classes elements
             diameter."""
-        return sum(
+        value = sum(
             item.diameter ** 2 for item in self.whitelist_elements) ** 0.5
+        if value:
+            return value
 
     diameter = attribute.Attribute(
         description='diameter',
@@ -1548,10 +1572,9 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
     def _calc_rated_pump_power(self, name) -> ureg.Quantity:
         """ Calculate the rated pump power adding the rated power of the
             pump-like elements."""
-        if all(ele.rated_power for ele in self.pump_elements):
-            return sum([ele.rated_power for ele in self.pump_elements])
-        else:
-            return None
+        value = all(ele.rated_power for ele in self.pump_elements)
+        if value:
+            return value
 
     rated_pump_power = attribute.Attribute(
         description="rated pump power",
@@ -1563,7 +1586,9 @@ class GeneratorOneFluid(HVACAggregationMixin, hvac.HVACProduct):
     def _calc_volume_flow(self, name) -> ureg.Quantity:
         """ Calculate the volume flow, adding the volume flow of the pump-like
             elements."""
-        return sum([ele.rated_volume_flow for ele in self.pump_elements])
+        value = sum([ele.rated_volume_flow for ele in self.pump_elements])
+        if value:
+            return value
 
     rated_volume_flow = attribute.Attribute(
         description="rated volume flow",

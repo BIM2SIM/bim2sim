@@ -45,6 +45,12 @@ class RegressionTestTEASER(RegressionTestBase):
 
         super().tearDown()
 
+    def set_test_weather_file(self):
+        """Set the weather file path."""
+        self.project.sim_settings.weather_file_path_modelica = (
+                self.test_resources_path() /
+                'weather_files/DEU_NW_Aachen.105010_TMYx.modelica')
+
     def create_regression_setup(
             self,
             tolerance: float = 1E-3,

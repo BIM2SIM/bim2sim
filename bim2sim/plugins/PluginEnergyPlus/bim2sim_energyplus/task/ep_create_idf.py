@@ -4,7 +4,7 @@ import logging
 import math
 import os
 from pathlib import Path, PosixPath
-from typing import Union, TYPE_CHECKING
+from typing import Union, TYPE_CHECKING, List
 
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace
@@ -46,14 +46,15 @@ class CreateIdf(ITask):
     function below.
     """
 
-    reads = ('elements', 'weather_file',)
-    touches = ('idf', 'sim_results_path')
+    reads = ('elements', 'weather_file_ep',)
+    touches = ('idf', 'sim_results_path', 'ep_zone_lists')
 
     def __init__(self, playground):
         super().__init__(playground)
         self.idf = None
 
-    def run(self, elements: dict, weather_file: Path) -> tuple[IDF, Path]:
+    def run(self, elements: dict, weather_file_ep: Path) -> (
+            tuple)[IDF, Path, List]:
         """Execute all methods to export an IDF from BIM2SIM.
 
         This task includes all functions for exporting EnergyPlus Input files
@@ -74,18 +75,22 @@ class CreateIdf(ITask):
         Args:
             elements (dict): dictionary in the format dict[guid: element],
                 holds preprocessed elements including space boundaries.
-            weather_file (Path): path to weather file in .epw data format
+            weather_file_ep (Path): path to weather file in .epw data format
         Returns:
             idf (IDF): EnergyPlus input file
             sim_results_path (Path): path to the simulation results.
+            ep_zone_lists (List): List of thermal zone EP items
         """
         logger.info("IDF generation started ...")
-        idf, sim_results_path = self.init_idf(self.playground.sim_settings,
-                                              self.paths, weather_file,
-                                              self.prj_name)
+        idf, sim_results_path = self.init_idf(
+            self.playground.sim_settings,
+            self.paths,
+            weather_file_ep,
+            self.prj_name)
         self.init_zone(self.playground.sim_settings, elements, idf)
         self.init_zonelist(idf)
         self.init_zonegroups(elements, idf)
+        ep_zone_lists = [z.Name for z in idf.idfobjects['ZONE']]
         self.get_preprocessed_materials_and_constructions(
             self.playground.sim_settings, elements, idf)
         if self.playground.sim_settings.add_shadings:
@@ -105,7 +110,7 @@ class CreateIdf(ITask):
         idf.save(idf.idfname)
         logger.info("Idf file successfully saved.")
 
-        return idf, sim_results_path
+        return idf, sim_results_path, ep_zone_lists
 
     @staticmethod
     def init_idf(sim_settings: EnergyPlusSimSettings, paths: FolderStructure,
@@ -244,6 +249,9 @@ class CreateIdf(ITask):
         Args:
             elements: dict[guid: element]
             idf: idf file object
+        Returns
+            zone_lists: list of all zones with their name in EP
+            @Veronika Richter, correct?
         """
         spaces = get_spaces_with_bounds(elements)
         # assign storeys to spaces (ThermalZone)
@@ -273,6 +281,7 @@ class CreateIdf(ITask):
                              Zone_List_Name=zlist.Name,
                              Zone_List_Multiplier=1
                              )
+
     @staticmethod
     def check_preprocessed_materials_and_constructions(rel_elem, layers):
         """Check if preprocessed materials and constructions are valid."""
