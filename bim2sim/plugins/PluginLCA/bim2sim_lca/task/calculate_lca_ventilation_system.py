@@ -20,12 +20,11 @@ class CalculateEmissionVentilationSystem(ITask):
         self.lock = self.playground.sim_settings.lock
 
         if self.playground.sim_settings.calculate_lca_ventilation_system:
-            with self.lock:
-                supply_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_supply_system_material_xlsx)
-                exhaust_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_exhaust_system_material_xlsx)
-                room_supply_dict = self.load_room_data(self.playground.sim_settings.ventilation_rooms_supply_xlsx)
-                room_exhaust_dict = self.load_room_data(self.playground.sim_settings.ventilation_rooms_exhaust_xlsx)
-                fire_damper_dict = self.load_fire_damper_data(self.playground.sim_settings.ventilation_fire_damper_xlsx)
+            supply_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_supply_system_material_xlsx)
+            exhaust_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_exhaust_system_material_xlsx)
+            room_supply_dict = self.load_room_data(self.playground.sim_settings.ventilation_rooms_supply_xlsx)
+            room_exhaust_dict = self.load_room_data(self.playground.sim_settings.ventilation_rooms_exhaust_xlsx)
+            fire_damper_dict = self.load_fire_damper_data(self.playground.sim_settings.ventilation_fire_damper_xlsx)
 
             (total_gwp_fire_damper, total_cost_fire_damper,
              total_gwp_silencer, total_cost_silencer, total_gwp_vav,
