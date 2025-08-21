@@ -7,9 +7,9 @@ import logging
 import ast
 import os.path
 from pathlib import Path
-from typing import Union
+from typing import Union, Optional
 import sys
-from pydantic import BaseModel, Field, model_validator, field_validator
+from pydantic import BaseModel, Field, model_validator, field_validator, FilePath, validator
 from pydantic_core import PydanticCustomError, ValidationError
 from typing_extensions import Self
 
@@ -400,6 +400,13 @@ class ChoiceSetting(Setting):
                 return True
 
 
+class PathSettingPydantic(SettingPydantic):
+    # https://docs.pydantic.dev/1.10/usage/types/#pydantic-types
+    # Todo (chg-ext): Check and implement consistent mandatory field behaviour
+    # See: https://stackoverflow.com/questions/77842977/allow-pydantic-models-to-have-optionally-null-fields-like-in-v1
+    value: Optional[FilePath]
+    mandatory: bool
+
 class PathSetting(Setting):
     def check_value(self, bound_simulation_settings, value):
         """Checks the value that should be set for correctness
@@ -693,8 +700,8 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True
     )
 
-    weather_file_path = PathSetting(
-        default=None,
+    weather_file_path = PathSettingPydantic(
+        value=None,
         description='Path to the weather file that should be used for the '
                     'simulation. If no path is provided, we will try to get '
                     'the'
@@ -704,6 +711,19 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     'convert.',
         for_frontend=True,
         mandatory=True
+    )
+
+    weather_file_path_ = PathSetting(
+        default=None,
+        description='Path to the weather file that should be used for the '
+                    'simulation. If no path is provided, we will try to get '
+                    'the'
+                    'location from the IFC and download a fitting weather'
+                    ' file. For Modelica provide .mos files, for EnergyPlus '
+                    '.epw files. If the format does not fit, we will try to '
+                    'convert.',
+        for_frontend=True,
+        mandatory=False
     )
 
     building_rotation_overwrite = NumberSetting(
