@@ -1494,7 +1494,7 @@ class Window(BPSProductWithLayers):
         unit=ureg.m
     )
     u_value = attribute.Attribute(
-        default_ps=("Pset_WallCommon", "ThermalTransmittance"),
+        default_ps=("Pset_WindowCommon", "ThermalTransmittance"),
         unit=ureg.W / ureg.K / ureg.meter ** 2,
         functions=[BPSProductWithLayers.get_u_value],
     )

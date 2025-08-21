@@ -35,12 +35,14 @@ class Attribute:
     """Descriptor of element attribute to get its value from various sources.
 
     value and status of attribute are stored in __dict__ of bound instance.
+
     Possible statuses are:
-        UNKNOWN: default status at the beginning.
-        REQUESTED: Attribute was already requested via a decision??.
-        AVAILABLE: Attribute exists and is available.
-        NOT_AVAILABLE: No way was found to obtain the attributes value.
-        RESET: The Attribute was reset.
+
+    * UNKNOWN: default status at the beginning.
+    * REQUESTED: Attribute was already requested via a decision??.
+    * AVAILABLE: Attribute exists and is available.
+    * NOT_AVAILABLE: No way was found to obtain the attributes value.
+    * RESET: The Attribute was reset.
 
     To find more about Descriptor objects follow the explanations on
     https://rszalski.github.io/magicmethods/#descriptor
