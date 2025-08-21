@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Union
 import sys
 from pydantic import BaseModel, Field, model_validator, field_validator
-from pydantic_core import PydanticCustomError
+from pydantic_core import PydanticCustomError, ValidationError
 from typing_extensions import Self
 
 from bim2sim.utilities import types
@@ -309,16 +309,38 @@ class ChoiceSettingPydantic(SettingPydantic):
     choices: dict = None
     multiple_choice: bool = False
 
+    def __check_value(self, value):
+        if self.any_string and not isinstance(value, str):
+            raise ValidationError(f'{value} is no valid value for setting {self.name}, please enter a string.')
+        elif value not in self.choices and not self.any_string:
+            raise PydanticCustomError(
+                "value_not_in_choices",
+                f'{value} is no valid value for setting {self.name}, select one of {self.choices}.' # type: ignore[misc]
+            )
+        else:
+            pass
+
     @field_validator('choices', mode='after')
     @classmethod
-    def check_choices(cls, choices):
+    def check_for_period(cls, choices):
         for choice in choices:
-            if '.' in choice:
-                raise ValueError(f"Provided setting {choice} has a choice with "
-                                 f"character"
-                                 f" '.', this is prohibited.")
+            if "." in choice:
+                raise PydanticCustomError("illegal_character",
+                                          f"Provided setting {choice} contains character '.', this is prohibited.")  # type: ignore[misc]
         return choices
 
+    @model_validator(mode='after')
+    def check_content(self):
+        if isinstance(self.value, list):
+            if not self.multiple_choice:
+                raise PydanticCustomError("one_choice_allowed", f'Only one choice is allowed for setting'  # type: ignore[misc]
+                                                                f' {self.name}, but {len(self.value)} choices are given.')  # type: ignore[misc]
+            else:
+                for val in self.value:
+                    self.__check_value(val)
+
+        self.__check_value(self.value)
+        return self
 
 class ChoiceSetting(Setting):
     def __init__(
