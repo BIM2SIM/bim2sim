@@ -310,9 +310,7 @@ class ChoiceSettingPydantic(SettingPydantic):
     multiple_choice: bool = False
 
     def __check_value(self, value):
-        if self.any_string and not isinstance(value, str):
-            raise ValidationError(f'{value} is no valid value for setting {self.name}, please enter a string.')
-        elif value not in self.choices and not self.any_string:
+        if value not in self.choices and not self.any_string:
             raise PydanticCustomError(
                 "value_not_in_choices",
                 f'{value} is no valid value for setting {self.name}, select one of {self.choices}.' # type: ignore[misc]
