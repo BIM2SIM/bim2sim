@@ -7,9 +7,9 @@ import logging
 import ast
 import os.path
 from pathlib import Path
-from typing import Union, Optional
+from typing import Union, Optional, List
 import sys
-from pydantic import BaseModel, Field, model_validator, field_validator, FilePath, validator
+from pydantic import BaseModel, Field, model_validator, field_validator, FilePath
 from pydantic_core import PydanticCustomError, ValidationError
 from typing_extensions import Self
 
@@ -229,7 +229,7 @@ class NumberSettingPydantic(SettingPydantic):
     max_value: float = None
 
     @model_validator(mode='after')
-    def check_passwords_match(self) -> Self:
+    def check_limits(self) -> Self:
         if not (self.min_value <= self.value <= self.max_value):
             raise PydanticCustomError(
                 "value_out_of_range",
@@ -405,7 +405,7 @@ class PathSettingPydantic(SettingPydantic):
     # Todo (chg-ext): Check and implement consistent mandatory field behaviour
     # See: https://stackoverflow.com/questions/77842977/allow-pydantic-models-to-have-optionally-null-fields-like-in-v1
     value: Optional[FilePath]
-    mandatory: bool
+    # mandatory: bool
 
 class PathSetting(Setting):
     def check_value(self, bound_simulation_settings, value):
@@ -463,6 +463,20 @@ class BooleanSetting(Setting):
                              f"{self.name} is not a Boolean")
         else:
             return True
+
+
+class GuidListSettingPydantic(SettingPydantic):
+    value: Optional[List[str]]
+
+    @field_validator('value', mode='after')
+    @classmethod
+    def check_value(cls, value):
+        for i, guid in enumerate(value):
+            if not check_guid(guid):
+                raise PydanticCustomError("invalid_guid",
+                                          f"Invalid IFC GUID format at index {i}: '{guid}'")  # type: ignore[misc]
+        return value
+
 
 
 class GuidListSetting(Setting):
@@ -709,8 +723,8 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     ' file. For Modelica provide .mos files, for EnergyPlus '
                     '.epw files. If the format does not fit, we will try to '
                     'convert.',
-        for_frontend=True,
-        mandatory=True
+        for_frontend=True
+        #mandatory=True
     )
 
     weather_file_path_ = PathSetting(
@@ -752,7 +766,23 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     'additional 2b space boundaries.',
         for_frontend=True
     )
-    stories_to_load_guids = GuidListSetting(
+
+    stories_to_load_guids = GuidListSettingPydantic(
+        value=[],
+        description='List of IFC GUIDs for the specific stories that should '
+                    'be loaded. If empty, all stories will be considered '
+                    'for loading. This setting is useful for large buildings '
+                    'to reduce computational time. Note that loading single '
+                    'storeys may lead to missing ceilings if the related '
+                    'slab is assigned to the storey above, which may require '
+                    'corrections to boundary conditions.'
+                    ' It is recommended to include GUIDs of neighboring'
+                    ' storeys to reduce boundary condition errors.',
+        for_frontend=True
+    )
+
+
+    stories_to_load_guids_ = GuidListSetting(
         default=[],
         description='List of IFC GUIDs for the specific stories that should '
                     'be loaded. If empty, all stories will be considered '
