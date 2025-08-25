@@ -225,8 +225,27 @@ class NumberSettingPydantic(SettingPydantic):
     description: Union[str, None] = None
     for_frontend: bool = False
     any_string: bool = False
-    min_value: float = None
-    max_value: float = None
+    min_value: Optional[float] = None
+    max_value: Optional[float] = None
+
+    @model_validator(mode='after')
+    def check_setting_config(self) -> Self:
+        if self.min_value is None:
+            self.min_value = sys.float_info.epsilon
+            logger.info(f'No min_value given for sim_setting {self}, assuming'
+                        f'smallest float epsilon.')
+
+        if self.max_value is None:
+            self.max_value = float('inf')
+            logger.info(f'No max_value given for sim_setting {self}, assuming'
+                        f'biggest float inf.')
+
+        if self.min_value > self.max_value:
+            raise PydanticCustomError("contradictory_limits",
+                                      f"The specified limits for min_value and max_value are " # type: ignore[misc]
+                                      f"contradictory min: {self.min_value} max: {self.max_value}")
+
+        return self
 
     @model_validator(mode='after')
     def check_limits(self) -> Self:
@@ -320,7 +339,7 @@ class ChoiceSettingPydantic(SettingPydantic):
 
     @field_validator('choices', mode='after')
     @classmethod
-    def check_for_period(cls, choices):
+    def check_setting_config(cls, choices):
         for choice in choices:
             if "." in choice:
                 raise PydanticCustomError("illegal_character",
@@ -630,13 +649,13 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                         f"{setting.name} before running your project.")
 
     dymola_simulation = BooleanSettingPydantic(
-        value=False, #default
+        value=False,
         description="Run a Simulation with Dymola after model export?",
         for_frontend=True,
     )
 
-    create_external_elements = BooleanSetting(
-        default=False,
+    create_external_elements = BooleanSettingPydantic(
+        value=False,
         description='Create external elements?',
         for_frontend=True
     )
@@ -669,8 +688,8 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True
     )
 
-    group_unidentified_ = ChoiceSetting(
-        default='fuzzy',
+    group_unidentified_ = ChoiceSettingPydantic(
+        value='fuzzy',
         choices={
             'fuzzy': 'Use fuzzy search to find ifc name similarities',
             'name': 'Only group elements with exact same ifc name',
@@ -687,8 +706,8 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True
     )
 
-    fuzzy_threshold = NumberSetting(
-        default=0.7,
+    fuzzy_threshold = NumberSettingPydantic(
+        value=0.7,
         min_value=0.5,
         max_value=0.9,
         description='If you want to use fuzzy search in the '
@@ -701,8 +720,8 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     'the same IFC type.'
     )
 
-    reset_guids = BooleanSetting(
-        default=False,
+    reset_guids = BooleanSettingPydantic(
+        value=False,
         description='Reset GlobalIDs from imported IFC if duplicate '
                     'GlobalIDs occur in the IFC. As EnergyPlus evaluates all'
                     'GlobalIDs upper case only, this might also be '
@@ -721,44 +740,30 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     '.epw files. If the format does not fit, we will try to '
                     'convert.',
         for_frontend=True
-        #mandatory=True
     )
 
-    weather_file_path_ = PathSetting(
-        default=None,
-        description='Path to the weather file that should be used for the '
-                    'simulation. If no path is provided, we will try to get '
-                    'the'
-                    'location from the IFC and download a fitting weather'
-                    ' file. For Modelica provide .mos files, for EnergyPlus '
-                    '.epw files. If the format does not fit, we will try to '
-                    'convert.',
-        for_frontend=True,
-        mandatory=False
-    )
-
-    building_rotation_overwrite = NumberSetting(
-        default=0,
-        description='Overwrite the (clockwise) building rotation angle in '
-                    'degrees.',
+    building_rotation_overwrite = NumberSettingPydantic(
+        value=0,
         min_value=0,
         max_value=359,
+        description='Overwrite the (clockwise) building rotation angle in '
+                    'degrees.',
         for_frontend=True
     )
 
-    add_space_boundaries = BooleanSetting(
-        default=False,
+    add_space_boundaries = BooleanSettingPydantic(
+        value=False,
         description='Add space boundaries. Only required for building '
                     'performance simulation and co-simulations.',
         for_frontend=True
     )
-    correct_space_boundaries = BooleanSetting(
-        default=False,
+    correct_space_boundaries = BooleanSettingPydantic(
+        value=False,
         description='Apply geometric correction to space boundaries.',
         for_frontend=True
     )
-    close_space_boundary_gaps = BooleanSetting(
-        default=False,
+    close_space_boundary_gaps = BooleanSettingPydantic(
+        value=False,
         description='Close gaps in the set of space boundaries by adding '
                     'additional 2b space boundaries.',
         for_frontend=True
@@ -776,22 +781,6 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     ' It is recommended to include GUIDs of neighboring'
                     ' storeys to reduce boundary condition errors.',
         for_frontend=True
-    )
-
-
-    stories_to_load_guids_ = GuidListSetting(
-        default=[],
-        description='List of IFC GUIDs for the specific stories that should '
-                    'be loaded. If empty, all stories will be considered '
-                    'for loading. This setting is useful for large buildings '
-                    'to reduce computational time. Note that loading single '
-                    'storeys may lead to missing ceilings if the related '
-                    'slab is assigned to the storey above, which may require '
-                    'corrections to boundary conditions.'
-                    ' It is recommended to include GUIDs of neighboring'
-                    ' storeys to reduce boundary condition errors.',
-        for_frontend=True,
-        mandatory=False
     )
 
 
@@ -836,11 +825,11 @@ class PlantSimSettings(BaseSimSettings):
         min_value=1
     )
 
-    verify_connection_by_position = BooleanSetting(
+    verify_connection_by_position = BooleanSettingPydantic(
+        value=True,
         description="Choose if connection of elements via IfcDistributionPorts"
                     " should be validated by the geometric position of the "
-                    "ports.",
-        default=True
+                    "ports."
     )
 
 
