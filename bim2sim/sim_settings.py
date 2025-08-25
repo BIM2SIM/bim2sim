@@ -302,21 +302,21 @@ class NumberSetting(Setting):
 
 
 class ChoiceSettingPydantic(SettingPydantic):
-    value: str
+    # Todo (chg-ext): Add normalisation (convert scalar to List with one value?)
+    # And use values instead of value as field name?
+    value: Union[str, List[str]]
     description: Union[str, None] = None
     for_frontend: bool = False
     any_string: bool = False
     choices: dict = None
     multiple_choice: bool = False
 
-    def __check_value(self, value):
+    def _check_for_value_in_choices(self, value):
         if value not in self.choices and not self.any_string:
             raise PydanticCustomError(
                 "value_not_in_choices",
                 f'{value} is no valid value for setting {self.name}, select one of {self.choices}.' # type: ignore[misc]
             )
-        else:
-            pass
 
     @field_validator('choices', mode='after')
     @classmethod
@@ -335,9 +335,11 @@ class ChoiceSettingPydantic(SettingPydantic):
                                                                 f' {self.name}, but {len(self.value)} choices are given.')  # type: ignore[misc]
             else:
                 for val in self.value:
-                    self.__check_value(val)
+                    self._check_for_value_in_choices(val)
+        else:
+            # Todo (chg-ext): Check for multiple choices allowed but only one choice given?
+            self._check_for_value_in_choices(self.value)
 
-        self.__check_value(self.value)
         return self
 
 class ChoiceSetting(Setting):
@@ -399,11 +401,8 @@ class ChoiceSetting(Setting):
 
 
 class PathSettingPydantic(SettingPydantic):
-    # https://docs.pydantic.dev/1.10/usage/types/#pydantic-types
-    # Todo (chg-ext): Check and implement consistent mandatory field behaviour
-    # See: https://stackoverflow.com/questions/77842977/allow-pydantic-models-to-have-optionally-null-fields-like-in-v1
     value: Optional[FilePath]
-    # mandatory: bool
+
 
 class PathSetting(Setting):
     def check_value(self, bound_simulation_settings, value):
@@ -804,8 +803,8 @@ class PlantSimSettings(BaseSimSettings):
 
     # Todo maybe make every aggregation its own setting with LOD in the future,
     #  but currently we have no usage for this afaik.
-    aggregations = ChoiceSetting(
-        default=[
+    aggregations = ChoiceSettingPydantic(
+        value=[
             'UnderfloorHeating',
             'PipeStrand',
             'Consumer',
