@@ -104,8 +104,19 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
-<section id="bim2sim-utilities-check-docstrings-module">
-<h2>bim2sim.utilities.check_docstrings module<a class="headerlink" href="#bim2sim-utilities-check-docstrings-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.utilities.check_docstrings">
+<span id="bim2sim-utilities-check-docstrings-module"></span><h2>bim2sim.utilities.check_docstrings module<a class="headerlink" href="#module-bim2sim.utilities.check_docstrings" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.utilities.check_docstrings.count_functions_with_correct_docstrings">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.check_docstrings.</span></span><span class="sig-name descname"><span class="pre">count_functions_with_correct_docstrings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.check_docstrings.count_functions_with_correct_docstrings" title="Permalink to this definition"></a></dt>
+<dd><p>Check how many functions have no docstrings and structure the output in a dict.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.utilities.check_docstrings.generate_markdown_table">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.check_docstrings.</span></span><span class="sig-name descname"><span class="pre">generate_markdown_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.check_docstrings.generate_markdown_table" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </section>
 <section id="module-bim2sim.utilities.common_functions">
 <span id="bim2sim-utilities-common-functions-module"></span><h2>bim2sim.utilities.common_functions module<a class="headerlink" href="#module-bim2sim.utilities.common_functions" title="Permalink to this heading"></a></h2>
@@ -423,12 +434,10 @@ center of mass.</p>
 <dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.get_shape_volume">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_shape_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TopoDS_Shape</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.get_shape_volume" title="Permalink to this definition"></a></dt>
 <dd><p>This function computes the volume of a shape and returns the value as a
-float.
-Args:</p>
-<blockquote>
-<div><p>shape: TopoDS_Shape</p>
-</div></blockquote>
+float.</p>
 <dl class="simple">
+<dt>Args:</dt><dd><p>shape: TopoDS_Shape</p>
+</dd>
 <dt>Returns:</dt><dd><p>volume: float</p>
 </dd>
 </dl>
@@ -631,45 +640,33 @@ ifc_file_class_inst: bim2sim IfcFileClass instance
 target_path: Path to store the SVG files
 result_str (str): name of the results plotted (used for file naming)</p>
 </dd>
-<dt>Example:</dt><dd><p># create nested dict, where “2eyxpyOx95m90jmsXLOuR0” is the storey guid
-# and “0Lt8gR_E9ESeGH5uY_g9e9”, “17JZcMFrf5tOftUTidA0d3” and
-path_to_ifc_file = Path(“my_path_to_ifc_folder/AC20-FZK-Haus.ifc”)
-ifc_file_instance = ifcopenshell.open(path_to_ifc_file)
-target_path = Path(“my_target_path”)</p>
-<dl>
-<dt>svg_adjust_dict = {</dt><dd><dl>
-<dt>“2eyxpyOx95m90jmsXLOuR0”: {</dt><dd><dl>
-<dt>{“space_data”:</dt><dd><dl class="simple">
-<dt>“0Lt8gR_E9ESeGH5uY_g9e9”: {</dt><dd><p>“color”: “#FF0000”,
-“text”: ‘my_text’</p>
-</dd>
-</dl>
-<p>},
-“17JZcMFrf5tOftUTidA0d3”: {</p>
-<blockquote>
-<div><p>“color”: “#FF0000”,
-“text”: ‘my_text2’</p>
-</div></blockquote>
-<p>},
-“2RSCzLOBz4FAK$_wE8VckM”: {</p>
-<blockquote>
-<div><p>“color”: “#FF0000”,
-“text”: ‘my_text3’</p>
-</div></blockquote>
-<p>},</p>
-</dd>
-</dl>
-<p>},</p>
-</dd>
-</dl>
-<p>}</p>
-</dd>
-</dl>
-<p>}
-create_svg_floor_plan_plot(</p>
-<blockquote>
-<div><p>path_to_ifc_file, target_path, svg_adjust_dict)</p>
-</div></blockquote>
+<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create nested dict, where &quot;2eyxpyOx95m90jmsXLOuR0&quot; is the storey guid</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># and &quot;0Lt8gR_E9ESeGH5uY_g9e9&quot;, &quot;17JZcMFrf5tOftUTidA0d3&quot; and</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">path_to_ifc_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;my_path_to_ifc_folder/AC20-FZK-Haus.ifc&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ifc_file_instance</span> <span class="o">=</span> <span class="n">ifcopenshell</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">path_to_ifc_file</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">target_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;my_target_path&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">svg_adjust_dict</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s2">&quot;2eyxpyOx95m90jmsXLOuR0&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="p">{</span><span class="s2">&quot;space_data&quot;</span><span class="p">:</span>
+<span class="gp">&gt;&gt;&gt; </span>                <span class="s2">&quot;0Lt8gR_E9ESeGH5uY_g9e9&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">&gt;&gt;&gt; </span>                    <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#FF0000&quot;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                    <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s1">&#39;my_text&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span>                <span class="p">},</span>
+<span class="gp">&gt;&gt;&gt; </span>                <span class="s2">&quot;17JZcMFrf5tOftUTidA0d3&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">&gt;&gt;&gt; </span>                    <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#FF0000&quot;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                    <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s1">&#39;my_text2&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span>                <span class="p">},</span>
+<span class="gp">&gt;&gt;&gt; </span>                <span class="s2">&quot;2RSCzLOBz4FAK$_wE8VckM&quot;</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">&gt;&gt;&gt; </span>                    <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;#FF0000&quot;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                    <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s1">&#39;my_text3&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span>                <span class="p">},</span>
+<span class="gp">&gt;&gt;&gt; </span>            <span class="p">},</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">create_svg_floor_plan_plot</span><span class="p">(</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">path_to_ifc_file</span><span class="p">,</span> <span class="n">target_path</span><span class="p">,</span> <span class="n">svg_adjust_dict</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd>
 </dl>
 </dd></dl>

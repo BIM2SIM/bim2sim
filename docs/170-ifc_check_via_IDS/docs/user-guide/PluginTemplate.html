@@ -63,11 +63,7 @@ window.addEventListener("load", () => mermaid.run());
 <li class="toctree-l4"><a class="reference internal" href="#test-installation">Test installation</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#how-to-create-a-project">How to create a project?</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#console">Console</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#script">Script</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-create-a-project">How to create a project?</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#structure-of-the-plugin-template">Structure of the plugin template</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#how-to-load-an-ifc-file">How to load an IFC file?</a></li>
@@ -186,7 +182,7 @@ pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </s
 </div>
 <p>Now the base library installation is done. First check is to call the help
 method of bim2sim. When the version of bim2sim is returned, the bim2sim base
-libraray is functional. You can either run of these commands:</p>
+library is functional. You can either run of these commands:</p>
 <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>bim2sim<span class="w"> </span>-v
 
 bim2sim<span class="w"> </span>-v
@@ -244,33 +240,37 @@ It this command returns the help documentation, please make your first steps wit
 </section>
 <section id="how-to-create-a-project">
 <h2>How to create a project?<a class="headerlink" href="#how-to-create-a-project" title="Permalink to this heading"></a></h2>
-<p>You can either use <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> directly from console or include it in your scripts.</p>
-<section id="console">
-<h3>Console<a class="headerlink" href="#console" title="Permalink to this heading"></a></h3>
-<p>Start your favorite console and type</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python -m bim2sim -h
+<p>A <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> project is defined via a python script. Following, there are some
+parts of project scripts shown. A good start is to run and to study the examples
+included in the <code class="docutils literal notranslate"><span class="pre">bim2sim</span></code> repository. The general examples you can find here:
+<code class="docutils literal notranslate"><span class="pre">/bim2sim/examples</span></code>. With the following command you can run your first generic
+project:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python bim2sim/examples/e1_template_plugin.py
 </pre></div>
 </div>
-<p>to see all available commands.</p>
-<p>Now it’s time to create your first project with bim2sim.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python bim2sim project create path/to/project -s teaser
-</pre></div>
-</div>
-<p>will create a new project folder at <code class="docutils literal notranslate"><span class="pre">path/to/project</span></code> and set it up for a
-simulation with <a class="reference internal" href="#teaser"><span class="xref myst">TEASER</span></a> (see <a class="reference internal" href="../code/bim2sim.plugins.html#module-bim2sim.plugins" title="bim2sim.plugins"><code class="xref myst py py-mod docutils literal notranslate"><span class="pre">plugins</span></code></a> for more options).
-Now open the newly created project folder and put the *.ifc file you wish to
-process into the subfolder <code class="docutils literal notranslate"><span class="pre">ifc</span></code>. Alternatively you could add the
-option <code class="docutils literal notranslate"><span class="pre">-i</span> <span class="pre">path/to/ifc</span></code> to the command above, which would copy the ifc for you.</p>
-<p>If all is set up correctly, run</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python bim2sim load path/to/project
-</pre></div>
-</div>
-<p>to load and run an existing project. Then follow the instructions from your
-console. When you are done, you can inspect the results from the <code class="docutils literal notranslate"><span class="pre">/results</span></code> folder of
-your project.</p>
-</section>
-<section id="script">
-<h3>Script<a class="headerlink" href="#script" title="Permalink to this heading"></a></h3>
+<!-- ### Console -->
+<!-- Start your favorite console and type -->
+<!-- ``` -->
+<!-- $ python -m bim2sim -h -->
+<!-- ``` -->
+<!-- to see all available commands. -->
+<!-- Now it's time to create your first project with bim2sim. -->
+<!-- ``` -->
+<!-- $ python bim2sim project create path/to/project -s teaser -->
+<!-- ``` -->
+<!-- will create a new project folder at `path/to/project` and set it up for a -->
+<!-- simulation with [TEASER](teaser) (see [](plugins) for more options). -->
+<!-- Now open the newly created project folder and put the *.ifc file you wish to -->
+<!-- process into the subfolder `ifc`. Alternatively you could add the -->
+<!-- option `-i path/to/ifc` to the command above, which would copy the ifc for you. -->
+<!-- If all is set up correctly, run -->
+<!-- ``` -->
+<!-- $ python bim2sim load path/to/project -->
+<!-- ``` -->
+<!-- to load and run an existing project. Then follow the instructions from your -->
+<!-- console. When you are done, you can inspect the results from the `/results` folder of -->
+<!-- your project. -->
+<!-- ### Script -->
 <p>To include bim2sim in your scripts start with something like this:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bim2sim</span><span class="w"> </span><span class="kn">import</span> <span class="n">Project</span>
 
@@ -300,7 +300,6 @@ your project.</p>
 </pre></div>
 </div>
 <p>Details about <a class="reference internal" href="../code/bim2sim.kernel.decision.html#bim2sim.kernel.decision.decisionhandler.DecisionHandler" title="bim2sim.kernel.decision.decisionhandler.DecisionHandler"><span class="xref myst py py-class">DecisionHandlers</span></a>.</p>
-</section>
 </section>
 <section id="structure-of-the-plugin-template">
 <span id="structure-template"></span><h2>Structure of the plugin template<a class="headerlink" href="#structure-of-the-plugin-template" title="Permalink to this heading"></a></h2>
