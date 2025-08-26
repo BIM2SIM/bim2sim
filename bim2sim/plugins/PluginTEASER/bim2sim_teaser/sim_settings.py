@@ -1,5 +1,5 @@
 from bim2sim.sim_settings import BuildingSimSettings, ChoiceSetting, \
-    PathSetting
+    PathSetting, ChoiceSettingPydantic, PathSettingPydantic
 from bim2sim.utilities.types import LOD, ZoningCriteria
 
 
@@ -10,8 +10,8 @@ class TEASERSimSettings(BuildingSimSettings):
     inherits all choices from the BuildingSimulation settings. TEASER
     specific settings are added here.
     """
-    sim_results = ChoiceSetting(
-        default=[
+    sim_results = ChoiceSettingPydantic(
+        value=[
             "heat_demand_total", "cool_demand_total",
             "heat_demand_rooms", "cool_demand_rooms",
             "heat_energy_total", "cool_energy_total",
@@ -67,8 +67,8 @@ class TEASERSimSettings(BuildingSimSettings):
         multiple_choice=True,
     )
 
-    zoning_criteria = ChoiceSetting(
-        default=ZoningCriteria.individual_spaces,
+    zoning_criteria = ChoiceSettingPydantic(
+        value=ZoningCriteria.individual_spaces,
         choices={
             ZoningCriteria.external:
                 'Group all thermal zones that have contact to the exterior'
@@ -95,8 +95,8 @@ class TEASERSimSettings(BuildingSimSettings):
         for_frontend=True
     )
 
-    path_aixlib = PathSetting(
-        default=None,
+    path_aixlib = PathSettingPydantic(
+        value=None,
         description='Path to the local AixLib`s repository. This needs to '
                     'point to the root level package.mo file. If not'
                     ' provided, the version for regression testing will be '

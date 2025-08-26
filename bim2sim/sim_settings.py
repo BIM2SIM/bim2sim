@@ -12,9 +12,10 @@ import sys
 from pydantic import BaseModel, Field, model_validator, field_validator, FilePath
 from pydantic_core import PydanticCustomError, ValidationError
 from typing_extensions import Self
+from enum import Enum
 
 from bim2sim.utilities import types
-from bim2sim.utilities.types import LOD
+from bim2sim.utilities.types import LOD, ZoningCriteria
 from bim2sim.elements.base_elements import Material
 from bim2sim.elements import bps_elements as bps_elements, \
     hvac_elements as hvac_elements
@@ -123,9 +124,8 @@ class SettingsManager(dict):
 
 class SettingPydantic(BaseModel, validate_assignment=True):
     value: None
-    # default:
     name: str = Field(default="set automatically")
-    description: Union[str, None]
+    description: Optional[str] = None
     for_frontend: bool = Field(default="False")
     any_string: bool = Field(default="False")
 
@@ -135,6 +135,7 @@ class SettingPydantic(BaseModel, validate_assignment=True):
     def __get__(self, bound_simulation_settings, owner):
         if bound_simulation_settings is None:
             return self
+
         return bound_simulation_settings.manager[self.name].value
 
 class Setting:
@@ -221,10 +222,7 @@ class Setting:
 
 
 class NumberSettingPydantic(SettingPydantic):
-    value: float
-    description: Union[str, None] = None
-    for_frontend: bool = False
-    any_string: bool = False
+    value: Optional[float]
     min_value: Optional[float] = None
     max_value: Optional[float] = None
 
@@ -242,18 +240,19 @@ class NumberSettingPydantic(SettingPydantic):
 
         if self.min_value > self.max_value:
             raise PydanticCustomError("contradictory_limits",
-                                      f"The specified limits for min_value and max_value are " # type: ignore[misc]
+                                      f"The specified limits for min_value and max_value are "  # type: ignore[misc]
                                       f"contradictory min: {self.min_value} max: {self.max_value}")
 
         return self
 
     @model_validator(mode='after')
     def check_limits(self) -> Self:
-        if not (self.min_value <= self.value <= self.max_value):
-            raise PydanticCustomError(
-                "value_out_of_range",
-                f"value ({self.value}) must be between {self.min_value} and {self.max_value}"  # type: ignore[misc]
-            )
+        if self.value is not None:
+            if not (self.min_value <= self.value <= self.max_value):
+                raise PydanticCustomError(
+                    "value_out_of_range",
+                    f"value ({self.value}) must be between {self.min_value} and {self.max_value}"  # type: ignore[misc]
+                )
         return self
 
 
@@ -323,11 +322,8 @@ class NumberSetting(Setting):
 class ChoiceSettingPydantic(SettingPydantic):
     # Todo (chg-ext): Add normalisation (convert scalar to List with one value?)
     # And use values instead of value as field name?
-    value: Union[str, List[str]]
-    description: Union[str, None] = None
-    for_frontend: bool = False
-    any_string: bool = False
-    choices: dict = None
+    value: Union[str, List[str], Enum]
+    choices: dict
     multiple_choice: bool = False
 
     def _check_for_value_in_choices(self, value):
@@ -341,7 +337,8 @@ class ChoiceSettingPydantic(SettingPydantic):
     @classmethod
     def check_setting_config(cls, choices):
         for choice in choices:
-            if "." in choice:
+            # Check for string type, to exclude enums
+            if isinstance(choice, str) and "." in choice:
                 raise PydanticCustomError("illegal_character",
                                           f"Provided setting {choice} contains character '.', this is prohibited.")  # type: ignore[misc]
         return choices
@@ -469,7 +466,7 @@ class PathSetting(Setting):
             self._inner_set(bound_simulation_settings, value)
 
 class BooleanSettingPydantic(SettingPydantic):
-    value: bool
+    value: Optional[bool]
 
 
 class BooleanSetting(Setting):
@@ -817,8 +814,8 @@ class PlantSimSettings(BaseSimSettings):
         for_frontend=True
     )
 
-    tolerance_connect_by_position = NumberSetting(
-        default=10,
+    tolerance_connect_by_position = NumberSettingPydantic(
+        value=10,
         description="Tolerance for distance for which ports should be "
                     "connected. Based on there position in IFC.",
         for_frontend=True,
@@ -840,8 +837,8 @@ class BuildingSimSettings(BaseSimSettings):
         self.relevant_elements = {*bps_elements.items,
                                   Material}
 
-    layers_and_materials = ChoiceSetting(
-        default=LOD.low,
+    layers_and_materials = ChoiceSettingPydantic(
+        value=LOD.low,
         choices={
             LOD.low: 'Override materials with predefined setups',
             # LOD.full: 'Get all information from IFC and enrich if needed'
@@ -850,16 +847,16 @@ class BuildingSimSettings(BaseSimSettings):
                     'be treated.',
         for_frontend=True
     )
-    year_of_construction_overwrite = NumberSetting(
-        default=None,
+    year_of_construction_overwrite = NumberSettingPydantic(
+        value=None,
         min_value=0,
         max_value=2015,
         description="Force an overwrite of the year of construction as a "
                     "base for the selected construction set.",
         for_frontend=True,
     )
-    construction_class_walls = ChoiceSetting(
-        default='iwu_heavy',
+    construction_class_walls = ChoiceSettingPydantic(
+        value='iwu_heavy',
         choices={
             'iwu_heavy': 'Wall structures according to iwu heavy standard',
             'iwu_light': 'Wall structures according to iwu light standard',
@@ -979,8 +976,9 @@ class BuildingSimSettings(BaseSimSettings):
                     "kfw_* the  year of construction is required.",
         for_frontend=True
     )
-    construction_class_windows = ChoiceSetting(
-        default='Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
+
+    construction_class_windows = ChoiceSettingPydantic(
+        value='Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
         choices={
             'Holzfenster, zweifach':
                 'Zeifachverglasung mit Holzfenstern',
@@ -1088,8 +1086,8 @@ class BuildingSimSettings(BaseSimSettings):
         description="Select the most fitting construction class type for"
                     " the windows of the selected building.",
     )
-    construction_class_doors = ChoiceSetting(
-        default='iwu_typical',
+    construction_class_doors = ChoiceSettingPydantic(
+        value='iwu_typical',
         choices={
             'iwu_typical': 'Typical door data based',
             'kfw_40': 'Doors according to kfw 40 standard',
@@ -1136,32 +1134,32 @@ class BuildingSimSettings(BaseSimSettings):
         description="Select the most fitting construction class type for"
                     " the windows of the selected building.",
     )
-    heating_tz_overwrite = BooleanSetting(
-        default=None,
+    heating_tz_overwrite = BooleanSettingPydantic(
+        value=None,
         description='If True, all thermal zones will be provided with heating,'
                     'if False no heating for thermal zones is provided, '
                     'regardless of information in the IFC or in the use '
                     'condition file.',
         for_frontend=True
     )
-    cooling_tz_overwrite = BooleanSetting(
-        default=None,
+    cooling_tz_overwrite = BooleanSettingPydantic(
+        value=None,
         description='If True, all thermal zones will be provided with cooling,'
                     'if False no cooling for thermal zones is provided, '
                     'regardless of information in the IFC or in the use '
                     'condition file.',
         for_frontend=True
     )
-    ahu_tz_overwrite = BooleanSetting(
-        default=None,
+    ahu_tz_overwrite = BooleanSettingPydantic(
+        value=None,
         description='If True, all thermal zones will be provided with AHU,'
                     'if False no AHU for thermal zones is provided, '
                     'regardless of information in the IFC or in the use '
                     'condition file.',
         for_frontend=True
     )
-    prj_use_conditions = PathSetting(
-        default=None,
+    prj_use_conditions = PathSettingPydantic(
+        value=None,
         description="Path to a custom UseConditions.json for the specific "
                     "project, that holds custom usage conditions for this "
                     "project. If this is used, this use_conditions file have "
@@ -1169,31 +1167,31 @@ class BuildingSimSettings(BaseSimSettings):
                     "file is ignored in this case.",
         for_frontend=True
     )
-    prj_custom_usages = PathSetting(
-        default=None,
+    prj_custom_usages = PathSettingPydantic(
+        value=None,
         description="Path to a custom customUsages.json for the specific "
                     "project, that holds mappings between space names from "
                     "IFC "
                     "and usage conditions from UseConditions.json.",
         for_frontend=True
     )
-    setpoints_from_template = BooleanSetting(
-        default=False,
+    setpoints_from_template = BooleanSettingPydantic(
+        value=False,
         description="Use template heating and cooling profiles instead of "
                     "setpoints from IFC. Defaults to False, i.e., "
                     "use original data source. Set to True, "
                     "if template-based values should be used instead.",
         for_frontend=True
     )
-    use_maintained_illuminance = BooleanSetting(
-        default=True,
+    use_maintained_illuminance = BooleanSettingPydantic(
+        value=True,
         description="Use maintained illuminance required per zone based on "
                     "DIN V EN 18599 information to calculate internal loads"
                     "through lighting.",
         for_frontend=True
     )
-    sim_results = ChoiceSetting(
-        default=[
+    sim_results = ChoiceSettingPydantic(
+        value=[
             "heat_demand_total", "cool_demand_total",
             "heat_demand_rooms", "cool_demand_rooms",
             "heat_energy_total", "cool_energy_total",
@@ -1247,106 +1245,106 @@ class BuildingSimSettings(BaseSimSettings):
         },
         multiple_choice=True,
     )
-    add_space_boundaries = BooleanSetting(
-        default=True,
+    add_space_boundaries = BooleanSettingPydantic(
+        value=True,
         description='Add space boundaries. Only required for building '
                     'performance simulation and co-simulations.',
         for_frontend=True
     )
-    correct_space_boundaries = BooleanSetting(
-        default=False,
+    correct_space_boundaries = BooleanSettingPydantic(
+        value=False,
         description='Apply geometric correction to space boundaries.',
         for_frontend=True
     )
-    split_bounds = BooleanSetting(
-        default=False,
+    split_bounds = BooleanSettingPydantic(
+        value=False,
         description='Whether to convert up non-convex space boundaries or '
                     'not.',
         for_frontend=True
     )
-    add_shadings = BooleanSetting(
-        default=False,
+    add_shadings = BooleanSettingPydantic(
+        value=False,
         description='Whether to add shading surfaces if available or not.',
         for_frontend=True
     )
-    split_shadings = BooleanSetting(
-        default=False,
+    split_shadings = BooleanSettingPydantic(
+        value=False,
         description='Whether to convert up non-convex shading boundaries or '
                     'not.',
         for_frontend=True
     )
-    close_space_boundary_gaps = BooleanSetting(
-        default=False,
+    close_space_boundary_gaps = BooleanSettingPydantic(
+        value=False,
         description='Close gaps in the set of space boundaries by adding '
                     'additional 2b space boundaries.',
         for_frontend=True
     )
-    create_plots = BooleanSetting(
-        default=False,
+    create_plots = BooleanSettingPydantic(
+        value=False,
         description='Create plots for simulation results after the simulation '
                     'finished.',
         for_frontend=True
     )
-    set_run_period = BooleanSetting(
-        default=False,
+    set_run_period = BooleanSettingPydantic(
+        value=False,
         description="Choose whether run period for simulation execution "
                     "should be set manually instead of running annual "
                     "simulation."
     )
-    run_period_start_month = NumberSetting(
-        default=1,
+    run_period_start_month = NumberSettingPydantic(
+        value=1,
         min_value=1,
         max_value=12,
         description="Choose start month of run period. Requires "
                     "set_run_period==True for activation.",
         for_frontend=True
     )
-    run_period_start_day = NumberSetting(
-        default=1,
+    run_period_start_day = NumberSettingPydantic(
+        value=1,
         min_value=1,
         max_value=31,
         description="Choose start day of run period. Requires "
                     "set_run_period==True for activation.",
         for_frontend=True
     )
-    run_period_end_month = NumberSetting(
-        default=12,
+    run_period_end_month = NumberSettingPydantic(
+        value=12,
         min_value=1,
         max_value=12,
         description="Choose end month of run period. Requires "
                     "set_run_period==True for activation.",
         for_frontend=True
     )
-    run_period_end_day = NumberSetting(
-        default=31,
+    run_period_end_day = NumberSettingPydantic(
+        value=31,
         min_value=1,
         max_value=31,
         description="Choose end day of run period. Requires "
                     "set_run_period==True for activation.",
         for_frontend=True
     )
-    plot_singe_zone_guid = ChoiceSetting(
-        default='',
+    plot_singe_zone_guid = ChoiceSettingPydantic(
+        value='',
         choices={'': "Skip"},
         description="Choose the GlobalId of the IfcSpace for which results "
                     "should be plotted.",
         any_string=True
     )
-    ahu_heating_overwrite = BooleanSetting(
-        default=None,
+    ahu_heating_overwrite = BooleanSettingPydantic(
+        value=None,
         description="Choose if the central AHU should provide heating. "
     )
-    ahu_cooling_overwrite = BooleanSetting(
-        default=None,
+    ahu_cooling_overwrite = BooleanSettingPydantic(
+        value=None,
         description="Choose if the central AHU should provide cooling."
     )
-    ahu_dehumidification_overwrite = BooleanSetting(
-        default=None,
+    ahu_dehumidification_overwrite = BooleanSettingPydantic(
+        value=None,
         description="Choose if the central AHU should provide "
                     "dehumidification."
     )
-    ahu_humidification_overwrite = BooleanSetting(
-        default=None,
+    ahu_humidification_overwrite = BooleanSettingPydantic(
+        value=None,
         description="Choose if the central AHU should provide humidification."
                     "otherwise this has no effect. "
     )
@@ -1354,19 +1352,19 @@ class BuildingSimSettings(BaseSimSettings):
         default=None,
         description="Choose if the central AHU should zuse heat recovery."
     )
-    ahu_heat_recovery_efficiency_overwrite = NumberSetting(
-        default=None,
+    ahu_heat_recovery_efficiency_overwrite = NumberSettingPydantic(
+        value=None,
         min_value=0.5,
         max_value=0.99,
         description="Choose the heat recovery efficiency of the central AHU."
     )
-    use_constant_infiltration_overwrite = BooleanSetting(
-        default=None,
+    use_constant_infiltration_overwrite = BooleanSettingPydantic(
+        value=None,
         description="If only constant base infiltration should be used and no "
                     "dynamic ventilation through e.g. windows."
     )
-    base_infiltration_rate_overwrite = NumberSetting(
-        default=None,
+    base_infiltration_rate_overwrite = NumberSettingPydantic(
+        value=None,
         min_value=0.001,
         max_value=5,
         description="Overwrite base value for the natural infiltration in 1/h "
