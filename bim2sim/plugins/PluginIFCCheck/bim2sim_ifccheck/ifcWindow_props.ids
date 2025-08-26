@@ -7,7 +7,7 @@
     <ids:date>2025-07-31</ids:date>
   </ids:info>
   <ids:specifications>
-    <ids:specification ifcVersion="IFC4 IFC4X3_ADD2" name="properties of IfcWindows">
+    <ids:specification ifcVersion="IFC4 IFC4X3_ADD2" name="properties of IfcWindows (not enrichable)">
       <ids:applicability minOccurs="1" maxOccurs="unbounded">
         <ids:entity>
           <ids:name>
