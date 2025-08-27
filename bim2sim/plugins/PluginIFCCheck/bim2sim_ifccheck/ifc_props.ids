@@ -7,6 +7,27 @@
     <ids:date>2025-08-26</ids:date>
   </ids:info>
   <ids:specifications>
+    <ids:specification ifcVersion="IFC4 IFC4X3_ADD2" name="guid_length_equal_22_character">
+      <ids:applicability minOccurs="1" maxOccurs="unbounded">
+        <ids:attribute>
+          <ids:name>
+            <ids:simpleValue>GlobalId</ids:simpleValue>
+          </ids:name>
+        </ids:attribute>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:attribute cardinality="required">
+          <ids:name>
+            <ids:simpleValue>GlobalId</ids:simpleValue>
+          </ids:name>
+          <ids:value>
+            <xs:restriction base="xs:string">
+              <xs:length value="22" />
+            </xs:restriction>
+          </ids:value>
+        </ids:attribute>
+      </ids:requirements>
+    </ids:specification>
     <ids:specification ifcVersion="IFC4 IFC4X3_ADD2" name="properties of IfcWindows (not enrichable)">
       <ids:applicability minOccurs="1" maxOccurs="unbounded">
         <ids:entity>
