@@ -420,7 +420,6 @@ class Project:
         if not self.paths.is_project_folder():
             raise AssertionError("Project ist not set correctly!")
 
-        self.sim_settings.check_mandatory()
         success = False
         if interactive:
             run = self._run_interactive
@@ -504,7 +503,9 @@ class Project:
             self.logger.info(f'Project "{self.name}" finished successful')
 
         # reset sim_settings:
-        self.playground.sim_settings.load_default_settings()
+        # Todo (chg-ext): Why load default settings here
+        self.playground.sim_settings.manager.reset_settings_to_defaults()
+
         # clean logger
         log.teardown_loggers()
 

@@ -1,5 +1,5 @@
 from bim2sim.sim_settings import BuildingSimSettings, ChoiceSetting, \
-    PathSetting, ChoiceSettingPydantic, PathSettingPydantic
+    PathSetting
 from bim2sim.utilities.types import LOD, ZoningCriteria
 
 
@@ -10,7 +10,7 @@ class TEASERSimSettings(BuildingSimSettings):
     inherits all choices from the BuildingSimulation settings. TEASER
     specific settings are added here.
     """
-    sim_results = ChoiceSettingPydantic(
+    sim_results = ChoiceSetting(
         value=[
             "heat_demand_total", "cool_demand_total",
             "heat_demand_rooms", "cool_demand_rooms",
@@ -67,7 +67,7 @@ class TEASERSimSettings(BuildingSimSettings):
         multiple_choice=True,
     )
 
-    zoning_criteria = ChoiceSettingPydantic(
+    zoning_criteria = ChoiceSetting(
         value=ZoningCriteria.individual_spaces,
         choices={
             ZoningCriteria.external:
@@ -95,7 +95,7 @@ class TEASERSimSettings(BuildingSimSettings):
         for_frontend=True
     )
 
-    path_aixlib = PathSettingPydantic(
+    path_aixlib = PathSetting(
         value=None,
         description='Path to the local AixLib`s repository. This needs to '
                     'point to the root level package.mo file. If not'
