@@ -70,5 +70,32 @@
         </ids:property>
       </ids:requirements>
     </ids:specification>
+    <ids:specification ifcVersion="IFC4 IFC4X3_ADD2" name="properties of IfcBuilding (not enrichable)">
+      <ids:applicability minOccurs="1" maxOccurs="unbounded">
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCBUILDING</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:property cardinality="required">
+          <ids:propertySet>
+            <ids:simpleValue>Pset_BuildingCommon</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>YearOfConstruction</ids:simpleValue>
+          </ids:baseName>
+        </ids:property>
+        <ids:property cardinality="required">
+          <ids:propertySet>
+            <ids:simpleValue>Pset_BuildingCommon</ids:simpleValue>
+          </ids:propertySet>
+          <ids:baseName>
+            <ids:simpleValue>OccupancyType</ids:simpleValue>
+          </ids:baseName>
+        </ids:property>
+      </ids:requirements>
+    </ids:specification>
   </ids:specifications>
 </ids:ids>
