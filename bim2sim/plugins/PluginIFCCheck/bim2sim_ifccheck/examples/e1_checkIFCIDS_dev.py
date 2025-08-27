@@ -30,10 +30,15 @@ def run_simple_project():
     # test_rsrc_path = Path(__file__).parent.parent.parent.parent / 'resources'
     #
     # no error ifc file
+    # ifc_paths = {
+    #     IFCDomain.arch:
+    #         Path(bim2sim.__file__).parent.parent /
+    #         'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
+    # }
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
+            'test/resources/arch/ifc/AC20-FZK-Haus_with_SB55.ifc',
     }
     #
     # ifc file with not fitting ifc version
