@@ -198,6 +198,8 @@
           <ids:name>
             <ids:simpleValue>RelatingSpace</ids:simpleValue>
           </ids:name>
+          <!-- if the attribute RelatingSpace is empty a error will rise, so it is -->
+          <!-- not needed to specify the value with a value tag -->
         </ids:attribute>
         <ids:attribute cardinality="required">
           <ids:name>
