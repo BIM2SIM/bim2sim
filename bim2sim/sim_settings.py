@@ -176,7 +176,7 @@ class NumberSetting(Setting):
 
 
 class ChoiceSetting(Setting):
-    value: Union[str, List[str], Enum]
+    value: Union[str, List[str], Enum, None]
     choices: dict
     multiple_choice: bool = False
 

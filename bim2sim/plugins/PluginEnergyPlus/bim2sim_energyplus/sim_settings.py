@@ -13,34 +13,34 @@ class EnergyPlusSimSettings(BuildingSimSettings):
     and export settings.
     """
     cfd_export = BooleanSetting(
-        default=False,
+        value=False,
         description='Whether to use CFD export for this simulation or not.',
         for_frontend=True
     )
     split_bounds = BooleanSetting(
-        default=False,
+        value=False,
         description='Whether to convert up non-convex space boundaries or '
                     'not.',
         for_frontend=True
     )
     add_shadings = BooleanSetting(
-        default=True,
+        value=True,
         description='Whether to add shading surfaces if available or not.',
         for_frontend=True
     )
     split_shadings = BooleanSetting(
-        default=False,
+        value=False,
         description='Whether to convert up non-convex shading boundaries or '
                     'not.',
         for_frontend=True
     )
     run_full_simulation = BooleanSetting(
-        default=False,
+        value=False,
         description='Choose simulation period.',
         for_frontend=True
     )
     ep_version = ChoiceSetting(
-        default='9-4-0',
+        value='9-4-0',
         choices={
             '9-2-0': 'EnergyPlus Version 9-2-0',
             '9-4-0': 'EnergyPlus Version 9-4-0',
@@ -51,30 +51,30 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         any_string=True
     )
     ep_install_path = PathSetting(
-        default=Path('/usr/local/EnergyPlus-9-4-0/'),
+        value=Path('/usr/local/EnergyPlus-9-4-0/'),
         description='Choose EnergyPlus Installation Path',
         for_frontend=False,
     )
     system_sizing = BooleanSetting(
-        default=True,
+        value=True,
         description='Whether to do system sizing calculations in EnergyPlus '
                     'or not.',
         for_frontend=True
     )
     run_for_sizing_periods = BooleanSetting(
-        default=False,
+        value=False,
         description='Whether to run the EnergyPlus simulation for sizing '
                     'periods or not.',
         for_frontend=True
     )
     run_for_weather_period = BooleanSetting(
-        default=True,
+        value=True,
         description='Whether to run the EnergyPlus simulation for weather '
                     'file period or not.',
         for_frontend=True
     )
     solar_distribution = ChoiceSetting(
-        default='FullExterior',
+        value='FullExterior',
         choices={
             'FullExterior': 'Full exterior solar distribution',
             'FullInteriorAndExterior': 'Full interior and exterior solar '
@@ -84,7 +84,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         for_frontend=True
     )
     add_window_shading = ChoiceSetting(
-        default=None,
+        value=None,
         choices={
             None: 'Do not add window shading',
             'Interior': 'Add an interior shade in EnergyPlus',
@@ -94,7 +94,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         for_frontend=True,
     )
     output_format = ChoiceSetting(
-        default='CommaAndHTML',
+        value='CommaAndHTML',
         choices={
             'Comma': 'Output format Comma (.csv)',
             'Tab': 'Output format Tab (.tab)',
@@ -110,7 +110,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         for_frontend=True
     )
     unit_conversion = ChoiceSetting(
-        default='JtoKWH',
+        value='JtoKWH',
         choices={
             'None': 'No unit conversions',
             'JtoKWH': 'Convert Joule into kWh (1/3600000)',
@@ -123,7 +123,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         for_frontend=True
     )
     output_keys = ChoiceSetting(
-        default=['output_outdoor_conditions', 'output_zone_temperature',
+        value=['output_outdoor_conditions', 'output_zone_temperature',
                  'output_zone', 'output_infiltration', 'output_meters'],
         choices={
             'output_outdoor_conditions': 'Add outputs for outdoor conditions.',
@@ -141,18 +141,18 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         for_frontend=True
     )
     correct_space_boundaries = BooleanSetting(
-        default=True,
+        value=True,
         description='Apply geometric correction to space boundaries.',
         for_frontend=True
     )
     close_space_boundary_gaps = BooleanSetting(
-        default=True,
+        value=True,
         description='Close gaps in the set of space boundaries by adding '
                     'additional 2b space boundaries.',
         for_frontend=True
     )
     add_natural_ventilation = BooleanSetting(
-        default=True,
+        value=True,
         description='Add natural ventilation to the building. Natural '
                     'ventilation is not available when cooling is activated.',
         for_frontend=True
