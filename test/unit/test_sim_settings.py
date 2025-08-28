@@ -163,7 +163,9 @@ class TestSimSettings(unittest.TestCase):
             test_settings.guid_list,
             ['0rB_VAJfDAowPYhJGd9wjZ', '3V8lRtj8n5AxfePCnKtF31']
         )
-        self.assertEqual(test_settings.empty_guid_list, [])
+        dings = test_settings.empty_guid_list
+
+        self.assertEqual(test_settings.empty_guid_list, None)
 
         # Test valid GUID updates
         valid_guids = ['1HBLcH3L5AgRg8QXUjHQ2T', '2MBmFkSRv59wfBR9XN_dIe']

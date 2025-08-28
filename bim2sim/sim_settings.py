@@ -8,7 +8,7 @@ import ast
 import os.path
 from typing import Union, Optional, List
 import sys
-from pydantic import BaseModel, Field, model_validator, field_validator, FilePath
+from pydantic import BaseModel, Field, model_validator, field_validator, FilePath, DirectoryPath
 from pydantic_core import PydanticCustomError
 from typing_extensions import Self
 from enum import Enum
@@ -215,7 +215,7 @@ class ChoiceSetting(Setting):
 
 
 class PathSetting(Setting):
-    value: Optional[FilePath]
+    value: Optional[Union[DirectoryPath, FilePath]]
 
 
 class BooleanSetting(Setting):
@@ -223,14 +223,15 @@ class BooleanSetting(Setting):
 
 
 class GuidListSetting(Setting):
-    value: Optional[List[str]]
+    value: Optional[List[str]] = None
 
     @field_validator('value', mode='after')
     @classmethod
     def check_value(cls, value):
-        for i, guid in enumerate(value):
-            if not check_guid(guid):
-                raise PydanticCustomError("invalid_guid",
+        if value is not None:
+            for i, guid in enumerate(value):
+                if not check_guid(guid):
+                    raise PydanticCustomError("invalid_guid",
                                           f"Invalid IFC GUID format at index {i}: '{guid}'")  # type: ignore[misc]
         return value
 
