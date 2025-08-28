@@ -127,6 +127,8 @@ class Setting(BaseModel, validate_assignment=True, validate_default=True):
     description: Optional[str] = None
     for_frontend: bool = Field(default=False)
     any_string: bool = Field(default=False)
+    mandatory: bool = Field(default=False)
+
 
     def __set__(self, bound_simulation_settings, value):
         bound_simulation_settings.manager[self.name].value = value
@@ -306,6 +308,17 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                             f'Please use strings only in config.')
         logger.info(f'Loaded {n_loaded_settings} settings from config file.')
 
+    def check_mandatory(self):
+        """Check if mandatory settings have a value."""
+        for setting in self.manager.values():
+            if setting.mandatory:
+                if not setting.value:
+                    raise ValueError(
+                        f"Attempted to run project. Simulation setting "
+                        f"{setting.name} is not specified, "
+                        f"but is marked as mandatory. Please configure "
+                        f"{setting.name} before running your project.")
+
 
     dymola_simulation = BooleanSetting(
         value=False,
@@ -398,7 +411,8 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     ' file. For Modelica provide .mos files, for EnergyPlus '
                     '.epw files. If the format does not fit, we will try to '
                     'convert.',
-        for_frontend=True
+        for_frontend=True,
+        mandatory=True
     )
 
     building_rotation_overwrite = NumberSetting(
@@ -439,7 +453,8 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     'corrections to boundary conditions.'
                     ' It is recommended to include GUIDs of neighboring'
                     ' storeys to reduce boundary condition errors.',
-        for_frontend=True
+        for_frontend=True,
+        mandatory=False
     )
 
 

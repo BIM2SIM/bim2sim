@@ -420,6 +420,8 @@ class Project:
         if not self.paths.is_project_folder():
             raise AssertionError("Project ist not set correctly!")
 
+        self.sim_settings.check_mandatory()
+
         success = False
         if interactive:
             run = self._run_interactive
