@@ -8,6 +8,8 @@ import ast
 import os.path
 from typing import Union, Optional, List
 import sys
+
+from plotly.io import defaults
 from pydantic import BaseModel, Field, model_validator, field_validator, FilePath, DirectoryPath
 from pydantic_core import PydanticCustomError
 from typing_extensions import Self
@@ -87,11 +89,6 @@ class SettingsManager(dict):
     """
     defaults = {}
 
-    def reset_settings_to_defaults(self) -> None:
-        for name in self.defaults:
-            setting = getattr(type(self.bound_simulation_settings), name)
-            setting.value = self.defaults[name]
-
     def __init__(self, bound_simulation_settings):
         super().__init__()
         self.bound_simulation_settings = bound_simulation_settings
@@ -122,7 +119,7 @@ class SettingsManager(dict):
 
 
 class Setting(BaseModel, validate_assignment=True, validate_default=True):
-    value: None
+    #value: None
     name: str = Field(default="set automatically")
     description: Optional[str] = None
     for_frontend: bool = Field(default=False)
@@ -247,7 +244,11 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         self.simulated = False
 
     def load_default_settings(self):
-        pass
+        """loads default values for all settings"""
+
+        for setting in self.manager.values():
+            default = self.manager.defaults[setting.name]
+            setting.value = default
 
     def update_from_config(self, config):
         """Updates the simulation settings specification from the config

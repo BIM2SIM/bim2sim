@@ -49,11 +49,12 @@ def add_config_section(
                   if not callable(getattr(sim_settings, attr)) and not
                   attr.startswith('__')]
     for attr in attributes:
-        value = getattr(sim_settings, attr).value
-        if isinstance(value, Enum):
-            value = str(value)
+        # ToDo (chg-ext): value(defaul) here maybe already overwritten?
+        default_value = getattr(sim_settings, attr).value
+        if isinstance(default_value, Enum):
+            default_value = str(default_value)
         if not attr in config[name]:
-            config[name][attr] = str(value)
+            config[name][attr] = str(default_value)
     return config
 
 
@@ -506,8 +507,7 @@ class Project:
 
         # reset sim_settings:
         # Todo (chg-ext): Why load default settings here
-        self.playground.sim_settings.manager.reset_settings_to_defaults()
-
+        self.playground.sim_settings.load_default_settings()
         # clean logger
         log.teardown_loggers()
 
