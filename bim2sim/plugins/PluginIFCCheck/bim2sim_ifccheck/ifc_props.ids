@@ -203,6 +203,13 @@
         </ids:attribute>
         <ids:attribute cardinality="required">
           <ids:name>
+            <ids:simpleValue>RelatedBuildingElement</ids:simpleValue>
+          </ids:name>
+          <!-- if the attribute RelatedBuildingElement is empty a error will rise, so it is -->
+          <!-- not needed to specify the value with a value tag -->
+        </ids:attribute>
+        <ids:attribute cardinality="required">
+          <ids:name>
             <ids:simpleValue>Description</ids:simpleValue>
           </ids:name>
           <ids:value>
