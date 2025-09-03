@@ -218,17 +218,6 @@
             </xs:restriction>
           </ids:value>
         </ids:attribute>
-      </ids:requirements>
-    </ids:specification>
-    <ids:specification ifcVersion="IFC4X3_ADD2 IFC4" name="ifcConnectionSurface">
-      <ids:applicability minOccurs="1" maxOccurs="unbounded">
-        <ids:entity>
-          <ids:name>
-            <ids:simpleValue>IFCRELSPACEBOUNDARY2NDLEVEL</ids:simpleValue>
-          </ids:name>
-        </ids:entity>
-      </ids:applicability>
-      <ids:requirements>
         <ids:attribute cardinality="required">
           <ids:name>
             <ids:simpleValue>ConnectionGeometry</ids:simpleValue>
