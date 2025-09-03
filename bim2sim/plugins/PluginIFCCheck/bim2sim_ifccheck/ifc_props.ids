@@ -185,7 +185,7 @@
         </ids:entity>
       </ids:requirements>
     </ids:specification>
-    <ids:specification ifcVersion="IFC4 IFC4X3_ADD2" name="2nd Level Spaceboundaries">
+    <ids:specification ifcVersion="IFC4 IFC4X3_ADD2" name="2nd Level Spaceboundaries, pure">
       <ids:applicability minOccurs="1" maxOccurs="unbounded">
         <ids:entity>
           <ids:name>
@@ -241,6 +241,30 @@
             <xs:restriction base="xs:string">
               <xs:pattern value="INTERNAL|EXTERNAL|EXTERNAL_EARTH|EXTERNAL_FIRE|EXTERNAL_WATER" />
             </xs:restriction>
+          </ids:value>
+        </ids:attribute>
+      </ids:requirements>
+    </ids:specification>
+    <ids:specification ifcVersion="IFC4 IFC4X3_ADD2" name="2nd Level Spaceboundaries with set CorrespondingBoundary">
+      <ids:applicability minOccurs="1" maxOccurs="unbounded">
+        <ids:entity>
+          <ids:name>
+            <ids:simpleValue>IFCRELSPACEBOUNDARY2NDLEVEL</ids:simpleValue>
+          </ids:name>
+        </ids:entity>
+        <ids:attribute>
+          <ids:name>
+            <ids:simpleValue>CorrespondingBoundary</ids:simpleValue>
+          </ids:name>
+        </ids:attribute>
+      </ids:applicability>
+      <ids:requirements>
+        <ids:attribute cardinality="required">
+          <ids:name>
+            <ids:simpleValue>Description</ids:simpleValue>
+          </ids:name>
+          <ids:value>
+            <ids:simpleValue>2a</ids:simpleValue>
           </ids:value>
         </ids:attribute>
       </ids:requirements>
