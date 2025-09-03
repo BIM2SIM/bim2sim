@@ -223,6 +223,16 @@
             <ids:simpleValue>ConnectionGeometry</ids:simpleValue>
           </ids:name>
         </ids:attribute>
+        <ids:attribute cardinality="required">
+          <ids:name>
+            <ids:simpleValue>PhysicalOrVirtualBoundary</ids:simpleValue>
+          </ids:name>
+          <ids:value>
+            <xs:restriction base="xs:string">
+              <xs:pattern value="PHYSICAL|VIRTUAL" />
+            </xs:restriction>
+          </ids:value>
+        </ids:attribute>
       </ids:requirements>
     </ids:specification>
   </ids:specifications>
