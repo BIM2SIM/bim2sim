@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Coverage for bim2sim/plugins/PluginTEASER/bim2sim_teaser/__init__.py: 0%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_58284776.png">
-    <link rel="stylesheet" href="style_cb_81f8c14c.css" type="text/css">
+    <link rel="stylesheet" href="style_cb_6b508a39.css" type="text/css">
     <script src="coverage_html_cb_6fb7b396.js" defer></script>
 </head>
 <body class="pyfile">
@@ -64,8 +64,8 @@
             <a id="indexLink" class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a id="nextFileLink" class="nav" href="z_6d841987277e824a___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.9.2">coverage.py v7.9.2</a>,
-            created at 2025-07-15 11:12 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.10.6">coverage.py v7.10.6</a>,
+            created at 2025-09-08 11:55 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -89,7 +89,7 @@
     <p class="mis show_mis"><span class="n"><a id="t7" href="#t7">7</a></span><span class="t"><span class="key">from</span> <span class="nam">bim2sim</span><span class="op">.</span><span class="nam">plugins</span><span class="op">.</span><span class="nam">PluginTEASER</span><span class="op">.</span><span class="nam">bim2sim_teaser</span><span class="op">.</span><span class="nam">models</span> <span class="key">import</span> <span class="nam">TEASER</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t8" href="#t8">8</a></span><span class="t"><span class="key">from</span> <span class="nam">bim2sim</span><span class="op">.</span><span class="nam">tasks</span> <span class="key">import</span> <span class="nam">common</span><span class="op">,</span> <span class="nam">bps</span><span class="op">,</span> <span class="nam">base</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t9" href="#t9">9</a></span><span class="t"><span class="key">from</span> <span class="nam">bim2sim</span><span class="op">.</span><span class="nam">plugins</span><span class="op">.</span><span class="nam">PluginTEASER</span><span class="op">.</span><span class="nam">bim2sim_teaser</span><span class="op">.</span><span class="nam">sim_settings</span> <span class="key">import</span> <span class="xx">\</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">    <span class="nam">TEASERSimSettings</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t10" href="#t10">10</a></span><span class="t">    <span class="nam">TEASERSimSettings</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t11" href="#t11">11</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t12" href="#t12">12</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t13" href="#t13">13</a></span><span class="t"><span class="key">class</span> <span class="nam">LoadLibrariesTEASER</span><span class="op">(</span><span class="nam">base</span><span class="op">.</span><span class="nam">ITask</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -104,27 +104,27 @@
     <p class="mis show_mis"><span class="n"><a id="t22" href="#t22">22</a></span><span class="t">    <span class="nam">name</span> <span class="op">=</span> <span class="str">'TEASER'</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t23" href="#t23">23</a></span><span class="t">    <span class="nam">sim_settings</span> <span class="op">=</span> <span class="nam">TEASERSimSettings</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t24" href="#t24">24</a></span><span class="t">    <span class="nam">default_tasks</span> <span class="op">=</span> <span class="op">[</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">        <span class="nam">common</span><span class="op">.</span><span class="nam">LoadIFC</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">        <span class="com"># common.CheckIfc,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">        <span class="nam">common</span><span class="op">.</span><span class="nam">CreateElementsOnIfcTypes</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">        <span class="nam">bps</span><span class="op">.</span><span class="nam">CreateSpaceBoundaries</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">        <span class="nam">bps</span><span class="op">.</span><span class="nam">AddSpaceBoundaries2B</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">        <span class="nam">bps</span><span class="op">.</span><span class="nam">CorrectSpaceBoundaries</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">        <span class="nam">common</span><span class="op">.</span><span class="nam">CreateRelations</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">        <span class="nam">bps</span><span class="op">.</span><span class="nam">DisaggregationCreationAndTypeCheck</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">        <span class="nam">bps</span><span class="op">.</span><span class="nam">EnrichMaterial</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">        <span class="nam">bps</span><span class="op">.</span><span class="nam">EnrichUseConditions</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">        <span class="nam">bps</span><span class="op">.</span><span class="nam">CombineThermalZones</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">        <span class="nam">common</span><span class="op">.</span><span class="nam">Weather</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">        <span class="nam">LoadLibrariesTEASER</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">        <span class="nam">teaser_task</span><span class="op">.</span><span class="nam">CreateTEASER</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">        <span class="nam">teaser_task</span><span class="op">.</span><span class="nam">SerializeTEASER</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t">        <span class="nam">common</span><span class="op">.</span><span class="nam">SerializeElements</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">        <span class="nam">teaser_task</span><span class="op">.</span><span class="nam">ExportTEASER</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t">        <span class="com"># teaser_task.SimulateModelEBCPy,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t">        <span class="com"># teaser_task.CreateResultDF,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t">        <span class="com"># bps.PlotBEPSResults,</span>&nbsp;</span><span class="r"></span></p>
-    <p class="pln"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t">    <span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t25" href="#t25">25</a></span><span class="t">        <span class="nam">common</span><span class="op">.</span><span class="nam">LoadIFC</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t26" href="#t26">26</a></span><span class="t">        <span class="com"># common.CheckIfc,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t27" href="#t27">27</a></span><span class="t">        <span class="nam">common</span><span class="op">.</span><span class="nam">CreateElementsOnIfcTypes</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t28" href="#t28">28</a></span><span class="t">        <span class="nam">bps</span><span class="op">.</span><span class="nam">CreateSpaceBoundaries</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t29" href="#t29">29</a></span><span class="t">        <span class="nam">bps</span><span class="op">.</span><span class="nam">AddSpaceBoundaries2B</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t30" href="#t30">30</a></span><span class="t">        <span class="nam">bps</span><span class="op">.</span><span class="nam">CorrectSpaceBoundaries</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t31" href="#t31">31</a></span><span class="t">        <span class="nam">common</span><span class="op">.</span><span class="nam">CreateRelations</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t32" href="#t32">32</a></span><span class="t">        <span class="nam">bps</span><span class="op">.</span><span class="nam">DisaggregationCreationAndTypeCheck</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t33" href="#t33">33</a></span><span class="t">        <span class="nam">bps</span><span class="op">.</span><span class="nam">EnrichMaterial</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t34" href="#t34">34</a></span><span class="t">        <span class="nam">bps</span><span class="op">.</span><span class="nam">EnrichUseConditions</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t35" href="#t35">35</a></span><span class="t">        <span class="nam">bps</span><span class="op">.</span><span class="nam">CombineThermalZones</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t36" href="#t36">36</a></span><span class="t">        <span class="nam">common</span><span class="op">.</span><span class="nam">Weather</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t37" href="#t37">37</a></span><span class="t">        <span class="nam">LoadLibrariesTEASER</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t38" href="#t38">38</a></span><span class="t">        <span class="nam">teaser_task</span><span class="op">.</span><span class="nam">CreateTEASER</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t39" href="#t39">39</a></span><span class="t">        <span class="nam">teaser_task</span><span class="op">.</span><span class="nam">SerializeTEASER</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t40" href="#t40">40</a></span><span class="t">        <span class="nam">common</span><span class="op">.</span><span class="nam">SerializeElements</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t41" href="#t41">41</a></span><span class="t">        <span class="nam">teaser_task</span><span class="op">.</span><span class="nam">ExportTEASER</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t42" href="#t42">42</a></span><span class="t">        <span class="nam">teaser_task</span><span class="op">.</span><span class="nam">SimulateModelEBCPy</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t43" href="#t43">43</a></span><span class="t">        <span class="nam">teaser_task</span><span class="op">.</span><span class="nam">CreateResultDF</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t44" href="#t44">44</a></span><span class="t">        <span class="nam">bps</span><span class="op">.</span><span class="nam">PlotBEPSResults</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t45" href="#t45">45</a></span><span class="t">    <span class="op">]</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -133,8 +133,8 @@
             <a class="nav" href="index.html">&Hat; index</a> &nbsp; &nbsp;
             <a class="nav" href="z_6d841987277e824a___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
-            <a class="nav" href="https://coverage.readthedocs.io/en/7.9.2">coverage.py v7.9.2</a>,
-            created at 2025-07-15 11:12 +0000
+            <a class="nav" href="https://coverage.readthedocs.io/en/7.10.6">coverage.py v7.10.6</a>,
+            created at 2025-09-08 11:55 +0000
         </p>
     </div>
 </footer>
