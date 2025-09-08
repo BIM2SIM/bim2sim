@@ -30,7 +30,8 @@ class EnergyPlusSimSettings(BuildingSimSettings):
     )
     add_hash = BooleanSetting(
         default=False,
-        description='Whether to add shading surfaces if available or not.',
+        description='Whether to add a hash as a comment at the first line of'
+                    'IDF file for IFC-to-IDF tracking or not.',
         for_frontend=False
     )
     split_shadings = BooleanSetting(
