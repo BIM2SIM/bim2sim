@@ -9,7 +9,6 @@ import os.path
 from typing import Union, Optional, List
 import sys
 
-from plotly.io import defaults
 from pydantic import BaseModel, Field, model_validator, field_validator, FilePath, DirectoryPath
 from pydantic_core import PydanticCustomError
 from typing_extensions import Self
