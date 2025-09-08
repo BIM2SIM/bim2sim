@@ -104,7 +104,7 @@ class CreateIdf(ITask):
         self.idf_validity_check(idf)
         logger.info("Save idf ...")
         idf.save(idf.idfname)
-        if self.playground.sim_settings.add_hash:
+        if self.playground.sim_settings.add_hash == True:
             CreateIdf.add_into_idf(idf.idfname)
         logger.info("Idf file successfully saved.")
 
