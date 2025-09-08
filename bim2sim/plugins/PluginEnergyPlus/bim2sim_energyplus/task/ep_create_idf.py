@@ -105,7 +105,7 @@ class CreateIdf(ITask):
         logger.info("Save idf ...")
         idf.save(idf.idfname)
         if self.playground.sim_settings.add_hash == True:
-            CreateIdf.add_into_idf(idf.idfname)
+            CreateIdf.add_hash_into_idf(idf.idfname)
         logger.info("Idf file successfully saved.")
 
         return idf, sim_results_path
@@ -1474,6 +1474,30 @@ class CreateIdf(ITask):
                     "missing boundary conditions)!",
                     idfp.name, idfp.surface_type)
                 continue
+    @staticmethod
+    def generate_hash(ifc):
+        """Generate SHA-256 hash for IFC file"""
+        sha256_hash = hashlib.sha256()
+
+        with open(ifc, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(chunk)
+        ifc_hash = sha256_hash.hexdigest()
+        print(ifc)
+        ifc_filename = Path(ifc).name
+        print(ifc_filename)
+        hash_prefix = "IFC_GEOMETRY_HASH"  # prefix
+        CreateIdf.hash_line = f"! {hash_prefix}: {ifc_hash} | IFC_FILENAME: {ifc_filename}\n"
+
+    def add_hash_into_idf (idf_path):
+        """Add hash with specific prefix for easy search"""
+        with open(idf_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+        # Insert at first line
+        lines.insert(0, CreateIdf.hash_line)
+
+        with open(idf_path, 'w', encoding='utf-8') as f:
+            f.writelines(lines)
 
     @staticmethod
     def idf_validity_check(idf):
