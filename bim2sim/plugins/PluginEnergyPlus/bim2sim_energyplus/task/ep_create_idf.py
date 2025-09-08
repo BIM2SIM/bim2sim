@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import math
 import os
+import hashlib
 from pathlib import Path, PosixPath
 from typing import Union, TYPE_CHECKING
 
@@ -48,7 +49,7 @@ class CreateIdf(ITask):
 
     reads = ('elements', 'weather_file',)
     touches = ('idf', 'sim_results_path')
-
+    hash_line = None
     def __init__(self, playground):
         super().__init__(playground)
         self.idf = None
@@ -103,9 +104,34 @@ class CreateIdf(ITask):
         self.idf_validity_check(idf)
         logger.info("Save idf ...")
         idf.save(idf.idfname)
+        if self.playground.sim_settings.add_hash:
+            CreateIdf.add_into_idf(idf.idfname)
         logger.info("Idf file successfully saved.")
 
         return idf, sim_results_path
+
+    @staticmethod
+    def generate_hash(ifc):
+        """Generate SHA-256 hash for IFC file"""
+        sha256_hash = hashlib.sha256()
+
+        with open(ifc, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(chunk)
+        ifc_hash = sha256_hash.hexdigest()
+        ifc_filename = ifc.split('\\')[-1]
+        hash_prefix = "IFC_GEOMETRY_HASH"  # prefix
+        CreateIdf.hash_line = f"! {hash_prefix}: {ifc_hash} | SOURCE_FILE: {ifc_filename}\n"
+
+    def add_into_idf (idf_path):
+        """Add hash with specific prefix for easy search"""
+        with open(idf_path, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+        # Insert at first line
+        lines.insert(0, CreateIdf.hash_line)
+
+        with open(idf_path, 'w', encoding='utf-8') as f:
+            f.writelines(lines)
 
     @staticmethod
     def init_idf(sim_settings: EnergyPlusSimSettings, paths: FolderStructure,
@@ -135,6 +161,11 @@ class CreateIdf(ITask):
         idf = IDF(plugin_ep_path + '/data/Minimal.idf')
         sim_results_path = paths.export/'EnergyPlus'/'SimResults'
         export_path = sim_results_path / ifc_name
+
+        paths = str(export_path).split('\\export\\EnergyPlus\\SimResults\\')
+        path_ifc = paths[0] + '\\ifc\\arch\\' + paths[1]
+        CreateIdf.generate_hash(path_ifc + ".ifc")
+
         if not os.path.exists(export_path):
             os.makedirs(export_path)
         idf.idfname = export_path / str(ifc_name + '.idf')
