@@ -121,7 +121,7 @@ class CreateIdf(ITask):
         ifc_hash = sha256_hash.hexdigest()
         ifc_filename = ifc.split('\\')[-1]
         hash_prefix = "IFC_GEOMETRY_HASH"  # prefix
-        CreateIdf.hash_line = f"! {hash_prefix}: {ifc_hash} | SOURCE_FILE: {ifc_filename}\n"
+        CreateIdf.hash_line = f"! {hash_prefix}: {ifc_hash} | IFC_FILENAME: {ifc_filename}\n"
 
     def add_into_idf (idf_path):
         """Add hash with specific prefix for easy search"""
