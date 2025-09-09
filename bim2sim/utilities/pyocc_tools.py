@@ -413,8 +413,10 @@ class PyOCCTools:
         """
         This function computes the volume of a shape and returns the value as a
         float.
+
         Args:
             shape: TopoDS_Shape
+
         Returns:
             volume: float
         """
