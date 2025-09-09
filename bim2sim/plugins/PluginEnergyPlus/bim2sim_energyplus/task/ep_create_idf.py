@@ -104,7 +104,7 @@ class CreateIdf(ITask):
         self.idf_validity_check(idf)
         logger.info("Save idf ...")
         idf.save(idf.idfname)
-        if self.playground.sim_settings.add_hash == True:
+        if not self.playground.sim_settings.add_hash:
             CreateIdf.add_hash_into_idf(idf.idfname)
         logger.info("Idf file successfully saved.")
 
@@ -162,8 +162,8 @@ class CreateIdf(ITask):
         sim_results_path = paths.export/'EnergyPlus'/'SimResults'
         export_path = sim_results_path / ifc_name
 
-        paths = str(export_path).split('\\export\\EnergyPlus\\SimResults\\')
-        path_ifc = paths[0] + '\\ifc\\arch\\' + paths[1]
+        paths = str(export_path).split('/export/EnergyPlus/SimResults/')
+        path_ifc = paths[0] + '/ifc/arch/' + paths[1]
         CreateIdf.generate_hash(path_ifc + ".ifc")
 
         if not os.path.exists(export_path):
