@@ -75,6 +75,7 @@ class PlotComfortResults(PlotBEPSResults):
                 logger.info("Requested plot_single_guid is not found in IFC "
                             "file, plotting results for all spaces instead.")
         if self.playground.sim_settings.rename_plot_keys:
+            # load keys to rename space names for plotting
             with open(self.playground.sim_settings.rename_plot_keys_path) as rk:
                 rename_keys = json.load(rk)
             zone_dict_ext_path = sim_results_path / self.prj_name / 'zone_dict_ifc_names.json'
@@ -91,6 +92,9 @@ class PlotComfortResults(PlotBEPSResults):
                 export_path.mkdir(parents=False, exist_ok=False)
             spaces = filter_elements(elements, 'ThermalZone')
             if self.playground.sim_settings.plot_zone_usages:
+                # only plot results for a selection of zone usages. This
+                # reduces the computational overhead, e.g., if only single
+                # offices are plotted
                 exclude_guids = []
                 for space in spaces:
                     if not any(key.lower() in space.usage.lower() for key in
@@ -111,40 +115,54 @@ class PlotComfortResults(PlotBEPSResults):
                 ]
                 filtered_df = df[filtered_columns]
                 df = filtered_df
-            # generate DIN EN 16798-1 adaptive comfort scatter plot and
-            # return analysis of comfort categories for further plots
+            # add a limited local comfort analysis based on the surface
+            # temperatures calculated in EnergyPlus and the limits defined in
+            # DIN EN 16798-1 National Appendix. This evaluates
+            # minimum/maximum surface temperatures and differences to the air
+            # temperature.
             self.limited_local_comfort_DIN16798_NA(df, elements, export_path)
 
+            # generate DIN EN 16798-1 adaptive comfort scatter plot and
+            # return analysis of comfort categories for further plots
             if not plot_single_guid:
+                # generate plots and data for scatter plots for all spaces
                 cat_analysis, cat_analysis_occ, cat_analysis_occ_hours = (
                     self.apply_en16798_to_all_zones(df, zone_dict,
                                                     export_path))
             else:
+                # only generate plots and data for a selected single space GUID
                 cat_analysis, cat_analysis_occ, cat_analysis_occ_hours = (
                     self.apply_en16798_to_single_zone(df, zone_dict,
                                                       export_path,
                                                       plot_single_guid))
             # plot a barplot combined with table of comfort categories from
             # DIN EN 16798.
+            # general table bar plot considering all generated data
             self.table_bar_plot_16798(cat_analysis, export_path)
+            # table bar plot, only evaluating the occupied time (in %)
             self.table_bar_plot_16798(cat_analysis_occ, export_path, tag='occ')
+            # table bar plot, evaluating the exceeding temperature degree
+            # hours for the occupied time of the year.
             self.table_bar_plot_16798(cat_analysis_occ_hours, export_path,
                                       tag='occ_hours', normalize=False,
                                       unit=f"{ureg.kelvin*ureg.hour:~P}",
                                       unit_name='Degree hours',
                                       y_scale='linear')
 
+            # generate plots for Fanger's PMV
             fanger_pmv = df[[col for col in df.columns if 'fanger_pmv' in col]]
             if plot_single_guid:
                 fanger_pmv = fanger_pmv[[col for col in fanger_pmv.columns if
                                          plot_single_guid in col]]
                 self.pmv_plot(fanger_pmv, export_path,
                               f"pmv_{plot_single_guid}")
+
             for space in spaces:
                 if not any(fanger_pmv.filter(like=space.guid)):
                     continue
                 self.logger.info(f"Space: {space.usage}, GUID: {space.guid}")
                 col = fanger_pmv.filter(like=space.guid).columns[0]
+                # visualize heatmap of PMV
                 self.visualize_heatmap(fanger_pmv, col, export_path,
                                        save_as='heatmap_',
                                        zone_dict=zone_dict,
@@ -160,6 +178,24 @@ class PlotComfortResults(PlotBEPSResults):
     def visualize_heatmap(df, col, export_path, save_as='',
                           add_title=False, save=True, zone_dict='', year='',
                           color_categories='', guid=''):
+        """
+        Visualize heatmap of Fanger PMV.
+        Args:
+            df: Input dataframe with PMV data
+            col: PMV column
+            export_path: plot export path
+            save_as: prefix for saving files
+            add_title: True if title should be added to plot
+            save: True if plot should be saved instead of displayed
+            zone_dict: dictionary to rename the space names
+            year: string to add the value of the year
+            color_categories: select 'PMV', 'PPD'. Standard heatmap is
+            applied if left blank
+            guid: plot individual space GUID
+
+        Returns:
+
+        """
         def color_mapper_pmv(value):
             if -0.2 < value < 0.2:
                 return 'green'  # CAT I
@@ -314,6 +350,18 @@ class PlotComfortResults(PlotBEPSResults):
 
     def limited_local_comfort_DIN16798_NA(self, df, elements, export_path,
                                           occupied=True):
+        """
+        Calculate a limited local comfort using surface temperatures from
+        EnergyPlus and limits from DIN EN 16798-1 (National Appendix).
+        Args:
+            df: result dataframe
+            elements: bim2sim elements
+            export_path: export path for result plots and data
+            occupied: True if only occupied states should be evaluated
+
+        Returns:
+
+        """
         spaces = filter_elements(elements, 'ThermalZone')
         local_discomfort_dict = {}
         global_local_discomfort = pd.DataFrame(columns=['TimeStamp',
@@ -334,6 +382,7 @@ class PlotComfortResults(PlotBEPSResults):
                                                           'ceiling_max'])
         initial_row = {col: True for col in local_discomfort_overview.columns if
                        col != 'space'}
+        # only proceed if surface temperatures are available in the dataframe
         if not any(df.filter(like='surf_inside_temp')):
             self.logger.warning("No surface temperatures found. Set "
                                 "sim_setting cfd_export to True to enable "
@@ -540,11 +589,40 @@ class PlotComfortResults(PlotBEPSResults):
             export_path / 'local_discomfort_overview.csv')
 
     def calc_exceeded_temperature_hours(self, df, reference, limit):
+        """
+        Calculate temperature exceeding occurrence.
+
+        Returns a tuple, consisting of the number of timesteps that exceed
+        the limit and the sum of all differences exceeding the limit.
+
+        Args:
+            df: temperature dataframe
+            reference: reference temperature value
+            limit: limit temperature based on reference value
+
+        Returns:
+            num_timesteps_exceeding, sum_difference_exceeding_limit
+
+        """
         value_over_reference = abs(df.sub(reference, axis=0).dropna()) - limit
         return len(value_over_reference), value_over_reference.values.sum()
 
     def get_exceeded_temperature_hours(self, df, min_limit, max_limit,
                                        ref_value):
+        """
+        Get all entries of the dataframe where temperature is exceeded.
+        Args:
+            df: original dataframe
+            min_limit: minimum temperature limit
+            max_limit: maximum temperature limit
+            ref_value: reference temperature
+
+        Returns:
+            df with all entries below the min_limit, df_with all entries
+            above the max_limit
+
+        """
+
         df_min = pd.DataFrame()
         df_max = pd.DataFrame()
         array = df.values
@@ -600,6 +678,7 @@ class PlotComfortResults(PlotBEPSResults):
         new_zone_names = {}
         for key in zone_dict.keys():
             new_name = None
+            # prepare room names
             if '-' in zone_dict_ifc_names[key]['Name']:
                 room_name = zone_dict_ifc_names[key]['Name'].split('-')[
                     1]
@@ -607,6 +686,9 @@ class PlotComfortResults(PlotBEPSResults):
                     room_name = room_name.split('_')[0]
             else:
                 room_name = zone_dict_ifc_names[key]['Name']
+            # prepare storey names
+            # rename storeys using short versions
+            # does not consider all naming conventions yet, needs to be extended
             if '_' in zone_dict_ifc_names[key]['StoreyName']:
                 storey_name = \
                     zone_dict_ifc_names[key]['StoreyName'].split(
@@ -619,6 +701,7 @@ class PlotComfortResults(PlotBEPSResults):
                     storey_name = 'OG'
                 elif storey_name.upper() == 'UNTERGESCHOSS':
                     storey_name = 'UG'
+            # generate new name based on storey and space name
             for key2 in rename_keys.keys():
                 if zone_dict[key] == key2:
                     zone_dict[key] = rename_keys[key2]
@@ -628,11 +711,13 @@ class PlotComfortResults(PlotBEPSResults):
             if not new_name:
                 new_name = (f"{storey_name}-{int(room_name):02d}"
                             f" {zone_dict_ifc_names[key]['ZoneUsage']}")
+            # update names
             new_zone_names.update({key: new_name})
-
+        # store new short rook keys based on storey + space name
         with open(sim_results_path / self.prj_name / 'short_room_keys.json',
                   'w+') as f:
             json.dump(new_zone_names, f, indent=4)
+        # rename duplicate space names (add enumeration) to prevent overwriting
         if rename_duplicates:
             zone_usage = self.rename_duplicates(zone_dict)
             new_zone_names = self.rename_duplicates(new_zone_names)
@@ -651,6 +736,16 @@ class PlotComfortResults(PlotBEPSResults):
                                    use_NA=True):
         """Generate EN 16798 diagrams for all thermal zones.
 
+        Args:
+            df: input dataframe
+            zone_dict: zone name dictionary
+            export_path: export path for result plots
+            use_NA: use national appendix (Germany)
+
+        Returns:
+            dataframe holding the adaptive comfort categories,
+            dataframe holding the comfort categories for occupied hours,
+            dataframe holding the number of occupied hours per category
         """
         if use_NA:
             add_NA_str = ' NA (GER)'
@@ -685,6 +780,20 @@ class PlotComfortResults(PlotBEPSResults):
 
     def apply_en16798_to_single_zone(self, df, zone_dict, export_path,
                                      zone_guid, use_NA=True):
+        """Generate EN 16798 diagrams for a single thermal zones.
+
+        Args:
+            df: input dataframe
+            zone_dict: zone name dictionary
+            export_path: export path for result plots
+            zone_guid: GUID of zone that should be analyzed
+            use_NA: use national appendix (Germany)
+
+        Returns:
+            dataframe holding the adaptive comfort categories,
+            dataframe holding the comfort categories for occupied hours,
+            dataframe holding the number of occupied hours per category
+        """
         if use_NA:
             add_NA_str = ' NA (GER)'
         else:
@@ -895,7 +1004,10 @@ class PlotComfortResults(PlotBEPSResults):
         return cat_analysis_df, cat_analysis_occ_df
 
     def plot_en16798_adaptive_count_NA(self, df, guid, room_name, export_path):
-        """Plot EN 16798 German National Appendix for a single thermal zone. """
+        """Plot EN 16798 German National Appendix for a single thermal zone.
+
+        Apply limits of German National Appendix.
+        """
         logger.info(f"Plot DIN EN 16798 diagram (NA) for zone {guid}:"
                     f" {room_name}.")
 
@@ -994,6 +1106,9 @@ class PlotComfortResults(PlotBEPSResults):
                                          out_above_df,
                                  out_below_df,
                                  path, name):
+            """Scatter plot with only three colors (in, within 2K, above/below.)
+
+            """
             plt.figure(figsize=(10 / INCH, 8 / INCH))
 
             plt.scatter(in_df.iloc[:, 0],
@@ -1081,6 +1196,9 @@ class PlotComfortResults(PlotBEPSResults):
         def plot_scatter_en16798(in_df, above_df, below_df, out_above_df,
                                  out_below_df,
                                  path, name):
+            """Scatter plot with five colors: in, within +2k, within -2K,
+            above 2K, below -2K.
+            """
             plt.figure(figsize=(13.2 / INCH, 8.3 / INCH))
 
             plt.scatter(in_df.iloc[:, 0],

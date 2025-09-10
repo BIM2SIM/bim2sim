@@ -128,6 +128,8 @@ class CreateResultDF(ITask):
                     space_guids.append(bound)
                 else:
                     space_guids.append(bound.guid)
+            # rename space boundaries according to their surface orientation
+            # for better identification in surface temperature plots.
             space_bound_renamed_dict[space.guid] = self.oriented_surface_names(
                 idf,
                                                                  space.guid)
@@ -258,6 +260,18 @@ class CreateResultDF(ITask):
 
     @staticmethod
     def oriented_surface_names(idf, space_guid):
+
+        """
+        Identify surface names for each individual surface in a zone based on
+        boundary conditions, constructions, and surface orientations for a
+        proper identification in plots of surface variables (e.g., temperature)
+        Args:
+            idf: Eppy IDF
+            space_guid: single space GUID
+
+        Returns: dictionary of renamed space boundaries
+
+        """
         space_bounds_renamed = {}
         temp_name_list = []
         for ib in idf.getobject("ZONE", space_guid).zonesurfaces:

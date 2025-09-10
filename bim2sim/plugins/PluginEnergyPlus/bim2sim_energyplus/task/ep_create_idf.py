@@ -106,6 +106,7 @@ class CreateIdf(ITask):
         logger.info("Idf file successfully saved.")
         if (self.playground.sim_settings.weather_file_for_sizing or
                 self.playground.sim_settings.enforce_system_sizing):
+            # apply HVAC system sizing based on weather file
             if self.playground.sim_settings.weather_file_for_sizing:
                 weather_file_sizing = (
                     self.playground.sim_settings.weather_file_for_sizing)
@@ -120,6 +121,18 @@ class CreateIdf(ITask):
         return idf, sim_results_path
 
     def apply_system_sizing(self, idf, sizing_weather_file, sim_results_path):
+        """
+        Apply system sizing based on weather file, sizes for maximum without
+        buffer.
+
+        Args:
+            idf: Eppy IDF
+            sizing_weather_file: Weather file for system sizing
+            sim_results_path: path to energyplus simulation results.
+
+        Returns:
+
+        """
         IDF.setiddname(
             self.playground.sim_settings.ep_install_path / 'Energy+.idd')
         export_path = sim_results_path / self.prj_name
@@ -140,7 +153,7 @@ class CreateIdf(ITask):
             Variable_Name="Zone Ideal Loads Supply Air Total Heating Rate",
             Reporting_Frequency="Hourly",
         )
-        idf3.epw=sizing_weather_file
+        idf3.epw = sizing_weather_file
         for sim_control in idf3.idfobjects["SIMULATIONCONTROL"]:
             sim_control.Run_Simulation_for_Sizing_Periods = 'Yes'
             sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'No'
@@ -163,7 +176,7 @@ class CreateIdf(ITask):
 
     @staticmethod
     def init_idf(sim_settings: EnergyPlusSimSettings, paths: FolderStructure,
-                 weather_file: PosixPath, ifc_name: str) -> IDF:
+                 weather_file: PosixPath, ifc_name: str) -> tuple[IDF, Path]:
         """ Initialize the EnergyPlus input file.
 
         Initialize the EnergyPlus input file (idf) with general idf settings
@@ -176,7 +189,7 @@ class CreateIdf(ITask):
             weather_file: PosixPath to *.epw weather file
             ifc_name: str of name of ifc
         Returns:
-            idf file of type IDF
+            idf file of type IDF, sim_results_path
         """
         logger.info("Initialize the idf ...")
         # set the installation path for the EnergyPlus installation
@@ -191,6 +204,7 @@ class CreateIdf(ITask):
         idf.removeallidfobjects('SIZINGPERIOD:DESIGNDAY')
         idf.removeallidfobjects('SITE:LOCATION')
         if sim_settings.system_weather_sizing != 'DesignDay':
+            # enable system sizing for extreme or typical days.
             if sim_settings.system_weather_sizing == 'Extreme':
                 period_selection = 'Extreme'
             elif sim_settings.system_weather_sizing == 'Typical':
@@ -206,6 +220,7 @@ class CreateIdf(ITask):
                              Day_of_Week_for_Start_Day='WinterDesignDay'
                              )
         else:
+            # use default Design day (July 21, December 21) for system sizing
             idf.newidfobject("SIZINGPERIOD:WEATHERFILEDAYS",
                              Name='Summer Design Day from Weather File',
                              Begin_Month=7,
@@ -617,6 +632,7 @@ class CreateIdf(ITask):
         """
         stat_name = "STATS " + space.usage.replace(',', '')
         if self.playground.sim_settings.control_operative_temperature:
+            # set control for operative temperature instead of air temperature
             operative_stats_name = space.usage.replace(',', '') + ' THERMOSTAT'
             htg_schedule_name = "Schedule " + "Heating " + space.usage.replace(
                 ',', '')
@@ -678,12 +694,16 @@ class CreateIdf(ITask):
                                  Numeric_Type='DISCRETE')
             template_thermostat_name = ''
         elif idf.getobject("HVACTEMPLATE:THERMOSTAT", stat_name) is None:
+            # if air temperature is controlled, create thermostat if it is
+            # not available
             stat = self.set_day_hvac_template(idf, space, stat_name)
             template_thermostat_name = stat.Name
         else:
+            # assign available thermostats for air control
             stat = idf.getobject("HVACTEMPLATE:THERMOSTAT", stat_name)
             template_thermostat_name = stat.Name
 
+        # initialize heating and cooling availability, and capacity
         cooling_availability = "Off"
         heating_availability = "Off"
         heating_limit = 'NoLimit'
@@ -703,6 +723,7 @@ class CreateIdf(ITask):
             self.playground.sim_settings.heat_recovery_sensible)
         heat_recovery_latent = self.playground.sim_settings.heat_recovery_latent
 
+        # initialize night setback if required
         if self.playground.sim_settings.hvac_off_at_night and idf.getobject(
                 "SCHEDULE:COMPACT", "On_except_10pm_to_6am") is None:
             idf.newidfobject(
@@ -719,6 +740,7 @@ class CreateIdf(ITask):
                 Field_8='0'
             )
 
+        # overwrite heating / cooling availability if required
         if space.with_cooling:
             cooling_availability = "On"
             if self.playground.sim_settings.hvac_off_at_night:
@@ -739,6 +761,7 @@ class CreateIdf(ITask):
                 self.playground.sim_settings.outdoor_air_economizer)
             heat_recovery_type = self.playground.sim_settings.heat_recovery_type
 
+        # initialize ideal loads air system according to the settings
         idf.newidfobject(
             "HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM",
             Zone_Name=zone_name,
@@ -1161,6 +1184,8 @@ class CreateIdf(ITask):
                     Delta_Temperature=0,
                 )
             else:
+                # use bim2sim standard zone ventilation based on TEASER
+                # templates
                 idf.newidfobject(
                     "ZONEVENTILATION:DESIGNFLOWRATE",
                     Name=name + '_winter',
@@ -1205,6 +1230,7 @@ class CreateIdf(ITask):
                     =space.max_summer_infiltration[2] - 273.15,
                 )
         else:
+            # use bim2sim standard zone ventilation based on TEASER templates
             idf.newidfobject(
                 "ZONEVENTILATION:DESIGNFLOWRATE",
                 Name=name + '_winter',
@@ -1494,6 +1520,8 @@ class CreateIdf(ITask):
                                  Construction_with_Shading_Name=construction_name,
                                  Shading_Control_Type=
                                  'OnIfHighZoneAirTempAndHighSolarOnWindow',
+                                 # only close blinds if heating setpoint
+                                 # temperature is already exceeded (save energy)
                                  Setpoint=max(zone.heating_profile)+2 - 273.15,
                                  Setpoint_2=solar,
                                  Multiple_Surface_Control_Type='Group',

@@ -141,7 +141,7 @@ def _iterate_edges(polygon: List[Vertex], directed: bool = False):
 
 
 def _get_inside_outside_edges(triangulation: Triangulation, must_equal=False) \
-        -> (Tuple)[List[Edge], List[Edge]]:
+        -> Tuple[List[Edge], List[Edge]]:
     """
     Partitions all edges of the triangulation into two lists, edges that lay
     "outside" and edges that lay "inside". Outside edges are part of the
