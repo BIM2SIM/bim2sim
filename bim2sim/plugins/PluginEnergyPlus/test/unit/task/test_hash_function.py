@@ -34,7 +34,7 @@ class Test_Hash_Function(unittest.TestCase):
         project.sim_settings.weather_file_path = (
                 Path(bim2sim.__file__).parent.parent /
                 'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
-        project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         project.sim_settings.run_full_simulation = False
         project.sim_settings.reset_guids = True
 
