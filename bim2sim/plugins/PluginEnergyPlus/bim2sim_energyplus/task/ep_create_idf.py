@@ -104,7 +104,7 @@ class CreateIdf(ITask):
         self.idf_validity_check(idf)
         logger.info("Save idf ...")
         idf.save(idf.idfname)
-        if not self.playground.sim_settings.add_hash:
+        if self.playground.sim_settings.add_hash:
             CreateIdf.add_hash_into_idf(idf.idfname)
         logger.info("Idf file successfully saved.")
 
@@ -161,10 +161,13 @@ class CreateIdf(ITask):
         idf = IDF(plugin_ep_path + '/data/Minimal.idf')
         sim_results_path = paths.export/'EnergyPlus'/'SimResults'
         export_path = sim_results_path / ifc_name
-
-        paths = str(export_path).split('/export/EnergyPlus/SimResults/')
-        path_ifc = paths[0] + '/ifc/arch/' + paths[1]
-        CreateIdf.generate_hash(path_ifc + ".ifc")
+        # pass the ifc path to generate hash function
+        export_path_obj = Path(export_path)
+        path_parts = str(export_path_obj.as_posix()).split('/export/EnergyPlus/SimResults/')
+        base_path = Path(path_parts[0])
+        path_ifc = base_path / 'ifc' / 'arch' / path_parts[1]
+        print(path_ifc, "path_ifc")
+        CreateIdf.generate_hash(str(path_ifc) + ".ifc")
 
         if not os.path.exists(export_path):
             os.makedirs(export_path)
