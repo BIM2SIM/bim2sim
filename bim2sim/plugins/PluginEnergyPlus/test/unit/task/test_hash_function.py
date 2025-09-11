@@ -36,8 +36,7 @@ class Test_Hash_Function(unittest.TestCase):
                 'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
         # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         project.sim_settings.run_full_simulation = False
-        project.sim_settings.reset_guids = True
-
+        project.sim_settings.add_hash = True
         # Run the project
         run_project(project, ConsoleDecisionHandler())
 
