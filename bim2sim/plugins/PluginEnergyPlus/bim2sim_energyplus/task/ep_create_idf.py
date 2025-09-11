@@ -756,7 +756,7 @@ class CreateIdf(ITask):
             not self.playground.sim_settings.add_natural_ventilation:
             outdoor_air_method = 'Sum'
             ventilation_demand_control = (
-                self.playground.sim_settings.ventilation_demand_control)
+                str(self.playground.sim_settings.ventilation_demand_control))
             outdoor_air_economizer = (
                 self.playground.sim_settings.outdoor_air_economizer)
             heat_recovery_type = self.playground.sim_settings.heat_recovery_type

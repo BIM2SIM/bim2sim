@@ -195,8 +195,8 @@ class EnergyPlusSimSettings(BuildingSimSettings):
                                    'temperature for zonal temperature control.'
     )
     ventilation_demand_control = ChoiceSetting(
-        default='None',
-        choices={'None': 'No demand control for mechanical ventilation.',
+        default=None,
+        choices={None: 'No demand control for mechanical ventilation.',
                  'OccupancySchedule': 'Demand control based on occupancy '
                                       'schedule.'},
         description='Choose if mechanical ventilation should be demand '
