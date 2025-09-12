@@ -49,7 +49,7 @@ class TestHashFunction(unittest.TestCase):
 
     def test_idf_hash(self):
         """Tests the hash function to verify if the hash value is successfully
-        generated and added to the IDF file, only for Windows system."""
+        generated and added to the IDF file."""
 
         self.test_dir = tempfile.TemporaryDirectory()
 
@@ -59,7 +59,7 @@ class TestHashFunction(unittest.TestCase):
                                       plugin=PluginHashDummyEP)
         self.project.sim_settings.weather_file_path = (
                 test_rsrc_path / 'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
-        self.project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+        # self.project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
 
         self.project.sim_settings.run_full_simulation = False
         self.project.sim_settings.add_hash = True
