@@ -26,48 +26,15 @@ logger = logging.getLogger(__name__)
 
 
 class AutoSettingNameMeta(type):
-    """Adds the name to every SimulationSetting attribute based on its instance
+    """Sets the name to every SimulationSetting attribute based on its instance
     name.
-
-    This makes the definition of an extra attribute 'name' obsolete, as the
-    attributes 'name' is automatic defined based on the instance name.
-
-
-    Example:
-        >>> # create new simulation settings for your awesome simulation
-        >>> class MyAwesomeSimulationSettings(BaseSimSettings):
-        ...     def __init__(self):
-        ...         super().__init__()
-
-        >>> # create a new simulation setting, name will be taken automatic
-        from
-        >>> # instance name
-        >>> make_simulation_extra_fast = Setting(
-        ...     default=True,
-        ...     choices={
-            ...         True: 'This simulation will be incredible fast.',
-            ...         False: 'This simulation will be increbdile slow.'
-            ...     },
-            ...     description='Run the simulation in extra fast mode?',
-            ...     for_frontend=True
-            ... )
-
-        >>> # create a SimulationSettings instance and get the value
-        >>> my_awesome_settings = MyAwesomeSimulationSettings()
-        >>> # get initial value which is always none
-        >>> print(my_awesome_settings.make_simulation_extra_fast)
-        None
-        >>> # set default values and get the value
-        >>> my_awesome_settings.load_default_settings()
-        >>> print(my_awesome_settings.make_simulation_extra_fast)
-        True
     """
 
     def __init__(cls, name, bases, namespace):
         super(AutoSettingNameMeta, cls).__init__(name, bases, namespace)
         # get all namespace objects
         for name, obj in namespace.items():
-            # filter for settings of simulaiton
+            # filter for settings of simulation
             if isinstance(obj, Setting):
                 # provide name of the setting as attribute
                 obj.name = name
@@ -99,37 +66,63 @@ class SettingsManager(dict):
             # Loads setting by name
             setting = getattr(type(self.bound_simulation_settings), name)
             self[name] = setting
+
+            # Store predefined default values in the defaults dict,
+            # so they can be set back to the default later
             self.defaults[setting.name] = setting.value
 
     @property
     def names(self):
-        """
-        Returns a generator object with all settings that the bound_simulation_settings owns.
-        """
+        """Returns a generator object with all settings that the bound_simulation_settings owns."""
         bound_simulation_settings_class = type(self.bound_simulation_settings)
 
         for attribute_name in dir(bound_simulation_settings_class):
-            # Retrieve the attribute from the class using the name
             attribute = getattr(bound_simulation_settings_class, attribute_name)
 
             if isinstance(attribute, Setting):
-                # If it is, yield the name of the attribute
                 yield attribute_name
 
 
 class Setting(BaseModel, validate_assignment=True, validate_default=True):
-    #value: None
+    """ Base class for all simulation settings.
+    The attribute value which holds the payload of the setting is introduced in derived classes,
+    e.g. NumberSetting(Setting).
+
+    The value which is assigned to the attribute "value", when instancing the setting, serves
+    as a default and can be changed according to the use case, if necessary.
+
+    Args:
+        name: Name of the setting. Is set automatically by AutoSettingNameMeta(type)
+        description: description the setting
+        for_frontend: should this setting be shown in the frontend
+        any_string: any string is allowed instead of a given choice
+        mandatory: whether a setting needs to be set
+    """
+
     name: str = Field(default="set automatically")
     description: Optional[str] = None
     for_frontend: bool = Field(default=False)
     any_string: bool = Field(default=False)
     mandatory: bool = Field(default=False)
 
-
     def __set__(self, bound_simulation_settings, value):
+        """Creates a new attribute with name and value of the complete setting instance,
+        stored in sim_settings. This makes it easier to access the value of a setting.
+        
+        Example:
+        
+        sim_settings = {e.g. BuildingSimSettings}
+            ...
+            example_setting_name = {bool}True
+            manager {SettingsManager}
+                'example_setting_name' = {BooleanSetting}(name='ahu_heating_overwrite',value=True, ...)
+                ...
+            ...
+        """
         bound_simulation_settings.manager[self.name].value = value
 
     def __get__(self, bound_simulation_settings, owner):
+        """Allows direct access to the setting's value"""
         if bound_simulation_settings is None:
             return self
 
@@ -204,7 +197,6 @@ class ChoiceSetting(Setting):
                 for val in self.value:
                     self._check_for_value_in_choices(val)
         else:
-            # Todo (chg-ext): Check for multiple choices allowed but only one choice given?
             self._check_for_value_in_choices(self.value)
 
         return self
@@ -228,7 +220,7 @@ class GuidListSetting(Setting):
             for i, guid in enumerate(value):
                 if not check_guid(guid):
                     raise PydanticCustomError("invalid_guid",
-                                          f"Invalid IFC GUID format at index {i}: '{guid}'")  # type: ignore[misc]
+                                              f"Invalid IFC GUID format at index {i}: '{guid}'")  # type: ignore[misc]
         return value
 
 
