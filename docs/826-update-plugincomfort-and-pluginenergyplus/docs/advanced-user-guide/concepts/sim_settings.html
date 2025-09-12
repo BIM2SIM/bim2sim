@@ -173,42 +173,73 @@ different simulation types.</p>
 <h3>BaseSimSettings<a class="headerlink" href="#basesimsettings" title="Permalink to this heading"></a></h3>
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head"><p>Setting Name</p></th>
-<th class="head"><p>Type</p></th>
-<th class="head"><p>Default</p></th>
-<th class="head"><p>Description</p></th>
+<tr class="row-odd"><th class="head text-left"><p>Setting Name</p></th>
+<th class="head text-left"><p>Type</p></th>
+<th class="head text-left"><p>Default</p></th>
+<th class="head text-left"><p>Description</p></th>
+<th class="head text-left"><p>Choices</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>dymola_simulation</p></td>
-<td><p>Boolean</p></td>
-<td><p>False</p></td>
-<td><p>Run a Simulation with Dymola after model export?</p></td>
+<tr class="row-even"><td class="text-left"><p>dymola_simulation</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Run a Simulation with Dymola after model export?</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>create_external_elements</p></td>
-<td><p>Boolean</p></td>
-<td><p>False</p></td>
-<td><p>Create external elements?</p></td>
+<tr class="row-odd"><td class="text-left"><p>create_external_elements</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Create external elements?</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-even"><td><p>max_wall_thickness</p></td>
-<td><p>Number</p></td>
-<td><p>0.3</p></td>
-<td><p>Choose maximum wall thickness as a tolerance for mapping opening boundaries to their base surface (Wall).</p></td>
+<tr class="row-even"><td class="text-left"><p>max_wall_thickness</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>0.3</p></td>
+<td class="text-left"><p>Choose maximum wall thickness as a tolerance for mapping<br>opening boundaries to their base surface (Wall). Choose 0.3m<br>as a default value.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>group_unidentified</p></td>
-<td><p>Choice</p></td>
-<td><p>‘fuzzy’</p></td>
-<td><p>To reduce the number of decisions by user to identify elements which can not be identified automatically.</p></td>
+<tr class="row-odd"><td class="text-left"><p>group_unidentified</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘fuzzy’</p></td>
+<td class="text-left"><p>To reduce the number of decisions by user to identify<br>elements which can not be identified automatically by the<br>system, you can either use simple grouping by same name of<br>IFC element or fuzzy search to group based on similarities<br>in name.</p></td>
+<td class="text-left"><p>‘fuzzy’: Use fuzzy search to find ifc name similarities<br>’name’: Only group elements with exact same ifc name<br>’name_and_description’: Only group elements with the same ifc name and ifc description</p></td>
 </tr>
-<tr class="row-even"><td><p>fuzzy_threshold</p></td>
-<td><p>Number</p></td>
-<td><p>0.7</p></td>
-<td><p>If using fuzzy search in the <code class="docutils literal notranslate"><span class="pre">group_unidentified</span></code> setting, set the similarity threshold.</p></td>
+<tr class="row-even"><td class="text-left"><p>fuzzy_threshold</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>0.7</p></td>
+<td class="text-left"><p>If you want to use fuzzy search in the group_unidentified<br>setting, you can set the threshold here. A low threshold<br>means a small similarity is required for grouping. A too low<br>value might result in grouping elements which do not<br>represent the same IFC type.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>reset_guids</p></td>
-<td><p>Boolean</p></td>
-<td><p>False</p></td>
-<td><p>Reset GlobalIDs from imported IFC if duplicate GlobalIDs occur in the IFC.</p></td>
+<tr class="row-odd"><td class="text-left"><p>reset_guids</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Reset GlobalIDs from imported IFC if duplicate GlobalIDs<br>occur in the IFC. As EnergyPlus evaluates allGlobalIDs upper<br>case only, this might also be applicable if duplicate non-<br>case-sensitive GlobalIDs occur.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>building_rotation_overwrite</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>0</p></td>
+<td class="text-left"><p>Overwrite the (clockwise) building rotation angle in<br>degrees.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>add_space_boundaries</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Add space boundaries. Only required for building performance<br>simulation and co-simulations.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>correct_space_boundaries</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Apply geometric correction to space boundaries.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>close_space_boundary_gaps</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Close gaps in the set of space boundaries by adding<br>additional 2b space boundaries.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -236,62 +267,205 @@ different simulation types.</p>
 <h3>BuildingSimSettings<a class="headerlink" href="#buildingsimsettings" title="Permalink to this heading"></a></h3>
 <table class="docutils align-default">
 <thead>
-<tr class="row-odd"><th class="head"><p>Setting Name</p></th>
-<th class="head"><p>Type</p></th>
-<th class="head"><p>Default</p></th>
-<th class="head"><p>Description</p></th>
+<tr class="row-odd"><th class="head text-left"><p>Setting Name</p></th>
+<th class="head text-left"><p>Type</p></th>
+<th class="head text-left"><p>Default</p></th>
+<th class="head text-left"><p>Description</p></th>
+<th class="head text-left"><p>Choices</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>layers_and_materials</p></td>
-<td><p>Choice</p></td>
-<td><p>LOD.low</p></td>
-<td><p>Select how existing Material information in IFC should be treated.</p></td>
+<tr class="row-even"><td class="text-left"><p>layers_and_materials</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>LOD.low</p></td>
+<td class="text-left"><p>Select how existing Material information in IFC should be<br>treated.</p></td>
+<td class="text-left"><p>‘LOD.low’: Override materials with predefined setups</p></td>
 </tr>
-<tr class="row-odd"><td><p>construction_class_walls</p></td>
-<td><p>Choice</p></td>
-<td><p>‘heavy’</p></td>
-<td><p>Select the most fitting type of construction class for the walls of the selected building.</p></td>
+<tr class="row-odd"><td class="text-left"><p>year_of_construction_overwrite</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>Force an overwrite of the year of construction as a base for<br>the selected construction set.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-even"><td><p>year_of_construction_overwrite</p></td>
-<td><p>Number</p></td>
-<td><p>None</p></td>
-<td><p>Force an overwrite of the year of construction as a base for the selected construction set.</p></td>
+<tr class="row-even"><td class="text-left"><p>construction_class_walls</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘iwu_heavy’</p></td>
+<td class="text-left"><p>Select the most fitting construction class type forthe walls<br>of the selected building. For all settings but kfw_* the<br>year of construction is required.</p></td>
+<td class="text-left"><p>iwu_heavy, iwu_light, kfw_40, kfw_55, kfw_70, kfw_85, kfw_100, tabula_de_standard_1_SFH, tabula_de_standard_2_SFH, tabula_de_retrofit_1_SFH, tabula_de_retrofit_2_SFH, tabula_de_adv_retrofit_1_SFH, tabula_de_adv_retrofit_2_SFH, tabula_de_standard_1_TH, tabula_de_standard_2_TH, tabula_de_retrofit_1_TH, tabula_de_retrofit_2_TH, tabula_de_standard_1_MFH, tabula_de_retrofit_1_MFH, tabula_de_adv_retrofit_1_MFH, tabula_de_standard_1_AB, tabula_de_adv_retrofit_1_AB, tabula_de_standard, tabula_dk_standard_1_SFH, tabula_dk_standard_2_SFH, tabula_dk_retrofit_1_SFH, tabula_dk_retrofit_2_SFH, tabula_dk_adv_retrofit_1_SFH, tabula_dk_adv_retrofit_2_SFH, tabula_dk_standard_1_TH, tabula_dk_standard_2_TH, tabula_dk_retrofit_1_TH, tabula_dk_retrofit_2_TH, tabula_dk_adv_retrofit_1_TH, tabula_dk_adv_retrofit_2_TH, tabula_dk_standard_1_AB, tabula_dk_standard_2_AB, tabula_dk_retrofit_1_AB, tabula_dk_retrofit_2_AB, tabula_dk_adv_retrofit_1_AB, tabula_dk_adv_retrofit_2_AB, tabula_dk_standard</p></td>
 </tr>
-<tr class="row-odd"><td><p>construction_class_windows</p></td>
-<td><p>Choice</p></td>
-<td><p>‘Alu- oder…’</p></td>
-<td><p>Select the most fitting type of construction class for the windows of the selected building.</p></td>
+<tr class="row-odd"><td class="text-left"><p>construction_class_windows</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach’</p></td>
+<td class="text-left"><p>Select the most fitting construction class type for the<br>windows of the selected building.</p></td>
+<td class="text-left"><p>Holzfenster, zweifach, Kunststofffenster, Isolierverglasung, Alu- oder Stahlfenster, Isolierverglasung, Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach, Waermeschutzverglasung, dreifach, tabula_de_standard_1_SFH, tabula_de_standard_2_SFH, tabula_de_retrofit_1_SFH, tabula_de_retrofit_2_SFH, tabula_de_adv_retrofit_1_SFH, tabula_de_adv_retrofit_2_SFH, tabula_de_standard_1_TH, tabula_de_standard_2_TH, tabula_de_retrofit_1_TH, tabula_de_retrofit_2_TH, tabula_de_standard_1_MFH, tabula_de_retrofit_1_MFH, tabula_de_adv_retrofit_1_MFH, tabula_de_standard_1_AB, tabula_de_adv_retrofit_1_AB, tabula_de_standard, tabula_dk_standard_1_SFH, tabula_dk_standard_2_SFH, tabula_dk_retrofit_1_SFH, tabula_dk_retrofit_2_SFH, tabula_dk_adv_retrofit_1_SFH, tabula_dk_adv_retrofit_2_SFH, tabula_dk_standard_1_TH, tabula_dk_standard_2_TH, tabula_dk_retrofit_1_TH, tabula_dk_retrofit_2_TH, tabula_dk_adv_retrofit_1_TH, tabula_dk_adv_retrofit_2_TH, tabula_dk_standard_1_AB, tabula_dk_standard_2_AB, tabula_dk_retrofit_1_AB, tabula_dk_retrofit_2_AB, tabula_dk_adv_retrofit_1_AB, tabula_dk_adv_retrofit_2_AB, tabula_dk_standard</p></td>
 </tr>
-<tr class="row-even"><td><p>heating</p></td>
-<td><p>Boolean</p></td>
-<td><p>True</p></td>
-<td><p>Whether the building should be supplied with heating.</p></td>
+<tr class="row-even"><td class="text-left"><p>construction_class_doors</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘iwu_typical’</p></td>
+<td class="text-left"><p>Select the most fitting construction class type for the<br>windows of the selected building.</p></td>
+<td class="text-left"><p>iwu_typical, kfw_40, kfw_55, kfw_70, kfw_85, kfw_100, tabula_de_standard_1_SFH, tabula_de_retrofit_1_SFH, tabula_de_adv_retrofit_1_SFH, tabula_de_standard_1_TH, tabula_de_retrofit_1_TH, tabula_de_adv_retrofit_1_TH, tabula_de_standard_1_MFH, tabula_de_retrofit_1_MFH, tabula_de_adv_retrofit_1_MFH, tabula_de_standard_1_AB, tabula_de_retrofit_1_AB, tabula_de_adv_retrofit_1_AB, tabula_dk_standard_1_SFH</p></td>
 </tr>
-<tr class="row-odd"><td><p>cooling</p></td>
-<td><p>Boolean</p></td>
-<td><p>False</p></td>
-<td><p>Whether the building should be supplied with cooling.</p></td>
+<tr class="row-odd"><td class="text-left"><p>heating_tz_overwrite</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>If True, all thermal zones will be provided with heating,if<br>False no heating for thermal zones is provided, regardless<br>of information in the IFC or in the use condition file.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-even"><td><p>deactivate_ahu</p></td>
-<td><p>Boolean</p></td>
-<td><p>False</p></td>
-<td><p>If True, the AHU unit will be deactivated for all thermal zones.</p></td>
+<tr class="row-even"><td class="text-left"><p>cooling_tz_overwrite</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>If True, all thermal zones will be provided with cooling,if<br>False no cooling for thermal zones is provided, regardless<br>of information in the IFC or in the use condition file.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>prj_use_conditions</p></td>
-<td><p>Path</p></td>
-<td><p>None</p></td>
-<td><p>Path to a custom UseConditions.json for the specific project.</p></td>
+<tr class="row-odd"><td class="text-left"><p>ahu_tz_overwrite</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>If True, all thermal zones will be provided with AHU,if<br>False no AHU for thermal zones is provided, regardless of<br>information in the IFC or in the use condition file.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-even"><td><p>prj_custom_usages</p></td>
-<td><p>Path</p></td>
-<td><p>None</p></td>
-<td><p>Path to a custom customUsages.json for the specific project.</p></td>
+<tr class="row-even"><td class="text-left"><p>setpoints_from_template</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Use template heating and cooling profiles instead of<br>setpoints from IFC. Defaults to False, i.e., use original<br>data source. Set to True, if template-based values should be<br>used instead.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>setpoints_from_template</p></td>
-<td><p>Boolean</p></td>
-<td><p>False</p></td>
-<td><p>Use template heating and cooling profiles instead of setpoints from IFC.</p></td>
+<tr class="row-odd"><td class="text-left"><p>use_maintained_illuminance</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>True</p></td>
+<td class="text-left"><p>Use maintained illuminance required per zone based on DIN V<br>EN 18599 information to calculate internal loadsthrough<br>lighting.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>sim_results</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>heat_demand_total, cool_demand_total, heat_demand_rooms, cool_demand_rooms, heat_energy_total, cool_energy_total, heat_energy_rooms, cool_energy_rooms, air_temp_out, operative_temp_rooms, air_temp_rooms,<br>internal_gains_machines_rooms, internal_gains_persons_rooms, internal_gains_lights_rooms, n_persons_rooms, infiltration_rooms, mech_ventilation_rooms, heat_set_rooms, cool_set_rooms</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>add_space_boundaries</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>True</p></td>
+<td class="text-left"><p>Add space boundaries. Only required for building performance<br>simulation and co-simulations.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>correct_space_boundaries</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Apply geometric correction to space boundaries.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>split_bounds</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Whether to convert up non-convex space boundaries or not.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>add_shadings</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Whether to add shading surfaces if available or not.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>split_shadings</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Whether to convert up non-convex shading boundaries or not.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>close_space_boundary_gaps</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Close gaps in the set of space boundaries by adding<br>additional 2b space boundaries.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>create_plots</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Create plots for simulation results after the simulation<br>finished.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>set_run_period</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Choose whether run period for simulation execution should be<br>set manually instead of running annual simulation.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>run_period_start_month</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>1</p></td>
+<td class="text-left"><p>Choose start month of run period. Requires<br>set_run_period==True for activation.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>run_period_start_day</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>1</p></td>
+<td class="text-left"><p>Choose start day of run period. Requires<br>set_run_period==True for activation.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>run_period_end_month</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>12</p></td>
+<td class="text-left"><p>Choose end month of run period. Requires<br>set_run_period==True for activation.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>run_period_end_day</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>31</p></td>
+<td class="text-left"><p>Choose end day of run period. Requires set_run_period==True<br>for activation.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>plot_singe_zone_guid</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘’</p></td>
+<td class="text-left"><p>Choose the GlobalId of the IfcSpace for which results should<br>be plotted.</p></td>
+<td class="text-left"><p>‘’: Skip</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>ahu_heating_overwrite</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>Choose if the central AHU should provide heating.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>ahu_cooling_overwrite</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>Choose if the central AHU should provide cooling.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>ahu_dehumidification_overwrite</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>Choose if the central AHU should provide dehumidification.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>ahu_humidification_overwrite</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>Choose if the central AHU should provide<br>humidification.otherwise this has no effect.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>ahu_heat_recovery_overwrite</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>Choose if the central AHU should zuse heat recovery.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>ahu_heat_recovery_efficiency_overwrite</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>Choose the heat recovery efficiency of the central AHU.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>use_constant_infiltration_overwrite</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>If only constant base infiltration should be used and no<br>dynamic ventilation through e.g. windows.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>base_infiltration_rate_overwrite</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>Overwrite base value for the natural infiltration in 1/h<br>without window openings</p></td>
+<td class="text-left"><p></p></td>
 </tr>
 </tbody>
 </table>
@@ -324,109 +498,193 @@ different simulation types.</p>
 <h3>EnergyPlusSimSettings<a class="headerlink" href="#energyplussimsettings" title="Permalink to this heading"></a></h3>
 <table class="docutils align-default" id="energyplus-sim-settings">
 <thead>
-<tr class="row-odd"><th class="head"><p>Setting Name</p></th>
-<th class="head"><p>Type</p></th>
-<th class="head"><p>Default</p></th>
-<th class="head"><p>Description</p></th>
-<th class="head"><p>Choices</p></th>
+<tr class="row-odd"><th class="head text-left"><p>Setting Name</p></th>
+<th class="head text-left"><p>Type</p></th>
+<th class="head text-left"><p>Default</p></th>
+<th class="head text-left"><p>Description</p></th>
+<th class="head text-left"><p>Choices</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>cfd_export</p></td>
-<td><p>Boolean</p></td>
-<td><p>False</p></td>
-<td><p>Whether to use CFD export for this simulation or not.</p></td>
-<td><p></p></td>
+<tr class="row-even"><td class="text-left"><p>cfd_export</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Whether to use CFD export for this simulation or not.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>split_bounds</p></td>
-<td><p>Boolean</p></td>
-<td><p>False</p></td>
-<td><p>Whether to convert non-convex space boundaries or not.</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td class="text-left"><p>split_bounds</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Whether to convert up non-convex space boundaries or not.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-even"><td><p>add_shadings</p></td>
-<td><p>Boolean</p></td>
-<td><p>True</p></td>
-<td><p>Whether to add shading surfaces if available or not.</p></td>
-<td><p></p></td>
+<tr class="row-even"><td class="text-left"><p>add_shadings</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>True</p></td>
+<td class="text-left"><p>Whether to add shading surfaces if available or not.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>split_shadings</p></td>
-<td><p>Boolean</p></td>
-<td><p>False</p></td>
-<td><p>Whether to convert non-convex shading boundaries or not.</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td class="text-left"><p>split_shadings</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Whether to convert up non-convex shading boundaries or not.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-even"><td><p>run_full_simulation</p></td>
-<td><p>Boolean</p></td>
-<td><p>False</p></td>
-<td><p>Choose simulation period.</p></td>
-<td><p></p></td>
+<tr class="row-even"><td class="text-left"><p>run_full_simulation</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Choose simulation period.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>ep_version</p></td>
-<td><p>Choice</p></td>
-<td><p>‘9-4-0’</p></td>
-<td><p>Choose EnergyPlus Version.</p></td>
-<td><p>‘9-2-0’, ‘9-4-0’</p></td>
+<tr class="row-odd"><td class="text-left"><p>ep_version</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘9-4-0’</p></td>
+<td class="text-left"><p>Choose EnergyPlus Version</p></td>
+<td class="text-left"><p>‘9-2-0’: EnergyPlus Version 9-2-0<br>’9-4-0’: EnergyPlus Version 9-4-0<br>’22-2-0’: EnergyPlus Version 22-2-0</p></td>
 </tr>
-<tr class="row-even"><td><p>ep_install_path</p></td>
-<td><p>Path</p></td>
-<td><p>Path(‘/usr/local/EnergyPlus-9-4-0/’)</p></td>
-<td><p>Choose EnergyPlus Installation Path.</p></td>
-<td><p></p></td>
+<tr class="row-even"><td class="text-left"><p>system_sizing</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>True</p></td>
+<td class="text-left"><p>Whether to do system sizing calculations in EnergyPlus or<br>not.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>system_sizing</p></td>
-<td><p>Boolean</p></td>
-<td><p>True</p></td>
-<td><p>Whether to do system sizing calculations in EnergyPlus or not.</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td class="text-left"><p>run_for_sizing_periods</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Whether to run the EnergyPlus simulation for sizing periods<br>or not.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-even"><td><p>run_for_sizing_periods</p></td>
-<td><p>Boolean</p></td>
-<td><p>False</p></td>
-<td><p>Whether to run the EnergyPlus simulation for sizing periods or not.</p></td>
-<td><p></p></td>
+<tr class="row-even"><td class="text-left"><p>run_for_weather_period</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>True</p></td>
+<td class="text-left"><p>Whether to run the EnergyPlus simulation for weather file<br>period or not.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>run_for_weather_period</p></td>
-<td><p>Boolean</p></td>
-<td><p>True</p></td>
-<td><p>Whether to run the EnergyPlus simulation for weather file period or not.</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td class="text-left"><p>system_weather_sizing</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘Typical’</p></td>
+<td class="text-left"><p>Choose whether to perform the system sizing for DesignDays,<br>extreme weather periods, typical weather periods.<br>Default=Typical (i.e., apply system sizing for typical<br>summer/winter days).</p></td>
+<td class="text-left"><p>‘Typical’: SummerTypical and WinterTypical for system sizing.<br>’Extreme’: SummerExtreme and WinterExtreme for system sizing.<br>’DesignDay’: DesignDay for system sizing. Choose this option if neither SummerExtreme nor SummerTypical days are available in weather file.</p></td>
 </tr>
-<tr class="row-even"><td><p>solar_distribution</p></td>
-<td><p>Choice</p></td>
-<td><p>‘FullExterior’</p></td>
-<td><p>Choose solar distribution.</p></td>
-<td><p>‘FullExterior’, ‘FullInteriorAndExterior’</p></td>
+<tr class="row-even"><td class="text-left"><p>enforce_system_sizing</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Choose True if you want to enforce HVAC Sizing to sizing<br>period settings (limit heating and cooling capacity) instead<br>of autosizing.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>add_window_shading</p></td>
-<td><p>Choice</p></td>
-<td><p>None</p></td>
-<td><p>Choose window shading.</p></td>
-<td><p>‘Interior’, ‘Exterior’</p></td>
+<tr class="row-odd"><td class="text-left"><p>solar_distribution</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘FullExterior’</p></td>
+<td class="text-left"><p>Choose solar distribution.</p></td>
+<td class="text-left"><p>‘FullExterior’: Full exterior solar distribution<br>’FullInteriorAndExterior’: Full interior and exterior solar distribution</p></td>
 </tr>
-<tr class="row-even"><td><p>output_format</p></td>
-<td><p>Choice</p></td>
-<td><p>‘CommaAndHTML’</p></td>
-<td><p>Choose output format for result files.</p></td>
-<td><p>‘Comma’, ‘Tab’, ‘Fixed’, ‘HTML’, ‘XML’, ‘CommaAndHTML’,’TabAndHTML’, ‘XMLAndHTML’, ‘All’</p></td>
+<tr class="row-even"><td class="text-left"><p>add_window_shading</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>Choose window shading.</p></td>
+<td class="text-left"><p>‘None’: Do not add window shading<br>’Interior’: Add an interior shade in EnergyPlus<br>’Exterior’: Add an exterior shade in EnergyPlus</p></td>
 </tr>
-<tr class="row-odd"><td><p>unit_conversion</p></td>
-<td><p>Choice</p></td>
-<td><p>‘JtoKWH’</p></td>
-<td><p>Choose unit conversion for result files.</p></td>
-<td><p>‘None’, ‘JtoKWH’, JtoMJ’, ‘JtoGJ’, ‘InchPound’</p></td>
+<tr class="row-odd"><td class="text-left"><p>output_format</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘CommaAndHTML’</p></td>
+<td class="text-left"><p>Choose output format for result files.</p></td>
+<td class="text-left"><p>‘Comma’: Output format Comma (.csv)<br>’Tab’: Output format Tab (.tab)<br>’Fixed’: Output format Fixed (.txt)<br>’HTML’: Output format HTML (.htm)<br>’XML’: Output format XML (.xml)<br>’CommaAndHTML’: Output format CommaAndHTML<br>’TabAndHTML’: Output format TabAndHTML<br>’XMLAndHTML’: Output format TabAndHTML<br>’All’: All output formats.</p></td>
 </tr>
-<tr class="row-even"><td><p>output_keys</p></td>
-<td><p>Choice (MultipleChoice)</p></td>
-<td><p>[‘output_outdoor_conditions’, ‘output_zone_temperature’, ‘output_zone’, ‘output_infiltration’, ‘output_meters’]</p></td>
-<td><p>Choose groups of output variables (multiple choice).</p></td>
-<td><p>‘output_outdoor_conditions’, ‘output_internal_gains’, ‘output_zone_temperature’, ‘output_zone’, ‘output_infiltration’, ‘output_meters’,  ‘output_dxf’</p></td>
+<tr class="row-even"><td class="text-left"><p>unit_conversion</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘JtoKWH’</p></td>
+<td class="text-left"><p>Choose unit conversion for result files.</p></td>
+<td class="text-left"><p>‘None’: No unit conversions<br>’JtoKWH’: Convert Joule into kWh (1/3600000)<br>’JtoMJ’: Joule converted into Megajoule (1/1000000)<br>’JtoGJ’: Joule converted into Gigajoule<br>’InchPound’: Convert all tabular values to common Inch-Pound equivalent.</p></td>
 </tr>
-<tr class="row-odd"><td><p>add_natural_ventilation</p></td>
-<td><p>Boolean</p></td>
-<td><p>True</p></td>
-<td><p>Activates natural ventilation if cooling is not activated.</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td class="text-left"><p>output_keys</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>outdoor_conditions, zone_temperature, zone, infiltration, meters</p></td>
+<td class="text-left"><p>Choose groups of output variables (multiple choice).</p></td>
+<td class="text-left"><p>‘output_outdoor_conditions’: Add outputs for outdoor conditions.<br>’output_internal_gains’: Add output for internal gains.<br>’output_zone_temperature’: Add output for zone mean and operative temperature.<br>’output_zone’: Add heating and cooling rates and energy on zone level.<br>’output_infiltration’: Add output for zone infiltration.<br>’output_meters’: Add heating and cooling meters.<br>’output_dxf’: Output a dxf of the building geometry.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>correct_space_boundaries</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>True</p></td>
+<td class="text-left"><p>Apply geometric correction to space boundaries.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>close_space_boundary_gaps</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>True</p></td>
+<td class="text-left"><p>Close gaps in the set of space boundaries by adding<br>additional 2b space boundaries.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>add_natural_ventilation</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>True</p></td>
+<td class="text-left"><p>Add natural ventilation to the building. Natural ventilation<br>is not available when cooling is activated.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>hvac_off_at_night</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Disable all HVAC systems at night from 10pm to 6am.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>control_operative_temperature</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Use operative temperature instead of air temperature for<br>zonal temperature control.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>ventilation_demand_control</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>Choose if mechanical ventilation should be demand<br>controlled. Default is None.</p></td>
+<td class="text-left"><p>‘None’: No demand control for mechanical ventilation.<br>’OccupancySchedule’: Demand control based on occupancy schedule.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>outdoor_air_economizer</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘NoEconomizer’</p></td>
+<td class="text-left"><p>Choose which type of outdoor air economizer should be<br>applied to reduce cooling loads by an increased outdoor air<br>flow if cooling loads can be reduced. Default is<br>”NoEconomizer”.</p></td>
+<td class="text-left"><p>‘NoEconomizer’: No outdoor air economizer is applied.<br>’DifferentialDryBulb’: The outdoor air economizer is applied based on the differential dry bulb temperature.<br>’DifferentialEnthalpy’: The outdoor air economizer is applied based on the differential enthalpy.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>heat_recovery_type</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘Enthalpy’</p></td>
+<td class="text-left"><p>Choose which type of heat recovery should be applied for<br>mechanical ventilation.</p></td>
+<td class="text-left"><p>‘Enthalpy’: Use Enthalpy Heat Recovery.<br>’Sensible’: Use Sensible Heat Recovery.<br>’None’: No Heat Recovery</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>heat_recovery_sensible</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>0.8</p></td>
+<td class="text-left"><p>Choose the sensible heat recovery effectiveness. Default:<br>0.8.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>heat_recovery_latent</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>0.7</p></td>
+<td class="text-left"><p>Choose the latent heat recovery effectiveness. Only<br>applicable if heat_recovery_type=”Enthalpy”. Default: 0.7.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>outdoor_air_per_person</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>7</p></td>
+<td class="text-left"><p>Outdoor air per person in l/s. Defaults to 7 l/s according<br>to DIN EN 16798-1, Category II.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>outdoor_air_per_area</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>0.7</p></td>
+<td class="text-left"><p>Outdoor air per floor area in l/s. Defaults to 0.7 l/(s m2)<br>according to DIN EN 16798-1, Category II for low emission<br>buildings.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>residential</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Choose True to use residential settings for natural<br>ventilation (DIN4108-2), False for non-residential houses.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>natural_ventilation_approach</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘Simple’</p></td>
+<td class="text-left"><p>Choose calculation approach for natural ventilation.</p></td>
+<td class="text-left"><p>‘Simple’: use simplified ventilation based on TEASER templates.<br>’DIN4108’: use DIN4108-2 for natural ventilation.</p></td>
 </tr>
 </tbody>
 </table>
@@ -443,32 +701,49 @@ different simulation types.</p>
 <h3>ComfortSimSettings<a class="headerlink" href="#comfortsimsettings" title="Permalink to this heading"></a></h3>
 <table class="docutils align-default" id="id1">
 <thead>
-<tr class="row-odd"><th class="head"><p>Setting Name</p></th>
-<th class="head"><p>Type</p></th>
-<th class="head"><p>Default</p></th>
-<th class="head"><p>Description</p></th>
+<tr class="row-odd"><th class="head text-left"><p>Setting Name</p></th>
+<th class="head text-left"><p>Type</p></th>
+<th class="head text-left"><p>Default</p></th>
+<th class="head text-left"><p>Description</p></th>
+<th class="head text-left"><p>Choices</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>prj_use_conditions</p></td>
-<td><p>[Path]</p></td>
-<td><p>‘UseConditionsComfort.json’ in PluginComfort</p></td>
-<td><p>Path to a custom UseConditions.json for the comfort application.</p></td>
+<tr class="row-even"><td class="text-left"><p>prj_use_conditions</p></td>
+<td class="text-left"><p>Path</p></td>
+<td class="text-left"><p>[Path]</p></td>
+<td class="text-left"><p>Path to a custom UseConditions.json for the specific comfort<br>application. These use conditions have comfort-based use<br>conditions as a default.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>use_dynamic_clothing</p></td>
-<td><p>Boolean</p></td>
-<td><p>False</p></td>
-<td><p>Use dynamic clothing according to ASHRAE 55 standard.</p></td>
+<tr class="row-odd"><td class="text-left"><p>use_dynamic_clothing</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Use dynamic clothing according to ASHRAE 55 standard.</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-even"><td><p>rename_plot_keys</p></td>
-<td><p>Boolean</p></td>
-<td><p>False</p></td>
-<td><p>Rename the space names for optimized plotting results. By default, rename_plot_keys.json file is used for renaming, unless rename_plot_keys_path is specified.</p></td>
+<tr class="row-even"><td class="text-left"><p>rename_plot_keys</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Rename room names for plot results</p></td>
+<td class="text-left"><p></p></td>
 </tr>
-<tr class="row-odd"><td><p>rename_plot_keys_path</p></td>
-<td><p>[Path]</p></td>
-<td><p>‘rename_plot_keys.json’ in PluginComfort</p></td>
-<td><p>Path for renaming the zone keys for plot results. Path to a json file with pairs of current keys and new keys.</p></td>
+<tr class="row-odd"><td class="text-left"><p>rename_plot_keys_path</p></td>
+<td class="text-left"><p>Path</p></td>
+<td class="text-left"><p>[Path]</p></td>
+<td class="text-left"><p>Path for renaming the zone keys for plot results. Path to a<br>json file with pairs of current keys and new keys.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>comfort_occupancy_weighting</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Weight the comfort rating by occupancy schedules.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>plot_zone_usages</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>[]</p></td>
+<td class="text-left"><p>Choose string patterns of zone usages for evaluation of<br>comfort results (multiple choice). Use empty list to disable<br>choice and plot all usages.</p></td>
+<td class="text-left"><p>‘’: Choose empty string to plot all zones.</p></td>
 </tr>
 </tbody>
 </table>
