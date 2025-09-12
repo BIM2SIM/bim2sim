@@ -1507,44 +1507,8 @@ the model generation process in bim2sim.</p>
 <dt class="sig sig-object py" id="bim2sim.sim_settings.AutoSettingNameMeta">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">AutoSettingNameMeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.AutoSettingNameMeta" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code></p>
-<p>Adds the name to every SimulationSetting attribute based on its instance
+<p>Sets the name to every SimulationSetting attribute based on its instance
 name.</p>
-<p>This makes the definition of an extra attribute ‘name’ obsolete, as the
-attributes ‘name’ is automatic defined based on the instance name.</p>
-<dl>
-<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create new simulation settings for your awesome simulation</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">MyAwesomeSimulationSettings</span><span class="p">(</span><span class="n">BaseSimSettings</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="gp">... </span>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a new simulation setting, name will be taken automatic</span>
-<span class="go">from</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># instance name</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">make_simulation_extra_fast</span> <span class="o">=</span> <span class="n">Setting</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">choices</span><span class="o">=</span><span class="p">{</span>
-<span class="go">    ...         True: &#39;This simulation will be incredible fast.&#39;,</span>
-<span class="go">    ...         False: &#39;This simulation will be increbdile slow.&#39;</span>
-<span class="go">    ...     },</span>
-<span class="go">    ...     description=&#39;Run the simulation in extra fast mode?&#39;,</span>
-<span class="go">    ...     for_frontend=True</span>
-<span class="go">    ... )</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a SimulationSettings instance and get the value</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_awesome_settings</span> <span class="o">=</span> <span class="n">MyAwesomeSimulationSettings</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># get initial value which is always none</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">my_awesome_settings</span><span class="o">.</span><span class="n">make_simulation_extra_fast</span><span class="p">)</span>
-<span class="go">None</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># set default values and get the value</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_awesome_settings</span><span class="o">.</span><span class="n">load_default_settings</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">my_awesome_settings</span><span class="o">.</span><span class="n">make_simulation_extra_fast</span><span class="p">)</span>
-<span class="go">True</span>
-</pre></div>
-</div>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py class">
@@ -1970,6 +1934,19 @@ file</p>
 <dt class="sig sig-object py" id="bim2sim.sim_settings.Setting">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">Setting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'set</span> <span class="pre">automatically'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.Setting" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Base class for all simulation settings.
+The attribute value which holds the payload of the setting is introduced in derived classes,
+e.g. NumberSetting(Setting).</p>
+<p>The value which is assigned to the attribute “value”, when instancing the setting, serves
+as a default and can be changed according to the use case, if necessary.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>name: Name of the setting. Is set automatically by AutoSettingNameMeta(type)
+description: description the setting
+for_frontend: should this setting be shown in the frontend
+any_string: any string is allowed instead of a given choice
+mandatory: whether a setting needs to be set</p>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.Setting.any_string">
 <span class="sig-name descname"><span class="pre">any_string</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#bim2sim.sim_settings.Setting.any_string" title="Permalink to this definition"></a></dt>
