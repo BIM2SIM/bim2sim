@@ -16,8 +16,8 @@ def run_example_simple_building_teaser():
     """
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    # ToDo set your project directory here
-    project_path = Path(r"/home/chris/src/bim2sim_up/projects/e1")
+    project_path = Path(tempfile.TemporaryDirectory(
+        prefix='bim2sim_teaser_example_e1_').name)
 
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
@@ -50,9 +50,8 @@ def run_example_simple_building_teaser():
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
     # Run a simulation directly with dymola after model creation
-    project.sim_settings.dymola_simulation = False
-    project.sim_settings.create_plots = False
-
+    project.sim_settings.dymola_simulation = True
+    project.sim_settings.create_plots = True
     # Select results to output:
     project.sim_settings.sim_results = [
         "heat_demand_total", "cool_demand_total",

@@ -8,12 +8,10 @@ import ast
 import os.path
 from typing import Union, Optional, List
 import sys
-
 from pydantic import BaseModel, Field, model_validator, field_validator, FilePath, DirectoryPath
 from pydantic_core import PydanticCustomError
 from typing_extensions import Self
 from enum import Enum
-
 from bim2sim.utilities import types
 from bim2sim.utilities.types import LOD
 from bim2sim.elements.base_elements import Material
@@ -68,7 +66,7 @@ class SettingsManager(dict):
             self[name] = setting
 
             # Store predefined default values in the defaults dict,
-            # so they can be set back to the default later
+            # so they can be set back to their defaults later
             self.defaults[setting.name] = setting.value
 
     @property
@@ -84,12 +82,13 @@ class SettingsManager(dict):
 
 
 class Setting(BaseModel, validate_assignment=True, validate_default=True):
-    """ Base class for all simulation settings.
-    The attribute value which holds the payload of the setting is introduced in derived classes,
-    e.g. NumberSetting(Setting).
+    """Base class for all simulation settings.
 
-    The value which is assigned to the attribute "value", when instancing the setting, serves
-    as a default and can be changed according to the use case, if necessary.
+    The attribute "value", which contains the payload of the simulation setting, is added in
+    the derived classes for the different data types (e.g. NumberSetting(Setting)).
+
+    The value, which is assigned to the attribute "value", when instancing the setting, serves
+    as a default value and can be changed according to the use case, if necessary.
 
     Args:
         name: Name of the setting. Is set automatically by AutoSettingNameMeta(type)
@@ -106,8 +105,8 @@ class Setting(BaseModel, validate_assignment=True, validate_default=True):
     mandatory: bool = Field(default=False)
 
     def __set__(self, bound_simulation_settings, value):
-        """Creates a new attribute with name and value of the complete setting instance,
-        stored in sim_settings. This makes it easier to access the value of a setting.
+        """Creates a new attribute with the name and value of the simulation setting instance,
+        stored in sim_settings. This makes it easier to access the setting's payload.
         
         Example:
         

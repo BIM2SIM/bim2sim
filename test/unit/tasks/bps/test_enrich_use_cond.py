@@ -54,7 +54,6 @@ class TestEnrichUseConditions(TestTask):
 
     def test_enrichment_sim_setting_without_overwrite(self):
         """Tests enrichment of single office without overwrite via settings."""
-        # Todo (chg-ext): Side effect. Test runs separately, but not in context of the whole class
         print(self.playground.sim_settings.heating_tz_overwrite)
         print(self.playground.sim_settings.cooling_tz_overwrite)
         print(self.playground.sim_settings.ahu_tz_overwrite)

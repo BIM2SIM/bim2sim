@@ -75,7 +75,6 @@ class Playground:
     def __init__(self, project: Project):
         self.project = project
         self.sim_settings = project.plugin_cls.sim_settings()
-
         self.sim_settings.update_from_config(config=project.config)
         self.state = {}
         self.history = []

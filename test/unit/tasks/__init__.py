@@ -51,7 +51,6 @@ class TestTask(unittest.TestCase):
     def tearDown(self) -> None:
         """Clean up after each test method."""
         self.helper.reset()
-        #self.playground.sim_settings.load_default_settings()
         self.playground.sim_settings.load_default_settings()
 
     def run_task(self, answers, reads):

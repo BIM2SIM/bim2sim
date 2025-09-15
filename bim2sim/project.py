@@ -49,7 +49,6 @@ def add_config_section(
                   if not callable(getattr(sim_settings, attr)) and not
                   attr.startswith('__')]
     for attr in attributes:
-        # ToDo (chg-ext): value(defaul) here maybe already overwritten?
         default_value = getattr(sim_settings, attr).value
         if isinstance(default_value, Enum):
             default_value = str(default_value)
@@ -422,7 +421,6 @@ class Project:
             raise AssertionError("Project ist not set correctly!")
 
         self.sim_settings.check_mandatory()
-
         success = False
         if interactive:
             run = self._run_interactive
@@ -506,7 +504,6 @@ class Project:
             self.logger.info(f'Project "{self.name}" finished successful')
 
         # reset sim_settings:
-        # Todo (chg-ext): Why load default settings here
         self.playground.sim_settings.load_default_settings()
         # clean logger
         log.teardown_loggers()
