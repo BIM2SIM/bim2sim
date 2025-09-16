@@ -61,7 +61,8 @@ def wrap_for_md(text: str, width: int = 120) -> str:
     return "<br><br>".join(wrapped_paragraphs)
 
 
-def choices_to_string(choices: Union[dict, list, None]) -> str:
+def choices_to_string(choices: Union[dict, list, None], wrap_width) -> str:
+    s = ""
     if not choices:
         return ""
     if len(choices) > 10 and isinstance(choices, dict):
@@ -70,8 +71,9 @@ def choices_to_string(choices: Union[dict, list, None]) -> str:
         entries = [f"'{k}': {v}" if v else f"{k}" for k, v in choices.items()]
         s = "<br>".join(entries)
     elif isinstance(choices, (list, tuple)):
-        entries = [str(e) for e in choices]
+        entries = [str(f"'{e}'") for e in choices]
         s = ", ".join(entries)
+        s = wrap_for_md(s, wrap_width)
     return s
 
 
@@ -88,7 +90,8 @@ def extract_settings_from_class(cls, wrap_width=60):
             description = wrap_for_md(description, width=wrap_width)
             choices_col = ""
             if isinstance(value, ChoiceSetting):
-                choices_col = choices_to_string(getattr(value, "choices", None))
+                choices_col = choices_to_string(getattr(value, "choices",
+                                                        None), wrap_width)
             rows.append({"Setting Name": name, "Type": stype, "Default":
                         default, "Description": description, "Choices":
                         choices_col})
@@ -118,14 +121,14 @@ if __name__ == "__main__":
         "bim2sim.plugins.PluginComfort.bim2sim_comfort.sim_settings",
         "ComfortSimSettings",
         save_path + "comfort_settings.md")
-    '''settings_to_markdown("bim2sim.sim_settings",
-                         "BaseSimSettings",
-                         save_path + "base_settings.md")
-    settings_to_markdown("bim2sim.sim_settings",
-                         "BuildingSimSettings",
-                         save_path + "building_settings.md")
-    settings_to_markdown(
-        "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.sim_settings",
-        "EnergyPlusSimSettings",
-        save_path + "eplus_settings.md")'''
+    # settings_to_markdown("bim2sim.sim_settings",
+    #                      "BaseSimSettings",
+    #                      save_path + "base_settings.md")
+    # settings_to_markdown("bim2sim.sim_settings",
+    #                      "BuildingSimSettings",
+    #                      save_path + "building_settings.md")
+    # settings_to_markdown(
+    #     "bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.sim_settings",
+    #     "EnergyPlusSimSettings",
+    #     save_path + "eplus_settings.md")
 
