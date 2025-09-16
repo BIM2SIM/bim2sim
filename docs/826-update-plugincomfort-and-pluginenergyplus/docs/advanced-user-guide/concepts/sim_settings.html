@@ -217,28 +217,40 @@ different simulation types.</p>
 <td class="text-left"><p>Reset GlobalIDs from imported IFC if duplicate GlobalIDs<br>occur in the IFC. As EnergyPlus evaluates allGlobalIDs upper<br>case only, this might also be applicable if duplicate non-<br>case-sensitive GlobalIDs occur.</p></td>
 <td class="text-left"><p></p></td>
 </tr>
-<tr class="row-even"><td class="text-left"><p>building_rotation_overwrite</p></td>
+<tr class="row-even"><td class="text-left"><p>weather_file_path</p></td>
+<td class="text-left"><p>Path</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>Path to the weather file that should be used for the<br>simulation. If no path is provided, we will try to get<br>the location from the IFC and download a fitting weather<br>file. For Modelica provide .mos files, for EnergyPlus .epw<br>files. If the format does not fit, we will try to convert.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>building_rotation_overwrite</p></td>
 <td class="text-left"><p>Number</p></td>
 <td class="text-left"><p>0</p></td>
 <td class="text-left"><p>Overwrite the (clockwise) building rotation angle in<br>degrees.</p></td>
 <td class="text-left"><p></p></td>
 </tr>
-<tr class="row-odd"><td class="text-left"><p>add_space_boundaries</p></td>
+<tr class="row-even"><td class="text-left"><p>add_space_boundaries</p></td>
 <td class="text-left"><p>Boolean</p></td>
 <td class="text-left"><p>False</p></td>
 <td class="text-left"><p>Add space boundaries. Only required for building performance<br>simulation and co-simulations.</p></td>
 <td class="text-left"><p></p></td>
 </tr>
-<tr class="row-even"><td class="text-left"><p>correct_space_boundaries</p></td>
+<tr class="row-odd"><td class="text-left"><p>correct_space_boundaries</p></td>
 <td class="text-left"><p>Boolean</p></td>
 <td class="text-left"><p>False</p></td>
 <td class="text-left"><p>Apply geometric correction to space boundaries.</p></td>
 <td class="text-left"><p></p></td>
 </tr>
-<tr class="row-odd"><td class="text-left"><p>close_space_boundary_gaps</p></td>
+<tr class="row-even"><td class="text-left"><p>close_space_boundary_gaps</p></td>
 <td class="text-left"><p>Boolean</p></td>
 <td class="text-left"><p>False</p></td>
 <td class="text-left"><p>Close gaps in the set of space boundaries by adding<br>additional 2b space boundaries.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>stories_to_load_guids</p></td>
+<td class="text-left"><p>GuidList</p></td>
+<td class="text-left"><p>[]</p></td>
+<td class="text-left"><p>List of IFC GUIDs for the specific stories that should be<br>loaded. If empty, all stories will be considered for<br>loading. This setting is useful for large buildings to<br>reduce computational time. Note that loading single storeys<br>may lead to missing ceilings if the related slab is assigned<br>to the storey above, which may require corrections to<br>boundary conditions. It is recommended to include GUIDs of<br>neighboring storeys to reduce boundary condition errors.</p></td>
 <td class="text-left"><p></p></td>
 </tr>
 </tbody>
@@ -291,19 +303,19 @@ different simulation types.</p>
 <td class="text-left"><p>Choice</p></td>
 <td class="text-left"><p>‘iwu_heavy’</p></td>
 <td class="text-left"><p>Select the most fitting construction class type forthe walls<br>of the selected building. For all settings but kfw_* the<br>year of construction is required.</p></td>
-<td class="text-left"><p>iwu_heavy, iwu_light, kfw_40, kfw_55, kfw_70, kfw_85, kfw_100, tabula_de_standard_1_SFH, tabula_de_standard_2_SFH, tabula_de_retrofit_1_SFH, tabula_de_retrofit_2_SFH, tabula_de_adv_retrofit_1_SFH, tabula_de_adv_retrofit_2_SFH, tabula_de_standard_1_TH, tabula_de_standard_2_TH, tabula_de_retrofit_1_TH, tabula_de_retrofit_2_TH, tabula_de_standard_1_MFH, tabula_de_retrofit_1_MFH, tabula_de_adv_retrofit_1_MFH, tabula_de_standard_1_AB, tabula_de_adv_retrofit_1_AB, tabula_de_standard, tabula_dk_standard_1_SFH, tabula_dk_standard_2_SFH, tabula_dk_retrofit_1_SFH, tabula_dk_retrofit_2_SFH, tabula_dk_adv_retrofit_1_SFH, tabula_dk_adv_retrofit_2_SFH, tabula_dk_standard_1_TH, tabula_dk_standard_2_TH, tabula_dk_retrofit_1_TH, tabula_dk_retrofit_2_TH, tabula_dk_adv_retrofit_1_TH, tabula_dk_adv_retrofit_2_TH, tabula_dk_standard_1_AB, tabula_dk_standard_2_AB, tabula_dk_retrofit_1_AB, tabula_dk_retrofit_2_AB, tabula_dk_adv_retrofit_1_AB, tabula_dk_adv_retrofit_2_AB, tabula_dk_standard</p></td>
+<td class="text-left"><p>‘iwu_heavy’, ‘iwu_light’, ‘kfw_40’, ‘kfw_55’, ‘kfw_70’,<br>’kfw_85’, ‘kfw_100’, ‘tabula_de_standard_1_SFH’,<br>’tabula_de_standard_2_SFH’, ‘tabula_de_retrofit_1_SFH’,<br>’tabula_de_retrofit_2_SFH’, ‘tabula_de_adv_retrofit_1_SFH’,<br>’tabula_de_adv_retrofit_2_SFH’, ‘tabula_de_standard_1_TH’,<br>’tabula_de_standard_2_TH’, ‘tabula_de_retrofit_1_TH’,<br>’tabula_de_retrofit_2_TH’, ‘tabula_de_standard_1_MFH’,<br>’tabula_de_retrofit_1_MFH’, ‘tabula_de_adv_retrofit_1_MFH’,<br>’tabula_de_standard_1_AB’, ‘tabula_de_adv_retrofit_1_AB’,<br>’tabula_de_standard’, ‘tabula_dk_standard_1_SFH’,<br>’tabula_dk_standard_2_SFH’, ‘tabula_dk_retrofit_1_SFH’,<br>’tabula_dk_retrofit_2_SFH’, ‘tabula_dk_adv_retrofit_1_SFH’,<br>’tabula_dk_adv_retrofit_2_SFH’, ‘tabula_dk_standard_1_TH’,<br>’tabula_dk_standard_2_TH’, ‘tabula_dk_retrofit_1_TH’,<br>’tabula_dk_retrofit_2_TH’, ‘tabula_dk_adv_retrofit_1_TH’,<br>’tabula_dk_adv_retrofit_2_TH’, ‘tabula_dk_standard_1_AB’,<br>’tabula_dk_standard_2_AB’, ‘tabula_dk_retrofit_1_AB’,<br>’tabula_dk_retrofit_2_AB’, ‘tabula_dk_adv_retrofit_1_AB’,<br>’tabula_dk_adv_retrofit_2_AB’, ‘tabula_dk_standard’</p></td>
 </tr>
 <tr class="row-odd"><td class="text-left"><p>construction_class_windows</p></td>
 <td class="text-left"><p>Choice</p></td>
 <td class="text-left"><p>‘Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach’</p></td>
 <td class="text-left"><p>Select the most fitting construction class type for the<br>windows of the selected building.</p></td>
-<td class="text-left"><p>Holzfenster, zweifach, Kunststofffenster, Isolierverglasung, Alu- oder Stahlfenster, Isolierverglasung, Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach, Waermeschutzverglasung, dreifach, tabula_de_standard_1_SFH, tabula_de_standard_2_SFH, tabula_de_retrofit_1_SFH, tabula_de_retrofit_2_SFH, tabula_de_adv_retrofit_1_SFH, tabula_de_adv_retrofit_2_SFH, tabula_de_standard_1_TH, tabula_de_standard_2_TH, tabula_de_retrofit_1_TH, tabula_de_retrofit_2_TH, tabula_de_standard_1_MFH, tabula_de_retrofit_1_MFH, tabula_de_adv_retrofit_1_MFH, tabula_de_standard_1_AB, tabula_de_adv_retrofit_1_AB, tabula_de_standard, tabula_dk_standard_1_SFH, tabula_dk_standard_2_SFH, tabula_dk_retrofit_1_SFH, tabula_dk_retrofit_2_SFH, tabula_dk_adv_retrofit_1_SFH, tabula_dk_adv_retrofit_2_SFH, tabula_dk_standard_1_TH, tabula_dk_standard_2_TH, tabula_dk_retrofit_1_TH, tabula_dk_retrofit_2_TH, tabula_dk_adv_retrofit_1_TH, tabula_dk_adv_retrofit_2_TH, tabula_dk_standard_1_AB, tabula_dk_standard_2_AB, tabula_dk_retrofit_1_AB, tabula_dk_retrofit_2_AB, tabula_dk_adv_retrofit_1_AB, tabula_dk_adv_retrofit_2_AB, tabula_dk_standard</p></td>
+<td class="text-left"><p>‘Holzfenster, zweifach’, ‘Kunststofffenster,<br>Isolierverglasung’, ‘Alu- oder Stahlfenster,<br>Isolierverglasung’, ‘Alu- oder Stahlfenster,<br>Waermeschutzverglasung, zweifach’, ‘Waermeschutzverglasung,<br>dreifach’, ‘tabula_de_standard_1_SFH’,<br>’tabula_de_standard_2_SFH’, ‘tabula_de_retrofit_1_SFH’,<br>’tabula_de_retrofit_2_SFH’, ‘tabula_de_adv_retrofit_1_SFH’,<br>’tabula_de_adv_retrofit_2_SFH’, ‘tabula_de_standard_1_TH’,<br>’tabula_de_standard_2_TH’, ‘tabula_de_retrofit_1_TH’,<br>’tabula_de_retrofit_2_TH’, ‘tabula_de_standard_1_MFH’,<br>’tabula_de_retrofit_1_MFH’, ‘tabula_de_adv_retrofit_1_MFH’,<br>’tabula_de_standard_1_AB’, ‘tabula_de_adv_retrofit_1_AB’,<br>’tabula_de_standard’, ‘tabula_dk_standard_1_SFH’,<br>’tabula_dk_standard_2_SFH’, ‘tabula_dk_retrofit_1_SFH’,<br>’tabula_dk_retrofit_2_SFH’, ‘tabula_dk_adv_retrofit_1_SFH’,<br>’tabula_dk_adv_retrofit_2_SFH’, ‘tabula_dk_standard_1_TH’,<br>’tabula_dk_standard_2_TH’, ‘tabula_dk_retrofit_1_TH’,<br>’tabula_dk_retrofit_2_TH’, ‘tabula_dk_adv_retrofit_1_TH’,<br>’tabula_dk_adv_retrofit_2_TH’, ‘tabula_dk_standard_1_AB’,<br>’tabula_dk_standard_2_AB’, ‘tabula_dk_retrofit_1_AB’,<br>’tabula_dk_retrofit_2_AB’, ‘tabula_dk_adv_retrofit_1_AB’,<br>’tabula_dk_adv_retrofit_2_AB’, ‘tabula_dk_standard’</p></td>
 </tr>
 <tr class="row-even"><td class="text-left"><p>construction_class_doors</p></td>
 <td class="text-left"><p>Choice</p></td>
 <td class="text-left"><p>‘iwu_typical’</p></td>
 <td class="text-left"><p>Select the most fitting construction class type for the<br>windows of the selected building.</p></td>
-<td class="text-left"><p>iwu_typical, kfw_40, kfw_55, kfw_70, kfw_85, kfw_100, tabula_de_standard_1_SFH, tabula_de_retrofit_1_SFH, tabula_de_adv_retrofit_1_SFH, tabula_de_standard_1_TH, tabula_de_retrofit_1_TH, tabula_de_adv_retrofit_1_TH, tabula_de_standard_1_MFH, tabula_de_retrofit_1_MFH, tabula_de_adv_retrofit_1_MFH, tabula_de_standard_1_AB, tabula_de_retrofit_1_AB, tabula_de_adv_retrofit_1_AB, tabula_dk_standard_1_SFH</p></td>
+<td class="text-left"><p>‘iwu_typical’, ‘kfw_40’, ‘kfw_55’, ‘kfw_70’, ‘kfw_85’,<br>’kfw_100’, ‘tabula_de_standard_1_SFH’,<br>’tabula_de_retrofit_1_SFH’, ‘tabula_de_adv_retrofit_1_SFH’,<br>’tabula_de_standard_1_TH’, ‘tabula_de_retrofit_1_TH’,<br>’tabula_de_adv_retrofit_1_TH’, ‘tabula_de_standard_1_MFH’,<br>’tabula_de_retrofit_1_MFH’, ‘tabula_de_adv_retrofit_1_MFH’,<br>’tabula_de_standard_1_AB’, ‘tabula_de_retrofit_1_AB’,<br>’tabula_de_adv_retrofit_1_AB’, ‘tabula_dk_standard_1_SFH’</p></td>
 </tr>
 <tr class="row-odd"><td class="text-left"><p>heating_tz_overwrite</p></td>
 <td class="text-left"><p>Boolean</p></td>
@@ -323,6 +335,18 @@ different simulation types.</p>
 <td class="text-left"><p>If True, all thermal zones will be provided with AHU,if<br>False no AHU for thermal zones is provided, regardless of<br>information in the IFC or in the use condition file.</p></td>
 <td class="text-left"><p></p></td>
 </tr>
+<tr class="row-even"><td class="text-left"><p>prj_use_conditions</p></td>
+<td class="text-left"><p>Path</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>Path to a custom UseConditions.json for the specific<br>project, that holds custom usage conditions for this<br>project. If this is used, this use_conditions file have to<br>hold all information. The basic UseConditions.json file is<br>ignored in this case.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>prj_custom_usages</p></td>
+<td class="text-left"><p>Path</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>Path to a custom customUsages.json for the specific project,<br>that holds mappings between space names from IFC and usage<br>conditions from UseConditions.json.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
 <tr class="row-even"><td class="text-left"><p>setpoints_from_template</p></td>
 <td class="text-left"><p>Boolean</p></td>
 <td class="text-left"><p>False</p></td>
@@ -337,9 +361,9 @@ different simulation types.</p>
 </tr>
 <tr class="row-even"><td class="text-left"><p>sim_results</p></td>
 <td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>[‘heat_demand_total’, ‘cool_demand_total’, <br>’heat_demand_rooms’, ‘cool_demand_rooms’, <br>’heat_energy_total’, ‘cool_energy_total’, <br>’heat_energy_rooms’, ‘cool_energy_rooms’, <br>’air_temp_out’, ‘operative_temp_rooms’, <br>’air_temp_rooms’, ‘internal_gains_machines_rooms’, <br>’internal_gains_persons_rooms’, ‘internal_gains_lights_rooms’, <br>’n_persons_rooms’, ‘infiltration_rooms’, <br>’mech_ventilation_rooms’, ‘heat_set_rooms’, <br>’cool_set_rooms’]</p></td>
 <td class="text-left"><p></p></td>
-<td class="text-left"><p></p></td>
-<td class="text-left"><p>heat_demand_total, cool_demand_total, heat_demand_rooms, cool_demand_rooms, heat_energy_total, cool_energy_total, heat_energy_rooms, cool_energy_rooms, air_temp_out, operative_temp_rooms, air_temp_rooms,<br>internal_gains_machines_rooms, internal_gains_persons_rooms, internal_gains_lights_rooms, n_persons_rooms, infiltration_rooms, mech_ventilation_rooms, heat_set_rooms, cool_set_rooms</p></td>
+<td class="text-left"><p>‘heat_demand_total’, ‘cool_demand_total’,<br>’heat_demand_rooms’, ‘cool_demand_rooms’,<br>’heat_energy_total’, ‘cool_energy_total’,<br>’heat_energy_rooms’, ‘cool_energy_rooms’, ‘air_temp_out’,<br>’operative_temp_rooms’, ‘air_temp_rooms’,<br>’internal_gains_machines_rooms’,<br>’internal_gains_persons_rooms’,<br>’internal_gains_lights_rooms’, ‘n_persons_rooms’,<br>’infiltration_rooms’, ‘mech_ventilation_rooms’,<br>’heat_set_rooms’, ‘cool_set_rooms’</p></td>
 </tr>
 <tr class="row-odd"><td class="text-left"><p>add_space_boundaries</p></td>
 <td class="text-left"><p>Boolean</p></td>
@@ -542,29 +566,41 @@ different simulation types.</p>
 <td class="text-left"><p>Choose EnergyPlus Version</p></td>
 <td class="text-left"><p>‘9-2-0’: EnergyPlus Version 9-2-0<br>’9-4-0’: EnergyPlus Version 9-4-0<br>’22-2-0’: EnergyPlus Version 22-2-0</p></td>
 </tr>
-<tr class="row-even"><td class="text-left"><p>system_sizing</p></td>
+<tr class="row-even"><td class="text-left"><p>ep_install_path</p></td>
+<td class="text-left"><p>Path</p></td>
+<td class="text-left"><p>\usr\local\EnergyPlus-9-4-0</p></td>
+<td class="text-left"><p>Choose EnergyPlus Installation Path</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>system_sizing</p></td>
 <td class="text-left"><p>Boolean</p></td>
 <td class="text-left"><p>True</p></td>
 <td class="text-left"><p>Whether to do system sizing calculations in EnergyPlus or<br>not.</p></td>
 <td class="text-left"><p></p></td>
 </tr>
-<tr class="row-odd"><td class="text-left"><p>run_for_sizing_periods</p></td>
+<tr class="row-even"><td class="text-left"><p>run_for_sizing_periods</p></td>
 <td class="text-left"><p>Boolean</p></td>
 <td class="text-left"><p>False</p></td>
 <td class="text-left"><p>Whether to run the EnergyPlus simulation for sizing periods<br>or not.</p></td>
 <td class="text-left"><p></p></td>
 </tr>
-<tr class="row-even"><td class="text-left"><p>run_for_weather_period</p></td>
+<tr class="row-odd"><td class="text-left"><p>run_for_weather_period</p></td>
 <td class="text-left"><p>Boolean</p></td>
 <td class="text-left"><p>True</p></td>
 <td class="text-left"><p>Whether to run the EnergyPlus simulation for weather file<br>period or not.</p></td>
 <td class="text-left"><p></p></td>
 </tr>
-<tr class="row-odd"><td class="text-left"><p>system_weather_sizing</p></td>
+<tr class="row-even"><td class="text-left"><p>system_weather_sizing</p></td>
 <td class="text-left"><p>Choice</p></td>
 <td class="text-left"><p>‘Typical’</p></td>
 <td class="text-left"><p>Choose whether to perform the system sizing for DesignDays,<br>extreme weather periods, typical weather periods.<br>Default=Typical (i.e., apply system sizing for typical<br>summer/winter days).</p></td>
 <td class="text-left"><p>‘Typical’: SummerTypical and WinterTypical for system sizing.<br>’Extreme’: SummerExtreme and WinterExtreme for system sizing.<br>’DesignDay’: DesignDay for system sizing. Choose this option if neither SummerExtreme nor SummerTypical days are available in weather file.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>weather_file_for_sizing</p></td>
+<td class="text-left"><p>Path</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>Path to the weather file that should be used for system<br>sizing in EnergyPlus</p></td>
+<td class="text-left"><p></p></td>
 </tr>
 <tr class="row-even"><td class="text-left"><p>enforce_system_sizing</p></td>
 <td class="text-left"><p>Boolean</p></td>
@@ -598,7 +634,7 @@ different simulation types.</p>
 </tr>
 <tr class="row-odd"><td class="text-left"><p>output_keys</p></td>
 <td class="text-left"><p>Choice</p></td>
-<td class="text-left"><p>outdoor_conditions, zone_temperature, zone, infiltration, meters</p></td>
+<td class="text-left"><p>[‘output_outdoor_conditions’, ‘output_zone_temperature’, <br>’output_zone’, ‘output_infiltration’, ‘output_meters’]</p></td>
 <td class="text-left"><p>Choose groups of output variables (multiple choice).</p></td>
 <td class="text-left"><p>‘output_outdoor_conditions’: Add outputs for outdoor conditions.<br>’output_internal_gains’: Add output for internal gains.<br>’output_zone_temperature’: Add output for zone mean and operative temperature.<br>’output_zone’: Add heating and cooling rates and energy on zone level.<br>’output_infiltration’: Add output for zone infiltration.<br>’output_meters’: Add heating and cooling meters.<br>’output_dxf’: Output a dxf of the building geometry.</p></td>
 </tr>
