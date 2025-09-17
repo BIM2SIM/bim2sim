@@ -246,13 +246,14 @@ Not all plugins are at the same level of development. Following, we give an
 overview about the current development process and what works and what notin the
 following table.
 
-| **Plugin** | **Domain** | **Model Generation** | **Comment**                        | **Export** | **Comment**                    | **Simulation** | **Comment**                       |
-|------------|------------|----------------------|------------------------------------|------------|--------------------------------|----------------|-----------------------------------|
-| AixLib     | HVAC       | Working              | improvements aggregations needed   | Working    |                                | Not working    | Modelica models not published yet |
-| EnergyPlus | BPS        | Working              |                                    | Working    |                                |                |                                   |
-| TEASER     | BPS        | Working              |                                    | Working    |                                |                |                                   |
-| LCA        | LCA        | -                    | no model                           | Working    | improvements IfcWindows needed | -              | no simulation                     |
-| CFD        | CFD        | -                    | no model                           | Working    | documentation missing          | -              | no simulation                     |
+| **Plugin** | **Domain** | **Model Generation** | **Comment**                      | **Export** | **Comment**                    | **Simulation** | **Comment**                       |
+|------------|------------|----------------------|----------------------------------|------------|--------------------------------|----------------|-----------------------------------|
+| AixLib     | HVAC       | Working              | improvements aggregations needed | Working    |                                | Not working    | Modelica models not published yet |
+| EnergyPlus | BPS        | Working              |                                  | Working    |                                |                |                                   |
+| TEASER     | BPS        | Working              |                                  | Working    |                                |                |                                   |
+| LCA        | LCA        | -                    | no model                         | Working    | improvements IfcWindows needed | -              | no simulation                     |
+| CFD        | CFD        | -                    | no model                         | Working    | documentation missing          | -              | no simulation                     |
+| OpenFOAM   | CFD        | -                    | no model                         | Working    |                                | Working        | must be run externally            |
 
 ## Compatibility
 For the Plugins that export a simulation model, following the listed compatible 
@@ -260,9 +261,10 @@ versions and branches are listed, which our Plugins are compatible with at the
 moment.
 
 | **Plugin**     | **Repository** | **version/branch** |
-|----------------|------------|----------------|
-| **TEASER**     | AixLib     | `development`  |
-|                | TEASER     | `development`  |
-| **EnergyPlus** | EnergyPlus | `9.4.0`    | m
+|----------------|----------------|--------------------|
+| **TEASER**     | AixLib         | `development`      |
+|                | TEASER         | `development`      |
+| **EnergyPlus** | EnergyPlus     | `9.4.0`            |
+| **OpenFOAM**   | OpenFOAM       | `v2206`            |m
 
 
