@@ -2,7 +2,7 @@
 
 In order to create proper documentation for a module containing a class of 
 SimSettings, a script for automatically converting such a class to Markdown 
-tables is provided in `bim2sim/utilities/settings_to_md.`.
+tables is provided in `bim2sim/docs/utilities/settings_to_md.py`.
 
 To run the script, one can either provide the module name or the path to 
 the file as well as the class name. After setting a path for the outputs, 
