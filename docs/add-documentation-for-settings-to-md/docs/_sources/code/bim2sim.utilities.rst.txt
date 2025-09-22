@@ -33,14 +33,6 @@ bim2sim.utilities.pyocc\_tools module
    :undoc-members:
    :show-inheritance:
 
-bim2sim.utilities.settings\_to\_md module
------------------------------------------
-
-.. automodule:: bim2sim.utilities.settings_to_md
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 bim2sim.utilities.svg\_utils module
 -----------------------------------
 

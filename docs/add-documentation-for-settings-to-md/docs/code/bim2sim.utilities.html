@@ -790,60 +790,6 @@ cut_shapes: list of TopoDS_Shape</p>
 </dd></dl>
 
 </section>
-<section id="module-bim2sim.utilities.settings_to_md">
-<span id="bim2sim-utilities-settings-to-md-module"></span><h2>bim2sim.utilities.settings_to_md module<a class="headerlink" href="#module-bim2sim.utilities.settings_to_md" title="Permalink to this heading"></a></h2>
-<p>Simple script for automatically creating Markdown-tables for the
-documentation of SimSettings in
-bim2sim/docs/source/advanced-user-guide/concepts/sim_settings.md . To run the
-script, please specify a base path for where to save the Markdown table files
-for each SimSetting class (Base / Building/ PluginEnergyPlus / PluginComfort).</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="bim2sim.utilities.settings_to_md.choices_to_string">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.settings_to_md.</span></span><span class="sig-name descname"><span class="pre">choices_to_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">choices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wrap_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#bim2sim.utilities.settings_to_md.choices_to_string" title="Permalink to this definition"></a></dt>
-<dd><p>Convert a dictionary or list of Choices for a SimSetting to a string
-for Markdown-tables. If there are more than 10 settings, the short
-description of each choice is not adopted.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="bim2sim.utilities.settings_to_md.extract_settings_from_class">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.settings_to_md.</span></span><span class="sig-name descname"><span class="pre">extract_settings_from_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cls</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wrap_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.settings_to_md.extract_settings_from_class" title="Permalink to this definition"></a></dt>
-<dd><p>Extract all Settings of a SimSetting class <cite>cls</cite> and put the
-properties Setting Name, Type, Default, Description and Choices in to a
-list.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="bim2sim.utilities.settings_to_md.load_module">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.settings_to_md.</span></span><span class="sig-name descname"><span class="pre">load_module</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.settings_to_md.load_module" title="Permalink to this definition"></a></dt>
-<dd><p>Load a module within bim2sim containing SimSettings either from the
-module name or from a file path and return it.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="bim2sim.utilities.settings_to_md.settings_to_markdown">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.settings_to_md.</span></span><span class="sig-name descname"><span class="pre">settings_to_markdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">class_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_md</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'settings.md'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wrap_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.settings_to_md.settings_to_markdown" title="Permalink to this definition"></a></dt>
-<dd><p>Generate a markdown table for settings defined in <cite>class_name</cite> found in
-<cite>source</cite>. <cite>source</cite> can be a dotted module name (e.g.”bim2sim.sim_settings”)
-or a path to a .py file. Save table to output.md file with text wrapping in
-the <cite>Description</cite> and <cite>Choices</cite> columns after wrap_width characters.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="bim2sim.utilities.settings_to_md.simplify_type_name">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.settings_to_md.</span></span><span class="sig-name descname"><span class="pre">simplify_type_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">setting_obj</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#bim2sim.utilities.settings_to_md.simplify_type_name" title="Permalink to this definition"></a></dt>
-<dd><p>Simplify SimSetting type to shorter names as strings for <cite>Type</cite>
-column.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="bim2sim.utilities.settings_to_md.wrap_for_md">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.settings_to_md.</span></span><span class="sig-name descname"><span class="pre">wrap_for_md</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#bim2sim.utilities.settings_to_md.wrap_for_md" title="Permalink to this definition"></a></dt>
-<dd><p>Wrap longer texts in the Description or Choices column after <cite>width</cite>
-characters for better readability.</p>
-</dd></dl>
-
-</section>
 <section id="module-bim2sim.utilities.svg_utils">
 <span id="bim2sim-utilities-svg-utils-module"></span><h2>bim2sim.utilities.svg_utils module<a class="headerlink" href="#module-bim2sim.utilities.svg_utils" title="Permalink to this heading"></a></h2>
 <dl class="py function">
