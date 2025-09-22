@@ -1,0 +1,735 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PluginOpenFOAM &mdash; bim2sim  0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs"></script>
+      <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.1.4/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">
+import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+window.addEventListener("load", () => mermaid.run());
+</script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="General hints and howtos" href="User_hints.html" />
+    <link rel="prev" title="PluginLCA" href="PluginLCA.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/b2s_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../user-guide.html">User-Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="PluginTemplate.html">PluginTemplate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginTEASER.html">PluginTEASER</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginEnergyPlus.html">PluginEnergyPlus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginComfort.html">PluginComfort</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginAixLib.html">PluginAixLib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginHKESim.html">PluginHKESim</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginLCA.html">PluginLCA</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">PluginOpenFOAM</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-install">How to install?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#step-by-step">Step by step</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#trouble-shooting">Trouble Shooting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#test-install">Test install</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#structure-of-the-plugin">Structure of the plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-create-a-project">How to create a project?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-configure-my-project">How to configure my project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#simulation-settings">Simulation settings</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#default-tasks">Default tasks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#openfoam-specific-tasks">OpenFOAM specific tasks</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#initialize-openfoam-setup">Initialize OpenFOAM setup</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#set-openfoam-boundary-conditions">Set OpenFOAM Boundary Conditions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#create-openfoam-geometry">Create OpenFOAM Geometry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#create-openfoam-meshing">Create OpenFOAM Meshing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-meshing">Run Meshing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#run-simulation">Run Simulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#add-openfoam-comfort">Add OpenFOAM Comfort</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#additional-templates">Additional templates</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-run-the-simulation">How to run the simulation?</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-analyze-the-project">How to analyze the project?</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#what-kind-of-results-exist">What kind of results exist?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#what-programs-tools-to-use-for-further-analysis">What programs/tools to use for further analysis?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="User_hints.html">General hints and howtos</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced-user-guide.html">Advanced User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer-guide.html">Developer-Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../code/modules.html">bim2sim</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">bim2sim </a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../user-guide.html">User-Guide</a></li>
+      <li class="breadcrumb-item active">PluginOpenFOAM</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/user-guide/PluginOpenFOAM.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="pluginopenfoam">
+<h1>PluginOpenFOAM<a class="headerlink" href="#pluginopenfoam" title="Permalink to this heading"></a></h1>
+<section id="how-to-install">
+<span id="howtoinstallof"></span><h2>How to install?<a class="headerlink" href="#how-to-install" title="Permalink to this heading"></a></h2>
+<section id="step-by-step">
+<h3>Step by step<a class="headerlink" href="#step-by-step" title="Permalink to this heading"></a></h3>
+<p>To install <code class="docutils literal notranslate"><span class="pre">PluginOpenFOAM</span></code>: you need to do the following
+(in the root directory of the repo, here is the pyproject.toml file)</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;.[PluginOpenFOAM]&#39;</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="PluginTemplate.html#coreinstalltion"><span class="std std-ref">bim2sim core installation</span></a> as well as the
+<a class="reference internal" href="PluginEnergyPlus.html#howtoinstallep"><span class="std std-ref">installation of the EnergyPlus plugin</span></a> needs to be
+done before.</p>
+</section>
+<section id="trouble-shooting">
+<h3>Trouble Shooting<a class="headerlink" href="#trouble-shooting" title="Permalink to this heading"></a></h3>
+<p>For python &gt; 3.9: make sure that the correct geomeppy is installed (using requirements.txt in the plugin): in this fork of geomeppy, we fixed the imports working from python &gt;= 3.10: https://github.com/BIM2SIM/geomeppy/tree/fix_dependencies</p>
+</section>
+<section id="test-install">
+<h3>Test install<a class="headerlink" href="#test-install" title="Permalink to this heading"></a></h3>
+<p>To test the installation, open a Python Interactive Shell and try importing
+the module: <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">bim2sim.plugins.PluginOpenFOAM</span></code></p>
+</section>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
+<p>Please also take a look at
+<code class="docutils literal notranslate"><span class="pre">bim2sim/plugins/PluginOpenFOAM/bim2sim_openfoam/examples</span></code>, which provides
+some runnable examples for the OpenFOAM plugin. You can use these examples to
+test your installation and learn from them. Additionally, they serve as good starting
+points for your own projects.</p>
+</section>
+<section id="structure-of-the-plugin">
+<h2>Structure of the plugin<a class="headerlink" href="#structure-of-the-plugin" title="Permalink to this heading"></a></h2>
+<p>The following figure shows the structure of the OpenFOAM plugin. Here you see
+which tasks are used and how they are combined.</p>
+<!--- 
+the following code is pasted from the a file from /bim2sim/docs/source/img/dynamic/plugindiagram
+this figure is generated by the function generate_plugin_structure_fig in file template_mermaid.py
+-->
+<p>(Hint: firefox has issue display mermaid figures completely, for more infos see
+issue <a class="reference external" href="https://github.com/BIM2SIM/bim2sim/issues/766">#766</a>)</p>
+<details>
+<summary>Mermaid Figure</summary>
+<pre  class="mermaid">
+        ---
+title: plugin openfoam
+---
+flowchart TB
+    
+subgraph taskLoadIFC[&quot;task LoadIFC&quot;]
+ subgraph &quot;&quot; 
+
+  tLoadIFC[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ LoadIFC&quot;]
+  extLoadIFC(&quot; Load all IFC files from PROJECT. &quot; )
+ end
+
+stateLoadIFC[(&quot;state
+ (reads/touches)&quot;)]
+    
+tLoadIFC -- ifc_files --&gt; stateLoadIFC
+
+end
+    
+subgraph taskCreateElementsOnIfcTypes[&quot;task CreateElementsOnIfcTypes&quot;]
+ subgraph &quot;&quot; 
+
+  tCreateElementsOnIfcTypes[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ CreateElementsOnIfcTypes&quot;]
+  extCreateElementsOnIfcTypes(&quot; Create bim2sim elements based on information of
+IFC types. &quot; )
+ end
+
+stateCreateElementsOnIfcTypes[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCreateElementsOnIfcTypes -- ifc_files --&gt; tCreateElementsOnIfcTypes
+
+tCreateElementsOnIfcTypes -- elements, _initial_elements, ifc_files --&gt; stateCreateElementsOnIfcTypes
+
+end
+    
+subgraph taskCreateSpaceBoundaries[&quot;task CreateSpaceBoundaries&quot;]
+ subgraph &quot;&quot; 
+
+  tCreateSpaceBoundaries[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ CreateSpaceBoundaries&quot;]
+  extCreateSpaceBoundaries(&quot; Create space boundary elements from ifc. &quot; )
+ end
+
+stateCreateSpaceBoundaries[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCreateSpaceBoundaries -- ifc_files, elements --&gt; tCreateSpaceBoundaries
+direction RL
+end
+    
+subgraph taskAddSpaceBoundaries2B[&quot;task AddSpaceBoundaries2B&quot;]
+ subgraph &quot;&quot; 
+
+  tAddSpaceBoundaries2B[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ AddSpaceBoundaries2B&quot;]
+  extAddSpaceBoundaries2B(&quot; Fill gaps in set of space boundary per space with
+2B space boundaries. &quot; )
+ end
+
+stateAddSpaceBoundaries2B[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateAddSpaceBoundaries2B -- elements --&gt; tAddSpaceBoundaries2B
+
+tAddSpaceBoundaries2B -- elements --&gt; stateAddSpaceBoundaries2B
+
+end
+    
+subgraph taskCorrectSpaceBoundaries[&quot;task CorrectSpaceBoundaries&quot;]
+ subgraph &quot;&quot; 
+
+  tCorrectSpaceBoundaries[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ CorrectSpaceBoundaries&quot;]
+  extCorrectSpaceBoundaries(&quot; Advanced geometric preprocessing for Space
+Boundaries. &quot; )
+ end
+
+stateCorrectSpaceBoundaries[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCorrectSpaceBoundaries -- elements --&gt; tCorrectSpaceBoundaries
+direction RL
+end
+    
+subgraph taskCreateRelations[&quot;task CreateRelations&quot;]
+ subgraph &quot;&quot; 
+
+  tCreateRelations[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ CreateRelations&quot;]
+  extCreateRelations(&quot; Relations of elements, run() method holds detailed
+information. &quot; )
+ end
+
+stateCreateRelations[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCreateRelations -- elements --&gt; tCreateRelations
+direction RL
+end
+    
+subgraph taskDisaggregationCreationAndTypeCheck[&quot;task DisaggregationCreationAndTypeCheck&quot;]
+ subgraph &quot;&quot; 
+
+  tDisaggregationCreationAndTypeCheck[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ DisaggregationCreationAndTypeCheck&quot;]
+  extDisaggregationCreationAndTypeCheck(&quot; Disaggregation of elements, run() method holds
+detailed information. &quot; )
+ end
+
+stateDisaggregationCreationAndTypeCheck[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateDisaggregationCreationAndTypeCheck -- elements --&gt; tDisaggregationCreationAndTypeCheck
+direction RL
+end
+    
+subgraph taskEnrichMaterial[&quot;task EnrichMaterial&quot;]
+ subgraph &quot;&quot; 
+
+  tEnrichMaterial[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ EnrichMaterial&quot;]
+  extEnrichMaterial(&quot; Enriches material properties that were recognized
+as invalid LOD. &quot; )
+ end
+
+stateEnrichMaterial[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateEnrichMaterial -- elements --&gt; tEnrichMaterial
+direction RL
+end
+    
+subgraph taskEnrichUseConditions[&quot;task EnrichUseConditions&quot;]
+ subgraph &quot;&quot; 
+
+  tEnrichUseConditions[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ EnrichUseConditions&quot;]
+  extEnrichUseConditions(&quot; Enriches Use Conditions of thermal zones based on
+decisions and translation of zone names. &quot; )
+ end
+
+stateEnrichUseConditions[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateEnrichUseConditions -- elements --&gt; tEnrichUseConditions
+direction RL
+end
+    
+subgraph taskWeather[&quot;task Weather&quot;]
+ subgraph &quot;&quot; 
+
+  tWeather[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ Weather&quot;]
+  extWeather(&quot; Task to get the weather file for later simulation. &quot; )
+ end
+
+stateWeather[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateWeather -- elements --&gt; tWeather
+
+tWeather -- weather_file --&gt; stateWeather
+
+end
+    
+subgraph taskCreateIdf[&quot;task CreateIdf&quot;]
+ subgraph &quot;&quot; 
+
+  tCreateIdf[&quot;bim2sim &gt; plugins &gt; PluginEnergyPlus &gt; 
+bim2sim_energyplus &gt; task &gt;  
+ CreateIdf&quot;]
+  extCreateIdf(&quot; Create an EnergyPlus Input file. &quot; )
+ end
+
+stateCreateIdf[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCreateIdf -- elements, weather_file --&gt; tCreateIdf
+
+tCreateIdf -- idf, sim_results_path --&gt; stateCreateIdf
+
+end
+    
+subgraph taskComfortSettings[&quot;task ComfortSettings&quot;]
+ subgraph &quot;&quot; 
+
+  tComfortSettings[&quot;bim2sim &gt; plugins &gt; PluginComfort &gt; 
+bim2sim_comfort &gt; task &gt;  
+ ComfortSettings&quot;]
+  extComfortSettings(&quot;  Create Comfort Settings for an EnergyPlus Input
+file. &quot; )
+ end
+
+stateComfortSettings[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateComfortSettings -- elements, idf, sim_results_path --&gt; tComfortSettings
+
+tComfortSettings -- idf --&gt; stateComfortSettings
+
+end
+    
+subgraph taskSerializeElements[&quot;task SerializeElements&quot;]
+ subgraph &quot;&quot; 
+
+  tSerializeElements[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ SerializeElements&quot;]
+  extSerializeElements(&quot; Serialize element structure, run() method holds
+detailed information. &quot; )
+ end
+
+stateSerializeElements[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateSerializeElements -- elements --&gt; tSerializeElements
+
+tSerializeElements -- serialized_elements --&gt; stateSerializeElements
+
+end
+    
+subgraph taskRunEnergyPlusSimulation[&quot;task RunEnergyPlusSimulation&quot;]
+ subgraph &quot;&quot; 
+
+  tRunEnergyPlusSimulation[&quot;bim2sim &gt; plugins &gt; PluginEnergyPlus &gt; 
+bim2sim_energyplus &gt; task &gt;  
+ RunEnergyPlusSimulation&quot;]
+  extRunEnergyPlusSimulation(&quot; Run EnergyPlus simulation. &quot; )
+ end
+
+stateRunEnergyPlusSimulation[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateRunEnergyPlusSimulation -- idf, sim_results_path --&gt; tRunEnergyPlusSimulation
+direction RL
+end
+    
+subgraph taskInitializeOpenFOAMSetup[&quot;task InitializeOpenFOAMSetup&quot;]
+ subgraph &quot;&quot; 
+
+  tInitializeOpenFOAMSetup[&quot;bim2sim &gt; plugins &gt; PluginOpenFOAM &gt; 
+bim2sim_openfoam &gt; task &gt;  
+ InitializeOpenFOAMSetup&quot;]
+  extInitializeOpenFOAMSetup(&quot; This ITask initializes the OpenFOAM Setup. &quot; )
+ end
+
+stateInitializeOpenFOAMSetup[(&quot;state
+ (reads/touches)&quot;)]
+    
+tInitializeOpenFOAMSetup -- openfoam_case --&gt; stateInitializeOpenFOAMSetup
+
+end
+    
+subgraph taskCreateOpenFOAMGeometry[&quot;task CreateOpenFOAMGeometry&quot;]
+ subgraph &quot;&quot; 
+
+  tCreateOpenFOAMGeometry[&quot;bim2sim &gt; plugins &gt; PluginOpenFOAM &gt; 
+bim2sim_openfoam &gt; task &gt;  
+ CreateOpenFOAMGeometry&quot;]
+  extCreateOpenFOAMGeometry(&quot; This ITask initializes the OpenFOAM Geometry. &quot; )
+ end
+
+stateCreateOpenFOAMGeometry[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCreateOpenFOAMGeometry -- openfoam_case, elements --&gt; tCreateOpenFOAMGeometry
+
+tCreateOpenFOAMGeometry -- openfoam_case, openfoam_elements --&gt; stateCreateOpenFOAMGeometry
+
+end
+    
+subgraph taskAddOpenFOAMComfort[&quot;task AddOpenFOAMComfort&quot;]
+ subgraph &quot;&quot; 
+
+  tAddOpenFOAMComfort[&quot;bim2sim &gt; plugins &gt; PluginOpenFOAM &gt; 
+bim2sim_openfoam &gt; task &gt;  
+ AddOpenFOAMComfort&quot;]
+  extAddOpenFOAMComfort(&quot; This ITask adds the openfoam comfort settings. &quot; )
+ end
+
+stateAddOpenFOAMComfort[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateAddOpenFOAMComfort -- openfoam_case --&gt; tAddOpenFOAMComfort
+direction RL
+end
+    
+subgraph taskCreateOpenFOAMMeshing[&quot;task CreateOpenFOAMMeshing&quot;]
+ subgraph &quot;&quot; 
+
+  tCreateOpenFOAMMeshing[&quot;bim2sim &gt; plugins &gt; PluginOpenFOAM &gt; 
+bim2sim_openfoam &gt; task &gt;  
+ CreateOpenFOAMMeshing&quot;]
+  extCreateOpenFOAMMeshing(&quot; This ITask initializes the OpenFOAM Meshing. &quot; )
+ end
+
+stateCreateOpenFOAMMeshing[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateCreateOpenFOAMMeshing -- openfoam_case, openfoam_elements --&gt; tCreateOpenFOAMMeshing
+
+tCreateOpenFOAMMeshing -- openfoam_case, openfoam_elements --&gt; stateCreateOpenFOAMMeshing
+
+end
+    
+subgraph taskSetOpenFOAMBoundaryConditions[&quot;task SetOpenFOAMBoundaryConditions&quot;]
+ subgraph &quot;&quot; 
+
+  tSetOpenFOAMBoundaryConditions[&quot;bim2sim &gt; plugins &gt; PluginOpenFOAM &gt; 
+bim2sim_openfoam &gt; task &gt;  
+ SetOpenFOAMBoundaryConditions&quot;]
+  extSetOpenFOAMBoundaryConditions(&quot; This ITask initializes the OpenFOAM Setup. &quot; )
+ end
+
+stateSetOpenFOAMBoundaryConditions[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateSetOpenFOAMBoundaryConditions -- openfoam_elements, openfoam_case --&gt; tSetOpenFOAMBoundaryConditions
+
+tSetOpenFOAMBoundaryConditions -- openfoam_case, openfoam_elements --&gt; stateSetOpenFOAMBoundaryConditions
+
+end
+    
+subgraph taskRunOpenFOAMMeshing[&quot;task RunOpenFOAMMeshing&quot;]
+ subgraph &quot;&quot; 
+
+  tRunOpenFOAMMeshing[&quot;bim2sim &gt; plugins &gt; PluginOpenFOAM &gt; 
+bim2sim_openfoam &gt; task &gt;  
+ RunOpenFOAMMeshing&quot;]
+  extRunOpenFOAMMeshing(&quot; This ITask runs the openfoam meshing on linux
+systems. &quot; )
+ end
+
+stateRunOpenFOAMMeshing[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateRunOpenFOAMMeshing -- openfoam_case --&gt; tRunOpenFOAMMeshing
+direction RL
+end
+    
+subgraph taskRunOpenFOAMSimulation[&quot;task RunOpenFOAMSimulation&quot;]
+ subgraph &quot;&quot; 
+
+  tRunOpenFOAMSimulation[&quot;bim2sim &gt; plugins &gt; PluginOpenFOAM &gt; 
+bim2sim_openfoam &gt; task &gt;  
+ RunOpenFOAMSimulation&quot;]
+  extRunOpenFOAMSimulation(&quot; This ITask runs the openfoam simulation on linux
+systems. &quot; )
+ end
+
+stateRunOpenFOAMSimulation[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateRunOpenFOAMSimulation -- openfoam_case --&gt; tRunOpenFOAMSimulation
+direction RL
+end
+    taskLoadIFC --&gt; taskCreateElementsOnIfcTypes 
+taskCreateElementsOnIfcTypes --&gt; taskCreateSpaceBoundaries 
+taskCreateSpaceBoundaries --&gt; taskAddSpaceBoundaries2B 
+taskAddSpaceBoundaries2B --&gt; taskCorrectSpaceBoundaries 
+taskCorrectSpaceBoundaries --&gt; taskCreateRelations 
+taskCreateRelations --&gt; taskDisaggregationCreationAndTypeCheck 
+taskDisaggregationCreationAndTypeCheck --&gt; taskEnrichMaterial 
+taskEnrichMaterial --&gt; taskEnrichUseConditions 
+taskEnrichUseConditions --&gt; taskWeather 
+taskWeather --&gt; taskCreateIdf 
+taskCreateIdf --&gt; taskComfortSettings 
+taskComfortSettings --&gt; taskSerializeElements 
+taskSerializeElements --&gt; taskRunEnergyPlusSimulation 
+taskRunEnergyPlusSimulation --&gt; taskInitializeOpenFOAMSetup 
+taskInitializeOpenFOAMSetup --&gt; taskCreateOpenFOAMGeometry 
+taskCreateOpenFOAMGeometry --&gt; taskAddOpenFOAMComfort 
+taskAddOpenFOAMComfort --&gt; taskCreateOpenFOAMMeshing 
+taskCreateOpenFOAMMeshing --&gt; taskSetOpenFOAMBoundaryConditions 
+taskSetOpenFOAMBoundaryConditions --&gt; taskRunOpenFOAMMeshing 
+taskRunOpenFOAMMeshing --&gt; taskRunOpenFOAMSimulation 
+    </pre><p>This figure is generated by the script template_mermaid.py (see <a class="reference internal" href="../developer-guide/doc-utilities/gen_plugin_visu.html#genvisplugins"><span class="std std-ref">Visualization of bim2sim plugin structure</span></a>).</p>
+</details>
+</section>
+<section id="how-to-create-a-project">
+<h2>How to create a project?<a class="headerlink" href="#how-to-create-a-project" title="Permalink to this heading"></a></h2>
+<p>In order to create a project, first an IFC file and an EnergyPlus Weather
+file path must be specified. Within the building from the IFC file, a
+single room should be chosen through a provided Space GUID. The user can
+decide to add room elements such as heaters, air terminals, furniture or
+people and define simulation and meshing parameters like radiation model,
+steady/transient, grid sizes or simulation time.</p>
+</section>
+<section id="how-to-configure-my-project">
+<h2>How to configure my project?<a class="headerlink" href="#how-to-configure-my-project" title="Permalink to this heading"></a></h2>
+<section id="simulation-settings">
+<h3>Simulation settings<a class="headerlink" href="#simulation-settings" title="Permalink to this heading"></a></h3>
+<p>The main configuration options are provided through the <a class="reference internal" href="../advanced-user-guide/concepts/sim_settings.html#simulation-setting"><span class="std std-ref">Simulation
+Settings</span></a>. The OpenFOAM-specific settings can be found
+<a class="reference internal" href="../advanced-user-guide/concepts/sim_settings.html#openfoam-sim-settings"><span class="std std-ref">here</span></a>.</p>
+</section>
+<section id="default-tasks">
+<h3>Default tasks<a class="headerlink" href="#default-tasks" title="Permalink to this heading"></a></h3>
+<p>The Plugin OpenFOAM uses an IFC-based EnergyPlus simulation to set up and
+export a case for an OpenFOAM simulation. This Plugin includes extending
+the geometric extensions of a specified room. General simulation and
+meshing control settings are set here.</p>
+<p>The Plugin consists of multiple individual tasks that are executed
+consecutively. The default tasks are defined in the PluginOpenFOAM class.
+These consist of some general preparation tasks for the EnergyPlus
+simulation, some OpenFOAM case and geometry initialization tasks and the
+optional CFD simulation tasks, which are only run if specified via the
+SimSettings.</p>
+<p>As a base, the full <a class="reference internal" href="PluginEnergyPlus.html#energyplus-default-tasks"><span class="std std-ref">PluginEnergyPlus</span></a> and the
+<a class="reference internal" href="PluginComfort.html#comfort-default-tasks"><span class="std std-ref">PluginComfort</span></a> are executed without any plotting.
+Then the following OpenFOAM tasks are performed.</p>
+<ul class="simple">
+<li><p>OpenFOAM specific tasks:</p>
+<ul>
+<li><p><a class="reference internal" href="#of-setup"><span class="std std-ref">InitializeOpenFOAMSetup</span></a></p></li>
+<li><p><a class="reference internal" href="#of-bcs"><span class="std std-ref">SetOpenFOAMBoundaryConditions</span></a></p></li>
+<li><p><a class="reference internal" href="#create-of-geometry"><span class="std std-ref">CreateOpenFOAMGeometry</span></a></p></li>
+<li><p><a class="reference internal" href="#create-of-meshing"><span class="std std-ref">CreateOpenFOAMMeshing</span></a></p></li>
+<li><p><a class="reference internal" href="#run-of-meshing"><span class="std std-ref">RunOpenFOAMMeshing</span></a></p></li>
+<li><p><a class="reference internal" href="#run-of-simulation"><span class="std std-ref">RunOpenFOAMSimulation</span></a></p></li>
+<li><p><a class="reference internal" href="#of-comfort"><span class="std std-ref">AddOpenFOAMComfort</span></a></p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="openfoam-specific-tasks">
+<span id="id1"></span><h2>OpenFOAM specific tasks<a class="headerlink" href="#openfoam-specific-tasks" title="Permalink to this heading"></a></h2>
+<section id="initialize-openfoam-setup">
+<h3>Initialize OpenFOAM setup<a class="headerlink" href="#initialize-openfoam-setup" title="Permalink to this heading"></a></h3>
+<p id="of-setup"><a class="reference internal" href="#InitializeOpenFOAMSetup"><span class="xref myst">Go to InitializeOpenFOAMSetup</span></a></p>
+<p>Every OpenFOAM simulation requires a base case that is later modified based
+on the SimSettings. This base case is initialized in this task.</p>
+</section>
+<section id="set-openfoam-boundary-conditions">
+<h3>Set OpenFOAM Boundary Conditions<a class="headerlink" href="#set-openfoam-boundary-conditions" title="Permalink to this heading"></a></h3>
+<p id="of-bcs"><a class="reference internal" href="#SetOpenFOAMBoundaryConditions"><span class="xref myst">Go to SetOpenFOAMBoundaryConditions</span></a></p>
+<p>In this task, the Boundary Conditions of the OpenFOAM case are modified
+based on the previously run EnergyPlus Simulation and the SimSettings. This
+includes radiation properties, initial temperatures and heat balances and
+solver specific properties.</p>
+</section>
+<section id="create-openfoam-geometry">
+<h3>Create OpenFOAM Geometry<a class="headerlink" href="#create-openfoam-geometry" title="Permalink to this heading"></a></h3>
+<p id="create-of-geometry"><a class="reference internal" href="#CreateOpenFOAMGeometry"><span class="xref myst">Go to CreateOpenFOAMGeometry</span></a></p>
+<p>This task initializes the geometry of the OpenFOAM case by using the
+selected Space GUID from the specified IFC-file and adding additional
+elements (heating, air terminals, furniture, people) if chosen via the
+SimSettings. This step results in an export of the geometry to the STL-format.</p>
+</section>
+<section id="create-openfoam-meshing">
+<h3>Create OpenFOAM Meshing<a class="headerlink" href="#create-openfoam-meshing" title="Permalink to this heading"></a></h3>
+<p id="create-of-meshing"><a class="reference internal" href="#CreateOpenFOAMMeshing"><span class="xref myst">Go to CreateOpenFOAMMeshing</span></a></p>
+<p>This task is performed after creating the geometry and sets up the mesh
+properties and sections. First, parameters and boundaries for the blockMesh
+are set. Then the snappyHexMesh parameters are set, which includes defining
+refinement zones and levels around the walls and more complex geometries.</p>
+</section>
+<section id="run-meshing">
+<h3>Run Meshing<a class="headerlink" href="#run-meshing" title="Permalink to this heading"></a></h3>
+<p id="run-of-meshing"><a class="reference internal" href="#RunOpenFOAMMeshing"><span class="xref myst">Go to RunOpenFOAMMeshing</span></a></p>
+<p>For Linux-based devices, this task can automatically start the meshing step
+of the OpenFOAM simulation. This requires an existing OpenFOAM installation
+of v2206 or newer and usually takes about 5 - 20 minutes depending on the
+number of cores.</p>
+</section>
+<section id="run-simulation">
+<h3>Run Simulation<a class="headerlink" href="#run-simulation" title="Permalink to this heading"></a></h3>
+<p id="run-of-simulation"><a class="reference internal" href="#RunOpenFOAMSimulation"><span class="xref myst">Go to RunOpenFOAMSimulation</span></a></p>
+<p>For Linux-based devices, this task can automatically start the OpenFOAM
+simulation. This requires an existing OpenFOAM installation
+of v2206 or newer and usually takes several hours, highly depending on the
+number of cores, iterations and geometry complexity.</p>
+</section>
+<section id="add-openfoam-comfort">
+<h3>Add OpenFOAM Comfort<a class="headerlink" href="#add-openfoam-comfort" title="Permalink to this heading"></a></h3>
+<p id="of-comfort"><a class="reference internal" href="#AddOpenFOAMComfort"><span class="xref myst">Go to AddOpenFOAMComfort</span></a></p>
+<p>This task adds output parameters to the OpenFOAM output dictionaries which
+enable the evaluation of local thermal comfort in the simulated room.</p>
+</section>
+<section id="additional-templates">
+<h3>Additional templates<a class="headerlink" href="#additional-templates" title="Permalink to this heading"></a></h3>
+<p>Some of the <a class="reference internal" href="../advanced-user-guide/concepts/sim_settings.html#openfoam-sim-settings"><span class="std std-ref">OpenFOAM-specific SimSettings</span></a> add
+additional elements to the simulated room such as heating, specific
+ventilation in-/outlets, furniture or people. The base stl-files for these
+can be found in <code class="docutils literal notranslate"><span class="pre">bimsim/plugins/PluginOpenFOAM/bim2sim_openfoam/assets</span> <span class="pre">/geometry</span></code>.</p>
+</section>
+</section>
+<section id="how-to-run-the-simulation">
+<h2>How to run the simulation?<a class="headerlink" href="#how-to-run-the-simulation" title="Permalink to this heading"></a></h2>
+<p>If you are working on a linux system, you may decide to run the
+simulation immediately on your device. Otherwise, you can move the
+exported OpenFOAM case onto an adequate system with OpenFOAM/v2206 or newer to
+run the simulation through one of the provided scripts.</p>
+</section>
+<section id="how-to-analyze-the-project">
+<h2>How to analyze the project?<a class="headerlink" href="#how-to-analyze-the-project" title="Permalink to this heading"></a></h2>
+<section id="what-kind-of-results-exist">
+<h3>What kind of results exist?<a class="headerlink" href="#what-kind-of-results-exist" title="Permalink to this heading"></a></h3>
+<p>The main result of a PluginOpenFOAM simulation is an OpenFOAM case. This is
+a folder that typically consists of 3 subfolders:</p>
+<ul class="simple">
+<li><p>0: defines initial conditions for the simulation</p></li>
+<li><p>constant: defines boundary conditions and solver-specific constants</p></li>
+<li><p>system: defines the geometry, simulation and meshing settings</p></li>
+</ul>
+<p>Additionally, the exported folder provides some scripts for running the
+OpenFOAM simulation on a compute cluster with several cores.</p>
+<p>After running the simulation using OpenFOAM/v2206 or newer, you can take a
+look at the results using Paraview. Here, the most relevant variables are
+usually the temperature and velocity distribution.</p>
+</section>
+<section id="what-programs-tools-to-use-for-further-analysis">
+<h3>What programs/tools to use for further analysis?<a class="headerlink" href="#what-programs-tools-to-use-for-further-analysis" title="Permalink to this heading"></a></h3>
+<p>The provided OpenFOAM case can be simulated using OpenFOAM/v2206 or newer
+versions. For visualizing CFD results, it is recommended to open them in
+Paraview through a .foam-file.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="PluginLCA.html" class="btn btn-neutral float-left" title="PluginLCA" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="User_hints.html" class="btn btn-neutral float-right" title="General hints and howtos" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, RWTH Aachen University, EBC &amp; E3D; ROM Technik GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

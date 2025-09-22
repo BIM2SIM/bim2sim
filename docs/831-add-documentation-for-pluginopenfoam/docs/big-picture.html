@@ -69,6 +69,7 @@ window.addEventListener("load", () => mermaid.run());
 <li class="toctree-l4"><a class="reference internal" href="#control-logic">Control Logic</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#computational-fluid-dynamics-cfd-simulations">Computational Fluid Dynamics (CFD) Simulations</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#what-are-plugins">What are Plugins?</a></li>
@@ -346,6 +347,23 @@ the modelica models and allow the user to model their own controls.</p></li>
 </ol>
 </section>
 </section>
+<section id="computational-fluid-dynamics-cfd-simulations">
+<h3>Computational Fluid Dynamics (CFD) Simulations<a class="headerlink" href="#computational-fluid-dynamics-cfd-simulations" title="Permalink to this heading"></a></h3>
+<p>CFD simulations are used to analyze fluid flow, heat transfer, and indoor air
+distribution in buildings. While Building Performance Simulation (BPS) focuses
+on overall energy balance and system sizing, CFD provides detailed insights
+into local comfort parameters, such as air velocity, temperature stratification,
+and contaminant dispersion. This allows designers to assess the indoor
+environmental quality (IEQ) beyond energy efficiency.</p>
+<p>Typical applications of CFD in building design include:</p>
+<ul class="simple">
+<li><p>Evaluation of thermal comfort in different room setups</p></li>
+<li><p>Optimization of air diffusers</p></li>
+<li><p>Smoke and contaminant dispersion studies</p></li>
+</ul>
+<p>For more information on CFD simulations please take a look at the
+<a class="reference internal" href="simulation-guide/simulation-types.html#simtype-cfd"><span class="std std-ref">Simulation Types</span></a>.</p>
+</section>
 </section>
 <section id="what-are-plugins">
 <h2>What are Plugins?<a class="headerlink" href="#what-are-plugins" title="Permalink to this heading"></a></h2>
@@ -415,6 +433,15 @@ following table.</p>
 <td><p>-</p></td>
 <td><p>no simulation</p></td>
 </tr>
+<tr class="row-odd"><td><p>OpenFOAM</p></td>
+<td><p>CFD</p></td>
+<td><p>-</p></td>
+<td><p>no model</p></td>
+<td><p>Working</p></td>
+<td><p></p></td>
+<td><p>Working</p></td>
+<td><p>must be run externally</p></td>
+</tr>
 </tbody>
 </table>
 </section>
@@ -442,6 +469,10 @@ moment.</p>
 <tr class="row-even"><td><p><strong>EnergyPlus</strong></p></td>
 <td><p>EnergyPlus</p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">9.4.0</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>OpenFOAM</strong></p></td>
+<td><p>OpenFOAM</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">v2206</span></code></p></td>
 </tr>
 </tbody>
 </table>

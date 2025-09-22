@@ -61,6 +61,13 @@
 <li class="toctree-l4"><a class="reference internal" href="#control-logic">Control Logic</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#computational-fluid-dynamics-cfd-simulations">Computational Fluid Dynamics (CFD) Simulations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#reasons-to-perform-a-cfd-simulation">Reasons to Perform a CFD Simulation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#requirements-for-cfd-in-bim2sim">Requirements for CFD in bim2sim</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id2">IFC Requirements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#literature-recommendations">Literature Recommendations</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="plugin-guides/teaser.html">TEASER Simulation Guide</a></li>
@@ -147,7 +154,7 @@ This includes a description of:</p>
 by using e.g. a template-based enrichment.</p>
 </section>
 <section id="ifc-requirements">
-<h3>IFC Requirements<a class="headerlink" href="#ifc-requirements" title="Permalink to this heading"></a></h3>
+<span id="eplus-ifc-requ"></span><h3>IFC Requirements<a class="headerlink" href="#ifc-requirements" title="Permalink to this heading"></a></h3>
 <p>The BPS Plugins (<a class="reference internal" href="../code/bim2sim.plugins.PluginEnergyPlus.html#module-bim2sim.plugins.PluginEnergyPlus" title="bim2sim.plugins.PluginEnergyPlus"><span class="xref myst py py-mod">PluginEnergyPlus</span></a> and
 <a class="reference internal" href="../code/bim2sim.plugins.PluginTEASER.html#module-bim2sim.plugins.PluginTEASER" title="bim2sim.plugins.PluginTEASER"><span class="xref myst py py-mod">PluginTEASER</span></a>) should only be applied,
 if minimum IFC requirements are fulfilled:</p>
@@ -224,6 +231,62 @@ non-existing in the exported model, so the user can input them in Modelica.</p><
 and the usage we offer the possibility to deactivate the internal controls inside
 the modelica models and allow the user to model their own controls.</p></li>
 </ol>
+</section>
+</section>
+<section id="computational-fluid-dynamics-cfd-simulations">
+<span id="simtype-cfd"></span><h2>Computational Fluid Dynamics (CFD) Simulations<a class="headerlink" href="#computational-fluid-dynamics-cfd-simulations" title="Permalink to this heading"></a></h2>
+<p>CFD simulations are used to analyze fluid flow, heat transfer, and indoor air
+distribution in buildings. While Building Performance Simulation (BPS) focuses
+on overall energy balance and system sizing, CFD provides detailed insights
+into local comfort parameters, such as air velocity, temperature stratification,
+and contaminant dispersion. This allows designers to assess the indoor
+environmental quality (IEQ) beyond energy efficiency.</p>
+<p>Typical applications of CFD in building design include:</p>
+<ul class="simple">
+<li><p>Evaluation of thermal comfort in different room setups</p></li>
+<li><p>Optimization of air diffusers</p></li>
+<li><p>Smoke and contaminant dispersion studies</p></li>
+</ul>
+<section id="reasons-to-perform-a-cfd-simulation">
+<h3>Reasons to Perform a CFD Simulation<a class="headerlink" href="#reasons-to-perform-a-cfd-simulation" title="Permalink to this heading"></a></h3>
+<p>CFD simulations require more computational resources than BPS but provide highly
+detailed results that cannot be captured with zonal or network-based airflow models.
+They are particularly useful for closer investigations of local thermal
+comfort, air flows and air quality.</p>
+<p>By linking CFD setup to IFC-based design workflows, bim2sim aims to reduce the
+manual modeling effort. Automating the extraction of geometry and boundary
+conditions from the IFC model enables CFD simulations to be performed earlier
+in the design process and provides deeper insights.</p>
+</section>
+<section id="requirements-for-cfd-in-bim2sim">
+<h3>Requirements for CFD in bim2sim<a class="headerlink" href="#requirements-for-cfd-in-bim2sim" title="Permalink to this heading"></a></h3>
+<p>To perform a CFD simulation within bim2sim, first a full EnergyPlus
+Simulation has to be performed. For a single airtight room, boundary
+conditions for the CFD simulation can be extracted from the EnergyPlus
+results.</p>
+</section>
+<section id="id2">
+<h3>IFC Requirements<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<p>Since the CFD simulations using OpenFOAM are heavily based on the
+EnergyPlus simulations, the IFC requirements are the same as the ones
+described <a class="reference internal" href="#eplus-ifc-requ"><span class="std std-ref">here</span></a>.</p>
+<p>These requirements ensure that the geometry and boundary conditions extracted
+from IFC are consistent and suitable for meshing and CFD preprocessing.</p>
+</section>
+<section id="literature-recommendations">
+<h3>Literature Recommendations<a class="headerlink" href="#literature-recommendations" title="Permalink to this heading"></a></h3>
+<p>CFD and especially OpenFOAM as a compute kernel are very complex topics
+which can not be explained in detail in this documentation. It is therefore
+recommended to take a closer look at some of the following further literature:</p>
+<ul class="simple">
+<li><p><strong>Basics of CFD</strong>: Computational Methods for Fluid Dynamics, J. H.
+Ferziger and M. Perić, 2002, doi: 10.1007/978-3-642-56026-2.</p></li>
+<li><p><strong>OpenFOAM User Guides and Documentation</strong>: https://www.openfoam.com/documentation/overview</p></li>
+<li><p><strong>Background of the PluginOpenFOAM</strong>: IFC-based analysis of present and
+future thermal comfort using building energy performance simulation and
+computational fluid dynamics, V. E. Richter, RWTH Aachen University 2025,
+doi: 10.18154/RWTH-2025-05670</p></li>
+</ul>
 </section>
 </section>
 </section>
