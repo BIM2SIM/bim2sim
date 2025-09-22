@@ -17,8 +17,17 @@ from bim2sim.sim_settings import (BooleanSetting, ChoiceSetting,
 
 
 def load_module(source: str):
-    """Load a module within bim2sim containing SimSettings either from the
-    module name or from a file path and return it."""
+    """Load a bim2sim module.
+
+    Load a module within bim2sim containing SimSettings either from the
+    module name or from a file path and return it.
+
+    Args:
+        source: source file or module name as a string
+
+    Returns:
+        module: loaded module
+    """
     if source.endswith(".py"):
         spec = importlib.util.spec_from_file_location("temp_module", source)
         module = importlib.util.module_from_spec(spec)
@@ -29,8 +38,17 @@ def load_module(source: str):
 
 
 def simplify_type_name(setting_obj) -> str:
-    """Simplify SimSetting type to shorter names as strings for `Type`
-    column."""
+    """ Simplify SimSetting types.
+
+    Simplify SimSetting types to shorter names as strings for `Type`
+    column.
+
+    Args:
+        setting_obj: bim2sim SimSetting object
+
+    Returns:
+        string defining the simplified SimSetting type
+    """
     if isinstance(setting_obj, BooleanSetting):
         return "Boolean"
     if isinstance(setting_obj, NumberSetting):
@@ -47,8 +65,18 @@ def simplify_type_name(setting_obj) -> str:
 
 
 def wrap_for_md(text: str, width: int) -> str:
-    """Wrap longer texts in the Description or Choices column after `width`
-    characters for better readability."""
+    """Wrap text sections after specified length.
+
+    Wrap longer texts in the Description or Choices column after `width`
+    characters for better readability.
+
+    Args:
+        text: string to be wrapped
+        width: number of characters after which text is wrapped
+
+    Returns:
+        reformatted string with automatic linebreaks
+    """
     if text is None:
         return ""
     text = str(text).strip()
@@ -67,11 +95,20 @@ def wrap_for_md(text: str, width: int) -> str:
     return "<br><br>".join(wrapped_paragraphs)
 
 
-def choices_to_string(choices: Union[dict, list, None], wrap_width: int) -> (
-        str):
-    """Convert a dictionary or list of Choices for a SimSetting to a string
+def choices_to_string(choices: Union[dict, list, None], wrap_width: int) -> str:
+    """Convert SimSetting Choices to a string.
+
+    Convert a dictionary or list of Choices for a SimSetting to a string
     for Markdown-tables. If there are more than 10 settings, the short
-    description of each choice is not adopted."""
+    description of each choice is not adopted.
+
+    Args:
+        choices: list or dict of Choices for a SimSetting to be converted
+        wrap_width: number of characters after which text is wrapped
+
+    Returns:
+        formatted string containing Choices as text
+    """
     s = ""
     if not choices:
         return ""
@@ -88,9 +125,20 @@ def choices_to_string(choices: Union[dict, list, None], wrap_width: int) -> (
 
 
 def extract_settings_from_class(cls, wrap_width: int = 60):
-    """Extract all Settings of a SimSetting class `cls` and put the
+    """Get SimSettings from a bim2sim class.
+
+    Extract all Settings of a SimSetting class `cls` and put the
     properties Setting Name, Type, Default, Description and Choices in to a
-    list."""
+    list.
+
+    Args:
+        cls: class to extract Settings from
+        wrap_width: number of characters after which text is wrapped
+
+    Returns:
+        list of Settings objectssorted in Setting Name, Type, Default,
+        Description, and Choices columns
+    """
     rows = []
     for name, value in list(cls.__dict__.items()):
         if name.startswith("_"):
@@ -114,11 +162,19 @@ def extract_settings_from_class(cls, wrap_width: int = 60):
 
 def settings_to_markdown(source: str, class_name: str,
                          output_md: str = "settings.md", wrap_width: int = 60):
-    """
-    Generate a markdown table for settings defined in `class_name` found in
-    `source`. `source` can be a dotted module name (e.g."bim2sim.sim_settings")
-    or a path to a .py file. Save table to output.md file with text wrapping in
-    the `Description` and `Choices` columns after wrap_width characters.
+    """Generate Markdown-tables from SimSettings.
+
+    Generate a markdown table for SimSettings defined in `class_name`
+    found in `source`. `source` can be a dotted module name (e.g.
+    "bim2sim.sim_settings") or a path to a .py file. Save table to output.md
+    file with text wrapping in the `Description` and `Choices` columns after
+    wrap_width characters.
+
+    Args:
+        source: name of a bim2sim SimSettings module or a path to a .py file
+        class_name: name of the class containing the SimSettings objects
+        output_md: path to output Markdown-tables
+        wrap_width: number of characters after which text is wrapped
     """
     mod = load_module(source)
     cls = getattr(mod, class_name)
