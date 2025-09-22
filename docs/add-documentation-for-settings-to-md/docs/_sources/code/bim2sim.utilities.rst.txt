@@ -1,0 +1,74 @@
+bim2sim.utilities package
+=========================
+
+.. automodule:: bim2sim.utilities
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+bim2sim.utilities.check\_docstrings module
+------------------------------------------
+
+.. automodule:: bim2sim.utilities.check_docstrings
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.utilities.common\_functions module
+------------------------------------------
+
+.. automodule:: bim2sim.utilities.common_functions
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.utilities.pyocc\_tools module
+-------------------------------------
+
+.. automodule:: bim2sim.utilities.pyocc_tools
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.utilities.settings\_to\_md module
+-----------------------------------------
+
+.. automodule:: bim2sim.utilities.settings_to_md
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.utilities.svg\_utils module
+-----------------------------------
+
+.. automodule:: bim2sim.utilities.svg_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.utilities.test module
+-----------------------------
+
+.. automodule:: bim2sim.utilities.test
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.utilities.types module
+------------------------------
+
+.. automodule:: bim2sim.utilities.types
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.utilities.visualize\_spaces module
+------------------------------------------
+
+.. automodule:: bim2sim.utilities.visualize_spaces
+   :members:
+   :undoc-members:
+   :show-inheritance:
