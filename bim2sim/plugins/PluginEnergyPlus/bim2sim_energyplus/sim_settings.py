@@ -195,8 +195,8 @@ class EnergyPlusSimSettings(BuildingSimSettings):
                                    'temperature for zonal temperature control.'
     )
     ventilation_demand_control = ChoiceSetting(
-        default='None',
-        choices={'None': 'No demand control for mechanical ventilation.',
+        default=None,
+        choices={None: 'No demand control for mechanical ventilation.',
                  'OccupancySchedule': 'Demand control based on occupancy '
                                       'schedule.'},
         description='Choose if mechanical ventilation should be demand '
@@ -248,6 +248,14 @@ class EnergyPlusSimSettings(BuildingSimSettings):
     )
     residential = BooleanSetting(
         default=False, description='Choose True to use residential settings '
-                                   'for natural ventilation, False for '
-                                   'non-residential houses.'
+                                   'for natural ventilation (DIN4108-2), '
+                                   'False for non-residential houses.'
+    )
+    natural_ventilation_approach = ChoiceSetting(
+        default="Simple",
+        description='Choose calculation approach for natural ventilation.',
+        choices={
+            "Simple": "use simplified ventilation based on TEASER templates.",
+            "DIN4108": "use DIN4108-2 for natural ventilation."
+        }
     )
