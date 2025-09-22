@@ -1183,6 +1183,8 @@ class Wall(BPSProductWithLayers):
         "IfcWallStandardCase":
             ['*', 'MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL',
              'SHEAR', 'SOLIDWALL', 'POLYGONAL', 'DOOR', 'GATE', 'TRAPDOOR'],
+        "IfcColumn": ['*'],  # Hotfix. TODO: Implement appropriate classes
+        "IfcCurtainWall": ['*'] # Hotfix. TODO: Implement appropriate classes
         # "IfcElementedCase": "?"  # TODO
     }
 
