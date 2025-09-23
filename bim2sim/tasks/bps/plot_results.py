@@ -335,7 +335,10 @@ class PlotBEPSResults(ITask):
                     if guid == space_guid:
                         # TODO use all storeys for aggregated zones
                         if isinstance(ele, SerializedElement):
-                            storey_guid = ele.storeys[0]
+                            if isinstance(ele.storeys[0], str):
+                                storey_guid = ele.storeys[0]
+                            else:
+                                storey_guid = ele.storeys[0].guid
                         else:
                             storey_guid = ele.storeys[0].guid
                         space_area = ele.net_area
@@ -565,7 +568,8 @@ class PlotBEPSResults(ITask):
 
     @staticmethod
     def plot_multiple_temperatures(
-            df: pd.DataFrame, save_path: Optional[Path] = None, logo: bool =
+            df: pd.DataFrame, rename_dict: dict = None,
+            save_path: Optional[Path] = None, logo: bool =
             True, window: int = 12, fig_size: Tuple[int, int] = (10, 6),
             dpi: int = 300) -> None:
         """
@@ -579,21 +583,24 @@ class PlotBEPSResults(ITask):
             fig_size (Tuple[int, int]): Size of the figure.
             dpi (int): Dots per inch for the plot resolution.
         """
-        rename_surfs_in_space = \
-            {
-                "3hiy47ppf5B8MyZqbpTfpc":
-                    {
-                        "14KVjb4bn2zOxEfCwOWKb_": "Floor",
-                        "10NUX$CcjBcRRxCQJh2Suf": "InnerWall West",
-                        "174xOdW7H4iw488r9lVn33": "Roof",
-                        "0aGOY_OOT9fva8zh0hPM$t": "InnerDoor North",
-                        "18dtnPzhbDfA93nuFIFIQD": "InnerWall North",
-                        "3eJjh1rC9D6u9xQvTJvVV1": "OuterWall South",
-                        "3YwbLt4uL17hwYjrGkpnG2": "Window South",
-                        "1T2XvptoT41wqhpFAnaD97": "OuterWall East",
-                        "3tw6evsPf4cOKvenfxmdSF": "Window East"
-                    },
-            }
+        if rename_dict:
+            rename_surfs_in_space = rename_dict
+        else:
+            rename_surfs_in_space = \
+                {
+                    "3hiy47ppf5B8MyZqbpTfpc":
+                        {
+                            "14KVjb4bn2zOxEfCwOWKb_": "Floor",
+                            "10NUX$CcjBcRRxCQJh2Suf": "InnerWall West",
+                            "174xOdW7H4iw488r9lVn33": "Roof",
+                            "0aGOY_OOT9fva8zh0hPM$t": "InnerDoor North",
+                            "18dtnPzhbDfA93nuFIFIQD": "InnerWall North",
+                            "3eJjh1rC9D6u9xQvTJvVV1": "OuterWall South",
+                            "3YwbLt4uL17hwYjrGkpnG2": "Window South",
+                            "1T2XvptoT41wqhpFAnaD97": "OuterWall East",
+                            "3tw6evsPf4cOKvenfxmdSF": "Window East"
+                        },
+                }
 
         key_match = False
         for key, value in rename_surfs_in_space.items():
@@ -616,7 +623,7 @@ class PlotBEPSResults(ITask):
             df = df[columns_to_rename.values()]
 
         save_path_demand = (
-                save_path / "surface_temperatures.svg") if save_path else \
+                save_path / "surface_temperatures.pdf") if save_path else \
             None
         label_pad = 5
 
@@ -667,7 +674,7 @@ class PlotBEPSResults(ITask):
         #     PlotBEPSResults.add_logo(dpi, fig_size, logo_pos)
 
         # Save the plot if a path is provided
-        PlotBEPSResults.save_or_show_plot(save_path_demand, dpi, format='svg')
+        PlotBEPSResults.save_or_show_plot(save_path_demand, dpi, format='pdf')
 
 
     @staticmethod

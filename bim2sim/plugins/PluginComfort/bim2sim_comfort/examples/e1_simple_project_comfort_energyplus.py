@@ -50,6 +50,8 @@ def run_example_1():
     project.sim_settings.cooling_tz_overwrite = False
     project.sim_settings.rename_plot_keys = True
     project.sim_settings.create_plots = True
+    project.sim_settings.control_operative_temperature = True
+    project.sim_settings.comfort_occupancy_weighting = True
 
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.

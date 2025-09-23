@@ -89,6 +89,7 @@ PluginEnergyPlus = [
     "OCCUtils@git+https://github.com/tpaviot/pythonocc-utils",  # from base requiremts.txt
     "reportlab",
     "svglib",
+    "seaborn",
 ]
 PluginAixLib = [
     "pyvis@git+https://github.com/squidKid-deluxe/pyvis@fix-show#egg=pyvis",
@@ -107,6 +108,7 @@ PluginComfort = [
     "energyplus-regressions <= 2.1.2",
     "eppy@git+https://github.com/BIM2SIM/eppy",
     "geomeppy@git+https://github.com/BIM2SIM/geomeppy@fix_dependencies",
+    "seaborn",
 ]
 docu = [
     "sphinx==6.2.1",
@@ -120,6 +122,7 @@ docu = [
     "sphinxcontrib-mermaid",
     "pylint",
     "livereload",
+    "tabulate",
 ]
 test = [
     "coverage", # [toml] not needed using micromanba, maybe also new python version

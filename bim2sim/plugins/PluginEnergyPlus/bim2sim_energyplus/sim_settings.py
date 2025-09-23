@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from bim2sim.sim_settings import BuildingSimSettings, BooleanSetting, \
-    ChoiceSetting, PathSetting
+    ChoiceSetting, PathSetting, NumberSetting
 
 
 class EnergyPlusSimSettings(BuildingSimSettings):
@@ -71,6 +71,35 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         value=True,
         description='Whether to run the EnergyPlus simulation for weather '
                     'file period or not.',
+        for_frontend=True
+    )
+    system_weather_sizing = ChoiceSetting(
+        default='Typical',
+        choices={'Typical': 'SummerTypical and WinterTypical for system '
+                            'sizing.',
+                 'Extreme': 'SummerExtreme and WinterExtreme for system '
+                            'sizing.',
+                 'DesignDay': 'DesignDay for system sizing. Choose this '
+                              'option if neither SummerExtreme nor '
+                              'SummerTypical days are available in weather '
+                              'file.'},
+        description='Choose whether to perform the system sizing for '
+                     'DesignDays, extreme weather periods, typical weather '
+                     'periods. Default=Typical (i.e., apply system sizing for '
+                     'typical summer/winter days). '
+    )
+    weather_file_for_sizing = PathSetting(
+        default=None,
+        description='Path to the weather file that should be used for system '
+                    'sizing in EnergyPlus',
+        for_frontend=True,
+        mandatory=False
+    )
+    enforce_system_sizing = BooleanSetting(
+        default=False,
+        description='Choose True if you want to enforce HVAC Sizing to sizing '
+                    'period settings (limit heating and cooling capacity) '
+                    'instead of autosizing.',
         for_frontend=True
     )
     solar_distribution = ChoiceSetting(
@@ -156,4 +185,77 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         description='Add natural ventilation to the building. Natural '
                     'ventilation is not available when cooling is activated.',
         for_frontend=True
+    )
+    hvac_off_at_night = BooleanSetting(
+        default=False, description='Disable all HVAC systems at night from '
+                                   '10pm to 6am.'
+    )
+    control_operative_temperature = BooleanSetting(
+        default=False, description='Use operative temperature instead of air '
+                                   'temperature for zonal temperature control.'
+    )
+    ventilation_demand_control = ChoiceSetting(
+        default=None,
+        choices={None: 'No demand control for mechanical ventilation.',
+                 'OccupancySchedule': 'Demand control based on occupancy '
+                                      'schedule.'},
+        description='Choose if mechanical ventilation should be demand '
+                    'controlled. Default is None. '
+    )
+    outdoor_air_economizer = ChoiceSetting(
+        default='NoEconomizer',
+        choices={'NoEconomizer': 'No outdoor air economizer is applied.',
+                 'DifferentialDryBulb': 'The outdoor air economizer is '
+                                        'applied based on the differential '
+                                        'dry bulb temperature.',
+                 'DifferentialEnthalpy': 'The outdoor air economizer is '
+                                        'applied based on the differential '
+                                        'enthalpy.'},
+        description='Choose which type of outdoor air economizer should be '
+                    'applied to reduce cooling loads by an increased outdoor '
+                    'air flow if cooling loads can be reduced. Default is '
+                    '"NoEconomizer".'
+    )
+    heat_recovery_type = ChoiceSetting(
+        default='Enthalpy',
+        choices={'Enthalpy': 'Use Enthalpy Heat Recovery.',
+                 'Sensible': 'Use Sensible Heat Recovery.',
+                 'None': 'No Heat Recovery'},
+        description='Choose which type of heat recovery should be applied for '
+                    'mechanical ventilation.'
+    )
+    heat_recovery_sensible = NumberSetting(
+        default=0.8, min_value=0, max_value=1,
+        description='Choose the sensible heat recovery effectiveness. '
+                    'Default: 0.8.'
+    )
+    heat_recovery_latent = NumberSetting(
+        default=0.7, min_value=0, max_value=1,
+        description='Choose the latent heat recovery effectiveness. Only '
+                    'applicable if heat_recovery_type="Enthalpy". Default: 0.7.'
+    )
+    outdoor_air_per_person = NumberSetting(
+        default=7,
+        min_value=0, max_value=25,
+        description='Outdoor air per person in l/s. Defaults to 7 l/s '
+                    'according to DIN EN 16798-1, Category II.'
+    )
+    outdoor_air_per_area = NumberSetting(
+        default=0.7, min_value=0, max_value=10,
+        description='Outdoor air per floor area in l/s. Defaults to 0.7 l/(s '
+                    'm2) according to DIN EN 16798-1, Category II for low '
+                    'emission buildings.'
+    )
+    residential = BooleanSetting(
+        default=False, description='Choose True to use residential settings '
+                                   'for natural ventilation (DIN4108-2), '
+                                   'False for non-residential houses.'
+    )
+    natural_ventilation_approach = ChoiceSetting(
+        default="Simple",
+        description='Choose calculation approach for natural ventilation.',
+        choices={
+            "Simple": "use simplified ventilation based on TEASER templates.",
+            "DIN4108": "use DIN4108-2 for natural ventilation."
+        }
     )

@@ -92,7 +92,7 @@ class ComfortSettings(ITask):
                 'Air Velocity Schedule':
                     [0.1] * 24,
                 'Work Efficiency Schedule':
-                    [0.1] * 24,
+                    [0.0] * 24,
             },
             'Living': {
                 'Clothing Insulation Schedule':
@@ -101,7 +101,7 @@ class ComfortSettings(ITask):
                 'Air Velocity Schedule':
                     [0.1] * 24,
                 'Work Efficiency Schedule':
-                    [0.05] * 24,
+                    [0.00] * 24,
             },
             'Bed room': {
                 'Clothing Insulation Schedule':
@@ -119,7 +119,7 @@ class ComfortSettings(ITask):
                 'Air Velocity Schedule':
                     [0.1] * 24,
                 'Work Efficiency Schedule':
-                    [0.05] * 24,
+                    [0.00] * 24,
             },
             'Kitchen in non-residential buildings': {
                 'Clothing Insulation Schedule':
@@ -128,7 +128,7 @@ class ComfortSettings(ITask):
                 'Air Velocity Schedule':
                     [0.2] * 24,
                 'Work Efficiency Schedule':
-                    [0.1] * 24,
+                    [0.0] * 24,
             },
             'Traffic area': {
                 'Clothing Insulation Schedule':
@@ -137,7 +137,7 @@ class ComfortSettings(ITask):
                 'Air Velocity Schedule':
                     [0.2] * 24,
                 'Work Efficiency Schedule':
-                    [0.1] * 24,
+                    [0.0] * 24,
             }
         }
         if not os.path.exists(Path(__file__).parent.parent / 'assets/'):
