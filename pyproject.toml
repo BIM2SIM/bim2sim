@@ -109,6 +109,17 @@ PluginComfort = [
     "geomeppy@git+https://github.com/BIM2SIM/geomeppy@fix_dependencies",
     "seaborn",
 ]
+PluginOpenFOAM = [
+    "shapely",
+    "numpy-stl",
+    "energyplus-regressions <= 2.1.2",
+    "eppy@git+https://github.com/BIM2SIM/eppy",
+    "geomeppy@git+https://github.com/BIM2SIM/geomeppy@fix_dependencies",
+    "OCCUtils@git+https://github.com/tpaviot/pythonocc-utils",  # from base requiremts.txt
+    "reportlab",
+    "svglib",
+    "seaborn",
+]
 docu = [
     "sphinx==6.2.1",
     "myst-parser",

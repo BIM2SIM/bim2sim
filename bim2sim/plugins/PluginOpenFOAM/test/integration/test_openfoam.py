@@ -164,7 +164,7 @@ class TestOFIntegration(IntegrationBaseOF, unittest.TestCase):
         project.sim_settings.add_people = True
         project.sim_settings.people_amount = 1
         project.sim_settings.people_setting = 'Seated'
-        project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
         answers = ()
         handler = DebugDecisionHandler(answers)
@@ -187,7 +187,7 @@ class TestOFIntegration(IntegrationBaseOF, unittest.TestCase):
             bps.CorrectSpaceBoundaries,
             common.CreateRelations,
         ]
-        project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         answers = ('Autodesk Revit', 'Autodesk Revit', *(None,) * 12)
         handler = DebugDecisionHandler(answers)
         handler.handle(project.run(cleanup=False))
