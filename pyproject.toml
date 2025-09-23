@@ -119,7 +119,7 @@ PluginOpenFOAM = [
     "reportlab",
     "svglib",
     "seaborn",
-    "lbt-butterfly@git+https://github.com/BIM2SIM/butterfly@1-updates-for-usage-in-bim2sim"
+    "lbt-butterfly@git+https://github.com/BIM2SIM/butterfly@2-update-setup-routine-for-bim2sim"
 ]
 docu = [
     "sphinx==6.2.1",
