@@ -13,7 +13,7 @@ from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils import
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.pyocc_tools import PyOCCTools
-from butterfly.butterfly import (blockMeshDict, snappyHexMeshDict, foamfile,
+from butterfly import (blockMeshDict, snappyHexMeshDict, foamfile,
                                  surfaceFeatureExtractDict)
 
 

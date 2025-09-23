@@ -4,7 +4,7 @@ from bim2sim.tasks.base import ITask
 import sys
 import os
 import logging
-from butterfly.butterfly import decomposeParDict as decPD
+from butterfly import decomposeParDict as decPD
 import pathlib
 
 logger = logging.getLogger(__name__)
