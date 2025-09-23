@@ -133,6 +133,7 @@ docu = [
     "sphinxcontrib-mermaid",
     "pylint",
     "livereload",
+    "tabulate",
 ]
 test = [
     "coverage", # [toml] not needed using micromanba, maybe also new python version
