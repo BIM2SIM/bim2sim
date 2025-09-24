@@ -19,7 +19,11 @@ For python > 3.9: make sure that the correct geomeppy is installed (using requir
 
 ### Test install
 To test the installation, open a Python Interactive Shell and try importing 
-the module: ```import bim2sim.plugins.PluginOpenFOAM```
+the module:
+```python
+import bim2sim.plugins.PluginOpenFOAM
+```
+Unless you receive an error message, the plugin was installed successfully.
 
 ## Examples
 Please also take a look at
@@ -42,7 +46,7 @@ issue [#766](https://github.com/BIM2SIM/bim2sim/issues/766))
 
 <details>
 
-<summary>Mermaid Figure</summary>
+<summary>Flowchart of the plugin (Mermaid Figure)</summary>
 
 ```{mermaid}
 ---
