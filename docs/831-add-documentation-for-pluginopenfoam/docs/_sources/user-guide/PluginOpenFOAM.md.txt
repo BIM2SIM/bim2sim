@@ -522,13 +522,13 @@ number of cores.
 For Linux-based devices, this task can automatically start the OpenFOAM 
 simulation. This requires an existing OpenFOAM installation 
 of v2206 or newer and usually takes several hours, highly depending on the 
-number of cores, iterations and geometry complexity.
+number of cores, iterations, geometric complexity, and resulting mesh size.
 
 ### Add OpenFOAM Comfort
 (OF_comfort)=
 [Go to AddOpenFOAMComfort](AddOpenFOAMComfort)
 
-This task adds output parameters to the OpenFOAM output dictionaries which 
+This task adds output parameters to the OpenFOAM output dictionaries, which 
 enable the evaluation of local thermal comfort in the simulated room.
 
 
@@ -536,8 +536,8 @@ enable the evaluation of local thermal comfort in the simulated room.
 Some of the [OpenFOAM-specific SimSettings](OpenFOAM_sim_settings) add 
 additional elements to the simulated room such as heating, specific 
 ventilation in-/outlets, furniture or people. The base stl-files for these 
-can be found in `bimsim/plugins/PluginOpenFOAM/bim2sim_openfoam/assets
-/geometry`. 
+can be found in 
+`bimsim/plugins/PluginOpenFOAM/bim2sim_openfoam/assets/geometry`. 
 
 ## How to run the simulation?
 If you are working on a linux system, you may decide to run the 
@@ -562,8 +562,8 @@ usually the temperature and velocity distribution.
 
 ### What programs/tools to use for further analysis?
 The provided OpenFOAM case can be simulated using OpenFOAM/v2206 or newer 
-versions. For visualizing CFD results, it is recommended to open them in 
-Paraview through a .foam-file.
+versions. For visualizing the generated meshes or evaluating CFD results, it is 
+recommended to open them in Paraview through a .foam-file.
 
 
 

@@ -652,12 +652,12 @@ number of cores.</p>
 <p>For Linux-based devices, this task can automatically start the OpenFOAM
 simulation. This requires an existing OpenFOAM installation
 of v2206 or newer and usually takes several hours, highly depending on the
-number of cores, iterations and geometry complexity.</p>
+number of cores, iterations, geometric complexity, and resulting mesh size.</p>
 </section>
 <section id="add-openfoam-comfort">
 <h3>Add OpenFOAM Comfort<a class="headerlink" href="#add-openfoam-comfort" title="Permalink to this heading"></a></h3>
 <p id="of-comfort"><a class="reference internal" href="../code/bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.add_comfort.AddOpenFOAMComfort" title="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.add_comfort.AddOpenFOAMComfort"><span class="xref myst py py-class">Go to AddOpenFOAMComfort</span></a></p>
-<p>This task adds output parameters to the OpenFOAM output dictionaries which
+<p>This task adds output parameters to the OpenFOAM output dictionaries, which
 enable the evaluation of local thermal comfort in the simulated room.</p>
 </section>
 <section id="additional-templates">
@@ -665,7 +665,8 @@ enable the evaluation of local thermal comfort in the simulated room.</p>
 <p>Some of the <a class="reference internal" href="../advanced-user-guide/concepts/sim_settings.html#openfoam-sim-settings"><span class="std std-ref">OpenFOAM-specific SimSettings</span></a> add
 additional elements to the simulated room such as heating, specific
 ventilation in-/outlets, furniture or people. The base stl-files for these
-can be found in <code class="docutils literal notranslate"><span class="pre">bimsim/plugins/PluginOpenFOAM/bim2sim_openfoam/assets</span> <span class="pre">/geometry</span></code>.</p>
+can be found in
+<code class="docutils literal notranslate"><span class="pre">bimsim/plugins/PluginOpenFOAM/bim2sim_openfoam/assets/geometry</span></code>.</p>
 </section>
 </section>
 <section id="how-to-run-the-simulation">
@@ -695,8 +696,8 @@ usually the temperature and velocity distribution.</p>
 <section id="what-programs-tools-to-use-for-further-analysis">
 <h3>What programs/tools to use for further analysis?<a class="headerlink" href="#what-programs-tools-to-use-for-further-analysis" title="Permalink to this heading"></a></h3>
 <p>The provided OpenFOAM case can be simulated using OpenFOAM/v2206 or newer
-versions. For visualizing CFD results, it is recommended to open them in
-Paraview through a .foam-file.</p>
+versions. For visualizing the generated meshes or evaluating CFD results, it is
+recommended to open them in Paraview through a .foam-file.</p>
 </section>
 </section>
 </section>
