@@ -8,7 +8,7 @@ import sys
 import os
 import pathlib
 
-from butterfly.butterfly import foamfile
+from butterfly import foamfile
 
 logger = logging.getLogger(__name__)
 

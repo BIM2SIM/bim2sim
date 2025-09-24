@@ -11,7 +11,7 @@ from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils import
     OpenFOAMUtils as of_utils
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
-from butterfly.butterfly import boundaryRadiationProperties, alphat, aoa, \
+from butterfly import boundaryRadiationProperties, alphat, aoa, \
     g_radiation, idefault, k, nut, omega, p, p_rgh, qr, T, U, foamfile
 
 

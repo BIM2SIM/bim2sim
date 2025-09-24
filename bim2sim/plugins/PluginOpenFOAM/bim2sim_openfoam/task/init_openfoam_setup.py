@@ -12,7 +12,7 @@ from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils import \
     OpenFOAMUtils
 from bim2sim.tasks.base import ITask
-from butterfly.butterfly import fvSolution, fvSchemes, controlDict, \
+from butterfly import fvSolution, fvSchemes, controlDict, \
     decomposeParDict, foamfile, turbulenceProperties, g
 
 

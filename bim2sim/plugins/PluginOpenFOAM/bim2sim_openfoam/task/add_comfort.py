@@ -1,7 +1,7 @@
 from bim2sim.tasks.base import ITask
 import sys
 import os
-from butterfly.butterfly import decomposeParDict as decPD
+from butterfly import decomposeParDict as decPD
 import pathlib
 
 
