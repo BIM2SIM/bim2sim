@@ -1,0 +1,7 @@
+bim2sim.plugins.PluginOpenFOAM.test.regression package
+======================================================
+
+.. automodule:: bim2sim.plugins.PluginOpenFOAM.test.regression
+   :members:
+   :undoc-members:
+   :show-inheritance:

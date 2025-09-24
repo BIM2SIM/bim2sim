@@ -102,35 +102,113 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-package">
-<h1>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam package<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-package" title="Permalink to this heading"></a></h1>
+  <section id="module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam">
+<span id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-package"></span><h1>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam package<a class="headerlink" href="#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam" title="Permalink to this heading"></a></h1>
+<p>Template plugin for bim2sim</p>
+<p>Holds a plugin with only base tasks mostly for demonstration.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.PluginOpenFOAM">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.</span></span><span class="sig-name descname"><span class="pre">PluginOpenFOAM</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.PluginOpenFOAM" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin" title="bim2sim.plugins.Plugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plugin</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.PluginOpenFOAM.default_tasks">
+<span class="sig-name descname"><span class="pre">default_tasks</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><span class="pre">ITask</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.tasks.common.load_ifc.LoadIFC'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.common.create_relations.CreateRelations'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.bps.enrich_material.EnrichMaterial'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.bps.enrich_use_cond.EnrichUseConditions'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.common.weather.Weather'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_create_idf.CreateIdf'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.plugins.PluginComfort.bim2sim_comfort.task.ep_comfort_settings.ComfortSettings'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.common.serialize_elements.SerializeElements'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_run_simulation.RunEnergyPlusSimulation'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup.InitializeOpenFOAMSetup'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.add_comfort.AddOpenFOAMComfort'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing.CreateOpenFOAMMeshing'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.run_meshing.RunOpenFOAMMeshing'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.run_openfoam_simulation.RunOpenFOAMSimulation'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.PluginOpenFOAM.default_tasks" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.PluginOpenFOAM.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'openfoam'</span></em><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.PluginOpenFOAM.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.PluginOpenFOAM.sim_settings">
+<span class="sig-name descname"><span class="pre">sim_settings</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.PluginOpenFOAM.sim_settings" title="Permalink to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings" title="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenFOAMSimSettings</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e10-openfoam-furniture-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_furniture module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e10-openfoam-furniture-dh-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_furniture_DH module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e10-openfoam-no-heating-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_no_heating module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e11-openfoam-furniture-space-heater-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e11_openfoam_furniture_space_heater module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e11-openfoam-run-full-sim-linux-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e11_openfoam_run_full_sim_linux module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e12-openfoam-auto-refinement-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e12_openfoam_auto_refinement module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e12-run-openfoam-preconditioned-transient-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e12_run_openfoam_preconditioned_transient module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e13-run-openfoam-fvdom-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e13_run_openfoam_fvDOM module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_furniture">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_furniture module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_furniture.run_example_8"><code class="docutils literal notranslate"><span class="pre">run_example_8()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_furniture_DH">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_furniture_DH module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_furniture_DH.run_example_8"><code class="docutils literal notranslate"><span class="pre">run_example_8()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_no_heating">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_no_heating module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_no_heating.run_example_10"><code class="docutils literal notranslate"><span class="pre">run_example_10()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e11_openfoam_furniture_space_heater">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e11_openfoam_furniture_space_heater module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e11_openfoam_furniture_space_heater.run_example_11"><code class="docutils literal notranslate"><span class="pre">run_example_11()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e11_openfoam_run_full_sim_linux">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e11_openfoam_run_full_sim_linux module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e11_openfoam_run_full_sim_linux.run_example_11"><code class="docutils literal notranslate"><span class="pre">run_example_11()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e12_openfoam_auto_refinement">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e12_openfoam_auto_refinement module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e12_openfoam_auto_refinement.run_example_12"><code class="docutils literal notranslate"><span class="pre">run_example_12()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e12_run_openfoam_preconditioned_transient">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e12_run_openfoam_preconditioned_transient module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e12_run_openfoam_preconditioned_transient.run_example_12"><code class="docutils literal notranslate"><span class="pre">run_example_12()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e13_run_openfoam_fvDOM">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e13_run_openfoam_fvDOM module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e13_run_openfoam_fvDOM.run_example_13"><code class="docutils literal notranslate"><span class="pre">run_example_13()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e16-openfoam-import-ifc-hvac-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e16_openfoam_import_IFC-HVAC module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e17-openfoam-import-ifc-hvac-multi-files-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e17_openfoam_import_IFC-HVAC_multi_files module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e18-openfoam-import-ifc-hvac-multi-overflow-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e18_openfoam_import_IFC-HVAC_multi_overflow module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e1-simple-project-cfd-openfoam-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e1_simple_project_cfd_openfoam module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e2-complex-project-bps-comfort-journal-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e2_complex_project_bps_comfort_journal module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e2-openfoam-floorheating-steady-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e2_openfoam_floorheating_steady module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e3-openfoam-radiator-steady-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e3_openfoam_radiator_steady module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e4-openfoam-radiator-steady-r0-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e4_openfoam_radiator_steady_r0 module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e5-openfoam-radiator-steady-r1-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e5_openfoam_radiator_steady_r1 module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e6-openfoam-radiator-steady-simple-air-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e6_openfoam_radiator_steady_simple_air module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e7-openfoam-radiator-steady-diffusor-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e7_openfoam_radiator_steady_diffusor module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e8-openfoam-radiator-steady-simple-air-none-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e8_openfoam_radiator_steady_simple_air_none module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e9-openfoam-radiator-steady-simple-stldiffusor-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e9_openfoam_radiator_steady_simple_stldiffusor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e1_simple_project_cfd_openfoam">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e1_simple_project_cfd_openfoam module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e1_simple_project_cfd_openfoam.run_example_1"><code class="docutils literal notranslate"><span class="pre">run_example_1()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e2_complex_project_bps_comfort_journal">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e2_complex_project_bps_comfort_journal module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e2_complex_project_bps_comfort_journal.run_example_complex_building_openfoam"><code class="docutils literal notranslate"><span class="pre">run_example_complex_building_openfoam()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e2_openfoam_floorheating_steady">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e2_openfoam_floorheating_steady module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e2_openfoam_floorheating_steady.run_example_2"><code class="docutils literal notranslate"><span class="pre">run_example_2()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e3_openfoam_radiator_steady">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e3_openfoam_radiator_steady module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e3_openfoam_radiator_steady.run_example_3"><code class="docutils literal notranslate"><span class="pre">run_example_3()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e4_openfoam_radiator_steady_r0">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e4_openfoam_radiator_steady_r0 module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e4_openfoam_radiator_steady_r0.run_example_3"><code class="docutils literal notranslate"><span class="pre">run_example_3()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e5_openfoam_radiator_steady_r1">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e5_openfoam_radiator_steady_r1 module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e5_openfoam_radiator_steady_r1.run_example_5"><code class="docutils literal notranslate"><span class="pre">run_example_5()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e6_openfoam_radiator_steady_simple_air">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e6_openfoam_radiator_steady_simple_air module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e6_openfoam_radiator_steady_simple_air.run_example_6"><code class="docutils literal notranslate"><span class="pre">run_example_6()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e7_openfoam_radiator_steady_diffusor">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e7_openfoam_radiator_steady_diffusor module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e7_openfoam_radiator_steady_diffusor.run_example_7"><code class="docutils literal notranslate"><span class="pre">run_example_7()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e8_openfoam_radiator_steady_simple_air_none">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e8_openfoam_radiator_steady_simple_air_none module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e8_openfoam_radiator_steady_simple_air_none.run_example_8"><code class="docutils literal notranslate"><span class="pre">run_example_8()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e9_openfoam_radiator_steady_simple_stldiffusor">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e9_openfoam_radiator_steady_simple_stldiffusor module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e9_openfoam_radiator_steady_simple_stldiffusor.run_example_8"><code class="docutils literal notranslate"><span class="pre">run_example_8()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.html">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements package</a><ul>
@@ -209,13 +287,129 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-task-add-comfort-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.add_comfort module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-task-create-openfoam-geometry-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-task-create-openfoam-meshing-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-task-init-openfoam-setup-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-task-run-meshing-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.run_meshing module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-task-run-openfoam-simulation-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.run_openfoam_simulation module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-task-set-boundary-conditions-module">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.add_comfort">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.add_comfort module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.add_comfort.AddOpenFOAMComfort"><code class="docutils literal notranslate"><span class="pre">AddOpenFOAMComfort</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.add_comfort.AddOpenFOAMComfort.reads"><code class="docutils literal notranslate"><span class="pre">AddOpenFOAMComfort.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.add_comfort.AddOpenFOAMComfort.run"><code class="docutils literal notranslate"><span class="pre">AddOpenFOAMComfort.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.add_comfort.AddOpenFOAMComfort.touches"><code class="docutils literal notranslate"><span class="pre">AddOpenFOAMComfort.touches</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.adjust_refinements"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.adjust_refinements()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.create_airterminal_shapes"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.create_airterminal_shapes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.create_furniture_shapes"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.create_furniture_shapes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.create_people_shapes"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.create_people_shapes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.export_airterminal_triSurface"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.export_airterminal_triSurface()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.export_furniture_triSurface"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.export_furniture_triSurface()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.export_heater_triSurface"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.export_heater_triSurface()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.export_people_triSurface"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.export_people_triSurface()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.export_stlbound_triSurface"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.export_stlbound_triSurface()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.generate_grid_positions"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.generate_grid_positions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.generate_grid_positions_w_constraints"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.generate_grid_positions_w_constraints()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.get_base_surface"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.get_base_surface()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.get_boundaries_of_heater"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.get_boundaries_of_heater()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.init_airterminals"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.init_airterminals()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.init_furniture"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.init_furniture()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.init_heater"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.init_heater()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.init_people"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.init_people()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.init_zone"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.init_zone()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.reads"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.run"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.single_use"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.single_use</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.CreateOpenFOAMGeometry.touches"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMGeometry.touches</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry.create_stl_from_shape_single_solid_name"><code class="docutils literal notranslate"><span class="pre">create_stl_from_shape_single_solid_name()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing.CreateOpenFOAMMeshing"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMMeshing</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing.CreateOpenFOAMMeshing.add_topoSetDict_for_heating"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMMeshing.add_topoSetDict_for_heating()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing.CreateOpenFOAMMeshing.create_blockMesh"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMMeshing.create_blockMesh()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing.CreateOpenFOAMMeshing.create_snappyHexMesh"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMMeshing.create_snappyHexMesh()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing.CreateOpenFOAMMeshing.create_surfaceFeatureExtract"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMMeshing.create_surfaceFeatureExtract()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing.CreateOpenFOAMMeshing.modify_topoSet_for_evaluation"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMMeshing.modify_topoSet_for_evaluation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing.CreateOpenFOAMMeshing.reads"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMMeshing.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing.CreateOpenFOAMMeshing.run"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMMeshing.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing.CreateOpenFOAMMeshing.set_refinementSurfaces"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMMeshing.set_refinementSurfaces()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing.CreateOpenFOAMMeshing.touches"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMMeshing.touches</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing.CreateOpenFOAMMeshing.update_blockMeshDict_air"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMMeshing.update_blockMeshDict_air()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing.CreateOpenFOAMMeshing.update_snappyHexMesh_air"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMMeshing.update_snappyHexMesh_air()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing.CreateOpenFOAMMeshing.update_snappyHexMesh_furniture"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMMeshing.update_snappyHexMesh_furniture()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing.CreateOpenFOAMMeshing.update_snappyHexMesh_heating"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMMeshing.update_snappyHexMesh_heating()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing.CreateOpenFOAMMeshing.update_snappyHexMesh_mesh_controls"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMMeshing.update_snappyHexMesh_mesh_controls()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing.CreateOpenFOAMMeshing.update_snappyHexMesh_people"><code class="docutils literal notranslate"><span class="pre">CreateOpenFOAMMeshing.update_snappyHexMesh_people()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup.InitializeOpenFOAMSetup"><code class="docutils literal notranslate"><span class="pre">InitializeOpenFOAMSetup</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup.InitializeOpenFOAMSetup.create_controlDict"><code class="docutils literal notranslate"><span class="pre">InitializeOpenFOAMSetup.create_controlDict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup.InitializeOpenFOAMSetup.create_decomposeParDict"><code class="docutils literal notranslate"><span class="pre">InitializeOpenFOAMSetup.create_decomposeParDict()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup.InitializeOpenFOAMSetup.create_directory"><code class="docutils literal notranslate"><span class="pre">InitializeOpenFOAMSetup.create_directory()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup.InitializeOpenFOAMSetup.create_fvSchemes"><code class="docutils literal notranslate"><span class="pre">InitializeOpenFOAMSetup.create_fvSchemes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup.InitializeOpenFOAMSetup.create_fvSolution"><code class="docutils literal notranslate"><span class="pre">InitializeOpenFOAMSetup.create_fvSolution()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup.InitializeOpenFOAMSetup.create_g"><code class="docutils literal notranslate"><span class="pre">InitializeOpenFOAMSetup.create_g()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup.InitializeOpenFOAMSetup.create_jobscripts"><code class="docutils literal notranslate"><span class="pre">InitializeOpenFOAMSetup.create_jobscripts()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup.InitializeOpenFOAMSetup.create_radiationProperties"><code class="docutils literal notranslate"><span class="pre">InitializeOpenFOAMSetup.create_radiationProperties()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup.InitializeOpenFOAMSetup.create_thermophysicalProperties"><code class="docutils literal notranslate"><span class="pre">InitializeOpenFOAMSetup.create_thermophysicalProperties()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup.InitializeOpenFOAMSetup.create_turbulenceProperties"><code class="docutils literal notranslate"><span class="pre">InitializeOpenFOAMSetup.create_turbulenceProperties()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup.InitializeOpenFOAMSetup.read_ep_results"><code class="docutils literal notranslate"><span class="pre">InitializeOpenFOAMSetup.read_ep_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup.InitializeOpenFOAMSetup.reads"><code class="docutils literal notranslate"><span class="pre">InitializeOpenFOAMSetup.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup.InitializeOpenFOAMSetup.run"><code class="docutils literal notranslate"><span class="pre">InitializeOpenFOAMSetup.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup.InitializeOpenFOAMSetup.single_use"><code class="docutils literal notranslate"><span class="pre">InitializeOpenFOAMSetup.single_use</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup.InitializeOpenFOAMSetup.touches"><code class="docutils literal notranslate"><span class="pre">InitializeOpenFOAMSetup.touches</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.run_meshing">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.run_meshing module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.run_meshing.RunOpenFOAMMeshing"><code class="docutils literal notranslate"><span class="pre">RunOpenFOAMMeshing</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.run_meshing.RunOpenFOAMMeshing.reads"><code class="docutils literal notranslate"><span class="pre">RunOpenFOAMMeshing.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.run_meshing.RunOpenFOAMMeshing.run"><code class="docutils literal notranslate"><span class="pre">RunOpenFOAMMeshing.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.run_meshing.RunOpenFOAMMeshing.touches"><code class="docutils literal notranslate"><span class="pre">RunOpenFOAMMeshing.touches</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.run_openfoam_simulation">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.run_openfoam_simulation module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.run_openfoam_simulation.RunOpenFOAMSimulation"><code class="docutils literal notranslate"><span class="pre">RunOpenFOAMSimulation</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.run_openfoam_simulation.RunOpenFOAMSimulation.reads"><code class="docutils literal notranslate"><span class="pre">RunOpenFOAMSimulation.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.run_openfoam_simulation.RunOpenFOAMSimulation.run"><code class="docutils literal notranslate"><span class="pre">RunOpenFOAMSimulation.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.run_openfoam_simulation.RunOpenFOAMSimulation.touches"><code class="docutils literal notranslate"><span class="pre">RunOpenFOAMSimulation.touches</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.add_fvOptions_for_heating"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.add_fvOptions_for_heating()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.assign_ep_results"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.assign_ep_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.create_AoA"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.create_AoA()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.create_G"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.create_G()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.create_IDefault"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.create_IDefault()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.create_T"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.create_T()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.create_U"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.create_U()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.create_alphat"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.create_alphat()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.create_boundaryRadiationProperties"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.create_boundaryRadiationProperties()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.create_k"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.create_k()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.create_nut"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.create_nut()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.create_omega"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.create_omega()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.create_p"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.create_p()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.create_p_rgh"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.create_p_rgh()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.create_qr"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.create_qr()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.init_boundary_conditions"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.init_boundary_conditions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.reads"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.run"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions.SetOpenFOAMBoundaryConditions.touches"><code class="docutils literal notranslate"><span class="pre">SetOpenFOAMBoundaryConditions.touches</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.html">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils package</a><ul>
@@ -266,8 +460,219 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
-<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-sim-settings-module">
-<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-sim-settings-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings">
+<span id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-sim-settings-module"></span><h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings module<a class="headerlink" href="#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.</span></span><span class="sig-name descname"><span class="pre">OpenFOAMSimSettings</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.plugins.PluginComfort.bim2sim_comfort.html#bim2sim.plugins.PluginComfort.bim2sim_comfort.sim_settings.ComfortSimSettings" title="bim2sim.plugins.PluginComfort.bim2sim_comfort.sim_settings.ComfortSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">ComfortSimSettings</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.add_air_volume_evaluation">
+<span class="sig-name descname"><span class="pre">add_air_volume_evaluation</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.add_air_volume_evaluation" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.add_airterminals">
+<span class="sig-name descname"><span class="pre">add_airterminals</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.add_airterminals" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.add_comfort">
+<span class="sig-name descname"><span class="pre">add_comfort</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.add_comfort" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.add_floorheating">
+<span class="sig-name descname"><span class="pre">add_floorheating</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.add_floorheating" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.add_furniture">
+<span class="sig-name descname"><span class="pre">add_furniture</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.add_furniture" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.add_heating">
+<span class="sig-name descname"><span class="pre">add_heating</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.add_heating" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.add_people">
+<span class="sig-name descname"><span class="pre">add_people</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.add_people" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.add_solar_radiation">
+<span class="sig-name descname"><span class="pre">add_solar_radiation</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.add_solar_radiation" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.adjust_refinements">
+<span class="sig-name descname"><span class="pre">adjust_refinements</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.adjust_refinements" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.cluster_compute_account">
+<span class="sig-name descname"><span class="pre">cluster_compute_account</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.cluster_compute_account" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.cluster_cpu_per_node">
+<span class="sig-name descname"><span class="pre">cluster_cpu_per_node</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.cluster_cpu_per_node" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.cluster_jobname">
+<span class="sig-name descname"><span class="pre">cluster_jobname</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.cluster_jobname" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.cluster_max_runtime_meshing">
+<span class="sig-name descname"><span class="pre">cluster_max_runtime_meshing</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.cluster_max_runtime_meshing" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.cluster_max_runtime_simulation">
+<span class="sig-name descname"><span class="pre">cluster_max_runtime_simulation</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.cluster_max_runtime_simulation" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.furniture_amount">
+<span class="sig-name descname"><span class="pre">furniture_amount</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.furniture_amount" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.furniture_orientation">
+<span class="sig-name descname"><span class="pre">furniture_orientation</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.furniture_orientation" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.furniture_setting">
+<span class="sig-name descname"><span class="pre">furniture_setting</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.furniture_setting" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.heater_radiation">
+<span class="sig-name descname"><span class="pre">heater_radiation</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.heater_radiation" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.ignore_heatloss">
+<span class="sig-name descname"><span class="pre">ignore_heatloss</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.ignore_heatloss" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.inlet_type">
+<span class="sig-name descname"><span class="pre">inlet_type</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.inlet_type" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.level_heat_balance">
+<span class="sig-name descname"><span class="pre">level_heat_balance</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.level_heat_balance" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.mesh_feature_snapping">
+<span class="sig-name descname"><span class="pre">mesh_feature_snapping</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.mesh_feature_snapping" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.mesh_max_global_cells">
+<span class="sig-name descname"><span class="pre">mesh_max_global_cells</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.mesh_max_global_cells" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.mesh_size">
+<span class="sig-name descname"><span class="pre">mesh_size</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.mesh_size" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.n_procs">
+<span class="sig-name descname"><span class="pre">n_procs</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.n_procs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.outflow_direction">
+<span class="sig-name descname"><span class="pre">outflow_direction</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.outflow_direction" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.outlet_type">
+<span class="sig-name descname"><span class="pre">outlet_type</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.outlet_type" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.people_amount">
+<span class="sig-name descname"><span class="pre">people_amount</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.people_amount" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.people_setting">
+<span class="sig-name descname"><span class="pre">people_setting</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.people_setting" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.radiation_model">
+<span class="sig-name descname"><span class="pre">radiation_model</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.radiation_model" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.radiation_precondition_time">
+<span class="sig-name descname"><span class="pre">radiation_precondition_time</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.radiation_precondition_time" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.run_cfd_simulation">
+<span class="sig-name descname"><span class="pre">run_cfd_simulation</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.run_cfd_simulation" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.run_meshing">
+<span class="sig-name descname"><span class="pre">run_meshing</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.run_meshing" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.scale_person_for_eval">
+<span class="sig-name descname"><span class="pre">scale_person_for_eval</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.scale_person_for_eval" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.select_space_guid">
+<span class="sig-name descname"><span class="pre">select_space_guid</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.select_space_guid" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.simulation_date">
+<span class="sig-name descname"><span class="pre">simulation_date</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.simulation_date" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.simulation_time">
+<span class="sig-name descname"><span class="pre">simulation_time</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.simulation_time" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.simulation_type">
+<span class="sig-name descname"><span class="pre">simulation_type</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.simulation_type" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.steady_iterations">
+<span class="sig-name descname"><span class="pre">steady_iterations</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.steady_iterations" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.total_iterations">
+<span class="sig-name descname"><span class="pre">total_iterations</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.total_iterations" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.use_energyplus_people_amount">
+<span class="sig-name descname"><span class="pre">use_energyplus_people_amount</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings.OpenFOAMSimSettings.use_energyplus_people_amount" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 

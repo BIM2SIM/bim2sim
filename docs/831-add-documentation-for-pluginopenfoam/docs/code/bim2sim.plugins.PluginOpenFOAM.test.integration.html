@@ -20,7 +20,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="bim2sim.plugins.PluginOpenFOAM.test.unit package" href="bim2sim.plugins.PluginOpenFOAM.test.unit.html" />
+    <link rel="next" title="bim2sim.plugins.PluginOpenFOAM.test.regression package" href="bim2sim.plugins.PluginOpenFOAM.test.regression.html" />
     <link rel="prev" title="bim2sim.plugins.PluginOpenFOAM.test package" href="bim2sim.plugins.PluginOpenFOAM.test.html" /> 
 </head>
 
@@ -108,8 +108,63 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
-<section id="bim2sim-plugins-pluginopenfoam-test-integration-test-openfoam-module">
-<h2>bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-test-integration-test-openfoam-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam">
+<span id="bim2sim-plugins-pluginopenfoam-test-integration-test-openfoam-module"></span><h2>bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam module<a class="headerlink" href="#module-bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.IntegrationBaseOF">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.</span></span><span class="sig-name descname"><span class="pre">IntegrationBaseOF</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.IntegrationBaseOF" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.test.IntegrationBase" title="bim2sim.utilities.test.IntegrationBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntegrationBase</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.IntegrationBaseOF.model_domain_path">
+<span class="sig-name descname"><span class="pre">model_domain_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.IntegrationBaseOF.model_domain_path" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.IntegrationBaseOF.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.IntegrationBaseOF.setUp" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.IntegrationBaseOF.tearDown">
+<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.IntegrationBaseOF.tearDown" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.IntegrationBaseOF.weather_file_path">
+<span class="sig-name descname"><span class="pre">weather_file_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.IntegrationBaseOF.weather_file_path" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.TestOFIntegration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.</span></span><span class="sig-name descname"><span class="pre">TestOFIntegration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.TestOFIntegration" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.IntegrationBaseOF" title="bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.IntegrationBaseOF"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntegrationBaseOF</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<p>Integration tests for multiple IFC example files.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.TestOFIntegration.run_test_furniture_setup_with_people">
+<span class="sig-name descname"><span class="pre">run_test_furniture_setup_with_people</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_guid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">furniture_orientation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">furniture_setting</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">furniture_amount</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_people</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">people_amount</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">people_setting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Seated'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_furniture</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_number_furniture</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_number_people</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.TestOFIntegration.run_test_furniture_setup_with_people" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.TestOFIntegration.test_furniture_setup">
+<span class="sig-name descname"><span class="pre">test_furniture_setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.TestOFIntegration.test_furniture_setup" title="Permalink to this definition"></a></dt>
+<dd><p>Test Original IFC File from FZK-Haus (KIT)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.TestOFIntegration.test_furniture_setup_DH">
+<span class="sig-name descname"><span class="pre">test_furniture_setup_DH</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.TestOFIntegration.test_furniture_setup_DH" title="Permalink to this definition"></a></dt>
+<dd><p>Test DigitalHub, IFC2SB Version, Furniture setups</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.TestOFIntegration.validate_positions">
+<span class="sig-name descname"><span class="pre">validate_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">openfoam_elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">openfoam_case</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_amount</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.integration.test_openfoam.TestOFIntegration.validate_positions" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 
@@ -118,7 +173,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="bim2sim.plugins.PluginOpenFOAM.test.html" class="btn btn-neutral float-left" title="bim2sim.plugins.PluginOpenFOAM.test package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="bim2sim.plugins.PluginOpenFOAM.test.unit.html" class="btn btn-neutral float-right" title="bim2sim.plugins.PluginOpenFOAM.test.unit package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="bim2sim.plugins.PluginOpenFOAM.test.regression.html" class="btn btn-neutral float-right" title="bim2sim.plugins.PluginOpenFOAM.test.regression package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
