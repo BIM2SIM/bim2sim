@@ -34,7 +34,8 @@ class InitializeOpenFOAMSetup(ITask):
         # setup system
         self.create_fvSolution(openfoam_case)
         self.create_fvSchemes(openfoam_case)
-        self.create_controlDict(openfoam_case)
+        self.create_controlDict(openfoam_case,
+                                self.playground.sim_settings.total_iterations)
         self.create_decomposeParDict(openfoam_case)
         # setup constant
         self.create_g(openfoam_case)
@@ -45,7 +46,6 @@ class InitializeOpenFOAMSetup(ITask):
         self.read_ep_results(openfoam_case,
                              date=self.playground.sim_settings.simulation_date,
                              time=self.playground.sim_settings.simulation_time)
-
         return openfoam_case,
 
     def create_directory(self, openfoam_case):
@@ -105,7 +105,7 @@ class InitializeOpenFOAMSetup(ITask):
         openfoam_case.fvSchemes.save(openfoam_case.openfoam_dir)
 
     @staticmethod
-    def create_controlDict(openfoam_case):
+    def create_controlDict(openfoam_case, total_iterations):
         openfoam_case.controlDict = controlDict.ControlDict()
         if openfoam_case.transient_simulation:
             openfoam_case.controlDict = openfoam_case.controlDict.from_file(
@@ -116,6 +116,7 @@ class InitializeOpenFOAMSetup(ITask):
                 openfoam_case.default_templates_dir / 'system' / 'steadyState' /
                 'controlDict')
         openfoam_case.controlDict.save(openfoam_case.openfoam_dir)
+        openfoam_case.controlDict.endTime = total_iterations
 
     @staticmethod
     def create_decomposeParDict(openfoam_case):
