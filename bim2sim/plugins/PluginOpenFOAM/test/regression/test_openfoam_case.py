@@ -146,7 +146,9 @@ class RegressionTestOpenFOAM(RegressionTestBase):
 
     def create_regression_setup(self):
         passed_regression_test = True
-        ref_results_dir = Path("")  # Todo
+        ref_results_dir = Path(bim2sim.__file__).parent.parent \
+            / "test/resources/arch/regression_results" \
+            / self.project.name / 'OpenFOAM'
         sim_output_dir = self.project.paths.export / "OpenFOAM"
         regression_results_dir = (self.project.paths.root /
                                   "regression_results" / "cfd" /
@@ -154,11 +156,13 @@ class RegressionTestOpenFOAM(RegressionTestBase):
         regression_results_dir.mkdir(parents=True, exist_ok=True)
         html_report_path = regression_results_dir / "diff_report.html"
         print(f"Generating HTML diff report: {html_report_path}")
-        differences_found = self.generate_html_diff_report(sim_output_dir,
+        has_diffs, report_path = self.generate_html_diff_report(sim_output_dir,
                                                            ref_results_dir,
                                                            html_report_path)
-        if differences_found:
+        if has_diffs:
             passed_regression_test = False
+            logger.error(
+                f"Regression test failed. Results are written to {report_path}.")
         return passed_regression_test
 
     def run_regression_test(self):
@@ -177,8 +181,22 @@ class TestRegressionOpenFOAMCase(RegressionTestOpenFOAM, unittest.TestCase):
              'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
         project.sim_settings.cfd_export = True
         project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
+        project.sim_settings.simulation_time = 12
+        project.sim_settings.simulation_date = "01/14"
         project.sim_settings.add_heating = True
         project.sim_settings.heater_radiation = 0.6
+        project.sim_settings.radiation_model = 'P1'
+        project.sim_settings.add_airterminals = True
+        project.sim_settings.inlet_type = 'SimpleStlDiffusor'
+        project.sim_settings.outlet_type = 'SimpleStlDiffusor'
+        project.sim_settings.mesh_size = 0.15
+        project.sim_settings.cluster_max_runtime_simulation = "02:59:00"
+        project.sim_settings.cluster_max_runtime_meshing = "00:20:00"
+        project.sim_settings.cluster_jobname = "RegressionTest"
+        project.sim_settings.cluster_compute_account = "test1234"
+        project.sim_settings.cluster_cpu_per_node = 48
+        project.sim_settings.n_procs = 72
+        project.sim_settings.total_iterations = 5000
 
         handler = DebugDecisionHandler(())
         handler.handle(project.run())
@@ -189,4 +207,57 @@ class TestRegressionOpenFOAMCase(RegressionTestOpenFOAM, unittest.TestCase):
                         "or created deviations.")
 
     def test_regression_DigitalHub_SB89(self):
-        pass
+        """Run PluginOpenFOAM regression test with DigitalHub."""
+        ifc_paths = {
+            IFCDomain.arch:
+                Path(bim2sim.__file__).parent.parent /
+                'test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc',
+            IFCDomain.ventilation:
+                Path(bim2sim.__file__).parent.parent /
+                'test/resources/hydraulic/ifc/DigitalHub_Gebaeudetechnik'
+                '-LUEFTUNG_v2.ifc',
+            IFCDomain.hydraulic:
+                Path(bim2sim.__file__).parent.parent /
+                'test/resources/hydraulic/ifc/DigitalHub_Gebaeudetechnik-HEIZUNG_v2'
+                '.ifc',
+        }
+        project = self.create_project(ifc_paths, "openfoam")
+
+        project.sim_settings.weather_file_path = \
+            (self.test_resources_path() /
+             'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
+        project.sim_settings.prj_custom_usages = (Path(
+            bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
+            "customUsagesFM_ARC_DigitalHub_with_SB89.json")
+        project.sim_settings.cfd_export = True
+        project.sim_settings.select_space_guid = '3hiy47ppf5B8MyZqbpTfpc'
+        project.sim_settings.inlet_type = 'Original'
+        project.sim_settings.outlet_type = 'Original'
+        project.sim_settings.add_heating = True
+        project.sim_settings.add_people = True
+        project.sim_settings.add_floorheating = False
+        project.sim_settings.add_airterminals = True
+        project.sim_settings.add_comfort = True
+        project.sim_settings.add_furniture = True
+        project.sim_settings.add_people = True
+        project.sim_settings.add_comfort = True
+        project.sim_settings.furniture_setting = 'Office'
+        project.sim_settings.furniture_amount = 8
+        project.sim_settings.people_amount = 4
+        project.sim_settings.people_setting = 'Seated'
+        project.sim_settings.radiation_precondition_time = 4000
+        project.sim_settings.radiation_model = 'preconditioned_fvDOM'
+        project.sim_settings.output_keys = ['output_outdoor_conditions',
+                                            'output_zone_temperature',
+                                            'output_zone',
+                                            'output_infiltration',
+                                            'output_meters',
+                                            'output_internal_gains']
+
+        handler = DebugDecisionHandler(())
+        handler.handle(project.run())
+
+        reg_test_res = self.run_regression_test()
+        self.assertTrue(reg_test_res,
+                        "OpenFOAM Regression test did not finish successfully "
+                        "or created deviations.")
