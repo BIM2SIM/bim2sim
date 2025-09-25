@@ -241,10 +241,11 @@ the modelica models and allow the user to model their own controls.
 
 CFD simulations are used to analyze fluid flow, heat transfer, and indoor air 
 distribution in buildings. While Building Performance Simulation (BPS) focuses 
-on overall energy balance and system sizing, CFD provides detailed insights 
-into local comfort parameters, such as air velocity, temperature stratification, 
-and contaminant dispersion. This allows designers to assess the indoor 
-environmental quality (IEQ) beyond energy efficiency.
+on overall energy balance and system sizing on a zonal scale for the whole building, 
+CFD provides detailed insights into local comfort parameters, such as air velocity, 
+temperature stratification, and contaminant dispersion for a smaller subset of the 
+building (e.g., a zone or room) resolved in a high-resolution mesh. This allows 
+designers to assess the indoor environmental quality (IEQ) beyond energy efficiency.
 
 Typical applications of CFD in building design include:
 * Evaluation of thermal comfort in different room setups
