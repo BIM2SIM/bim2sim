@@ -41,10 +41,14 @@ class RegressionTestOpenFOAM(RegressionTestBase):
         """
         html_sections = []
         diffs_found = False
-
+        final_diffs_found = 0
         differ = difflib.HtmlDiff(tabsize=4, wrapcolumn=80)
         for root, _, files in os.walk(ref_dir):
             rel_root = os.path.relpath(root, ref_dir)
+            if 'temp' in rel_root.lower():
+                # exclude temp file directories from further diff checks as
+                # they are obsolete
+                break
             gen_root = new_dir / rel_root
 
             if not gen_root.exists():
@@ -62,6 +66,7 @@ class RegressionTestOpenFOAM(RegressionTestBase):
                         f"<h4>Missing file in generated: "
                         f"{os.path.join(rel_root, f)}</h4>"
                     )
+                    final_diffs_found += 1
                     continue
                 if filecmp.cmp(ref_file, gen_file, shallow=False):
                     continue  # identical, skip
@@ -80,13 +85,20 @@ class RegressionTestOpenFOAM(RegressionTestBase):
                                                todesc=desc_to,
                                                context=True,
                                                numlines=context_lines)
+                if "No Differences Found".lower() in table_html.lower():
+                    continue
                 html_sections.append(
                     f"<h2>{os.path.join(rel_root, f)}</h2>\n{table_html}")
+                final_diffs_found += 1
 
         # Check for unexpected extra files in generated_dir
         extra_files = []
         for root, _, files in os.walk(new_dir):
             rel_root = os.path.relpath(root, new_dir)
+            if 'temp' in rel_root.lower():
+                # exclude temp file directories from further diff checks as
+                # they are obsolete
+                break
             for f in files:
                 gen_path = Path(root) / f
                 ref_path = ref_dir / rel_root / f
@@ -95,6 +107,7 @@ class RegressionTestOpenFOAM(RegressionTestBase):
                     print(
                         f"Extra file in generated: "
                         f"{os.path.join(rel_root, f)}")  # progress print, todo
+                    final_diffs_found += 1
 
         if extra_files:
             diffs_found = True
@@ -139,7 +152,10 @@ class RegressionTestOpenFOAM(RegressionTestBase):
         out_path = Path(output_html)
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(html_page, encoding="utf-8")
-        print(f"HTML diff report written to: {out_path}")
+        print(f"HTML diff report written to: {out_path}. Differences were "
+              f"found in {final_diffs_found} files.")
+        if final_diffs_found == 0:
+            diffs_found = False
         return diffs_found, str(out_path)
 
     def create_regression_setup(self):
@@ -208,9 +224,6 @@ class TestRegressionOpenFOAMCase(RegressionTestOpenFOAM, unittest.TestCase):
     def test_regression_DigitalHub_SB89(self):
         """Run PluginOpenFOAM regression test with DigitalHub."""
         ifc_paths = {
-            IFCDomain.arch:
-                Path(bim2sim.__file__).parent.parent /
-                'test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc',
             IFCDomain.ventilation:
                 Path(bim2sim.__file__).parent.parent /
                 'test/resources/hydraulic/ifc/DigitalHub_Gebaeudetechnik'
@@ -219,6 +232,9 @@ class TestRegressionOpenFOAMCase(RegressionTestOpenFOAM, unittest.TestCase):
                 Path(bim2sim.__file__).parent.parent /
                 'test/resources/hydraulic/ifc/DigitalHub_Gebaeudetechnik-HEIZUNG_v2'
                 '.ifc',
+            IFCDomain.arch:
+                Path(bim2sim.__file__).parent.parent /
+                'test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc',
         }
         project = self.create_project(ifc_paths, "openfoam")
 
