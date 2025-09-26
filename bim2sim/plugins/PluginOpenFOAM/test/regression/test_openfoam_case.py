@@ -29,7 +29,7 @@ class RegressionTestOpenFOAM(RegressionTestBase):
     def tearDown(self):
         os.chdir(self.working_dir)
         sys.stderr = self.old_stderr
-        # super().tearDown()
+        super().tearDown()
 
     @staticmethod
     def generate_html_diff_report(new_dir: Path, ref_dir: Path,
@@ -45,7 +45,6 @@ class RegressionTestOpenFOAM(RegressionTestBase):
         differ = difflib.HtmlDiff(tabsize=4, wrapcolumn=80)
         for root, _, files in os.walk(ref_dir):
             rel_root = os.path.relpath(root, ref_dir)
-            print(f"Entering directory: {rel_root}")  # progress print, todo
             gen_root = new_dir / rel_root
 
             if not gen_root.exists():
@@ -57,7 +56,6 @@ class RegressionTestOpenFOAM(RegressionTestBase):
             for f in files:
                 ref_file = Path(root) / f
                 gen_file = gen_root / f
-                print(f"Comparing file: {os.path.join(rel_root, f)}") #todo progress
                 if not gen_file.exists():
                     diffs_found = True
                     html_sections.append(
@@ -254,7 +252,9 @@ class TestRegressionOpenFOAMCase(RegressionTestOpenFOAM, unittest.TestCase):
                                             'output_meters',
                                             'output_internal_gains']
 
-        handler = DebugDecisionHandler(())
+        answers = ('Autodesk Revit', 'Autodesk Revit', *(None,) * 13,
+                   *('HVAC-AirTerminal',) * 3, *(None,) * 2, 2015)
+        handler = DebugDecisionHandler(answers)
         handler.handle(project.run())
 
         reg_test_res = self.run_regression_test()
