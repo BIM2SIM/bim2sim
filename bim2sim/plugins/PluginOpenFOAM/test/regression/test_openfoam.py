@@ -29,7 +29,7 @@ class RegressionTestOpenFOAM(RegressionTestBase):
     def tearDown(self):
         os.chdir(self.working_dir)
         sys.stderr = self.old_stderr
-        # super().tearDown()
+        super().tearDown()
 
     @staticmethod
     def generate_html_diff_report(new_dir: Path, ref_dir: Path,
@@ -179,6 +179,7 @@ class TestRegressionOpenFOAMCase(RegressionTestOpenFOAM, unittest.TestCase):
         project.sim_settings.weather_file_path = \
             (self.test_resources_path() /
              'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         project.sim_settings.cfd_export = True
         project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
         project.sim_settings.simulation_time = 12
@@ -229,6 +230,7 @@ class TestRegressionOpenFOAMCase(RegressionTestOpenFOAM, unittest.TestCase):
         project.sim_settings.prj_custom_usages = (Path(
             bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
             "customUsagesFM_ARC_DigitalHub_with_SB89.json")
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         project.sim_settings.cfd_export = True
         project.sim_settings.select_space_guid = '3hiy47ppf5B8MyZqbpTfpc'
         project.sim_settings.inlet_type = 'Original'
