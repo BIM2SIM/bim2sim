@@ -224,6 +224,9 @@ class TestRegressionOpenFOAMCase(RegressionTestOpenFOAM, unittest.TestCase):
     def test_regression_DigitalHub_SB89(self):
         """Run PluginOpenFOAM regression test with DigitalHub."""
         ifc_paths = {
+            IFCDomain.arch:
+                Path(bim2sim.__file__).parent.parent /
+                'test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc',
             IFCDomain.ventilation:
                 Path(bim2sim.__file__).parent.parent /
                 'test/resources/hydraulic/ifc/DigitalHub_Gebaeudetechnik'
@@ -232,9 +235,6 @@ class TestRegressionOpenFOAMCase(RegressionTestOpenFOAM, unittest.TestCase):
                 Path(bim2sim.__file__).parent.parent /
                 'test/resources/hydraulic/ifc/DigitalHub_Gebaeudetechnik-HEIZUNG_v2'
                 '.ifc',
-            IFCDomain.arch:
-                Path(bim2sim.__file__).parent.parent /
-                'test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc',
         }
         project = self.create_project(ifc_paths, "openfoam")
 
