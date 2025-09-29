@@ -30,7 +30,8 @@ from bim2sim.utilities.common_functions import filter_elements, \
     get_spaces_with_bounds, all_subclasses
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 from bim2sim.utilities.types import BoundaryOrientation
-from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils.utils_hash_function import generate_hash, add_hash_into_idf
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils.utils_hash_function \
+    import generate_hash, add_hash_into_idf
 
 if TYPE_CHECKING:
     from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
