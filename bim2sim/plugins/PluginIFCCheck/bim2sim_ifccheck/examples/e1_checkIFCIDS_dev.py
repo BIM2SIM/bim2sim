@@ -35,11 +35,11 @@ def run_simple_project():
     #         Path(bim2sim.__file__).parent.parent /
     #         'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
     # }
-    ifc_paths = {
-        IFCDomain.arch:
-            Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/AC20-FZK-Haus_with_SB55.ifc',
-    }
+    # ifc_paths = {
+    #     IFCDomain.arch:
+    #         Path(bim2sim.__file__).parent.parent /
+    #         'test/resources/arch/ifc/AC20-FZK-Haus_with_SB55.ifc',
+    # }
     #
     # ifc file with not fitting ifc version
     # ifc_paths = {
@@ -47,6 +47,22 @@ def run_simple_project():
     #         Path(bim2sim.__file__).parent.parent.parent.parent /
     #         '12_ifc_check_ids/AC20-FZK-Haus_NoneAndDoubleGUID2x3.ifc',
     # }
+
+    # small example file
+    # but is not correct at all
+    # ifc_paths = {
+    #     IFCDomain.arch:
+    #         Path(bim2sim.__file__).parent.parent.parent.parent /
+    #         '12_ifc_check_ids/03_ifc_veronika/2024-04-23_3rooms_240317_Heater_AirTerminal_Table_with_SB.ifc',
+    # }
+
+    # small example file with errors
+    # but is not correct at all
+    ifc_paths = {
+        IFCDomain.arch:
+            Path(bim2sim.__file__).parent.parent.parent.parent /
+            '12_ifc_check_ids/03_ifc_veronika/2024-04-23_3rooms_240317_Heater_AirTerminal_Table_with_SB_errors.ifc',
+    }
 
     project = Project.create(
         project_path, ifc_paths, PluginIFCCheck)
