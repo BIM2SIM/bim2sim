@@ -1,4 +1,4 @@
-"""check ifc input file manly based on IDS files"""
+"""Check ifc input file mainly based on IDS files."""
 
 import os
 
