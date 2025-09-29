@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 import math
 import os
-import hashlib
 from pathlib import Path, PosixPath
 from typing import Union, TYPE_CHECKING
 
@@ -31,6 +30,7 @@ from bim2sim.utilities.common_functions import filter_elements, \
     get_spaces_with_bounds, all_subclasses
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 from bim2sim.utilities.types import BoundaryOrientation
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils.utils_hash_function import generate_hash, add_hash_into_idf
 
 if TYPE_CHECKING:
     from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
@@ -49,10 +49,11 @@ class CreateIdf(ITask):
 
     reads = ('elements', 'weather_file',)
     touches = ('idf', 'sim_results_path')
-    hash_line = None
+
     def __init__(self, playground):
         super().__init__(playground)
         self.idf = None
+        self.hash_line = None
 
     def run(self, elements: dict, weather_file: Path) -> tuple[IDF, Path]:
         """Execute all methods to export an IDF from BIM2SIM.
@@ -105,33 +106,13 @@ class CreateIdf(ITask):
         logger.info("Save idf ...")
         idf.save(idf.idfname)
         if self.playground.sim_settings.add_hash:
-            CreateIdf.add_hash_into_idf(idf.idfname)
+            logger.info("Generate IFC geometry hash ...")
+            self.hash_line = generate_hash(ifc_path=self.paths.ifc_base / 'arch' / str(self.prj_name + '.ifc'))
+            add_hash_into_idf(self.hash_line, idf.idfname)
         logger.info("Idf file successfully saved.")
 
         return idf, sim_results_path
 
-    @staticmethod
-    def generate_hash(ifc):
-        """Generate SHA-256 hash for IFC file"""
-        sha256_hash = hashlib.sha256()
-
-        with open(ifc, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(chunk)
-        ifc_hash = sha256_hash.hexdigest()
-        ifc_filename = ifc.split('\\')[-1]
-        hash_prefix = "IFC_GEOMETRY_HASH"  # prefix
-        CreateIdf.hash_line = f"! {hash_prefix}: {ifc_hash} | IFC_FILENAME: {ifc_filename}\n"
-
-    def add_into_idf (idf_path):
-        """Add hash with specific prefix for easy search"""
-        with open(idf_path, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-        # Insert at first line
-        lines.insert(0, CreateIdf.hash_line)
-
-        with open(idf_path, 'w', encoding='utf-8') as f:
-            f.writelines(lines)
 
     @staticmethod
     def init_idf(sim_settings: EnergyPlusSimSettings, paths: FolderStructure,
@@ -161,14 +142,6 @@ class CreateIdf(ITask):
         idf = IDF(plugin_ep_path + '/data/Minimal.idf')
         sim_results_path = paths.export/'EnergyPlus'/'SimResults'
         export_path = sim_results_path / ifc_name
-        # pass the ifc path to generate hash function
-        export_path_obj = Path(export_path)
-        path_parts = str(export_path_obj.as_posix()).split('/export/EnergyPlus/SimResults/')
-        base_path = Path(path_parts[0])
-        path_ifc = base_path / 'ifc' / 'arch' / path_parts[1]
-        print(path_ifc, "path_ifc")
-        CreateIdf.generate_hash(str(path_ifc) + ".ifc")
-
         if not os.path.exists(export_path):
             os.makedirs(export_path)
         idf.idfname = export_path / str(ifc_name + '.idf')
@@ -1477,30 +1450,6 @@ class CreateIdf(ITask):
                     "missing boundary conditions)!",
                     idfp.name, idfp.surface_type)
                 continue
-    @staticmethod
-    def generate_hash(ifc):
-        """Generate SHA-256 hash for IFC file"""
-        sha256_hash = hashlib.sha256()
-
-        with open(ifc, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(chunk)
-        ifc_hash = sha256_hash.hexdigest()
-        print(ifc)
-        ifc_filename = Path(ifc).name
-        print(ifc_filename)
-        hash_prefix = "IFC_GEOMETRY_HASH"  # prefix
-        CreateIdf.hash_line = f"! {hash_prefix}: {ifc_hash} | IFC_FILENAME: {ifc_filename}\n"
-
-    def add_hash_into_idf (idf_path):
-        """Add hash with specific prefix for easy search"""
-        with open(idf_path, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-        # Insert at first line
-        lines.insert(0, CreateIdf.hash_line)
-
-        with open(idf_path, 'w', encoding='utf-8') as f:
-            f.writelines(lines)
 
     @staticmethod
     def idf_validity_check(idf):
