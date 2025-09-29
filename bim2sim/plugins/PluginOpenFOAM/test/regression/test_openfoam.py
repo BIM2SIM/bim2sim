@@ -7,6 +7,10 @@ import logging
 from pathlib import Path
 
 import bim2sim
+from bim2sim.tasks import common, bps
+from bim2sim.plugins.PluginComfort.bim2sim_comfort import task as comfort_tasks
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import task as ep_tasks
+from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam import task as of_tasks
 from bim2sim.utilities.types import LOD, IFCDomain
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import RegressionTestBase
@@ -190,6 +194,32 @@ class TestRegressionOpenFOAMCase(RegressionTestOpenFOAM, unittest.TestCase):
         ifc_path = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_path, "openfoam")
 
+        project.plugin_cls.default_tasks = [
+            common.LoadIFC,
+            # common.CheckIfc,
+            common.CreateElementsOnIfcTypes,
+            bps.CreateSpaceBoundaries,
+            bps.AddSpaceBoundaries2B,
+            bps.CorrectSpaceBoundaries,
+            common.CreateRelations,
+            bps.DisaggregationCreationAndTypeCheck,
+            bps.EnrichMaterial,
+            bps.EnrichUseConditions,
+            common.Weather,
+            ep_tasks.CreateIdf,
+            comfort_tasks.ComfortSettings,
+            # ep_tasks.ExportIdfForCfd,
+            # common.SerializeElements,
+            ep_tasks.RunEnergyPlusSimulation,
+            of_tasks.InitializeOpenFOAMSetup,
+            of_tasks.CreateOpenFOAMGeometry,
+            of_tasks.AddOpenFOAMComfort,
+            of_tasks.CreateOpenFOAMMeshing,
+            of_tasks.SetOpenFOAMBoundaryConditions,
+            of_tasks.RunOpenFOAMMeshing,
+            of_tasks.RunOpenFOAMSimulation
+        ]
+
         project.sim_settings.weather_file_path = \
             (self.test_resources_path() /
              'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
@@ -237,6 +267,31 @@ class TestRegressionOpenFOAMCase(RegressionTestOpenFOAM, unittest.TestCase):
                 '.ifc',
         }
         project = self.create_project(ifc_paths, "openfoam")
+        project.plugin_cls.default_tasks = [
+            common.LoadIFC,
+            # common.CheckIfc,
+            common.CreateElementsOnIfcTypes,
+            bps.CreateSpaceBoundaries,
+            bps.AddSpaceBoundaries2B,
+            bps.CorrectSpaceBoundaries,
+            common.CreateRelations,
+            bps.DisaggregationCreationAndTypeCheck,
+            bps.EnrichMaterial,
+            bps.EnrichUseConditions,
+            common.Weather,
+            ep_tasks.CreateIdf,
+            comfort_tasks.ComfortSettings,
+            # ep_tasks.ExportIdfForCfd,
+            # common.SerializeElements,
+            ep_tasks.RunEnergyPlusSimulation,
+            of_tasks.InitializeOpenFOAMSetup,
+            of_tasks.CreateOpenFOAMGeometry,
+            of_tasks.AddOpenFOAMComfort,
+            of_tasks.CreateOpenFOAMMeshing,
+            of_tasks.SetOpenFOAMBoundaryConditions,
+            of_tasks.RunOpenFOAMMeshing,
+            of_tasks.RunOpenFOAMSimulation
+        ]
 
         project.sim_settings.weather_file_path = \
             (self.test_resources_path() /
