@@ -17,6 +17,7 @@ ENV ENERGYPLUS_INSTALL_VERSION=9-4-0
 ENV ENERGYPLUS_DOWNLOAD_BASE_URL https://github.com/NREL/EnergyPlus/releases/download/$ENERGYPLUS_TAG
 ENV ENERGYPLUS_DOWNLOAD_FILENAME EnergyPlus-$ENERGYPLUS_VERSION-$ENERGYPLUS_SHA-Linux-Ubuntu18.04-x86_64.sh
 ENV ENERGYPLUS_DOWNLOAD_URL $ENERGYPLUS_DOWNLOAD_BASE_URL/$ENERGYPLUS_DOWNLOAD_FILENAME
+ENV ENERGYPLUS_USE_BROWSER "Mozilla/5.0 (Windows NT 11.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.6998.166 Safari/537.36"
 
 USER root
 
@@ -24,8 +25,8 @@ USER root
 RUN apt-get update && apt-get install -y ca-certificates curl libx11-6 libexpat1 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl -SLO --retry 5 --retry-delay 15 --retry-max-time 900 --connect-timeout 60 --max-time 3600 $ENERGYPLUS_DOWNLOAD_URL || \
-    (sleep 30 && curl -SLO --retry 5 --retry-delay 15 --retry-max-time 900 --connect-timeout 60 --max-time 3600 $ENERGYPLUS_DOWNLOAD_URL)
+RUN curl -SLO --retry 5 --retry-delay 15 --retry-max-time 900 --connect-timeout 60 --max-time 3600 -A $ENERGYPLUS_USE_BROWSER $ENERGYPLUS_DOWNLOAD_URL || \
+    (sleep 30 && curl -SLO --retry 5 --retry-delay 15 --retry-max-time 900 --connect-timeout 60 --max-time 3600 -A $ENERGYPLUS_USE_BROWSER $ENERGYPLUS_DOWNLOAD_URL)
 
 RUN chmod +x $ENERGYPLUS_DOWNLOAD_FILENAME
 
