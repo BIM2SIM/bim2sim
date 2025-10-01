@@ -196,7 +196,7 @@ build:dev-PluginEnergyPlus:py3.10:
     TAG: dev-PluginEnergyPlus-py3.10
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
   needs:
-    - build:dev:py3.10
+    - build:dev-energyplus:py3.10
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development"'
       changes:
@@ -212,7 +212,7 @@ build:dev-PluginEnergyPlus:py3.11:
     TAG: dev-PluginEnergyPlus-py3.11
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
   needs:
-    - build:dev:py3.11
+    - build:dev-energyplus:py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development"'
       changes:
@@ -228,7 +228,7 @@ build:dev-PluginComfort:py3.10:
     TAG: dev-PluginComfort-py3.10
     DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
   needs:
-    - build:dev:py3.10
+    - build:dev-energyplus:py3.10
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development"'
       changes:
@@ -244,7 +244,7 @@ build:dev-PluginComfort:py3.11:
     TAG: dev-PluginComfort-py3.11
     DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
   needs:
-    - build:dev:py3.11
+    - build:dev-energyplus:py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development"'
       changes:
