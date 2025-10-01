@@ -5,3 +5,4 @@
 [submodule "butterfly"]
 	path = butterfly
 	url = https://github.com/BIM2SIM/butterfly.git
+	branch = master
