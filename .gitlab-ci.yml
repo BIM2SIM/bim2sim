@@ -75,6 +75,7 @@ build:dev:py3.10:
         - Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
+        - bim2sim/plugins/**/*.Dockerfile
 
 build:dev:py3.11:
   <<: *build_template
@@ -88,6 +89,7 @@ build:dev:py3.11:
         - Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
+        - bim2sim/plugins/**/*.Dockerfile
 
 # Development branch plugin builds
 build:dev-PluginTEASER:py3.10:
@@ -390,6 +392,8 @@ build:main:py3.10:
         - Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
+        - bim2sim/plugins/**/*.Dockerfile
+
 
 build:main:py3.11:
   <<: *build_template
@@ -403,6 +407,7 @@ build:main:py3.11:
         - Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
+        - bim2sim/plugins/**/*.Dockerfile
 
 # Main branch plugin builds
 build:main-PluginTEASER:py3.10:
