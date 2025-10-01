@@ -19,7 +19,6 @@ variables:
   TEST_ENGINE: "unittest"
   TEST_PATH: test
 
-
 include:
   - project: 'EBC/EBC_all/gitlab_ci/templates'
     file: 'python/code-quality/pylint.gitlab-ci.yml'
