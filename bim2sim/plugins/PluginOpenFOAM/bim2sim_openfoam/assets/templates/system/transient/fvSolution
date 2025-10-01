@@ -30,7 +30,7 @@ solvers
 
         smoother		GaussSeidel;
 
-        nPreSweepsre		0;
+        nPreSweeps		0;
 
         nPostSweeps		2;
 
