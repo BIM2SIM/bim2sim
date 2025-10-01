@@ -3,8 +3,8 @@ stages:
 #  - Test Plugin
 #  - Test Regression
 #  - doc
-#  - code_quality
-#  - deploy
+  - code_quality
+  - deploy
   - build
 
 variables:
