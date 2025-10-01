@@ -25,8 +25,21 @@ USER root
 RUN apt-get update && apt-get install -y ca-certificates curl libx11-6 libexpat1 \
     && rm -rf /var/lib/apt/lists/*
 
-RUN curl -SLO --retry 5 --retry-delay 15 --retry-max-time 900 --connect-timeout 60 --max-time 3600 -A "$ENERGYPLUS_USE_BROWSER" $ENERGYPLUS_DOWNLOAD_URL || \
-    (sleep 30 && curl -SLO --retry 5 --retry-delay 15 --retry-max-time 900 --connect-timeout 60 --max-time 3600 -A "$ENERGYPLUS_USE_BROWSER" $ENERGYPLUS_DOWNLOAD_URL)
+# EnergyPlus download (robust curl)
+RUN set -eux; \
+  url="$ENERGYPLUS_DOWNLOAD_URL"; \
+  curl -fsSL \
+    --retry 5 \
+    --retry-all-errors \
+    --retry-delay 15 \
+    --retry-max-time 900 \
+    --connect-timeout 60 \
+    --max-time 3600 \
+    --http1.1 \
+    --ipv4 \
+    --keepalive-time 30 \
+    -O "$url" \
+  || (sleep 30 && curl -fsSL --retry 5 --retry-all-errors --retry-delay 15 --retry-max-time 900 --connect-timeout 60 --max-time 3600 --http1.1 --ipv4 --keepalive-time 30 -O "$url")
 
 RUN chmod +x $ENERGYPLUS_DOWNLOAD_FILENAME
 
