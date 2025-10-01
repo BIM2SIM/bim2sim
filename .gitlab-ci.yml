@@ -2,7 +2,7 @@ stages:
 #  - Test Base
 #  - Test Plugin
 #  - Test Regression
-#  - doc
+  - doc
   - code_quality
   - deploy
   - build
