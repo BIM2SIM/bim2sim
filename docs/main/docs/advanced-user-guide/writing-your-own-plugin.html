@@ -99,19 +99,19 @@
 <section id="basics">
 <h2>Basics<a class="headerlink" href="#basics" title="Permalink to this heading"></a></h2>
 <p>A Plugin is little more than a collection of <code class="docutils literal notranslate"><span class="pre">Task</span></code>s. Let’s have a look:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bim2sim.plugins</span> <span class="kn">import</span> <span class="n">Plugin</span>
-<span class="kn">from</span> <span class="nn">bim2sim.task.base</span> <span class="kn">import</span> <span class="n">ITask</span>
-<span class="kn">from</span> <span class="nn">bim2sim.task.common</span> <span class="kn">import</span> <span class="n">LoadIFC</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bim2sim.plugins</span><span class="w"> </span><span class="kn">import</span> <span class="n">Plugin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bim2sim.task.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ITask</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bim2sim.task.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">LoadIFC</span>
 
-<span class="k">class</span> <span class="nc">DoGreatThings</span><span class="p">(</span><span class="n">ITask</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DoGreatThings</span><span class="p">(</span><span class="n">ITask</span><span class="p">):</span>
     <span class="n">reads</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;ifc&#39;</span><span class="p">,</span> <span class="p">)</span>
     
-    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workflow</span><span class="p">,</span> <span class="n">ifc</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workflow</span><span class="p">,</span> <span class="n">ifc</span><span class="p">):</span>
         <span class="c1"># do really great things here</span>
         <span class="k">pass</span>
 
     
-<span class="k">class</span> <span class="nc">MySamplePlugin</span><span class="p">(</span><span class="n">Plugin</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MySamplePlugin</span><span class="p">(</span><span class="n">Plugin</span><span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;My sample Plugin&quot;</span>
     <span class="n">default_workflow</span> <span class="o">=</span> <span class="n">some_workflow</span>
     <span class="n">tasks</span> <span class="o">=</span> <span class="p">{</span><span class="n">DoGreatThings</span><span class="p">}</span>
@@ -160,7 +160,7 @@ Plugin.</p>
 <section id="use-in-script">
 <h3>Use in script<a class="headerlink" href="#use-in-script" title="Permalink to this heading"></a></h3>
 <p>Alternatively you can use your <code class="docutils literal notranslate"><span class="pre">Plugin</span></code> directly from within your script.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bim2sim</span> <span class="kn">import</span> <span class="n">Project</span><span class="p">,</span> <span class="n">run_project</span><span class="p">,</span> <span class="n">ConsoleDecisionHandler</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bim2sim</span><span class="w"> </span><span class="kn">import</span> <span class="n">Project</span><span class="p">,</span> <span class="n">run_project</span><span class="p">,</span> <span class="n">ConsoleDecisionHandler</span>
 
 <span class="n">project</span> <span class="o">=</span> <span class="n">Project</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">plugin</span><span class="o">=</span><span class="n">MySamplePlugin</span><span class="p">)</span>
 <span class="n">run_project</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="n">ConsoleDecisionHandler</span><span class="p">())</span>

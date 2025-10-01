@@ -155,14 +155,14 @@ is only available in HVAC related plugins.</p>
 <h2>Writing your own Task<a class="headerlink" href="#writing-your-own-task" title="Permalink to this heading"></a></h2>
 <p>To write your own task go create a new file inside <code class="docutils literal notranslate"><span class="pre">bim2sim/task/&lt;domain&gt;</span></code> and
 fill like this</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bim2sim.task.base</span> <span class="kn">import</span> <span class="n">ITask</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bim2sim.task.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ITask</span>
 
 
-<span class="k">class</span> <span class="nc">AmazingTask</span><span class="p">(</span><span class="n">ITask</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AmazingTask</span><span class="p">(</span><span class="n">ITask</span><span class="p">):</span>
    <span class="n">reads</span> <span class="o">=</span> <span class="p">(</span><span class="n">input_1</span><span class="p">,</span> <span class="p">)</span>
    <span class="n">touches</span> <span class="o">=</span> <span class="p">(</span><span class="n">output1</span><span class="p">,)</span>
    
-   <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workflow</span><span class="p">):</span>
+   <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">workflow</span><span class="p">):</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Starting my amazing task&quot;</span><span class="p">)</span>
       
       <span class="n">output_1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">amazing_function</span><span class="p">()</span>
@@ -170,7 +170,7 @@ fill like this</p>
       <span class="k">return</span> <span class="n">output_1</span>
    
    
-   <span class="k">def</span> <span class="nf">amazing_function</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+   <span class="k">def</span><span class="w"> </span><span class="nf">amazing_function</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
       <span class="n">amazing_result</span> <span class="o">=</span> <span class="mi">42</span>
       <span class="k">return</span> <span class="n">amazing_result</span>
 </pre></div>
