@@ -36,6 +36,8 @@ class LoadIFC(ITask):
         if not base_path.is_dir():
             raise AssertionError(f"Given base_path {base_path} is not a"
                                  f" directory. Please provide a directory.")
+        ifc_files_dict = {k: [] for k in ['arch', 'hydraulic', 'ventilation']}
+        ifc_files_unsorted = []
         ifc_files = []
         ifc_files_paths = list(base_path.glob("**/*.ifc")) + list(
             base_path.glob("**/*.ifcxml")) + list(
@@ -54,14 +56,23 @@ class LoadIFC(ITask):
                 ifc_domain=ifc_domain,
                 reset_guids=reset_guids)
             yield from ifc_file_cls.initialize_finder(self.paths.finder)
-            ifc_files.append(ifc_file_cls)
+            ifc_files_unsorted.append(ifc_file_cls)
             t_load_end = time.time()
             t_loading = round(t_load_end - t_load_start, 2)
             self.logger.info(f"Loaded {total_ifc_path.name} for Domain "
                              f"{ifc_domain.name}. "
                              f"This took {t_loading} seconds")
+        for file in ifc_files_unsorted:
+            ifc_files_dict[file.domain.name].append(file)
+        for domain in ('arch', 'hydraulic', 'ventilation'):
+            ifc_files.extend(ifc_files_dict[domain])
         if not ifc_files:
             self.logger.error("No ifc found in project folder.")
             raise AssertionError("No ifc found. Check '%s'" % base_path)
+        elif len(ifc_files) < len(ifc_files_unsorted):
+            self.logger.warning("Not all ifc files were added for further "
+                              "processing. IFCDomain may not be recognized.")
+            raise AssertionError("Not all ifc processed. Check '%s'" %
+                                 base_path)
         self.logger.info(f"Loaded {len(ifc_files)} IFC-files.")
         return ifc_files
