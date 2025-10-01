@@ -260,7 +260,7 @@ build:dev-PluginOpenFOAM:py3.10:
     TAG: dev-PluginOpenFOAM-py3.10
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
   needs:
-    - build:dev:py3.10
+    - build:dev-energyplus:py3.10
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development"'
       changes:
@@ -276,7 +276,7 @@ build:dev-PluginOpenFOAM:py3.11:
     TAG: dev-PluginOpenFOAM-py3.11
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
   needs:
-    - build:dev:py3.11
+    - build:dev-energyplus:py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development"'
       changes:
