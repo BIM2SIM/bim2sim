@@ -725,6 +725,267 @@ different simulation types.</p>
 </tbody>
 </table>
 </section>
+<section id="openfoamsimsettings">
+<h3>OpenFOAMSimSettings<a class="headerlink" href="#openfoamsimsettings" title="Permalink to this heading"></a></h3>
+<table class="docutils align-default" id="openfoam-sim-settings">
+<thead>
+<tr class="row-odd"><th class="head text-left"><p>Setting Name</p></th>
+<th class="head text-left"><p>Type</p></th>
+<th class="head text-left"><p>Default</p></th>
+<th class="head text-left"><p>Description</p></th>
+<th class="head text-left"><p>Choices</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-left"><p>add_heating</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>True</p></td>
+<td class="text-left"><p>Whether to add heating devices or not.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>add_floorheating</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Whether to add floorheating instead of usual radiators.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>add_airterminals</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>True</p></td>
+<td class="text-left"><p>Whether to add air terminals or not.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>ignore_heatloss</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Ignores heat loss through walls if set to True.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>inlet_type</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘Plate’</p></td>
+<td class="text-left"><p>Choose air terminal inlet type.</p></td>
+<td class="text-left"><p>‘Original’: Simplified IFC shape for inlet<br>’Plate’: Simplified plate for inlet<br>’StlDiffusor’: Inlet diffusor from stl file<br>’SimpleStlDiffusor’: Simplified inlet diffusor from stl file<br>’IfcDiffusor’: Inlet diffusor modified from ifc file (if available), otherwise stl diffusor from file.<br>’None’: No inlet plate, only gap in ceiling.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>outlet_type</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘Plate’</p></td>
+<td class="text-left"><p>Choose air terminal outlet type.</p></td>
+<td class="text-left"><p>‘Original’: Simplified IFC shape for outlet<br>’Plate’: Simplified plate for outlet<br>’StlDiffusor’: Outlet diffusor from stl file<br>’SimpleStlDiffusor’: Simplified outlet diffusor from stl file<br>’IfcDiffusor’: Outlet diffusor modified from ifc file (if available), otherwise stl diffusor from file.<br>’None’: No outlet plate, only gap in ceiling.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>outflow_direction</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘down’</p></td>
+<td class="text-left"><p>Choose the outflow direction for original shapes from IFC<br>that should be automatically processed. Defaults to downward<br>facing flows.</p></td>
+<td class="text-left"><p>‘down’: Outflow facing downward. Only applicable for original shapes.<br>’side’: Outflow facing sideways. Only applicable for original shapes.<br>’angle45down’: Outflow facing downward with a 45 degrees angle. Only applicable for original shapes.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>select_space_guid</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘’</p></td>
+<td class="text-left"><p>Select space for OpenFOAM simulation by setting the space<br>guid.</p></td>
+<td class="text-left"><p>‘’: No guid selected, first space will be selected.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>simulation_date</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘12/21’</p></td>
+<td class="text-left"><p>Select date of simulation according to simulated timeframe<br>in the PluginEnergyPlus. Insert as string in format MM/DD.</p></td>
+<td class="text-left"><p>‘12/21’: Winter design day<br>’07/21’: Summer design day</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>simulation_time</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>11</p></td>
+<td class="text-left"><p>Select time of simulation according to simulated timeframe<br>in the PluginEnergyPlus. Insert as number (time) for the<br>full hour ranging 1 to 24.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>simulation_type</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘steady’</p></td>
+<td class="text-left"><p>Select simulation type (steady-state, combined or<br>transient).</p></td>
+<td class="text-left"><p>‘steady’: steady-state simulation<br>’combined’: preconditioned transient simulation<br>’transient’: transient simulation</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>mesh_size</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>0.1</p></td>
+<td class="text-left"><p>Set the mesh size of the blockMesh in [m]. Insert a number<br>between 0.001 and 0.2.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>mesh_max_global_cells</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>3000000</p></td>
+<td class="text-left"><p>Set the maximum number of global cells for meshing in<br>snappyHexMesh.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>adjust_refinements</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Whether surface and region refinements of airterminals and<br>interior elements should be automatically recomputed or not.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>total_iterations</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>20000</p></td>
+<td class="text-left"><p>Total number of iterations for the simulation.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>steady_iterations</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>2500</p></td>
+<td class="text-left"><p>Select number of steady iterations for preconditioning a<br>transient simulation.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>n_procs</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>12</p></td>
+<td class="text-left"><p>Set the number of processors for decomposition and<br>simulation.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>run_meshing</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Whether to run OpenFOAM meshing or not. Only available for<br>linux systems.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>run_cfd_simulation</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Whether to run the OpenFOAM CFD simulation or not. Only<br>available for linux systems.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>heater_radiation</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>0.3</p></td>
+<td class="text-left"><p>Select the radiative portion of the heating heat transfer.<br>Choose between 0 and 1.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>add_comfort</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>True</p></td>
+<td class="text-left"><p>Whether to add thermal comfort settings to OpenFOAM</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>add_furniture</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Whether to add furniture to OpenFOAM</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>level_heat_balance</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>True</p></td>
+<td class="text-left"><p>Whether to level heat balance: reduce heating towards<br>leveled heat balance considering internal gains.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>furniture_setting</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘Office’</p></td>
+<td class="text-left"><p>Select the type of furniture to add.</p></td>
+<td class="text-left"><p>‘Office’: Office setup, chair and desk<br>’Concert’: Concert setup, chairs in rows<br>’Meeting’: Meeting setup, large table with chairs<br>’TwoSideTable’: Table with chairs on long side<br>’GroupTable’: Group table with chairs<br>’Classroom’: Classroom setup, individual tables with chairs</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>furniture_amount</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>1</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>furniture_orientation</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘short_side’</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p>‘long_side’: Long side of a rectangular space<br>’short_side’: short side of a rectangular space<br>’window’: window side of a rectangular space<br>’door’: door side of a rectangular space<br>’north’: North side<br>’east’: East side<br>’south’: South side<br>’west’: West side</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>add_people</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Choose if people should be added.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>use_energyplus_people_amount</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Choose if number of people should be assigned as defined in<br>the EnergyPlus simulation. If true, people_amount is not<br>considered but overwritten with the rounded up number of<br>people from the EnergyPlus simulation.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>people_setting</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘Seated’</p></td>
+<td class="text-left"><p>Select type of people positioning to add.</p></td>
+<td class="text-left"><p>‘Seated’: Seated, furniture needs to be provided in sufficient amount. <br>’Standing’: Standing, no furniture required.</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>people_amount</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>1</p></td>
+<td class="text-left"><p></p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>radiation_model</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘P1’</p></td>
+<td class="text-left"><p>Choose the radiation model</p></td>
+<td class="text-left"><p>‘none’: No radiation<br>’P1’: Use P1 Radiation Model<br>’fvDOM’: Use fvDOM Radiation Model<br>’preconditioned_fvDOM’: Use P1 to precondition fvDOM Radiation</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>radiation_precondition_time</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>1000</p></td>
+<td class="text-left"><p>Choose number of preconditioning iterations using P1<br>radiation for fvDOM radiation</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>add_solar_radiation</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>True</p></td>
+<td class="text-left"><p>Add solar radiation. Requires fvDOM as radiation model.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>add_air_volume_evaluation</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Add an air volume evaluation. Removes voids of all people,<br>furniture elements, and heaters, to enhance the evaluation<br>of the air volume itself. This is computationally expensive.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>scale_person_for_eval</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>0.05</p></td>
+<td class="text-left"><p>Scale shape of person for evaluation in paraview.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>mesh_feature_snapping</p></td>
+<td class="text-left"><p>Boolean</p></td>
+<td class="text-left"><p>False</p></td>
+<td class="text-left"><p>Choose if explicit surface feature snapping should be<br>applied in snappyHexMesh.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>cluster_jobname</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘newJob’</p></td>
+<td class="text-left"><p>Jobname that is used when running the simulation via a batch<br>script on the RWTH Compute Cluster.</p></td>
+<td class="text-left"><p>‘fullRun’: Specify content<br>’Job1234’: Enumerate</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>cluster_compute_account</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘’</p></td>
+<td class="text-left"><p>Specify the compute account that is used for running the<br>simulation on the RWTH Compute Cluster. Specify as<br>”thes1234”.</p></td>
+<td class="text-left"><p>‘’: Skip defining compute cluster account.<br>’thes1234’: Define thesis account<br>’rwth5678’: Define user account</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>cluster_max_runtime_simulation</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘23:59:00’</p></td>
+<td class="text-left"><p>Max runtime for a full simulation in the format of<br>”D:HH:MM:SS”.</p></td>
+<td class="text-left"><p>‘11:59:00’: 12 hours<br>’06:00:00’: 6 hours</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>cluster_max_runtime_meshing</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘00:59:00’</p></td>
+<td class="text-left"><p>Max runtime for meshing in the format of D:HH:MM:SS .</p></td>
+<td class="text-left"><p>‘00:30:00’: 30 minutes<br>’00:15:00’: 15 minutes</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>cluster_cpu_per_node</p></td>
+<td class="text-left"><p>Number</p></td>
+<td class="text-left"><p>96</p></td>
+<td class="text-left"><p>Number of physical cores per node.</p></td>
+<td class="text-left"><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
 <section id="cfdsimsettings">
 <h3>CFDSimSettings<a class="headerlink" href="#cfdsimsettings" title="Permalink to this heading"></a></h3>
 <p>No specific settings provided.</p>
