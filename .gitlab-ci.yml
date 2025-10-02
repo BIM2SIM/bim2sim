@@ -514,7 +514,7 @@ build:main-PluginEnergyPlus:py3.10:
     TAG: main-PluginEnergyPlus-py3.10
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
   needs:
-    - build:main:py3.10
+    - build:main-energyplus:py3.10
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -530,7 +530,7 @@ build:main-PluginEnergyPlus:py3.11:
     TAG: main-PluginEnergyPlus-py3.11
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
   needs:
-    - build:main:py3.11
+    - build:main-energyplus:py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -546,7 +546,7 @@ build:main-PluginComfort:py3.10:
     TAG: main-PluginComfort-py3.10
     DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
   needs:
-    - build:main:py3.10
+    - build:main-energyplus:py3.10
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -562,7 +562,7 @@ build:main-PluginComfort:py3.11:
     TAG: main-PluginComfort-py3.11
     DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
   needs:
-    - build:main:py3.11
+    - build:main-energyplus:py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -578,7 +578,7 @@ build:main-PluginOpenFOAM:py3.10:
     TAG: main-PluginOpenFOAM-py3.10
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
   needs:
-    - build:main:py3.10
+    - build:main-energyplus:py3.10
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -594,7 +594,7 @@ build:main-PluginOpenFOAM:py3.11:
     TAG: main-PluginOpenFOAM-py3.11
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
   needs:
-    - build:main:py3.11
+    - build:main-energyplus:py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
