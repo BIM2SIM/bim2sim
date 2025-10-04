@@ -13,6 +13,16 @@ from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
 from bim2sim.tasks.base import ITask
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.utilities.common_functions import filter_elements
+import re
+
+def _normalize_cols(df):
+    df = df.copy()
+    df.columns = (
+        df.columns
+          .str.replace(r'\s+', ' ', regex=True)  # collapse multiple spaces
+          .str.strip()                           # trim leading/trailing spaces
+    )
+    return df
 
 bim2sim_energyplus_mapping_base = {
     "NOT_AVAILABLE": "heat_demand_total",
@@ -22,7 +32,22 @@ bim2sim_energyplus_mapping_base = {
     "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Cooling "
     "Rate [W](Hourly)": "cool_demand_rooms",
     "Heating:EnergyTransfer [J](Hourly)": "heat_energy_total",
-    "Cooling:EnergyTransfer [J](Hourly) ": "cool_energy_total",
+    "Cooling:EnergyTransfer [J](Hourly)": "cool_energy_total",
+    "Electricity:Facility [J](Hourly)": "electricity_total",
+    "Electricity:Building [J](Hourly)": "electricity_building",
+    "InteriorLights:Electricity [J](Hourly)": "electricity_lighting",
+    "InteriorEquipment:Electricity [J](Hourly)": "electricity_equipment",
+    "Fans:Electricity [J](Hourly)": "electricity_fans",
+    "Pumps:Electricity [J](Hourly)": "electricity_pumps",
+    "ExteriorLighting:Electricity [J](Hourly)": "electricity_exterior_lighting",
+    "ExteriorEquipment:Electricity [J](Hourly)": "electricity_exterior_equipment",
+    "DistrictHeating:Facility [J](Hourly)": "dhw_energy_total",  # purchased DHW+space heat; filter to WaterSystems if your model splits
+    "DistrictHeating:WaterSystems [J](Hourly)": "dhw_energy_watersystems",  # if present
+    "PlantLoopHeatingDemand:WaterSystems [J](Hourly)": "dhw_energy_plantloop",  # if DHW via plant loop
+     "SPACEGUID Water Use Equipment Heating Energy [J](Hourly)": "dhw_energy_rooms",
+    "SPACEGUID Water Use Equipment Hot Water Volume [m3](Hourly)": "dhw_volume_rooms",
+    "SPACEGUID Water Use Connections Plant Hot Water Energy [J](Hourly)": "dhw_energy_connections_rooms",
+    "SPACEGUID Water Use Connections Hot Water Volume [m3](Hourly)": "dhw_volume_connections_rooms",
     "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Heating Energy [J](Hourly)":
         "heat_energy_rooms",
     "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Cooling Energy [J](Hourly)":
@@ -101,6 +126,7 @@ class CreateResultDF(ITask):
                                 "DataFrame ist needed.")
             return df_finals,
         raw_csv_path = sim_results_path / self.prj_name / 'eplusout.csv'
+        mtr_csv_path = sim_results_path / self.prj_name / 'eplusmtr.csv'
         # TODO @Veronika: the zone_dict.json can be removed and instead the
         #  elements structure can be used to get the zone guids
         zone_dict_path = sim_results_path / self.prj_name / 'zone_dict.json'
@@ -125,12 +151,38 @@ class CreateResultDF(ITask):
                   'w+') as file:
             json.dump(space_bound_dict, file, indent=4)
 
-        df_original = PostprocessingUtils.read_csv_and_format_datetime(
-            raw_csv_path)
-        df_original = (
-            PostprocessingUtils.shift_dataframe_to_midnight(df_original))
+
+        df_original = PostprocessingUtils.read_csv_and_format_datetime(raw_csv_path)
+        df_original = (PostprocessingUtils.shift_dataframe_to_midnight(df_original))
+        df_original = _normalize_cols(df_original)
+        if mtr_csv_path.exists():
+            df_mtr = PostprocessingUtils.read_csv_and_format_datetime(mtr_csv_path)
+            df_mtr = PostprocessingUtils.shift_dataframe_to_midnight(df_mtr)
+            df_mtr = _normalize_cols(df_mtr)
+
+            # Determine overlaps after normalization
+            overlap = [c for c in df_mtr.columns if c in df_original.columns]
+
+            if overlap:
+                # Option A (recommended): keep whatever is already in df_original,
+                # and only add *new* meter columns
+                new_cols = [c for c in df_mtr.columns if c not in df_original.columns]
+                df_original = df_original.join(df_mtr[new_cols], how='outer')
+
+                # If you *instead* want to prefer mtr values where there’s overlap:
+                # df_original = df_original.drop(columns=overlap).join(df_mtr[overlap + new_cols], how='outer')
+            else:
+                df_original = df_original.join(df_mtr, how='outer')
+        else:
+            self.logger.warning(
+                "eplusmtr.csv not found; meter-based time-series (e.g., Electricity:Facility) unavailable."
+            )
+
         df_final = self.format_dataframe(df_original, zone_dict,
                                          space_bound_dict)
+        for col in df_final.columns:
+            if df_final[col].name.endswith('[J](Hourly)'):
+                df_final[col.replace('[J](Hourly)', '[kWh](Hourly)')] = df_final[col] / 3_600_000.0
         df_finals[self.prj_name] = df_final
 
         return df_finals,

@@ -957,8 +957,16 @@ class BuildingSimSettings(BaseSimSettings):
             "internal_gains_machines_rooms", "internal_gains_persons_rooms",
             "internal_gains_lights_rooms", "n_persons_rooms",
             "infiltration_rooms", "mech_ventilation_rooms",
-            "heat_set_rooms", "cool_set_rooms"
-
+            "heat_set_rooms", "cool_set_rooms","electricity_total","electricity_building",
+            "electricity_lighting",
+            "electricity_equipment",
+            "electricity_fans",
+            "electricity_pumps",
+            "electricity_exterior_lighting",
+            "electricity_exterior_equipment",
+            "dhw_energy_total", "dhw_energy_watersystems", "dhw_energy_plantloop",
+            "dhw_energy_rooms", "dhw_energy_connections_rooms",
+            "dhw_volume_rooms", "dhw_volume_connections_rooms"
         ],
         choices={
             "heat_demand_total":
@@ -999,6 +1007,22 @@ class BuildingSimSettings(BaseSimSettings):
                 "Heating set point in °C time series data",
             "cool_set_rooms":
                 "Cooling set point in °C time series data",
+            "electricity_total": 
+                "Total electricity energy (meter) as time series data",
+            "electricity_building": "Electricity:Building [J](Hourly)",
+            "electricity_lighting": "InteriorLights:Electricity [J](Hourly)",
+            "electricity_equipment": "InteriorEquipment:Electricity [J](Hourly)",
+            "electricity_fans": "Fans:Electricity [J](Hourly)",
+            "electricity_pumps": "Pumps:Electricity [J](Hourly)",
+            "electricity_exterior_lighting": "ExteriorLighting:Electricity [J](Hourly)",
+            "electricity_exterior_equipment": "ExteriorEquipment:Electricity [J](Hourly)",
+            "dhw_energy_total": "Total DHW thermal energy (from meters) as time series",
+            "dhw_energy_watersystems": "DHW thermal energy (end-use = WaterSystems, meters)",
+            "dhw_energy_plantloop": "Plant loop DHW thermal energy (meters)",
+            "dhw_energy_rooms": "Per-room DHW thermal energy (fixtures, variables)",
+            "dhw_energy_connections_rooms": "Per-room DHW thermal energy (connections, variables)",
+            "dhw_volume_rooms": "Per-room DHW hot water volume (m³), variables",
+            "dhw_volume_connections_rooms": "Per-room DHW hot water volume (m³), connections",
         },
         multiple_choice=True,
     )

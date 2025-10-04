@@ -1392,6 +1392,23 @@ class CreateIdf(ITask):
                 Key_Name="Cooling:EnergyTransfer",
                 Reporting_Frequency="Hourly",
             )
+            idf.newidfobject(
+                "OUTPUT:METER",
+                Key_Name="Electricity:Facility",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject("OUTPUT:METER", Key_Name="Electricity:Building", Reporting_Frequency="Hourly")
+            idf.newidfobject("OUTPUT:METER", Key_Name="InteriorLights:Electricity", Reporting_Frequency="Hourly")
+            idf.newidfobject("OUTPUT:METER", Key_Name="InteriorEquipment:Electricity", Reporting_Frequency="Hourly")
+            idf.newidfobject("OUTPUT:METER", Key_Name="Fans:Electricity", Reporting_Frequency="Hourly")
+            idf.newidfobject("OUTPUT:METER", Key_Name="Pumps:Electricity", Reporting_Frequency="Hourly")
+            idf.newidfobject("OUTPUT:METER", Key_Name="ExteriorLighting:Electricity", Reporting_Frequency="Hourly")
+            idf.newidfobject("OUTPUT:METER", Key_Name="ExteriorEquipment:Electricity", Reporting_Frequency="Hourly")
+            idf.newidfobject("OUTPUT:METER", Key_Name="DistrictHeating:*", Reporting_Frequency="Hourly")
+            idf.newidfobject("OUTPUT:METER", Key_Name="PlantLoopHeatingDemand:*", Reporting_Frequency="Hourly")
+            idf.newidfobject("OUTPUT:METER", Key_Name="MainsWater:*", Reporting_Frequency="Hourly")
+            idf.newidfobject("OUTPUT:METER", Key_Name="Electricity:*", Reporting_Frequency="Hourly")
+
         if 'output_dxf' in sim_settings.output_keys:
             idf.newidfobject("OUTPUT:SURFACES:DRAWING",
                              Report_Type="DXF")
