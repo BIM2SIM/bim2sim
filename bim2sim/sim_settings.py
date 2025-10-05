@@ -14,6 +14,8 @@ from bim2sim.utilities.types import LOD
 from bim2sim.elements.base_elements import Material
 from bim2sim.elements import bps_elements as bps_elements, \
     hvac_elements as hvac_elements
+from bim2sim.elements.mapping.ifc2python import check_guid
+
 
 logger = logging.getLogger(__name__)
 
@@ -362,6 +364,71 @@ class BooleanSetting(Setting):
             return True
 
 
+class GuidListSetting(Setting):
+    """Define a setting that accepts a list of IFC GUIDs.
+
+    This setting type is used for storing collections of IFC GUIDs,
+    where each GUID is validated to ensure it follows IFC GUID format.
+
+    Args:
+        default: default list of GUIDs (if any) that will be applied when calling load_default()
+        description: description of what the settings does as Str
+        for_frontend: should this setting be shown in the frontend
+        mandatory: whether a setting needs to be set
+    """
+
+    def __init__(
+            self,
+            default=None,
+            description: Union[str, None] = None,
+            for_frontend: bool = False,
+            mandatory=False
+    ):
+        super().__init__(default, description, for_frontend, False, mandatory)
+        # Initialize with empty list if default is None
+        if default is None:
+            self.default = []
+
+    def check_value(self, bound_simulation_settings, value):
+        """Checks if each GUID in the list is valid according to IFC standards.
+
+        Args:
+            bound_simulation_settings: the sim setting belonging to the value
+            value: list of GUIDs that should be checked for correctness
+
+        Returns:
+            True: if all GUIDs in the list are valid
+
+        Raises:
+            ValueError: if any GUID in the list is invalid or value is not a list
+        """
+        # None is allowed for optional settings
+        if value is None:
+            return True
+
+        # Check if value is a list
+        if not isinstance(value, list):
+            raise ValueError(
+                f"The value for {self.name} must be a list of GUIDs, but got {type(value).__name__}")
+
+        # Empty list is valid
+        if len(value) == 0:
+            return True
+
+        # Check each GUID in the list
+        for i, guid in enumerate(value):
+            if not isinstance(guid, str):
+                raise ValueError(
+                    f"GUID at index {i} must be a string, but got {type(guid).__name__}")
+
+            # Use the existing check_guid function to validate the GUID format
+            if not check_guid(guid):
+                raise ValueError(
+                    f"Invalid IFC GUID format at index {i}: '{guid}'")
+
+        return True
+
+
 class BaseSimSettings(metaclass=AutoSettingNameMeta):
     """Specification of basic bim2sim simulation settings which are common for
     all simulations"""
@@ -473,8 +540,10 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
     group_unidentified = ChoiceSetting(
         default='fuzzy',
         choices={
-            'fuzzy': 'Use fuzzy search to find name similarities',
-            'name': 'Only group elements with exact same name'
+            'fuzzy': 'Use fuzzy search to find ifc name similarities',
+            'name': 'Only group elements with exact same ifc name',
+            'name_and_description': 'Only group elements with the same ifc'
+                                    ' name and ifc description'
         },
         description='To reduce the number of decisions by user to identify '
                     'elements which can not be identified automatically by '
@@ -521,6 +590,16 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True,
         mandatory=True
     )
+
+    building_rotation_overwrite = NumberSetting(
+        default=0,
+        description='Overwrite the (clockwise) building rotation angle in '
+                    'degrees.',
+        min_value=0,
+        max_value=359,
+        for_frontend=True
+    )
+
     add_space_boundaries = BooleanSetting(
         default=False,
         description='Add space boundaries. Only required for building '
@@ -537,6 +616,20 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         description='Close gaps in the set of space boundaries by adding '
                     'additional 2b space boundaries.',
         for_frontend=True
+    )
+    stories_to_load_guids = GuidListSetting(
+        default=[],
+        description='List of IFC GUIDs for the specific stories that should '
+                    'be loaded. If empty, all stories will be considered '
+                    'for loading. This setting is useful for large buildings '
+                    'to reduce computational time. Note that loading single '
+                    'storeys may lead to missing ceilings if the related '
+                    'slab is assigned to the storey above, which may require '
+                    'corrections to boundary conditions.'
+                    ' It is recommended to include GUIDs of neighboring'
+                    ' storeys to reduce boundary condition errors.',
+        for_frontend=True,
+        mandatory=False
     )
 
 
@@ -587,6 +680,7 @@ class PlantSimSettings(BaseSimSettings):
                     "ports.",
         default=True
     )
+
 
 class BuildingSimSettings(BaseSimSettings):
 

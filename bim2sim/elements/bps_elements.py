@@ -971,17 +971,20 @@ class SpaceBoundary(RelationBased):
             # scale newly created shape of space boundary to correct size
             conv_factor = (1 * length_unit).to(
                 ureg.metre).m
-            shape = PyOCCTools.scale_shape(shape, conv_factor, gp_Pnt(0, 0, 0))
+            # shape scaling seems to be covered by ifcopenshell, obsolete
+            # shape = PyOCCTools.scale_shape(shape, conv_factor, gp_Pnt(0, 0,
+            # 0))
 
         if self.ifc.RelatingSpace.ObjectPlacement:
             lp = PyOCCTools.local_placement(
                 self.ifc.RelatingSpace.ObjectPlacement).tolist()
             # transform newly created shape of space boundary to correct
             # position if a unit conversion is required.
-            # todo: check if x-, y-coord of "vec" also need to be transformed.
             if conv_required:
-                z_coord = lp[2][3] * length_unit
-                lp[2][3] = z_coord.to(ureg.meter).m
+                for i in range(len(lp)):
+                    for j in range(len(lp[i])):
+                        coord = lp[i][j] * length_unit
+                        lp[i][j] = coord.to(ureg.meter).m
             mat = gp_Mat(lp[0][0], lp[0][1], lp[0][2], lp[1][0], lp[1][1],
                          lp[1][2], lp[2][0], lp[2][1], lp[2][2])
             vec = gp_Vec(lp[0][3], lp[1][3], lp[2][3])
@@ -1180,6 +1183,8 @@ class Wall(BPSProductWithLayers):
         "IfcWallStandardCase":
             ['*', 'MOVABLE', 'PARAPET', 'PARTITIONING', 'PLUMBINGWALL',
              'SHEAR', 'SOLIDWALL', 'POLYGONAL', 'DOOR', 'GATE', 'TRAPDOOR'],
+        "IfcColumn": ['*'],  # Hotfix. TODO: Implement appropriate classes
+        "IfcCurtainWall": ['*'] # Hotfix. TODO: Implement appropriate classes
         # "IfcElementedCase": "?"  # TODO
     }
 
@@ -1491,7 +1496,7 @@ class Window(BPSProductWithLayers):
         unit=ureg.m
     )
     u_value = attribute.Attribute(
-        default_ps=("Pset_WallCommon", "ThermalTransmittance"),
+        default_ps=("Pset_WindowCommon", "ThermalTransmittance"),
         unit=ureg.W / ureg.K / ureg.meter ** 2,
         functions=[BPSProductWithLayers.get_u_value],
     )
@@ -1938,18 +1943,6 @@ class Storey(BPSProduct):
         default_ps=("Qto_BuildingStoreyBaseQuantities", "Height"),
         unit=ureg.meter
     )
-
-
-class SpaceBoundaryRepresentation(BPSProduct):
-    """describes the geometric representation of space boundaries which are
-    created by the webtool to allow the """
-    ifc_types = {
-        "IFCBUILDINGELEMENTPROXY":
-            ['USERDEFINED']
-    }
-    pattern_ifc_type = [
-        re.compile('ProxyBound', flags=re.IGNORECASE)
-    ]
 
 
 # collect all domain classes

@@ -55,6 +55,7 @@ class Element(metaclass=attribute.AutoAttributeNameMeta):
         self.guid = guid or self.get_id(self.guid_prefix)
         # self.related_decisions: List[Decision] = []
         self.attributes = attribute.AttributeManager(bind=self)
+        self.element_type = self.__class__.__name__
 
         # set attributes based on kwargs
         for kw, arg in kwargs.items():
@@ -160,9 +161,9 @@ class IFCBased(Element):
             '-Something'  start with minus to exclude
 
         For example:
-        {'IfcSlab': ['*', '-SomethingSpecialWeDontWant', 'BASESLAB']}
-        {'IfcRoof': ['FLAT_ROOF', 'SHED_ROOF',...],
-         'IfcSlab': ['ROOF']}"""
+        >>> {'IfcSlab': ['*', '-SomethingSpecialWeDontWant', 'BASESLAB']}
+        >>> {'IfcRoof': ['FLAT_ROOF', 'SHED_ROOF',...],
+        >>>  'IfcSlab': ['ROOF']}"""
 
     ifc_types: Dict[str, List[str]] = None
     pattern_ifc_type = []
@@ -333,29 +334,47 @@ class IFCBased(Element):
         return matches
 
     @classmethod
-    def filter_for_text_fragments(
-            cls, ifc_element, ifc_units: dict, optional_locations: list = None):
-        """Filter for text fragments in the ifc_element to identify the ifc_element."""
+    def filter_for_text_fragments(cls, ifc_element, ifc_units: dict,
+                                  optional_locations: list = None):
+        """Find text fragments that match the class patterns in an IFC element.
+
+        Args:
+            ifc_element: The IFC element to check.
+            ifc_units: Dictionary containing IFC unit information.
+            optional_locations: Additional locations to check patterns beyond
+             name. Defaults to None.
+
+        Returns:
+            list: List of matched fragments, empty list if no matches found.
+        """
         results = []
-        hits = [p.search(ifc_element.Name) for p in cls.pattern_ifc_type]
-        # hits.extend([p.search(ifc_element.Description or '') for p in cls.pattern_ifc_type])
-        hits = [x for x in hits if x is not None]
-        if any(hits):
-            quality_logger.info("Identified %s through text fracments in name. Criteria: %s", cls.ifc_type, hits)
-            results.append(hits[0][0])
-            # return hits[0][0]
+
+        # Check name matches
+        name_hits = [p.search(ifc_element.Name) for p in cls.pattern_ifc_type]
+        name_hits = [hit for hit in name_hits if hit is not None]
+        if name_hits:
+            quality_logger.info(
+                f"Identified {cls.ifc_type} through text fragments in name. "
+                f"Criteria: {name_hits}")
+            results.append(name_hits[0][0])
+
+        # Check optional locations
         if optional_locations:
             for loc in optional_locations:
-                hits = [p.search(ifc2python.get_property_set_by_name(
-                    loc, ifc_element, ifc_units) or '')
-                        for p in cls.pattern_ifc_type
-                        if ifc2python.get_property_set_by_name(
-                        loc, ifc_element, ifc_units)]
-                hits = [x for x in hits if x is not None]
-                if any(hits):
-                    quality_logger.info("Identified %s through text fracments in %s. Criteria: %s", cls.ifc_type, loc, hits)
-                    results.append(hits[0][0])
-        return results if results else ''
+                prop_value = ifc2python.get_property_set_by_name(
+                    loc, ifc_element, ifc_units)
+                if not prop_value:
+                    continue
+
+                loc_hits = [p.search(prop_value) for p in cls.pattern_ifc_type]
+                loc_hits = [hit for hit in loc_hits if hit is not None]
+                if loc_hits:
+                    quality_logger.info(
+                        f"Identified {cls.ifc_type} through text fragments "
+                        f"in {loc}. Criteria: {loc_hits}")
+                    results.append(loc_hits[0][0])
+
+        return results
 
     def get_exact_property(self, propertyset_name: str, property_name: str):
         """Returns value of property specified by propertyset name and property name
@@ -525,6 +544,17 @@ class ProductBased(IFCBased):
     def calc_cost_group(self) -> Optional[int]:
         """Calculate the cost group according to DIN276"""
         return None
+
+    def calc_product_shape(self):
+        """Calculate the product shape based on IfcProduct representation."""
+        if hasattr(self.ifc, 'Representation'):
+            try:
+                shape = ifcopenshell.geom.create_shape(
+                            settings_products, self.ifc).geometry
+                return shape
+            except:
+                logger.warning(f"No calculation of product shape possible "
+                               f"for {self.ifc}.")
 
     def calc_volume_from_ifc_shape(self):
         # todo use more efficient iterator to calc all shapes at once
@@ -710,9 +740,9 @@ class Factory:
     https://refactoring.guru/design-patterns/factory-method/python/example
 
     Example:
-        factory = Factory([Pipe, Boiler], dummy)
-        ele = factory(some_ifc_element)
-        """
+        >>> factory = Factory([Pipe, Boiler], dummy)
+        >>> ele = factory(some_ifc_element)
+    """
 
     def __init__(
             self,
@@ -882,14 +912,68 @@ class SerializedElement:
             if self.is_picklable(value):
                 setattr(self, attr_name, value)
             else:
-                logger.info(
-                    f"Attribute {attr_name} will not be serialized, as it's "
-                    f"not pickleable")
-        if hasattr(element, "space_boundaries"):
-            self.space_boundaries = [bound.guid for bound in
-                                     element.space_boundaries]
-        if hasattr(element, "storeys"):
-            self.storeys = [storey.guid for storey in element.storeys]
+                try:
+                    logger.info(
+                        f"Attribute {attr_name} will not be serialized, as it's "
+                        f"not pickleable, trying to add alternative "
+                        f"information instead.")
+                    if isinstance(value, (list, tuple)):
+                        temp_list = []
+                        for val in value:
+                            if hasattr(val, 'guid'):
+                                temp_list.append(val.guid)
+                        setattr(self, attr_name, temp_list)
+                        logger.info(f"Successfully linked a list of guids.")
+                    elif isinstance(value, str):
+                        setattr(self, attr_name, value)
+                        logger.info(f"Successfully linked value as string.")
+                    elif hasattr(value, 'guid'):
+                        setattr(self, attr_name, value.guid)
+                        logger.info(f"Successfully linked a single guid.")
+                    elif hasattr(value, 'Coord'):
+                        setattr(self, attr_name, value.Coord())
+                        logger.info(f"Successfully linked a coordinate tuple.")
+                    elif value is None:
+                        setattr(self, attr_name, None)
+                        logger.info(f"Successfully set attribute value to "
+                                    f"None.")
+                    else:
+                        logger.info("Linking alternative pickleable attributes "
+                                    "failed.")
+                except AttributeError:
+                    logger.info(f"Linking attribute failed.")
+        for attr_name, attr_val in vars(element).items():
+            if hasattr(self, attr_name) or attr_name == 'attributes':
+                continue
+            else:
+                logger.info(f"Try to add attribute data for attribute "
+                            f"'{attr_name}' that is not in AttributeManager.")
+                value = attr_val
+                if isinstance(value, (list, tuple)):
+                    temp_list = []
+                    for val in value:
+                        if hasattr(val, 'guid'):
+                            temp_list.append(val.guid)
+                    setattr(self, attr_name, temp_list)
+                    logger.info(
+                        f"Successfully linked a list of guids.")
+                elif isinstance(value, str):
+                    setattr(self, attr_name, value)
+                    logger.info(
+                        f"Successfully added {attr_name} as string.")
+                elif hasattr(value, 'guid'):
+                    setattr(self, attr_name, value.guid)
+                    logger.info(f"Successfully linked a single guid.")
+                elif hasattr(value, 'Coord'):
+                    setattr(self, attr_name, value.Coord())
+                    logger.info(f"Successfully linked a coordinate tuple.")
+                elif value is None:
+                    setattr(self, attr_name, None)
+                    logger.info(f"Successfully set attribute value to "
+                                f"None.")
+                else:
+                    logger.info("Linking alternative pickleable attributes "
+                                "failed.")
         if issubclass(element.__class__, AggregationMixin):
             self.elements = [ele.guid for ele in element.elements]
 

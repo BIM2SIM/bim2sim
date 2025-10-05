@@ -205,8 +205,23 @@ class HVACProduct(ProductBased):
 
     @property
     def expected_hvac_ports(self):
+        return
         raise NotImplementedError(f"Please define the expected number of ports "
                                   f"for the class {self.__class__.__name__} ")
+
+    @property
+    def shape(self):
+        shape = self.calc_product_shape()
+        return shape
+
+    @property
+    def volume(self):
+        if hasattr(self, "net_volume"):
+            if self.net_volume:
+                vol = self.net_volume
+                return vol
+        vol = self.calc_volume_from_ifc_shape()
+        return vol
 
     def get_ports(self) -> list:
         """Returns a list of ports of this product."""

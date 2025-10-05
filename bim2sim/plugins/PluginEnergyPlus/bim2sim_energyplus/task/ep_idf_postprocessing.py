@@ -119,6 +119,7 @@ class IdfPostprocessing(ITask):
         zones = idf.idfobjects['ZONE']
         zone_dict = {}
         ifc_zones = filter_elements(elements, ThermalZone)
+        zone_dict_ifc_names = {}
         for zone in zones:
             # find the matching BIM2SIM ThermalZone element
             matches = [z for z in ifc_zones if z.guid == zone.Name]
@@ -131,6 +132,8 @@ class IdfPostprocessing(ITask):
 
         with open(exportpath / 'zone_dict.json', 'w+') as file:
             json.dump(zone_dict, file, indent=4)
+        with open(exportpath / 'zone_dict_ifc_names.json', 'w+') as file:
+            json.dump(zone_dict_ifc_names, file, indent=4)
 
     def _export_surface_areas(self, elements, idf):
         """ combines sets of area sums and exports to csv """
