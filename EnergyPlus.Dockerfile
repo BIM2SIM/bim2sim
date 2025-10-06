@@ -21,7 +21,7 @@ USER root
 
 # Install dependencies from base image
 RUN apt-get update && apt-get install -y ca-certificates wget libx11-6 libexpat1 \
-    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY --from=energyplus /usr/local/EnergyPlus-${ENERGYPLUS_INSTALL_VERSION} /usr/local/EnergyPlus-${ENERGYPLUS_INSTALL_VERSION}
 COPY --from=energyplus /usr/local/bin/energyplus /usr/local/bin/energyplus
