@@ -1,6 +1,5 @@
 ARG PYTHON_VERSION=energyplus-py3.10
 ARG CI_PROJECT_DIR="."
-ENV CI_PROJECT_DIR=$CI_PROJECT_DIR
 
 FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:${PYTHON_VERSION}
 
