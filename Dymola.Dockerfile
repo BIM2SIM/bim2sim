@@ -1,3 +1,5 @@
+# Image with Dymola required to test TEASER plugin
+
 ARG PYTHON_VERSION=3.9
 # bring in the micromamba image so we can copy files from it
 FROM mambaorg/micromamba:2.0.2 as micromamba
@@ -67,15 +69,10 @@ ENTRYPOINT ["/usr/local/bin/_entrypoint.sh"]
 
 CMD ["/bin/bash"]
 
-ARG MAMBA_DOCKERFILE_ACTIVATE=1
-
 ENV PIP_DEFAULT_TIMEOUT=500
 
 # Copy files to the user's home directory
 COPY --chown=$MAMBA_USER:$MAMBA_USER . .
-
-# Install the package
-RUN pip install --no-cache-dir --user -e . -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # Add .local/bin to PATH
 ENV PATH=/home/$MAMBA_USER/.local/bin:$PATH

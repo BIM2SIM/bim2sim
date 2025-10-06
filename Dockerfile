@@ -1,3 +1,5 @@
+# Base image which install python with micromamba and pythonocc to speed up CI
+
 ARG PYTHON_VERSION=3.9
 FROM mambaorg/micromamba:2.0.2
 
@@ -19,9 +21,4 @@ RUN micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} python
 # Copy files
 COPY --chown=$MAMBA_USER:$MAMBA_USER . .
 
-ARG MAMBA_DOCKERFILE_ACTIVATE=1
-
 ENV PIP_DEFAULT_TIMEOUT=500
-
-# Install the package
-RUN pip install --no-cache-dir '.' -i https://pypi.tuna.tsinghua.edu.cn/simple
