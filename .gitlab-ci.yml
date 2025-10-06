@@ -1,11 +1,11 @@
 stages:
   - build
+  - release
   - Test Base
   - Test Plugin
   - Test Regression
   - doc
   - code_quality
-  - release
   - deploy
 
 variables:
@@ -247,8 +247,8 @@ build:dev-PluginOpenFOAM:py3.10:
     TAG: dev-PluginOpenFOAM-py3.10
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
+    #- if: '$CI_COMMIT_REF_NAME == "development"'
+    - changes:
         - Dockerfile
         - bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
         - pyproject.toml
@@ -261,8 +261,8 @@ build:dev-PluginOpenFOAM:py3.11:
     TAG: dev-PluginOpenFOAM-py3.11
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
+    #- if: '$CI_COMMIT_REF_NAME == "development"'
+    - changes:
         - Dockerfile
         - bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
         - pyproject.toml
