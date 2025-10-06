@@ -333,8 +333,8 @@ build:dev-energyplus:py3.10:
     TAG: dev-energyplus-py3.10
     DOCKERFILE: EnergyPlus.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
+    #- if: '$CI_COMMIT_REF_NAME == "development"'
+    - changes:
         - Dockerfile
         - EnergyPlus.Dockerfile
         - pyproject.toml
@@ -347,8 +347,8 @@ build:dev-energyplus:py3.11:
     TAG: dev-energyplus-py3.11
     DOCKERFILE: EnergyPlus.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
+    #- if: '$CI_COMMIT_REF_NAME == "development"'
+    - changes:
         - Dockerfile
         - EnergyPlus.Dockerfile
         - pyproject.toml
@@ -527,7 +527,7 @@ build:main-PluginComfort:py3.11:
         - .gitlab-ci.yml
 
 build:main-PluginOpenFOAM:py3.10:
-  <<: *build_template
+  <<: *release_template
   variables:
     PYTHON_VERSION: "3.10"
     TAG: main-PluginOpenFOAM-py3.10
@@ -543,7 +543,7 @@ build:main-PluginOpenFOAM:py3.10:
         - .gitlab-ci.yml
 
 build:main-PluginOpenFOAM:py3.11:
-  <<: *build_template
+  <<: *release_template
   variables:
     PYTHON_VERSION: "3.11"
     TAG: main-PluginOpenFOAM-py3.11
@@ -614,15 +614,6 @@ build:main-dymola:py3.11:
         - .gitlab-ci.yml
 
 # Build EnergyPlus images
-build:main-energyplus_base:
-  <<: *build_template
-  variables:
-    TAG: energyplus_builder
-    DOCKERFILE: EnergyPlusBase.Dockerfile
-  rules:
-    - changes:
-        - EnergyPlusBase.Dockerfile
-        - .gitlab-ci.yml
 
 build:main-energyplus:py3.10:
   <<: *build_template

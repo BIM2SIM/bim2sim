@@ -1,7 +1,15 @@
-# Base image with energy plus and micromamba installed to be used as a build-layer to avoid repeated downloads from github
+# Base image with energy plus and micromamba installed to be used as a build-layer to avoid repeated downloads from github.
+# In gitlab CI, this image does not build, as the download is somehow blocked.
+# Thus, if you want to use a new EnergyPlus version, build this file locally using:#
+# ```bash
+# docker login registry.git.rwth-aachen.de
+# docker build -f EnergyPlusBase.Dockerfile -t registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:energyplus_builder .
+# docker push registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:energyplus_builder
+# ```
+# If on linux, put `sudo` in front of every line.
 
-#FROM mambaorg/micromamba:2.0.2
-FROM ubuntu:18.04
+
+FROM mambaorg/micromamba:2.0.2
 
 ARG ENERGYPLUS_VERSION=9.4.0
 ARG ENERGYPLUS_SHA=998c4b761e
@@ -29,4 +37,4 @@ RUN apt-get update && apt-get install -y ca-certificates wget libx11-6 libexpat1
        PostProcess/EP-Compare PreProcess/FMUParser PreProcess/ParametricPreProcessor PreProcess/IDFVersionUpdater \
     && cd /usr/local/bin && find -L . -type l -delete
 
-# USER mambauser
+USER mambauser
