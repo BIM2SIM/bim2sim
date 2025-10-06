@@ -618,7 +618,7 @@ build:main-energyplus_base:
   <<: *build_template
   variables:
     TAG: energyplus_builder
-    DOCKERFILE: EnergyPlus.Dockerfile
+    DOCKERFILE: EnergyPlusBase.Dockerfile
   rules:
     - changes:
         - EnergyPlusBase.Dockerfile
