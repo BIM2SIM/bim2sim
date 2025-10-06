@@ -241,13 +241,11 @@ build:dev-PluginComfort:py3.11:
         - .gitlab-ci.yml
 
 build:dev-PluginOpenFOAM:py3.10:
-  <<: *build_template
+  <<: *release_template
   variables:
     PYTHON_VERSION: "3.10"
     TAG: dev-PluginOpenFOAM-py3.10
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
-  needs:
-    - build:dev-energyplus:py3.10
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development"'
       changes:
@@ -257,13 +255,11 @@ build:dev-PluginOpenFOAM:py3.10:
         - .gitlab-ci.yml
 
 build:dev-PluginOpenFOAM:py3.11:
-  <<: *build_template
+  <<: *release_template
   variables:
     PYTHON_VERSION: "3.11"
     TAG: dev-PluginOpenFOAM-py3.11
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
-  needs:
-    - build:dev-energyplus:py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development"'
       changes:
