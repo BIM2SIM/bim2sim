@@ -2,6 +2,14 @@
   "Kitchen residential": "Kitchen",
   "Kitchen in non-residential buildings": "Kitchen",
   "WC residential": "Bathroom",
-  "WC and sanitary rooms in non-residential buildings": "Bathroom",
-  "Bed room": "Bedroom"
+  "WC and sanitary rooms in non-residential buildings": "WC",
+  "Bed room": "Bedroom",
+  "Stock, technical equipment, archives": "Storage/Technical",
+  "Group Office (between 2 and 6 employees)": "Group Office",
+  "Meeting, Conference, seminar": "Meeting/Conference",
+  "Traffic area": "Traffic area",
+  "Main Hall, Reception": "Lobby",
+  "Open-plan Office (7 or more employees)": "Open-plan Office",
+  "Laboratory": "Laboratory",
+  "Canteen": "Canteen"
 }
