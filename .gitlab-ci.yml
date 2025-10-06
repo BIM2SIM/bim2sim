@@ -621,8 +621,6 @@ build:main-energyplus:py3.10:
     PYTHON_VERSION: "3.10"
     TAG: main-energyplus-py3.10
     DOCKERFILE: EnergyPlus.Dockerfile
-  needs:
-    - build:main-energyplus_base
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -637,8 +635,6 @@ build:main-energyplus:py3.11:
     PYTHON_VERSION: "3.11"
     TAG: main-energyplus-py3.11
     DOCKERFILE: EnergyPlus.Dockerfile
-  needs:
-    - build:main-energyplus_base
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
