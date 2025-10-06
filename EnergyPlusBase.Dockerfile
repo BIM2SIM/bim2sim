@@ -11,30 +11,21 @@ ENV ENERGYPLUS_VERSION=$ENERGYPLUS_VERSION
 ENV ENERGYPLUS_TAG=$ENERGYPLUS_TAG
 ENV ENERGYPLUS_SHA=$ENERGYPLUS_SHA
 ENV ENERGYPLUS_INSTALL_VERSION=$ENERGYPLUS_INSTALL_VERSION
-ENV ENERGYPLUS_DOWNLOAD_BASE_URL=https://github.com/NREL/EnergyPlus/releases/download/$ENERGYPLUS_TAG
-ENV ENERGYPLUS_DOWNLOAD_FILENAME=EnergyPlus-$ENERGYPLUS_VERSION-$ENERGYPLUS_SHA-Linux-Ubuntu18.04-x86_64.sh
-ENV ENERGYPLUS_DOWNLOAD_URL=$ENERGYPLUS_DOWNLOAD_BASE_URL/$ENERGYPLUS_DOWNLOAD_FILENAME
 
 USER root
 
-# Install necessary packages and EnergyPlus
-RUN apt-get update && apt-get install -y ca-certificates curl libx11-6 libexpat1 \
-    && rm -rf /var/lib/apt/lists/*
 
-RUN curl -SLO --retry 5 --retry-delay 15 --retry-max-time 900 --connect-timeout 60 --max-time 3600 $ENERGYPLUS_DOWNLOAD_URL || \
-    (sleep 30 && curl -SLO --retry 5 --retry-delay 15 --retry-max-time 900 --connect-timeout 60 --max-time 3600 $ENERGYPLUS_DOWNLOAD_URL)
-
-RUN chmod +x $ENERGYPLUS_DOWNLOAD_FILENAME
-
-RUN echo "y\r" | ./$ENERGYPLUS_DOWNLOAD_FILENAME
-
-RUN rm $ENERGYPLUS_DOWNLOAD_FILENAME
-
-RUN cd /usr/local/EnergyPlus-$ENERGYPLUS_INSTALL_VERSION \
+# Download and install EnergyPlus using wget with retry options
+RUN apt-get update && apt-get install -y ca-certificates wget libx11-6 libexpat1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && DOWNLOAD_URL="https://github.com/NREL/EnergyPlus/releases/download/${ENERGYPLUS_TAG}/EnergyPlus-${ENERGYPLUS_VERSION}-${ENERGYPLUS_SHA}-Linux-Ubuntu18.04-x86_64.sh" \
+    && wget --retry-connrefused --waitretry=30 --read-timeout=60 --timeout=60 -t 10 -O EnergyPlus-Installer.sh $DOWNLOAD_URL \
+    && chmod +x EnergyPlus-Installer.sh \
+    && echo "y\r" | ./EnergyPlus-Installer.sh \
+    && rm EnergyPlus-Installer.sh \
+    && cd /usr/local/EnergyPlus-${ENERGYPLUS_INSTALL_VERSION} \
     && rm -rf DataSets Documentation ExampleFiles WeatherData MacroDataSets PostProcess/convertESOMTRpgm \
-       PostProcess/EP-Compare PreProcess/FMUParser PreProcess/ParametricPreProcessor PreProcess/IDFVersionUpdater
-
-# Remove broken symlinks
-RUN cd /usr/local/bin && find -L . -type l -delete
+       PostProcess/EP-Compare PreProcess/FMUParser PreProcess/ParametricPreProcessor PreProcess/IDFVersionUpdater \
+    && cd /usr/local/bin && find -L . -type l -delete
 
 USER mambauser
