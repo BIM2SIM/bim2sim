@@ -242,7 +242,7 @@ build:dev-PluginComfort:py3.11:
 build:dev-PluginOpenFOAM:py3.10:
   <<: *release_template
   variables:
-    BASE_IMAGE_TAG: "energyplus-py3.10"
+    PYTHON_VERSION: "energyplus-py3.10"
     TAG: dev-PluginOpenFOAM-py3.10
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
   rules:
@@ -256,8 +256,8 @@ build:dev-PluginOpenFOAM:py3.10:
 build:dev-PluginOpenFOAM:py3.11:
   <<: *release_template
   variables:
-    PYTHON_VERSION: "3.11"
-    BASE_IMAGE_TAG: "energyplus-py3.11"
+    PYTHON_VERSION: "energyplus-py3.11"
+    TAG: dev-PluginOpenFOAM-py3.11
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
   rules:
     #- if: '$CI_COMMIT_REF_NAME == "development"'
@@ -443,7 +443,7 @@ build:main-PluginHKESim:py3.11:
 build:main-PluginEnergyPlus:py3.10:
   <<: *release_template
   variables:
-    BASE_IMAGE_TAG: "energyplus-py3.10"
+    PYTHON_VERSION: "energyplus-py3.10"
     TAG: main-PluginEnergyPlus-py3.10
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
   rules:
@@ -457,7 +457,7 @@ build:main-PluginEnergyPlus:py3.10:
 build:main-PluginEnergyPlus:py3.11:
   <<: *release_template
   variables:
-    BASE_IMAGE_TAG: "energyplus-py3.11"
+    PYTHON_VERSION: "energyplus-py3.11"
     TAG: main-PluginEnergyPlus-py3.11
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
   rules:
@@ -471,7 +471,7 @@ build:main-PluginEnergyPlus:py3.11:
 build:main-PluginComfort:py3.10:
   <<: *release_template
   variables:
-    BASE_IMAGE_TAG: "energyplus-py3.10"
+    PYTHON_VERSION: "energyplus-py3.10"
     TAG: main-PluginComfort-py3.10
     DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
   rules:
@@ -485,7 +485,7 @@ build:main-PluginComfort:py3.10:
 build:main-PluginComfort:py3.11:
   <<: *release_template
   variables:
-    BASE_IMAGE_TAG: "energyplus-py3.10"
+    PYTHON_VERSION: "energyplus-py3.10"
     TAG: main-PluginComfort-py3.11
     DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
   rules:
@@ -499,7 +499,7 @@ build:main-PluginComfort:py3.11:
 build:main-PluginOpenFOAM:py3.10:
   <<: *release_template
   variables:
-    BASE_IMAGE_TAG: "energyplus-py3.10"
+    PYTHON_VERSION: "energyplus-py3.10"
     TAG: main-PluginOpenFOAM-py3.10
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
   rules:
@@ -513,7 +513,7 @@ build:main-PluginOpenFOAM:py3.10:
 build:main-PluginOpenFOAM:py3.11:
   <<: *release_template
   variables:
-    BASE_IMAGE_TAG: "energyplus-py3.10"
+    PYTHON_VERSION: "energyplus-py3.10"
     TAG: main-PluginOpenFOAM-py3.11
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
   rules:
