@@ -45,7 +45,6 @@ include:
 
 .base_build_template: &base_build_template
   <<: *base_docker_build
-  stage: build
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
@@ -589,7 +588,7 @@ build:energyplus:py3.10:
     TAG: energyplus-py3.10
     DOCKERFILE: EnergyPlus.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - Dockerfile
         - EnergyPlus.Dockerfile
@@ -603,7 +602,7 @@ build:energyplus:py3.11:
     TAG: energyplus-py3.11
     DOCKERFILE: EnergyPlus.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - Dockerfile
         - EnergyPlus.Dockerfile
