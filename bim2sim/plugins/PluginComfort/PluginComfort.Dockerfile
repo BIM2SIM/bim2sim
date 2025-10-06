@@ -1,5 +1,5 @@
-ARG PYTHON_VERSION=3.9
-FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:energyplus${PYTHON_VERSION}
+ARG BASE_IMAGE_TAG=energyplus-py3.10
+FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:${BASE_IMAGE_TAG}
 
 # Install the package
 ARG MAMBA_DOCKERFILE_ACTIVATE=1
