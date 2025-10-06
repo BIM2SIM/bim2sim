@@ -1,6 +1,7 @@
 # Base image with energy plus and micromamba installed to be used as a build-layer to avoid repeated downloads from github
 
-FROM mambaorg/micromamba:2.0.2
+#FROM mambaorg/micromamba:2.0.2
+FROM ubuntu:18.04
 
 ARG ENERGYPLUS_VERSION=9.4.0
 ARG ENERGYPLUS_SHA=998c4b761e
@@ -11,8 +12,7 @@ ENV ENERGYPLUS_TAG="v${ENERGYPLUS_VERSION}"
 ENV ENERGYPLUS_SHA=$ENERGYPLUS_SHA
 ENV ENERGYPLUS_INSTALL_VERSION=${ENERGYPLUS_INSTALL_VERSION}
 
-ENV DOWNLOAD_URL="https://energyplus.net/assets/EnergyPlus-${ENERGYPLUS_VERSION}-${ENERGYPLUS_SHA}-Linux-Ubuntu18.04-x86_64.sh"
-#ENV DOWNLOAD_URL="https://github.com/NREL/EnergyPlus/releases/download/${ENERGYPLUS_TAG}/EnergyPlus-${ENERGYPLUS_VERSION}-${ENERGYPLUS_SHA}-Linux-Ubuntu18.04-x86_64.sh"
+ENV DOWNLOAD_URL="https://github.com/NREL/EnergyPlus/releases/download/${ENERGYPLUS_TAG}/EnergyPlus-${ENERGYPLUS_VERSION}-${ENERGYPLUS_SHA}-Linux-Ubuntu18.04-x86_64.sh"
 
 USER root
 
@@ -29,4 +29,4 @@ RUN apt-get update && apt-get install -y ca-certificates wget libx11-6 libexpat1
        PostProcess/EP-Compare PreProcess/FMUParser PreProcess/ParametricPreProcessor PreProcess/IDFVersionUpdater \
     && cd /usr/local/bin && find -L . -type l -delete
 
-USER mambauser
+# USER mambauser
