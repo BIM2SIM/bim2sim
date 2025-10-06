@@ -48,9 +48,10 @@ include:
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
+    - echo ${CI_PROJECT_DIR}
     - docker build 
       --build-arg PYTHON_VERSION=${PYTHON_VERSION}
-      --build-arg CI_PROJECT_DIR=$CI_PROJECT_DIR
+      --build-arg CI_PROJECT_DIR=${CI_PROJECT_DIR}
       -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} .
     - docker push $CI_REGISTRY/bim2sim:$TAG
 
