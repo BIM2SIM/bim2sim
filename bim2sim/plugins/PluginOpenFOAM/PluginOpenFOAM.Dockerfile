@@ -5,4 +5,6 @@ RUN echo $(pwd)
 
 # Install the package
 ARG MAMBA_DOCKERFILE_ACTIVATE=1
+WORKDIR $CI_PROJECT_DIR
 RUN pip install --no-cache-dir '.[PluginOpenFOAM]' -i https://pypi.tuna.tsinghua.edu.cn/simple
+WORKDIR /var/simdata/energyplus
