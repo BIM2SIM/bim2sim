@@ -18,7 +18,8 @@ RUN echo "Python version argument: ${PYTHON_VERSION}"
 RUN micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} pythonocc-core=7.7.0 pip gcc git --retry-clean-cache && \
     micromamba clean --all --yes
 
-# Copy files
-COPY --chown=$MAMBA_USER:$MAMBA_USER . .
+# # Copy files
+# TODO: This should not be necessary, as the files will be there in CI anyway - or should be added in the release images
+# COPY --chown=$MAMBA_USER:$MAMBA_USER . .
 
 ENV PIP_DEFAULT_TIMEOUT=500
