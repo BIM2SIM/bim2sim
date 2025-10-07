@@ -37,7 +37,6 @@ class TestHashFunction(unittest.TestCase):
 
         # Locate IFC test file
         ifc_path = test_rsrc_path / 'arch/ifc/AC20-FZK-Haus.ifc'
-        self.assertTrue(ifc_path.exists(), "IFC test file missing")
 
         # Compute expected hash directly (ground truth)
         sha256 = hashlib.sha256()
