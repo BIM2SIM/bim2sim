@@ -1,39 +1,22 @@
 import unittest
 import tempfile
+import shutil
+import hashlib
+import logging
 from pathlib import Path
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils.utils_hash_function import (
+    generate_hash,
+    add_hash_into_idf,
+)
 
 
-from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.project import Project
-from bim2sim.utilities.types import IFCDomain
-from bim2sim.plugins import Plugin
-from bim2sim.tasks import common, bps
-from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.sim_settings import \
-    EnergyPlusSimSettings
-from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
-    task as ep_tasks
-
-
-class PluginHashDummyEP(Plugin):
-    name = 'EnergyPlus'
-    sim_settings = EnergyPlusSimSettings
-    default_tasks = [
-        common.LoadIFC,
-        common.CheckIfc,
-        common.CreateElementsOnIfcTypes,
-        bps.CreateSpaceBoundaries,
-        bps.AddSpaceBoundaries2B,
-        bps.CorrectSpaceBoundaries,
-        common.CreateRelations,
-        bps.DisaggregationCreationAndTypeCheck,
-        bps.EnrichMaterial,
-        bps.EnrichUseConditions,
-        common.Weather,
-        ep_tasks.CreateIdf,
-        # ep_tasks.IdfPostprocessing,
-        # ep_tasks.ExportIdfForCfd,
-        # common.SerializeElements,
-    ]
+logger = logging.getLogger(__name__)
+# Set up logger to print to console
+if not logger.handlers:
+    _handler = logging.StreamHandler()
+    logger.addHandler(_handler)
+logger.setLevel(logging.INFO)
+logger.propagate = False
 
 
 test_rsrc_path = (Path(
@@ -43,43 +26,50 @@ test_rsrc_path = (Path(
 
 class TestHashFunction(unittest.TestCase):
 
-    def tearDown(self):
-        self.project.finalize(True)
-        self.test_dir.cleanup()
-
-    def test_idf_hash(self):
-        """Tests the hash function to verify if the hash value is successfully
-        generated and added to the IDF file."""
-
+    def setUp(self):
         self.test_dir = tempfile.TemporaryDirectory()
 
-        ifc_paths = {
-            IFCDomain.arch: test_rsrc_path / 'arch/ifc/AC20-FZK-Haus.ifc'}
-        self.project = Project.create(self.test_dir.name, ifc_paths,
-                                      plugin=PluginHashDummyEP)
-        self.project.sim_settings.weather_file_path = (
-                test_rsrc_path / 'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
-        # self.project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+    def tearDown(self):
+        self.test_dir.cleanup()
 
-        self.project.sim_settings.run_full_simulation = False
-        self.project.sim_settings.add_hash = True
+    def test_generate_hash_and_write_to_idf(self):
+        """Unit test: generate IFC hash and prepend to IDF."""
 
-        handler = DebugDecisionHandler([])
-        handler.handle(self.project.run(cleanup=False))
+        # Locate IFC test file
+        ifc_path = test_rsrc_path / 'arch/ifc/AC20-FZK-Haus.ifc'
+        self.assertTrue(ifc_path.exists(), "IFC test file missing")
 
-        ifc_file_path = ifc_paths[IFCDomain.arch]
-        ifc_file_name = ifc_file_path.stem
-        project_path = Path(self.test_dir.name)
-        idf_path = project_path / "export" / "EnergyPlus" / "SimResults" / ifc_file_name / f"{ifc_file_name}.idf"
+        # Compute expected hash directly (ground truth)
+        sha256 = hashlib.sha256()
+        with open(ifc_path, 'rb') as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha256.update(chunk)
+        expected_hash = sha256.hexdigest()
 
-        with open(idf_path, "r") as f:
-            first_line = f.readline()
-            if "IFC_GEOMETRY_HASH" in first_line:
-                print("IFC_GEOMETRY_HASH found in the first line of the file.")
-                print("Hash line:", first_line)
-            else:
-                print("IFC_GEOMETRY_HASH not found in the first line of the file.")
-            self.assertEqual("IFC_GEOMETRY_HASH" in first_line, True)
+        # Use utils_hash_function to generate hash line and compare with expected hash
+        hash_line = generate_hash(str(ifc_path))
+        logger.info("Generated hash line: %s", hash_line.strip())
+        self.assertTrue(hash_line.startswith('! IFC_GEOMETRY_HASH:'), "Hash line prefix incorrect")
+        self.assertIn(expected_hash, hash_line, "Hash content mismatch")
+        self.assertIn(ifc_path.name, hash_line, "IFC filename not included")
+
+        # Prepare a temp copy of Minimal.idf
+        plugin_data_dir = Path(__file__).parents[3] / 'data'
+        minimal_idf = plugin_data_dir / 'Minimal.idf'
+        tmp_idf_path = Path(self.test_dir.name) / 'Minimal.idf'
+        shutil.copyfile(minimal_idf, tmp_idf_path)
+
+        # Ensure there is no hash in the first line
+        with open(tmp_idf_path, 'r', encoding='utf-8') as f:
+            original_first_line = f.readline()
+        self.assertNotEqual(original_first_line, hash_line)
+
+        # Add hash to IDF
+        add_hash_into_idf(hash_line, str(tmp_idf_path))
+        with open(tmp_idf_path, 'r', encoding='utf-8') as f:
+            new_first_line = f.readline()
+
+        self.assertEqual(new_first_line, hash_line)
 
 
 if __name__ == '__main__':
