@@ -190,7 +190,7 @@ build:dev-PluginHKESim:py3.11:
 build:dev-PluginEnergyPlus:py3.10:
   <<: *release_template
   variables:
-    PYTHON_VERSION: "3.10"
+    PYTHON_VERSION: "energyplus-py3.10"
     TAG: dev-PluginEnergyPlus-py3.10
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
   rules:
@@ -204,7 +204,7 @@ build:dev-PluginEnergyPlus:py3.10:
 build:dev-PluginEnergyPlus:py3.11:
   <<: *release_template
   variables:
-    PYTHON_VERSION: "3.11"
+    PYTHON_VERSION: "energyplus-py3.11"
     TAG: dev-PluginEnergyPlus-py3.11
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
   rules:
@@ -218,7 +218,7 @@ build:dev-PluginEnergyPlus:py3.11:
 build:dev-PluginComfort:py3.10:
   <<: *release_template
   variables:
-    PYTHON_VERSION: "3.10"
+    PYTHON_VERSION: "energyplus-py3.10"
     TAG: dev-PluginComfort-py3.10
     DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
   rules:
@@ -232,7 +232,7 @@ build:dev-PluginComfort:py3.10:
 build:dev-PluginComfort:py3.11:
   <<: *release_template
   variables:
-    PYTHON_VERSION: "3.11"
+    PYTHON_VERSION: "energyplus-py3.11"
     TAG: dev-PluginComfort-py3.11
     DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
   rules:
