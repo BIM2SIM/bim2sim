@@ -110,7 +110,7 @@ build:dev-PluginTEASER:py3.10:
     TAG: dev-PluginTEASER-py3.10
     DOCKERFILE: bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - Dockerfile
         - bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
@@ -124,7 +124,7 @@ build:dev-PluginTEASER:py3.11:
     TAG: dev-PluginTEASER-py3.11
     DOCKERFILE: bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - Dockerfile
         - bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
@@ -138,7 +138,7 @@ build:dev-PluginAixLib:py3.10:
     TAG: dev-PluginAixLib-py3.10
     DOCKERFILE: bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - Dockerfile
         - bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
@@ -152,7 +152,7 @@ build:dev-PluginAixLib:py3.11:
     TAG: dev-PluginAixLib-py3.11
     DOCKERFILE: bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - Dockerfile
         - bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
@@ -166,7 +166,7 @@ build:dev-PluginHKESim:py3.10:
     TAG: dev-PluginHKESim-py3.10
     DOCKERFILE: bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - Dockerfile
         - bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
@@ -180,7 +180,7 @@ build:dev-PluginHKESim:py3.11:
     TAG: dev-PluginHKESim-py3.11
     DOCKERFILE: bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - Dockerfile
         - bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
@@ -194,7 +194,7 @@ build:dev-PluginEnergyPlus:py3.10:
     TAG: dev-PluginEnergyPlus-py3.10
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - Dockerfile
         - bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
@@ -208,7 +208,7 @@ build:dev-PluginEnergyPlus:py3.11:
     TAG: dev-PluginEnergyPlus-py3.11
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - Dockerfile
         - bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
@@ -222,7 +222,7 @@ build:dev-PluginComfort:py3.10:
     TAG: dev-PluginComfort-py3.10
     DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - Dockerfile
         - bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
@@ -236,7 +236,7 @@ build:dev-PluginComfort:py3.11:
     TAG: dev-PluginComfort-py3.11
     DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - Dockerfile
         - bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
@@ -250,7 +250,7 @@ build:dev-PluginOpenFOAM:py3.10:
     TAG: dev-PluginOpenFOAM-py3.10
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
   rules:
-    #- if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
     - changes:
         - Dockerfile
         - bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
@@ -264,7 +264,7 @@ build:dev-PluginOpenFOAM:py3.11:
     TAG: dev-PluginOpenFOAM-py3.11
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
   rules:
-    #- if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
     - changes:
         - Dockerfile
         - bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
@@ -279,7 +279,7 @@ build:dev-PluginLCA:py3.10:
     TAG: dev-PluginLCA-py3.10
     DOCKERFILE: bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - Dockerfile
         - bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
@@ -294,7 +294,7 @@ build:dev-PluginLCA:py3.11:
     TAG: dev-PluginLCA-py3.11
     DOCKERFILE: bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - Dockerfile
         - bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
