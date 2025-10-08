@@ -14,26 +14,21 @@ stages:
   <<: *base_docker_build
   before_script:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-
-.build_template: &build_template
-  stage: build
-  <<: *base_build_template
   script:
     - echo ${CI_PROJECT_DIR}
     - docker build 
       --build-arg PYTHON_VERSION=${PYTHON_VERSION}
+      --build-arg FROM_BUILD_TAG=${FROM_BUILD_TAG}
       -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} .
     - docker push $CI_REGISTRY/bim2sim:$TAG
+
+.build_template: &build_template
+  stage: build
+  <<: *base_build_template
 
 .release_template: &release_template
   stage: release
   <<: *base_build_template
-  script:
-    - echo ${CI_PROJECT_DIR}
-    - docker build 
-      --build-arg FROM_BUILD_TAG=${FROM_BUILD_TAG}
-      -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} .
-    - docker push $CI_REGISTRY/bim2sim:$TAG
 
 .build_template_dymola: &build_template_dymola
   <<: *base_docker_build
