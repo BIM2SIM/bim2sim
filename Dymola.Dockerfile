@@ -71,8 +71,5 @@ CMD ["/bin/bash"]
 
 ENV PIP_DEFAULT_TIMEOUT=500
 
-# Copy files to the user's home directory
-COPY --chown=$MAMBA_USER:$MAMBA_USER . .
-
 # Add .local/bin to PATH
 ENV PATH=/home/$MAMBA_USER/.local/bin:$PATH

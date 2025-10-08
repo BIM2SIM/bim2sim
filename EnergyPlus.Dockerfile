@@ -1,14 +1,15 @@
 # Actual image to be used for testing of plugins or provision of plugins as images
 
-ARG PYTHON_VERSION=3.9
+ARG FROM_BUILD_TAG=
 ARG ENERGYPLUS_VERSION=9.4.0
 ARG ENERGYPLUS_INSTALL_VERSION=9-4-0
+ARG ENERGYPLUS_BASE_IMAGE=energyplus_9.4.0
 
 # First stage - use the EnergyPlus base image
 FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:energyplus_builder as energyplus
 
 # Second stage - build the final image
-FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:dev-py${PYTHON_VERSION}
+FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:${FROM_BUILD_TAG}
 
 ARG MAMBA_DOCKERFILE_ACTIVATE=1
 ARG ENERGYPLUS_INSTALL_VERSION
