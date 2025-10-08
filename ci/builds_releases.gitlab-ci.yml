@@ -70,7 +70,7 @@ build:py3.11-occ7.7.0:
         - bim2sim/plugins/**/*.Dockerfile
 
 # Development branch plugin builds
-release:dev-PluginTEASER:py3.10:
+release:dev-PluginTEASER-py.310:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
@@ -84,7 +84,7 @@ release:dev-PluginTEASER:py3.10:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:dev-PluginTEASER:py3.11:
+release:dev-PluginTEASER-py.311:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
@@ -98,7 +98,7 @@ release:dev-PluginTEASER:py3.11:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:dev-PluginAixLib:py3.10:
+release:dev-PluginAixLib-py.310:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
@@ -112,7 +112,7 @@ release:dev-PluginAixLib:py3.10:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:dev-PluginAixLib:py3.11:
+release:dev-PluginAixLib-py.311:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
@@ -126,7 +126,7 @@ release:dev-PluginAixLib:py3.11:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:dev-PluginHKESim:py3.10:
+release:dev-PluginHKESim-py.310:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
@@ -140,7 +140,7 @@ release:dev-PluginHKESim:py3.10:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:dev-PluginHKESim:py3.11:
+release:dev-PluginHKESim-py.311:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
@@ -154,7 +154,7 @@ release:dev-PluginHKESim:py3.11:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:dev-PluginEnergyPlus:py3.10:
+release:dev-PluginEnergyPlus-py.310:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "energyplus-py3.10"
@@ -168,7 +168,7 @@ release:dev-PluginEnergyPlus:py3.10:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:dev-PluginEnergyPlus:py3.11:
+release:dev-PluginEnergyPlus-py.311:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.11"
@@ -182,7 +182,7 @@ release:dev-PluginEnergyPlus:py3.11:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:dev-PluginComfort:py3.10:
+release:dev-PluginComfort-py.310:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "energyplus-py3.10"
@@ -196,7 +196,7 @@ release:dev-PluginComfort:py3.10:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:dev-PluginComfort:py3.11:
+release:dev-PluginComfort-py.311:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.11"
@@ -210,7 +210,7 @@ release:dev-PluginComfort:py3.11:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:dev-PluginOpenFOAM:py3.10:
+release:dev-PluginOpenFOAM-py.310:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "energyplus-py3.10"
@@ -224,7 +224,7 @@ release:dev-PluginOpenFOAM:py3.10:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:dev-PluginOpenFOAM:py3.11:
+release:dev-PluginOpenFOAM-py.311:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.11"
@@ -239,7 +239,7 @@ release:dev-PluginOpenFOAM:py3.11:
         - .gitlab-ci.yml
 
 # TODO PluginLCA currently has no dependencies, but might have in the future
-release:dev-PluginLCA:py3.10:
+release:dev-PluginLCA-py.310:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
@@ -254,7 +254,7 @@ release:dev-PluginLCA:py3.10:
         - .gitlab-ci.yml
 
 # TODO PluginLCA currently has no dependencies, but might have in the future
-release:dev-PluginLCA:py3.11:
+release:dev-PluginLCA-py.311:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
@@ -269,27 +269,27 @@ release:dev-PluginLCA:py3.11:
         - .gitlab-ci.yml
 
 # Build dymola images
-build:dymola2022:py3.10:
+build:dymola2022-py.310:
   <<: *build_template_dymola
   variables:
     PYTHON_VERSION: "3.10"
     TAG: dymola2022-py3.10
     DOCKERFILE: ci/Dymola.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - Dymola.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
 
-build:dymola2022:py3.11:
+build:dymola2022-py.311:
   <<: *build_template_dymola
   variables:
     PYTHON_VERSION: "3.11"
     TAG: dymola2022-py3.11
     DOCKERFILE: ci/Dymola.Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - Dymola.Dockerfile
         - pyproject.toml
@@ -297,7 +297,7 @@ build:dymola2022:py3.11:
 
 
 # Main branch plugin releases
-release:main-PluginTEASER:py3.10:
+release:main-PluginTEASER-py.310:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
@@ -311,7 +311,7 @@ release:main-PluginTEASER:py3.10:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:main-PluginTEASER:py3.11:
+release:main-PluginTEASER-py.311:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
@@ -325,7 +325,7 @@ release:main-PluginTEASER:py3.11:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:main-PluginAixLib:py3.10:
+release:main-PluginAixLib-py.310:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
@@ -339,7 +339,7 @@ release:main-PluginAixLib:py3.10:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:main-PluginAixLib:py3.11:
+release:main-PluginAixLib-py.311:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
@@ -353,7 +353,7 @@ release:main-PluginAixLib:py3.11:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:main-PluginHKESim:py3.10:
+release:main-PluginHKESim-py.310:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
@@ -367,7 +367,7 @@ release:main-PluginHKESim:py3.10:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:main-PluginHKESim:py3.11:
+release:main-PluginHKESim-py.311:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
@@ -381,7 +381,7 @@ release:main-PluginHKESim:py3.11:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:main-PluginEnergyPlus:py3.10:
+release:main-PluginEnergyPlus-py.310:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "energyplus-py3.10"
@@ -395,7 +395,7 @@ release:main-PluginEnergyPlus:py3.10:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:main-PluginEnergyPlus:py3.11:
+release:main-PluginEnergyPlus-py.311:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.11"
@@ -409,7 +409,7 @@ release:main-PluginEnergyPlus:py3.11:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:main-PluginComfort:py3.10:
+release:main-PluginComfort-py.310:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "energyplus-py3.10"
@@ -423,7 +423,7 @@ release:main-PluginComfort:py3.10:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:main-PluginComfort:py3.11:
+release:main-PluginComfort-py.311:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "energyplus-py3.10"
@@ -437,7 +437,7 @@ release:main-PluginComfort:py3.11:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:main-PluginOpenFOAM:py3.10:
+release:main-PluginOpenFOAM-py.310:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "energyplus-py3.10"
@@ -451,7 +451,7 @@ release:main-PluginOpenFOAM:py3.10:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:main-PluginOpenFOAM:py3.11:
+release:main-PluginOpenFOAM-py.311:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "energyplus-py3.10"
@@ -465,7 +465,7 @@ release:main-PluginOpenFOAM:py3.11:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:main-PluginLCA:py3.10:
+release:main-PluginLCA-py.310:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
@@ -479,7 +479,7 @@ release:main-PluginLCA:py3.10:
         - pyproject.toml
         - .gitlab-ci.yml
 
-release:main-PluginLCA:py3.11:
+release:main-PluginLCA-py.311:
   <<: *release_template
   variables:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
@@ -495,7 +495,7 @@ release:main-PluginLCA:py3.11:
 
 
 # Build EnergyPlus images
-build:energyplus:py3.10:
+build:energyplus-py.310:
   <<: *build_template
   variables:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
@@ -511,7 +511,7 @@ build:energyplus:py3.10:
         - pyproject.toml
         - .gitlab-ci.yml
 
-build:energyplus:py3.11:
+build:energyplus-py.311:
   <<: *build_template
   variables:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
