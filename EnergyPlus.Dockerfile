@@ -3,10 +3,10 @@
 ARG FROM_BUILD_TAG=
 ARG ENERGYPLUS_VERSION=9.4.0
 ARG ENERGYPLUS_INSTALL_VERSION=9-4-0
-ARG ENERGYPLUS_BASE_IMAGE=energyplus_9.4.0
+ARG ENERGYPLUS_BASE_IMAGE=energyplus9.4.0
 
 # First stage - use the EnergyPlus base image
-FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:energyplus_builder as energyplus
+FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:${ENERGYPLUS_BASE_IMAGE} as energyplus
 
 # Second stage - build the final image
 FROM registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:${FROM_BUILD_TAG}

@@ -3,8 +3,8 @@
 # Thus, if you want to use a new EnergyPlus version, build this file locally using:#
 # ```bash
 # docker login registry.git.rwth-aachen.de
-# docker build -f EnergyPlusBase.Dockerfile -t registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:energyplus_builder .
-# docker push registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:energyplus_builder
+# docker build -f EnergyPlusBase.Dockerfile -t registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:energyplus9.4.0 .
+# docker push registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:energyplus9.4.0
 # ```
 # If on linux, put `sudo` in front of every line.
 
