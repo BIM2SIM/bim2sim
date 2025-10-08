@@ -1,6 +1,6 @@
 # Actual image to be used for testing of plugins or provision of plugins as images
 
-ARG FROM_BUILD_TAG=
+ARG FROM_BUILD_TAG=py3.11-occ7.7.0
 ARG ENERGYPLUS_VERSION=9.4.0
 ARG ENERGYPLUS_INSTALL_VERSION=9-4-0
 ARG ENERGYPLUS_BASE_IMAGE=energyplus9.4.0
