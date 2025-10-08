@@ -46,11 +46,11 @@ build:py3.10-occ7.7.0:
   variables:
     PYTHON_VERSION: "3.10"
     TAG: "py3.10-occ7.7.0"
-    DOCKERFILE: Dockerfile
+    DOCKERFILE: ci/Dockerfile
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development"'
       changes:
-        - Dockerfile
+        - ci/*
         - pyproject.toml
         - .gitlab-ci.yml
         - bim2sim/plugins/**/*.Dockerfile
@@ -60,11 +60,11 @@ build:py3.11-occ7.7.0:
   variables:
     PYTHON_VERSION: "3.11"
     TAG: "py3.11-occ7.7.0"
-    DOCKERFILE: Dockerfile
+    DOCKERFILE: ci/Dockerfile
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development"'
       changes:
-        - Dockerfile
+        - ci/*
         - pyproject.toml
         - .gitlab-ci.yml
         - bim2sim/plugins/**/*.Dockerfile
@@ -79,7 +79,7 @@ release:dev-PluginTEASER:py3.10:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -93,7 +93,7 @@ release:dev-PluginTEASER:py3.11:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -107,7 +107,7 @@ release:dev-PluginAixLib:py3.10:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -121,7 +121,7 @@ release:dev-PluginAixLib:py3.11:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -135,7 +135,7 @@ release:dev-PluginHKESim:py3.10:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -149,7 +149,7 @@ release:dev-PluginHKESim:py3.11:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -163,7 +163,7 @@ release:dev-PluginEnergyPlus:py3.10:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -177,7 +177,7 @@ release:dev-PluginEnergyPlus:py3.11:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -191,7 +191,7 @@ release:dev-PluginComfort:py3.10:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -205,7 +205,7 @@ release:dev-PluginComfort:py3.11:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -219,7 +219,7 @@ release:dev-PluginOpenFOAM:py3.10:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
     - changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -233,7 +233,7 @@ release:dev-PluginOpenFOAM:py3.11:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
     - changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -248,7 +248,7 @@ release:dev-PluginLCA:py3.10:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -263,7 +263,7 @@ release:dev-PluginLCA:py3.11:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -274,7 +274,7 @@ build:dymola2022:py3.10:
   variables:
     PYTHON_VERSION: "3.10"
     TAG: dymola2022-py3.10
-    DOCKERFILE: Dymola.Dockerfile
+    DOCKERFILE: ci/Dymola.Dockerfile
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development"'
       changes:
@@ -287,7 +287,7 @@ build:dymola2022:py3.11:
   variables:
     PYTHON_VERSION: "3.11"
     TAG: dymola2022-py3.11
-    DOCKERFILE: Dymola.Dockerfile
+    DOCKERFILE: ci/Dymola.Dockerfile
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development"'
       changes:
@@ -306,7 +306,7 @@ release:main-PluginTEASER:py3.10:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -320,7 +320,7 @@ release:main-PluginTEASER:py3.11:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -334,7 +334,7 @@ release:main-PluginAixLib:py3.10:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -348,7 +348,7 @@ release:main-PluginAixLib:py3.11:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -362,7 +362,7 @@ release:main-PluginHKESim:py3.10:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -376,7 +376,7 @@ release:main-PluginHKESim:py3.11:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -390,7 +390,7 @@ release:main-PluginEnergyPlus:py3.10:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -404,7 +404,7 @@ release:main-PluginEnergyPlus:py3.11:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -418,7 +418,7 @@ release:main-PluginComfort:py3.10:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -432,7 +432,7 @@ release:main-PluginComfort:py3.11:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -446,7 +446,7 @@ release:main-PluginOpenFOAM:py3.10:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -460,7 +460,7 @@ release:main-PluginOpenFOAM:py3.11:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -474,7 +474,7 @@ release:main-PluginLCA:py3.10:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -488,7 +488,7 @@ release:main-PluginLCA:py3.11:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
-        - Dockerfile
+        - ci/*
         - bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -500,11 +500,11 @@ build:energyplus:py3.10:
   variables:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
     TAG: energyplus-py3.10
-    DOCKERFILE: EnergyPlus.Dockerfile
+    DOCKERFILE: ci/EnergyPlus.Dockerfile
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
-        - Dockerfile
+        - ci/*
         - EnergyPlus.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
@@ -514,11 +514,11 @@ build:energyplus:py3.11:
   variables:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
     TAG: energyplus9.4.0-py3.11
-    DOCKERFILE: EnergyPlus.Dockerfile
+    DOCKERFILE: ci/EnergyPlus.Dockerfile
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
-        - Dockerfile
+        - ci/*
         - EnergyPlus.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
