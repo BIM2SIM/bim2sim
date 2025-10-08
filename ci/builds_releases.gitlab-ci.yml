@@ -278,7 +278,7 @@ build:dymola2022-py.310:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
-        - Dymola.Dockerfile
+        - ci/*
         - pyproject.toml
         - .gitlab-ci.yml
 
@@ -291,7 +291,7 @@ build:dymola2022-py.311:
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
-        - Dymola.Dockerfile
+        - ci/*
         - pyproject.toml
         - .gitlab-ci.yml
 
