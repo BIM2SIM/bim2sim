@@ -30,7 +30,7 @@ stages:
   <<: *base_build_template
 
 .build_template_dymola: &build_template_dymola
-  <<: *base_docker_build
+  <<: *base_build_template
   stage: build
   before_script:
     # Before, login dymola docker reg
