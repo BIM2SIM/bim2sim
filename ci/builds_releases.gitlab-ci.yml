@@ -12,9 +12,8 @@ stages:
 
 .base_build_template: &base_build_template
   <<: *base_docker_build
-  before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
   script:
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
     - echo ${CI_PROJECT_DIR}
     - docker build 
       --build-arg PYTHON_VERSION=${PYTHON_VERSION}
@@ -34,11 +33,8 @@ stages:
   <<: *base_docker_build
   stage: build
   before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA   # login dymola docker reg
-  script:
-    - docker build --build-arg FROM_BUILD_TAG=${FROM_BUILD_TAG} -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} .
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
-    - docker push $CI_REGISTRY/bim2sim:$TAG
+    # Before, login dymola docker reg
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA
 
 # Development branch base builds
 build:py3.10-occ7.7.0:
@@ -273,6 +269,7 @@ build:dymola2022-py.310:
   <<: *build_template_dymola
   variables:
     PYTHON_VERSION: "3.10"
+    FROM_BUILD_TAG: "Dymola_2022"
     TAG: dymola2022-py3.10
     DOCKERFILE: ci/Dymola.Dockerfile
   rules:
@@ -286,6 +283,7 @@ build:dymola2022-py.311:
   <<: *build_template_dymola
   variables:
     PYTHON_VERSION: "3.11"
+    FROM_BUILD_TAG: "Dymola_2022"
     TAG: dymola2022-py3.11
     DOCKERFILE: ci/Dymola.Dockerfile
   rules:

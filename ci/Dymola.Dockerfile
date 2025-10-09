@@ -1,11 +1,12 @@
 # Image with Dymola required to test TEASER plugin
 
 ARG PYTHON_VERSION=3.9
+ARG FROM_BUILD_TAG=Dymola_2022
 # bring in the micromamba image so we can copy files from it
 FROM mambaorg/micromamba:2.0.2 as micromamba
 
 # This is the image we are going add micromaba to:
-FROM registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:Dymola_2022
+FROM registry.git.rwth-aachen.de/ebc/ebc_intern/dymola-docker:${FROM_BUILD_TAG}
 
 # Redeclare the ARG after FROM
 ARG PYTHON_VERSION
