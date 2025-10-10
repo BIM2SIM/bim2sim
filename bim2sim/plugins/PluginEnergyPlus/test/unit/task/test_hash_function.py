@@ -1,7 +1,6 @@
 import unittest
 import tempfile
 import shutil
-import hashlib
 import logging
 from pathlib import Path
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils.utils_hash_function import (
@@ -57,7 +56,8 @@ class TestHashFunction(unittest.TestCase):
         # Ensure there is no hash in the first line
         with open(tmp_idf_path, 'r', encoding='utf-8') as f:
             original_first_line = f.readline()
-        self.assertNotEqual(original_first_line, hash_line)
+        self.assertNotIn("IFC_GEOMETRY_HASH", original_first_line,
+                         f"IDF file already contains hash in first line: '{original_first_line.strip()}'")
 
         # Add hash to IDF
         add_hash_into_idf(hash_line, str(tmp_idf_path))
