@@ -38,7 +38,7 @@ class TestHashFunction(unittest.TestCase):
         ifc_path = test_rsrc_path / 'arch/ifc/AC20-FZK-Haus.ifc'
 
         # Use predefined expected correct hash for AC20-FZK-Haus.ifc in the resources folder
-        expected_hash = "ec498a610e386974e6b342e37e177d690a2ab1985b51bb0112e26dc88abe521a"
+        expected_hash = "b0b6cbe8e780f537417a7d67bc98966d2a9cd8644472e77fd3f9f1e5bb1fa97b"
 
         # Use utils_hash_function to generate hash line and compare with expected hash
         hash_line = generate_hash(str(ifc_path))

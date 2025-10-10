@@ -6,12 +6,16 @@ logger = logging.getLogger(__name__)
 
 
 def generate_hash(ifc_path) -> str:
-    """Generate SHA-256 hash for IFC file"""
+    """Generate SHA-256 hash for IFC file with cross-platform consistency"""
     sha256_hash = hashlib.sha256()
 
+    # Read file in binary mode to avoid encoding issues
     with open(ifc_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
+        file_content = f.read()
+        # Normalize line endings to Unix style (\n) for cross-platform consistency
+        normalized_content = file_content.replace(b'\r\n', b'\n').replace(b'\r', b'\n')
+        sha256_hash.update(normalized_content)
+    
     ifc_hash = sha256_hash.hexdigest()
     ifc_filename = Path(ifc_path).name
     hash_prefix = "IFC_GEOMETRY_HASH"  # prefix
