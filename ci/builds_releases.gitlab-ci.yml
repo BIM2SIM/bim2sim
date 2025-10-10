@@ -30,11 +30,19 @@ stages:
   <<: *base_build_template
 
 .build_template_dymola: &build_template_dymola
-  <<: *base_build_template
   stage: build
-  before_script:
+  <<: *base_docker_build
+  script:
     # Before, login dymola docker reg
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA
+    - echo ${CI_PROJECT_DIR}
+    - docker build
+      --build-arg PYTHON_VERSION=${PYTHON_VERSION}
+      --build-arg FROM_BUILD_TAG=${FROM_BUILD_TAG}
+      -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} .
+    # Second login is important, as dymola registry has different access token
+    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
+    - docker push $CI_REGISTRY/bim2sim:$TAG
 
 # Development branch base builds
 build:py3.10-occ7.7.0:
