@@ -114,7 +114,6 @@ class CreateIdf(ITask):
 
         return idf, sim_results_path
 
-
     @staticmethod
     def init_idf(sim_settings: EnergyPlusSimSettings, paths: FolderStructure,
                  weather_file: PosixPath, ifc_name: str) -> IDF:
