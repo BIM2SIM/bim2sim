@@ -38,12 +38,8 @@ class TestHashFunction(unittest.TestCase):
         # Locate IFC test file
         ifc_path = test_rsrc_path / 'arch/ifc/AC20-FZK-Haus.ifc'
 
-        # Compute expected hash directly (ground truth)
-        sha256 = hashlib.sha256()
-        with open(ifc_path, 'rb') as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                sha256.update(chunk)
-        expected_hash = sha256.hexdigest()
+        # Use predefined expected hash value
+        expected_hash = "ec498a610e386974e6b342e37e177d690a2ab1985b51bb0112e26dc88abe521a"
 
         # Use utils_hash_function to generate hash line and compare with expected hash
         hash_line = generate_hash(str(ifc_path))
