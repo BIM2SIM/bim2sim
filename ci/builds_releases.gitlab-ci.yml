@@ -52,7 +52,7 @@ build:py3.10-occ7.7.0:
     TAG: "py3.10-occ7.7.0"
     DOCKERFILE: ci/Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - ci/*
         - pyproject.toml
@@ -66,7 +66,7 @@ build:py3.11-occ7.7.0:
     TAG: "py3.11-occ7.7.0"
     DOCKERFILE: ci/Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - ci/*
         - pyproject.toml
