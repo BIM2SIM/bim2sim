@@ -52,7 +52,7 @@ build:py3.10-occ7.7.0:
     TAG: "py3.10-occ7.7.0"
     DOCKERFILE: ci/Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
+    - if: '$CI_COMMIT_REF_NAME == "development"'
       changes:
         - ci/*
         - pyproject.toml
@@ -66,7 +66,7 @@ build:py3.11-occ7.7.0:
     TAG: "py3.11-occ7.7.0"
     DOCKERFILE: ci/Dockerfile
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
+    - if: '$CI_COMMIT_REF_NAME == "development"'
       changes:
         - ci/*
         - pyproject.toml
@@ -510,7 +510,7 @@ build:energyplus-py.310:
   needs:
     - build:py3.10-occ7.7.0
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development"'
       changes:
         - ci/*
         - EnergyPlus.Dockerfile
@@ -526,7 +526,7 @@ build:energyplus-py.311:
   needs:
     - build:py3.11-occ7.7.0
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development"'
       changes:
         - ci/*
         - EnergyPlus.Dockerfile
