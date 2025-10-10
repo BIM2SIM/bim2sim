@@ -179,7 +179,7 @@ PluginAixLib:py3.11:
 
 PluginEnergyPlus:py3.10:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:energyplus-py3.10
+  image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.10
   variables:
     plugin: "PluginEnergyPlus"
 
@@ -215,7 +215,7 @@ PluginLCA:py3.11:
 
 PluginComfort:py3.10:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:energyplus-py3.10
+  image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.10
   variables:
     plugin: "PluginComfort"
 
@@ -227,7 +227,7 @@ PluginComfort:py3.11:
 
 PluginOpenFOAM:py3.10:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:energyplus-py3.10
+  image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.10
   variables:
     plugin: "PluginOpenFOAM"
 
@@ -252,7 +252,7 @@ PluginTEASER_reg:py3.11:
 
 PluginEnergyPlus_reg:py3.10:
   <<: *test_template_plugin_regression
-  image: $CI_REGISTRY/bim2sim:energyplus-py3.10
+  image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.10
   variables:
     plugin: "PluginEnergyPlus"
 
@@ -264,7 +264,7 @@ PluginEnergyPlus_reg:py3.11:
 
 PluginComfort_reg:py3.10:
   <<: *test_template_plugin_regression
-  image: $CI_REGISTRY/bim2sim:energyplus-py3.10
+  image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.10
   variables:
     plugin: "PluginComfort"
 
@@ -276,7 +276,7 @@ PluginComfort_reg:py3.11:
 
 PluginOpenFOAM_reg:py3.10:
   <<: *test_template_plugin_regression
-  image: $CI_REGISTRY/bim2sim:energyplus-py3.10
+  image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.10
   variables:
     plugin: "PluginOpenFOAM"
 

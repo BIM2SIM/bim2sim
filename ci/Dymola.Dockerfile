@@ -54,9 +54,6 @@ CMD ["/bin/bash"]
 # Set the Python version as an environment variable
 ENV PYTHON_VERSION=${PYTHON_VERSION}
 
-# Copy the environment file
-COPY --chown=$MAMBA_USER:$MAMBA_USER env.yaml /tmp/env.yaml
-
 # Install specific python version and python occ to save time
 RUN micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} pythonocc-core=7.7.0 pip gcc git --retry-clean-cache && \
     micromamba clean --all --yes
