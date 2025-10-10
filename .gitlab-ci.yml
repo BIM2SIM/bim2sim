@@ -1,11 +1,11 @@
 stages:
   - build
-  - release
   - Test Base
   - Test Plugin
   - Test Regression
   - doc
   - code_quality
+  - release
   - deploy
 
 variables:
