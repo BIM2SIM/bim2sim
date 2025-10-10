@@ -222,7 +222,7 @@ release:dev-PluginOpenFOAM-py.310:
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development"'
-    - changes:
+      changes:
         - ci/*
         - bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
         - pyproject.toml
@@ -236,7 +236,7 @@ release:dev-PluginOpenFOAM-py.311:
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development"'
-    - changes:
+      changes:
         - ci/*
         - bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
         - pyproject.toml
@@ -510,7 +510,7 @@ build:energyplus-py.310:
   needs:
     - build:py3.10-occ7.7.0
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - ci/*
         - EnergyPlus.Dockerfile
@@ -526,7 +526,7 @@ build:energyplus-py.311:
   needs:
     - build:py3.11-occ7.7.0
   rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development"'
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME == "822_eplus_ci"'
       changes:
         - ci/*
         - EnergyPlus.Dockerfile
