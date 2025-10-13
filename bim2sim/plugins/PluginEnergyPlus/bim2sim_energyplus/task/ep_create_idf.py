@@ -6,6 +6,7 @@ import os
 from pathlib import Path, PosixPath
 from typing import Union, TYPE_CHECKING
 
+import pandas as pd
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace
 from OCC.Core.BRepTools import breptools_UVBounds, BRepTools_WireExplorer
@@ -87,7 +88,6 @@ class CreateIdf(ITask):
                                               self.paths, weather_file,
                                               self.prj_name)
         self.init_zone(self.playground.sim_settings, elements, idf)
-        self.init_zonelist(idf)
         self.init_zonegroups(elements, idf)
         self.get_preprocessed_materials_and_constructions(
             self.playground.sim_settings, elements, idf)
@@ -111,12 +111,79 @@ class CreateIdf(ITask):
             self.hash_line = generate_hash(ifc_path=self.paths.ifc_base / 'arch' / str(self.prj_name + '.ifc'))
             add_hash_into_idf(self.hash_line, idf.idfname)
         logger.info("Idf file successfully saved.")
+        if (self.playground.sim_settings.weather_file_for_sizing or
+                self.playground.sim_settings.enforce_system_sizing):
+            # apply HVAC system sizing based on weather file
+            if self.playground.sim_settings.weather_file_for_sizing:
+                weather_file_sizing = (
+                    self.playground.sim_settings.weather_file_for_sizing)
+            else:
+                weather_file_sizing = str(weather_file)
+            self.apply_system_sizing(
+                idf, weather_file_sizing,
+                sim_results_path)
+            logger.info("Idf has been updated with limits from weather file "
+                        "sizing.")
 
         return idf, sim_results_path
 
+    def apply_system_sizing(self, idf, sizing_weather_file, sim_results_path):
+        """
+        Apply system sizing based on weather file, sizes for maximum without
+        buffer.
+
+        Args:
+            idf: Eppy IDF
+            sizing_weather_file: Weather file for system sizing
+            sim_results_path: path to energyplus simulation results.
+
+        Returns:
+
+        """
+        IDF.setiddname(
+            self.playground.sim_settings.ep_install_path / 'Energy+.idd')
+        export_path = sim_results_path / self.prj_name
+
+        # initialize the idf with a minimal idf setup
+        idf2 = IDF(export_path / str(self.prj_name + '.idf'))
+        idf2.save(export_path / str(self.prj_name + '_before_sizing.idf'))
+        idf2.save(export_path / str(self.prj_name + '_sizing.idf'))
+        idf3 = IDF(export_path / str(self.prj_name + '_sizing.idf'))
+        idf3.removeallidfobjects('OUTPUT:VARIABLE')
+        idf3.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Ideal Loads Supply Air Total Cooling Rate",
+            Reporting_Frequency="Hourly",
+        )
+        idf3.newidfobject(
+            "OUTPUT:VARIABLE",
+            Variable_Name="Zone Ideal Loads Supply Air Total Heating Rate",
+            Reporting_Frequency="Hourly",
+        )
+        idf3.epw = sizing_weather_file
+        for sim_control in idf3.idfobjects["SIMULATIONCONTROL"]:
+            sim_control.Run_Simulation_for_Sizing_Periods = 'Yes'
+            sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'No'
+        idf3.run(output_directory=export_path, readvars=True, annual=False)
+        res_sizing = pd.read_csv(export_path / 'epluszsz.csv')
+        res_sizing = res_sizing.set_index('Time')
+        peak = res_sizing.loc['Peak']
+        peak_heating = peak.filter(like='Des Heat Load')
+        peak_cooling = peak.filter(like='Des Sens Cool Load')
+        for obj in idf.idfobjects['HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM']:
+            curr_heating = peak_heating.filter(like=obj.Zone_Name.upper()).max()
+            curr_cooling = peak_cooling.filter(like=obj.Zone_Name.upper()).max()
+            obj.Heating_Limit = 'LimitCapacity'
+            obj.Cooling_Limit = 'LimitCapacity'
+            obj.Maximum_Sensible_Heating_Capacity = curr_heating
+            obj.Maximum_Total_Cooling_Capacity = curr_cooling
+        for sim_control in idf.idfobjects["SIMULATIONCONTROL"]:
+            sim_control.Do_System_Sizing_Calculation = 'Yes'
+        idf.save(idf.idfname)
+
     @staticmethod
     def init_idf(sim_settings: EnergyPlusSimSettings, paths: FolderStructure,
-                 weather_file: PosixPath, ifc_name: str) -> IDF:
+                 weather_file: PosixPath, ifc_name: str) -> tuple[IDF, Path]:
         """ Initialize the EnergyPlus input file.
 
         Initialize the EnergyPlus input file (idf) with general idf settings
@@ -129,7 +196,7 @@ class CreateIdf(ITask):
             weather_file: PosixPath to *.epw weather file
             ifc_name: str of name of ifc
         Returns:
-            idf file of type IDF
+            idf file of type IDF, sim_results_path
         """
         logger.info("Initialize the idf ...")
         # set the installation path for the EnergyPlus installation
@@ -140,6 +207,44 @@ class CreateIdf(ITask):
         IDF.setiddname(ep_install_path / 'Energy+.idd')
         # initialize the idf with a minimal idf setup
         idf = IDF(plugin_ep_path + '/data/Minimal.idf')
+        # remove location and design days
+        idf.removeallidfobjects('SIZINGPERIOD:DESIGNDAY')
+        idf.removeallidfobjects('SITE:LOCATION')
+        if sim_settings.system_weather_sizing != 'DesignDay':
+            # enable system sizing for extreme or typical days.
+            if sim_settings.system_weather_sizing == 'Extreme':
+                period_selection = 'Extreme'
+            elif sim_settings.system_weather_sizing == 'Typical':
+                period_selection = 'Typical'
+            idf.newidfobject("SIZINGPERIOD:WEATHERFILECONDITIONTYPE",
+                             Name='Summer Design Day from Weather File',
+                             Period_Selection=f'Summer{period_selection}',
+                             Day_of_Week_for_Start_Day='SummerDesignDay'
+                             )
+            idf.newidfobject("SIZINGPERIOD:WEATHERFILECONDITIONTYPE",
+                             Name='Winter Design Day from Weather File',
+                             Period_Selection=f'Winter{period_selection}',
+                             Day_of_Week_for_Start_Day='WinterDesignDay'
+                             )
+        else:
+            # use default Design day (July 21, December 21) for system sizing
+            idf.newidfobject("SIZINGPERIOD:WEATHERFILEDAYS",
+                             Name='Summer Design Day from Weather File',
+                             Begin_Month=7,
+                             Begin_Day_of_Month=21,
+                             End_Month=7,
+                             End_Day_of_Month=21,
+                             Day_of_Week_for_Start_Day='SummerDesignDay'
+                             )
+            idf.newidfobject("SIZINGPERIOD:WEATHERFILEDAYS",
+                             Name='Winter Design Day from Weather File',
+                             Begin_Month=12,
+                             Begin_Day_of_Month=21,
+                             End_Month=12,
+                             End_Day_of_Month=21,
+                             Day_of_Week_for_Start_Day='WinterDesignDay'
+                             )
+
         sim_results_path = paths.export/'EnergyPlus'/'SimResults'
         export_path = sim_results_path / ifc_name
         if not os.path.exists(export_path):
@@ -187,11 +292,14 @@ class CreateIdf(ITask):
             self.set_infiltration(
                 idf, name=zone.Name, zone_name=zone.Name, space=space,
                 ep_version=sim_settings.ep_version)
-            if (not self.playground.sim_settings.cooling_tz_overwrite and
+            if (not space.with_cooling and
                     self.playground.sim_settings.add_natural_ventilation):
                 self.set_natural_ventilation(
                     idf, name=zone.Name, zone_name=zone.Name, space=space,
-                    ep_version=sim_settings.ep_version)
+                    ep_version=sim_settings.ep_version,
+                    residential=sim_settings.residential,
+                    ventilation_method=
+                    sim_settings.natural_ventilation_approach)
             self.set_people(sim_settings, idf, name=zone.Name,
                             zone_name=zone.Name, space=space)
             self.set_equipment(sim_settings, idf, name=zone.Name,
@@ -226,16 +334,22 @@ class CreateIdf(ITask):
             # assign all zones to one list unless the total number of zones
             # is larger than 20.
             idf_zones = idf.idfobjects["ZONE"]
-            if len(idf_zones) > 20:
-                return
+            if len(idf_zones) > 99:
+                logger.warning("Trying to assign more than 99 zones to a "
+                               "single zone list. May require changes in "
+                               "Energy+.idd to successfully execute "
+                               "simulation.")
         else:
             # assign all zones with the zone names that are included in
             # zones_in_list to the zonelist.
             all_idf_zones = idf.idfobjects["ZONE"]
             idf_zones = [zone for zone in all_idf_zones if zone.Name
                          in zones_in_list]
-            if len(idf_zones) > 20:
-                return
+            if len(idf_zones) > 99:
+                logger.warning("Trying to assign more than 99 zones to a "
+                               "single zone list. May require changes in "
+                               "Energy+.idd to successfully execute "
+                               "simulation.")
             if len(idf_zones) == 0:
                 return
         if name is None:
@@ -253,22 +367,18 @@ class CreateIdf(ITask):
             idf: idf file object
         """
         spaces = get_spaces_with_bounds(elements)
-        # assign storeys to spaces (ThermalZone)
+        space_usage_dict = {}
         for space in spaces:
-            if space.storeys:
-                space.storey = space.storeys[0]  # Zone can only have one storey
+            if space.usage.replace(',', '') not in space_usage_dict.keys():
+                space_usage_dict.update({space.usage.replace(',',
+                                                             ''): [space.guid]})
             else:
-                space.storey = None
-        # add zonelist per storey
-        storeys = filter_elements(elements, Storey)
-        for st in storeys:
-            space_ids = []
-            for space in st.thermal_zones:
-                if not space in spaces:
-                    continue
-                space_ids.append(space.guid)
-            self.init_zonelist(idf, name=st.ifc.Name, zones_in_list=space_ids)
+                space_usage_dict[space.usage.replace(',', '')].append(
+                    space.guid)
 
+        for key, value in space_usage_dict.items():
+            if not idf.getobject('ZONELIST', key):
+                self.init_zonelist(idf, name=key, zones_in_list=value)
         # add zonelist for All_Zones
         zone_lists = [zlist for zlist in idf.idfobjects["ZONELIST"]
                       if zlist.Name != "All_Zones"]
@@ -528,25 +638,155 @@ class CreateIdf(ITask):
             space: ThermalZone instance
         """
         stat_name = "STATS " + space.usage.replace(',', '')
-        if idf.getobject("HVACTEMPLATE:THERMOSTAT", stat_name) is None:
+        if self.playground.sim_settings.control_operative_temperature:
+            # set control for operative temperature instead of air temperature
+            operative_stats_name = space.usage.replace(',', '') + ' THERMOSTAT'
+            htg_schedule_name = "Schedule " + "Heating " + space.usage.replace(
+                ',', '')
+            self.set_day_week_year_schedule(idf, space.heating_profile[:24],
+                                            'heating_profile',
+                                            htg_schedule_name)
+            clg_schedule_name = "Schedule " + "Cooling " + space.usage.replace(
+                ',', '')
+            self.set_day_week_year_schedule(idf, space.cooling_profile[:24],
+                                            'cooling_profile',
+                                            clg_schedule_name)
+            if idf.getobject('THERMOSTATSETPOINT:DUALSETPOINT',
+                             htg_schedule_name + ' ' + clg_schedule_name) is None:
+                idf.newidfobject(
+                    'THERMOSTATSETPOINT:DUALSETPOINT',
+                    Name=htg_schedule_name + ' ' + clg_schedule_name,
+                    Heating_Setpoint_Temperature_Schedule_Name
+                    =htg_schedule_name,
+                    Cooling_Setpoint_Temperature_Schedule_Name=clg_schedule_name
+                )
+            if idf.getobject("ZONECONTROL:THERMOSTAT:OPERATIVETEMPERATURE",
+                             zone_name + ' ' + operative_stats_name) is None:
+                idf.newidfobject(
+                    "ZONECONTROL:THERMOSTAT:OPERATIVETEMPERATURE",
+                    Thermostat_Name=zone_name + ' ' + operative_stats_name,
+                    Radiative_Fraction_Input_Mode='constant',
+                    Fixed_Radiative_Fraction=0.5
+                )
+            if idf.getobject("ZONECONTROL:THERMOSTAT",
+                             operative_stats_name) is None:
+                stat = idf.newidfobject(
+                    "ZONECONTROL:THERMOSTAT",
+                    Name=operative_stats_name,
+                    Zone_or_ZoneList_Name=space.usage.replace(',', ''),
+                    Control_Type_Schedule_Name='Zone Control Type Sched',
+                    Control_1_Object_Type='ThermostatSetpoint:DualSetpoint',
+                    Control_1_Name=htg_schedule_name + ' ' + clg_schedule_name,
+                    # Temperature_Difference_Between_Cutout_And_Setpoint=0.2,
+                    # temperature difference disables operative control
+                )
+            else:
+                stat = idf.getobject('ZONECONTROL:THERMOSTAT',
+                                     operative_stats_name)
+            if idf.getobject("SCHEDULE:COMPACT",
+                             'Zone Control Type Sched') is None:
+                idf.newidfobject("SCHEDULE:COMPACT",
+                                 Name='Zone Control Type Sched',
+                                 Schedule_Type_Limits_Name='Control Type',
+                                 Field_1='Through: 12/31',
+                                 Field_2='For: AllDays',
+                                 Field_3='Until: 24:00',
+                                 Field_4='4',
+                                 )
+            if idf.getobject("SCHEDULETYPELIMITS", 'Control Type') is None:
+                idf.newidfobject('SCHEDULETYPELIMITS',
+                                 Name='Control Type',
+                                 Lower_Limit_Value=0,
+                                 Upper_Limit_Value=4,
+                                 Numeric_Type='DISCRETE')
+            template_thermostat_name = ''
+        elif idf.getobject("HVACTEMPLATE:THERMOSTAT", stat_name) is None:
+            # if air temperature is controlled, create thermostat if it is
+            # not available
             stat = self.set_day_hvac_template(idf, space, stat_name)
+            template_thermostat_name = stat.Name
         else:
+            # assign available thermostats for air control
             stat = idf.getobject("HVACTEMPLATE:THERMOSTAT", stat_name)
+            template_thermostat_name = stat.Name
 
+        # initialize heating and cooling availability, and capacity
         cooling_availability = "Off"
         heating_availability = "Off"
+        heating_limit = 'NoLimit'
+        cooling_limit = 'NoLimit'
+        maximum_cooling_capacity = 'autosize'
+        maximum_cooling_rate = 'autosize'
+        outdoor_air_method = 'None'
+        # convert from l/s to m3/s
+        outdoor_air_person = (
+            self.playground.sim_settings.outdoor_air_per_person) / 1000
+        outdoor_air_area = (
+            self.playground.sim_settings.outdoor_air_per_area) / 1000
+        ventilation_demand_control = 'None'
+        outdoor_air_economizer = 'NoEconomizer'
+        heat_recovery_type = 'None'
+        heat_recovery_sensible = (
+            self.playground.sim_settings.heat_recovery_sensible)
+        heat_recovery_latent = self.playground.sim_settings.heat_recovery_latent
 
+        # initialize night setback if required
+        if self.playground.sim_settings.hvac_off_at_night and idf.getobject(
+                "SCHEDULE:COMPACT", "On_except_10pm_to_6am") is None:
+            idf.newidfobject(
+                "SCHEDULE:COMPACT",
+                Name='On_except_10pm_to_6am',
+                Schedule_Type_Limits_Name='on/off',
+                Field_1='Through: 12/31',
+                Field_2='For: AllDays',
+                Field_3='Until: 06:00',
+                Field_4='0',
+                Field_5='Until: 22:00',
+                Field_6='1',
+                Field_7='Until: 24:00',
+                Field_8='0'
+            )
+
+        # overwrite heating / cooling availability if required
         if space.with_cooling:
             cooling_availability = "On"
+            if self.playground.sim_settings.hvac_off_at_night:
+                cooling_availability = 'On_except_10pm_to_6am'
+            cooling_limit = 'LimitFlowRateAndCapacity'
+
         if space.with_heating:
             heating_availability = "On"
+            if self.playground.sim_settings.hvac_off_at_night:
+                heating_availability = 'On_except_10pm_to_6am'
 
+        if space.with_cooling or \
+            not self.playground.sim_settings.add_natural_ventilation:
+            outdoor_air_method = 'Sum'
+            ventilation_demand_control = (
+                str(self.playground.sim_settings.ventilation_demand_control))
+            outdoor_air_economizer = (
+                self.playground.sim_settings.outdoor_air_economizer)
+            heat_recovery_type = self.playground.sim_settings.heat_recovery_type
+
+        # initialize ideal loads air system according to the settings
         idf.newidfobject(
             "HVACTEMPLATE:ZONE:IDEALLOADSAIRSYSTEM",
             Zone_Name=zone_name,
-            Template_Thermostat_Name=stat.Name,
+            Template_Thermostat_Name=template_thermostat_name,
             Heating_Availability_Schedule_Name=heating_availability,
-            Cooling_Availability_Schedule_Name=cooling_availability
+            Cooling_Availability_Schedule_Name=cooling_availability,
+            Heating_Limit=heating_limit,
+            Cooling_Limit=cooling_limit,
+            Maximum_Cooling_Air_Flow_Rate=maximum_cooling_rate,
+            Maximum_Total_Cooling_Capacity=maximum_cooling_capacity,
+            Outdoor_Air_Method=outdoor_air_method,
+            Outdoor_Air_Flow_Rate_per_Person=outdoor_air_person,
+            Outdoor_Air_Flow_Rate_per_Zone_Floor_Area=outdoor_air_area,
+            Demand_Controlled_Ventilation_Type=ventilation_demand_control,
+            Outdoor_Air_Economizer_Type=outdoor_air_economizer,
+            Heat_Recovery_Type=heat_recovery_type,
+            Sensible_Heat_Recovery_Effectiveness=heat_recovery_sensible,
+            Latent_Heat_Recovery_Effectiveness=heat_recovery_latent,
         )
 
     def set_people(self, sim_settings: EnergyPlusSimSettings, idf: IDF, name: str,
@@ -783,7 +1023,9 @@ class CreateIdf(ITask):
 
     @staticmethod
     def set_natural_ventilation(idf: IDF, name: str, zone_name: str,
-                                space: ThermalZone, ep_version):
+                                space: ThermalZone, ep_version,
+                                min_in_temp=22, residential=False,
+                                ventilation_method="Simple"):
         """Set natural ventilation.
 
         This function sets the natural ventilation per space based on the
@@ -801,50 +1043,201 @@ class CreateIdf(ITask):
 
         """
         if ep_version in ["9-2-0", "9-4-0"]:
-            idf.newidfobject(
-                "ZONEVENTILATION:DESIGNFLOWRATE",
-                Name=name + '_winter',
-                Zone_or_ZoneList_Name=zone_name,
-                Schedule_Name="Continuous",
-                Ventilation_Type="Natural",
-                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-                Air_Changes_per_Hour=space.winter_reduction_infiltration[0],
-                Minimum_Outdoor_Temperature=
-                space.winter_reduction_infiltration[1] - 273.15,
-                Maximum_Outdoor_Temperature=
-                space.winter_reduction_infiltration[2] - 273.15,
-            )
+            if ventilation_method == 'DIN4108':
+                space_volume = space.space_shape_volume.m
+                space_area = space.net_area.m
+                if residential:
+                    occupied_air_exchange = 0.5
+                    unoccupied_air_exchange = 0.5
+                    occupied_increased_exchange = 3
+                    unoccupied_increased_exchange = 2
+                else:
+                    occupied_air_exchange = 4 * space_area/space_volume
+                    unoccupied_air_exchange = 0.24
+                    occupied_increased_exchange = 3
+                    unoccupied_increased_exchange = 2
 
-            idf.newidfobject(
-                "ZONEVENTILATION:DESIGNFLOWRATE",
-                Name=name + '_summer',
-                Zone_or_ZoneList_Name=zone_name,
-                Schedule_Name="Continuous",
-                Ventilation_Type="Natural",
-                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-                Air_Changes_per_Hour=space.max_summer_infiltration[0],
-                Minimum_Outdoor_Temperature
-                =space.max_summer_infiltration[1] - 273.15,
-                Maximum_Outdoor_Temperature
-                =space.max_summer_infiltration[2] - 273.15,
-            )
+                if residential:
+                    occupied_schedule_name = 'residential_occupied_hours'
+                    unoccupied_schedule_name = 'residential_unoccupied_hours'
+                    if idf.getobject("SCHEDULE:COMPACT",
+                                     occupied_schedule_name) is None:
+                        idf.newidfobject("SCHEDULE:COMPACT",
+                                         Name=occupied_schedule_name,
+                                         Schedule_Type_Limits_Name='Continuous',
+                                         Field_1='Through: 12/31',
+                                         Field_2='For: AllDays',
+                                         Field_3='Until: 6:00',
+                                         Field_4='0',
+                                         Field_5='Until: 23:00',
+                                         Field_6='1',
+                                         Field_7='Until: 24:00',
+                                         Field_8='0',
+                                         )
+                    if idf.getobject("SCHEDULE:COMPACT",
+                                     unoccupied_schedule_name) is None:
+                        idf.newidfobject("SCHEDULE:COMPACT",
+                                         Name=unoccupied_schedule_name,
+                                         Schedule_Type_Limits_Name='Continuous',
+                                         Field_1='Through: 12/31',
+                                         Field_2='For: AllDays',
+                                         Field_3='Until: 6:00',
+                                         Field_4='1',
+                                         Field_5='Until: 23:00',
+                                         Field_6='0',
+                                         Field_7='Until: 24:00',
+                                         Field_8='1',
+                                         )
+                else:
+                    occupied_schedule_name = 'non_residential_occupied_hours'
+                    unoccupied_schedule_name = 'non_residential_unoccupied_hours'
+                    if idf.getobject("SCHEDULE:COMPACT",
+                                     occupied_schedule_name) is None:
+                        idf.newidfobject("SCHEDULE:COMPACT",
+                                         Name=occupied_schedule_name,
+                                         Schedule_Type_Limits_Name='Continuous',
+                                         Field_1='Through: 12/31',
+                                         Field_2='For: AllDays',
+                                         Field_3='Until: 7:00',
+                                         Field_4='0',
+                                         Field_5='Until: 18:00',
+                                         Field_6='1',
+                                         Field_7='Until: 24:00',
+                                         Field_8='0',
+                                         )
+                    if idf.getobject("SCHEDULE:COMPACT",
+                                     unoccupied_schedule_name) is None:
+                        idf.newidfobject("SCHEDULE:COMPACT",
+                                         Name=unoccupied_schedule_name,
+                                         Schedule_Type_Limits_Name='Continuous',
+                                         Field_1='Through: 12/31',
+                                         Field_2='For: AllDays',
+                                         Field_3='Until: 7:00',
+                                         Field_4='1',
+                                         Field_5='Until: 18:00',
+                                         Field_6='0',
+                                         Field_7='Until: 24:00',
+                                         Field_8='1',
+                                         )
+                idf.newidfobject(
+                    "ZONEVENTILATION:DESIGNFLOWRATE",
+                    Name=name + '_occupied_ventilation',
+                    Zone_or_ZoneList_Name=zone_name,
+                    Schedule_Name=occupied_schedule_name,
+                    Ventilation_Type="Natural",
+                    Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                    Air_Changes_per_Hour=occupied_air_exchange,
+                )
+                idf.newidfobject(
+                    "ZONEVENTILATION:DESIGNFLOWRATE",
+                    Name=name + '_occupied_ventilation_increased',
+                    Zone_or_ZoneList_Name=zone_name,
+                    Schedule_Name=occupied_schedule_name,
+                    Ventilation_Type="Natural",
+                    Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                    Air_Changes_per_Hour=max(
+                        occupied_increased_exchange-occupied_air_exchange, 0),
+                    Minimum_Indoor_Temperature=23,
+                    Maximum_Indoor_Temperature=26,
+                    Minimum_Outdoor_Temperature=12,
+                    Delta_Temperature=0,
+                )
+                idf.newidfobject(
+                    "ZONEVENTILATION:DESIGNFLOWRATE",
+                    Name=name + '_occupied_ventilation_increased_overheating',
+                    Zone_or_ZoneList_Name=zone_name,
+                    Schedule_Name=occupied_schedule_name,
+                    Ventilation_Type="Natural",
+                    Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                    Air_Changes_per_Hour=max(
+                        occupied_increased_exchange-occupied_air_exchange, 0),
+                    Minimum_Indoor_Temperature=26,
+                    Delta_Temperature=0,
+                )
+                idf.newidfobject(
+                    "ZONEVENTILATION:DESIGNFLOWRATE",
+                    Name=name + '_unoccupied_ventilation',
+                    Zone_or_ZoneList_Name=zone_name,
+                    Schedule_Name=unoccupied_schedule_name,
+                    Ventilation_Type="Natural",
+                    Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                    Air_Changes_per_Hour=unoccupied_air_exchange,
+                )
+                idf.newidfobject(
+                    "ZONEVENTILATION:DESIGNFLOWRATE",
+                    Name=name + '_unoccupied_ventilation_increased',
+                    Zone_or_ZoneList_Name=zone_name,
+                    Schedule_Name=unoccupied_schedule_name,
+                    Ventilation_Type="Natural",
+                    Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                    Air_Changes_per_Hour=max(
+                        unoccupied_increased_exchange-unoccupied_air_exchange, 0),
+                    Minimum_Indoor_Temperature=23,
+                    Maximum_Indoor_Temperature=26,
+                    Minimum_Outdoor_Temperature=15,
+                    Delta_Temperature=0,
+                )
+                idf.newidfobject(
+                    "ZONEVENTILATION:DESIGNFLOWRATE",
+                    Name=name + '_unoccupied_ventilation_increased_overheating',
+                    Zone_or_ZoneList_Name=zone_name,
+                    Schedule_Name=unoccupied_schedule_name,
+                    Ventilation_Type="Natural",
+                    Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                    Air_Changes_per_Hour=max(
+                        unoccupied_increased_exchange-unoccupied_air_exchange, 0),
+                    Minimum_Indoor_Temperature=26,
+                    # Minimum_Outdoor_Temperature=10,
+                    Delta_Temperature=0,
+                )
+            else:
+                # use bim2sim standard zone ventilation based on TEASER
+                # templates
+                idf.newidfobject(
+                    "ZONEVENTILATION:DESIGNFLOWRATE",
+                    Name=name + '_winter',
+                    Zone_or_ZoneList_Name=zone_name,
+                    Schedule_Name="Continuous",
+                    Ventilation_Type="Natural",
+                    Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                    Air_Changes_per_Hour=space.winter_reduction_infiltration[0],
+                    Minimum_Outdoor_Temperature=
+                    space.winter_reduction_infiltration[1] - 273.15,
+                    Maximum_Outdoor_Temperature=
+                    space.winter_reduction_infiltration[2] - 273.15,
+                )
 
-            idf.newidfobject(
-                "ZONEVENTILATION:DESIGNFLOWRATE",
-                Name=name + '_overheating',
-                Zone_or_ZoneList_Name=zone_name,
-                Schedule_Name="Continuous",
-                Ventilation_Type="Natural",
-                Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
-                # calculation of overheating infiltration is a simplification
-                # compared to the corresponding TEASER implementation which
-                # dynamically computes thresholds for overheating infiltration
-                # based on the zone temperature and additional factors.
-                Air_Changes_per_Hour=space.max_overheating_infiltration[0],
-                Minimum_Outdoor_Temperature
-                =space.max_summer_infiltration[2] - 273.15,
-            )
+                idf.newidfobject(
+                    "ZONEVENTILATION:DESIGNFLOWRATE",
+                    Name=name + '_summer',
+                    Zone_or_ZoneList_Name=zone_name,
+                    Schedule_Name="Continuous",
+                    Ventilation_Type="Natural",
+                    Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                    Air_Changes_per_Hour=space.max_summer_infiltration[0],
+                    Minimum_Outdoor_Temperature
+                    =space.max_summer_infiltration[1] - 273.15,
+                    Maximum_Outdoor_Temperature
+                    =space.max_summer_infiltration[2] - 273.15,
+                )
+
+                idf.newidfobject(
+                    "ZONEVENTILATION:DESIGNFLOWRATE",
+                    Name=name + '_overheating',
+                    Zone_or_ZoneList_Name=zone_name,
+                    Schedule_Name="Continuous",
+                    Ventilation_Type="Natural",
+                    Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
+                    # calculation of overheating infiltration is a simplification
+                    # compared to the corresponding TEASER implementation which
+                    # dynamically computes thresholds for overheating infiltration
+                    # based on the zone temperature and additional factors.
+                    Air_Changes_per_Hour=space.max_overheating_infiltration[0],
+                    Minimum_Outdoor_Temperature
+                    =space.max_summer_infiltration[2] - 273.15,
+                )
         else:
+            # use bim2sim standard zone ventilation based on TEASER templates
             idf.newidfobject(
                 "ZONEVENTILATION:DESIGNFLOWRATE",
                 Name=name + '_winter',
@@ -1090,16 +1483,15 @@ class CreateIdf(ITask):
             obj.setcoords(obj_coords)
 
     def add_shading_control(self, shading_type, elements,
-                            idf, outdoor_temp=22, solar=40):
+                            idf, solar=150):
         """Add a default shading control to IDF.
         Two criteria must be met such that the window shades are set: the
-        outdoor temperature must exceed a certain temperature and the solar
+        indoor air temperature must exceed a certain temperature and the solar
         radiation [W/m²] must be greater than a certain heat flow.
         Args:
             shading_type: shading type, 'Interior' or 'Exterior'
             elements: elements
             idf: idf
-            outdoor_temp: outdoor temperature [°C]
             solar: solar radiation on window surface [W/m²]
         """
         zones = filter_elements(elements, ThermalZone)
@@ -1125,14 +1517,19 @@ class CreateIdf(ITask):
                 continue
             if not idf.getobject(
                 "WINDOWSHADINGCONTROL", shade_control_name):
+                # temperature setpoint for indoor air temperature [°C], set to
+                # 2K higher than the maximum heating profile temperature within
+                # the current thermal zone.
                 idf.newidfobject("WINDOWSHADINGCONTROL",
                                  Name=shade_control_name,
                                  Zone_Name=zone_name,
                                  Shading_Type=shading_type+"Shade",
                                  Construction_with_Shading_Name=construction_name,
                                  Shading_Control_Type=
-                                 'OnIfHighOutdoorAirTempAndHighSolarOnWindow',
-                                 Setpoint=outdoor_temp,
+                                 'OnIfHighZoneAirTempAndHighSolarOnWindow',
+                                 # only close blinds if heating setpoint
+                                 # temperature is already exceeded (save energy)
+                                 Setpoint=max(zone.heating_profile)+2 - 273.15,
                                  Setpoint_2=solar,
                                  Multiple_Surface_Control_Type='Group',
                                  **fenestration_dict
@@ -1150,11 +1547,11 @@ class CreateIdf(ITask):
         """
         logger.info("Set Simulation Control ...")
         for sim_control in idf.idfobjects["SIMULATIONCONTROL"]:
-            if sim_settings.system_sizing:
+            if sim_settings.system_sizing or sim_settings.weather_file_for_sizing:
                 sim_control.Do_System_Sizing_Calculation = 'Yes'
             else:
                 sim_control.Do_System_Sizing_Calculation = 'No'
-            if sim_settings.run_for_sizing_periods:
+            if sim_settings.run_for_sizing_periods or not sim_settings.run_full_simulation:
                 sim_control.Run_Simulation_for_Sizing_Periods = 'Yes'
             else:
                 sim_control.Run_Simulation_for_Sizing_Periods = 'No'
@@ -1162,8 +1559,10 @@ class CreateIdf(ITask):
                 sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'Yes'
             else:
                 sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'No'
-            if sim_settings.set_run_period:
+            if sim_settings.set_run_period or sim_settings.run_full_simulation:
                 sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'Yes'
+            else:
+                sim_control.Run_Simulation_for_Weather_File_Run_Periods = 'No'
 
         if sim_settings.set_run_period:
             for run_period in idf.idfobjects["RUNPERIOD"]:
@@ -1299,6 +1698,11 @@ class CreateIdf(ITask):
                 Variable_Name="Zone Lights Total Heating Rate",
                 Reporting_Frequency="Hourly",
             )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Total Internal Total Heating Rate",
+                Reporting_Frequency="Hourly",
+            )
         if 'output_zone' in sim_settings.output_keys:
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
@@ -1312,22 +1716,34 @@ class CreateIdf(ITask):
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Ideal Loads Zone Total Cooling Rate",
+                Variable_Name="Zone Ideal Loads Supply Air Total Heating "
+                              "Energy",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Ideal Loads Zone Total Heating Rate",
+                Variable_Name="Zone Ideal Loads Supply Air Total Cooling "
+                              "Energy",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Ideal Loads Zone Total Heating Energy",
+                Variable_Name="Zone Ideal Loads Outdoor Air Total Cooling Rate",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Ideal Loads Zone Total Cooling Energy",
+                Variable_Name="Zone Ideal Loads Outdoor Air Total Heating Rate",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Ideal Loads Supply Air Total Cooling Rate",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Ideal Loads Supply Air Total Heating Rate",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
@@ -1344,16 +1760,6 @@ class CreateIdf(ITask):
                 "OUTPUT:VARIABLE",
                 Variable_Name="Zone Windows Total Transmitted Solar Radiation "
                               "Energy",
-                Reporting_Frequency="Hourly",
-            )
-            idf.newidfobject(
-                "OUTPUT:VARIABLE",
-                Variable_Name="Zone Air System Sensible Heating Energy",
-                Reporting_Frequency="Hourly",
-            )
-            idf.newidfobject(
-                "OUTPUT:VARIABLE",
-                Variable_Name="Zone Air System Sensible Cooling Energy",
                 Reporting_Frequency="Hourly",
             )
         if 'output_infiltration' in sim_settings.output_keys:
@@ -1379,7 +1785,8 @@ class CreateIdf(ITask):
             )
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
-                Variable_Name="Zone Ventilation Standard Density Volume Flow Rate",
+                Variable_Name="Zone Ventilation Standard Density Volume Flow "
+                              "Rate",
                 Reporting_Frequency="Hourly",
             )
             idf.newidfobject(
@@ -1392,6 +1799,19 @@ class CreateIdf(ITask):
                 Variable_Name="Zone Ventilation Total Heat Loss Energy",
                 Reporting_Frequency="Hourly",
             )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Mechanical Ventilation Air Changes per "
+                              "Hour",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Mechanical Ventilation Standard Density "
+                              "Volume Flow Rate",
+                Reporting_Frequency="Hourly",
+            )
+
 
         if 'output_meters' in sim_settings.output_keys:
             idf.newidfobject(
@@ -1404,6 +1824,16 @@ class CreateIdf(ITask):
                 Key_Name="Cooling:EnergyTransfer",
                 Reporting_Frequency="Hourly",
             )
+            idf.newidfobject(
+                "OUTPUT:METER",
+                Key_Name="DistrictHeating:HVAC",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:METER",
+                Key_Name="DistrictCooling:HVAC",
+                Reporting_Frequency="Hourly",
+            )
         if 'output_dxf' in sim_settings.output_keys:
             idf.newidfobject("OUTPUT:SURFACES:DRAWING",
                              Report_Type="DXF")
@@ -1411,6 +1841,24 @@ class CreateIdf(ITask):
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
                 Variable_Name="Surface Inside Face Temperature",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name=
+                "Surface Inside Face Conduction Heat Transfer Rate per Area",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name=
+                "Surface Inside Face Conduction Heat Transfer Rate",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name=
+                "Surface Window Net Heat Transfer Rate",
                 Reporting_Frequency="Hourly",
             )
         idf.newidfobject("OUTPUT:DIAGNOSTICS",
