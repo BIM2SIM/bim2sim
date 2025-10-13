@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = 'bim2sim'
-version = '0.2.3'
+version = '0.3.0'
 authors = [
     {name = "David Jansen"},
     {name = "Veronika Richter"},
@@ -19,7 +19,10 @@ authors = [
     {name = "Marvin Kluge"},
     {name = "sairabano-de"},
     {name = "DAndres03"},
-
+    {name = "ShujiaoHee"},
+    {name = "FWuellhorst"},
+    {name = "HoeppJ"},
+    {name = "jgerster-wetec"},
 ]
 description = "bim2sim is a framework to create simulation models for different purposes based on BIM models in IFC format."
 readme = "README.md"
@@ -109,6 +112,18 @@ PluginComfort = [
     "eppy@git+https://github.com/BIM2SIM/eppy",
     "geomeppy@git+https://github.com/BIM2SIM/geomeppy@fix_dependencies",
     "seaborn",
+]
+PluginOpenFOAM = [
+    "shapely",
+    "numpy-stl",
+    "energyplus-regressions <= 2.1.2",
+    "eppy@git+https://github.com/BIM2SIM/eppy",
+    "geomeppy@git+https://github.com/BIM2SIM/geomeppy@fix_dependencies",
+    "OCCUtils@git+https://github.com/tpaviot/pythonocc-utils",  # from base requiremts.txt
+    "reportlab",
+    "svglib",
+    "seaborn",
+    "lbt-butterfly@git+https://github.com/BIM2SIM/butterfly"
 ]
 docu = [
     "sphinx==6.2.1",
