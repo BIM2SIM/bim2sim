@@ -486,3 +486,8 @@ falk_stuff/
 # ignore download libraries
 **/test/regression/library/
 local/
+bim2sim/tasks/.DS_Store
+docs/.DS_Store
+.gitignore
+.gitignore
+.DS_Store

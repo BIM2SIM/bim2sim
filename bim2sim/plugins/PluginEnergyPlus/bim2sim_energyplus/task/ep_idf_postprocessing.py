@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-
 import pandas as pd
 from geomeppy import IDF
 
@@ -8,6 +7,65 @@ from bim2sim.elements.bps_elements import ThermalZone
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.common_functions import filter_elements
 
+# — robust GUID→name & TOC fixer for any EP HTML file —
+def replace_guids_in_html(report_dir, zone_dict_path):
+    """
+    Finds whichever .htm contains the “People Internal Gains Nominal” table,
+    moves its TOC to the top under <body>, replaces GUIDs in its “Zone Name”
+    column (and anywhere they occur) with human-readable labels from zone_dict.json,
+    and writes out a new file *_with_names.htm.
+    """
+    import json
+    from bs4 import BeautifulSoup
+
+    # load the mapping (normalize keys to uppercase)
+    raw = json.loads((zone_dict_path).read_text(encoding='utf-8'))
+    zone_map = {k.upper(): v for k, v in raw.items()}
+
+    # scan all .htm files until we find the right one
+    html_path = None
+    for f in report_dir.glob("*.htm"):
+        text = f.read_text(encoding='utf-8')
+        if "People Internal Gains Nominal" in text:
+            html_path = f
+            break
+    if html_path is None:
+        raise FileNotFoundError(f"No HTML file in {report_dir} contains the target table")
+
+    soup = BeautifulSoup(text, 'html.parser')
+
+    # 1) Move TOC: find all <a href="#toc">, remove the 2nd, insert the 1st under <body>
+    toc_links = soup.find_all('a', href="#toc")
+    if len(toc_links) >= 2:
+        first_p = toc_links[0].find_parent('p')
+        second_p = toc_links[1].find_parent('p')
+        second_p.decompose()
+        first_p.extract()
+        soup.body.insert(1, first_p)
+
+    # 2) Replace GUIDs in the “People Internal Gains Nominal” table
+    header = soup.find('b', string="People Internal Gains Nominal")
+    if not header:
+        raise RuntimeError("Found HTML but no ‘People Internal Gains Nominal’ header")
+    # detect which column is “Zone Name”
+    idx = None
+    for i, cell in enumerate(tbl.find('tr').find_all(['td','th'])):
+        if "Zone Name" in cell.get_text(strip=True):
+            idx = i
+            break
+
+    if idx is not None:
+        for tr in tbl.find_all('tr')[1:]:
+            cols = tr.find_all('td')
+            if len(cols) > idx:
+                guid = cols[idx].get_text(strip=True).upper()
+                if guid in zone_map:
+                    cols[idx].string.replace_with(zone_map[guid])
+
+    # write updated HTML
+    out = report_dir / f"{html_path.stem}_with_names{html_path.suffix}"
+    out.write_text(str(soup), encoding='utf-8')
+    return out
 
 class IdfPostprocessing(ITask):
     """Idf Postprocessin task.
@@ -38,6 +96,7 @@ class IdfPostprocessing(ITask):
         self._export_boundary_report(elements, idf, ifc_files)
         self.write_zone_names(idf, elements,
                               sim_results_path / self.prj_name)
+        self._export_combined_html_report()
         self.logger.info("IDF Postprocessing finished!")
 
 
@@ -62,16 +121,15 @@ class IdfPostprocessing(ITask):
         ifc_zones = filter_elements(elements, ThermalZone)
         zone_dict_ifc_names = {}
         for zone in zones:
-            usage = [z.usage for z in ifc_zones if z.guid == zone.Name]
-            zone_dict.update({zone.Name: usage[0]})
-            zone_dict_ifc_names.update({
-                zone.Name: {
-                    'ZoneUsage': usage[0],
-                    'Name': elements[zone.Name].ifc.Name,
-                    'LongName': elements[zone.Name].ifc.LongName,
-                    'StoreyName': elements[zone.Name].storeys[0].ifc.Name,
-                    'StoreyElevation': elements[zone.Name].storeys[
-                        0].ifc.Elevation}})
+            # find the matching BIM2SIM ThermalZone element
+            matches = [z for z in ifc_zones if z.guid == zone.Name]
+            if matches:
+                # use the .name property (i.e. IFC Reference)
+                zone_dict[zone.Name] = matches[0].zone_name
+            else:
+                # fallback to GUID
+                zone_dict[zone.Name] = zone.Name
+
         with open(exportpath / 'zone_dict.json', 'w+') as file:
             json.dump(zone_dict, file, indent=4)
         with open(exportpath / 'zone_dict_ifc_names.json', 'w+') as file:
@@ -186,6 +244,59 @@ class IdfPostprocessing(ITask):
                 }])],
                 ignore_index=True)
         space_df.to_csv(path_or_buf=str(self.paths.export) + "/space.csv")
+
+    def _export_combined_html_report(self):
+        """Create an HTML report combining area.csv and bound_count.csv data.
+        
+        This method reads the previously exported CSV files and combines them
+        into a single HTML report with basic visualization.
+        The HTML file is saved in the same directory as the CSV files.
+        """
+        export_path = Path(str(self.paths.export))
+        area_file = export_path / "area.csv"
+        bound_count_file = export_path / "bound_count.csv"
+        html_file = export_path / "area_bound_count_energida.htm"
+        
+        # Read the CSV files
+        area_df = pd.read_csv(area_file)
+        bound_count_df = pd.read_csv(bound_count_file)
+        
+        # Convert DataFrames to HTML tables
+        area_table = area_df.to_html(index=False)
+        bound_count_table = bound_count_df.to_html(index=False)
+        
+        # Create HTML content without complex formatting
+        html_content = """<!DOCTYPE html>
+    <html>
+    <head>
+        <title>BIM2SIM Export Report</title>
+        <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333366; }
+        h2 { color: #336699; margin-top: 30px; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 30px; } 
+        th { background-color: #336699; color: white; text-align: left; padding: 8px; }
+        td { border: 1px solid #ddd; padding: 8px; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        tr:hover { background-color: #e6e6e6; }
+        </style>
+    </head>
+    <body>
+        <h1>BIM2SIM Export Report</h1>
+        
+        <h2>Surface Areas</h2>
+    """ + area_table + """
+        
+        <h2>Boundary Counts</h2>
+    """ + bound_count_table + """
+    </body>
+    </html>"""
+        
+        # Save the HTML file
+        with open(html_file, 'w') as f:
+            f.write(html_content)
+        
+        self.logger.info(f"Combined HTML report saved to {html_file}")
 
     def _export_boundary_report(self, elements, idf, ifc_files):
         """Export a report on the number of space boundaries.
