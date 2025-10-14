@@ -321,8 +321,8 @@ class TemplateFinder(Finder):
             combinations of 'version', 'full_name', and 'ident'.
 
         Example:
-            Assuming source_tools is a list of SourceTool objects,
-            filtered_tools = filter_source_tools(source_tools)
+            >>> # Assuming source_tools is a list of SourceTool objects,
+            >>> filtered_tools = filter_source_tools(source_tools)
         """
         unique_tools = []
         seen_combinations = set()

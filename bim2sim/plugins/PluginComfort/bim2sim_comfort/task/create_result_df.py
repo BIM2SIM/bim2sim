@@ -1,7 +1,9 @@
 import json
+from pathlib import Path
 
 import pandas as pd
 import pint_pandas
+from geomeppy import IDF
 from pint_pandas import PintArray
 
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
@@ -27,6 +29,8 @@ pint_pandas.PintType.ureg = ureg
 unit_mapping = {
     "_status": ureg.dimensionless,
     "air_temp": ureg.degree_Celsius,
+    "pmv": ureg.dimensionless,
+    "ppd": ureg.percent,
 }
 
 
@@ -39,15 +43,16 @@ class CreateResultDF(BPSResultDF):
         df_final: final dataframe that holds only relevant data, with generic
         `bim2sim` names and index in form of MM/DD-hh:mm:ss
     """
-    reads = ('idf', 'sim_results_path', 'df_finals')
+    reads = ('idf', 'sim_results_path', 'elements', 'df_finals')
     touches = ('df_finals',)
 
-    def run(self, idf, sim_results_path, df_finals):
+    def run(self, idf: IDF, sim_results_path: Path, elements: dict,
+            df_finals: dict[str: pd.DataFrame]):
         # only create dataframes if plots are requested.
         if not self.playground.sim_settings.create_plots:
             self.logger.warning("Skipping task Comfort CreateResultDF as "
                                 "sim_setting 'create_plots' is set to False and "
-                                "no DataFrame ist needed.")
+                                "no DataFrame is needed.")
             return df_finals,
 
         raw_csv_path = sim_results_path / self.prj_name / 'eplusout.csv'

@@ -32,8 +32,7 @@ class RangeCondition(Condition):
         value_min: minimum allowed value
         value_max: maximum allowed value
         incl_edges: if True, the value_min and value_max are valid as well
-        critical_for_creation: if True, the element will not be created if the
-         validation fails
+        critical_for_creation: if True, the element will not be created if the validation fails
     Return:
         True if valid, False if not valid
     """
