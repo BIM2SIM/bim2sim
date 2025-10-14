@@ -28,7 +28,7 @@ bim2sim code
 
    code/modules
 
-documentation utilities
+Documentation utilities
 =======================
 .. toctree::
    :maxdepth: 5

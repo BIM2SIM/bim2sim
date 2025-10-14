@@ -142,12 +142,12 @@ zone_dict: dictionary with all zones, in format {GUID : Zone Usage}</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.bim2sim_comfort.task.create_result_df.CreateResultDF.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('idf',</span> <span class="pre">'sim_results_path',</span> <span class="pre">'df_finals')</span></em><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.create_result_df.CreateResultDF.reads" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('idf',</span> <span class="pre">'sim_results_path',</span> <span class="pre">'elements',</span> <span class="pre">'df_finals')</span></em><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.create_result_df.CreateResultDF.reads" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.bim2sim_comfort.task.create_result_df.CreateResultDF.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_finals</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.create_result_df.CreateResultDF.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">idf:</span> <span class="pre">~geomeppy.idf.IDF,</span> <span class="pre">sim_results_path:</span> <span class="pre">~pathlib.Path,</span> <span class="pre">elements:</span> <span class="pre">dict,</span> <span class="pre">df_finals:</span> <span class="pre">dict[slice(&lt;class</span> <span class="pre">'str'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'pandas.core.frame.DataFrame'&gt;,</span> <span class="pre">None)]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.create_result_df.CreateResultDF.run" title="Permalink to this definition"></a></dt>
 <dd><p>Create a result DataFrame for EnergyPlus BEPS results.</p>
 <p>This function transforms the EnergyPlus simulation results to the
 general result data format used in this bim2sim project. The
@@ -392,19 +392,99 @@ directory.</p>
 <dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.bps.html#bim2sim.tasks.bps.plot_results.PlotBEPSResults" title="bim2sim.tasks.bps.plot_results.PlotBEPSResults"><code class="xref py py-class docutils literal notranslate"><span class="pre">PlotBEPSResults</span></code></a></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.apply_en16798_to_all_zones">
-<span class="sig-name descname"><span class="pre">apply_en16798_to_all_zones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.apply_en16798_to_all_zones" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">apply_en16798_to_all_zones</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_NA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.apply_en16798_to_all_zones" title="Permalink to this definition"></a></dt>
 <dd><p>Generate EN 16798 diagrams for all thermal zones.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>df: input dataframe
+zone_dict: zone name dictionary
+export_path: export path for result plots
+use_NA: use national appendix (Germany)</p>
+</dd>
+<dt>Returns:</dt><dd><p>dataframe holding the adaptive comfort categories,
+dataframe holding the comfort categories for occupied hours,
+dataframe holding the number of occupied hours per category</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.apply_en16798_to_single_zone">
-<span class="sig-name descname"><span class="pre">apply_en16798_to_single_zone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone_guid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.apply_en16798_to_single_zone" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
+<span class="sig-name descname"><span class="pre">apply_en16798_to_single_zone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone_guid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_NA</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.apply_en16798_to_single_zone" title="Permalink to this definition"></a></dt>
+<dd><p>Generate EN 16798 diagrams for a single thermal zones.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>df: input dataframe
+zone_dict: zone name dictionary
+export_path: export path for result plots
+zone_guid: GUID of zone that should be analyzed
+use_NA: use national appendix (Germany)</p>
+</dd>
+<dt>Returns:</dt><dd><p>dataframe holding the adaptive comfort categories,
+dataframe holding the comfort categories for occupied hours,
+dataframe holding the number of occupied hours per category</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.calc_exceeded_temperature_hours">
+<span class="sig-name descname"><span class="pre">calc_exceeded_temperature_hours</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.calc_exceeded_temperature_hours" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate temperature exceeding occurrence.</p>
+<p>Returns a tuple, consisting of the number of timesteps that exceed
+the limit and the sum of all differences exceeding the limit.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>df: temperature dataframe
+reference: reference temperature value
+limit: limit temperature based on reference value</p>
+</dd>
+<dt>Returns:</dt><dd><p>num_timesteps_exceeding, sum_difference_exceeding_limit</p>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.final">
 <span class="sig-name descname"><span class="pre">final</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.final" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.get_exceeded_temperature_hours">
+<span class="sig-name descname"><span class="pre">get_exceeded_temperature_hours</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_limit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_limit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.get_exceeded_temperature_hours" title="Permalink to this definition"></a></dt>
+<dd><p>Get all entries of the dataframe where temperature is exceeded.
+Args:</p>
+<blockquote>
+<div><p>df: original dataframe
+min_limit: minimum temperature limit
+max_limit: maximum temperature limit
+ref_value: reference temperature</p>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>df with all entries below the min_limit, df_with all entries
+above the max_limit</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.limited_local_comfort_DIN16798_NA">
+<span class="sig-name descname"><span class="pre">limited_local_comfort_DIN16798_NA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">occupied</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.limited_local_comfort_DIN16798_NA" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate a limited local comfort using surface temperatures from
+EnergyPlus and limits from DIN EN 16798-1 (National Appendix).
+Args:</p>
+<blockquote>
+<div><p>df: result dataframe
+elements: bim2sim elements
+export_path: export path for result plots and data
+occupied: True if only occupied states should be evaluated</p>
+</div></blockquote>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.plot_en16798_adaptive_count_NA">
+<span class="sig-name descname"><span class="pre">plot_en16798_adaptive_count_NA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">room_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.plot_en16798_adaptive_count_NA" title="Permalink to this definition"></a></dt>
+<dd><p>Plot EN 16798 German National Appendix for a single thermal zone.</p>
+<p>Apply limits of German National Appendix.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.plot_new_en16798_adaptive_count">
@@ -420,7 +500,7 @@ thermal zone.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.reads">
-<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('df_finals',</span> <span class="pre">'sim_results_path',</span> <span class="pre">'ifc_files')</span></em><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.reads" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('df_finals',</span> <span class="pre">'sim_results_path',</span> <span class="pre">'ifc_files',</span> <span class="pre">'elements')</span></em><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.reads" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -430,12 +510,12 @@ thermal zone.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.rename_zone_usage">
-<span class="sig-name descname"><span class="pre">rename_zone_usage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zone_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rename_keys</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.rename_zone_usage" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">rename_zone_usage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zone_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone_dict_ifc_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rename_keys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rename_duplicates</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.rename_zone_usage" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_finals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_files</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.run" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_finals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.run" title="Permalink to this definition"></a></dt>
 <dd><p>Plots the results for BEPS simulations.</p>
 <p>This holds pre configured functions to plot the results of the BEPS
 simulations with the EnergyPlus-based PluginComfort .</p>
@@ -445,14 +525,15 @@ simulations with the EnergyPlus-based PluginComfort .</p>
 </dd>
 </dl>
 <p>sim_results_path: base path where to store the plots
-ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc instance</p>
+ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc instance
+elements (dict): Dictionary of building elements.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.table_bar_plot_16798">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">table_bar_plot_16798</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.table_bar_plot_16798" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">table_bar_plot_16798</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.table_bar_plot_16798" title="Permalink to this definition"></a></dt>
 <dd><p>Create bar plot with a table below for EN 16798 thermal comfort.</p>
 <p>This function creates a bar plot with a table below along with the
 thermal comfort categories according to EN 16798. This table
@@ -461,8 +542,29 @@ considers all hours of the day, not only the occupancy hours.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.visualize_calendar">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">visualize_calendar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calendar_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_as</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">construction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[7.6,</span> <span class="pre">8]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.visualize_calendar" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">visualize_calendar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calendar_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_as</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">construction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">skip_legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[7.6,</span> <span class="pre">8]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resample_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.visualize_calendar" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.visualize_heatmap">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">visualize_heatmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_as</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_categories</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results.PlotComfortResults.visualize_heatmap" title="Permalink to this definition"></a></dt>
+<dd><p>Visualize heatmap of Fanger PMV.
+Args:</p>
+<blockquote>
+<div><p>df: Input dataframe with PMV data
+col: PMV column
+export_path: plot export path
+save_as: prefix for saving files
+add_title: True if title should be added to plot
+save: True if plot should be saved instead of displayed
+zone_dict: dictionary to rename the space names
+year: string to add the value of the year
+color_categories: select ‘PMV’, ‘PPD’. Standard heatmap is
+applied if left blank
+guid: plot individual space GUID</p>
+</div></blockquote>
+<p>Returns:</p>
+</dd></dl>
 
 </dd></dl>
 

@@ -1142,6 +1142,12 @@ material_set: dict of material and fraction [0, 1] if multiple materials</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.elements.base_elements.ProductBased.calc_product_shape">
+<span class="sig-name descname"><span class="pre">calc_product_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.base_elements.ProductBased.calc_product_shape" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the product shape based on IfcProduct representation.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.elements.base_elements.ProductBased.calc_volume_from_ifc_shape">
 <span class="sig-name descname"><span class="pre">calc_volume_from_ifc_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.base_elements.ProductBased.calc_volume_from_ifc_shape" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
@@ -4139,7 +4145,7 @@ CAUTION: only use this if you can’t know the result before instantiation</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.elements.bps_elements.Wall.ifc_types">
-<span class="sig-name descname"><span class="pre">ifc_types</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'IfcWall':</span> <span class="pre">['*',</span> <span class="pre">'MOVABLE',</span> <span class="pre">'PARAPET',</span> <span class="pre">'PARTITIONING',</span> <span class="pre">'PLUMBINGWALL',</span> <span class="pre">'SHEAR',</span> <span class="pre">'SOLIDWALL',</span> <span class="pre">'POLYGONAL',</span> <span class="pre">'DOOR',</span> <span class="pre">'GATE',</span> <span class="pre">'TRAPDOOR'],</span> <span class="pre">'IfcWallStandardCase':</span> <span class="pre">['*',</span> <span class="pre">'MOVABLE',</span> <span class="pre">'PARAPET',</span> <span class="pre">'PARTITIONING',</span> <span class="pre">'PLUMBINGWALL',</span> <span class="pre">'SHEAR',</span> <span class="pre">'SOLIDWALL',</span> <span class="pre">'POLYGONAL',</span> <span class="pre">'DOOR',</span> <span class="pre">'GATE',</span> <span class="pre">'TRAPDOOR']}</span></em><a class="headerlink" href="#bim2sim.elements.bps_elements.Wall.ifc_types" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">ifc_types</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'IfcColumn':</span> <span class="pre">['*'],</span> <span class="pre">'IfcCurtainWall':</span> <span class="pre">['*'],</span> <span class="pre">'IfcWall':</span> <span class="pre">['*',</span> <span class="pre">'MOVABLE',</span> <span class="pre">'PARAPET',</span> <span class="pre">'PARTITIONING',</span> <span class="pre">'PLUMBINGWALL',</span> <span class="pre">'SHEAR',</span> <span class="pre">'SOLIDWALL',</span> <span class="pre">'POLYGONAL',</span> <span class="pre">'DOOR',</span> <span class="pre">'GATE',</span> <span class="pre">'TRAPDOOR'],</span> <span class="pre">'IfcWallStandardCase':</span> <span class="pre">['*',</span> <span class="pre">'MOVABLE',</span> <span class="pre">'PARAPET',</span> <span class="pre">'PARTITIONING',</span> <span class="pre">'PLUMBINGWALL',</span> <span class="pre">'SHEAR',</span> <span class="pre">'SOLIDWALL',</span> <span class="pre">'POLYGONAL',</span> <span class="pre">'DOOR',</span> <span class="pre">'GATE',</span> <span class="pre">'TRAPDOOR']}</span></em><a class="headerlink" href="#bim2sim.elements.bps_elements.Wall.ifc_types" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -5529,10 +5535,32 @@ Overwrite for other connections.</p>
 <span class="sig-name descname"><span class="pre">key</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'HVAC-HVACProduct'</span></em><a class="headerlink" href="#bim2sim.elements.hvac_elements.HVACProduct.key" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HVACProduct.shape">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">shape</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.HVACProduct.shape" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HVACProduct.validate_ports">
 <span class="sig-name descname"><span class="pre">validate_ports</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.elements.hvac_elements.HVACProduct.validate_ports" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bim2sim.elements.hvac_elements.HVACProduct.volume">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">volume</span></span><a class="headerlink" href="#bim2sim.elements.hvac_elements.HVACProduct.volume" title="Permalink to this definition"></a></dt>
+<dd><p>Descriptor of element attribute to get its value from various sources.</p>
+<p>value and status of attribute are stored in __dict__ of bound instance.</p>
+<p>Possible statuses are:</p>
+<ul class="simple">
+<li><p>UNKNOWN: default status at the beginning.</p></li>
+<li><p>REQUESTED: Attribute was already requested via a decision??.</p></li>
+<li><p>AVAILABLE: Attribute exists and is available.</p></li>
+<li><p>NOT_AVAILABLE: No way was found to obtain the attributes value.</p></li>
+<li><p>RESET: The Attribute was reset.</p></li>
+</ul>
+<p>To find more about Descriptor objects follow the explanations on
+<a class="reference external" href="https://rszalski.github.io/magicmethods/#descriptor">https://rszalski.github.io/magicmethods/#descriptor</a></p>
+</dd></dl>
 
 </dd></dl>
 

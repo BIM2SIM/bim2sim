@@ -165,6 +165,20 @@ plot_single_zone_guid: guid of single space that should be analyzed</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.create_result_df.CreateResultDF.oriented_surface_names">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">oriented_surface_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_guid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.create_result_df.CreateResultDF.oriented_surface_names" title="Permalink to this definition"></a></dt>
+<dd><p>Identify surface names for each individual surface in a zone based on
+boundary conditions, constructions, and surface orientations for a
+proper identification in plots of surface variables (e.g., temperature)
+Args:</p>
+<blockquote>
+<div><p>idf: Eppy IDF
+space_guid: single space GUID</p>
+</div></blockquote>
+<p>Returns: dictionary of renamed space boundaries</p>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.create_result_df.CreateResultDF.reads">
 <span class="sig-name descname"><span class="pre">reads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('idf',</span> <span class="pre">'sim_results_path',</span> <span class="pre">'elements')</span></em><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.create_result_df.CreateResultDF.reads" title="Permalink to this definition"></a></dt>
@@ -225,17 +239,16 @@ preprocessed space boundary geometries. See detailed explanation in the run
 function below.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_create_idf.CreateIdf.add_shading_control">
-<span class="sig-name descname"><span class="pre">add_shading_control</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shading_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outdoor_temp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">22</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_create_idf.CreateIdf.add_shading_control" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">add_shading_control</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shading_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">150</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_create_idf.CreateIdf.add_shading_control" title="Permalink to this definition"></a></dt>
 <dd><p>Add a default shading control to IDF.
 Two criteria must be met such that the window shades are set: the
-outdoor temperature must exceed a certain temperature and the solar
+indoor air temperature must exceed a certain temperature and the solar
 radiation [W/m²] must be greater than a certain heat flow.
 Args:</p>
 <blockquote>
 <div><p>shading_type: shading type, ‘Interior’ or ‘Exterior’
 elements: elements
 idf: idf
-outdoor_temp: outdoor temperature [°C]
 solar: solar radiation on window surface [W/m²]</p>
 </div></blockquote>
 </dd></dl>
@@ -249,6 +262,20 @@ solar: solar radiation on window surface [W/m²]</p>
 idf: idf file object</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_create_idf.CreateIdf.apply_system_sizing">
+<span class="sig-name descname"><span class="pre">apply_system_sizing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sizing_weather_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_results_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_create_idf.CreateIdf.apply_system_sizing" title="Permalink to this definition"></a></dt>
+<dd><p>Apply system sizing based on weather file, sizes for maximum without
+buffer.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>idf: Eppy IDF
+sizing_weather_file: Weather file for system sizing
+sim_results_path: path to energyplus simulation results.</p>
+</dd>
+</dl>
+<p>Returns:</p>
 </dd></dl>
 
 <dl class="py method">
@@ -299,7 +326,7 @@ It removes openings from adiabatic surfaces and very small surfaces.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_create_idf.CreateIdf.init_idf">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">init_idf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.html#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.sim_settings.EnergyPlusSimSettings" title="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.sim_settings.EnergyPlusSimSettings"><span class="pre">EnergyPlusSimSettings</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.html#bim2sim.project.FolderStructure" title="bim2sim.project.FolderStructure"><span class="pre">FolderStructure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">weather_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PosixPath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">IDF</span></span></span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_create_idf.CreateIdf.init_idf" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">init_idf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_settings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.html#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.sim_settings.EnergyPlusSimSettings" title="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.sim_settings.EnergyPlusSimSettings"><span class="pre">EnergyPlusSimSettings</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.html#bim2sim.project.FolderStructure" title="bim2sim.project.FolderStructure"><span class="pre">FolderStructure</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">weather_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PosixPath</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">IDF</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_create_idf.CreateIdf.init_idf" title="Permalink to this definition"></a></dt>
 <dd><p>Initialize the EnergyPlus input file.</p>
 <p>Initialize the EnergyPlus input file (idf) with general idf settings
 and set default weather
@@ -310,7 +337,7 @@ paths: BIM2SIM FolderStructure
 weather_file: PosixPath to <a href="#id1"><span class="problematic" id="id2">*</span></a>.epw weather file
 ifc_name: str of name of ifc</p>
 </dd>
-<dt>Returns:</dt><dd><p>idf file of type IDF</p>
+<dt>Returns:</dt><dd><p>idf file of type IDF, sim_results_path</p>
 </dd>
 </dl>
 </dd></dl>
@@ -520,7 +547,7 @@ space: ThermalZone instance</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_create_idf.CreateIdf.set_natural_ventilation">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_natural_ventilation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">IDF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone" title="bim2sim.elements.bps_elements.ThermalZone"><span class="pre">ThermalZone</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ep_version</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_create_idf.CreateIdf.set_natural_ventilation" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_natural_ventilation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">IDF</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.bps_elements.ThermalZone" title="bim2sim.elements.bps_elements.ThermalZone"><span class="pre">ThermalZone</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ep_version</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_in_temp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">22</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">residential</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ventilation_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Simple'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_create_idf.CreateIdf.set_natural_ventilation" title="Permalink to this definition"></a></dt>
 <dd><p>Set natural ventilation.</p>
 <p>This function sets the natural ventilation per space based on the
 BIM2SIM preprocessing values (IFC-based if available or
@@ -779,7 +806,7 @@ constructions. Virtual space boundaries are set to be an air wall
 <p>See detailed explanation in the run function below.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export.ExportIdfForCfd.combine_space_stl_files">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">combine_space_stl_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stl_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export.ExportIdfForCfd.combine_space_stl_files" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">combine_space_stl_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stl_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export.ExportIdfForCfd.combine_space_stl_files" title="Permalink to this definition"></a></dt>
 <dd><p>Combine the stl file of spaces.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>stl_name: name of the stl file
@@ -791,7 +818,7 @@ paths: BIM2SIM paths</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export.ExportIdfForCfd.combine_stl_files">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">combine_stl_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stl_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export.ExportIdfForCfd.combine_stl_files" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">combine_stl_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stl_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export.ExportIdfForCfd.combine_stl_files" title="Permalink to this definition"></a></dt>
 <dd><p>Combine stl files.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>stl_name: name of the stl file
@@ -867,7 +894,7 @@ stl_name: name of the stl file.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export.ExportIdfForCfd.export_space_bound_list">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">export_space_bound_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export.ExportIdfForCfd.export_space_bound_list" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">export_space_bound_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export.ExportIdfForCfd.export_space_bound_list" title="Permalink to this definition"></a></dt>
 <dd><p>Exports a list of spaces and space boundaries.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>elements: dict[guid: element]

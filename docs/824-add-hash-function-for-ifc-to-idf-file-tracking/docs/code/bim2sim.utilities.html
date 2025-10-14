@@ -318,6 +318,11 @@ text (str): The text string to be compared against the pattern.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class for Tools handling and modifying Python OCC Shapes</p>
 <dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.calculate_point_based_distance">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">calculate_point_based_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">final_num_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100000.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.calculate_point_based_distance" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.check_pnt_in_solid">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_pnt_in_solid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TopoDS_Solid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pnt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gp_Pnt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.check_pnt_in_solid" title="Permalink to this definition"></a></dt>
 <dd><p>Check if a gp_Pnt is inside a TopoDS_Solid.</p>
@@ -343,6 +348,39 @@ True, if direction is same or reversed
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.create_offset_shape">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_offset_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.create_offset_shape" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.enlarge_bounding_box_shape_in_dir">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enlarge_bounding_box_shape_in_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance=0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction=&lt;class</span> <span class="pre">'gp_Dir'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.enlarge_bounding_box_shape_in_dir" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.extrude_face_in_direction">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">extrude_face_in_direction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape:</span> <span class="pre">~OCC.Core.TopoDS.TopoDS_Shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance:</span> <span class="pre">float</span> <span class="pre">=</span> <span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction:</span> <span class="pre">~OCC.Core.gp.gp_Dir</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'gp_Dir'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bidirectional=True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.extrude_face_in_direction" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.find_min_distance_along_direction">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">find_min_distance_along_direction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start_point</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000000.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.find_min_distance_along_direction" title="Permalink to this definition"></a></dt>
+<dd><p>Finds the minimum distance from a start point to a shape along a
+given direction.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>start_point (gp_Pnt): The starting point.
+direction (gp_Dir): The direction vector.
+shape (TopoDS_Shape): The target shape.
+max_distance (float, optional): The maximum search distance.
+Defaults to 1e6.</p>
+</dd>
+<dt>Returns:</dt><dd><p>tuple or (None, None): A tuple containing the distance and
+intersection point, or (None, None) if no intersection is found.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.fix_face">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fix_face</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">face</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TopoDS_Face</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TopoDS_Face</span></span></span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.fix_face" title="Permalink to this definition"></a></dt>
 <dd><p>Apply shape healing on a face.</p>
@@ -359,6 +397,16 @@ True, if direction is same or reversed
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">flip_orientation_of_face</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">face</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TopoDS_Face</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TopoDS_Face</span></span></span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.flip_orientation_of_face" title="Permalink to this definition"></a></dt>
 <dd><p>Flip the orientation of a TopoDS_Face.</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.fuse_shapes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fuse_shapes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shapes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">TopoDS_Shape</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.fuse_shapes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.generate_obj_trsfs">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_obj_trsfs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">final_obj_locations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">OCC.Core.gp.gp_Pnt</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">org_obj_pos</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gp_Pnt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot_angle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.generate_obj_trsfs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.get_center_of_edge">
@@ -411,6 +459,17 @@ center of mass.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.get_minimal_bounding_box">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_minimal_bounding_box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.get_minimal_bounding_box" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.get_number_of_faces">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_number_of_faces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TopoDS_Shape</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.get_number_of_faces" title="Permalink to this definition"></a></dt>
+<dd><p>get number of faces of a shape</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.get_number_of_vertices">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_number_of_vertices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TopoDS_Shape</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.get_number_of_vertices" title="Permalink to this definition"></a></dt>
 <dd><p>get number of vertices of a shape</p>
@@ -423,6 +482,24 @@ center of mass.</p>
 :param shape: TopoDS_Shape (Surface)
 :return: pnt_list (list of gp_Pnt)</p>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.get_points_of_minimum_point_shape_distance">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_points_of_minimum_point_shape_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gp_Pnt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TopoDS_Shape</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">OCC.Core.gp.gp_Pnt</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">OCC.Core.gp.gp_Pnt</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.get_points_of_minimum_point_shape_distance" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.get_points_of_minimum_shape_distance">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_points_of_minimum_shape_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TopoDS_Shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TopoDS_Shape</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">OCC.Core.gp.gp_Pnt</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">OCC.Core.gp.gp_Pnt</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.get_points_of_minimum_shape_distance" title="Permalink to this definition"></a></dt>
+<dd><p>Compute points of minimum distance.</p>
+<p>Returns list of [point on first shape, point on second shape,
+distance between these points].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.get_projection_of_bounding_box">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_projection_of_bounding_box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shapes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">OCC.Core.TopoDS.TopoDS_Shape</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proj_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">x</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">y</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">z</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TopoDS_Shape</span></span></span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.get_projection_of_bounding_box" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.get_shape_area">
@@ -441,6 +518,12 @@ float.</p>
 <dt>Returns:</dt><dd><p>volume: float</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.get_unique_vertices">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_unique_vertices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.get_unique_vertices" title="Permalink to this definition"></a></dt>
+<dd><p>Get unique vertices from a list of edges.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -492,7 +575,7 @@ float.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.move_bound_in_direction_of_normal">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">move_bound_in_direction_of_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TopoDS_Shape</span></span></span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.move_bound_in_direction_of_normal" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">move_bound_in_direction_of_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_dist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reverse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gp_Dir</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TopoDS_Shape</span></span></span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.move_bound_in_direction_of_normal" title="Permalink to this definition"></a></dt>
 <dd><p>Move a BIM2SIM Space Boundary in the direction of its surface
 normal by a given distance.</p>
 </dd></dl>
@@ -543,6 +626,41 @@ Vertices are collinear if cross product less tolerance.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.remove_sides_of_bounding_box">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">remove_sides_of_bounding_box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_top</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_bottom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_left</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_right</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_back</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cut_front</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.remove_sides_of_bounding_box" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.rotate_by_deg">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rotate_by_deg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'z'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.rotate_by_deg" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Args:</dt><dd><p>shape:
+axis:
+rotation:</p>
+</dd>
+</dl>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.sample_points_on_faces">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sample_points_on_faces</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.sample_points_on_faces" title="Permalink to this definition"></a></dt>
+<dd><p>Generate a grid of points on the surfaces of a shape.
+Parameters:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>shape: TopoDS_Shape</p></li>
+<li><p>u_samples: Number of samples along the U direction</p></li>
+<li><p>v_samples: Number of samples along the V direction</p></li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>A list of (x, y, z) points.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.scale_edge">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">scale_edge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">edge</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TopoDS_Edge</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TopoDS_Shape</span></span></span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.scale_edge" title="Permalink to this definition"></a></dt>
 <dd><p>Scales the given edge by the given factor, using the center of mass of
@@ -568,14 +686,87 @@ set the predefined_center.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.scale_shape_absolute">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">scale_shape_absolute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TopoDS_Shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale_in_meters</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predefined_center</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">gp_Pnt</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.scale_shape_absolute" title="Permalink to this definition"></a></dt>
+<dd><p>Scales the given shape by the given distance in all directions.
+Using the center of mass of the shape as origin of the
+transformation. If another center than the center of mass should be
+used for the origin of the transformation,
+set the predefined_center.
+Args:</p>
+<blockquote>
+<div><p>shape:
+scale_in_meters: scale in meters, scaling is applied in each
+direction.
+predefined_center:</p>
+</div></blockquote>
+<p>Returns:</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.sew_shapes">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sew_shapes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">OCC.Core.TopoDS.TopoDS_Shape</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TopoDS_Shape</span></span></span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.sew_shapes" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sew_shapes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">OCC.Core.TopoDS.TopoDS_Shape</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">TopoDS_Shape</span></span></span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.sew_shapes" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.simple_bounding_box">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">simple_bounding_box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shapes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TopoDS_Shape</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">TopoDS_Shape</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.simple_bounding_box" title="Permalink to this definition"></a></dt>
+<dd><p>Simple Bounding box.</p>
+<p>Return min_max_coordinates of a simple Bounding box, either from a
+single TopoDS_Shape or a list of TopoDS_Shapes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.simple_bounding_box_shape">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">simple_bounding_box_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shapes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TopoDS_Shape</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">TopoDS_Shape</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.simple_bounding_box_shape" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.simple_face_normal">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">simple_face_normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">face</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TopoDS_Face</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">check_orientation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">gp_XYZ</span></span></span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.simple_face_normal" title="Permalink to this definition"></a></dt>
 <dd><p>Compute the normal of a TopoDS_Face.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.sweep_line_find_intersections_multiple_shapes">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sweep_line_find_intersections_multiple_shapes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shapes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">intersection_direction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.005</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.sweep_line_find_intersections_multiple_shapes" title="Permalink to this definition"></a></dt>
+<dd><p>Translates a line defined by two points along its direction and finds
+all intersections
+with multiple target shapes.</p>
+<dl>
+<dt>Args:</dt><dd><p>p1 (gp_Pnt): The first point defining the original line.
+p2 (gp_Pnt): The second point defining the original line.
+shapes (list of TopoDS_Shape): The list of target shapes to intersect with.
+intersection_direction (gp_Dir): direction to find intersections
+max_distance (float, optional): The maximum translation distance. Defaults to 100.0.
+step (float, optional): The incremental step for translation.
+Defaults to 0.05.</p>
+</dd>
+<dt>Returns:</dt><dd><dl>
+<dt>tuple:</dt><dd><ul class="simple">
+<li><p>translated_lines (list of Geom_Line): All translated lines.</p></li>
+<li><p>intersection_points (list of tuples): Each tuple contains (t, shape_index, gp_Pnt).</p></li>
+<li><p>min_t (float or None): The minimal translation distance where an intersection occurs.</p></li>
+<li><p>min_delta (float or None): The minimal distance where</p></li>
+</ul>
+<p>intersection.
+- min_pnt (gp_Pnt or None): The corresponding intersection point at min_t.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.transform_set_to_origin_based_on_surface">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transform_set_to_origin_based_on_surface</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">face_normal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compound</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rot_ax_dir=&lt;class</span> <span class="pre">'gp_Dir'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.transform_set_to_origin_based_on_surface" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Args:</dt><dd><p>face:
+compound:
+ref_dir: reference direction to compare surface normal of face</p>
+</dd>
+</dl>
+<p>Returns:</p>
 </dd></dl>
 
 <dl class="py method">
@@ -591,20 +782,45 @@ cut_shapes: list of TopoDS_Shape</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.utilities.pyocc_tools.PyOCCTools.unify_shape">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">unify_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.pyocc_tools.PyOCCTools.unify_shape" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
 <section id="module-bim2sim.utilities.svg_utils">
 <span id="bim2sim-utilities-svg-utils-module"></span><h2>bim2sim.utilities.svg_utils module<a class="headerlink" href="#module-bim2sim.utilities.svg_utils" title="Permalink to this heading"></a></h2>
 <dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.utilities.svg_utils.add_floor_plan_with_room_names">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">add_floor_plan_with_room_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_file_class_inst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.ifc_file.IfcFileClass" title="bim2sim.kernel.ifc_file.IfcFileClass"><span class="pre">IfcFileClass</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">svg_adjust_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.add_floor_plan_with_room_names" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.utilities.svg_utils.add_north_arrow">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">add_north_arrow</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svg_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">position</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(50,</span> <span class="pre">50)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">halfwidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'black'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.add_north_arrow" title="Permalink to this definition"></a></dt>
+<dd><p>Adds a north arrow to an existing SVG file.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>svg_path: Path to the input SVG file.
+output_path: Path to save the modified SVG file.
+position: Tuple (x, y) for the arrow’s starting position.
+length: Length of the arrow in SVG units.
+halfwidth: Half width of the arrow in SVG units.
+color: Color of the arrow.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.utilities.svg_utils.combine_svgs_complete">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">combine_svgs_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storey_guids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#bim2sim.utilities.svg_utils.combine_svgs_complete" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">combine_svgs_complete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storey_guids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#bim2sim.utilities.svg_utils.combine_svgs_complete" title="Permalink to this definition"></a></dt>
 <dd><p>Add color mapping svg to floor plan svg.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.utilities.svg_utils.combine_two_svgs">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">combine_two_svgs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">main_svg_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_svg_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_svg_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.combine_two_svgs" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">combine_two_svgs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">main_svg_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color_svg_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">None</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_svg_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.combine_two_svgs" title="Permalink to this definition"></a></dt>
 <dd><p>Combines the content of a child SVG file into a parent SVG file.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>main_svg_path (Path): Path to the parent SVG file.
@@ -624,7 +840,7 @@ output_svg_path: Path to the output SVG file.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bim2sim.utilities.svg_utils.create_svg_floor_plan_plot">
-<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">create_svg_floor_plan_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_file_class_inst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.ifc_file.IfcFileClass" title="bim2sim.kernel.ifc_file.IfcFileClass"><span class="pre">IfcFileClass</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">svg_adjust_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.create_svg_floor_plan_plot" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">create_svg_floor_plan_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ifc_file_class_inst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.kernel.html#bim2sim.kernel.ifc_file.IfcFileClass" title="bim2sim.kernel.ifc_file.IfcFileClass"><span class="pre">IfcFileClass</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">svg_adjust_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_processing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.create_svg_floor_plan_plot" title="Permalink to this definition"></a></dt>
 <dd><p>Creates an SVG floor plan plot for every storey and adjust its design.</p>
 <p>This function first creates an SVG floor plan for the provided IFC file
 based on IfcConvert, then it splits the SVG floor plan into one file per
@@ -638,7 +854,9 @@ attributes for “color” and “text” to overwrite existing data in the
 floor plan. See example for more information
 ifc_file_class_inst: bim2sim IfcFileClass instance
 target_path: Path to store the SVG files
-result_str (str): name of the results plotted (used for file naming)</p>
+result_str (str): name of the results plotted (used for file naming)
+result_processing (str): result postprocessing choice (mean, max,
+sum), defaults to mean</p>
 </dd>
 <dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create nested dict, where &quot;2eyxpyOx95m90jmsXLOuR0&quot; is the storey guid</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># and &quot;0Lt8gR_E9ESeGH5uY_g9e9&quot;, &quot;17JZcMFrf5tOftUTidA0d3&quot; and</span>
@@ -681,6 +899,21 @@ dictionary that holds the relevant data.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>svg_adjust_dict: nexted dict that holds guid of storey, spaces and the
 attributes for “color” and “text” to overwrite existing data in the
+floor plan.
+path: Path where the basic SVG files are stored.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.utilities.svg_utils.modify_svg_elements_for_floor_plan">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.utilities.svg_utils.</span></span><span class="sig-name descname"><span class="pre">modify_svg_elements_for_floor_plan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svg_adjust_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.utilities.svg_utils.modify_svg_elements_for_floor_plan" title="Permalink to this definition"></a></dt>
+<dd><p>Adjusts SVG floor plan for based on input data.</p>
+<p>Based on the inputs, you can add text to the space for each storey. The
+input is a nested dictionary that holds the relevant data.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>svg_adjust_dict: nexted dict that holds guid of storey, spaces and the
+attributes for “text” to overwrite existing data in the
 floor plan.
 path: Path where the basic SVG files are stored.</p>
 </dd>
