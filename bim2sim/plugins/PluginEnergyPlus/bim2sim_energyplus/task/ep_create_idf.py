@@ -31,6 +31,8 @@ from bim2sim.utilities.common_functions import filter_elements, \
     get_spaces_with_bounds, all_subclasses
 from bim2sim.utilities.pyocc_tools import PyOCCTools
 from bim2sim.utilities.types import BoundaryOrientation
+from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils.utils_hash_function \
+    import generate_hash, add_hash_into_idf
 
 if TYPE_CHECKING:
     from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus import \
@@ -53,6 +55,7 @@ class CreateIdf(ITask):
     def __init__(self, playground):
         super().__init__(playground)
         self.idf = None
+        self.hash_line = None
 
     def run(self, elements: dict, weather_file: Path) -> tuple[IDF, Path]:
         """Execute all methods to export an IDF from BIM2SIM.
@@ -103,6 +106,10 @@ class CreateIdf(ITask):
         self.idf_validity_check(idf)
         logger.info("Save idf ...")
         idf.save(idf.idfname)
+        if self.playground.sim_settings.add_hash:
+            logger.info("Generate IFC geometry hash ...")
+            self.hash_line = generate_hash(ifc_path=self.paths.ifc_base / 'arch' / str(self.prj_name + '.ifc'))
+            add_hash_into_idf(self.hash_line, idf.idfname)
         logger.info("Idf file successfully saved.")
         if (self.playground.sim_settings.weather_file_for_sizing or
                 self.playground.sim_settings.enforce_system_sizing):
