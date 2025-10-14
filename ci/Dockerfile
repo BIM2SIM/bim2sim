@@ -1,6 +1,6 @@
 # Base image which install python with micromamba and pythonocc to speed up CI
 
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION=3.11
 FROM mambaorg/micromamba:2.0.2
 
 # Redeclare the ARG after FROM, but don't set a default value

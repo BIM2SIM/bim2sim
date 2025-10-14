@@ -1,6 +1,7 @@
 # CI information
 
 This documents may be used to document how to maintain the CI pipelines of `bim2sim`.
+If you work on these images, name your branch something that contain "image_testing", so the jobs are run in your branch, as well.
 During https://github.com/BIM2SIM/bim2sim/pull/837, the image-structure was changed as follows:
 
 
@@ -28,7 +29,7 @@ If on linux, put `sudo` in front of every line.
 If you increase the version, make sure to 
 - change the Dockerfiles `ARGs` appropriately
 - change the tag `energyplus9.4.0` in the script above
-- change the tags in the `ci/builds_releases.gitlab-ci.yml` jobs, e.g. `build:energyplus-py.311:`.
+- change the tags in the `ci/builds_releases.gitlab-ci.yml` jobs, e.g. `build:energyplus-py3.11:`.
 
 
 ## Release images for plugins

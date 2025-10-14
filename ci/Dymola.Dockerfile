@@ -1,6 +1,6 @@
 # Image with Dymola required to test TEASER plugin
 
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION=3.11
 ARG FROM_BUILD_TAG=Dymola_2022
 # bring in the micromamba image so we can copy files from it
 FROM mambaorg/micromamba:2.0.2 as micromamba
