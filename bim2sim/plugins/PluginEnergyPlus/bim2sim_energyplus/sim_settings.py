@@ -28,6 +28,12 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         description='Whether to add shading surfaces if available or not.',
         for_frontend=True
     )
+    add_hash = BooleanSetting(
+        default=False,
+        description='Whether to add a hash as a comment at the first line of'
+                    'IDF file for IFC-to-IDF tracking or not.',
+        for_frontend=False
+    )
     split_shadings = BooleanSetting(
         value=False,
         description='Whether to convert up non-convex shading boundaries or '
