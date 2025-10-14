@@ -635,7 +635,8 @@ class SetOpenFOAMBoundaryConditions(ITask):
         openfoam_case.T = T.T()
         openfoam_case.T.values['boundaryField'] = {}
         openfoam_case.T.values['internalField'] \
-            = f'uniform {openfoam_case.current_zone.air_temp}'
+            = (f'uniform '
+               f'{of_utils.float_cutoff(openfoam_case.current_zone.air_temp)}')
 
         for bound in stl_bounds:
             openfoam_case.T.values['boundaryField'].update(
@@ -780,7 +781,8 @@ class SetOpenFOAMBoundaryConditions(ITask):
                                heater.porous_media.solid_name,
                            'injectionRateSuSp':
                                {'h':
-                                    f"({heater.porous_media.power} 0)"
+                                    f"("
+                                    f"{of_utils.float_cutoff(heater.porous_media.power)} 0)"
                                 }
                            }
                       }

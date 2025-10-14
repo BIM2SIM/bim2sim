@@ -243,6 +243,15 @@ class OpenFOAMUtils:
         return f"table ( {tuples_str} )"
 
     @staticmethod
+    def float_cutoff(val: float) -> float:
+        """Cut off long floats in OpenFOAM case files for higher stability
+        in regression tests."""
+        max_dig = 5
+        if val is None:
+            return val
+        return round(val, max_dig)
+
+    @staticmethod
     def duplicate_table_for_restart(dict_with_string_tables: dict,
                                     add_number_to_keys: int) -> dict:
         new_dict = {}
