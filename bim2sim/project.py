@@ -49,7 +49,7 @@ def add_config_section(
                   if not callable(getattr(sim_settings, attr)) and not
                   attr.startswith('__')]
     for attr in attributes:
-        default_value = getattr(sim_settings, attr).default
+        default_value = getattr(sim_settings, attr).value
         if isinstance(default_value, Enum):
             default_value = str(default_value)
         if not attr in config[name]:
@@ -325,10 +325,8 @@ class Project:
                                  "Use Project.create() to create a new Project")
         self._made_decisions = DecisionBunch()
         self.loaded_decisions = load(self.paths.decisions)
-
         self.plugin_cls = self._get_plugin(plugin)
         self.playground = Playground(self)
-        # link sim_settings to project to make set of settings easier
         self.sim_settings = self.playground.sim_settings
 
     def _get_plugin(self, plugin):
