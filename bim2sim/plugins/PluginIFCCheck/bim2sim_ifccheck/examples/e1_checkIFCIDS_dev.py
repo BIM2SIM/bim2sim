@@ -3,6 +3,7 @@ from pathlib import Path
 
 import bim2sim
 from bim2sim import Project, ConsoleDecisionHandler, run_project
+from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.elements import bps_elements
 from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.types import IFCDomain
@@ -151,7 +152,14 @@ def run_simple_project():
     # There are multiple ways to run a project. One is to use the run_project()
     # function and assign which project to run and which decision handler to
     # use. In our case this is:
-    run_project(project, ConsoleDecisionHandler())
+
+    # Run the project with pre-configured answers for decisions
+    answers = ('Other',
+               )
+    handler = DebugDecisionHandler(answers)
+    handler.handle(project.run())
+
+    # run_project(project, ConsoleDecisionHandler())
 
     # After the project is finished, we can review the results. As we don't
     # create any simulation model with the template Plugin, our results are
