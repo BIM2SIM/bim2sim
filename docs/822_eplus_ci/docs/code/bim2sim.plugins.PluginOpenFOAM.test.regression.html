@@ -108,61 +108,8 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
-<section id="module-bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam">
-<span id="bim2sim-plugins-pluginopenfoam-test-regression-test-openfoam-module"></span><h2>bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam module<a class="headerlink" href="#module-bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam" title="Permalink to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.RegressionTestOpenFOAM">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.</span></span><span class="sig-name descname"><span class="pre">RegressionTestOpenFOAM</span></span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.RegressionTestOpenFOAM" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.test.RegressionTestBase" title="bim2sim.utilities.test.RegressionTestBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressionTestBase</span></code></a></p>
-<p>Class to set up and run CFD regression tests.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.RegressionTestOpenFOAM.create_regression_setup">
-<span class="sig-name descname"><span class="pre">create_regression_setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.RegressionTestOpenFOAM.create_regression_setup" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.RegressionTestOpenFOAM.generate_html_diff_report">
-<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">generate_html_diff_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_html</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context_lines</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.RegressionTestOpenFOAM.generate_html_diff_report" title="Permalink to this definition"></a></dt>
-<dd><p>Recursively compare reference vs generated directories and produce an HTML report.
-Returns a tuple (has_diffs: bool, html_path: str).</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.RegressionTestOpenFOAM.run_regression_test">
-<span class="sig-name descname"><span class="pre">run_regression_test</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.RegressionTestOpenFOAM.run_regression_test" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.RegressionTestOpenFOAM.setUp">
-<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.RegressionTestOpenFOAM.setUp" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.RegressionTestOpenFOAM.tearDown">
-<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.RegressionTestOpenFOAM.tearDown" title="Permalink to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.TestRegressionOpenFOAMCase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.</span></span><span class="sig-name descname"><span class="pre">TestRegressionOpenFOAMCase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.TestRegressionOpenFOAMCase" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.RegressionTestOpenFOAM" title="bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.RegressionTestOpenFOAM"><code class="xref py py-class docutils literal notranslate"><span class="pre">RegressionTestOpenFOAM</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
-<p>Regression tests for PluginOpenFOAM.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.TestRegressionOpenFOAMCase.test_regression_AC20_FZK_Haus">
-<span class="sig-name descname"><span class="pre">test_regression_AC20_FZK_Haus</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.TestRegressionOpenFOAMCase.test_regression_AC20_FZK_Haus" title="Permalink to this definition"></a></dt>
-<dd><p>Run PluginOpenFOAM regression test with AC20-FZK-Haus.ifc.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.TestRegressionOpenFOAMCase.test_regression_DigitalHub_SB89">
-<span class="sig-name descname"><span class="pre">test_regression_DigitalHub_SB89</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam.TestRegressionOpenFOAMCase.test_regression_DigitalHub_SB89" title="Permalink to this definition"></a></dt>
-<dd><p>Run PluginOpenFOAM regression test with DigitalHub.</p>
-</dd></dl>
-
-</dd></dl>
-
+<section id="bim2sim-plugins-pluginopenfoam-test-regression-test-openfoam-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-test-regression-test-openfoam-module" title="Permalink to this heading"></a></h2>
 </section>
 </section>
 
