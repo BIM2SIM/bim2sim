@@ -29,7 +29,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         for_frontend=True
     )
     add_hash = BooleanSetting(
-        default=False,
+        value=False,
         description='Whether to add a hash as a comment at the first line of'
                     'IDF file for IFC-to-IDF tracking or not.',
         for_frontend=False
@@ -80,7 +80,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         for_frontend=True
     )
     system_weather_sizing = ChoiceSetting(
-        default='Typical',
+        value='Typical',
         choices={'Typical': 'SummerTypical and WinterTypical for system '
                             'sizing.',
                  'Extreme': 'SummerExtreme and WinterExtreme for system '
@@ -91,18 +91,18 @@ class EnergyPlusSimSettings(BuildingSimSettings):
                               'file.'},
         description='Choose whether to perform the system sizing for '
                      'DesignDays, extreme weather periods, typical weather '
-                     'periods. Default=Typical (i.e., apply system sizing for '
+                     'periods. value=Typical (i.e., apply system sizing for '
                      'typical summer/winter days). '
     )
     weather_file_for_sizing = PathSetting(
-        default=None,
+        value=None,
         description='Path to the weather file that should be used for system '
                     'sizing in EnergyPlus',
         for_frontend=True,
         mandatory=False
     )
     enforce_system_sizing = BooleanSetting(
-        default=False,
+        value=False,
         description='Choose True if you want to enforce HVAC Sizing to sizing '
                     'period settings (limit heating and cooling capacity) '
                     'instead of autosizing.',
@@ -193,15 +193,15 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         for_frontend=True
     )
     hvac_off_at_night = BooleanSetting(
-        default=False, description='Disable all HVAC systems at night from '
+        value=False, description='Disable all HVAC systems at night from '
                                    '10pm to 6am.'
     )
     control_operative_temperature = BooleanSetting(
-        default=False, description='Use operative temperature instead of air '
+        value=False, description='Use operative temperature instead of air '
                                    'temperature for zonal temperature control.'
     )
     ventilation_demand_control = ChoiceSetting(
-        default=None,
+        value=None,
         choices={None: 'No demand control for mechanical ventilation.',
                  'OccupancySchedule': 'Demand control based on occupancy '
                                       'schedule.'},
@@ -209,7 +209,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
                     'controlled. Default is None. '
     )
     outdoor_air_economizer = ChoiceSetting(
-        default='NoEconomizer',
+        value='NoEconomizer',
         choices={'NoEconomizer': 'No outdoor air economizer is applied.',
                  'DifferentialDryBulb': 'The outdoor air economizer is '
                                         'applied based on the differential '
@@ -223,7 +223,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
                     '"NoEconomizer".'
     )
     heat_recovery_type = ChoiceSetting(
-        default='Enthalpy',
+        value='Enthalpy',
         choices={'Enthalpy': 'Use Enthalpy Heat Recovery.',
                  'Sensible': 'Use Sensible Heat Recovery.',
                  'None': 'No Heat Recovery'},
@@ -231,34 +231,34 @@ class EnergyPlusSimSettings(BuildingSimSettings):
                     'mechanical ventilation.'
     )
     heat_recovery_sensible = NumberSetting(
-        default=0.8, min_value=0, max_value=1,
+        value=0.8, min_value=0, max_value=1,
         description='Choose the sensible heat recovery effectiveness. '
                     'Default: 0.8.'
     )
     heat_recovery_latent = NumberSetting(
-        default=0.7, min_value=0, max_value=1,
+        value=0.7, min_value=0, max_value=1,
         description='Choose the latent heat recovery effectiveness. Only '
                     'applicable if heat_recovery_type="Enthalpy". Default: 0.7.'
     )
     outdoor_air_per_person = NumberSetting(
-        default=7,
+        value=7,
         min_value=0, max_value=25,
         description='Outdoor air per person in l/s. Defaults to 7 l/s '
                     'according to DIN EN 16798-1, Category II.'
     )
     outdoor_air_per_area = NumberSetting(
-        default=0.7, min_value=0, max_value=10,
+        value=0.7, min_value=0, max_value=10,
         description='Outdoor air per floor area in l/s. Defaults to 0.7 l/(s '
                     'm2) according to DIN EN 16798-1, Category II for low '
                     'emission buildings.'
     )
     residential = BooleanSetting(
-        default=False, description='Choose True to use residential settings '
+        value=False, description='Choose True to use residential settings '
                                    'for natural ventilation (DIN4108-2), '
                                    'False for non-residential houses.'
     )
     natural_ventilation_approach = ChoiceSetting(
-        default="Simple",
+        value="Simple",
         description='Choose calculation approach for natural ventilation.',
         choices={
             "Simple": "use simplified ventilation based on TEASER templates.",

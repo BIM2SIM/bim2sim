@@ -33,12 +33,12 @@ class ComfortSimSettings(EnergyPlusSimSettings):
         for_frontend=True
     )
     comfort_occupancy_weighting = BooleanSetting(
-        default=False, description='Weight the comfort rating by occupancy '
+        value=False, description='Weight the comfort rating by occupancy '
                                    'schedules.'
     )
     plot_zone_usages = ChoiceSetting(
-        default=[],
-        # default=['office', 'meeting', 'canteen', 'sanitary', 'kitchen'],
+        value=[],
+        # value=['office', 'meeting', 'canteen', 'sanitary', 'kitchen'],
         choices={'': 'Choose empty string to plot all zones.'},
         description='Choose string patterns of zone usages for '
                     'evaluation of comfort results (multiple choice). Use '
