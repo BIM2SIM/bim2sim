@@ -138,6 +138,8 @@ class TestRegressionTEASER(RegressionTestTEASER, unittest.TestCase):
         project.sim_settings.zoning_criteria = (
             ZoningCriteria.combined_single_zone)
         project.sim_settings.ahu_tz_overwrite = False
+        project.sim_settings.close_space_boundary_gaps = False
+        project.sim_settings.correct_space_boundaries = False
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
