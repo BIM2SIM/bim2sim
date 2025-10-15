@@ -30,6 +30,7 @@ class PluginAixLib(Plugin):
         common.CreateElementsOnIfcTypes,
         hvac.ConnectElements,
         hvac.MakeGraph,
+        hvac.EnrichFlowDirection,
         hvac.ExpansionTanks,
         hvac.Reduce,
         hvac.DeadEnds,

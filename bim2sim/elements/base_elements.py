@@ -208,11 +208,6 @@ class IFCBased(Element):
         if self.ifc:
             return self.ifc.is_a()
 
-    @classmethod
-    def pre_validate(cls, ifc) -> bool:
-        """Check if ifc meets conditions to create element from it"""
-        raise NotImplementedError
-
     def _calc_position(self, name):
         """returns absolute position"""
         if hasattr(self.ifc, 'ObjectPlacement'):

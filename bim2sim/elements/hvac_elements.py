@@ -15,6 +15,8 @@ from bim2sim.elements.base_elements import Port, ProductBased, IFCBased
 from bim2sim.elements.mapping.ifc2python import get_ports as ifc2py_get_ports
 from bim2sim.elements.mapping.ifc2python import get_predefined_type
 from bim2sim.elements.mapping.units import ureg
+from bim2sim.utilities.types import FlowDirection, FlowSide
+
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -33,19 +35,31 @@ def length_post_processing(value):
 
 
 class HVACPort(Port):
-    """Port of HVACProduct."""
-    vl_pattern = re.compile('.*vorlauf.*',
-                            re.IGNORECASE)  # TODO: extend pattern
-    rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
+    """Port of HVACProduct.
+
+    Definitions:
+    flow_direction: is the direction of the port which can be sink, source,
+     sink_and_source or unknown depending on the IFC data.
+    groups: based on IFC assignment this might be "vorlauf" or something else.
+    flow_side: defines if the port is part of the supply or return network.
+    E.g. the radiator is a splitter where one port is part of the supply and
+    the other port is part of the return network
+
+    """
+    vl_pattern = re.compile('.*(vorlauf|supply|feed|forward).*', re.IGNORECASE)
+    rl_pattern = re.compile('.*(rücklauf|return|recirculation|back).*',
+                            re.IGNORECASE)
 
     def __init__(
             self, *args, groups: Set = None,
-            flow_direction: int = 0, **kwargs):
+            flow_direction: FlowDirection = FlowDirection.unknown, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._flow_master = False
-        self._flow_direction = None
+        # self._flow_direction = None
+
         self._flow_side = None
+        # groups and flow_direction coming from ifc2args kwargs
         self.groups = groups or set()
         self.flow_direction = flow_direction
 
@@ -54,13 +68,16 @@ class HVACPort(Port):
         args, kwargs = super().ifc2args(ifc)
         groups = {assg.RelatingGroup.ObjectType
                   for assg in ifc.HasAssignments}
-        flow_direction = None
         if ifc.FlowDirection == 'SOURCE':
-            flow_direction = 1
+            flow_direction = FlowDirection.source
         elif ifc.FlowDirection == 'SINK':
-            flow_direction = -1
+            flow_direction = FlowDirection.sink
         elif ifc.FlowDirection in ['SINKANDSOURCE', 'SOURCEANDSINK']:
-            flow_direction = 0
+            flow_direction = FlowDirection.sink_and_source
+        elif ifc.FlowDirection == 'NOTDEFINED':
+            flow_direction = FlowDirection.unknown
+        else:
+            flow_direction = FlowDirection.unknown
 
         kwargs['groups'] = groups
         kwargs['flow_direction'] = flow_direction
@@ -89,10 +106,6 @@ class HVACPort(Port):
             quality_logger.info("Suspect position [0, 0, 0] for %s", self)
         return coordinates
 
-    @classmethod
-    def pre_validate(cls, ifc) -> bool:
-        return True
-
     def validate_creation(self) -> bool:
         return True
 
@@ -105,34 +118,34 @@ class HVACPort(Port):
     def flow_master(self, value: bool):
         self._flow_master = value
 
-    @property
-    def flow_direction(self):
-        """Flow direction of port
+    # @property
+    # def flow_direction(self):
+    #     """Flow direction of port
+    #
+    #     -1 = medium flows into port
+    #     1 = medium flows out of port
+    #     0 = medium flow undirected
+    #     None = flow direction unknown"""
+    #     return self._flow_direction
 
-        -1 = medium flows into port
-        1 = medium flows out of port
-        0 = medium flow undirected
-        None = flow direction unknown"""
-        return self._flow_direction
+    # @flow_direction.setter
+    # def flow_direction(self, value):
+    #     if self._flow_master:
+    #         raise AttributeError("Can't set flow direction for flow master.")
+    #     if value not in (-1, 0, 1, None):
+    #         raise AttributeError("Invalid value. Use one of (-1, 0, 1, None).")
+    #     self._flow_direction = value
 
-    @flow_direction.setter
-    def flow_direction(self, value):
-        if self._flow_master:
-            raise AttributeError("Can't set flow direction for flow master.")
-        if value not in (-1, 0, 1, None):
-            raise AttributeError("Invalid value. Use one of (-1, 0, 1, None).")
-        self._flow_direction = value
-
-    @property
-    def verbose_flow_direction(self):
-        """Flow direction of port"""
-        if self.flow_direction == -1:
-            return 'SINK'
-        if self.flow_direction == 0:
-            return 'SINKANDSOURCE'
-        if self.flow_direction == 1:
-            return 'SOURCE'
-        return 'UNKNOWN'
+    # @property
+    # def verbose_flow_direction(self):
+    #     """Flow direction of port"""
+    #     if self.flow_direction == -1:
+    #         return 'SINK'
+    #     if self.flow_direction == 0:
+    #         return 'SINKANDSOURCE'
+    #     if self.flow_direction == 1:
+    #         return 'SOURCE'
+    #     return 'UNKNOWN'
 
     @property
     def flow_side(self):
@@ -149,39 +162,39 @@ class HVACPort(Port):
 
     @flow_side.setter
     def flow_side(self, value):
-        if value not in (-1, 0, 1):
-            raise ValueError("allowed values for flow_side are 1, 0, -1")
         previous = self._flow_side
         self._flow_side = value
         if previous:
             if previous != value:
-                logger.info("Overwriting flow_side for %r with %s" % (
-                    self, self.verbose_flow_side))
+                logger.info(
+                    f"Overwriting flow_side for {self} with {value.name}")
         else:
-            logger.debug(
-                "Set flow_side for %r to %s" % (self, self.verbose_flow_side))
-
-    @property
-    def verbose_flow_side(self):
-        if self.flow_side == 1:
-            return "VL"
-        if self.flow_side == -1:
-            return "RL"
-        return "UNKNOWN"
+            logger.debug(f"Set flow_side for {self} to {value.name}")
 
     def determine_flow_side(self):
-        """Check groups for hints of flow_side and returns flow_side if hints are definitely"""
+        """Check groups for hints of flow_side and returns flow_side if hints
+        are definitely.
+
+        First the flow_direction and the type of the element
+        (generator/consumer) is checked for clear information. If no
+        information can be obtained the pattern matches are evaluated based on
+        the groups from IFC, that come from RelatingGroup assignment.
+        If there are mismatching information from flow_direction and patterns
+        the flow_side is set to unknown, otherwise it's set to supply_flow or
+        supply_flow.
+        """
         vl = None
         rl = None
+
         if self.parent.is_generator():
-            if self.flow_direction == 1:
+            if self.flow_direction.name == "source":
                 vl = True
-            elif self.flow_direction == -1:
+            elif self.flow_direction.name == "sink":
                 rl = True
         elif self.parent.is_consumer():
-            if self.flow_direction == 1:
+            if self.flow_direction.name == "source":
                 rl = True
-            elif self.flow_direction == -1:
+            elif self.flow_direction.name == "sink":
                 vl = True
         if not vl:
             vl = any(filter(self.vl_pattern.match, self.groups))
@@ -189,10 +202,10 @@ class HVACPort(Port):
             rl = any(filter(self.rl_pattern.match, self.groups))
 
         if vl and not rl:
-            return 1
+            return FlowSide.supply_flow
         if rl and not vl:
-            return -1
-        return 0
+            return FlowSide.return_flow
+        return FlowSide.unknown
 
 
 class HVACProduct(ProductBased):
@@ -317,8 +330,8 @@ class HVACProduct(ProductBased):
         vl = port_dict[decision_vl.value]
         rl = port_dict[decision_rl.value]
         # set flow correct side
-        vl.flow_side = 1
-        rl.flow_side = -1
+        vl.flow_side = FlowSide.supply_flow
+        rl.flow_side = FlowSide.return_flow
         self.inner_connections.append((vl, rl))
 
     def validate_ports(self):
@@ -360,6 +373,9 @@ class HeatPump(HVACProduct):
         re.compile('Heat.?pump', flags=re.IGNORECASE),
         re.compile('W(ä|ae)rme.?pumpe', flags=re.IGNORECASE),
     ]
+
+    def is_generator(self):
+        return True
 
     min_power = attribute.Attribute(
         description='Minimum power that heat pump operates at.',
@@ -483,6 +499,10 @@ class CoolingTower(HVACProduct):
         re.compile('R(ü|ue)ck.?K(ü|ue)hl.?(werk|turm|er)', flags=re.IGNORECASE),
         re.compile('RKA', flags=re.IGNORECASE),
     ]
+
+    def is_consumer(self):
+        # TODO #733 check this
+        return True
 
     min_power = attribute.Attribute(
         description='Minimum power that CoolingTower operates at.',
@@ -1338,6 +1358,9 @@ class AirTerminal(HVACProduct):
         unit=ureg.millimeter,
     )
 
+    def is_consumer(self):
+        return True
+
 
 class Medium(HVACProduct):
     # is deprecated?
@@ -1357,6 +1380,9 @@ class CHP(HVACProduct):
     @property
     def expected_hvac_ports(self):
         return 2
+
+    def is_generator(self):
+        return True
 
     rated_power = attribute.Attribute(
         default_ps=('Pset_ElectricGeneratorTypeCommon', 'MaximumPowerOutput'),
