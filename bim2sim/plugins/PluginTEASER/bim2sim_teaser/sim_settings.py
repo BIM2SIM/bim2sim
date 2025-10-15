@@ -11,7 +11,7 @@ class TEASERSimSettings(BuildingSimSettings):
     specific settings are added here.
     """
     sim_results = ChoiceSetting(
-        default=[
+        value=[
             "heat_demand_total", "cool_demand_total",
             "heat_demand_rooms", "cool_demand_rooms",
             "heat_energy_total", "cool_energy_total",
@@ -68,7 +68,7 @@ class TEASERSimSettings(BuildingSimSettings):
     )
 
     zoning_criteria = ChoiceSetting(
-        default=ZoningCriteria.individual_spaces,
+        value=ZoningCriteria.individual_spaces,
         choices={
             ZoningCriteria.external:
                 'Group all thermal zones that have contact to the exterior'
@@ -96,7 +96,7 @@ class TEASERSimSettings(BuildingSimSettings):
     )
 
     path_aixlib = PathSetting(
-        default=None,
+        value=None,
         description='Path to the local AixLib`s repository. This needs to '
                     'point to the root level package.mo file. If not'
                     ' provided, the version for regression testing will be '
