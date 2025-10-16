@@ -123,19 +123,19 @@ class CheckIfc(ITask):
             ## end copy form old ifc check (only tempory until new structure is working)
 
             # check uniqueness of GUIDs
-            self.all_guids_unique, self.double_guids = self.run_check_guid_unique(ifc_file)
+            self.all_guids_unique, self.double_guids = CheckLogicBase.run_check_guid_unique(ifc_file)
             list_guids_non_unique = list(self.double_guids.keys())
             self.logger.info("the GUIDs of all elements are unique: {}".format(self.all_guids_unique))
             if self.all_guids_unique is False:
                 self.logger.critical("non-unique GUIDs: {}".format(list_guids_non_unique))
             # check emptyness of GUID fields
-            self.all_guids_filled, self.empty_guids = self.run_check_guid_empty(ifc_file)
+            self.all_guids_filled, self.empty_guids = CheckLogicBase.run_check_guid_empty(ifc_file)
             list_guids_empty = list(self.empty_guids.keys())
             self.logger.info("the GUIDs of all elements are filled (NOT empty): {}".format(self.all_guids_filled))
             if self.all_guids_filled is False:
                 self.logger.critical("empty GUIDs: {}".format(list_guids_empty))
             # check ifc version
-            self.version_error, self.ifc_version = self.run_check_ifc_version(ifc_file)
+            self.version_error, self.ifc_version = CheckLogicBase.run_check_ifc_version(ifc_file)
             # for doc string
             #   Logs:
             #       critical: if loaded IFC is not IFC4
@@ -196,95 +196,7 @@ class CheckIfc(ITask):
 
 
 
-    def run_check_guid_unique(self, ifc_file) -> (bool, dict):
-        """check the uniqueness of the guids of the IFC file
 
-        Input:
-            ifc_file: path of the IFC file, which is checked
-
-        Returns:
-            all_guids_unique: boolean
-                          (true: all guids are unique
-                           false: one or more guids are not unique)
-
-           double_guid: dict
-
-        """
-        # TODO bring output into the log
-        used_guids: dict[str, ifcos.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
-        double_guids: dict[str, ifcos.entity_instance] = dict() # dict of elements with guids, which are not unique
-        all_guids_unique = True
-
-        for inst in ifc_file.file:
-           if hasattr(inst, "GlobalId"):
-               guid = inst.GlobalId
-               name = inst.Name
-               # print(guid)
-               if guid in used_guids:
-                   double_guids[guid] = inst
-                   all_guids_unique = False
-               else:
-                   used_guids[guid] = inst
-
-        return (all_guids_unique, double_guids)
-
-    def run_check_guid_empty(self, ifc_file) -> (bool, dict):
-        """check it there is/are guid/s, which is/are empty in the IFC file
-
-        Input:
-            ifc_file: path of the IFC file, which is checked
-
-        Returns:
-            all_guids_filled: boolean
-                          (true: all guids has a value (not empty)
-                           false: one or more guids has not value (empty))
-
-           empty_guid: dict
-
-        """
-
-        used_guids: dict[str, ifcos.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
-        empty_guids: dict[str, ifcos.entity_instance] = dict() # dict of elements with guids, which are empty
-        all_guids_filled = True
-        guid_empty_no = 0 # count the number of guids without value (empty), this number is used to make unique identifier
-        for inst in ifc_file.file:
-           if hasattr(inst, "GlobalId"):
-               guid = inst.GlobalId
-               name = inst.Name
-               if guid == '':
-                   all_guids_filled = False
-                   guid_empty_no = guid_empty_no + 1
-                   name_dict = name + '--' + str(guid_empty_no)
-                   empty_guids[name_dict] = inst
-               else:
-                   used_guids[guid] = inst
-
-        return (all_guids_filled, empty_guids)
-
-    @staticmethod
-    def run_check_ifc_version(ifc: ifcos.file) -> (bool, str):
-        """
-        Checks the IFC version.
-
-        Only IFC4 files are valid for bim2sim.
-
-        Attention: no Error is raised anymore.
-
-        Args:
-            ifc: ifc file loaded with IfcOpenShell
-        Return:
-            version_error: True if version NOT fit
-            ifc_version: version of the ifc file
-        """
-        schema = ifc.schema
-        if "IFC4" not in schema:
-            version_error = True
-            # raise TypeError(f"Loaded IFC file is of type {schema} but only IFC4"
-            #                 f"is supported. Please ask the creator of the model"
-            #                 f" to provide a valid IFC4 file.")
-        else:
-            version_error = False
-        return (version_error, schema)
 
     @staticmethod
     def run_ids_check_on_ifc(ifc_file: str, ids_file: str, report_html: bool = False, log_path: str = None) -> bool:
@@ -528,6 +440,112 @@ class CheckIfcBPS(CheckIfc):
                                        'related building element associated',
                                        error)
         return error
+
+
+class CheckLogicBase():
+    """Provides logic for ifc files checking regarding simulation.
+
+    This is a base class. This base class includes all check logic, which is
+    useful for all checking use cases.
+    """
+
+    def run_check_guid_unique(ifc_file) -> (bool, dict):
+        """check the uniqueness of the guids of the IFC file
+
+        Input:
+            ifc_file: path of the IFC file, which is checked
+
+        Returns:
+            all_guids_unique: boolean
+                          (true: all guids are unique
+                           false: one or more guids are not unique)
+
+           double_guid: dict
+
+        """
+        # TODO bring output into the log
+        used_guids: dict[str, ifcos.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
+        double_guids: dict[str, ifcos.entity_instance] = dict() # dict of elements with guids, which are not unique
+        all_guids_unique = True
+
+        for inst in ifc_file.file:
+           if hasattr(inst, "GlobalId"):
+               guid = inst.GlobalId
+               name = inst.Name
+               # print(guid)
+               if guid in used_guids:
+                   double_guids[guid] = inst
+                   all_guids_unique = False
+               else:
+                   used_guids[guid] = inst
+
+        return (all_guids_unique, double_guids)
+
+    def run_check_guid_empty(ifc_file) -> (bool, dict):
+        """check it there is/are guid/s, which is/are empty in the IFC file
+
+        Input:
+            ifc_file: path of the IFC file, which is checked
+
+        Returns:
+            all_guids_filled: boolean
+                          (true: all guids has a value (not empty)
+                           false: one or more guids has not value (empty))
+
+           empty_guid: dict
+
+        """
+
+        used_guids: dict[str, ifcos.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
+        empty_guids: dict[str, ifcos.entity_instance] = dict() # dict of elements with guids, which are empty
+        all_guids_filled = True
+        guid_empty_no = 0 # count the number of guids without value (empty), this number is used to make unique identifier
+        for inst in ifc_file.file:
+           if hasattr(inst, "GlobalId"):
+               guid = inst.GlobalId
+               name = inst.Name
+               if guid == '':
+                   all_guids_filled = False
+                   guid_empty_no = guid_empty_no + 1
+                   name_dict = name + '--' + str(guid_empty_no)
+                   empty_guids[name_dict] = inst
+               else:
+                   used_guids[guid] = inst
+
+        return (all_guids_filled, empty_guids)
+
+
+    @staticmethod
+    def run_check_ifc_version(ifc: ifcos.file) -> (bool, str):
+        """
+        Checks the IFC version.
+
+        Only IFC4 files are valid for bim2sim.
+
+        Attention: no Error is raised anymore.
+
+        Args:
+            ifc: ifc file loaded with IfcOpenShell
+        Return:
+            version_error: True if version NOT fit
+            ifc_version: version of the ifc file
+        """
+        schema = ifc.schema
+        if "IFC4" not in schema:
+            version_error = True
+            # raise TypeError(f"Loaded IFC file is of type {schema} but only IFC4"
+            #                 f"is supported. Please ask the creator of the model"
+            #                 f" to provide a valid IFC4 file.")
+        else:
+            version_error = False
+        return (version_error, schema)
+
+
+class CheckLogicBPS(CheckLogicBase):
+    """Provides additional logic for ifc files checking regarding BPS."""
+
+
+
 
 if __name__ == '__main__':
     pass
