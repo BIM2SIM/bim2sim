@@ -219,8 +219,6 @@ release:dev-PluginHKESim-py3.11:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
     TAG: dev-PluginHKESim-py3.11
     DOCKERFILE: bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
-  needs:
-    - release:dev-PluginAixLib-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -504,8 +502,6 @@ release:main-PluginOpenFOAM-py3.11:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.10"
     TAG: main-PluginOpenFOAM-py3.11
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
-  needs:
-    - release:main-PluginEnergyPlus-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -520,8 +516,6 @@ release:main-PluginLCA-py3.10:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
     TAG: main-PluginLCA-py3.10
     DOCKERFILE: bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
-  needs:
-    - release:main-PluginEnergyPlus-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -536,8 +530,6 @@ release:main-PluginLCA-py3.11:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
     TAG: main-PluginLCA-py3.11
     DOCKERFILE: bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
-  needs:
-    - release:main-PluginEnergyPlus-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
