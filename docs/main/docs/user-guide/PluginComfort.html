@@ -57,6 +57,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#test-install">Test install</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#structure-of-the-plugin">Structure of the plugin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#comfort-specific-tasks">Comfort specific tasks</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#add-comfort-settings">Add Comfort Settings</a></li>
@@ -85,6 +86,8 @@
 <li class="toctree-l2"><a class="reference internal" href="PluginAixLib.html">PluginAixLib</a></li>
 <li class="toctree-l2"><a class="reference internal" href="PluginHKESim.html">PluginHKESim</a></li>
 <li class="toctree-l2"><a class="reference internal" href="PluginLCA.html">PluginLCA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginOpenFOAM.html">PluginOpenFOAM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="User_hints.html">General hints and howtos</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
@@ -146,6 +149,14 @@ json template.</p>
 <h3>Test install<a class="headerlink" href="#test-install" title="Permalink to this heading"></a></h3>
 </section>
 </section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
+<p>Please also take a look at
+<code class="docutils literal notranslate"><span class="pre">bim2sim/plugins/PluginComfort/bim2sim_comfort/examples</span></code>, which provides some
+runnable examples for the Comfort plugin. You can use these examples to test your
+installation and learn from them. Additionally, they serve as good starting
+points for your own projects.”</p>
+</section>
 <section id="structure-of-the-plugin">
 <h2>Structure of the plugin<a class="headerlink" href="#structure-of-the-plugin" title="Permalink to this heading"></a></h2>
 <p>The structure of the plugin extends the structure of the <a class="reference internal" href="PluginEnergyPlus.html"><span class="doc std std-doc">PluginEnergyPlus
@@ -189,7 +200,7 @@ references, which increases the robustness of the EnergyPlus simulation.</p>
 </section>
 <section id="create-result-dataframe-for-comfort-analysis">
 <h3>Create result dataframe for comfort analysis<a class="headerlink" href="#create-result-dataframe-for-comfort-analysis" title="Permalink to this heading"></a></h3>
-<p id="comf-result-df"><a class="reference internal" href="#CreateResultDF"><span class="xref myst">Go to CreateResultDF</span></a>
+<p id="comf-result-df"><a class="reference internal" href="../code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF" title="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF"><span class="xref myst py py-class">Go to CreateResultDF</span></a>
 This task creates a result dataframe in the same structure as the other
 plugins.</p>
 </section>
@@ -223,7 +234,7 @@ generated from the EnergyPlus output csv file, using the tool of your choice
 <h3>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this heading"></a></h3>
 </section>
 <section id="default-tasks">
-<h3>Default tasks<a class="headerlink" href="#default-tasks" title="Permalink to this heading"></a></h3>
+<span id="comfort-default-tasks"></span><h3>Default tasks<a class="headerlink" href="#default-tasks" title="Permalink to this heading"></a></h3>
 </section>
 <section id="additional-templates">
 <h3>Additional templates<a class="headerlink" href="#additional-templates" title="Permalink to this heading"></a></h3>

@@ -11,4 +11,6 @@
    user-guide/PluginAixLib
    user-guide/PluginHKESim
    user-guide/PluginLCA
+   user-guide/PluginOpenFOAM
+   user-guide/User_hints.md
 ```
