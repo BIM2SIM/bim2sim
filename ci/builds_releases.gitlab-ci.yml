@@ -1,6 +1,7 @@
 stages:
   - build
-  - release
+  - release_modelica
+  - release_energyplus
 
 
 .base_docker_build: &base_docker_build
@@ -25,8 +26,12 @@ stages:
   stage: build
   <<: *base_build_template
 
-.release_template: &release_template
-  stage: release
+.release_modelica_template: &release_modelica_template
+  stage: release_modelica
+  <<: *base_build_template
+
+.release_energyplus_template: &release_energyplus_template
+  stage: release_energyplus
   <<: *base_build_template
 
 .build_template_dymola: &build_template_dymola
@@ -44,6 +49,7 @@ stages:
     - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
     - docker push $CI_REGISTRY/bim2sim:$TAG
 
+# Builds
 # Development branch base builds
 build:py3.10-occ7.7.0:
   <<: *build_template
@@ -72,8 +78,6 @@ build:py3.11-occ7.7.0:
         - pyproject.toml
         - .gitlab-ci.yml
         - bim2sim/plugins/**/*.Dockerfile
-
-
 
 # Build EnergyPlus images
 build:energyplus-py3.10:
@@ -137,10 +141,10 @@ build:dymola2022-py3.11:
         - pyproject.toml
         - .gitlab-ci.yml
 
-# # Releases
-# Development branch plugin releases
+# Releases:
+# Development branch plugin builds
 release:dev-PluginTEASER-py3.10:
-  <<: *release_template
+  <<: *release_modelica_template
   variables:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
     TAG: dev-PluginTEASER-py3.10
@@ -154,7 +158,7 @@ release:dev-PluginTEASER-py3.10:
         - .gitlab-ci.yml
 
 release:dev-PluginTEASER-py3.11:
-  <<: *release_template
+  <<: *release_modelica_template
   variables:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
     TAG: dev-PluginTEASER-py3.11
@@ -168,7 +172,7 @@ release:dev-PluginTEASER-py3.11:
         - .gitlab-ci.yml
 
 release:dev-PluginAixLib-py3.10:
-  <<: *release_template
+  <<: *release_modelica_template
   variables:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
     TAG: dev-PluginAixLib-py3.10
@@ -182,7 +186,7 @@ release:dev-PluginAixLib-py3.10:
         - .gitlab-ci.yml
 
 release:dev-PluginAixLib-py3.11:
-  <<: *release_template
+  <<: *release_modelica_template
   variables:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
     TAG: dev-PluginAixLib-py3.11
@@ -196,7 +200,7 @@ release:dev-PluginAixLib-py3.11:
         - .gitlab-ci.yml
 
 release:dev-PluginHKESim-py3.10:
-  <<: *release_template
+  <<: *release_modelica_template
   variables:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
     TAG: dev-PluginHKESim-py3.10
@@ -210,7 +214,7 @@ release:dev-PluginHKESim-py3.10:
         - .gitlab-ci.yml
 
 release:dev-PluginHKESim-py3.11:
-  <<: *release_template
+  <<: *release_modelica_template
   variables:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
     TAG: dev-PluginHKESim-py3.11
@@ -226,13 +230,11 @@ release:dev-PluginHKESim-py3.11:
         - .gitlab-ci.yml
 
 release:dev-PluginEnergyPlus-py3.10:
-  <<: *release_template
+  <<: *release_energyplus_template
   variables:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.10"
     TAG: dev-PluginEnergyPlus-py3.10
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
-  needs:
-    - release:dev-PluginAixLib-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -242,13 +244,11 @@ release:dev-PluginEnergyPlus-py3.10:
         - .gitlab-ci.yml
 
 release:dev-PluginEnergyPlus-py3.11:
-  <<: *release_template
+  <<: *release_energyplus_template
   variables:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.11"
     TAG: dev-PluginEnergyPlus-py3.11
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
-  needs:
-    - release:dev-PluginAixLib-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -258,13 +258,11 @@ release:dev-PluginEnergyPlus-py3.11:
         - .gitlab-ci.yml
 
 release:dev-PluginComfort-py3.10:
-  <<: *release_template
+  <<: *release_energyplus_template
   variables:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.10"
     TAG: dev-PluginComfort-py3.10
     DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
-  needs:
-    - release:dev-PluginAixLib-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -274,13 +272,11 @@ release:dev-PluginComfort-py3.10:
         - .gitlab-ci.yml
 
 release:dev-PluginComfort-py3.11:
-  <<: *release_template
+  <<: *release_energyplus_template
   variables:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.11"
     TAG: dev-PluginComfort-py3.11
     DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
-  needs:
-    - release:dev-PluginEnergyPlus-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -290,13 +286,11 @@ release:dev-PluginComfort-py3.11:
         - .gitlab-ci.yml
 
 release:dev-PluginOpenFOAM-py3.10:
-  <<: *release_template
+  <<: *release_energyplus_template
   variables:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.10"
     TAG: dev-PluginOpenFOAM-py3.10
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
-  needs:
-    - release:dev-PluginEnergyPlus-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -306,13 +300,11 @@ release:dev-PluginOpenFOAM-py3.10:
         - .gitlab-ci.yml
 
 release:dev-PluginOpenFOAM-py3.11:
-  <<: *release_template
+  <<: *release_energyplus_template
   variables:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.11"
     TAG: dev-PluginOpenFOAM-py3.11
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
-  needs:
-    - release:dev-PluginEnergyPlus-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -323,13 +315,11 @@ release:dev-PluginOpenFOAM-py3.11:
 
 # TODO PluginLCA currently has no dependencies, but might have in the future
 release:dev-PluginLCA-py3.10:
-  <<: *release_template
+  <<: *release_modelica_template
   variables:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
     TAG: dev-PluginLCA-py3.10
     DOCKERFILE: bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
-  needs:
-    - release:dev-PluginEnergyPlus-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -340,13 +330,11 @@ release:dev-PluginLCA-py3.10:
 
 # TODO PluginLCA currently has no dependencies, but might have in the future
 release:dev-PluginLCA-py3.11:
-  <<: *release_template
+  <<: *release_modelica_template
   variables:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
     TAG: dev-PluginLCA-py3.11
     DOCKERFILE: bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
-  needs:
-    - release:dev-PluginEnergyPlus-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -357,7 +345,7 @@ release:dev-PluginLCA-py3.11:
 
 # Main branch plugin releases
 release:main-PluginTEASER-py3.10:
-  <<: *release_template
+  <<: *release_modelica_template
   variables:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
     TAG: main-PluginTEASER-py3.10
@@ -371,7 +359,7 @@ release:main-PluginTEASER-py3.10:
         - .gitlab-ci.yml
 
 release:main-PluginTEASER-py3.11:
-  <<: *release_template
+  <<: *release_modelica_template
   variables:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
     TAG: main-PluginTEASER-py3.11
@@ -385,7 +373,7 @@ release:main-PluginTEASER-py3.11:
         - .gitlab-ci.yml
 
 release:main-PluginAixLib-py3.10:
-  <<: *release_template
+  <<: *release_modelica_template
   variables:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
     TAG: main-PluginAixLib-py3.10
@@ -399,7 +387,7 @@ release:main-PluginAixLib-py3.10:
         - .gitlab-ci.yml
 
 release:main-PluginAixLib-py3.11:
-  <<: *release_template
+  <<: *release_modelica_template
   variables:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
     TAG: main-PluginAixLib-py3.11
@@ -413,7 +401,7 @@ release:main-PluginAixLib-py3.11:
         - .gitlab-ci.yml
 
 release:main-PluginHKESim-py3.10:
-  <<: *release_template
+  <<: *release_modelica_template
   variables:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
     TAG: main-PluginHKESim-py3.10
@@ -427,13 +415,11 @@ release:main-PluginHKESim-py3.10:
         - .gitlab-ci.yml
 
 release:main-PluginHKESim-py3.11:
-  <<: *release_template
+  <<: *release_modelica_template
   variables:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
     TAG: main-PluginHKESim-py3.11
     DOCKERFILE: bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
-  needs:
-    - release:main-PluginAixLib-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -443,13 +429,11 @@ release:main-PluginHKESim-py3.11:
         - .gitlab-ci.yml
 
 release:main-PluginEnergyPlus-py3.10:
-  <<: *release_template
+  <<: *release_energyplus_template
   variables:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.10"
     TAG: main-PluginEnergyPlus-py3.10
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
-  needs:
-    - release:main-PluginAixLib-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -459,13 +443,11 @@ release:main-PluginEnergyPlus-py3.10:
         - .gitlab-ci.yml
 
 release:main-PluginEnergyPlus-py3.11:
-  <<: *release_template
+  <<: *release_energyplus_template
   variables:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.11"
     TAG: main-PluginEnergyPlus-py3.11
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
-  needs:
-    - release:main-PluginAixLib-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -475,13 +457,11 @@ release:main-PluginEnergyPlus-py3.11:
         - .gitlab-ci.yml
 
 release:main-PluginComfort-py3.10:
-  <<: *release_template
+  <<: *release_energyplus_template
   variables:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.10"
     TAG: main-PluginComfort-py3.10
     DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
-  needs:
-    - release:main-PluginAixLib-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -491,13 +471,11 @@ release:main-PluginComfort-py3.10:
         - .gitlab-ci.yml
 
 release:main-PluginComfort-py3.11:
-  <<: *release_template
+  <<: *release_energyplus_template
   variables:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.10"
     TAG: main-PluginComfort-py3.11
     DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
-  needs:
-    - release:main-PluginAixLib-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -507,13 +485,11 @@ release:main-PluginComfort-py3.11:
         - .gitlab-ci.yml
 
 release:main-PluginOpenFOAM-py3.10:
-  <<: *release_template
+  <<: *release_energyplus_template
   variables:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.10"
     TAG: main-PluginOpenFOAM-py3.10
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
-  needs:
-    - release:main-PluginEnergyPlus-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -523,7 +499,7 @@ release:main-PluginOpenFOAM-py3.10:
         - .gitlab-ci.yml
 
 release:main-PluginOpenFOAM-py3.11:
-  <<: *release_template
+  <<: *release_energyplus_template
   variables:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.10"
     TAG: main-PluginOpenFOAM-py3.11
@@ -539,7 +515,7 @@ release:main-PluginOpenFOAM-py3.11:
         - .gitlab-ci.yml
 
 release:main-PluginLCA-py3.10:
-  <<: *release_template
+  <<: *release_modelica_template
   variables:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
     TAG: main-PluginLCA-py3.10
@@ -555,7 +531,7 @@ release:main-PluginLCA-py3.10:
         - .gitlab-ci.yml
 
 release:main-PluginLCA-py3.11:
-  <<: *release_template
+  <<: *release_modelica_template
   variables:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
     TAG: main-PluginLCA-py3.11
