@@ -527,7 +527,7 @@ class CheckIfcBPS(CheckIfc):
                                        'The space boundary does not have a '
                                        'related building element associated',
                                        error)
-        # return error
+        return error
 
 if __name__ == '__main__':
     pass
