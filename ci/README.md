@@ -38,5 +38,3 @@ that those images are not used during CI, only for later usage.
 
 As multiple images are build and pushed in parallel, the kubernetes runner sometimes fails. 
 If this is the case, just go to the mirrored `bim2sim` in gitlab and re-trigger the job.
-Possible #TODO: If this happens too often, consider running the jobs the field `resource_group: image_build_push`
-

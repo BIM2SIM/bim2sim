@@ -73,7 +73,72 @@ build:py3.11-occ7.7.0:
         - .gitlab-ci.yml
         - bim2sim/plugins/**/*.Dockerfile
 
-# Development branch plugin builds
+
+
+# Build EnergyPlus images
+build:energyplus-py3.10:
+  <<: *build_template
+  variables:
+    FROM_BUILD_TAG: "py3.10-occ7.7.0"
+    TAG: energyplus9.4.0-py3.10
+    DOCKERFILE: ci/EnergyPlus.Dockerfile
+  needs:
+    - build:py3.10-occ7.7.0
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
+      changes:
+        - ci/*
+        - EnergyPlus.Dockerfile
+        - pyproject.toml
+        - .gitlab-ci.yml
+
+build:energyplus-py3.11:
+  <<: *build_template
+  variables:
+    FROM_BUILD_TAG: "py3.11-occ7.7.0"
+    TAG: energyplus9.4.0-py3.11
+    DOCKERFILE: ci/EnergyPlus.Dockerfile
+  needs:
+    - build:py3.11-occ7.7.0
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
+      changes:
+        - ci/*
+        - EnergyPlus.Dockerfile
+        - pyproject.toml
+        - .gitlab-ci.yml
+
+# Build dymola images
+build:dymola2022-py3.10:
+  <<: *build_template_dymola
+  variables:
+    PYTHON_VERSION: "3.10"
+    FROM_BUILD_TAG: "Dymola_2022"
+    TAG: dymola2022-py3.10
+    DOCKERFILE: ci/Dymola.Dockerfile
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
+      changes:
+        - ci/*
+        - pyproject.toml
+        - .gitlab-ci.yml
+
+build:dymola2022-py3.11:
+  <<: *build_template_dymola
+  variables:
+    PYTHON_VERSION: "3.11"
+    FROM_BUILD_TAG: "Dymola_2022"
+    TAG: dymola2022-py3.11
+    DOCKERFILE: ci/Dymola.Dockerfile
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
+      changes:
+        - ci/*
+        - pyproject.toml
+        - .gitlab-ci.yml
+
+# # Releases
+# Development branch plugin releases
 release:dev-PluginTEASER-py3.10:
   <<: *release_template
   variables:
@@ -150,6 +215,8 @@ release:dev-PluginHKESim-py3.11:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
     TAG: dev-PluginHKESim-py3.11
     DOCKERFILE: bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
+  needs:
+    - release:dev-PluginAixLib-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -164,6 +231,8 @@ release:dev-PluginEnergyPlus-py3.10:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.10"
     TAG: dev-PluginEnergyPlus-py3.10
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
+  needs:
+    - release:dev-PluginAixLib-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -178,6 +247,8 @@ release:dev-PluginEnergyPlus-py3.11:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.11"
     TAG: dev-PluginEnergyPlus-py3.11
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
+  needs:
+    - release:dev-PluginAixLib-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -192,6 +263,8 @@ release:dev-PluginComfort-py3.10:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.10"
     TAG: dev-PluginComfort-py3.10
     DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
+  needs:
+    - release:dev-PluginAixLib-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -206,6 +279,8 @@ release:dev-PluginComfort-py3.11:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.11"
     TAG: dev-PluginComfort-py3.11
     DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
+  needs:
+    - release:dev-PluginEnergyPlus-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -220,6 +295,8 @@ release:dev-PluginOpenFOAM-py3.10:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.10"
     TAG: dev-PluginOpenFOAM-py3.10
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
+  needs:
+    - release:dev-PluginEnergyPlus-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -234,6 +311,8 @@ release:dev-PluginOpenFOAM-py3.11:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.11"
     TAG: dev-PluginOpenFOAM-py3.11
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
+  needs:
+    - release:dev-PluginEnergyPlus-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -249,6 +328,8 @@ release:dev-PluginLCA-py3.10:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
     TAG: dev-PluginLCA-py3.10
     DOCKERFILE: bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
+  needs:
+    - release:dev-PluginEnergyPlus-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -264,6 +345,8 @@ release:dev-PluginLCA-py3.11:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
     TAG: dev-PluginLCA-py3.11
     DOCKERFILE: bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
+  needs:
+    - release:dev-PluginEnergyPlus-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -271,36 +354,6 @@ release:dev-PluginLCA-py3.11:
         - bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
-
-# Build dymola images
-build:dymola2022-py3.10:
-  <<: *build_template_dymola
-  variables:
-    PYTHON_VERSION: "3.10"
-    FROM_BUILD_TAG: "Dymola_2022"
-    TAG: dymola2022-py3.10
-    DOCKERFILE: ci/Dymola.Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
-      changes:
-        - ci/*
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dymola2022-py3.11:
-  <<: *build_template_dymola
-  variables:
-    PYTHON_VERSION: "3.11"
-    FROM_BUILD_TAG: "Dymola_2022"
-    TAG: dymola2022-py3.11
-    DOCKERFILE: ci/Dymola.Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
-      changes:
-        - ci/*
-        - pyproject.toml
-        - .gitlab-ci.yml
-
 
 # Main branch plugin releases
 release:main-PluginTEASER-py3.10:
@@ -379,6 +432,8 @@ release:main-PluginHKESim-py3.11:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
     TAG: main-PluginHKESim-py3.11
     DOCKERFILE: bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
+  needs:
+    - release:main-PluginAixLib-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -393,6 +448,8 @@ release:main-PluginEnergyPlus-py3.10:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.10"
     TAG: main-PluginEnergyPlus-py3.10
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
+  needs:
+    - release:main-PluginAixLib-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -407,6 +464,8 @@ release:main-PluginEnergyPlus-py3.11:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.11"
     TAG: main-PluginEnergyPlus-py3.11
     DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
+  needs:
+    - release:main-PluginAixLib-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -421,6 +480,8 @@ release:main-PluginComfort-py3.10:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.10"
     TAG: main-PluginComfort-py3.10
     DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
+  needs:
+    - release:main-PluginAixLib-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -435,6 +496,8 @@ release:main-PluginComfort-py3.11:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.10"
     TAG: main-PluginComfort-py3.11
     DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
+  needs:
+    - release:main-PluginAixLib-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -449,6 +512,8 @@ release:main-PluginOpenFOAM-py3.10:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.10"
     TAG: main-PluginOpenFOAM-py3.10
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
+  needs:
+    - release:main-PluginEnergyPlus-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -463,6 +528,8 @@ release:main-PluginOpenFOAM-py3.11:
     FROM_BUILD_TAG: "energyplus9.4.0-py3.10"
     TAG: main-PluginOpenFOAM-py3.11
     DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
+  needs:
+    - release:main-PluginEnergyPlus-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -477,6 +544,8 @@ release:main-PluginLCA-py3.10:
     FROM_BUILD_TAG: "py3.10-occ7.7.0"
     TAG: main-PluginLCA-py3.10
     DOCKERFILE: bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
+  needs:
+    - release:main-PluginEnergyPlus-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
@@ -491,44 +560,12 @@ release:main-PluginLCA-py3.11:
     FROM_BUILD_TAG: "py3.11-occ7.7.0"
     TAG: main-PluginLCA-py3.11
     DOCKERFILE: bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
+  needs:
+    - release:main-PluginEnergyPlus-py3.11
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main"'
       changes:
         - ci/*
         - bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-
-# Build EnergyPlus images
-build:energyplus-py3.10:
-  <<: *build_template
-  variables:
-    FROM_BUILD_TAG: "py3.10-occ7.7.0"
-    TAG: energyplus9.4.0-py3.10
-    DOCKERFILE: ci/EnergyPlus.Dockerfile
-  needs:
-    - build:py3.10-occ7.7.0
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
-      changes:
-        - ci/*
-        - EnergyPlus.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:energyplus-py3.11:
-  <<: *build_template
-  variables:
-    FROM_BUILD_TAG: "py3.11-occ7.7.0"
-    TAG: energyplus9.4.0-py3.11
-    DOCKERFILE: ci/EnergyPlus.Dockerfile
-  needs:
-    - build:py3.11-occ7.7.0
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
-      changes:
-        - ci/*
-        - EnergyPlus.Dockerfile
         - pyproject.toml
         - .gitlab-ci.yml
