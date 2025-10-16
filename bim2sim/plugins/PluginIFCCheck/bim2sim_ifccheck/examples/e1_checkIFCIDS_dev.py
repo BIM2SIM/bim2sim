@@ -31,11 +31,11 @@ def run_simple_project():
     # test_rsrc_path = Path(__file__).parent.parent.parent.parent / 'resources'
     #
     # no error ifc file
-    # ifc_paths = {
-    #     IFCDomain.arch:
-    #         Path(bim2sim.__file__).parent.parent /
-    #         'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
-    # }
+    ifc_paths = {
+        IFCDomain.arch:
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
+    }
     # ifc_paths = {
     #     IFCDomain.arch:
     #         Path(bim2sim.__file__).parent.parent /
@@ -59,11 +59,11 @@ def run_simple_project():
 
     # small example file with errors
     # but is not correct at all
-    ifc_paths = {
-        IFCDomain.arch:
-            Path(bim2sim.__file__).parent.parent.parent.parent /
-            '12_ifc_check_ids/03_ifc_veronika/2024-04-23_3rooms_240317_Heater_AirTerminal_Table_with_SB_errors.ifc',
-    }
+    # ifc_paths = {
+    #     IFCDomain.arch:
+    #         Path(bim2sim.__file__).parent.parent.parent.parent /
+    #         '12_ifc_check_ids/03_ifc_veronika/2024-04-23_3rooms_240317_Heater_AirTerminal_Table_with_SB_errors.ifc',
+    # }
 
     project = Project.create(
         project_path, ifc_paths, PluginIFCCheck)
@@ -154,12 +154,12 @@ def run_simple_project():
     # use. In our case this is:
 
     # Run the project with pre-configured answers for decisions
-    answers = ('Other',
-               )
-    handler = DebugDecisionHandler(answers)
-    handler.handle(project.run())
+    # answers = ('Other',
+    #            )
+    # Handler = DebugDecisionHandler(answers)
+    # handler.handle(project.run())
 
-    # run_project(project, ConsoleDecisionHandler())
+    run_project(project, ConsoleDecisionHandler())
 
     # After the project is finished, we can review the results. As we don't
     # create any simulation model with the template Plugin, our results are
