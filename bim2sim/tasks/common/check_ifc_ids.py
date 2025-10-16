@@ -4,7 +4,10 @@ import os
 
 from pathlib import Path
 
+from typing import Callable  # , Dict
+
 import ifcopenshell as ifcos # TODO check which modules are used and append them to the line below
+from ifcopenshell import entity_instance  # ,file
 import ifctester
 import ifctester.ids
 import ifctester.reporter
@@ -14,6 +17,7 @@ import webbrowser
 from mako.lookup import TemplateLookup
 from mako.template import Template
 
+from bim2sim.elements import bps_elements as bps  # , hvac_elements as hvac
 from bim2sim.tasks.base import ITask, Playground
 
 from bim2sim.kernel.ifc_file import IfcFileClass
@@ -42,7 +46,7 @@ class CheckIfc(ITask):
         self.elements: list = []
         self.ps_summary: dict = {}
         self.ifc_units: dict = {}
-        self.sub_inst_cls = None
+        self.sub_inst_cls = None  # uses for filerting prepare check
         self.plugin = None
 
     def run(self, ifc_files: [IfcFileClass]):
@@ -54,6 +58,7 @@ class CheckIfc(ITask):
         print("Task CheckIfc says Hello")
 
         self.logger.info(f"Processing IFC Checks with ifcTester")
+
         base_path = self.paths.ifc_base
         # begin part from load_ifc.py
         # used to get path of the ifc file for ifctester
@@ -82,7 +87,41 @@ class CheckIfc(ITask):
                     "all checks of the specifications of this IDS pass: {}".format(all_spec_pass))
 
         self.logger.info(f"Processing IFC Checks without ifcTester")
+
+        paths = self.paths  # TODO needed in if loop, here need better solution
         for ifc_file in ifc_files:
+            # checks are domain specific
+            # Reset class based on domain to run the right check.
+            # Not pretty but works. This might be refactored in #170
+            if ifc_file.domain == IFCDomain.hydraulic:
+                self.logger.info(f"Processing HVAC-IfcCheck")  # todo
+            elif ifc_file.domain == IFCDomain.arch:
+                self.logger.info(f"Processing BPS-IfcCheck")  # todo
+                self.__class__ = CheckIfcBPS
+                self.__class__.__init__(self, self.playground)
+                self.paths = paths  # TODO needed in if loop, here need better solution
+            elif ifc_file.domain == IFCDomain.unknown:
+                self.logger.info(f"No domain specified for ifc file "
+                                 f"{ifc_file.ifc_file_name}, not processing "
+                                 f"any checks")
+                return
+            else:
+                self.logger.info(
+                    f"For the Domain {ifc_file.domain} no specific checks are"
+                    f" implemented currently. Just running the basic checks."
+                    f"")
+
+            ## begin copy form old ifc check (only tempory until new structure is working)
+            # prepare data for checking (filering)
+
+            self.sub_inst = ifc_file.file.by_type(self.sub_inst_cls)
+
+            # checking itself
+            self.error_summary_sub_inst = self.check_inst(
+                self.validate_sub_inst, self.sub_inst)
+
+            ## end copy form old ifc check (only tempory until new structure is working)
+
             # check uniqueness of GUIDs
             self.all_guids_unique, self.double_guids = self.run_check_guid_unique(ifc_file)
             list_guids_non_unique = list(self.double_guids.keys())
@@ -106,6 +145,56 @@ class CheckIfc(ITask):
             base_name = f"/{ifc_file.domain.name.upper()}_" \
                         f"{ifc_file.ifc_file_name[:-4]}"
             self._write_errors_to_html_table(base_name, ifc_file.domain)
+
+    ###### old ifc check, maybe stay here
+    @staticmethod
+    def check_inst(validation_function: Callable, elements: list):
+        """Uses sb_validation/ports/elements functions in order to check each
+        one and adds error to dictionary if object has errors. Combines the
+        (error) return of the specific validation function with the key (mostly
+        the GlobalID).
+
+        Args: validation_function: function that compiles all the
+        validations to be performed on the object (sb/port/instance) elements:
+        list containing all objects to be evaluates
+
+        Returns:
+            summary: summarized dictionary of errors, where the key is the
+                GUID + the ifc_type
+
+        """
+        summary = {}
+        for inst in elements:
+            error = validation_function(inst)
+            if len(error) > 0:
+                if hasattr(inst, 'GlobalId'):
+                    key = inst.GlobalId + ' ' + inst.is_a()
+                else:
+                    key = inst.is_a()
+                summary.update({key: error})
+        return summary
+
+    @staticmethod
+    def apply_validation_function(fct: bool, err_name: str, error: list):
+        """
+        Function to apply a validation to an instance, space boundary or
+        port, it stores the error to the list of errors.
+
+        Args:
+            fct: validation function to be applied
+            err_name: string that define the error
+            error: list of errors
+
+        """
+        if not fct:
+            error.append(err_name)
+
+    ###### old ifc check, maybe stay here
+
+    def validate_sub_inst(self, sub_inst: list) -> list:
+        raise NotImplementedError
+
+
 
     def run_check_guid_unique(self, ifc_file) -> (bool, dict):
         """check the uniqueness of the guids of the IFC file
@@ -367,6 +456,78 @@ class CheckIfc(ITask):
             if show_report:
                 # can comment out, if not the browser should show the report
                 webbrowser.open(f"file://{out_file.buffer.name}")
+
+
+
+class CheckIfcBPS(CheckIfc):
+    """
+    Check an IFC file, for a number of conditions (missing information,
+    incorrect information, etc.) that could lead on future tasks to
+    fatal errors.
+    """
+
+    def __init__(self, playground: Playground, ):
+        super().__init__(playground)
+        # used for preparing data for checking, is filder keyword
+        self.sub_inst_cls = 'IfcRelSpaceBoundary'
+        self.plugin = bps
+        self.space_indicator = True
+
+    @staticmethod
+    def _check_rel_space(bound: entity_instance):
+        """
+        Check that the space boundary relating space exists and has the
+        correct class.
+
+        Args:
+            bound: Space boundary IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return any(
+            [bound.RelatingSpace.is_a('IfcSpace') or
+             bound.RelatingSpace.is_a('IfcExternalSpatialElement')])
+
+    @staticmethod
+    def _check_rel_building_elem(bound: entity_instance):
+        """
+        Check that the space boundary related building element exists and has
+        the correct class.
+
+        Args:
+            bound: Space boundary IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        if bound.RelatedBuildingElement is not None:
+            return bound.RelatedBuildingElement.is_a('IfcElement')
+
+    def validate_sub_inst(self, bound: entity_instance) -> list:
+        """
+        Validation function for a space boundary that compiles all validation
+        functions.
+
+        Args:
+            bound: ifc space boundary entity
+
+        Returns:
+            error: list of errors found in the ifc space boundaries
+        """
+        error = []
+        self.apply_validation_function(self._check_rel_space(bound),
+                                       'RelatingSpace - '
+                                       'The space boundary does not have a '
+                                       'relating space associated', error)
+        self.apply_validation_function(self._check_rel_building_elem(bound),
+                                       'RelatedBuildingElement - '
+                                       'The space boundary does not have a '
+                                       'related building element associated',
+                                       error)
+        # return error
 
 if __name__ == '__main__':
     pass
