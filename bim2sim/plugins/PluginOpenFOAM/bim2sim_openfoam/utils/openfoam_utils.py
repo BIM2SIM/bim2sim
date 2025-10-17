@@ -243,10 +243,19 @@ class OpenFOAMUtils:
         return f"table ( {tuples_str} )"
 
     @staticmethod
-    def float_cutoff(val: float) -> float:
-        """Cut off long floats in OpenFOAM case files for higher stability
-        in regression tests."""
-        max_dig = 5
+    def float_cutoff(val: float, max_dig: int = 6) -> float:
+        """Round long float values after max_dig digits.
+
+        Round long float values val after max_dig digits in OpenFOAM case
+        files for higher stability in regression tests.
+
+        Args:
+            val: float value to be rounded.
+            max_dig: maximum number of digits in float values.
+
+        Returns:
+            rounded float value.
+        """
         if val is None:
             return val
         return round(val, max_dig)

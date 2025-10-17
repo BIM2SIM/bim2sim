@@ -1,7 +1,7 @@
 [submodule "test/resources"]
 	path = test/resources
 	url = https://github.com/BIM2SIM/bim2sim-test-resources.git
-    branch = 11-fix_openfoam_tests_windows
+    branch = main
 [submodule "butterfly"]
 	path = butterfly
 	url = https://github.com/BIM2SIM/butterfly.git
