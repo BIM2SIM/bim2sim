@@ -1,53 +1,62 @@
 ************* Module bim2sim
 bim2sim/__init__.py:11:7: W0718: Catching too general exception Exception (broad-exception-caught)
 ************* Module bim2sim.sim_settings
-bim2sim/sim_settings.py:374:0: C0301: Line too long (96/80) (line-too-long)
-bim2sim/sim_settings.py:403:0: C0301: Line too long (81/80) (line-too-long)
-bim2sim/sim_settings.py:412:0: C0301: Line too long (101/80) (line-too-long)
-bim2sim/sim_settings.py:422:0: C0301: Line too long (89/80) (line-too-long)
-bim2sim/sim_settings.py:1:0: C0302: Too many lines in module (1223/1000) (too-many-lines)
-bim2sim/sim_settings.py:326:9: W0511: TODO #556 Do not check default path for existence because this might (fixme)
-bim2sim/sim_settings.py:473:29: W0511: todo ast.literal_eval is safer but not safe. (fixme)
-bim2sim/sim_settings.py:642:5: W0511: Todo maybe make every aggregation its own setting with LOD in the future, (fixme)
-bim2sim/sim_settings.py:15:0: C0414: Import alias does not rename original package (useless-import-alias)
-bim2sim/sim_settings.py:15:0: C0414: Import alias does not rename original package (useless-import-alias)
-bim2sim/sim_settings.py:64:12: R1704: Redefining argument with the local name 'name' (redefined-argument-from-local)
-bim2sim/sim_settings.py:106:0: R0902: Too many instance attributes (8/7) (too-many-instance-attributes)
-bim2sim/sim_settings.py:120:4: R0913: Too many arguments (6/5) (too-many-arguments)
-bim2sim/sim_settings.py:151:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/sim_settings.py:171:26: W0613: Unused argument 'bound_simulation_settings' (unused-argument)
-bim2sim/sim_settings.py:171:53: W0613: Unused argument 'value' (unused-argument)
-bim2sim/sim_settings.py:191:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/sim_settings.py:192:4: R0913: Too many arguments (7/5) (too-many-arguments)
-bim2sim/sim_settings.py:209:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/sim_settings.py:213:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/sim_settings.py:221:8: R1720: Unnecessary "else" after "raise", remove the "else" and de-indent the code inside it (no-else-raise)
-bim2sim/sim_settings.py:246:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/sim_settings.py:254:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/sim_settings.py:255:4: R0913: Too many arguments (7/5) (too-many-arguments)
-bim2sim/sim_settings.py:293:8: R1705: Unnecessary "else" after "return", remove the "else" and de-indent the code inside it (no-else-return)
-bim2sim/sim_settings.py:302:12: R1720: Unnecessary "elif" after "raise", remove the leading "el" from "elif" (no-else-raise)
-bim2sim/sim_settings.py:312:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/sim_settings.py:346:20: W0707: Consider explicitly re-raising using 'except TypeError as exc' and 'raise TypeError(f'Could not convert the simulation setting for {self.name} into a path, please check the path.') from exc' (raise-missing-from)
-bim2sim/sim_settings.py:358:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/sim_settings.py:360:8: R1720: Unnecessary "else" after "raise", remove the "else" and de-indent the code inside it (no-else-raise)
-bim2sim/sim_settings.py:437:17: W0613: Unused argument 'filters' (unused-argument)
-bim2sim/sim_settings.py:462:16: R1720: Unnecessary "else" after "raise", remove the "else" and de-indent the code inside it (no-else-raise)
-bim2sim/sim_settings.py:468:20: R1724: Unnecessary "elif" after "continue", remove the leading "el" from "elif" (no-else-continue)
-bim2sim/sim_settings.py:476:28: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/sim_settings.py:492:36: W0707: Consider explicitly re-raising using 'except AttributeError as exc' and 'raise AttributeError(f" Tried to create the enumeration {enum_type} but it doesn't exist.") from exc' (raise-missing-from)
-bim2sim/sim_settings.py:507:8: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/sim_settings.py:449:4: R0912: Too many branches (15/12) (too-many-branches)
-bim2sim/sim_settings.py:453:8: R1702: Too many nested blocks (7/5) (too-many-nested-blocks)
-bim2sim/sim_settings.py:636:0: C0115: Missing class docstring (missing-class-docstring)
-bim2sim/sim_settings.py:685:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/sim_settings.py:11:0: C0301: Line too long (96/80) (line-too-long)
+bim2sim/sim_settings.py:74:0: C0301: Line too long (99/80) (line-too-long)
+bim2sim/sim_settings.py:87:0: C0301: Line too long (92/80) (line-too-long)
+bim2sim/sim_settings.py:88:0: C0301: Line too long (83/80) (line-too-long)
+bim2sim/sim_settings.py:90:0: C0301: Line too long (94/80) (line-too-long)
+bim2sim/sim_settings.py:91:0: C0301: Line too long (82/80) (line-too-long)
+bim2sim/sim_settings.py:94:0: C0301: Line too long (84/80) (line-too-long)
+bim2sim/sim_settings.py:108:0: C0301: Line too long (94/80) (line-too-long)
+bim2sim/sim_settings.py:109:0: C0301: Line too long (85/80) (line-too-long)
+bim2sim/sim_settings.py:117:0: C0301: Line too long (103/80) (line-too-long)
+bim2sim/sim_settings.py:150:0: C0301: Line too long (116/80) (line-too-long)
+bim2sim/sim_settings.py:151:0: C0301: Line too long (99/80) (line-too-long)
+bim2sim/sim_settings.py:158:0: C0325: Unnecessary parens after 'not' keyword (superfluous-parens)
+bim2sim/sim_settings.py:161:0: C0301: Line too long (119/80) (line-too-long)
+bim2sim/sim_settings.py:176:0: C0301: Line too long (124/80) (line-too-long)
+bim2sim/sim_settings.py:186:0: C0301: Line too long (137/80) (line-too-long)
+bim2sim/sim_settings.py:193:0: C0301: Line too long (127/80) (line-too-long)
+bim2sim/sim_settings.py:194:0: C0301: Line too long (144/80) (line-too-long)
+bim2sim/sim_settings.py:222:0: C0301: Line too long (118/80) (line-too-long)
+bim2sim/sim_settings.py:1:0: C0302: Too many lines in module (1041/1000) (too-many-lines)
+bim2sim/sim_settings.py:267:29: W0511: todo ast.literal_eval is safer but not safe. (fixme)
+bim2sim/sim_settings.py:459:5: W0511: Todo maybe make every aggregation its own setting with LOD in the future, (fixme)
+bim2sim/sim_settings.py:18:0: C0414: Import alias does not rename original package (useless-import-alias)
+bim2sim/sim_settings.py:18:0: C0414: Import alias does not rename original package (useless-import-alias)
+bim2sim/sim_settings.py:34:12: R1704: Redefining argument with the local name 'name' (redefined-argument-from-local)
+bim2sim/sim_settings.py:131:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/sim_settings.py:137:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/sim_settings.py:140:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/sim_settings.py:145:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/sim_settings.py:156:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/sim_settings.py:166:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/sim_settings.py:181:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/sim_settings.py:190:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/sim_settings.py:192:12: R1720: Unnecessary "else" after "raise", remove the "else" and de-indent the code inside it (no-else-raise)
+bim2sim/sim_settings.py:204:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/sim_settings.py:208:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/sim_settings.py:212:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/sim_settings.py:217:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/sim_settings.py:230:23: W0613: Unused argument 'filters' (unused-argument)
+bim2sim/sim_settings.py:256:16: R1720: Unnecessary "else" after "raise", remove the "else" and de-indent the code inside it (no-else-raise)
+bim2sim/sim_settings.py:262:20: R1724: Unnecessary "elif" after "continue", remove the leading "el" from "elif" (no-else-continue)
+bim2sim/sim_settings.py:270:28: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/sim_settings.py:286:36: W0707: Consider explicitly re-raising using 'except AttributeError as exc' and 'raise AttributeError(f" Tried to create the enumeration {enum_type} but it doesn't exist.") from exc' (raise-missing-from)
+bim2sim/sim_settings.py:301:8: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/sim_settings.py:243:4: R0912: Too many branches (15/12) (too-many-branches)
+bim2sim/sim_settings.py:247:8: R1702: Too many nested blocks (7/5) (too-many-nested-blocks)
+bim2sim/sim_settings.py:453:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/sim_settings.py:502:0: C0115: Missing class docstring (missing-class-docstring)
+bim2sim/sim_settings.py:14:0: C0411: standard import "from enum import Enum" should be placed before "from pydantic import BaseModel, Field, model_validator, field_validator, FilePath, DirectoryPath" (wrong-import-order)
 ************* Module bim2sim.project
 bim2sim/project.py:193:0: C0301: Line too long (81/80) (line-too-long)
 bim2sim/project.py:244:0: C0301: Line too long (83/80) (line-too-long)
 bim2sim/project.py:302:0: C0301: Line too long (85/80) (line-too-long)
 bim2sim/project.py:32:5: W0511: todo for any reason wait() seems not to work on linux (fixme)
 bim2sim/project.py:262:9: W0511: TODO: decision system (fixme)
-bim2sim/project.py:406:9: W0511: TODO this might need changes due to handling of enums (fixme)
+bim2sim/project.py:404:9: W0511: TODO this might need changes due to handling of enums (fixme)
 bim2sim/project.py:9:0: W4901: Deprecated module 'distutils.dir_util' (deprecated-module)
 bim2sim/project.py:30:20: R1732: Consider using 'with' for resource-allocating operations (consider-using-with)
 bim2sim/project.py:46:19: W0212: Access to a protected member _sections of a client class (protected-access)
@@ -61,17 +70,17 @@ bim2sim/project.py:231:20: R1720: Unnecessary "else" after "raise", remove the "
 bim2sim/project.py:279:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
 bim2sim/project.py:282:0: R0902: Too many instance attributes (11/7) (too-many-instance-attributes)
 bim2sim/project.py:318:8: W0702: No exception type(s) specified (bare-except)
-bim2sim/project.py:335:8: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
-bim2sim/project.py:373:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/project.py:405:4: C0116: Missing function or method docstring (missing-function-docstring)
-bim2sim/project.py:410:12: C0103: Variable name "s" doesn't conform to snake_case naming style (invalid-name)
-bim2sim/project.py:417:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
-bim2sim/project.py:459:15: W0718: Catching too general exception Exception (broad-exception-caught)
-bim2sim/project.py:460:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/project.py:509:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/project.py:333:8: R1705: Unnecessary "elif" after "return", remove the leading "el" from "elif" (no-else-return)
+bim2sim/project.py:371:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/project.py:403:4: C0116: Missing function or method docstring (missing-function-docstring)
+bim2sim/project.py:408:12: C0103: Variable name "s" doesn't conform to snake_case naming style (invalid-name)
+bim2sim/project.py:415:13: W1514: Using open without explicitly specifying an encoding (unspecified-encoding)
+bim2sim/project.py:457:15: W0718: Catching too general exception Exception (broad-exception-caught)
+bim2sim/project.py:458:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/project.py:507:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
+bim2sim/project.py:512:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
 bim2sim/project.py:514:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/project.py:516:12: W1203: Use lazy % formatting in logging functions (logging-fstring-interpolation)
-bim2sim/project.py:537:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
+bim2sim/project.py:535:15: C0209: Formatting a regular string which could be a f-string (consider-using-f-string)
 ************* Module bim2sim.__main__
 bim2sim/__main__.py:12:0: C0301: Line too long (81/80) (line-too-long)
 bim2sim/__main__.py:33:11: W0718: Catching too general exception Exception (broad-exception-caught)
@@ -4286,7 +4295,7 @@ bim2sim/export/modelica/__init__.py:582:0: R0912: Too many branches (17/12) (too
 bim2sim/export/modelica/__init__.py:698:0: C0115: Missing class docstring (missing-class-docstring)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings:[24:64]
-==bim2sim.sim_settings:[1055:1095]
+==bim2sim.sim_settings:[873:913]
         ],
         choices={
             "heat_demand_total":
@@ -4349,7 +4358,6 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = False
         project.sim_settings.run_full_simulation = False
-        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         answers = (space_boundary_genenerator,
                    *handle_proxies,
                    construction_year,
@@ -4502,7 +4510,6 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
             Path(bim2sim.__file__).parent.parent / "local" / f"library_{repo_name}")
     download_library(repo_url, branch_name, path_aixlib)
     project.sim_settings.path_aixlib = path_aixlib / repo_name / 'package.mo'
-
     # Select results to output:
     project.sim_settings.sim_results = [
         "heat_demand_total", "cool_demand_total",
@@ -4546,7 +4553,10 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
     # Set the install path to your EnergyPlus installation according to your
-    # system requirements (duplicate-code)
+    # system requirements
+    # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+
+    # Set other simulation settings, otherwise all settings are set to default (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[22:56]
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[22:56]
@@ -4619,10 +4629,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
     project.sim_settings.add_airterminals = True
     answers = ('ArchiCAD', 'ArchiCAD', *('Single office',)*4)
     # project.sim_settings.simulation_type = 'transient'
-    # project.sim_settings.inlet_type = 'StlDiffusor'
-    # project.sim_settings.outlet_type = 'None'
-    # Run the project with the ConsoleDecisionHandler. This allows interactive
-    # input to answer upcoming questions regarding the imported IFC. (duplicate-code)
+    # project.sim_settings.inlet_type = 'StlDiffusor' (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e7_openfoam_radiator_steady_diffusor:[25:57]
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e9_openfoam_radiator_steady_simple_stldiffusor:[25:57]
@@ -4689,7 +4696,8 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
     project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
     project.sim_settings.add_heating = True
     project.sim_settings.add_floorheating = False
-    project.sim_settings.add_airterminals = True (duplicate-code)
+    project.sim_settings.add_airterminals = True
+    # project.sim_settings.simulation_type = 'combined' (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[113:148]
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[112:147]
@@ -4781,22 +4789,26 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e18_openfoam_import_IFC-HVAC_multi_overflow:[66:86]
 ==bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam:[302:318]
-        project.sim_settings.cfd_export = True
-        project.sim_settings.select_space_guid = '3hiy47ppf5B8MyZqbpTfpc'
-        project.sim_settings.inlet_type = 'Original'
-        project.sim_settings.outlet_type = 'Original'
-        project.sim_settings.add_heating = True
-        project.sim_settings.add_people = True
-        project.sim_settings.add_floorheating = False
-        project.sim_settings.add_airterminals = True
-        project.sim_settings.add_comfort = True
-        project.sim_settings.add_furniture = True
-        project.sim_settings.add_people = True
-        project.sim_settings.add_comfort = True
-        project.sim_settings.furniture_setting = 'Office'
-        project.sim_settings.furniture_amount = 8
-        project.sim_settings.people_amount = 4
-        project.sim_settings.people_setting = 'Seated' (duplicate-code)
+    project.sim_settings.cfd_export = True
+    # project.sim_settings.select_space_guid = '3GmoJyFk9FvAnea6mogixJ'
+    project.sim_settings.select_space_guid = '3hiy47ppf5B8MyZqbpTfpc'
+
+    # VR/AR lab: '2o3MylYZzAnR8q1ofuG3sg'
+    # Cafeteria: '3GmoJyFk9FvAnea6mogixJ'
+    project.sim_settings.inlet_type = 'Original'
+    project.sim_settings.outlet_type = 'Original'
+    project.sim_settings.add_heating = True
+    project.sim_settings.add_people = True
+    project.sim_settings.add_floorheating = False
+    project.sim_settings.add_airterminals = True
+    project.sim_settings.add_comfort = True
+    project.sim_settings.add_furniture = True
+    project.sim_settings.add_people = True
+    project.sim_settings.add_comfort = True
+    project.sim_settings.furniture_setting = 'Office'
+    project.sim_settings.furniture_amount = 8
+    project.sim_settings.people_amount = 4
+    project.sim_settings.people_setting = 'Seated' (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e11_openfoam_furniture_space_heater:[28:56]
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e11_openfoam_run_full_sim_linux:[28:56]
@@ -4858,7 +4870,8 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
     project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
     project.sim_settings.add_heating = True
     project.sim_settings.add_floorheating = False
-    project.sim_settings.add_airterminals = True (duplicate-code)
+    project.sim_settings.add_airterminals = True
+    # project.sim_settings.simulation_type = 'combined' (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.task.plot_comfort_results:[22:43]
 ==bim2sim.tasks.bps.plot_results:[19:39]
@@ -4871,8 +4884,7 @@ plt.style.use(['science', 'no-latex'])
 plt.rcParams.update({
     'font.size': 20,
     'font.family': 'sans-serif',  # Use sans-serif font
-    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans', 'sans-serif'],
-    # Specify sans-serif fonts
+    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans', 'sans-serif'],  # Specify sans-serif fonts
     'legend.frameon': True,
     'legend.facecolor': 'white',
     'legend.framealpha': 0.5,
@@ -5011,7 +5023,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
             i = np.array(i) - min(i)
             j = np.array(j) - 1
             ni = max(i) + 1
-            calendar = np.empty([ni, 12])  # , dtype='S10')
+            calendar = np.empty([ni, 12])#, dtype='S10')
             calendar[:] = np.nan
             calendar[i, j] = data
             return i, j, calendar
@@ -5039,6 +5051,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
             "customUsagesFM_ARC_DigitalHub_with_SB89.json"
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         space_boundary_genenerator = 'Other' (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_furniture:[25:58]
@@ -5160,7 +5173,8 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
     project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
     project.sim_settings.add_heating = True
     project.sim_settings.add_floorheating = False
-    project.sim_settings.add_airterminals = True (duplicate-code)
+    project.sim_settings.add_airterminals = True
+    # project.sim_settings.simulation_type = 'combined' (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e3_openfoam_radiator_steady:[25:53]
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e4_openfoam_radiator_steady_r0:[25:53]
@@ -5212,25 +5226,29 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.__init__:[669:692]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.__init__:[280:299]
-        if not isinstance(min_value, (pint.Quantity, type(None))):
-            raise AssertionError("min_value is no pint quantity with unit")
-        if not isinstance(max_value, (pint.Quantity, type(None))):
-            raise AssertionError("max_value is no pint quantity with unit")
+    if not isinstance(min_value, (pint.Quantity, type(None))):
+        raise AssertionError("min_value is no pint quantity with unit")
+    if not isinstance(max_value, (pint.Quantity, type(None))):
+        raise AssertionError("max_value is no pint quantity with unit")
 
-        def inner_check(value):
-            if not isinstance(value, pint.Quantity):
-                return False
-            if min_value is None and max_value is None:
-                return True
-            if min_value is not None and max_value is None:
-                return min_value <= value
-            if max_value is not None:
-                return value <= max_value
-            return min_value <= value <= max_value
+    def inner_check(value):
+        if not isinstance(value, pint.Quantity):
+            return False
+        if min_value is None and max_value is None:
+            return True
+        if min_value is not None and max_value is None:
+            return min_value <= value
+        if max_value is not None:
+            return value <= max_value
+        return min_value <= value <= max_value
 
-        return inner_check
+    return inner_check
 
-    def __repr__(self): (duplicate-code)
+
+def check_none():
+    """ Generates a function to check if a given value is not None."""
+
+    def inner_check(value): (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e2_complex_project_bps_comfort_journal:[58:72]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e5_serialize_teaser_prj:[70:84]
@@ -5323,19 +5341,22 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e18_openfoam_import_IFC-HVAC_multi_overflow:[34:50]
 ==bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam:[255:268]
-        ifc_paths = {
-            IFCDomain.arch:
-                Path(bim2sim.__file__).parent.parent /
-                'test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc',
-            IFCDomain.ventilation:
-                Path(bim2sim.__file__).parent.parent /
-                'test/resources/hydraulic/ifc/DigitalHub_Gebaeudetechnik'
-                '-LUEFTUNG_v2.ifc',
-            IFCDomain.hydraulic:
-                Path(bim2sim.__file__).parent.parent /
-                'test/resources/hydraulic/ifc/DigitalHub_Gebaeudetechnik-HEIZUNG_v2'
-                '.ifc',
-        } (duplicate-code)
+    ifc_paths = {
+        IFCDomain.arch:
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc',
+        IFCDomain.ventilation:
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/hydraulic/ifc/DigitalHub_Gebaeudetechnik'
+            '-LUEFTUNG_v2.ifc',
+        IFCDomain.hydraulic:
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/hydraulic/ifc/DigitalHub_Gebaeudetechnik-HEIZUNG_v2'
+            '.ifc',
+    }
+
+    # Create a project including the folder structure for the project with
+    # energyplus as backend (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_no_heating:[31:57]
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e3_openfoam_radiator_steady:[25:52]
@@ -5363,7 +5384,6 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
     project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
-    # project.sim_settings.simulation_time = 11
     project.sim_settings.run_meshing = False
     project.sim_settings.run_cfd_simulation = False (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
@@ -5419,7 +5439,6 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
             "customUsagesFM_ARC_DigitalHub_with_SB89.json"
-        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         space_boundary_genenerator = 'Other' (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.regression.test_comfort:[208:222]
@@ -5473,20 +5492,21 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.__init__:[17:31]
 ==bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam:[197:212]
-        common.LoadIFC,
-        # common.CheckIfc,
-        common.CreateElementsOnIfcTypes,
-        bps.CreateSpaceBoundaries,
-        bps.AddSpaceBoundaries2B,
-        bps.CorrectSpaceBoundaries,
-        common.CreateRelations,
-        bps.DisaggregationCreationAndTypeCheck,
-        bps.EnrichMaterial,
-        bps.EnrichUseConditions,
-        common.Weather,
-        ep_tasks.CreateIdf,
-        comfort_tasks.ComfortSettings,
-        # ep_tasks.ExportIdfForCfd, (duplicate-code)
+            common.LoadIFC,
+            # common.CheckIfc,
+            common.CreateElementsOnIfcTypes,
+            bps.CreateSpaceBoundaries,
+            bps.AddSpaceBoundaries2B,
+            bps.CorrectSpaceBoundaries,
+            common.CreateRelations,
+            bps.DisaggregationCreationAndTypeCheck,
+            bps.EnrichMaterial,
+            bps.EnrichUseConditions,
+            common.Weather,
+            ep_tasks.CreateIdf,
+            comfort_tasks.ComfortSettings,
+            # ep_tasks.ExportIdfForCfd,
+            # common.SerializeElements, (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[47:59]
 ==bim2sim.plugins.PluginTEASER.test.regression.create_regression_results:[35:47]
@@ -5552,13 +5572,9 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
     # system requirements
     # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
 
-    # run annual simulation for EnergyPlus
-    # project.sim_settings.run_full_simulation = True
-
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
-    project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
-    # project.sim_settings.simulation_time = 11 (duplicate-code)
+    project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM' (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_furniture_DH:[29:51]
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e17_openfoam_import_IFC-HVAC_multi_files:[44:65]
@@ -5605,9 +5621,13 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
     # system requirements
     # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
 
+    # run annual simulation for EnergyPlus
+    # project.sim_settings.run_full_simulation = True
+
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
-    project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM' (duplicate-code)
+    project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
+    # project.sim_settings.simulation_time = 11 (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e12_run_openfoam_preconditioned_transient:[33:54]
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e7_openfoam_radiator_steady_diffusor:[25:50]
@@ -5629,9 +5649,13 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
     # system requirements
     # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
 
+    # run annual simulation for EnergyPlus
+    # project.sim_settings.run_full_simulation = True
+
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
-    project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM' (duplicate-code)
+    project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
+    # project.sim_settings.simulation_time = 11 (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e11_openfoam_run_full_sim_linux:[32:53]
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e9_openfoam_radiator_steady_simple_stldiffusor:[25:50]
@@ -5728,7 +5752,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
                    *(True,) * 7,
                    # boiler: efficiency
                    0.9,
-                   # boiler: nominal power consumption (duplicate-code)
+                   # boiler: flow temperature (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib:[36:49]
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim:[33:46]
@@ -5795,16 +5819,16 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.__init__:[18:28]
 ==bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam:[199:209]
-            common.CreateElementsOnIfcTypes,
-            bps.CreateSpaceBoundaries,
-            bps.AddSpaceBoundaries2B,
-            bps.CorrectSpaceBoundaries,
-            common.CreateRelations,
-            bps.DisaggregationCreationAndTypeCheck,
-            bps.EnrichMaterial,
-            bps.EnrichUseConditions,
-            common.Weather,
-            ep_tasks.CreateIdf, (duplicate-code)
+        common.CreateElementsOnIfcTypes,
+        bps.CreateSpaceBoundaries,
+        bps.AddSpaceBoundaries2B,
+        bps.CorrectSpaceBoundaries,
+        common.CreateRelations,
+        bps.DisaggregationCreationAndTypeCheck,
+        bps.EnrichMaterial,
+        bps.EnrichUseConditions,
+        common.Weather,
+        ep_tasks.CreateIdf, (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e17_openfoam_import_IFC-HVAC_multi_files:[84:101]
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e18_openfoam_import_IFC-HVAC_multi_overflow:[90:107]
@@ -5842,7 +5866,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.sim_settings:[11:21]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings:[97:107]
     path_aixlib = PathSetting(
-        default=None,
+        value=None,
         description='Path to the local AixLib`s repository. This needs to '
                     'point to the root level package.mo file. If not'
                     ' provided, the version for regression testing will be '
@@ -5878,7 +5902,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
                          "Project did not finish successfully.")
 
     def test_run_b03_heating_with_all_aggregations(self):
-        """Run project with 2022_11_21_update_B03_Heating_ownCells.ifc"""
+        """Run project with 2022_11_21_update_B03_Heating_ownCells"""
         ifc_names = {IFCDomain.hydraulic:
                          '2022_11_21_update_B03_Heating_ownCells.ifc'} (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
@@ -5912,9 +5936,9 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    @unittest.skip("Skipped due to performance for CI")
-    def test_base_09_DH_design_day(self):
-        """Test DigitalHub IFC""" (duplicate-code)
+    # @unittest.skip("Skipped due to performance for CI")
+    def test_base_13_EDC_SB_design_day(self):
+        """Test KIT KHH 3 storey IFC with generated Space Boundaries""" (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[119:138]
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[123:142]
@@ -6008,34 +6032,35 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry:[206:217]
 ==bim2sim.utilities.pyocc_tools:[798:808]
-        side_surface_right = PyOCCTools.make_faces_from_pnts([
-            gp_Pnt(back_surface_min_max[1][0],
-                   back_surface_min_max[1][1],
-                   back_surface_min_max[0][2]),
-            gp_Pnt(front_surface_min_max[1][0],
-                   front_surface_min_max[1][1],
-                   front_surface_min_max[0][2]),
-            gp_Pnt(*front_surface_min_max[1]),
-            gp_Pnt(*back_surface_min_max[1])]
-        ) (duplicate-code)
+                side_surface_right = PyOCCTools.make_faces_from_pnts([
+
+                    gp_Pnt(back_surface_min_max[1][0],
+                           back_surface_min_max[1][1],
+                           back_surface_min_max[0][2]),
+                    gp_Pnt(front_surface_min_max[1][0],
+                           front_surface_min_max[1][1],
+                           front_surface_min_max[0][2]),
+                    gp_Pnt(*front_surface_min_max[1]),
+                    gp_Pnt(*back_surface_min_max[1])]
+                ) (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry:[196:206]
 ==bim2sim.utilities.pyocc_tools:[784:794]
-        side_surface_left = PyOCCTools.make_faces_from_pnts([
-            gp_Pnt(*back_surface_min_max[0]),
-            gp_Pnt(*front_surface_min_max[0]),
-            gp_Pnt(front_surface_min_max[0][0],
-                   front_surface_min_max[0][1],
-                   front_surface_min_max[1][2]),
-            gp_Pnt(back_surface_min_max[0][0],
-                   back_surface_min_max[0][1],
-                   back_surface_min_max[1][2])]
-        ) (duplicate-code)
+                side_surface_left = PyOCCTools.make_faces_from_pnts([
+                    gp_Pnt(*back_surface_min_max[0]),
+                    gp_Pnt(*front_surface_min_max[0]),
+                    gp_Pnt(front_surface_min_max[0][0],
+                           front_surface_min_max[0][1],
+                           front_surface_min_max[1][2]),
+                    gp_Pnt(back_surface_min_max[0][0],
+                           back_surface_min_max[0][1],
+                           back_surface_min_max[1][2])]
+                ) (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings:[12:22]
-==bim2sim.sim_settings:[1043:1053]
+==bim2sim.sim_settings:[861:871]
     sim_results = ChoiceSetting(
-        default=[
+        value=[
             "heat_demand_total", "cool_demand_total",
             "heat_demand_rooms", "cool_demand_rooms",
             "heat_energy_total", "cool_energy_total",
@@ -6052,16 +6077,21 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
     # Create a project including the folder structure for the project with
     # energyplus as backend
     project = Project.create(project_path, ifc_paths, 'openfoam')
+
     project.sim_settings.prj_custom_usages = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
             "customUsagesFM_ARC_DigitalHub_with_SB89.json")
+
     # set weather file data
     project.sim_settings.weather_file_path = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
     # Set the install path to your EnergyPlus installation according to your
-    # system requirements (duplicate-code)
+    # system requirements
+    # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+
+    # Set other simulation settings, otherwise all settings are set to default (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e11_openfoam_furniture_space_heater:[65:80]
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e12_run_openfoam_preconditioned_transient:[67:81]
@@ -6072,7 +6102,6 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
                                         'output_meters',
                                         'output_internal_gains']
     # project.sim_settings.level_heat_balance = False
-
     answers = ('ArchiCAD', 'ArchiCAD', *('Single office',)*4)
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
@@ -6098,20 +6127,25 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
     # Set the install path to your EnergyPlus installation according to your
-    # system requirements (duplicate-code)
+    # system requirements
+    # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+
+    # run annual simulation for EnergyPlus
+    # project.sim_settings.run_full_simulation = True
+
+    # Set other simulation settings, otherwise all settings are set to default (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.__init__:[32:41]
 ==bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam:[212:222]
-            ep_tasks.RunEnergyPlusSimulation,
-            of_tasks.InitializeOpenFOAMSetup,
-            of_tasks.CreateOpenFOAMGeometry,
-            of_tasks.AddOpenFOAMComfort,
-            of_tasks.CreateOpenFOAMMeshing,
-            of_tasks.SetOpenFOAMBoundaryConditions,
-            of_tasks.RunOpenFOAMMeshing,
-            of_tasks.RunOpenFOAMSimulation
-        ]
- (duplicate-code)
+        ep_tasks.RunEnergyPlusSimulation,
+        of_tasks.InitializeOpenFOAMSetup,
+        of_tasks.CreateOpenFOAMGeometry,
+        of_tasks.AddOpenFOAMComfort,
+        of_tasks.CreateOpenFOAMMeshing,
+        of_tasks.SetOpenFOAMBoundaryConditions,
+        of_tasks.RunOpenFOAMMeshing,
+        of_tasks.RunOpenFOAMSimulation
+    ] (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.test.unit.task.test_weather:[45:54]
 ==bim2sim.plugins.PluginTEASER.test.unit.task.test_weather:[45:54]
@@ -6128,6 +6162,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.__init__:[17:27]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e5_serialize_teaser_prj:[88:97]
         common.LoadIFC,
+        # common.CheckIfc,
         common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
         bps.AddSpaceBoundaries2B,
@@ -6148,14 +6183,11 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
     handler = DebugDecisionHandler(answers)
     handler.handle(project.run())
 
-
 if __name__ == '__main__': (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_complex_project_teaser:[77:87]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e4_visualize_zone_binding:[48:61]
     ]
-    # We get the use conditions and usages from predefined templates, look at
-    # example e2 to get more information how this works
     project.sim_settings.prj_use_conditions = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
@@ -6164,8 +6196,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
             "customUsagesFM_ARC_DigitalHub_with_SB89.json")
-
-    # set weather file data (duplicate-code)
+    # create plots based on the results after simulation (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam:[197:207]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.__init__:[24:34]
@@ -6202,7 +6233,10 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         reg_test_res = self.run_regression_test()
         self.assertEqual(True, reg_test_res,
                          "EnergyPlus Regression test did not finish "
-                         "successfully or created deviations.") (duplicate-code)
+                         "successfully or created deviations.")
+
+    def test_regression_AC20_FZK_Haus(self):
+        """Run EnergyPlus regression test with AC20-FZK-Haus.ifc.""" (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry:[186:196]
 ==bim2sim.utilities.pyocc_tools:[770:780]
@@ -6230,11 +6264,11 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
                            front_surface_min_max[1][2])]) (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.sim_settings:[17:26]
-==bim2sim.sim_settings:[1107:1116]
+==bim2sim.sim_settings:[925:934]
         for_frontend=True
     )
     split_bounds = BooleanSetting(
-        default=False,
+        value=False,
         description='Whether to convert up non-convex space boundaries or '
                     'not.',
         for_frontend=True
@@ -6296,7 +6330,6 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e5_serialize_teaser_prj:[87:95]
     project.plugin_cls.default_tasks = [
         common.LoadIFC,
-        # common.CheckIfc,
         common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
         bps.AddSpaceBoundaries2B,
@@ -6308,21 +6341,20 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e4_visualize_zone_binding:[21:37]
     project_path = Path(
         tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
-
-    # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
             'test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc',
     }
-
-    # Create a project including the folder structure for the project with
-    # teaser as backend and no specified workflow (default workflow is taken)
     project = Project.create(project_path, ifc_paths, 'teaser')
 
-    # specify simulation settings (please have a look at the documentation of
-    # all under concepts/sim_settings
-    # combine spaces to thermal zones based on their usage (duplicate-code)
+    # specify simulation settings (especially for zoning)
+
+    # we use LOD.medium that means that zones are merged based on
+    # zoning_criteria sim_setting
+
+    # We don't need a full bim2sim run with simulation to demonstrate this, so
+    # we will just run the needed tasks: (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.test.integration.test_aixlib:[96:107]
 ==bim2sim.plugins.PluginHKESim.test.integration.test_hkesim:[113:121]
@@ -6333,10 +6365,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         aggregated = Counter((type(item) for item in graph.element_graph.nodes))
         self.assertIn(ConsumerHeatingDistributorModule, aggregated)
         self.assertEqual(0, handler.return_value,
-                         "Project did not finish successfully.")
-
-    def test_run_b03_heating_with_all_aggregations(self):
-        """Run project with 2022_11_21_update_B03_Heating_ownCells""" (duplicate-code)
+                         "Project did not finish successfully.") (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.test.integration.test_aixlib:[124:133]
 ==bim2sim.plugins.PluginHKESim.test.integration.test_hkesim:[89:100]
@@ -6345,12 +6374,10 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
             decision.value = answer
         graph = project.playground.state['graph']
         aggregated = Counter((type(item) for item in graph.element_graph.nodes))
+        # TODO check generator
         self.assertIn(ConsumerHeatingDistributorModule, aggregated)
         self.assertEqual(0, handler.return_value,
-                         "Project did not finish successfully.")
-
-    def test_run_b03_heating_with_all_aggregations(self):
-        """Run project with 2022_11_21_update_B03_Heating_ownCells.ifc""" (duplicate-code)
+                         "Project did not finish successfully.") (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[271:282]
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[297:309]
@@ -6363,27 +6390,11 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    @unittest.skip("Not fully implemented yet")
-    def test_base_17_ERC_design_day(self):
-        """Test ERC Main Building""" (duplicate-code)
+
+ (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[183:195]
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[173:185]
-        project.sim_settings.prj_custom_usages = Path(
-            bim2sim.__file__).parent.parent / \
-            "test/resources/arch/custom_usages/" \
-            "customUsagesAC20-Institute-Var-2_with_SB-1-0.json"
-        answers = ('Other', 2015)
-        handler = DebugDecisionHandler(answers)
-        return_code = handler.handle(project.run())
-        self.assertEqual(0, return_code)
-
-    @unittest.skip("")
-    def test_DigitalHub_SB89(self):
-        """Test DigitalHub IFC, includes regression test""" (duplicate-code)
-bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
-==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[167:179]
-==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[189:201]
         project.sim_settings.prj_custom_usages = Path(
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
@@ -6397,11 +6408,27 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
     def test_base_08_KIT_Inst_SB_full_run(self):
         """Test IFC File from Institute (KIT) with generated Space Boundaries""" (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
+==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[167:179]
+==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[189:201]
+        project.sim_settings.prj_custom_usages = Path(
+            bim2sim.__file__).parent.parent / \
+            "test/resources/arch/custom_usages/" \
+            "customUsagesAC20-Institute-Var-2_with_SB-1-0.json"
+        answers = ('Other', 2015)
+        handler = DebugDecisionHandler(answers)
+        return_code = handler.handle(project.run())
+        self.assertEqual(0, return_code)
+
+    @unittest.skip("")
+    def test_DigitalHub_SB89(self):
+        """Test DigitalHub IFC, includes regression test""" (duplicate-code)
+bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[139:152]
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[143:157]
         project.sim_settings.create_external_elements = True
         answers = (2015,)
         # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -6419,14 +6446,16 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
             bim2sim.__file__).parent.parent / \
             "test/resources/arch/custom_usages/" \
             "customUsagesAC20-FZK-Haus_with_SB55.json"
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         answers = ('Other',)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    # @unittest.skip("")
-    def test_base_05_KIT_Inst_design_day(self):
-        """Test Original IFC File from Institute (KIT)""" (duplicate-code)
+    @unittest.skip("")
+    def test_base_04_FZK_SB_full_run(self):
+        """Test IFC File from FZK-Haus (KIT) with generated Space Boundaries"""
+        # ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus_with_SB44.ifc'} (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[103:117]
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[129:141]
@@ -6456,15 +6485,18 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils.utils_visualization:[223:233]
 ==bim2sim.utilities.visualize_spaces:[67:80]
-        settings = ifcopenshell.geom.settings()
-        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
-        settings.set(settings.USE_WORLD_COORDS, True)
-        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-        settings.set(settings.INCLUDE_CURVES, True)
+    settings = ifcopenshell.geom.settings()
+    settings.set(settings.USE_PYTHON_OPENCASCADE, True)
+    settings.set(settings.USE_WORLD_COORDS, True)
+    settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+    settings.set(settings.INCLUDE_CURVES, True)
 
-        display, start_display, add_menu, add_function_to_menu = init_display(
-            display_triedron=False, background_gradient_color1=3 * [255],
-            background_gradient_color2=3 * [255], size=(1920, 1080))
+    # Call init_display
+    # TODO this messes with the logger, but method like below doesn't work
+    #  with open(os.devnull, 'w') as devnull:
+    display, start_display, add_menu, add_function_to_menu = init_display(
+        display_triedron=False, background_gradient_color1=3 * [255],
+        background_gradient_color2=3 * [255], size=(1920, 1080))
  (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e11_openfoam_furniture_space_heater:[64:73]
@@ -6537,13 +6569,6 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df:[38:53]
 }
 
-# bim2sim_teaser_indirect_mapping = {
-#     "n_persons_rooms": [
-#         "*",
-#         "multizone.zone[numZones].humanSenHeaDependent.specificPersons",
-#         "multizone.zone[numZones].humanSenHeaDependent.roomArea"]
-# }
-
 pint_pandas.PintType.ureg = ureg
 unit_mapping = {
     "heat_demand": ureg.watt,
@@ -6570,11 +6595,16 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e4_visualize_zone_binding:[21:28]
     project_path = Path(
         tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
+
+    # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
             'test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc',
-    } (duplicate-code)
+    }
+
+    # Create a project including the folder structure for the project with
+    # teaser as backend and no specified workflow (default workflow is taken) (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.__init__:[24:32]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e4_visualize_zone_binding:[38:46]
@@ -6608,7 +6638,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
                          "Project did not finish successfully.")
 
     def test_run_b03_heating(self):
-        """Run project with 2022_11_21_update_B03_Heating_ownCells.ifc"""
+        """Run project with 2022_11_21_update_B03_Heating_ownCells"""
         ifc_names = {IFCDomain.hydraulic:
                          '2022_11_21_update_B03_Heating_ownCells.ifc'} (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
@@ -6623,8 +6653,6 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
             return 'port_b'
         else:
             return super().get_port_name(port)
-        # TODO: Gas and electric connection see
-        #  https://github.com/BIM2SIM/bim2sim/issues/80
 
  (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
@@ -6655,16 +6683,14 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[140:152]
 ==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[22:32]
         answers = (2015,)
-        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
 
-    @unittest.skip("")
-    def test_base_06_KIT_Inst_full_run(self):
-        """Test Original IFC File from Institute (KIT)"""
+    def test_run_kitoffice_spaces_low_layers_low(self):
+        """Run project with AC20-Institute-Var-2.ifc"""
         ifc_names = {IFCDomain.arch:  'AC20-Institute-Var-2.ifc'} (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[201:208]
@@ -6743,10 +6769,10 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
  (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.sim_settings:[35:42]
-==bim2sim.sim_settings:[1119:1126]
+==bim2sim.sim_settings:[937:944]
     )
     split_shadings = BooleanSetting(
-        default=False,
+        value=False,
         description='Whether to convert up non-convex shading boundaries or '
                     'not.',
         for_frontend=True
@@ -6844,19 +6870,16 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
                 with open(curr_name, 'wb+') as output_file:
                     m.save(str(m.name, encoding='utf-8'), output_file,
                            mode=stl.Mode.ASCII)
-                output_file.close()
-            # read individual files from temp directory. (duplicate-code)
+                output_file.close() (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.people:[206:214]
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.stlbound:[121:127]
-                 'qrRelaxation': 0.003,
-                 'relaxation': 1.0,
-                 'kappaMethod': 'fluidThermo',
-                 'kappa': 'fluidThermo',
-                 'value': f'uniform {self.temperature + 273.15}'
-                 }
-
- (duplicate-code)
+                      'qrRelaxation': 0.003,
+                      'relaxation': 1.0,
+                      'kappaMethod': 'fluidThermo',
+                      'kappa': 'fluidThermo',
+                      'value': f'uniform {self.temperature + 273.15}'
+                      } (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[147:157]
 ==bim2sim.plugins.PluginTEASER.test.integration.test_teaser:[179:189]
@@ -6910,7 +6933,6 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
             "customUsagesFM_ARC_DigitalHub_with_SB89.json")
-
     # set weather file data
     project.sim_settings.weather_file_path = (
             Path(bim2sim.__file__).parent.parent / (duplicate-code)
@@ -6945,6 +6967,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
                             attributes=['rated_power'])
 
     def get_port_name(self, port):
+        # TODO: heat pumps might have 4 ports (if source is modeled in BIM)
         if port.verbose_flow_direction == 'SINK':
             return 'port_a'
         if port.verbose_flow_direction == 'SOURCE':
@@ -7055,12 +7078,12 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim:[38:44]
 ==bim2sim.plugins.PluginHKESim.test.integration.test_hkesim:[62:68]
-        project.sim_settings.aggregations = [
-            'UnderfloorHeating',
-            'Consumer',
-            'PipeStrand',
-            'ParallelPump',
-            'ConsumerHeatingDistributorModule', (duplicate-code)
+    project.sim_settings.aggregations = [
+        'UnderfloorHeating',
+        'Consumer',
+        'PipeStrand',
+        'ParallelPump',
+        'ConsumerHeatingDistributorModule', (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[181:196]
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[187:202]
@@ -7141,8 +7164,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
             x_direction = np.array([1, 0, 0])
             z_direction = np.array([0, 0, 1])
         y_direction = np.cross(z_direction, x_direction)
-        directions = np.array((x_direction, y_direction, z_direction)).T
- (duplicate-code)
+        directions = np.array((x_direction, y_direction, z_direction)).T (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.elements.base_elements:[574:581]
 ==bim2sim.elements.hvac_elements:[218:227]
@@ -7152,7 +7174,9 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
                 return vol
         vol = self.calc_volume_from_ifc_shape()
         return vol
- (duplicate-code)
+
+    def get_ports(self) -> list:
+        """Returns a list of ports of this product.""" (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.export.modelica.standardlibrary:[93:101]
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[524:532]
@@ -7225,8 +7249,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
                                         'output_zone', 'output_infiltration',
                                         'output_meters',
                                         'output_internal_gains']
-    # project.sim_settings.level_heat_balance = False
- (duplicate-code)
+    # project.sim_settings.level_heat_balance = False (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_furniture_DH:[39:51]
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e1_simple_project_cfd_openfoam:[35:47]
@@ -7287,8 +7310,8 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         self.assertEqual(0, handler.return_value,
                          "Project did not finish successfully.")
 
-    def test_run_b03_heating(self):
-        """Run project with 2022_11_21_update_B03_Heating_ownCells""" (duplicate-code)
+    def test_run_kitoffice_spaces_low_layers_low(self):
+        """Run project with AC20-Institute-Var-2.ifc""" (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.test.integration.test_usage:[11:18]
 ==bim2sim.plugins.PluginTEASER.test.integration.test_useage:[11:18]
@@ -7362,8 +7385,6 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e5_serialize_teaser_prj:[18:25]
     project_path = Path(
         tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
-
-    # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent / (duplicate-code)
@@ -7433,7 +7454,9 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
-                            value=MEDIUM_WATER) (duplicate-code)
+                            value=MEDIUM_WATER)
+
+ (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[527:532]
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.__init__:[314:319]
@@ -7449,7 +7472,9 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         self._set_parameter(name='redeclare package Medium',
                             unit=None,
                             required=False,
-                            value=MEDIUM_WATER) (duplicate-code)
+                            value=MEDIUM_WATER)
+
+    def get_port_name(self, port): (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.__init__:[301:306]
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.__init__:[78:83]
@@ -7498,7 +7523,10 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
-                         "Project did not finish successfully.") (duplicate-code)
+                         "Project did not finish successfully.")
+
+    def test_run_b03_heating(self):
+        """Run project with 2022_11_21_update_B03_Heating_ownCells.ifc""" (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[276:284]
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[380:387]
@@ -7566,7 +7594,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         self.assertEqual(0, handler.return_value)
 
     @unittest.skip("")
-    def test_base_02_FZK_full_run(self):
+    def test_base_02_FZK_design_day(self):
         """Test Original IFC File from FZK-Haus (KIT)"""
         ifc_names = {IFCDomain.arch:  'AC20-FZK-Haus.ifc'} (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
@@ -7576,9 +7604,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         project.sim_settings.split_bounds = True
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
-        project.sim_settings.run_full_simulation = False
-        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
- (duplicate-code)
+        project.sim_settings.run_full_simulation = False (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[70:75]
 ==bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus:[72:79]
@@ -7594,14 +7620,11 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
-
         self.assertEqual(0, handler.return_value)
 
-    def test_furniture_setup_DH(self):
-        """Test DigitalHub, IFC2SB Version, Furniture setups"""
-
-        #### prepare for OpenFOAM Plugin (EnergyPlus is skipped here,
-        # so no boundary conditions are available in this test) (duplicate-code)
+    @unittest.skip("")
+    def test_base_02_FZK_design_day(self):
+        """Test Original IFC File from FZK-Haus (KIT)""" (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.plugins.PluginComfort.test.integration.test_comfort:[142:151]
 ==bim2sim.plugins.PluginLCA.test.integration.test_lca:[18:26]
@@ -7632,6 +7655,7 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
                          "EnergyPlus Regression test did not finish "
                          "successfully or created deviations.")
 
+    @unittest.skip("No regression results available")
     def test_regression_DigitalHub_SB89(self):
         """Test DigitalHub IFC, includes regression test."""
         ifc_names = {IFCDomain.arch: 'FM_ARC_DigitalHub_with_SB89.ifc'} (duplicate-code)
@@ -7673,10 +7697,12 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.tasks.bps.disaggr_creation:[50:57]
 ==bim2sim.tasks.bps.sb_creation:[82:87]
         for ele in elements.values():
+            # only handle BPSProductWithLayers
             if not any([isinstance(ele, bps_product_layer_ele) for
                         bps_product_layer_ele in
                         all_subclasses(BPSProductWithLayers)]):
-                continue (duplicate-code)
+                continue
+            # no disaggregation needed (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.tasks.hvac.dead_ends:[154:167]
 ==bim2sim.tasks.hvac.expansiontanks:[118:127]
@@ -7684,26 +7710,23 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
                         playground.update_graph(graph)
                 else:
                     raise NotImplementedError()
-                    # TODO connect elements that are open but not dead ends
-                    #  (missing connections) #769
-                    # TODO: handle consumers
-                    # dead end identification with guid decision
-                    #  (see issue97 add_gui_decision)
-                    # build clusters with position for the rest of open ports
-                    # decision to to group these open ports to consumers
-                    # delete the rest of open ports afterwards
+                    # TODO: handle real storages
+                    # maybe add ports to the storage and select the related
+                    # dead end, with which the new storage port should be
+                    # connected
         return graph, n_removed (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.elements.bps_elements:[909:917]
 ==bim2sim.utilities.visualize_spaces:[67:76]
-        settings = ifcopenshell.geom.settings()
-        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
-        settings.set(settings.USE_WORLD_COORDS, True)
-        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-        settings.set(settings.INCLUDE_CURVES, True)
+    settings = ifcopenshell.geom.settings()
+    settings.set(settings.USE_PYTHON_OPENCASCADE, True)
+    settings.set(settings.USE_WORLD_COORDS, True)
+    settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+    settings.set(settings.INCLUDE_CURVES, True)
 
-        # check if the space boundary shapes need a unit conversion (i.e.,
-        # an additional transformation to the correct size and position) (duplicate-code)
+    # Call init_display
+    # TODO this messes with the logger, but method like below doesn't work
+    #  with open(os.devnull, 'w') as devnull: (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
 ==bim2sim.elements.bps_elements:[235:240]
 ==bim2sim.tasks.bps.sb_2b_generation:[143:148]
@@ -7720,42 +7743,43 @@ bim2sim/export/modelica/__init__.py:1:0: R0801: Similar lines in 2 files
             raise AttributeError("Max prefix length is 10!")
         ifcopenshell_guid = guid.new()[prefix_length + 1:]
         return f"{prefix}{ifcopenshell_guid}"
-
-    @classmethod
-    def pre_validate(cls, ifc) -> bool: (duplicate-code)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_2b_generation) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.combine_tz -> bim2sim.utilities.common_functions -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.combine_tz -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_creation -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.combine_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.utilities.common_functions -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+ (duplicate-code)
 bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_creation -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.serialize_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_relations -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.weather -> bim2sim.utilities.common_functions -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.utilities.svg_utils -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_creation -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.disaggr_creation -> bim2sim.utilities.common_functions -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_relations -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_2b_generation) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_2b_generation -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_correction -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
-bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_relations -> bim2sim.elements.bps_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_relations -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.combine_tz -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.utilities.common_functions -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.mapping.filter -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.sim_settings -> bim2sim.elements.hvac_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.serialize_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.create_elements -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.combine_tz -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_material -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_creation -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.weather -> bim2sim.utilities.common_functions -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.check_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.common -> bim2sim.tasks.common.load_ifc -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_creation -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.enrich_use_cond -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.disaggr_creation -> bim2sim.elements.aggregation.bps_aggregations -> bim2sim.utilities.common_functions -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.combine_tz -> bim2sim.utilities.common_functions -> bim2sim.elements.base_elements -> bim2sim.elements.mapping.finder) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_2b_generation -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.sb_correction -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.plugins -> bim2sim.tasks.bps -> bim2sim.tasks.bps.plot_results -> bim2sim.utilities.svg_utils -> bim2sim.kernel.ifc_file -> bim2sim.elements.mapping.finder -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.sim_settings -> bim2sim.elements.bps_elements -> bim2sim.elements.base_elements -> bim2sim.utilities.common_functions) (cyclic-import)
+bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim -> bim2sim.project -> bim2sim.utilities.common_functions) (cyclic-import)
 bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task -> bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.create_result_df) (cyclic-import)
 bim2sim/export/modelica/__init__.py:1:0: R0401: Cyclic import (bim2sim.plugins.PluginTEASER.bim2sim_teaser.export -> bim2sim.plugins.PluginTEASER.bim2sim_teaser.models) (cyclic-import)
 
 -----------------------------------
-Your code has been rated at 7.76/10
+Your code has been rated at 7.75/10
 

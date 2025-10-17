@@ -1539,44 +1539,8 @@ the model generation process in bim2sim.</p>
 <dt class="sig sig-object py" id="bim2sim.sim_settings.AutoSettingNameMeta">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">AutoSettingNameMeta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bases</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">namespace</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.AutoSettingNameMeta" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code></p>
-<p>Adds the name to every SimulationSetting attribute based on its instance
+<p>Sets the name to every SimulationSetting attribute based on its instance
 name.</p>
-<p>This makes the definition of an extra attribute ‘name’ obsolete, as the
-attributes ‘name’ is automatic defined based on the instance name.</p>
-<dl>
-<dt>Example:</dt><dd><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create new simulation settings for your awesome simulation</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">MyAwesomeSimulationSettings</span><span class="p">(</span><span class="n">BaseSimSettings</span><span class="p">):</span>
-<span class="gp">... </span>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="gp">... </span>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a new simulation setting, name will be taken automatic</span>
-<span class="go">from</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># instance name</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">make_simulation_extra_fast</span> <span class="o">=</span> <span class="n">Setting</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">choices</span><span class="o">=</span><span class="p">{</span>
-<span class="go">    ...         True: &#39;This simulation will be incredible fast.&#39;,</span>
-<span class="go">    ...         False: &#39;This simulation will be increbdile slow.&#39;</span>
-<span class="go">    ...     },</span>
-<span class="go">    ...     description=&#39;Run the simulation in extra fast mode?&#39;,</span>
-<span class="go">    ...     for_frontend=True</span>
-<span class="go">    ... )</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># create a SimulationSettings instance and get the value</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_awesome_settings</span> <span class="o">=</span> <span class="n">MyAwesomeSimulationSettings</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># get initial value which is always none</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">my_awesome_settings</span><span class="o">.</span><span class="n">make_simulation_extra_fast</span><span class="p">)</span>
-<span class="go">None</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># set default values and get the value</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_awesome_settings</span><span class="o">.</span><span class="n">load_default_settings</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">my_awesome_settings</span><span class="o">.</span><span class="n">make_simulation_extra_fast</span><span class="p">)</span>
-<span class="go">True</span>
-</pre></div>
-</div>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py class">
@@ -1631,6 +1595,11 @@ all simulations</p>
 <span class="sig-name descname"><span class="pre">group_unidentified</span></span><a class="headerlink" href="#bim2sim.sim_settings.BaseSimSettings.group_unidentified" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BaseSimSettings.group_unidentified_">
+<span class="sig-name descname"><span class="pre">group_unidentified_</span></span><a class="headerlink" href="#bim2sim.sim_settings.BaseSimSettings.group_unidentified_" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.BaseSimSettings.load_default_settings">
 <span class="sig-name descname"><span class="pre">load_default_settings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.BaseSimSettings.load_default_settings" title="Permalink to this definition"></a></dt>
@@ -1650,17 +1619,7 @@ all simulations</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.BaseSimSettings.stories_to_load_guids">
 <span class="sig-name descname"><span class="pre">stories_to_load_guids</span></span><a class="headerlink" href="#bim2sim.sim_settings.BaseSimSettings.stories_to_load_guids" title="Permalink to this definition"></a></dt>
-<dd><p>Define a setting that accepts a list of IFC GUIDs.</p>
-<p>This setting type is used for storing collections of IFC GUIDs,
-where each GUID is validated to ensure it follows IFC GUID format.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>default: default list of GUIDs (if any) that will be applied when calling load_default()
-description: description of what the settings does as Str
-for_frontend: should this setting be shown in the frontend
-mandatory: whether a setting needs to be set</p>
-</dd>
-</dl>
-</dd></dl>
+<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.BaseSimSettings.update_from_config">
@@ -1678,22 +1637,18 @@ file</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.BooleanSetting">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">BooleanSetting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.BooleanSetting" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">BooleanSetting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'set</span> <span class="pre">automatically'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.BooleanSetting" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.Setting" title="bim2sim.sim_settings.Setting"><code class="xref py py-class docutils literal notranslate"><span class="pre">Setting</span></code></a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.BooleanSetting.check_value">
-<span class="sig-name descname"><span class="pre">check_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound_simulation_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.BooleanSetting.check_value" title="Permalink to this definition"></a></dt>
-<dd><p>Checks the value that should be set for correctness</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>bound_simulation_settings: the sim setting belonging to the value
-value: value that should be checked for correctness</p>
-</dd>
-<dt>Returns:</dt><dd><p>True: if check was successful</p>
-</dd>
-<dt>Raises:</dt><dd><p>ValueError: if check was not successful</p>
-</dd>
-</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BooleanSetting.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'validate_assignment':</span> <span class="pre">True,</span> <span class="pre">'validate_default':</span> <span class="pre">True}</span></em><a class="headerlink" href="#bim2sim.sim_settings.BooleanSetting.model_config" title="Permalink to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.BooleanSetting.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bim2sim.sim_settings.BooleanSetting.value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -1875,116 +1830,114 @@ value: value that should be checked for correctness</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.ChoiceSetting">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">ChoiceSetting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">choices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiple_choice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.ChoiceSetting" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">ChoiceSetting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'set</span> <span class="pre">automatically'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Enum</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">choices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multiple_choice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.ChoiceSetting" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.Setting" title="bim2sim.sim_settings.Setting"><code class="xref py py-class docutils literal notranslate"><span class="pre">Setting</span></code></a></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.ChoiceSetting.check_setting_config">
-<span class="sig-name descname"><span class="pre">check_setting_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.ChoiceSetting.check_setting_config" title="Permalink to this definition"></a></dt>
-<dd><p>make sure str choices don’t hold ‘.’ as this is seperator for enums.</p>
-</dd></dl>
+<dt class="sig sig-object py" id="bim2sim.sim_settings.ChoiceSetting.check_content">
+<span class="sig-name descname"><span class="pre">check_content</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.ChoiceSetting.check_content" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.ChoiceSetting.check_value">
-<span class="sig-name descname"><span class="pre">check_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound_simulation_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.ChoiceSetting.check_value" title="Permalink to this definition"></a></dt>
-<dd><p>Checks the value that should be set for correctness</p>
-<p>Checks if the selected value is in choices.
-Args:</p>
-<blockquote>
-<div><p>bound_simulation_settings: the sim setting belonging to the value
-value: value that should be checked for correctness</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Returns:</dt><dd><p>True: if check was successful</p>
-</dd>
-<dt>Raises:</dt><dd><p>ValueError: if check was not successful</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="bim2sim.sim_settings.ChoiceSetting.check_setting_config">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_setting_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">choices</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.ChoiceSetting.check_setting_config" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.ChoiceSetting.choices">
+<span class="sig-name descname"><span class="pre">choices</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#bim2sim.sim_settings.ChoiceSetting.choices" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.ChoiceSetting.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'validate_assignment':</span> <span class="pre">True,</span> <span class="pre">'validate_default':</span> <span class="pre">True}</span></em><a class="headerlink" href="#bim2sim.sim_settings.ChoiceSetting.model_config" title="Permalink to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.ChoiceSetting.multiple_choice">
+<span class="sig-name descname"><span class="pre">multiple_choice</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#bim2sim.sim_settings.ChoiceSetting.multiple_choice" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.ChoiceSetting.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Enum</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bim2sim.sim_settings.ChoiceSetting.value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.GuidListSetting">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">GuidListSetting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.GuidListSetting" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">GuidListSetting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'set</span> <span class="pre">automatically'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.GuidListSetting" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.Setting" title="bim2sim.sim_settings.Setting"><code class="xref py py-class docutils literal notranslate"><span class="pre">Setting</span></code></a></p>
-<p>Define a setting that accepts a list of IFC GUIDs.</p>
-<p>This setting type is used for storing collections of IFC GUIDs,
-where each GUID is validated to ensure it follows IFC GUID format.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>default: default list of GUIDs (if any) that will be applied when calling load_default()
-description: description of what the settings does as Str
-for_frontend: should this setting be shown in the frontend
-mandatory: whether a setting needs to be set</p>
-</dd>
-</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.GuidListSetting.check_value">
-<span class="sig-name descname"><span class="pre">check_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound_simulation_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.GuidListSetting.check_value" title="Permalink to this definition"></a></dt>
-<dd><p>Checks if each GUID in the list is valid according to IFC standards.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>bound_simulation_settings: the sim setting belonging to the value
-value: list of GUIDs that should be checked for correctness</p>
-</dd>
-<dt>Returns:</dt><dd><p>True: if all GUIDs in the list are valid</p>
-</dd>
-<dt>Raises:</dt><dd><p>ValueError: if any GUID in the list is invalid or value is not a list</p>
-</dd>
-</dl>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.GuidListSetting.check_value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.GuidListSetting.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'validate_assignment':</span> <span class="pre">True,</span> <span class="pre">'validate_default':</span> <span class="pre">True}</span></em><a class="headerlink" href="#bim2sim.sim_settings.GuidListSetting.model_config" title="Permalink to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.GuidListSetting.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bim2sim.sim_settings.GuidListSetting.value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.NumberSetting">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">NumberSetting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.NumberSetting" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">NumberSetting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'set</span> <span class="pre">automatically'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.NumberSetting" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.Setting" title="bim2sim.sim_settings.Setting"><code class="xref py py-class docutils literal notranslate"><span class="pre">Setting</span></code></a></p>
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.NumberSetting.check_setting_config">
-<span class="sig-name descname"><span class="pre">check_setting_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.NumberSetting.check_setting_config" title="Permalink to this definition"></a></dt>
-<dd><p>Make sure min and max values are reasonable</p>
-</dd></dl>
+<dt class="sig sig-object py" id="bim2sim.sim_settings.NumberSetting.check_limits">
+<span class="sig-name descname"><span class="pre">check_limits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="headerlink" href="#bim2sim.sim_settings.NumberSetting.check_limits" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.NumberSetting.check_value">
-<span class="sig-name descname"><span class="pre">check_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound_simulation_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.NumberSetting.check_value" title="Permalink to this definition"></a></dt>
-<dd><p>Checks the value that should be set for correctness</p>
-<p>Checks if value is in limits.
-Args:</p>
-<blockquote>
-<div><p>bound_simulation_settings: the sim setting belonging to the value
-value: value that should be checked for correctness</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Returns:</dt><dd><p>True: if check was successful</p>
-</dd>
-<dt>Raises:</dt><dd><p>ValueError: if check was not successful</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="bim2sim.sim_settings.NumberSetting.check_setting_config">
+<span class="sig-name descname"><span class="pre">check_setting_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Self</span></span></span><a class="headerlink" href="#bim2sim.sim_settings.NumberSetting.check_setting_config" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.NumberSetting.max_value">
+<span class="sig-name descname"><span class="pre">max_value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bim2sim.sim_settings.NumberSetting.max_value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.NumberSetting.min_value">
+<span class="sig-name descname"><span class="pre">min_value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bim2sim.sim_settings.NumberSetting.min_value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.NumberSetting.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'validate_assignment':</span> <span class="pre">True,</span> <span class="pre">'validate_default':</span> <span class="pre">True}</span></em><a class="headerlink" href="#bim2sim.sim_settings.NumberSetting.model_config" title="Permalink to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.NumberSetting.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bim2sim.sim_settings.NumberSetting.value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.PathSetting">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">PathSetting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.PathSetting" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">PathSetting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'set</span> <span class="pre">automatically'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.PathSetting" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bim2sim.sim_settings.Setting" title="bim2sim.sim_settings.Setting"><code class="xref py py-class docutils literal notranslate"><span class="pre">Setting</span></code></a></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.PathSetting.check_value">
-<span class="sig-name descname"><span class="pre">check_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound_simulation_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.PathSetting.check_value" title="Permalink to this definition"></a></dt>
-<dd><p>Checks the value that should be set for correctness</p>
-<p>Checks if the value is a valid path
-Args:</p>
-<blockquote>
-<div><p>bound_simulation_settings: the sim setting belonging to the value
-value: value that should be checked for correctness</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Returns:</dt><dd><p>True: if check was successful</p>
-</dd>
-<dt>Raises:</dt><dd><p>ValueError: if check was not successful</p>
-</dd>
-</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.PathSetting.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'validate_assignment':</span> <span class="pre">True,</span> <span class="pre">'validate_default':</span> <span class="pre">True}</span></em><a class="headerlink" href="#bim2sim.sim_settings.PathSetting.model_config" title="Permalink to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.PathSetting.value">
+<span class="sig-name descname"><span class="pre">value</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bim2sim.sim_settings.PathSetting.value" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -2011,50 +1964,50 @@ value: value that should be checked for correctness</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.Setting">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">Setting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.Setting" title="Permalink to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Define specific settings regarding model creation and simulation.</p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.sim_settings.</span></span><span class="sig-name descname"><span class="pre">Setting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'set</span> <span class="pre">automatically'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">for_frontend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">any_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.Setting" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Base class for all simulation settings.</p>
+<p>The attribute “value”, which contains the payload of the simulation setting, is added in
+the derived classes for the different data types (e.g. NumberSetting(Setting)).</p>
+<p>The value, which is assigned to the attribute “value”, when instancing the setting, serves
+as a default value and can be changed according to the use case, if necessary.</p>
 <dl class="simple">
-<dt>Args:</dt><dd><p>default: default value that will be applied when calling load_default()
-choices: dict of possible choice for this setting as key and a
-description per choice as value
-description: description of what the settings does as Str
+<dt>Args:</dt><dd><p>name: Name of the setting. Is set automatically by AutoSettingNameMeta(type)
+description: description the setting
 for_frontend: should this setting be shown in the frontend
-multiple_choice: allows multiple choice
 any_string: any string is allowed instead of a given choice
 mandatory: whether a setting needs to be set</p>
 </dd>
 </dl>
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.Setting.check_setting_config">
-<span class="sig-name descname"><span class="pre">check_setting_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.Setting.check_setting_config" title="Permalink to this definition"></a></dt>
-<dd><p>Checks if the setting is configured correctly</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.Setting.any_string">
+<span class="sig-name descname"><span class="pre">any_string</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#bim2sim.sim_settings.Setting.any_string" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.Setting.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#bim2sim.sim_settings.Setting.description" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.Setting.for_frontend">
+<span class="sig-name descname"><span class="pre">for_frontend</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#bim2sim.sim_settings.Setting.for_frontend" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.Setting.mandatory">
+<span class="sig-name descname"><span class="pre">mandatory</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#bim2sim.sim_settings.Setting.mandatory" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.Setting.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'validate_assignment':</span> <span class="pre">True,</span> <span class="pre">'validate_default':</span> <span class="pre">True}</span></em><a class="headerlink" href="#bim2sim.sim_settings.Setting.model_config" title="Permalink to this definition"></a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.Setting.check_value">
-<span class="sig-name descname"><span class="pre">check_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bound_simulation_settings</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.Setting.check_value" title="Permalink to this definition"></a></dt>
-<dd><p>Checks the value that should be set for correctness</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>bound_simulation_settings: the sim setting belonging to the value
-value: value that should be checked for correctness</p>
-</dd>
-<dt>Returns:</dt><dd><p>True: if check was successful</p>
-</dd>
-<dt>Raises:</dt><dd><p>ValueError: if check was not successful</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.Setting.initialize">
-<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">manager</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.Setting.initialize" title="Permalink to this definition"></a></dt>
-<dd><p>Link between manager stored setting and direct setting of simulation</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bim2sim.sim_settings.Setting.load_default">
-<span class="sig-name descname"><span class="pre">load_default</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.sim_settings.Setting.load_default" title="Permalink to this definition"></a></dt>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.Setting.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#bim2sim.sim_settings.Setting.name" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -2074,11 +2027,15 @@ all information.</p>
 bound to. E.g. BuildingSimSettings.</p>
 </dd>
 </dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.sim_settings.SettingsManager.defaults">
+<span class="sig-name descname"><span class="pre">defaults</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#bim2sim.sim_settings.SettingsManager.defaults" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="bim2sim.sim_settings.SettingsManager.names">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">names</span></span><a class="headerlink" href="#bim2sim.sim_settings.SettingsManager.names" title="Permalink to this definition"></a></dt>
-<dd><p>Returns a generator object with all settings that the
-bound_simulation_settings owns.</p>
+<dd><p>Returns a generator object with all settings that the bound_simulation_settings owns.</p>
 </dd></dl>
 
 </dd></dl>
