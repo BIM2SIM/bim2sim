@@ -5,14 +5,15 @@ stages:
   - Test Regression
   - doc
   - code_quality
+  - release_modelica
+  - release_energyplus
   - deploy
-#  - build
 
 variables:
   # TODO variable inside variable seems not be working on our gitlab instance,
   # see post below, therefore use hardcoded image here for sphinx job
   # https://stackoverflow.com/questions/67005507/variable-inside-variable-gitlab-ci
-  PYTHON_VERSION: "registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:dev-py3.11"
+  PYTHON_VERSION: "registry.git.rwth-aachen.de/ebc/ebc_all/github_ci/bim2sim/bim2sim:py3.11-occ7.7.0"
 #  PYTHON_VERSION: "${CI_REGISTRY}/environment:development"
   GIT_SUBMODULE_STRATEGY: recursive
   GH_REPO_URL: "git@github.com:BIM2SIM/bim2sim.git"
@@ -21,6 +22,7 @@ variables:
   TEST_PATH: test
 
 include:
+  - 'ci/builds_releases.gitlab-ci.yml'
   - project: 'EBC/EBC_all/gitlab_ci/templates'
     file: 'python/code-quality/pylint.gitlab-ci.yml'
   - project: 'EBC/EBC_all/gitlab_ci/templates'
@@ -36,665 +38,6 @@ include:
     - micromamba activate base
     - pip install -e .[docu,PluginTEASER,PluginEnergyPlus,PluginAixLib,PluginCFD,PluginHKESim,PluginLCA,PluginComfort,PluginOpenFOAM]
 
-.build_template: &build_template
-  image: docker:24.0.5
-  stage: build
-  services:
-    - name: docker:24.0.5-dind
-      variables:
-        HEALTHCHECK_TCP_PORT: "2376"
-  before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN
-  script:
-    - docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} .
-    - docker push $CI_REGISTRY/bim2sim:$TAG
-
-.build_template_dymola: &build_template_dymola
-  image: docker:24.0.5
-  stage: build
-  services:
-    - name: docker:24.0.5-dind
-      variables:
-        HEALTHCHECK_TCP_PORT: "2376"
-  before_script:
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME_DYMOLA -p $CI_DEPLOY_TOKEN_PASSWORD_DYMOLA $CI_REGISTRY_LOGIN_DYMOLA   # login dymola docker reg
-  script:
-    - docker build --build-arg PYTHON_VERSION=${PYTHON_VERSION} -t $CI_REGISTRY/bim2sim:$TAG -f ${DOCKERFILE} .
-    - docker login -u $CI_DEPLOY_TOKEN_USERNAME -p $CI_DEPLOY_TOKEN_PASSWORD $CI_REGISTRY_LOGIN  # login bim2sim reg
-    - docker push $CI_REGISTRY/bim2sim:$TAG
-
-# Development branch base builds
-build:dev:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: dev-py3.10
-    DOCKERFILE: Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-        - bim2sim/plugins/**/*.Dockerfile
-
-build:dev:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: dev-py3.11
-    DOCKERFILE: Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-        - bim2sim/plugins/**/*.Dockerfile
-
-# Development branch plugin builds
-build:dev-PluginTEASER:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: dev-PluginTEASER-py3.10
-    DOCKERFILE: bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
-  needs:
-    - build:dev:py3.10
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dev-PluginTEASER:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: dev-PluginTEASER-py3.11
-    DOCKERFILE: bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
-  needs:
-    - build:dev:py3.11
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dev-PluginAixLib:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: dev-PluginAixLib-py3.10
-    DOCKERFILE: bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
-  needs:
-    - build:dev:py3.10
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dev-PluginAixLib:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: dev-PluginAixLib-py3.11
-    DOCKERFILE: bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
-  needs:
-    - build:dev:py3.11
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dev-PluginHKESim:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: dev-PluginHKESim-py3.10
-    DOCKERFILE: bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
-  needs:
-    - build:dev:py3.10
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dev-PluginHKESim:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: dev-PluginHKESim-py3.11
-    DOCKERFILE: bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
-  needs:
-    - build:dev:py3.11
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dev-PluginEnergyPlus:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: dev-PluginEnergyPlus-py3.10
-    DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
-  needs:
-    - build:dev-energyplus:py3.10
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dev-PluginEnergyPlus:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: dev-PluginEnergyPlus-py3.11
-    DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
-  needs:
-    - build:dev-energyplus:py3.11
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dev-PluginComfort:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: dev-PluginComfort-py3.10
-    DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
-  needs:
-    - build:dev-energyplus:py3.10
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dev-PluginComfort:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: dev-PluginComfort-py3.11
-    DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
-  needs:
-    - build:dev-energyplus:py3.11
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dev-PluginOpenFOAM:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: dev-PluginOpenFOAM-py3.10
-    DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
-  needs:
-    - build:dev-energyplus:py3.10
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dev-PluginOpenFOAM:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: dev-PluginOpenFOAM-py3.11
-    DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
-  needs:
-    - build:dev-energyplus:py3.11
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-# TODO PluginLCA currently has no dependencies, but might have in the future
-build:dev-PluginLCA:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: dev-PluginLCA-py3.10
-    DOCKERFILE: bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
-  needs:
-    - build:dev:py3.10
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-# TODO PluginLCA currently has no dependencies, but might have in the future
-build:dev-PluginLCA:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: dev-PluginLCA-py3.11
-    DOCKERFILE: bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
-  needs:
-    - build:dev:py3.11
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-# Build dymola images
-build:dev-dymola:py3.10:
-  <<: *build_template_dymola
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: dev-dymola-py3.10
-    DOCKERFILE: Dymola.Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dymola.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dev-dymola:py3.11:
-  <<: *build_template_dymola
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: dev-dymola-py3.11
-    DOCKERFILE: Dymola.Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dymola.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-# Build EnergyPlus images
-build:dev-energyplus:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: dev-energyplus-py3.10
-    DOCKERFILE: EnergyPlus.Dockerfile
-  needs:
-    - build:dev:py3.10
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - EnergyPlus.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:dev-energyplus:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: dev-energyplus-py3.11
-    DOCKERFILE: EnergyPlus.Dockerfile
-  needs:
-    - build:dev:py3.11
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "development"'
-      changes:
-        - Dockerfile
-        - EnergyPlus.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-
-# Main branch base builds
-build:main:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: main-py3.10
-    DOCKERFILE: Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-        - bim2sim/plugins/**/*.Dockerfile
-
-
-build:main:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: main-py3.11
-    DOCKERFILE: Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-        - bim2sim/plugins/**/*.Dockerfile
-
-# Main branch plugin builds
-build:main-PluginTEASER:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: main-PluginTEASER-py3.10
-    DOCKERFILE: bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
-  needs:
-    - build:main:py3.10
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:main-PluginTEASER:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: main-PluginTEASER-py3.11
-    DOCKERFILE: bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
-  needs:
-    - build:main:py3.11
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:main-PluginAixLib:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: main-PluginAixLib-py3.10
-    DOCKERFILE: bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
-  needs:
-    - build:main:py3.10
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:main-PluginAixLib:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: main-PluginAixLib-py3.11
-    DOCKERFILE: bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
-  needs:
-    - build:main:py3.11
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:main-PluginHKESim:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: main-PluginHKESim-py3.10
-    DOCKERFILE: bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
-  needs:
-    - build:main:py3.10
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:main-PluginHKESim:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: main-PluginHKESim-py3.11
-    DOCKERFILE: bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
-  needs:
-    - build:main:py3.11
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:main-PluginEnergyPlus:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: main-PluginEnergyPlus-py3.10
-    DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
-  needs:
-    - build:main-energyplus:py3.10
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:main-PluginEnergyPlus:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: main-PluginEnergyPlus-py3.11
-    DOCKERFILE: bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
-  needs:
-    - build:main-energyplus:py3.11
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginEnergyPlus/PluginEnergyPlus.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:main-PluginComfort:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: main-PluginComfort-py3.10
-    DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
-  needs:
-    - build:main-energyplus:py3.10
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:main-PluginComfort:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: main-PluginComfort-py3.11
-    DOCKERFILE: bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
-  needs:
-    - build:main-energyplus:py3.11
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginComfort/PluginComfort.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:main-PluginOpenFOAM:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: main-PluginOpenFOAM-py3.10
-    DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
-  needs:
-    - build:main-energyplus:py3.10
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:main-PluginOpenFOAM:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: main-PluginOpenFOAM-py3.11
-    DOCKERFILE: bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
-  needs:
-    - build:main-energyplus:py3.11
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginOpenFOAM/PluginOpenFOAM.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:main-PluginLCA:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: main-PluginLCA-py3.10
-    DOCKERFILE: bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
-  needs:
-    - build:main:py3.10
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:main-PluginLCA:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: main-PluginLCA-py3.11
-    DOCKERFILE: bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
-  needs:
-    - build:main:py3.11
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dockerfile
-        - bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-# Build dymola images
-build:main-dymola:py3.10:
-  <<: *build_template_dymola
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: main-dymola-py3.10
-    DOCKERFILE: Dymola.Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dymola.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:main-dymola:py3.11:
-  <<: *build_template_dymola
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: main-dymola-py3.11
-    DOCKERFILE: Dymola.Dockerfile
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dymola.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-# Build EnergyPlus images
-build:main-energyplus:py3.10:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.10"
-    TAG: main-energyplus-py3.10
-    DOCKERFILE: EnergyPlus.Dockerfile
-  needs:
-    - build:main:py3.10
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dockerfile
-        - EnergyPlus.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
-build:main-energyplus:py3.11:
-  <<: *build_template
-  variables:
-    PYTHON_VERSION: "3.11"
-    TAG: main-energyplus-py3.11
-    DOCKERFILE: EnergyPlus.Dockerfile
-  needs:
-    - build:main:py3.11
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "main"'
-      changes:
-        - Dockerfile
-        - EnergyPlus.Dockerfile
-        - pyproject.toml
-        - .gitlab-ci.yml
-
 # Tests
 .test_template_base: &test_template_base
   stage: Test Base
@@ -705,7 +48,6 @@ build:main-energyplus:py3.11:
     - mkdir -p ~/bim2sim-coding/
     - mv ./* ~/bim2sim-coding/
     - cd ~/bim2sim-coding
-    - pip uninstall -y bim2sim
     - pip install -e .[test]
     - export BIM2SIM_LOG_LEVEL=ERROR
     - |
@@ -733,7 +75,6 @@ build:main-energyplus:py3.11:
     - mkdir -p ~/bim2sim-coding/
     - mv ./* ~/bim2sim-coding/
     - cd ~/bim2sim-coding
-    - pip uninstall -y bim2sim
     - pip install -e .[test]
     - pip install -e .[$plugin]
     - export BIM2SIM_LOG_LEVEL=ERROR
@@ -762,7 +103,6 @@ build:main-energyplus:py3.11:
     - mkdir -p ~/bim2sim-coding/
     - mv ./* ~/bim2sim-coding/
     - cd ~/bim2sim-coding
-    - pip uninstall -y bim2sim
     - pip install -e .[test]
     - pip install -e .[$plugin]
     - export BIM2SIM_LOG_LEVEL=ERROR
@@ -801,14 +141,14 @@ build:main-energyplus:py3.11:
 # Unit tests for base
 py3.10:
   <<: *test_template_base
-  image: $CI_REGISTRY/bim2sim:dev-py3.10
+  image: $CI_REGISTRY/bim2sim:py3.10-occ7.7.0
   variables:
     PYTHON_VERSION: "3.10"
     COVERAGE: "false"
 
 py3.11:
   <<: *test_template_base
-  image: $CI_REGISTRY/bim2sim:dev-py3.11
+  image: $CI_REGISTRY/bim2sim:py3.11-occ7.7.0
   variables:
     PYTHON_VERSION: "3.11"
     COVERAGE: "true"
@@ -816,133 +156,133 @@ py3.11:
 # Integration tests
 PluginTEASER:py3.10:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.10
+  image: $CI_REGISTRY/bim2sim:py3.10-occ7.7.0
   variables:
     plugin: "PluginTEASER"
 
 PluginTEASER:py3.11:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.11
+  image: $CI_REGISTRY/bim2sim:py3.11-occ7.7.0
   variables:
     plugin: "PluginTEASER"
 
 PluginAixLib:py3.10:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.10
+  image: $CI_REGISTRY/bim2sim:py3.10-occ7.7.0
   variables:
     plugin: "PluginAixLib"
 
 PluginAixLib:py3.11:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.11
+  image: $CI_REGISTRY/bim2sim:py3.11-occ7.7.0
   variables:
     plugin: "PluginAixLib"
 
 PluginEnergyPlus:py3.10:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.10
+  image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.10
   variables:
     plugin: "PluginEnergyPlus"
 
 PluginEnergyPlus:py3.11:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.11
+  image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.11
   variables:
     plugin: "PluginEnergyPlus"
 
 PluginHKESim:py3.10:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.10
+  image: $CI_REGISTRY/bim2sim:py3.10-occ7.7.0
   variables:
     plugin: "PluginHKESim"
 
 PluginHKESim:py3.11:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.11
+  image: $CI_REGISTRY/bim2sim:py3.11-occ7.7.0
   variables:
     plugin: "PluginHKESim"
 
 PluginLCA:py3.10:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.10
+  image: $CI_REGISTRY/bim2sim:py3.10-occ7.7.0
   variables:
     plugin: "PluginLCA"
 
 PluginLCA:py3.11:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-py3.11
+  image: $CI_REGISTRY/bim2sim:py3.11-occ7.7.0
   variables:
     plugin: "PluginLCA"
 
 PluginComfort:py3.10:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.10
+  image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.10
   variables:
     plugin: "PluginComfort"
 
 PluginComfort:py3.11:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.11
+  image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.11
   variables:
     plugin: "PluginComfort"
 
 PluginOpenFOAM:py3.10:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.10
+  image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.10
   variables:
     plugin: "PluginOpenFOAM"
 
 PluginOpenFOAM:py3.11:
   <<: *test_template_plugin_integration
-  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.11
+  image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.11
   variables:
     plugin: "PluginOpenFOAM"
 
 # Regression tests
 PluginTEASER_reg:py3.10:
   <<: *test_template_plugin_regression
-  image: $CI_REGISTRY/bim2sim:dev-dymola-py3.10
+  image: $CI_REGISTRY/bim2sim:dymola2022-py3.10
   variables:
     plugin: "PluginTEASER"
 
 PluginTEASER_reg:py3.11:
   <<: *test_template_plugin_regression
-  image: $CI_REGISTRY/bim2sim:dev-dymola-py3.11
+  image: $CI_REGISTRY/bim2sim:dymola2022-py3.11
   variables:
     plugin: "PluginTEASER"
 
 PluginEnergyPlus_reg:py3.10:
   <<: *test_template_plugin_regression
-  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.10
+  image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.10
   variables:
     plugin: "PluginEnergyPlus"
 
 PluginEnergyPlus_reg:py3.11:
   <<: *test_template_plugin_regression
-  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.11
+  image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.11
   variables:
     plugin: "PluginEnergyPlus"
 
 PluginComfort_reg:py3.10:
   <<: *test_template_plugin_regression
-  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.10
+  image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.10
   variables:
     plugin: "PluginComfort"
 
 PluginComfort_reg:py3.11:
   <<: *test_template_plugin_regression
-  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.11
+  image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.11
   variables:
     plugin: "PluginComfort"
 
 PluginOpenFOAM_reg:py3.10:
   <<: *test_template_plugin_regression
-  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.10
+  image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.10
   variables:
     plugin: "PluginOpenFOAM"
 
 PluginOpenFOAM_reg:py3.11:
   <<: *test_template_plugin_regression
-  image: $CI_REGISTRY/bim2sim:dev-energyplus-py3.11
+  image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.11
   variables:
     plugin: "PluginOpenFOAM"
