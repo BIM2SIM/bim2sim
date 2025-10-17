@@ -277,8 +277,8 @@ class OpenFOAMSimSettings(ComfortSimSettings):
                     'radiation for fvDOM radiation',
         for_frontend=True
     )
-    add_solar_radiation=BooleanSetting(
-        value=True,
+    add_solar_radiation = BooleanSetting(
+        value=False,
         description='Add solar radiation. Requires fvDOM as radiation model.',
         for_frontend=True
     )
@@ -346,4 +346,16 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         max_value=1024,
         description='Number of physical cores per node.',
         for_frontend=True
+    )
+    set_openfoam_version = ChoiceSetting(
+        default="Standard",
+        choices={"Standard": "Use v2206 from the Compute Cluster.",
+                 "Modified": "Use a modified version saved to the rwth1588 "
+                             "account.",
+                 "Custom": "Leaves a dummy path in the run-files which must "
+                           "be replaced manually."},
+        description='Specify which OpenFOAM version to use, either by choice '
+                    'or by a path.',
+        for_frontend=True,
+        any_string=True
     )

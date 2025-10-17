@@ -6,16 +6,17 @@
 
 #### Request the memory you need for your job.
 ##SBATCH --mem-per-cpu=2600M
+##SBATCH --output=logJOBNAME.txt
 
 ### Request processes & nodes
-COMP_ACCOUNT
+SET_COMP_ACCOUNT
 #SBATCH --nodes=NNODES
 #SBATCH --ntasks=NPROCS
 
 ### Load the required module files
 module load GCC/11.3.0
 module load OpenMPI/4.1.4
-module load OpenFOAM/v2206
+LOAD_OPENFOAM_VERISON
 
 ### start the OpenFOAM binary in parallel, cf.
 blockMesh

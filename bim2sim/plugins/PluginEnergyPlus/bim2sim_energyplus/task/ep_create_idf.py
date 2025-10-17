@@ -1861,6 +1861,26 @@ class CreateIdf(ITask):
                 "Surface Window Net Heat Transfer Rate",
                 Reporting_Frequency="Hourly",
             )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Site Solar Azimuth Angle",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Site Solar Altitude Angle",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Site Diffuse Solar Radiation Rate per Area",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Site Direct Solar Radiation Rate per Area",
+                Reporting_Frequency="Hourly",
+            )
         idf.newidfobject("OUTPUT:DIAGNOSTICS",
                          Key_1="DisplayAdvancedReportVariables",
                          Key_2="DisplayExtraWarnings")

@@ -1,6 +1,8 @@
 from collections import OrderedDict
 
 import pandas as pd
+import numpy as np
+from math import sin, cos, sqrt, pi
 
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils import \
@@ -33,24 +35,45 @@ class SetOpenFOAMBoundaryConditions(ITask):
             add_floor_heating=self.playground.sim_settings.add_floorheating)
         self.init_boundary_conditions(openfoam_case, openfoam_elements)
         self.add_fvOptions_for_heating(openfoam_case, openfoam_elements)
-
+        if openfoam_case.add_solar_radiation:
+            self.modify_radiationProperties_for_solar_radiation(
+                openfoam_case, openfoam_elements)
         return openfoam_case, openfoam_elements
 
     def assign_ep_results(self, openfoam_elements, openfoam_case,
                           add_floor_heating=False):
         stl_bounds = filter_elements(openfoam_elements, 'StlBound')
         timestep_df = openfoam_case.timestep_df
+        # todo: check solar load calcs
+        if self.playground.sim_settings.add_solar_radiation:
+            openfoam_case.solar_azimuth_angle = timestep_df.filter(
+                like='Solar Azimuth Angle').values[0]
+            openfoam_case.solar_altitude_angle = timestep_df.filter(
+                like='Solar Altitude Angle').values[0]
+            # openfoam_case.solar_hour_angle = timestep_df.filter(
+            # like='Solar Hour Angle').values[0]
+            openfoam_case.direct_solar_rad = timestep_df.filter(
+                like='Direct Solar Radiation').values[0]
+            openfoam_case.diffuse_solar_rad = timestep_df.filter(
+                like='Diffuse Solar Radiation').values[0]
         openfoam_case.current_zone.zone_heat_conduction = 0
         openfoam_case.current_zone.air_temp = timestep_df[
                                                   openfoam_case.current_zone.guid.upper() +
                                                   ':' + (
                                                       'Zone Mean Air Temperature [C]('
                                                       'Hourly)')] + 273.15
+        window_solar_heat_gains = 0
         for bound in stl_bounds:
-            bound.read_boundary_conditions(timestep_df, openfoam_case.current_zone.air_temp)
+            bound.read_boundary_conditions(timestep_df,
+                                           openfoam_case.current_zone.air_temp,
+                                           self.playground.sim_settings.add_solar_radiation)
             openfoam_case.current_zone.zone_heat_conduction += (
                     bound.bound_area * bound.heat_flux)
-            # todo: add gains from solar radiation
+            # add gains from solar radiation
+            if bound.bound_element_type == "Window":
+                res_key = bound.guid.upper() + ':'
+                window_solar_heat_gains += timestep_df[res_key + (
+                    'Surface Window Transmitted Solar Radiation Rate [W](Hourly)')]
         # compute internal gains
         people = filter_elements(openfoam_elements, 'People')
         # todo: add other internal gains from equipment etc.
@@ -61,7 +84,10 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.current_zone.zone_heat_conduction)
         if self.playground.sim_settings.level_heat_balance:
             openfoam_case.required_heating_power += openfoam_case.internal_gains
-            # todo: consider radiation from windows once implemented
+            # add solar radiation from windows which is either provided as
+            # part of the window's heat flux or directly including solar
+            # radiation
+            openfoam_case.required_heating_power += window_solar_heat_gains
             if openfoam_case.required_heating_power > 0:
                 openfoam_case.required_cooling_power = (
                     openfoam_case.required_heating_power)
@@ -723,9 +749,26 @@ class SetOpenFOAMBoundaryConditions(ITask):
             boundaryRadiationProperties.BoundaryRadiationProperties())
         default_name_list = openfoam_case.default_surface_names
 
-        for bound in stl_bounds:
-            openfoam_case.boundaryRadiationProperties.values.update(
-                {bound.solid_name: bound.boundaryRadiationProperties})
+        if not openfoam_case.add_solar_radiation:
+            for bound in stl_bounds:
+                openfoam_case.boundaryRadiationProperties.values.update(
+                    {bound.solid_name: bound.boundaryRadiationProperties})
+        else:
+            wall_AEModel = {'type': 'constantAbsorption', 'absorptivity':
+                '0.90', 'emissivity': '0.85'}
+            window_AEModel = {'type': 'constantAbsorption', 'absorptivity':
+                '0.0', 'emissivity': '1.0'}
+            wallProperties = {'type': 'opaqueDiffusive',
+                              'wallAbsorptionEmissionModel': wall_AEModel}
+            windowProperties = {'type': 'transparent',
+                                'wallAbsorptionEmissionModel': window_AEModel}
+            for bound in stl_bounds:
+                if 'WINDOW' in bound.solid_name.upper():
+                    openfoam_case.boundaryRadiationProperties.values.update(
+                        {bound.solid_name: windowProperties})
+                else:
+                    openfoam_case.boundaryRadiationProperties.values.update(
+                        {bound.solid_name: wallProperties})
         for heater in heaters:
             # openfoam_case.boundaryRadiationProperties.values.update(
             # {heater.porous_media.solid_name:
@@ -787,3 +830,34 @@ class SetOpenFOAMBoundaryConditions(ITask):
                  }
             )
         openfoam_case.fvOptions.save(openfoam_case.openfoam_dir)
+
+    @staticmethod
+    def modify_radiationProperties_for_solar_radiation(openfoam_case,
+                                                       openfoam_elements):
+        rP = openfoam_case.radiationProperties
+        rP.values.update({'useSolarLoad': 'true'})
+        rP.values['fvDOMCoeffs'].update({'useSolarLoad': 'true'})
+        s_x = cos(openfoam_case.solar_altitude_angle) * sin(
+            openfoam_case.solar_azimuth_angle)
+        s_y = cos(openfoam_case.solar_altitude_angle) * cos(
+            openfoam_case.solar_azimuth_angle)
+        s_z = sin(openfoam_case.solar_altitude_angle)
+        normalization = sqrt(s_x ** 2 + s_y ** 2 + s_z ** 2)
+        abs_sun_dir = np.array([s_x, -s_y, s_z])
+        theta = 2 * pi * openfoam_case.building_rotation / 360
+        rotation_matrix = np.array([[cos(theta), -sin(theta), 0],
+                                    [sin(theta), cos(theta), 0],
+                                    [0, 0, 1]])
+        rot_sun_dir = rotation_matrix @ abs_sun_dir
+        sun_dir = [round(rot_sun_dir[i] * normalization, 3) for i in
+                   range(3)]
+        sun_dir_str = ('(' + str(sun_dir[0]) + ' ' + str(sun_dir[1]) + ' ' +
+                       str(sun_dir[2]) + ')')
+        rP.values['solarLoadCoeffs'].update({'sunDirection': sun_dir_str})
+        rP.values['solarLoadCoeffs'].update({'directSolarRad':
+                                                 openfoam_case.direct_solar_rad})
+        rP.values['solarLoadCoeffs'].update({'diffuseSolarRad':
+                                                 openfoam_case.diffuse_solar_rad})
+        openfoam_case.radiationProperties.save(
+            openfoam_case.openfoam_dir)
+

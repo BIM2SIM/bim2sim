@@ -91,6 +91,9 @@ class RunOpenFOAMSimulation(ITask):
                         'radiationProperties')
             posixpath = thispath.as_posix()
             openfoam_case.radiationProperties = foamfile.FoamFile.from_file(posixpath)
+            if openfoam_case.add_solar_radiation:
+                openfoam_case.radiationProperties.update_values(
+                    {'useSolarLoad': 'true'})
             openfoam_case.radiationProperties.save(openfoam_case.openfoam_dir)
             os.system('decomposePar -fields')
             logger.info(

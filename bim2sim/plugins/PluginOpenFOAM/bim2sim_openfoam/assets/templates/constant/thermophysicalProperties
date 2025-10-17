@@ -52,7 +52,7 @@ mixture
 
         Cp		1004.5;
 
-        Hf		0; // 2.544e+06;
+        Hf		0; // 2.544e+06; change to >0 ??? //ah
 
     }
 

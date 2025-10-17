@@ -29,4 +29,12 @@ class OpenFOAMCase:
         self.internal_gains = None
         self.n_procs = playground.sim_settings.n_procs
         self.floor_area = None
+        self.add_solar_radiation = playground.sim_settings.add_solar_radiation
+        self.building_rotation = (
+            playground.sim_settings.building_rotation_overwrite)
+        self.solar_azimuth_angle = None
+        self.solar_altitude_angle = None
+        self.solar_hour_angle = None
+        self.direct_solar_rad = None
+        self.diffuse_solar_rad = None
         self.timestep_df = None

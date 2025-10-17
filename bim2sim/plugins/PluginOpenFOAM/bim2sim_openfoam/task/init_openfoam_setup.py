@@ -201,16 +201,29 @@ class InitializeOpenFOAMSetup(ITask):
     def create_jobscripts(openfoam_case, simsettings):
         openfoam_case.openfoam_scripts_dir = openfoam_case.openfoam_dir
         openfoam_case.openfoam_scripts_dir.mkdir(exist_ok=True)
+        open(openfoam_case.openfoam_dir / 'paraview.foam', 'x')
         script_files = ['fullRun.sh', 'runMeshing.sh', 'runSimulation.sh']
         comp_acct = "" if not simsettings.cluster_compute_account else (
             "#SBATCH --account=" + simsettings.cluster_compute_account)
+        of_version = "module load OpenFOAM/v2206"
+        if simsettings.set_openfoam_version != "Standard":
+            if simsettings.set_openfoam_version == "Modified":
+                foam_path = "/work/rwth1588/openfoam-correctedSolar/etc/bashrc"
+            elif simsettings.set_openfoam_version == "Custom":
+                foam_path = "path/to/your/custom/openfoam/installation"
+            else:
+                foam_path = simsettings.set_openfoam_version
+            of_version = f"source {foam_path}"
+
         replacements = {"JOBNAME": simsettings.cluster_jobname,
                         "STIME": simsettings.cluster_max_runtime_simulation,
                         "MTIME": simsettings.cluster_max_runtime_meshing,
-                        "COMP_ACCOUNT": comp_acct,
+                        "SET_COMP_ACCOUNT": comp_acct,
+                        "LOAD_OPENFOAM_VERSION": of_version,
                         "NNODES": str(math.ceil(
                             openfoam_case.n_procs/simsettings.cluster_cpu_per_node)),
                         "NPROCS": str(openfoam_case.n_procs)}
+
         open(openfoam_case.openfoam_dir / 'paraview.foam', 'x')
         for script_file in script_files:
             src = openfoam_case.default_templates_dir / 'scripts' / script_file
