@@ -7,6 +7,8 @@ from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_base_element import \
     OpenFOAMBaseElement
 from bim2sim.utilities.pyocc_tools import PyOCCTools
+from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils import \
+    OpenFOAMUtils as of_utils
 
 
 class HeaterSurface(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
@@ -113,10 +115,11 @@ class Heater:
             {'type': 'externalWallHeatFluxTemperature',
              'mode': 'power',
              'qr': f"{qr}",
-             'Q': f'{self.heater_surface.power}',
+             'Q': f'{of_utils.float_cutoff(self.heater_surface.power)}',
              'qrRelaxation': 0.003,
              'relaxation': 1.0,
              'kappaMethod': 'fluidThermo',
              'kappa': 'fluidThermo',
-             'value': f'uniform {self.heater_surface.temperature + 273.15}'
+             'value': f'uniform '
+                      f'{of_utils.float_cutoff(self.heater_surface.temperature + 273.15)}'
              }

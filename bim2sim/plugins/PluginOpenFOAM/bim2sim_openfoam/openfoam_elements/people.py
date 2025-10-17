@@ -8,6 +8,9 @@ from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_base_element import \
     OpenFOAMBaseElement
 from bim2sim.utilities.pyocc_tools import PyOCCTools
+from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils import \
+    OpenFOAMUtils as of_utils
+
 
 body_part_boundary_conditions = {
     # detailed temperatures represent clothing/skin temperatures according to
@@ -196,19 +199,21 @@ class BodyPart(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
             #      'value': f'uniform {self.temperature + 273.15}'
             #      }
             self.T = {'type': 'fixedValue',
-                      'value': f'uniform {self.temperature + 273.15}'
+                      'value': f'uniform '
+                               f'{of_utils.float_cutoff(self.temperature + 273.15)}'
                       }
         else:
             self.T = \
                 {'type': 'externalWallHeatFluxTemperature',
                  'mode': 'power',
                  'qr': f"{qr}",
-                 'Q': f'{self.power}',
+                 'Q': f'{of_utils.float_cutoff(self.power)}',
                  'qrRelaxation': 0.003,
                  'relaxation': 1.0,
                  'kappaMethod': 'fluidThermo',
                  'kappa': 'fluidThermo',
-                 'value': f'uniform {self.temperature + 273.15}'
+                 'value': f'uniform '
+                          f'{of_utils.float_cutoff(self.temperature + 273.15)}'
                  }
 
 
@@ -309,11 +314,12 @@ class People(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
             {'type': 'externalWallHeatFluxTemperature',
              'mode': 'power',
              'qr': f"{qr}",
-             'Q': f'{self.power}',
+             'Q': f'{of_utils.float_cutoff(self.power)}',
              'qrRelaxation': 0.003,
              'relaxation': 1.0,
              'kappaMethod': 'fluidThermo',
              'kappa': 'fluidThermo',
-             'value': f'uniform {self.temperature + 273.15}'
+             'value': f'uniform '
+                      f'{of_utils.float_cutoff(self.temperature + 273.15)}'
              }
 

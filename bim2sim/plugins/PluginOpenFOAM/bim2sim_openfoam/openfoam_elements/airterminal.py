@@ -5,6 +5,8 @@ from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_
 from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.openfoam_base_element import \
     OpenFOAMBaseElement
 from bim2sim.utilities.pyocc_tools import PyOCCTools
+from bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils.openfoam_utils import \
+    OpenFOAMUtils as of_utils
 
 
 class AirDiffuser(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
@@ -125,7 +127,7 @@ class AirTerminal:
     def set_boundary_conditions(self, air_temp, volumetric_flow):
         # set air temperature
         self.source_sink.volumetric_flow = volumetric_flow / 1000  # l/s to m3/s
-        self.source_sink.temperature = air_temp
+        self.source_sink.temperature = of_utils.float_cutoff(air_temp)
         self.source_sink.alphat = \
             {'type': 'calculated', 'value': 'uniform 0'}
         self.source_sink.nut = {'type': 'calculated', 'value': 'uniform 0'
