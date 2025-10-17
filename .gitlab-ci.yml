@@ -5,7 +5,8 @@ stages:
   - Test Regression
   - doc
   - code_quality
-  - release
+  - release_modelica
+  - release_energyplus
   - deploy
 
 variables:
