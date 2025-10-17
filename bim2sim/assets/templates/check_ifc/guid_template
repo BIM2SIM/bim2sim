@@ -1,0 +1,81 @@
+<style type="text/css">
+    .tg  {border-collapse:collapse;border-color:#ccc;border-spacing:0;}
+    .tg td{background-color:#fff;border-color:#ccc;border-style:solid;
+        border-width:1px;color:#333;
+        font-family:Arial, sans-serif;font-size:14px;overflow:hidden;
+        padding:10px 6px;word-break:normal;}
+    .tg th{background-color:#f0f0f0;border-color:#ccc;border-style:solid;
+        border-width:1px;color:#333;
+        font-family:Arial, sans-serif;font-size:14px;font-weight:normal;
+        overflow:hidden;padding:10px 6px;word-break:normal;}
+    .tg .tg-c3ow{border-color:inherit;text-align:center;vertical-align:top}
+    .tg .tg-fymr{border-color:inherit;font-weight:bold;text-align:left;
+        vertical-align:top}
+    .tg .tg-7btt{border-color:inherit;font-weight:bold;text-align:center;
+        vertical-align:top}
+    .tg .tg-dvpl{border-color:inherit;text-align:right;vertical-align:top}
+    .tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+</style>
+<h2>Overview</h2>
+<table class="tg">
+    <thead>
+        <tr>
+            <th colspan=2 class="tg-7btt">GUID error Summary</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th colspan=2 class="tg-7btt"><a href="#NonUniqueGUID">Non-Unique GUID</a>
+            </th>
+        </tr>
+        <tr>
+            <td class="tg-fymr">Total non-unique GUIDs:</td>
+            <td class="tg-dvpl"> ${len(double_guids)}</td>
+        </tr>
+
+        <tr>
+            <th colspan=2 class="tg-7btt"><a href="#EmptyGUID">Empty GUID</a>
+            </th>
+        </tr>
+        <tr>
+            <td class="tg-fymr">Total Empty GUIDs:</td>
+            <td class="tg-dvpl"> ${len(empty_guids)}</td>
+        </tr>
+    </tbody>
+</table><br>
+
+<h2 id="NonUniqueGUID">Non-Unique GUIDs</h2>
+<table class="tg">
+    <thead>
+        <tr>
+            <th class="tg-1wig">GUID</th>
+            <th class="tg-1wig">Name</th>
+        </tr>
+    </thead>
+    %for guid, values in double_guids.items():
+        <tr>
+            <td class="tg-1wig">${guid}</td>
+            <td class="tg-1wig">${values.Name}</td>
+        </tr>
+    %endfor
+    </tbody>
+</table><br>
+
+<h2 id="EmptyGUID">Empty GUIDs</h2>
+<table class="tg">
+    <thead>
+        <tr>
+            <th class="tg-1wig">Generated Key (bim2sim)</th>
+            <th class="tg-1wig">Name</th>
+            <th class="tg-1wig">GlobalID</th>
+        </tr>
+    </thead>
+    %for key, values in empty_guids.items():
+        <tr>
+            <td class="tg-1wig">${key}</td>
+            <td class="tg-1wig">${values.Name}</td>
+            <td class="tg-1wig">${values.GlobalId}</td>
+        </tr>
+    %endfor
+    </tbody>
+</table><br>

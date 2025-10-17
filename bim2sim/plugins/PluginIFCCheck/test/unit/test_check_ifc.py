@@ -1,0 +1,356 @@
+"""Tests for the ifc check of bim2sim
+
+Based on ifctester and IDS (Information Delivery Specification), but also checks not
+based on ifctester (some requirements are not able to check with IDS v10)
+"""
+
+import unittest
+import tempfile
+from pathlib import Path
+
+import bim2sim.tasks.common.load_ifc
+from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
+from bim2sim.elements.base_elements import ProductBased
+from bim2sim.plugins import Plugin
+from bim2sim.project import Project
+from bim2sim.sim_settings import BaseSimSettings
+from bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck.sim_settings import \
+    CheckIFCSimSettings
+from bim2sim.utilities.types import IFCDomain
+
+from bim2sim.tasks.common.check_ifc_ids import CheckIfc
+
+class PluginDummy(Plugin):
+    name = 'test'
+    sim_settings = CheckIFCSimSettings
+    default_tasks = [
+        bim2sim.tasks.common.load_ifc.LoadIFC,
+    ]
+
+test_rsrc_path = Path(__file__).parent.parent.parent.parent.parent.parent / 'test/resources'
+
+
+class TestCheckIFC(unittest.TestCase):
+    """Tests for function checking IFC files, which are self made (these needed
+       features are not included in the library ifctester respectifly in IDS
+       standard
+
+    """
+
+    def tearDown(self):
+        self.project.finalize(True)
+        self.test_dir.cleanup()
+
+    def weather_file_path(self) -> Path:
+        return (test_rsrc_path /
+                'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
+
+    # TODO move test ifc file into resources and adapt path
+    ifc_file_fkz = Path(bim2sim.__file__).parent.parent / 'test/resources/arch/ifc/AC20-FZK-Haus.ifc'
+    ifc_file_fkz_DoubleAndNoneGUID = Path(
+        '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_NoneAndDoubleGUID.ifc')
+    ifc_file_fkz_SB55_DoubleAndNoneGUID = Path(
+        '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55_NoneAndDoubleGUID.ifc')
+    ifc_file_fkz_SB55 = Path(
+        '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc')
+    ifc_file_fkz_ifc23 = Path(
+        '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_ifc23.ifc')
+
+    def test_check_guid_unique_pass(self):
+        """test the boolean of the GUID uniqueness check, check pass
+           the following represent a project using the DummyPlugin
+        """
+
+        self.test_dir = tempfile.TemporaryDirectory()
+        ifc_paths = {
+            IFCDomain.arch: self.ifc_file_fkz_SB55,
+        }
+        self.project = Project.create(self.test_dir.name, ifc_paths,
+                                 plugin=PluginDummy, )
+        # weather data path is mandatory and "mocking" is not working
+        # so use a central defintion of weather file
+        self.project.sim_settings.weather_file_path = self.weather_file_path()
+        # put project.run into DebugDecisionHandler is need, otherwise the
+        # playground.state() is empty and ifc_files are not available
+        # default answer for decision questions
+        answers = ('Other',)
+        handler = DebugDecisionHandler(answers)
+        handler.handle(self.project.run(cleanup=False))
+
+        ifc_files = self.project.playground.state['ifc_files']
+
+        for ifc_file in ifc_files:
+            # self.run_check_guid_unique(ifc_file)
+            all_guids_checks_passed, non_unique_guids = CheckIfc.run_check_guid_unique(self, ifc_file)
+            self.assertEqual(all_guids_checks_passed, True, "Should be True")
+
+    def test_check_guid_unique_fail(self):
+        """test the boolean of the GUID uniqueness check, check fail
+           the following represent a project using the DummyPlugin
+        """
+
+        self.test_dir = tempfile.TemporaryDirectory()
+        ifc_paths = {
+            IFCDomain.arch: self.ifc_file_fkz_SB55_DoubleAndNoneGUID,
+        }
+        self.project = Project.create(self.test_dir.name, ifc_paths,
+                                 plugin=PluginDummy, )
+        # weather data path is mandatory and "mocking" is not working
+        # so use a central defintion of weather file
+        self.project.sim_settings.weather_file_path = self.weather_file_path()
+        # put project.run into DebugDecisionHandler is need, otherwise the
+        # playground.state() is empty and ifc_files are not available
+        # default answer for decision questions
+        answers = ('Other', 'Other',)
+        handler = DebugDecisionHandler(answers)
+        handler.handle(self.project.run(cleanup=False))
+
+        ifc_files = self.project.playground.state['ifc_files']
+
+        for ifc_file in ifc_files:
+            # self.run_check_guid_unique(ifc_file)
+            all_guids_checks_passed, non_unique_guids = CheckIfc.run_check_guid_unique(self, ifc_file)
+            self.assertEqual(all_guids_checks_passed, False, "Should be False")
+
+    def test_check_guid_unique_specific_guid_return(self):
+        """test the guid return of a failed GUID uniqueness check
+           the following represent a project using the DummyPlugin
+        """
+        self.test_dir = tempfile.TemporaryDirectory()
+        ifc_paths = {
+            IFCDomain.arch: self.ifc_file_fkz_SB55_DoubleAndNoneGUID,
+        }
+        self.project = Project.create(self.test_dir.name, ifc_paths,
+                                 plugin=PluginDummy, )
+        # weather data path is mandatory and "mocking" is not working
+        # so use a central defintion of weather file
+        self.project.sim_settings.weather_file_path = self.weather_file_path()
+        # put project.run into DebugDecisionHandler is need, otherwise the
+        # playground.state() is empty and ifc_files are not available
+        # default answer for decision questions
+        answers = ('Other', 'Other',)
+        handler = DebugDecisionHandler(answers)
+        handler.handle(self.project.run(cleanup=False))
+
+        ifc_files = self.project.playground.state['ifc_files']
+
+        predicted_result = ['25OWQvmXj5BPgyergP43tY', '1Oms875aH3Wg$9l65H2ZGw']
+        for ifc_file in ifc_files:
+            # self.run_check_guid_unique(ifc_file)
+            all_guids_checks_passed, non_unique_guids = CheckIfc.run_check_guid_unique(self, ifc_file)
+            list_guids_non_unique = list(non_unique_guids.keys())
+            self.assertEqual(list_guids_non_unique, predicted_result, "Should be a list of 2 GUIDs")
+
+    def test_run_check_guid_empty_fail(self):
+        """test the boolean of all GUIDs has a value check, check fails
+           the following represent a project using the DummyPlugin
+        """
+        self.test_dir = tempfile.TemporaryDirectory()
+        ifc_paths = {
+            IFCDomain.arch: self.ifc_file_fkz_SB55_DoubleAndNoneGUID,
+        }
+        self.project = Project.create(self.test_dir.name, ifc_paths,
+                                 plugin=PluginDummy, )
+        # weather data path is mandatory and "mocking" is not working
+        # so use a central defintion of weather file
+        self.project.sim_settings.weather_file_path = self.weather_file_path()
+        # put project.run into DebugDecisionHandler is need, otherwise the
+        # playground.state() is empty and ifc_files are not available
+        # default answer for decision questions
+        answers = ('Other', 'Other',)
+        handler = DebugDecisionHandler(answers)
+        handler.handle(self.project.run(cleanup=False))
+
+        ifc_files = self.project.playground.state['ifc_files']
+
+        for ifc_file in ifc_files:
+            # self.run_check_guid_unique(ifc_file)
+            all_guids_filled_passed, empty_guids = CheckIfc.run_check_guid_empty(self, ifc_file)
+            self.assertEqual(all_guids_filled_passed, False, "Should be false")
+
+    def test_run_check_guid_empty_pass(self):
+        """test the boolean of all GUIDs has a value check, check pass
+           the following represent a project using the DummyPlugin
+        """
+        self.test_dir = tempfile.TemporaryDirectory()
+        ifc_paths = {
+            IFCDomain.arch: self.ifc_file_fkz_SB55,
+        }
+        self.project = Project.create(self.test_dir.name, ifc_paths,
+                                 plugin=PluginDummy, )
+        # weather data path is mandatory and "mocking" is not working
+        # so use a central defintion of weather file
+        self.project.sim_settings.weather_file_path = self.weather_file_path()
+        # put project.run into DebugDecisionHandler is need, otherwise the
+        # playground.state() is empty and ifc_files are not available
+        # default answer for decision questions
+        answers = ('Other', 'Other',)
+        handler = DebugDecisionHandler(answers)
+        handler.handle(self.project.run(cleanup=False))
+
+        ifc_files = self.project.playground.state['ifc_files']
+
+        for ifc_file in ifc_files:
+            # self.run_check_guid_unique(ifc_file)
+            all_guids_filled_passed, empty_guids = CheckIfc.run_check_guid_empty(self, ifc_file)
+            self.assertEqual(all_guids_filled_passed, True, "Should be true")
+
+    def test_run_check_ifc_version_error(self):
+        """test the version check of ifc file,
+        check: there is an error regarding the ifc version
+        the following represent a project using the DummyPlugin defined above
+        """
+
+        self.test_dir = tempfile.TemporaryDirectory()
+        ifc_paths = {
+            IFCDomain.arch: self.ifc_file_fkz_ifc23,
+        }
+        self.project = Project.create(self.test_dir.name, ifc_paths,
+                                 plugin=PluginDummy, )
+        # weather data path is mandatory and "mocking" is not working
+        # so use a central defintion of weather file
+        self.project.sim_settings.weather_file_path = self.weather_file_path()
+        # put project.run into DebugDecisionHandler is need, otherwise the
+        # playground.state() is empty and ifc_files are not available
+        # default answer for decision questions
+        answers = ('Other', 'Other',)
+        handler = DebugDecisionHandler(answers)
+        handler.handle(self.project.run(cleanup=False))
+
+        ifc_files = self.project.playground.state['ifc_files']
+
+        for ifc_file in ifc_files:
+            check_error, ifc_version = CheckIfc.run_check_ifc_version(ifc_file)
+            self.assertEqual(check_error, True, "Should be True (ifc file has wrong ifc version))")
+
+    def test_run_check_ifc_version_no_error(self):
+        """test the version check of ifc file,
+        check: there is no error regarding the ifc version
+        the following represent a project using the DummyPlugin defined above
+        """
+
+        self.test_dir = tempfile.TemporaryDirectory()
+        ifc_paths = {
+            IFCDomain.arch: self.ifc_file_fkz,
+        }
+        self.project = Project.create(self.test_dir.name, ifc_paths,
+                                 plugin=PluginDummy, )
+        # weather data path is mandatory and "mocking" is not working
+        # so use a central defintion of weather file
+        self.project.sim_settings.weather_file_path = self.weather_file_path()
+        # put project.run into DebugDecisionHandler is need, otherwise the
+        # playground.state() is empty and ifc_files are not available
+        # default answer for decision questions
+        answers = ('Other', 'Other',)
+        handler = DebugDecisionHandler(answers)
+        handler.handle(self.project.run(cleanup=False))
+
+        ifc_files = self.project.playground.state['ifc_files']
+
+        for ifc_file in ifc_files:
+            check_error, ifc_version = CheckIfc.run_check_ifc_version(ifc_file)
+            self.assertEqual(check_error, False, "Should be False (ifc file has fitting ifc version))")
+
+class TestCheckIFCIfctester(unittest.TestCase):
+    """Tests for function checking IFC files, which are based on IDS file
+       respectifly the library ifctester
+
+    """
+    def test_checkIFC_IDS_examples_minimal_fail(self):
+        """check ifctester is working correctly by do check with IDS and ifc
+        files from the IDS repo
+
+        see:
+        https://github.com/buildingSMART/IDS/tree/development/Documentation/ImplementersDocumentation/TestCases/ids
+        """
+
+        ifc_file = test_rsrc_path / 'ids/fail-a_minimal_ids_can_check_a_minimal_ifc_1_2.ifc'
+        ids_file = test_rsrc_path / 'ids/fail-a_minimal_ids_can_check_a_minimal_ifc_1_2.ids'
+        all_checks_passed = CheckIfc.run_ids_check_on_ifc(ifc_file, ids_file)
+        self.assertEqual(all_checks_passed, False, "Should be false")
+
+    def test_checkIFC_IDS_examples_required_specifications_fail(self):
+        """check ifctester is working correctly by do check with IDS and ifc
+        files from the IDS repo
+
+        see:
+        https://github.com/buildingSMART/IDS/tree/development/Documentation/ImplementersDocumentation/TestCases/ids
+        """
+
+        ifc_file = test_rsrc_path / 'ids/fail-required_specifications_need_at_least_one_applicable_entity_2_2.ifc'
+        ids_file = test_rsrc_path / 'ids/fail-required_specifications_need_at_least_one_applicable_entity_2_2.ids'
+        all_checks_passed = CheckIfc.run_ids_check_on_ifc(ifc_file, ids_file)
+        self.assertEqual(all_checks_passed, False, "Should be false")
+
+    def test_checkIFC_IDS_examples_a_specification_pass(self):
+        """check ifctester is working correctly by do check with IDS and ifc
+        files from the IDS repo
+
+        see:
+        https://github.com/buildingSMART/IDS/tree/development/Documentation/ImplementersDocumentation/TestCases/ids
+        """
+
+        ifc_file = test_rsrc_path / 'ids/pass-a_specification_passes_only_if_all_requirements_pass_2_2.ifc'
+        ids_file = test_rsrc_path / 'ids/pass-a_specification_passes_only_if_all_requirements_pass_2_2.ids'
+        all_checks_passed = CheckIfc.run_ids_check_on_ifc(ifc_file, ids_file)
+        self.assertEqual(all_checks_passed, True, "Should be true")
+
+
+    def test_checkIFC_IDS_examples_specification_optionality_pass(self):
+        """check ifctester is working correctly by do check with IDS and ifc
+        files from the IDS repo
+
+        see:
+        https://github.com/buildingSMART/IDS/tree/development/Documentation/ImplementersDocumentation/TestCases/ids
+
+        date: 2025-03-12
+        this test fail, because there is an issue in ifcTester, see
+        https://github.com/IfcOpenShell/IfcOpenShell/issues/6323
+        remove this passage, when fixed
+        """
+
+        ifc_file = test_rsrc_path / 'ids/pass-specification_optionality_and_facet_optionality_can_be_combined.ifc'
+        ids_file = test_rsrc_path / 'ids/pass-specification_optionality_and_facet_optionality_can_be_combined.ids'
+        all_checks_passed = CheckIfc.run_ids_check_on_ifc(ifc_file, ids_file)
+        self.assertEqual(all_checks_passed, True, "Should be true, fails because of issue in ifcTester, 2025-03-12")
+
+
+    def test_checkIFC_IDS_guid_length_22_pass(self):
+        """check ifctester for use case guid/GlobalID length = 22 character
+        """
+        # TODO move test ifc file into resources and adapt path
+        ifc_file = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc'
+        ids_file = '/home/cudok/Documents/12_ifc_check_ids/check_guid_length_equals_22_character.ids'
+        all_checks_passed = CheckIfc.run_ids_check_on_ifc(ifc_file, ids_file)
+        self.assertEqual(all_checks_passed, True, "Should be true")
+
+    def test_checkIFC_IDS_guid_length_22_fail(self):
+        """check ifctester for use case guid/GlobalID length = 22 character
+        """
+        # TODO move test ifc file into resources and adapt path
+        ifc_file = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55_NoneAndDoubleGUID.ifc'
+        ids_file = '/home/cudok/Documents/12_ifc_check_ids/check_guid_length_equals_22_character.ids'
+        all_checks_passed = CheckIfc.run_ids_check_on_ifc(ifc_file, ids_file)
+        self.assertEqual(all_checks_passed, False, "Should be true")
+
+    def test_checkIFC_IDS_2LSB_pass(self):
+        """check ifctester for use case 2nd Level Space Boundarys
+        """
+        # TODO move test ifc file into resources and adapt path
+        ifc_file = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc'
+        ids_file = '/home/cudok/Documents/12_ifc_check_ids/check_2LSB.ids'
+        all_checks_passed = CheckIfc.run_ids_check_on_ifc(ifc_file, ids_file)
+        self.assertEqual(all_checks_passed, True, "Should be true")
+
+    def test_checkIFC_IDS_2LSB_fail(self):
+        """check ifctester for use case 2nd Level Space Boundarys
+        """
+        # TODO move test ifc file into resources and adapt path
+        ifc_file = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus.ifc'
+        ids_file = '/home/cudok/Documents/12_ifc_check_ids/check_2LSB.ids'
+        all_checks_passed = CheckIfc.run_ids_check_on_ifc(ifc_file, ids_file)
+        self.assertEqual(all_checks_passed, False, "Should be false")
+
+
+if __name__ == "__main__":
+    unittest.main()
