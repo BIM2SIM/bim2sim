@@ -1881,6 +1881,26 @@ class CreateIdf(ITask):
                 Variable_Name="Site Direct Solar Radiation Rate per Area",
                 Reporting_Frequency="Hourly",
             )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Site Ground Reflected Solar Radiation Rate per Area[W / m2]",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Site Total Sky Cover",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Surface Window Transmitted Solar Radiation Rate",
+                Reporting_Frequency="Hourly",
+            )
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Surface Inside Face Solar Radiation Heat Gain Rate per Area",
+                Reporting_Frequency="Hourly",
+            )
         idf.newidfobject("OUTPUT:DIAGNOSTICS",
                          Key_1="DisplayAdvancedReportVariables",
                          Key_2="DisplayExtraWarnings")

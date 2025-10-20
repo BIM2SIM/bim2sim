@@ -348,7 +348,7 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         for_frontend=True
     )
     set_openfoam_version = ChoiceSetting(
-        default="Standard",
+        value="Standard",
         choices={"Standard": "Use v2206 from the Compute Cluster.",
                  "Modified": "Use a modified version saved to the rwth1588 "
                              "account.",
