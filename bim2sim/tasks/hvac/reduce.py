@@ -1,10 +1,7 @@
-import logging
-
 from bim2sim.elements.aggregation.hvac_aggregations import UnderfloorHeating, \
     Consumer, PipeStrand, ParallelPump, ConsumerHeatingDistributorModule, \
     GeneratorOneFluid
 from bim2sim.elements.graphs.hvac_graph import HvacGraph
-from bim2sim.kernel.decision import BoolDecision, DecisionBunch
 from bim2sim.tasks.base import ITask
 
 
@@ -85,60 +82,3 @@ class Reduce(ITask):
             graph.plot(self.paths.export, ports=False, use_pyvis=True)
 
         return graph,
-
-    @staticmethod
-    def set_flow_sides(graph: HvacGraph):
-        """ Set flow sides for ports in HVAC graph based on known flow sides.
-
-        This function iteratively sets flow sides for ports in the HVAC graph.
-        It uses a recursive method (`recurse_set_unknown_sides`) to determine
-        the flow side for each unset port. The function may prompt the user
-        for decisions in case of conflicts or unknown sides.
-
-        Args:
-             graph: The HVAC graph.
-
-        Yields:
-            DecisionBunch: A collection of decisions may be yielded during the
-                task.
-        """
-        # TODO: needs testing!
-        # TODO: at least one master element required
-        accepted = []
-        while True:
-            unset_port = None
-            for port in graph.get_nodes():
-                if port.flow_side == 0 and graph.graph[port] \
-                        and port not in accepted:
-                    unset_port = port
-                    break
-            if unset_port:
-                side, visited, masters = graph.recurse_set_unknown_sides(
-                    unset_port)
-                if side in (-1, 1):
-                    # apply suggestions
-                    for port in visited:
-                        port.flow_side = side
-                elif side == 0:
-                    # TODO: ask user?
-                    accepted.extend(visited)
-                elif masters:
-                    # ask user to fix conflicts (and retry in next while loop)
-                    for port in masters:
-                        decision = BoolDecision(
-                            "Use %r as VL (y) or RL (n)?" % port,
-                            global_key= "Use_port_%s" % port.guid)
-                        yield DecisionBunch([decision])
-                        use = decision.value
-                        if use:
-                            port.flow_side = 1
-                        else:
-                            port.flow_side = -1
-                else:
-                    # can not be solved (no conflicting masters)
-                    # TODO: ask user?
-                    accepted.extend(visited)
-            else:
-                # done
-                logging.info("Flow_side set")
-                break
