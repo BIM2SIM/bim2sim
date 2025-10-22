@@ -120,12 +120,12 @@ class CheckIfc(ITask):
                 self.logger.info(f"Processing HVAC-IfcCheck")  # todo
             elif ifc_file.domain == IFCDomain.arch:
                 self.logger.info(f"Processing BPS-IfcCheck")  # todo
+                # used for preparing data for checking, is filder keyword
+                self.sub_inst_cls = 'IfcRelSpaceBoundary'
+                self.sub_inst = ifc_file.file.by_type(self.sub_inst_cls)
                 # checking itself
-                chlb = CheckLogicBase()
-                # prepare data for checking (filering)
-                self.sub_inst = ifc_file.file.by_type(chlb.sub_inst_cls)
-                self.error_summary_sub_inst = chlb.check_inst(
-                    chlb.validate_sub_inst, self.sub_inst)
+                chlb = CheckLogicBase(self.sub_inst)
+                self.error_summary_sub_inst = chlb.check_inst_sub()
                 self.paths = paths  # TODO needed in if loop, here need better solution
             elif ifc_file.domain == IFCDomain.unknown:
                 self.logger.info(f"No domain specified for ifc file "
@@ -407,11 +407,13 @@ class CheckLogicBase():
     useful for all checking use cases.
     """
 
-    def __init__(self):
-        # used for preparing data for checking, is filder keyword
-        self.sub_inst_cls = 'IfcRelSpaceBoundary'
+    def __init__(self, sub_inst):
+        # # used for preparing data for checking, is filder keyword
+        # self.sub_inst_cls = 'IfcRelSpaceBoundary'
         self.plugin = bps
         self.space_ndicator = True
+        # prepare data for checking (filering)
+        self.sub_inst = sub_inst
 
     def run_check_guid_unique(ifc_file) -> (bool, dict):
         """check the uniqueness of the guids of the IFC file
@@ -506,6 +508,14 @@ class CheckLogicBase():
 
 
     ###### old ifc check, maybe stay here
+
+    def check_inst_sub(self):
+        """Proide the data to check_inst function related to sub inst.
+        """
+        error_summary_sub_inst = self.check_inst(
+                    self.validate_sub_inst, self.sub_inst)
+        return error_summary_sub_inst
+
     @staticmethod
     def check_inst(validation_function: Callable, elements: list):
         """Uses sb_validation/ports/elements functions in order to check each
