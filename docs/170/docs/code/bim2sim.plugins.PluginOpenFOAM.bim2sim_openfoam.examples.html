@@ -1,0 +1,207 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples package &mdash; bim2sim  0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements package" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.html" />
+    <link rel="prev" title="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam package" href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+              <img src="../_static/b2s_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../big-picture.html">Big Picture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide.html">User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced-user-guide.html">Advanced User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer-guide.html">Developer-Guide</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">bim2sim</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="bim2sim.html">bim2sim package</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#bim2sim.run_project"><code class="docutils literal notranslate"><span class="pre">run_project()</span></code></a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="bim2sim.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.elements.html">bim2sim.elements package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.examples.html">bim2sim.examples package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.export.html">bim2sim.export package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.kernel.html">bim2sim.kernel package</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="bim2sim.plugins.html">bim2sim.plugins package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.tasks.html">bim2sim.tasks package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.utilities.html">bim2sim.utilities package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#module-bim2sim.project">bim2sim.project module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.html#module-bim2sim.sim_settings">bim2sim.sim_settings module</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">bim2sim </a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">bim2sim</a></li>
+          <li class="breadcrumb-item"><a href="bim2sim.html">bim2sim package</a></li>
+          <li class="breadcrumb-item"><a href="bim2sim.plugins.html">bim2sim.plugins package</a></li>
+          <li class="breadcrumb-item"><a href="bim2sim.plugins.PluginOpenFOAM.html">bim2sim.plugins.PluginOpenFOAM package</a></li>
+          <li class="breadcrumb-item"><a href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.html">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam package</a></li>
+      <li class="breadcrumb-item active">bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/code/bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-package">
+<h1>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples package<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-package" title="Permalink to this heading"></a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e10-openfoam-furniture-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_furniture module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e10-openfoam-furniture-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e10-openfoam-furniture-dh-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_furniture_DH module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e10-openfoam-furniture-dh-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e10-openfoam-no-heating-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_no_heating module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e10-openfoam-no-heating-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e11-openfoam-furniture-space-heater-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e11_openfoam_furniture_space_heater module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e11-openfoam-furniture-space-heater-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e11-openfoam-run-full-sim-linux-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e11_openfoam_run_full_sim_linux module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e11-openfoam-run-full-sim-linux-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e12-openfoam-auto-refinement-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e12_openfoam_auto_refinement module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e12-openfoam-auto-refinement-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e12-run-openfoam-preconditioned-transient-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e12_run_openfoam_preconditioned_transient module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e12-run-openfoam-preconditioned-transient-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e13-run-openfoam-fvdom-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e13_run_openfoam_fvDOM module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e13-run-openfoam-fvdom-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e16-openfoam-import-ifc-hvac-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e16_openfoam_import_IFC-HVAC module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e16-openfoam-import-ifc-hvac-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e17-openfoam-import-ifc-hvac-multi-files-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e17_openfoam_import_IFC-HVAC_multi_files module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e17-openfoam-import-ifc-hvac-multi-files-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e18-openfoam-import-ifc-hvac-multi-overflow-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e18_openfoam_import_IFC-HVAC_multi_overflow module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e18-openfoam-import-ifc-hvac-multi-overflow-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e1-simple-project-cfd-openfoam-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e1_simple_project_cfd_openfoam module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e1-simple-project-cfd-openfoam-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e2-complex-project-bps-comfort-journal-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e2_complex_project_bps_comfort_journal module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e2-complex-project-bps-comfort-journal-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e2-openfoam-floorheating-steady-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e2_openfoam_floorheating_steady module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e2-openfoam-floorheating-steady-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e3-openfoam-radiator-steady-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e3_openfoam_radiator_steady module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e3-openfoam-radiator-steady-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e4-openfoam-radiator-steady-r0-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e4_openfoam_radiator_steady_r0 module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e4-openfoam-radiator-steady-r0-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e5-openfoam-radiator-steady-r1-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e5_openfoam_radiator_steady_r1 module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e5-openfoam-radiator-steady-r1-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e6-openfoam-radiator-steady-simple-air-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e6_openfoam_radiator_steady_simple_air module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e6-openfoam-radiator-steady-simple-air-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e7-openfoam-radiator-steady-diffusor-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e7_openfoam_radiator_steady_diffusor module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e7-openfoam-radiator-steady-diffusor-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e8-openfoam-radiator-steady-simple-air-none-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e8_openfoam_radiator_steady_simple_air_none module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e8-openfoam-radiator-steady-simple-air-none-module" title="Permalink to this heading"></a></h2>
+</section>
+<section id="bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e9-openfoam-radiator-steady-simple-stldiffusor-module">
+<h2>bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e9_openfoam_radiator_steady_simple_stldiffusor module<a class="headerlink" href="#bim2sim-plugins-pluginopenfoam-bim2sim-openfoam-examples-e9-openfoam-radiator-steady-simple-stldiffusor-module" title="Permalink to this heading"></a></h2>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.html" class="btn btn-neutral float-left" title="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.html" class="btn btn-neutral float-right" title="bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, RWTH Aachen University, EBC &amp; E3D; ROM Technik GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
