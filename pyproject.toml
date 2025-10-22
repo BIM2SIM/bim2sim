@@ -56,6 +56,8 @@ dependencies = [
     "svglib==1.5.1",
     "reportlab==4.2.2",
     "scipy==1.11.3", # is a dependency from networkx, should installed automatically
+    "ifctester==0.8.1",
+    "pystache==0.6.8" # is a dependency from ifctester, not automatically install here
 ]
 
 # root folder of the python/django not found automatically
