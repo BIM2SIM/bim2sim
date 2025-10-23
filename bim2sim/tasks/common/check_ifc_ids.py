@@ -706,6 +706,23 @@ class CheckLogicBPS(CheckLogicBase):
         return bound.ConnectionGeometry.SurfaceOnRelatingElement. \
             OuterBoundary.is_a('IfcCompositeCurve')
 
+    @staticmethod
+    def _check_segments(bound: entity_instance):
+        """
+        Check if the surface on relating element of a space boundary outer
+        boundaries segments are polyline.
+
+        Args:
+            bound: Space boundary IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return (s.is_a('IfcCompositeCurveSegment') for s in
+                bound.ConnectionGeometry.SurfaceOnRelatingElement.
+                OuterBoundary.Segments)
+
     def validate_sub_inst(self, bound: entity_instance) -> list:
         """
         Validation function for a space boundary that compiles all validation
@@ -757,6 +774,11 @@ class CheckLogicBPS(CheckLogicBase):
                 'OuterBoundary - '
                 'The space boundary surface on relating element outer '
                 'boundary is missing', error)
+            self.apply_validation_function(self._check_segments(bound),
+                                           'OuterBoundary Segments - '
+                                           'The space boundary surface on '
+                                           'relating element outer boundary '
+                                           'geometry is missing', error)
         return error
 
 
