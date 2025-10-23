@@ -608,6 +608,21 @@ class CheckLogicBPS(CheckLogicBase):
         if bound.RelatedBuildingElement is not None:
             return bound.RelatedBuildingElement.is_a('IfcElement')
 
+    @staticmethod
+    def _check_conn_geom(bound: entity_instance):
+        """
+        Check that the space boundary has a connection geometry and has the
+        correct class.
+
+        Args:
+            bound: Space boundary IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return bound.ConnectionGeometry.is_a('IfcConnectionGeometry')
+
     def validate_sub_inst(self, bound: entity_instance) -> list:
         """
         Validation function for a space boundary that compiles all validation
@@ -629,6 +644,10 @@ class CheckLogicBPS(CheckLogicBase):
                                        'The space boundary does not have a '
                                        'related building element associated',
                                        error)
+        self.apply_validation_function(self._check_conn_geom(bound),
+                                       'ConnectionGeometry - '
+                                       'The space boundary does not have a '
+                                       'connection geometry', error)
         return error
 
 
