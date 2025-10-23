@@ -656,6 +656,21 @@ class CheckLogicBPS(CheckLogicBase):
                 bound.ConnectionGeometry.SurfaceOnRelatedElement.is_a(
                     'IfcCurveBoundedPlane'))
 
+    @staticmethod
+    def _check_basis_surface(bound: entity_instance):
+        """
+        Check that the surface on relating element of a space boundary is
+        represented by an IFC Place.
+
+        Args:
+            bound: Space boundary IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return bound.ConnectionGeometry.SurfaceOnRelatingElement. \
+            BasisSurface.is_a('IfcPlane')
 
     def validate_sub_inst(self, bound: entity_instance) -> list:
         """
@@ -690,6 +705,11 @@ class CheckLogicBPS(CheckLogicBase):
                                        'SurfaceOnRelatedElement - '
                                        'The space boundary does not have a '
                                        'surface on the related element', error)
+        self.apply_validation_function(self._check_basis_surface(bound),
+                                       'BasisSurface - '
+                                       'The space boundary surface on '
+                                       'relating element geometry is missing',
+                                       error)
         return error
 
 
