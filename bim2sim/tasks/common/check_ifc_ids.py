@@ -124,8 +124,8 @@ class CheckIfc(ITask):
                 self.sub_inst_cls = 'IfcRelSpaceBoundary'
                 self.sub_inst = ifc_file.file.by_type(self.sub_inst_cls)
                 # checking itself
-                chlb = CheckLogicBase(self.sub_inst)
-                self.error_summary_sub_inst = chlb.check_inst_sub()
+                chlbps = CheckLogicBPS(self.sub_inst)
+                self.error_summary_sub_inst = chlbps.check_inst_sub()
                 self.paths = paths  # TODO needed in if loop, here need better solution
             elif ifc_file.domain == IFCDomain.unknown:
                 self.logger.info(f"No domain specified for ifc file "
@@ -138,12 +138,6 @@ class CheckIfc(ITask):
                     f" implemented currently. Just running the basic checks."
                     f"")
 
-            ## begin copy form old ifc check (only tempory until new structure is working)
-
-
-
-            ## end copy form old ifc check (only tempory until new structure is working)
-
             # write reportes self made checks
             base_name = f"/{ifc_file.domain.name.upper()}_" \
                         f"{ifc_file.ifc_file_name[:-4]}"
@@ -152,10 +146,6 @@ class CheckIfc(ITask):
 
     def validate_sub_inst(self, sub_inst: list) -> list:
         raise NotImplementedError
-
-
-
-
 
     @staticmethod
     def run_ids_check_on_ifc(ifc_file: str, ids_file: str, report_html: bool = False, log_path: str = None) -> bool:
@@ -510,8 +500,6 @@ class CheckLogicBase():
         return (version_error, schema)
 
 
-    ###### old ifc check, maybe stay here
-
     def check_inst_sub(self):
         """Checks sub instances for errors.
 
@@ -563,7 +551,29 @@ class CheckLogicBase():
         if not fct:
             error.append(err_name)
 
-    ###### old ifc check, maybe stay here
+    @staticmethod
+    def _check_rel_space(bound: entity_instance):
+        """
+        Check that the space boundary relating space exists and has the
+        correct class.
+
+        Args:
+            bound: Space boundary IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return any(
+            [bound.RelatingSpace.is_a('IfcSpace') or
+             bound.RelatingSpace.is_a('IfcExternalSpatialElement')])
+
+    def validate_sub_inst(self, sub_inst: list) -> list:
+        raise NotImplementedError
+
+class CheckLogicBPS(CheckLogicBase):
+    """Provides additional logic for ifc files checking regarding BPS."""
+
 
     @staticmethod
     def _check_rel_space(bound: entity_instance):
@@ -620,12 +630,6 @@ class CheckLogicBase():
                                        'related building element associated',
                                        error)
         return error
-
-
-class CheckLogicBPS(CheckLogicBase):
-    """Provides additional logic for ifc files checking regarding BPS."""
-
-
 
 
 if __name__ == '__main__':
