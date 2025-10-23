@@ -405,15 +405,18 @@ class CheckLogicBase():
 
     This is a base class. This base class includes all check logic, which is
     useful for all checking use cases.
+
+    Attributes:
+        extract_data (list): filered/extract data from ifc file
     """
 
-    def __init__(self, sub_inst):
+    def __init__(self, extract_data):
         # # used for preparing data for checking, is filder keyword
         # self.sub_inst_cls = 'IfcRelSpaceBoundary'
         self.plugin = bps
         self.space_ndicator = True
-        # prepare data for checking (filering)
-        self.sub_inst = sub_inst
+        # filered data, which will be processed
+        self.extract_data = extract_data
 
     def run_check_guid_unique(ifc_file) -> (bool, dict):
         """check the uniqueness of the guids of the IFC file
@@ -510,10 +513,12 @@ class CheckLogicBase():
     ###### old ifc check, maybe stay here
 
     def check_inst_sub(self):
-        """Proide the data to check_inst function related to sub inst.
+        """Checks sub instances for errors.
+
+        Based on functions in validate_sub_inst via check_inst
         """
         error_summary_sub_inst = self.check_inst(
-                    self.validate_sub_inst, self.sub_inst)
+                    self.validate_sub_inst, self.extract_data)
         return error_summary_sub_inst
 
     @staticmethod
