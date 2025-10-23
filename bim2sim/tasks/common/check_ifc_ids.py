@@ -723,6 +723,53 @@ class CheckLogicBPS(CheckLogicBase):
                 bound.ConnectionGeometry.SurfaceOnRelatingElement.
                 OuterBoundary.Segments)
 
+    @staticmethod
+    def _check_coords(points: entity_instance):
+        """
+        Check coordinates of a group of points (class and length).
+
+        Args:
+            points: Points IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return points.is_a('IfcCartesianPoint') and 1 <= len(
+            points.Coordinates) <= 4
+
+    @classmethod
+    def _check_poly_points_coord(cls, polyline: entity_instance):
+        """
+        Check if a polyline has the correct coordinates.
+
+        Args:
+            polyline: Polyline IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return all(cls._check_coords(p) for p in polyline.Points)
+
+    @classmethod
+    def _check_segments_poly_coord(cls, bound: entity_instance):
+        """
+        Check segments coordinates of an outer boundary of a surface on
+        relating element.
+
+        Args:
+            bound: Space boundary IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return all(cls._check_poly_points_coord(s.ParentCurve)
+                   for s in
+                   bound.ConnectionGeometry.SurfaceOnRelatingElement.
+                   OuterBoundary.Segments)
+
     def validate_sub_inst(self, bound: entity_instance) -> list:
         """
         Validation function for a space boundary that compiles all validation
@@ -779,6 +826,11 @@ class CheckLogicBPS(CheckLogicBase):
                                            'The space boundary surface on '
                                            'relating element outer boundary '
                                            'geometry is missing', error)
+            self.apply_validation_function(
+                self._check_segments_poly_coord(bound),
+                'OuterBoundary Coordinates - '
+                'The space boundary surface on relating element outer boundary '
+                'coordinates are missing', error)
         return error
 
 
