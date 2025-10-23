@@ -690,6 +690,22 @@ class CheckLogicBPS(CheckLogicBase):
                (i.is_a('IfcCompositeCurve') for i in bound.ConnectionGeometry.
                    SurfaceOnRelatingElement.InnerBoundaries)
 
+    @staticmethod
+    def _check_outer_boundary_composite(bound: entity_instance):
+        """
+        Check if the surface on relating element of a space boundary outer
+        boundaries are composite curves.
+
+        Args:
+            bound: Space boundary IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return bound.ConnectionGeometry.SurfaceOnRelatingElement. \
+            OuterBoundary.is_a('IfcCompositeCurve')
+
     def validate_sub_inst(self, bound: entity_instance) -> list:
         """
         Validation function for a space boundary that compiles all validation
@@ -733,6 +749,14 @@ class CheckLogicBPS(CheckLogicBase):
                                        'The space boundary surface on '
                                        'relating element inner boundaries are '
                                        'missing',  error)
+        if hasattr(
+                bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary,
+                'Segments'):
+            self.apply_validation_function(
+                self._check_outer_boundary_composite(bound),
+                'OuterBoundary - '
+                'The space boundary surface on relating element outer '
+                'boundary is missing', error)
         return error
 
 
