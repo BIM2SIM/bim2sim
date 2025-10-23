@@ -623,6 +623,40 @@ class CheckLogicBPS(CheckLogicBase):
         """
         return bound.ConnectionGeometry.is_a('IfcConnectionGeometry')
 
+    @staticmethod
+    def _check_on_relating_elem(bound: entity_instance):
+        """
+        Check that the surface on relating element of a space boundary has
+        the geometric information.
+
+        Args:
+            bound: Space boundary IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return bound.ConnectionGeometry.SurfaceOnRelatingElement.is_a(
+            'IfcCurveBoundedPlane')
+
+    @staticmethod
+    def _check_on_related_elem(bound: entity_instance):
+        """
+        Check that the surface on related element of a space boundary has no
+        geometric information.
+
+        Args:
+            bound: Space boundary IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return (bound.ConnectionGeometry.SurfaceOnRelatedElement is None or
+                bound.ConnectionGeometry.SurfaceOnRelatedElement.is_a(
+                    'IfcCurveBoundedPlane'))
+
+
     def validate_sub_inst(self, bound: entity_instance) -> list:
         """
         Validation function for a space boundary that compiles all validation
@@ -648,6 +682,14 @@ class CheckLogicBPS(CheckLogicBase):
                                        'ConnectionGeometry - '
                                        'The space boundary does not have a '
                                        'connection geometry', error)
+        self.apply_validation_function(self._check_on_relating_elem(bound),
+                                       'SurfaceOnRelatingElement - '
+                                       'The space boundary does not have a '
+                                       'surface on the relating element', error)
+        self.apply_validation_function(self._check_on_related_elem(bound),
+                                       'SurfaceOnRelatedElement - '
+                                       'The space boundary does not have a '
+                                       'surface on the related element', error)
         return error
 
 
