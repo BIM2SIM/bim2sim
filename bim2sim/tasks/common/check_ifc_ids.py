@@ -845,6 +845,21 @@ class CheckLogicBPS(CheckLogicBase):
         return bound.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface. \
             Position.Location.is_a('IfcCartesianPoint')
 
+    @staticmethod
+    def _check_axis(bound: entity_instance):
+        """
+        Check that axis of space boundary is an IfcDirection.
+
+        Args:
+            bound: Space boundary IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return bound.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface. \
+            Position.Axis.is_a('IfcDirection')
+
     def validate_sub_inst(self, bound: entity_instance) -> list:
         """
         Validation function for a space boundary that compiles all validation
@@ -926,6 +941,11 @@ class CheckLogicBPS(CheckLogicBase):
                                        'Location - '
                                        'The space boundary surface on relating '
                                        'element location is missing', error)
+        self.apply_validation_function(self._check_axis(bound),
+                                       'Axis - '
+                                       'The space boundary surface on relating '
+                                       'element axis are missing',
+                                       error)
         return error
 
 
