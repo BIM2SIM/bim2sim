@@ -860,6 +860,21 @@ class CheckLogicBPS(CheckLogicBase):
         return bound.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface. \
             Position.Axis.is_a('IfcDirection')
 
+    @staticmethod
+    def _check_refdirection(bound: entity_instance):
+        """
+        Check that reference direction of space boundary is an IfcDirection.
+
+        Args:
+            bound: Space boundary IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return bound.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface. \
+            Position.RefDirection.is_a('IfcDirection')
+
     def validate_sub_inst(self, bound: entity_instance) -> list:
         """
         Validation function for a space boundary that compiles all validation
@@ -946,6 +961,11 @@ class CheckLogicBPS(CheckLogicBase):
                                        'The space boundary surface on relating '
                                        'element axis are missing',
                                        error)
+        self.apply_validation_function(self._check_refdirection(bound),
+                                       'RefDirection - '
+                                       'The space boundary surface on relating '
+                                       'element reference direction is '
+                                       'missing', error)
         return error
 
 
