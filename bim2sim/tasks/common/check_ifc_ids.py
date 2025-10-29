@@ -770,6 +770,51 @@ class CheckLogicBPS(CheckLogicBase):
                    bound.ConnectionGeometry.SurfaceOnRelatingElement.
                    OuterBoundary.Segments)
 
+    @staticmethod
+    def _check_poly_points(polyline: entity_instance):
+        """
+        Check if a polyline has the correct class.
+
+        Args:
+            polyline: Polyline IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        print(polyline)
+        return polyline.is_a('IfcPolyline')
+
+    @classmethod
+    def _check_outer_boundary_poly(cls, bound: entity_instance):
+        """
+        Check points of outer boundary of a surface on relating element.
+
+        Args:
+            bound: Space boundary IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return cls._check_poly_points(
+            bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
+
+    @staticmethod
+    def _check_outer_boundary_poly_coord(bound: entity_instance):
+        """
+        Check outer boundary of a surface on relating element.
+
+        Args:
+            bound: Space boundary IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return all(
+            bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
+
     def validate_sub_inst(self, bound: entity_instance) -> list:
         """
         Validation function for a space boundary that compiles all validation
@@ -828,6 +873,17 @@ class CheckLogicBPS(CheckLogicBase):
                                            'geometry is missing', error)
             self.apply_validation_function(
                 self._check_segments_poly_coord(bound),
+                'OuterBoundary Coordinates - '
+                'The space boundary surface on relating element outer boundary '
+                'coordinates are missing', error)
+        else:
+            self.apply_validation_function(
+                self._check_outer_boundary_poly(bound),
+                'OuterBoundary - '
+                'The space boundary surface on relating element outer boundary '
+                'is missing', error)
+            self.apply_validation_function(
+                self._check_outer_boundary_poly_coord(bound),
                 'OuterBoundary Coordinates - '
                 'The space boundary surface on relating element outer boundary '
                 'coordinates are missing', error)
