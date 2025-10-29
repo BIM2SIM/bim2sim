@@ -738,6 +738,20 @@ class CheckLogicBPS(CheckLogicBase):
         return points.is_a('IfcCartesianPoint') and 1 <= len(
             points.Coordinates) <= 4
 
+    @staticmethod
+    def _check_dir_ratios(dir_ratios: entity_instance):
+        """
+        Check length of direction ratios.
+
+        Args:
+            dir_ratios: direction ratios IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return 2 <= len(dir_ratios.DirectionRatios) <= 3
+
     @classmethod
     def _check_poly_points_coord(cls, polyline: entity_instance):
         """
@@ -892,6 +906,22 @@ class CheckLogicBPS(CheckLogicBase):
                                  SurfaceOnRelatingElement.BasisSurface.
                                  Position.Location)
 
+    @classmethod
+    def _check_axis_dir_ratios(cls, bound: entity_instance):
+        """
+        Check if space boundary surface on relating element axis are correct.
+
+        Args:
+            bound: Space boundary IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return cls._check_dir_ratios(
+            bound.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.
+            Position.Axis)
+
     def validate_sub_inst(self, bound: entity_instance) -> list:
         """
         Validation function for a space boundary that compiles all validation
@@ -987,6 +1017,11 @@ class CheckLogicBPS(CheckLogicBase):
                                        'LocationCoordinates - '
                                        'The space boundary surface on relating '
                                        'element location coordinates are '
+                                       'missing', error)
+        self.apply_validation_function(self._check_axis_dir_ratios(bound),
+                                       'AxisDirectionRatios - '
+                                       'The space boundary surface on relating '
+                                       'element axis direction ratios are '
                                        'missing', error)
         return error
 
