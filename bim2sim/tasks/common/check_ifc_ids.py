@@ -815,6 +815,21 @@ class CheckLogicBPS(CheckLogicBase):
         return all(
             bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
 
+    @staticmethod
+    def _check_plane_position(bound: entity_instance):
+        """
+        Check class of plane position of space boundary.
+
+        Args:
+            bound: Space boundary IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return bound.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface. \
+            Position.is_a('IfcAxis2Placement3D')
+
     def validate_sub_inst(self, bound: entity_instance) -> list:
         """
         Validation function for a space boundary that compiles all validation
@@ -887,6 +902,11 @@ class CheckLogicBPS(CheckLogicBase):
                 'OuterBoundary Coordinates - '
                 'The space boundary surface on relating element outer boundary '
                 'coordinates are missing', error)
+        self.apply_validation_function(self._check_plane_position(bound),
+                                       'Position - '
+                                       'The space boundary surface on relating '
+                                       'element plane position is missing',
+                                       error)
         return error
 
 
