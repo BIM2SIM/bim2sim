@@ -922,6 +922,23 @@ class CheckLogicBPS(CheckLogicBase):
             bound.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.
             Position.Axis)
 
+    @classmethod
+    def _check_refdirection_dir_ratios(cls, bound: entity_instance):
+        """
+        Check if space boundary surface on relating element reference direction
+        are correct.
+
+        Args:
+            bound: Space boundary IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return cls._check_dir_ratios(
+            bound.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.
+            Position.RefDirection)
+
     def validate_sub_inst(self, bound: entity_instance) -> list:
         """
         Validation function for a space boundary that compiles all validation
@@ -1023,6 +1040,11 @@ class CheckLogicBPS(CheckLogicBase):
                                        'The space boundary surface on relating '
                                        'element axis direction ratios are '
                                        'missing', error)
+        self.apply_validation_function(
+                                       self._check_refdirection_dir_ratios(bound),
+                                      'RefDirectionDirectionRatios - '
+                                      'The space boundary surface on relating element position '
+                                      'reference direction is missing', error)
         return error
 
 
