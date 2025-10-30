@@ -1,13 +1,17 @@
 """Check ifc input file mainly based on IDS files."""
 
+import inspect  # used for _get_ifc_type_classes
+import types  # used for _get_class_property_sets
 import os
 
 from pathlib import Path
 
-from typing import Callable  # , Dict
+from typing import Callable, Dict  # Dict used for _get_class_property_sets
 
 import ifcopenshell as ifcos # TODO check which modules are used and append them to the line below
-from ifcopenshell import entity_instance  # ,file
+from ifcopenshell import entity_instance, file
+from bim2sim.utilities.common_functions import all_subclasses  # used in _get_ifc_type_classes
+from bim2sim.elements.mapping import attribute  # used in _get_ifc_type_classes
 import ifctester
 import ifctester.ids
 import ifctester.reporter
@@ -122,10 +126,14 @@ class CheckIfc(ITask):
                 self.logger.info(f"Processing BPS-IfcCheck")  # todo
                 # used for preparing data for checking, is filder keyword
                 self.sub_inst_cls = 'IfcRelSpaceBoundary'
+                self.plugin = bps  # TODO remove, after rearagne structure, this definition is part of check_logic
+                self.ps_summary = self._get_class_property_sets(self.plugin)
                 self.sub_inst = ifc_file.file.by_type(self.sub_inst_cls)
+                self.elements = self.get_relevant_elements(ifc_file.file)
                 # checking itself
-                chlbps = CheckLogicBPS(self.sub_inst)
+                chlbps = CheckLogicBPS(self.sub_inst, self.elements)
                 self.error_summary_sub_inst = chlbps.check_inst_sub()
+                self.error_summary_inst = chlbps.check_elements()
                 self.paths = paths  # TODO needed in if loop, here need better solution
             elif ifc_file.domain == IFCDomain.unknown:
                 self.logger.info(f"No domain specified for ifc file "
@@ -143,6 +151,76 @@ class CheckIfc(ITask):
                         f"{ifc_file.ifc_file_name[:-4]}"
             self._write_errors_to_html_table(base_name, ifc_file.domain)
 
+    def get_relevant_elements(self, ifc: file):
+        """
+        Gets all relevant ifc elements based on the plugin's classes that
+        represent an IFCProduct
+
+        Args:
+            ifc: IFC file translated with ifcopenshell
+
+        Returns:
+            ifc_elements: list of IFC instance (Products)
+
+        """
+        relevant_ifc_types = list(self.ps_summary.keys())
+        ifc_elements = []
+        for ifc_type in relevant_ifc_types:
+            ifc_elements.extend(ifc.by_type(ifc_type))
+        return ifc_elements
+
+    @staticmethod
+    def _get_ifc_type_classes(plugin: types.ModuleType):
+        """
+        Gets all the classes of a plugin, that represent an IFCProduct,
+        and organize them on a dictionary for each ifc_type
+        Args:
+            plugin: plugin used in the check tasks (bps or hvac)
+
+        Returns:
+            cls_summary: dictionary containing all the ifc_types on the
+            plugin with the corresponding class
+        """
+        plugin_classes = [plugin_class[1] for plugin_class in
+                          inspect.getmembers(plugin, inspect.isclass) if
+                          inspect.getmro(plugin_class[1])[1].__name__.endswith(
+                              'Product')]
+        cls_summary = {}
+
+        for plugin_class in plugin_classes:
+            # class itself
+            if plugin_class.ifc_types:
+                for ifc_type in plugin_class.ifc_types.keys():
+                    cls_summary[ifc_type] = plugin_class
+            # sub classes
+            for subclass in all_subclasses(plugin_class):
+                for ifc_type in subclass.ifc_types.keys():
+                    cls_summary[ifc_type] = subclass
+        return cls_summary
+
+    @classmethod
+    def _get_class_property_sets(cls, plugin: types.ModuleType) -> Dict:
+        """
+        Gets all property sets and properties required for bim2sim for all
+        classes of a plugin, that represent an IFCProduct, and organize them on
+        a dictionary for each ifc_type
+        Args:
+            plugin: plugin used in the check tasks (bps or hvac)
+
+        Returns:
+            ps_summary: dictionary containing all the ifc_types on the
+            plugin with the corresponding property sets
+        """
+        ps_summary = {}
+        cls_summary = cls._get_ifc_type_classes(plugin)
+        for ifc_type, plugin_class in cls_summary.items():
+            attributes = inspect.getmembers(
+                plugin_class, lambda a: isinstance(a, attribute.Attribute))
+            ps_summary[ifc_type] = {}
+            for attr in attributes:
+                if attr[1].default_ps:
+                    ps_summary[ifc_type][attr[0]] = attr[1].default_ps
+        return ps_summary
 
     def validate_sub_inst(self, sub_inst: list) -> list:
         raise NotImplementedError
@@ -400,13 +478,14 @@ class CheckLogicBase():
         extract_data (list): filered/extract data from ifc file
     """
 
-    def __init__(self, extract_data):
+    def __init__(self, extract_data, elements):
         # # used for preparing data for checking, is filder keyword
         # self.sub_inst_cls = 'IfcRelSpaceBoundary'
         self.plugin = bps
         self.space_ndicator = True
         # filered data, which will be processed
         self.extract_data = extract_data
+        self.elements = elements
 
     def run_check_guid_unique(ifc_file) -> (bool, dict):
         """check the uniqueness of the guids of the IFC file
@@ -508,6 +587,15 @@ class CheckLogicBase():
         error_summary_sub_inst = self.check_inst(
                     self.validate_sub_inst, self.extract_data)
         return error_summary_sub_inst
+
+    def check_elements(self):
+        """Checks elements for errors.
+
+        Based on functions in validate_sub_inst via check_inst
+        """
+        error_summary = self.check_inst(
+                    self.validate_elements, self.elements)
+        return error_summary
 
     @staticmethod
     def check_inst(validation_function: Callable, elements: list):
@@ -939,6 +1027,42 @@ class CheckLogicBPS(CheckLogicBase):
             bound.ConnectionGeometry.SurfaceOnRelatingElement.BasisSurface.
             Position.RefDirection)
 
+    @staticmethod
+    def _check_inst_sb(inst: entity_instance):
+        """
+        Check that an instance has associated space boundaries (space or
+        building element).
+
+        Args:
+            inst: IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        blacklist = ['IfcBuilding', 'IfcSite', 'IfcBuildingStorey',
+                     'IfcMaterial', 'IfcMaterialLayer', 'IfcMaterialLayerSet']
+        if inst.is_a() in blacklist:
+            return True
+        elif inst.is_a('IfcSpace') or inst.is_a('IfcExternalSpatialElement'):
+            return len(inst.BoundedBy) > 0
+        else:
+            if len(inst.ProvidesBoundaries) > 0:
+                return True
+            decompose = []
+            if hasattr(inst, 'Decomposes') and len(inst.Decomposes):
+                decompose = [decomp.RelatingObject for decomp in
+                             inst.Decomposes]
+            elif hasattr(inst, 'IsDecomposedBy') and len(inst.IsDecomposedBy):
+                decompose = []
+                for decomp in inst.IsDecomposedBy:
+                    for inst_ifc in decomp.RelatedObjects:
+                        decompose.append(inst_ifc)
+            for inst_decomp in decompose:
+                if len(inst_decomp.ProvidesBoundaries):
+                    return True
+        return False
+
     def validate_sub_inst(self, bound: entity_instance) -> list:
         """
         Validation function for a space boundary that compiles all validation
@@ -1048,5 +1172,23 @@ class CheckLogicBPS(CheckLogicBase):
         return error
 
 
+    def validate_elements(self, inst: entity_instance) -> list:
+        """
+        Validation function for an instance that compiles all instance
+        validation functions.
+
+        Args:
+            inst:IFC instance being checked
+
+        Returns:
+            error: list of elements error
+
+        """
+        error = []
+        self.apply_validation_function(self._check_inst_sb(inst),
+                                       'SpaceBoundaries - '
+                                       'The instance space boundaries are '
+                                       'missing', error)
+        return error
 if __name__ == '__main__':
     pass
