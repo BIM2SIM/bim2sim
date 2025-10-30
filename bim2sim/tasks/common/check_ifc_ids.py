@@ -126,7 +126,7 @@ class CheckIfc(ITask):
                 self.logger.info(f"Processing BPS-IfcCheck")  # todo
                 # used for preparing data for checking, is filder keyword
                 self.sub_inst_cls = 'IfcRelSpaceBoundary'
-                self.plugin = bps  # TODO remove, after rearagne structure, this definition is part of check_logic
+                self.plugin = bps
                 self.ps_summary = self._get_class_property_sets(self.plugin)
                 self.sub_inst = ifc_file.file.by_type(self.sub_inst_cls)
                 self.elements = self.get_relevant_elements(ifc_file.file)
@@ -479,9 +479,6 @@ class CheckLogicBase():
     """
 
     def __init__(self, extract_data, elements):
-        # # used for preparing data for checking, is filder keyword
-        # self.sub_inst_cls = 'IfcRelSpaceBoundary'
-        self.plugin = bps
         self.space_ndicator = True
         # filered data, which will be processed
         self.extract_data = extract_data
