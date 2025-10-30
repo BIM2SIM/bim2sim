@@ -12,6 +12,8 @@ import ifcopenshell as ifcos # TODO check which modules are used and append them
 from ifcopenshell import entity_instance, file
 from bim2sim.utilities.common_functions import all_subclasses  # used in _get_ifc_type_classes
 from bim2sim.elements.mapping import attribute  # used in _get_ifc_type_classes
+# get_layer_ifc needed for _check_inst_materials
+from bim2sim.elements.mapping.ifc2python import get_layers_ifc  # , get_property_sets, get_ports
 import ifctester
 import ifctester.ids
 import ifctester.reporter
@@ -1060,6 +1062,25 @@ class CheckLogicBPS(CheckLogicBase):
                     return True
         return False
 
+    @staticmethod
+    def _check_inst_materials(inst: entity_instance):
+        """
+        Check that an instance has associated materials.
+
+        Args:
+            inst: IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        blacklist = [
+            'IfcBuilding', 'IfcSite', 'IfcBuildingStorey', 'IfcSpace',
+            'IfcExternalSpatialElement']
+        if not (inst.is_a() in blacklist):
+            return len(get_layers_ifc(inst)) > 0
+        return True
+
     def validate_sub_inst(self, bound: entity_instance) -> list:
         """
         Validation function for a space boundary that compiles all validation
@@ -1186,6 +1207,10 @@ class CheckLogicBPS(CheckLogicBase):
                                        'SpaceBoundaries - '
                                        'The instance space boundaries are '
                                        'missing', error)
+        self.apply_validation_function(self._check_inst_materials(inst),
+                                       'MaterialLayers - '
+                                       'The instance materials are missing',
+                                       error)
         return error
 if __name__ == '__main__':
     pass
