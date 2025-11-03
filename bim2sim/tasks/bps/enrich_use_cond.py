@@ -203,69 +203,142 @@ class EnrichUseConditions(ITask):
             cls,
             pattern_usage: dict,
             thermal_zones: Dict[str, ThermalZone]) -> Dict[str, ThermalZone]:
+        """Sets the usage of the given thermal_zones and enriches them.
+
+
+        Looks for fitting usages in assets/enrichment/usage based on the given
+        usage of a zone in the IFC. The way the usage is obtained is described
+        in the ThermalZone classes attribute "usage".
+        The following data is taken into account:
+            commonUsages.json: typical translations for the existing usage data
+            customUsages<prj_name>.json: project specific translations that can
+                be stored for easier simulation.
+
+
+        Args:
+            pattern_usage: Dict with custom and common pattern
+            thermal_zones: dict with tz elements guid as key and the element
+            itself as value
+        Returns:
+            final_usages: key: str of usage type, value: ThermalZone element
+
+
         """
-        Enriches the usage field of given thermal_zones using the pattern_usage.
-        """
-        def clean_usage_name(usage_str):
-            """Remove suffixes like B-EG-002 from a usage string."""
-            parts = usage_str.split()
-            return ' '.join([p for p in parts if not re.match(r'^B-[A-Z0-9]+-\d+$', p)])
-
-        def match_zone_usage(tz_usage, pattern_usage):
-            """Returns the best matching usage or a list of possible ones."""
-            original_usage = tz_usage
-            usage = clean_usage_name(tz_usage)
-            usage_words = usage.replace(' (', ' ').replace(')', ' ') \
-                            .replace(' -', ' ').replace(', ', ' ').split()
-            matches = []
-
-            for usage_key, patterns in pattern_usage.items():
-                # Check custom patterns
-                for custom in patterns.get("custom", []):
-                    if "*" in custom or "?" in custom:
-                        regex = re.compile('^' + custom.replace("*", ".*").replace("?", ".") + '$', re.IGNORECASE)
-                        if regex.match(original_usage):
-                            matches.append(usage_key)
-                            break
-                    else:
-                        if custom.lower() in usage.lower():
-                            matches.append(usage_key)
-                            break
-
-                # If no match yet, check common patterns
-                if usage_key not in matches:
-                    for common_regex in patterns.get("common", []):
-                        for word in usage_words:
-                            if common_regex.match(word):
-                                matches.append(usage_key)
-                                break
-                        if usage_key in matches:
-                            break
-
-            return matches
-
+        # selected_usage = {}
         final_usages = {}
         for tz in list(thermal_zones.values()):
             orig_usage = str(tz.usage)
             if orig_usage in pattern_usage:
                 final_usages[tz] = orig_usage
-            else:
-                matches = match_zone_usage(orig_usage, pattern_usage)
-                if len(matches) == 1:
-                    if matches[0] == 'office_function':
-                        office_use = cls.office_usage(tz)
-                        final_usages[tz] = cls.list_decision_usage(tz, office_use) if isinstance(office_use, list) else office_use
-                    else:
-                        final_usages[tz] = matches[0]
-                # if no matches given forward all (for decision)
-                elif len(matches) == 0:
-                    matches = list(pattern_usage.keys())
-                    final_usages[tz] = cls.list_decision_usage(tz, matches)
-                elif len(matches) > 1:
-                    # Multiple matches found
-                    final_usages[tz] = cls.list_decision_usage(tz, matches)
+                continue
 
-        # collect decisions
+
+            matches = []
+            list_org = tz.usage.replace(' (', ' ').replace(')', ' ').replace(' -', ' ').replace(', ', ' ').split()
+
+
+            # --- 1. Build list of potential matches (same as before)
+            for usage in pattern_usage.keys():
+                # check custom first
+                if "custom" in pattern_usage[usage]:
+                    for cus_usage in pattern_usage[usage]["custom"]:
+                        if wildcard_match(cus_usage, tz.usage):
+                            if usage not in matches:
+                                matches.append(usage)
+                # if not found in custom, continue with common
+                if len(matches) == 0:
+                    for i in pattern_usage[usage]["common"]:
+                        for i_name in list_org:
+                            if i.match(i_name):
+                                if usage not in matches:
+                                    matches.append(usage)
+
+
+            # --- 2. Smart match logic (fixed)
+            if len(matches) > 1:
+                tz_usage_clean = tz.usage.lower().strip()
+
+
+                # ✅ Exact match (case-insensitive)
+                exact = [m for m in matches if m.lower().strip() == tz_usage_clean]
+                if len(exact) == 1:
+                    final_usages[tz] = exact[0]
+                    print(f"[AUTO-MATCH] Space '{tz.usage}' → '{exact[0]}' (perfect match)")
+                    continue
+
+
+                # ✅ Check for exact alias matches in pattern_usage
+                print(f"[DEBUG] Checking usage '{tz.usage}' against potential matches: {matches}")
+                exact_alias_matches = []
+                partial_matches = []
+                
+                for m in matches:
+                    all_aliases = []
+                    if "common" in pattern_usage[m]:
+                        all_aliases += [
+                            (a.pattern if hasattr(a, "pattern") else str(a)).lower()
+                            for a in pattern_usage[m]["common"]
+                        ]
+                    if "custom" in pattern_usage[m]:
+                        all_aliases += [
+                            (a.pattern if hasattr(a, "pattern") else str(a)).lower()
+                            for a in pattern_usage[m]["custom"]
+                        ]
+
+                    # Check for EXACT alias match first
+                    if tz_usage_clean in all_aliases:
+                        exact_alias_matches.append(m)
+                    # Then check containment (both directions)
+                    elif any(tz_usage_clean in alias or alias in tz_usage_clean for alias in all_aliases):
+                        partial_matches.append(m)
+
+                # Prioritize exact alias matches
+                if len(exact_alias_matches) == 1:
+                    chosen = exact_alias_matches[0]
+                    final_usages[tz] = chosen
+                    print(f"[AUTO-MATCH] Space '{tz.usage}' → '{chosen}' (exact alias match)")
+                    continue
+                elif len(exact_alias_matches) > 1:
+                    # Multiple exact matches - pick longest key name
+                    chosen = sorted(exact_alias_matches, key=len, reverse=True)[0]
+                    final_usages[tz] = chosen
+                    print(f"[AUTO-MATCH] Space '{tz.usage}' → '{chosen}' (exact alias, longest key)")
+                    continue
+
+                # Fall back to partial matches
+                if partial_matches:
+                    if len(partial_matches) > 1:
+                        # Sort by longest key name
+                        chosen = sorted(partial_matches, key=len, reverse=True)[0]
+                        final_usages[tz] = chosen
+                        print(f"[AUTO-MATCH] Space '{tz.usage}' → '{chosen}' (longest containment match)")
+                        continue
+                    else:
+                        chosen = partial_matches[0]
+                        final_usages[tz] = chosen
+                        print(f"[AUTO-MATCH] Space '{tz.usage}' → '{chosen}' (partial match)")
+                        continue
+
+                # Fallback to interactive decision if still ambiguous
+                final_usages[tz] = cls.list_decision_usage(tz, matches)
+                print(f"[ASK] Space '{tz.usage}' ambiguous → asking user decision.")
+                continue
+
+
+            # --- 3. Handle single or no matches (original logic)
+            if len(matches) == 1:
+                if 'office_function' == matches[0]:
+                    office_use = cls.office_usage(tz)
+                    if isinstance(office_use, list):
+                        final_usages[tz] = cls.list_decision_usage(tz, office_use)
+                    else:
+                        final_usages[tz] = office_use
+                else:
+                    final_usages[tz] = matches[0]
+            elif len(matches) == 0:
+                matches = list(pattern_usage.keys())
+                final_usages[tz] = cls.list_decision_usage(tz, matches)
+
         usage_dec_bunch = DecisionBunch()
         for tz, use_or_dec in final_usages.items():
             if isinstance(use_or_dec, ListDecision):
