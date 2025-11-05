@@ -1143,6 +1143,26 @@ class CheckLogicBPS(CheckLogicBase):
         else:
             return True
 
+    @staticmethod
+    def _check_inst_representation(inst: entity_instance):
+        """
+        Check that an instance has a correct geometric representation.
+
+        Args:
+            inst: IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        blacklist = [
+            'IfcBuilding', 'IfcBuildingStorey', 'IfcMaterial',
+            'IfcMaterialLayer', 'IfcMaterialLayerSet'
+        ]
+        if not (inst.is_a() in blacklist):
+            return inst.Representation is not None
+        return True
+
     def validate_sub_inst(self, bound: entity_instance) -> list:
         """
         Validation function for a space boundary that compiles all validation
@@ -1281,6 +1301,10 @@ class CheckLogicBPS(CheckLogicBase):
                                        'ContainedInStructure - '
                                        'The instance is not contained in any '
                                        'structure', error)
+        self.apply_validation_function(self._check_inst_representation(inst),
+                                       'Representation - '
+                                       'The instance has no geometric '
+                                       'representation', error)
         return error
 if __name__ == '__main__':
     pass
