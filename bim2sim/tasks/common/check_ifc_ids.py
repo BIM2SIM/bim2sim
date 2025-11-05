@@ -13,7 +13,7 @@ from ifcopenshell import entity_instance, file
 from bim2sim.utilities.common_functions import all_subclasses  # used in _get_ifc_type_classes
 from bim2sim.elements.mapping import attribute  # used in _get_ifc_type_classes
 # get_layer_ifc needed for _check_inst_materials
-from bim2sim.elements.mapping.ifc2python import get_layers_ifc  # , get_property_sets, get_ports
+from bim2sim.elements.mapping.ifc2python import get_layers_ifc, get_property_sets  # , get_ports
 import ifctester
 import ifctester.ids
 import ifctester.reporter
@@ -132,10 +132,16 @@ class CheckIfc(ITask):
                 self.ps_summary = self._get_class_property_sets(self.plugin)
                 self.sub_inst = ifc_file.file.by_type(self.sub_inst_cls)
                 self.elements = self.get_relevant_elements(ifc_file.file)
+                self.ifc_units = ifc_file.ifc_units
                 # checking itself
-                chlbps = CheckLogicBPS(self.sub_inst, self.elements)
+                chlbps = CheckLogicBPS(self.sub_inst, self.elements,
+                                       self.ps_summary, self.ifc_units)
                 self.error_summary_sub_inst = chlbps.check_inst_sub()
                 self.error_summary_inst = chlbps.check_elements()
+                self.error_summary_prop = chlbps.error_summary_prop  # TODO not nice,
+                                                                     # better
+                                                                     # transfer
+                                                                     # from class
                 self.paths = paths  # TODO needed in if loop, here need better solution
             elif ifc_file.domain == IFCDomain.unknown:
                 self.logger.info(f"No domain specified for ifc file "
@@ -480,12 +486,15 @@ class CheckLogicBase():
         extract_data (list): filered/extract data from ifc file
     """
 
-    def __init__(self, extract_data, elements):
+    def __init__(self, extract_data, elements, ps_summary, ifc_units):
         self.space_ndicator = True
         # filered data, which will be processed
         self.extract_data = extract_data
         self.elements = elements
-
+        self.ps_summary = ps_summary
+        self.ifc_units = ifc_units
+        self.error_summary_prop: dict = {}  # TODO only as tempopry solution >> needs
+                                            # to transfer to out of the class
     def run_check_guid_unique(ifc_file) -> (bool, dict):
         """check the uniqueness of the guids of the IFC file
 
@@ -1081,6 +1090,35 @@ class CheckLogicBPS(CheckLogicBase):
             return len(get_layers_ifc(inst)) > 0
         return True
 
+    def _check_inst_properties(self, inst: entity_instance):
+        """
+        Check that an instance has the property sets and properties
+        necessaries to the plugin.
+
+        Args:
+            inst: IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        inst_prop2check = self.ps_summary.get(inst.is_a(), {})
+        inst_prop = get_property_sets(inst, self.ifc_units)
+        inst_prop_errors = []
+        for prop2check, ps2check in inst_prop2check.items():
+            ps = inst_prop.get(ps2check[0], None)
+            if ps:
+                if not ps.get(ps2check[1], None):
+                    inst_prop_errors.append(
+                        prop2check+' - '+', '.join(ps2check))
+            else:
+                inst_prop_errors.append(prop2check+' - '+', '.join(ps2check))
+        if inst_prop_errors:
+            key = inst.GlobalId + ' ' + inst.is_a()
+            self.error_summary_prop.update({key: inst_prop_errors})
+            return False
+        return True
+
     def validate_sub_inst(self, bound: entity_instance) -> list:
         """
         Validation function for a space boundary that compiles all validation
@@ -1211,6 +1249,10 @@ class CheckLogicBPS(CheckLogicBase):
                                        'MaterialLayers - '
                                        'The instance materials are missing',
                                        error)
+        self.apply_validation_function(self._check_inst_properties(inst),
+                                       'Missing Property_Sets - '
+                                       'One or more instance\'s necessary '
+                                       'property sets are missing', error)
         return error
 if __name__ == '__main__':
     pass
