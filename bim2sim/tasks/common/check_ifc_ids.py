@@ -1119,6 +1119,30 @@ class CheckLogicBPS(CheckLogicBase):
             return False
         return True
 
+    @staticmethod
+    def _check_inst_contained_in_structure(inst: entity_instance):
+        """
+        Check that an instance is contained in an structure.
+
+        Args:
+            inst: IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        blacklist = [
+            'IfcBuilding', 'IfcSite', 'IfcBuildingStorey', 'IfcSpace',
+            'IfcExternalSpatialElement', 'IfcMaterial', 'IfcMaterialLayer',
+            'IfcMaterialLayerSet'
+        ]
+        if not (inst.is_a() in blacklist):
+            return len(inst.ContainedInStructure) > 0
+        if hasattr(inst, 'Decomposes'):
+            return len(inst.Decomposes) > 0
+        else:
+            return True
+
     def validate_sub_inst(self, bound: entity_instance) -> list:
         """
         Validation function for a space boundary that compiles all validation
@@ -1253,6 +1277,10 @@ class CheckLogicBPS(CheckLogicBase):
                                        'Missing Property_Sets - '
                                        'One or more instance\'s necessary '
                                        'property sets are missing', error)
+        self.apply_validation_function(self._check_inst_contained_in_structure(inst),
+                                       'ContainedInStructure - '
+                                       'The instance is not contained in any '
+                                       'structure', error)
         return error
 if __name__ == '__main__':
     pass
