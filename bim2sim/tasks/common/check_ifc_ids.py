@@ -1353,6 +1353,20 @@ class CheckLogicHVAC(CheckLogicBase):
         """
         return len(port.ConnectedTo) > 0 or len(port.ConnectedFrom) > 0
 
+    @staticmethod
+    def _check_contained_in(port: entity_instance) -> bool:
+        """
+        Check that the port is "contained_in".
+
+        Args:
+            port: port ifc entity
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return len(port.ContainedIn) > 0
+
     def validate_sub_inst(self, port: entity_instance) -> list:
         """
         Runs validation functions for a port
@@ -1372,6 +1386,9 @@ class CheckLogicHVAC(CheckLogicBase):
         self.apply_validation_function(self._check_connection(port),
                                        'Connections - '
                                        'The port has no connections', error)
+        self.apply_validation_function(self._check_contained_in(port),
+                                       'ContainedIn - '
+                                       'The port is not contained in', error)
         return error
 
 
