@@ -23,7 +23,7 @@ import webbrowser
 from mako.lookup import TemplateLookup
 from mako.template import Template
 
-from bim2sim.elements import bps_elements as bps  # , hvac_elements as hvac
+from bim2sim.elements import bps_elements as bps, hvac_elements as hvac
 from bim2sim.tasks.base import ITask, Playground
 
 from bim2sim.kernel.ifc_file import IfcFileClass
@@ -124,6 +124,18 @@ class CheckIfc(ITask):
 
             if ifc_file.domain == IFCDomain.hydraulic:
                 self.logger.info(f"Processing HVAC-IfcCheck")  # todo
+                print("Hello HVAC")
+                # used for preparing data for checking, is filder keyword
+                self.sub_inst_cls = 'IfcDistributionPort'
+                self.plugin = hvac
+                self.ps_summary = self._get_class_property_sets(self.plugin)
+                self.sub_inst = ifc_file.file.by_type(self.sub_inst_cls)
+                self.elements = self.get_relevant_elements(ifc_file.file)
+                self.ifc_units = ifc_file.ifc_units
+                # checking itself
+                chlbps = CheckLogicHVAC(self.sub_inst, self.elements,
+                                       self.ps_summary, self.ifc_units)
+                self.error_summary_sub_inst = chlbps.check_inst_sub()
             elif ifc_file.domain == IFCDomain.arch:
                 self.logger.info(f"Processing BPS-IfcCheck")  # todo
                 # used for preparing data for checking, is filder keyword
@@ -484,6 +496,7 @@ class CheckLogicBase():
 
     Attributes:
         extract_data (list): filered/extract data from ifc file
+        # TODO add other inputs
     """
 
     def __init__(self, extract_data, elements, ps_summary, ifc_units):
@@ -1306,5 +1319,44 @@ class CheckLogicBPS(CheckLogicBase):
                                        'The instance has no geometric '
                                        'representation', error)
         return error
+
+
+class CheckLogicHVAC(CheckLogicBase):
+    """Provides additional logic for ifc files checking regarding HVAC."""
+
+    @staticmethod
+    def _check_assignments(port: entity_instance) -> bool:
+        """
+        Check that the port has at least one assignment.
+
+        Args:
+            port: port ifc entity
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return any(assign.is_a('IfcRelAssignsToGroup') for assign in
+                   port.HasAssignments)
+
+    def validate_sub_inst(self, port: entity_instance) -> list:
+        """
+        Runs validation functions for a port
+
+        Args:
+            port: IFC port entity
+
+        Returns:
+            error: list of errors found in the IFC port
+
+        """
+        error = []
+        self.apply_validation_function(self._check_assignments(port),
+                                       'Assignments - '
+                                       'The port assignments are missing',
+                                       error)
+        return error
+
+
 if __name__ == '__main__':
     pass
