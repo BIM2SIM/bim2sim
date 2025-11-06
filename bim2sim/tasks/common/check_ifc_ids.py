@@ -1339,6 +1339,20 @@ class CheckLogicHVAC(CheckLogicBase):
         return any(assign.is_a('IfcRelAssignsToGroup') for assign in
                    port.HasAssignments)
 
+    @staticmethod
+    def _check_connection(port: entity_instance) -> bool:
+        """
+        Check that the port is: "connected_to" or "connected_from".
+
+        Args:
+            port: port ifc entity
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return len(port.ConnectedTo) > 0 or len(port.ConnectedFrom) > 0
+
     def validate_sub_inst(self, port: entity_instance) -> list:
         """
         Runs validation functions for a port
@@ -1355,6 +1369,9 @@ class CheckLogicHVAC(CheckLogicBase):
                                        'Assignments - '
                                        'The port assignments are missing',
                                        error)
+        self.apply_validation_function(self._check_connection(port),
+                                       'Connections - '
+                                       'The port has no connections', error)
         return error
 
 
