@@ -90,7 +90,7 @@ def run_simple_project():
 
     project.sim_settings.ids_file_path = (
             Path(bim2sim.__file__).parent /
-            'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_props.ids'
+            'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
     )
 
     # Assign the enrichment for use conditions of thermal zones.
