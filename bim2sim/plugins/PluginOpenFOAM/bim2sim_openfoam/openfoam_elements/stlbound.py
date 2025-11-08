@@ -98,11 +98,11 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
             self.power = timestep_df[res_key + (
                 'Surface Window Net Heat Transfer '
                 'Rate [W](Hourly)')]
-            if solar_radiation:
-                self.power -= timestep_df[res_key + ('Surface Window '
-                                                     'Transmitted Solar '
-                                                     'Radiation Rate [W]('
-                                                     'Hourly)')]
+            # remove solar load  for realistic window surface bc
+            self.power -= timestep_df[res_key + ('Surface Window '
+                                                 'Transmitted Solar '
+                                                 'Radiation Rate [W]('
+                                                 'Hourly)')]
             self.heat_flux = (self.power / self.bound_area)
 
     def set_boundary_conditions(self, no_heatloss=False):

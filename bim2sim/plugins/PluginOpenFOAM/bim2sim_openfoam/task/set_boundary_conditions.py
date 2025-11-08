@@ -69,8 +69,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
                                            self.playground.sim_settings.add_solar_radiation)
             openfoam_case.current_zone.zone_heat_conduction += (
                     bound.bound_area * bound.heat_flux)
-            # add gains from solar radiation
-            if bound.bound_element_type == "Window":
+            # add gains from solar radiation if activated
+            if (self.playground.sim_settings.add_solar_radiation and
+                    bound.bound_element_type == "Window"):
                 res_key = bound.guid.upper() + ':'
                 window_solar_heat_gains += timestep_df[res_key + (
                     'Surface Window Transmitted Solar Radiation Rate [W](Hourly)')]
@@ -854,9 +855,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
         sun_dir_str = ('(' + str(sun_dir[0]) + ' ' + str(sun_dir[1]) + ' ' +
                        str(sun_dir[2]) + ')')
         rP.values['solarLoadCoeffs'].update({'sunDirection': sun_dir_str})
-        rP.values['solarLoadCoeffs'].update({'directSolarRad':
-                                                 openfoam_case.direct_solar_rad})
-        rP.values['solarLoadCoeffs'].update({'diffuseSolarRad':
+        rP.values['solarLoadCoeffs'].update({'directSolarRad': 2 *
+                                                               openfoam_case.direct_solar_rad})
+        rP.values['solarLoadCoeffs'].update({'diffuseSolarRad': 2 *
                                                  openfoam_case.diffuse_solar_rad})
         openfoam_case.radiationProperties.save(
             openfoam_case.openfoam_dir)
