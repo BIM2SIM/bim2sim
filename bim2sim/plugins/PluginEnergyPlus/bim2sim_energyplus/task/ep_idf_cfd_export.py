@@ -3,6 +3,7 @@
 import ast
 import logging
 import os
+from pathlib import Path
 
 import pandas as pd
 from OCC.Core.StlAPI import StlAPI_Writer
@@ -48,10 +49,12 @@ class ExportIdfForCfd(ITask):
 
         logger.info("IDF Postprocessing for CFD started...")
         logger.info("Export STL for CFD")
-        stl_name = idf.idfname.replace('.idf', '')
-        stl_name = stl_name.replace(str(self.paths.export)+'/', '')
-        base_stl_dir = str(self.paths.root) + "/export/STL/"
-        os.makedirs(os.path.dirname(base_stl_dir), exist_ok=True)
+        # stl_name = str(idf.idfname).replace('.idf', '')
+        # stl_name = stl_name.replace(str(self.paths.export)+'/', '')
+        stl_name = self.prj_name
+        base_stl_dir = self.paths.export / "STL/"
+        base_stl_dir = base_stl_dir.as_posix()
+        os.makedirs(base_stl_dir, exist_ok=True)
 
         self.export_bounds_to_stl(elements, stl_name, base_stl_dir)
         self.export_bounds_per_space_to_stl(elements, stl_name, base_stl_dir)
@@ -150,7 +153,7 @@ class ExportIdfForCfd(ITask):
         spaces = get_spaces_with_bounds(elements)
         for space_obj in spaces:
             space_name = space_obj.guid
-            stl_dir = base_stl_dir + space_name + "/"
+            stl_dir = base_stl_dir + "/" + space_name + "/"
             os.makedirs(os.path.dirname(stl_dir), exist_ok=True)
             for bound in space_obj.space_boundaries:
                 if not bound.physical:
@@ -185,34 +188,36 @@ class ExportIdfForCfd(ITask):
             new_file.write(output_data)
 
     @staticmethod
-    def export_space_bound_list(elements: dict, paths: str):
+    def export_space_bound_list(elements: dict, paths: Path):
         """Exports a list of spaces and space boundaries.
 
         Args:
             elements: dict[guid: element]
             paths: BIM2SIM paths
         """
-        stl_dir = str(paths.export) + '/'
+        stl_dir = paths.export.as_posix() + '/'
         space_bound_df = pd.DataFrame(columns=["space_id", "bound_ids"])
         spaces = get_spaces_with_bounds(elements)
         for space in spaces:
             bound_names = []
             for bound in space.space_boundaries:
                 bound_names.append(bound.guid)
-            space_bound_df = space_bound_df.append({'space_id': space.guid,
-                                                    'bound_ids': bound_names},
-                                                   ignore_index=True)
+            space_bound_df = pd.concat(
+                [space_bound_df,
+                 pd.DataFrame({'space_id': space.guid,
+                               'bound_ids': [bound_names]})],
+                ignore_index=True)
         space_bound_df.to_csv(stl_dir + "space_bound_list.csv")
 
     @staticmethod
-    def combine_stl_files(stl_name: str, paths: str):
+    def combine_stl_files(stl_name: str, paths: Path):
         """Combine stl files.
 
         Args:
             stl_name: name of the stl file
             paths: BIM2SIM paths
         """
-        stl_dir = str(paths.export) + '/'
+        stl_dir = paths.export.as_posix() + '/'
         with open(stl_dir + stl_name + "_combined_STL.stl", 'wb+') \
                 as output_file:
             for i in os.listdir(stl_dir + 'STL/'):
@@ -225,7 +230,7 @@ class ExportIdfForCfd(ITask):
                     sb_mesh.save(mesh_name, output_file, mode=stl.Mode.ASCII)
 
     @staticmethod
-    def combine_space_stl_files(stl_name: str, space_name: str, paths: str):
+    def combine_space_stl_files(stl_name: str, space_name: str, paths: Path):
         """Combine the stl file of spaces.
 
         Args:
@@ -233,7 +238,7 @@ class ExportIdfForCfd(ITask):
             space_name: name of the space
             paths: BIM2SIM paths
         """
-        stl_dir = str(paths.export) + '/'
+        stl_dir = paths.export.as_posix() + '/'
         os.makedirs(os.path.dirname(stl_dir + "space_stl/"), exist_ok=True)
 
         with open(stl_dir + "space_stl/" + "space_" + space_name + ".stl",

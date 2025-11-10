@@ -103,6 +103,7 @@ generated from the EnergyPlus output csv file, using the tool of your choice
 
 ### Configuration file
 
+(Comfort_default_tasks)=
 ### Default tasks
 
 ### Additional templates

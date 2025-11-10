@@ -162,6 +162,7 @@ This includes a description of:
 
 This information is extracted from the IFC file. Missing data can be added 
 by using e.g. a template-based enrichment. 
+
 #### IFC Requirements
 The BPS Plugins ([PluginEnergyPlus](PluginEnergyPlus) and 
 [PluginTEASER](PluginTEASER)) should only be applied, 
@@ -180,6 +181,8 @@ if minimum IFC requirements are fulfilled:
 Other IFC requirements (optional, improve model accuracy):
 * Material definitions
 * Shading Space Boundaries (only applicable for [PluginEnergyPlus](PluginEnergyPlus))
+
+
 ### Heating Ventilation and Air Conditioning (HVAC) Simulation
 HVAC simulations are used to simulate the behaviour of different system 
 components in the energy system. For now `bim2sim` focuses on the heating and 
@@ -218,8 +221,6 @@ Generation devices are e.g. boilers or chillers and consumers might be radiators
 or the already mentioned underfloor-heating. 
 
 
-
-
 #### Control Logic
 Even if IFC offers the possibility to include controls, it is not very practical
 and rarely used. But for a running simulation the control logic is 
@@ -235,6 +236,26 @@ non-existing in the exported model, so the user can input them in Modelica.
 and the usage we offer the possibility to deactivate the internal controls inside
 the modelica models and allow the user to model their own controls.
 
+
+### Computational Fluid Dynamics (CFD) Simulations
+
+CFD simulations are used to analyze fluid flow, heat transfer, and indoor air 
+distribution in buildings. While Building Performance Simulation (BPS) focuses 
+on overall energy balance and system sizing on a zonal scale for the whole building, 
+CFD provides detailed insights into local comfort parameters, such as air velocity, 
+temperature stratification, and contaminant dispersion for a smaller subset of the 
+building (e.g., a zone or room) resolved in a high-resolution mesh. This allows 
+designers to assess the indoor environmental quality (IEQ) beyond energy efficiency.
+
+Typical applications of CFD in building design include:
+* Evaluation of thermal comfort in different room setups
+* Optimization of air diffusers
+* Smoke and contaminant dispersion studies
+
+For more information on CFD simulations please take a look at the 
+[Simulation Types](simtype_cfd).
+
+
 ## What are Plugins?
 (plugin_overview)=
 To make `bim2sim` usable for different simulation domains and tools we use
@@ -246,13 +267,14 @@ Not all plugins are at the same level of development. Following, we give an
 overview about the current development process and what works and what notin the
 following table.
 
-| **Plugin** | **Domain** | **Model Generation** | **Comment**                        | **Export** | **Comment**                    | **Simulation** | **Comment**                       |
-|------------|------------|----------------------|------------------------------------|------------|--------------------------------|----------------|-----------------------------------|
-| AixLib     | HVAC       | Working              | improvements aggregations needed   | Working    |                                | Not working    | Modelica models not published yet |
-| EnergyPlus | BPS        | Working              |                                    | Working    |                                |                |                                   |
-| TEASER     | BPS        | Working              |                                    | Working    |                                |                |                                   |
-| LCA        | LCA        | -                    | no model                           | Working    | improvements IfcWindows needed | -              | no simulation                     |
-| CFD        | CFD        | -                    | no model                           | Working    | documentation missing          | -              | no simulation                     |
+| **Plugin** | **Domain** | **Model Generation** | **Comment**                      | **Export** | **Comment**                    | **Simulation** | **Comment**                       |
+|------------|------------|----------------------|----------------------------------|------------|--------------------------------|----------------|-----------------------------------|
+| AixLib     | HVAC       | Working              | improvements aggregations needed | Working    |                                | Not working    | Modelica models not published yet |
+| EnergyPlus | BPS        | Working              |                                  | Working    |                                |                |                                   |
+| TEASER     | BPS        | Working              |                                  | Working    |                                |                |                                   |
+| LCA        | LCA        | -                    | no model                         | Working    | improvements IfcWindows needed | -              | no simulation                     |
+| CFD        | CFD        | -                    | no model                         | Working    | documentation missing          | -              | no simulation                     |
+| OpenFOAM   | CFD        | -                    | no model                         | Working    |                                | Working        | must be run externally            |
 
 ## Compatibility
 For the Plugins that export a simulation model, following the listed compatible 
@@ -260,9 +282,10 @@ versions and branches are listed, which our Plugins are compatible with at the
 moment.
 
 | **Plugin**     | **Repository** | **version/branch** |
-|----------------|------------|----------------|
-| **TEASER**     | AixLib     | `development`  |
-|                | TEASER     | `development`  |
-| **EnergyPlus** | EnergyPlus | `9.4.0`    | m
+|----------------|----------------|--------------------|
+| **TEASER**     | AixLib         | `development`      |
+|                | TEASER         | `development`      |
+| **EnergyPlus** | EnergyPlus     | `9.4.0`            |
+| **OpenFOAM**   | OpenFOAM       | `v2206`            |m
 
 

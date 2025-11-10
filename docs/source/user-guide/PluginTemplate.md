@@ -58,7 +58,7 @@ pip install -e .
 
 Now the base library installation is done. First check is to call the help
 method of bim2sim. When the version of bim2sim is returned, the bim2sim base
-libraray is functional. You can either run of these commands:
+library is functional. You can either run of these commands:
 
 ```shell
 python -m bim2sim -v
@@ -123,42 +123,52 @@ If all worked well you should be able to start using bim2sim. Try
 It this command returns the help documentation, please make your first steps with `bim2sim`.
 
 ## How to create a project?
-You can either use `bim2sim` directly from console or include it in your scripts.
-
-### Console
-
-Start your favorite console and type
-
-
-```
-$ python -m bim2sim -h
-```
-
-to see all available commands.
-
-Now it's time to create your first project with bim2sim.
+A `bim2sim` project is defined via a python script. Following, there are some
+parts of project scripts shown. A good start is to run and to study the examples
+included in the `bim2sim` repository. The general examples you can find here:
+`/bim2sim/examples`. With the following command you can run your first generic
+project:
 
 ```
-$ python bim2sim project create path/to/project -s teaser
+$ python bim2sim/examples/e1_template_plugin.py
 ```
 
-will create a new project folder at `path/to/project` and set it up for a
-simulation with [TEASER](teaser) (see [](plugins) for more options).
-Now open the newly created project folder and put the *.ifc file you wish to
-process into the subfolder `ifc`. Alternatively you could add the
-option `-i path/to/ifc` to the command above, which would copy the ifc for you.
 
-If all is set up correctly, run
 
-```
-$ python bim2sim load path/to/project
-```
+<!-- ### Console -->
 
-to load and run an existing project. Then follow the instructions from your
-console. When you are done, you can inspect the results from the `/results` folder of
-your project.
+<!-- Start your favorite console and type -->
 
-### Script
+
+<!-- ``` -->
+<!-- $ python -m bim2sim -h -->
+<!-- ``` -->
+
+<!-- to see all available commands. -->
+
+<!-- Now it's time to create your first project with bim2sim. -->
+
+<!-- ``` -->
+<!-- $ python bim2sim project create path/to/project -s teaser -->
+<!-- ``` -->
+
+<!-- will create a new project folder at `path/to/project` and set it up for a -->
+<!-- simulation with [TEASER](teaser) (see [](plugins) for more options). -->
+<!-- Now open the newly created project folder and put the *.ifc file you wish to -->
+<!-- process into the subfolder `ifc`. Alternatively you could add the -->
+<!-- option `-i path/to/ifc` to the command above, which would copy the ifc for you. -->
+
+<!-- If all is set up correctly, run -->
+
+<!-- ``` -->
+<!-- $ python bim2sim load path/to/project -->
+<!-- ``` -->
+
+<!-- to load and run an existing project. Then follow the instructions from your -->
+<!-- console. When you are done, you can inspect the results from the `/results` folder of -->
+<!-- your project. -->
+
+<!-- ### Script -->
 
 To include bim2sim in your scripts start with something like this:
 

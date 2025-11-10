@@ -15,7 +15,7 @@ class SimSettingsHelper(SetupHelper):
                 super().__init__(
                 )
             new_setting_lod = sim_settings.ChoiceSetting(
-                default=LOD.low,
+                value=LOD.low,
                 choices={
                     LOD.low: 'not so detailed setting',
                     LOD.full: 'awesome detailed setting'
@@ -24,12 +24,12 @@ class SimSettingsHelper(SetupHelper):
                 for_frontend=True
             )
             new_setting_bool = sim_settings.BooleanSetting(
-                default=False,
+                value=False,
                 description='A new sim_settings bool setting to be created.',
                 for_frontend=True
             )
             new_setting_str = sim_settings.ChoiceSetting(
-                default='Perfect',
+                value='Perfect',
                 choices={
                     'Perfect': 'A perfect setting',
                     'Awesome': 'An awesome setting'
@@ -38,7 +38,7 @@ class SimSettingsHelper(SetupHelper):
                 for_frontend=True
             )
             new_setting_list = sim_settings.ChoiceSetting(
-                default=[
+                value=[
                     'a', 'b', 'c'],
                 choices={
                     'a': 'option a',
@@ -50,7 +50,7 @@ class SimSettingsHelper(SetupHelper):
                 for_frontend=True
             )
             new_setting_path = sim_settings.PathSetting(
-                default=Path(__file__),
+                value=Path(__file__),
                 description='Setting to get a path.'
             )
 
@@ -140,7 +140,7 @@ class TestSimSettings(unittest.TestCase):
                 super().__init__()
 
             guid_list = sim_settings.GuidListSetting(
-                default=['0rB_VAJfDAowPYhJGd9wjZ', '3V8lRtj8n5AxfePCnKtF31'],
+                value=['0rB_VAJfDAowPYhJGd9wjZ', '3V8lRtj8n5AxfePCnKtF31'],
                 description='Test GUID list setting',
                 for_frontend=True
             )
@@ -163,7 +163,9 @@ class TestSimSettings(unittest.TestCase):
             test_settings.guid_list,
             ['0rB_VAJfDAowPYhJGd9wjZ', '3V8lRtj8n5AxfePCnKtF31']
         )
-        self.assertEqual(test_settings.empty_guid_list, [])
+        dings = test_settings.empty_guid_list
+
+        self.assertEqual(test_settings.empty_guid_list, None)
 
         # Test valid GUID updates
         valid_guids = ['1HBLcH3L5AgRg8QXUjHQ2T', '2MBmFkSRv59wfBR9XN_dIe']

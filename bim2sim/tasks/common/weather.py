@@ -41,18 +41,20 @@ class Weather(ITask):
                              "can't continue model generation.")
         return weather_file_modelica, weather_file_ep
 
-    def check_weather_file(self, weather_file_modelica, weather_file_ep):
-        """Check if the file exists and has the correct ending."""
-        plugin_name = self.playground.project.plugin_cls.name.lower()
-        # Define the expected file endings for each plugin
-        expected_endings = {
-            'energyplus': ['.epw'],
-            'comfort': ['.epw'],
-            'spawn': ['.epw', '.mos'],
-            'teaser': ['.mos'],
-            'aixlib': ['.mos'],
-            'hkesim': ['.mos']
-        }
+    def check_file_ending(self, weather_file: WindowsPath):
+        """Check if the file ending fits the simulation model type."""
+        plugin_name = self.playground.project.plugin_cls.name
+        if plugin_name in ['EnergyPlus', 'Comfort', 'openfoam']:
+            if not weather_file.suffix == '.epw':
+                raise ValueError(
+                    f"EnergyPlus simulation model should be created, but "
+                    f"instead .epw a {weather_file.suffix} file was provided.")
+        # all other plugins currently use .mos files
+        else:
+            if not weather_file.suffix == '.mos':
+                raise ValueError(
+                    f"Modelica simulation model should be created, but "
+                    f"instead .mos a {weather_file.suffix} file was provided.")
 
         # Get the expected endings for the plugin_name
         if plugin_name not in expected_endings:

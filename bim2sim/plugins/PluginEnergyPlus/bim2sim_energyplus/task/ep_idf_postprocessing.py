@@ -60,12 +60,22 @@ class IdfPostprocessing(ITask):
         zones = idf.idfobjects['ZONE']
         zone_dict = {}
         ifc_zones = filter_elements(elements, ThermalZone)
+        zone_dict_ifc_names = {}
         for zone in zones:
             usage = [z.usage for z in ifc_zones if z.guid == zone.Name]
             zone_dict.update({zone.Name: usage[0]})
-
+            zone_dict_ifc_names.update({
+                zone.Name: {
+                    'ZoneUsage': usage[0],
+                    'Name': elements[zone.Name].ifc.Name,
+                    'LongName': elements[zone.Name].ifc.LongName,
+                    'StoreyName': elements[zone.Name].storeys[0].ifc.Name,
+                    'StoreyElevation': elements[zone.Name].storeys[
+                        0].ifc.Elevation}})
         with open(exportpath / 'zone_dict.json', 'w+') as file:
             json.dump(zone_dict, file, indent=4)
+        with open(exportpath / 'zone_dict_ifc_names.json', 'w+') as file:
+            json.dump(zone_dict_ifc_names, file, indent=4)
 
     def _export_surface_areas(self, elements, idf):
         """ combines sets of area sums and exports to csv """
