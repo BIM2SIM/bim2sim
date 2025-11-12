@@ -60,7 +60,6 @@ class CheckIfc(ITask):
         functions and export the errors found as .json and .html files.
 
         """
-        print("Task CheckIfc says Hello")
 
         self.logger.info(f"Processing IFC Checks with ifcTester")
 
@@ -121,7 +120,6 @@ class CheckIfc(ITask):
 
             if ifc_file.domain == IFCDomain.hydraulic:
                 self.logger.info(f"Processing HVAC-IfcCheck")  # todo
-                print("Hello HVAC")
                 # used for preparing data for checking, is filder keyword
                 self.sub_inst_cls = 'IfcDistributionPort'
                 self.plugin = hvac
