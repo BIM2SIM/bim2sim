@@ -14,7 +14,7 @@ from bim2sim.elements.mapping import attribute  # used in _get_ifc_type_classes
 # get_layer_ifc needed for _check_inst_materials
 from bim2sim.elements.mapping.ifc2python import get_layers_ifc, \
     get_property_sets, get_ports
-import ifctester
+
 import ifctester.ids
 import ifctester.reporter
 import webbrowser
