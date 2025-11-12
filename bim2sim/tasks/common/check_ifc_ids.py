@@ -1328,9 +1328,9 @@ class CheckLogicHVAC(CheckLogicBase):
     """Provides additional logic for ifc files checking regarding HVAC."""
 
     @staticmethod
-    def _check_assignments(port: entity_instance) -> bool:
+    def _check_assignments(inst: entity_instance) -> bool:
         """
-        Check that the port has at least one assignment.
+        Check that the inst (also spec. port) has at least one assignment.
 
         Args:
             port: port ifc entity
@@ -1340,7 +1340,7 @@ class CheckLogicHVAC(CheckLogicBase):
             False: if check fails
         """
         return any(assign.is_a('IfcRelAssignsToGroup') for assign in
-                   port.HasAssignments)
+                   inst.HasAssignments)
 
     @staticmethod
     def _check_connection(port: entity_instance) -> bool:
@@ -1505,6 +1505,10 @@ class CheckLogicHVAC(CheckLogicBase):
                                        'Representation - '
                                        'The instance has no geometric '
                                        'representation', error)
+        self.apply_validation_function(self._check_assignments(inst),
+                                       'Assignments - '
+                                       'The instance assignments are missing',
+                                       error)
         return error
 if __name__ == '__main__':
     pass
