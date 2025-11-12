@@ -93,7 +93,7 @@ class CheckIfc(ITask):
 
         self.logger.info(f"Processing IFC Checks without ifcTester")
 
-        paths = self.paths  # TODO needed in if loop, here need better solution
+        paths = self.paths
         for ifc_file in ifc_files:
             # checks are domain specific
             # Reset class based on domain to run the right check.
