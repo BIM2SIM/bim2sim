@@ -1406,6 +1406,35 @@ class CheckLogicHVAC(CheckLogicBase):
         else:
             return False
 
+    def _check_inst_properties(self, inst: entity_instance):
+        """
+        Check that an instance has the property sets and properties
+        necessaries to the plugin.
+
+        Args:
+            inst: IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        inst_prop2check = self.ps_summary.get(inst.is_a(), {})
+        inst_prop = get_property_sets(inst, self.ifc_units)
+        inst_prop_errors = []
+        for prop2check, ps2check in inst_prop2check.items():
+            ps = inst_prop.get(ps2check[0], None)
+            if ps:
+                if not ps.get(ps2check[1], None):
+                    inst_prop_errors.append(
+                        prop2check+' - '+', '.join(ps2check))
+            else:
+                inst_prop_errors.append(prop2check+' - '+', '.join(ps2check))
+        if inst_prop_errors:
+            key = inst.GlobalId + ' ' + inst.is_a()
+            self.error_summary_prop.update({key: inst_prop_errors})
+            return False
+        return True
+
     def validate_sub_inst(self, port: entity_instance) -> list:
         """
         Runs validation functions for a port
@@ -1450,6 +1479,10 @@ class CheckLogicHVAC(CheckLogicBase):
                                        'ContainedInStructure - '
                                        'The instance is not contained in any '
                                        'structure', error)
+        self.apply_validation_function(self._check_inst_properties(inst),
+                                       'Missing Property_Sets - '
+                                       'One or more instance\'s necessary '
+                                       'property sets are missing', error)
         return error
 if __name__ == '__main__':
     pass
