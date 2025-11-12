@@ -35,7 +35,6 @@ class CheckIfc(ITask):
     """
     reads = ('ifc_files',)
 
-    # TODO remove self attributes, which not needed
     def __init__(self, playground: Playground):
         super().__init__(playground)
         self.error_summary_sub_inst: dict = {}
@@ -52,8 +51,6 @@ class CheckIfc(ITask):
         self.elements: list = []
         self.ps_summary: dict = {}
         self.ifc_units: dict = {}
-        # TODO maybe not needed her, because set in logic class
-        # uses for filerting prepare check
         self.sub_inst_cls = None
         self.plugin = None
 
