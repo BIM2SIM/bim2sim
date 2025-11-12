@@ -133,9 +133,9 @@ class CheckIfc(ITask):
                 self.elements = self.get_relevant_elements(ifc_file.file)
                 self.ifc_units = ifc_file.ifc_units
                 # checking itself
-                chlbps = CheckLogicHVAC(self.sub_inst, self.elements,
+                chlhvac = CheckLogicHVAC(self.sub_inst, self.elements,
                                        self.ps_summary, self.ifc_units)
-                self.error_summary_sub_inst = chlbps.check_inst_sub()
+                self.error_summary_sub_inst = chlhvac.check_inst_sub()
             elif ifc_file.domain == IFCDomain.arch:
                 self.logger.info(f"Processing BPS-IfcCheck")  # todo
                 # used for preparing data for checking, is filder keyword
