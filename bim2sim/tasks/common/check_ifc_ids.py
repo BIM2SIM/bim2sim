@@ -8,8 +8,7 @@ from pathlib import Path
 
 from typing import Callable, Dict  # Dict used for _get_class_property_sets
 
-import ifcopenshell as ifcos # TODO check which modules are used and append them to the line below
-from ifcopenshell import entity_instance, file
+import ifcopenshell as ifcos
 from bim2sim.utilities.common_functions import all_subclasses  # used in _get_ifc_type_classes
 from bim2sim.elements.mapping import attribute  # used in _get_ifc_type_classes
 # get_layer_ifc needed for _check_inst_materials
@@ -174,7 +173,7 @@ class CheckIfc(ITask):
                         f"{ifc_file.ifc_file_name[:-4]}"
             self._write_errors_to_html_table(base_name, ifc_file.domain)
 
-    def get_relevant_elements(self, ifc: file):
+    def get_relevant_elements(self, ifc: ifcos.file):
         """
         Gets all relevant ifc elements based on the plugin's classes that
         represent an IFCProduct
@@ -435,7 +434,7 @@ class CheckIfcBPS(CheckIfc):
         self.space_indicator = True
 
     @staticmethod
-    def _check_rel_space(bound: entity_instance):
+    def _check_rel_space(bound: ifcos.entity_instance):
         """
         Check that the space boundary relating space exists and has the
         correct class.
@@ -452,7 +451,7 @@ class CheckIfcBPS(CheckIfc):
              bound.RelatingSpace.is_a('IfcExternalSpatialElement')])
 
     @staticmethod
-    def _check_rel_building_elem(bound: entity_instance):
+    def _check_rel_building_elem(bound: ifcos.entity_instance):
         """
         Check that the space boundary related building element exists and has
         the correct class.
@@ -467,7 +466,7 @@ class CheckIfcBPS(CheckIfc):
         if bound.RelatedBuildingElement is not None:
             return bound.RelatedBuildingElement.is_a('IfcElement')
 
-    def validate_sub_inst(self, bound: entity_instance) -> list:
+    def validate_sub_inst(self, bound: ifcos.entity_instance) -> list:
         """
         Validation function for a space boundary that compiles all validation
         functions.
@@ -664,7 +663,7 @@ class CheckLogicBase():
             error.append(err_name)
 
     @staticmethod
-    def _check_rel_space(bound: entity_instance):
+    def _check_rel_space(bound: ifcos.entity_instance):
         """
         Check that the space boundary relating space exists and has the
         correct class.
@@ -688,7 +687,7 @@ class CheckLogicBPS(CheckLogicBase):
 
 
     @staticmethod
-    def _check_rel_space(bound: entity_instance):
+    def _check_rel_space(bound: ifcos.entity_instance):
         """
         Check that the space boundary relating space exists and has the
         correct class.
@@ -705,7 +704,7 @@ class CheckLogicBPS(CheckLogicBase):
              bound.RelatingSpace.is_a('IfcExternalSpatialElement')])
 
     @staticmethod
-    def _check_rel_building_elem(bound: entity_instance):
+    def _check_rel_building_elem(bound: ifcos.entity_instance):
         """
         Check that the space boundary related building element exists and has
         the correct class.
@@ -721,7 +720,7 @@ class CheckLogicBPS(CheckLogicBase):
             return bound.RelatedBuildingElement.is_a('IfcElement')
 
     @staticmethod
-    def _check_conn_geom(bound: entity_instance):
+    def _check_conn_geom(bound: ifcos.entity_instance):
         """
         Check that the space boundary has a connection geometry and has the
         correct class.
@@ -736,7 +735,7 @@ class CheckLogicBPS(CheckLogicBase):
         return bound.ConnectionGeometry.is_a('IfcConnectionGeometry')
 
     @staticmethod
-    def _check_on_relating_elem(bound: entity_instance):
+    def _check_on_relating_elem(bound: ifcos.entity_instance):
         """
         Check that the surface on relating element of a space boundary has
         the geometric information.
@@ -752,7 +751,7 @@ class CheckLogicBPS(CheckLogicBase):
             'IfcCurveBoundedPlane')
 
     @staticmethod
-    def _check_on_related_elem(bound: entity_instance):
+    def _check_on_related_elem(bound: ifcos.entity_instance):
         """
         Check that the surface on related element of a space boundary has no
         geometric information.
@@ -769,7 +768,7 @@ class CheckLogicBPS(CheckLogicBase):
                     'IfcCurveBoundedPlane'))
 
     @staticmethod
-    def _check_basis_surface(bound: entity_instance):
+    def _check_basis_surface(bound: ifcos.entity_instance):
         """
         Check that the surface on relating element of a space boundary is
         represented by an IFC Place.
@@ -785,7 +784,7 @@ class CheckLogicBPS(CheckLogicBase):
             BasisSurface.is_a('IfcPlane')
 
     @staticmethod
-    def _check_inner_boundaries(bound: entity_instance):
+    def _check_inner_boundaries(bound: ifcos.entity_instance):
         """
         Check if the surface on relating element of a space boundary inner
         boundaries don't exists or are composite curves.
@@ -803,7 +802,7 @@ class CheckLogicBPS(CheckLogicBase):
                    SurfaceOnRelatingElement.InnerBoundaries)
 
     @staticmethod
-    def _check_outer_boundary_composite(bound: entity_instance):
+    def _check_outer_boundary_composite(bound: ifcos.entity_instance):
         """
         Check if the surface on relating element of a space boundary outer
         boundaries are composite curves.
@@ -819,7 +818,7 @@ class CheckLogicBPS(CheckLogicBase):
             OuterBoundary.is_a('IfcCompositeCurve')
 
     @staticmethod
-    def _check_segments(bound: entity_instance):
+    def _check_segments(bound: ifcos.entity_instance):
         """
         Check if the surface on relating element of a space boundary outer
         boundaries segments are polyline.
@@ -836,7 +835,7 @@ class CheckLogicBPS(CheckLogicBase):
                 OuterBoundary.Segments)
 
     @staticmethod
-    def _check_coords(points: entity_instance):
+    def _check_coords(points: ifcos.entity_instance):
         """
         Check coordinates of a group of points (class and length).
 
@@ -851,7 +850,7 @@ class CheckLogicBPS(CheckLogicBase):
             points.Coordinates) <= 4
 
     @staticmethod
-    def _check_dir_ratios(dir_ratios: entity_instance):
+    def _check_dir_ratios(dir_ratios: ifcos.entity_instance):
         """
         Check length of direction ratios.
 
@@ -865,7 +864,7 @@ class CheckLogicBPS(CheckLogicBase):
         return 2 <= len(dir_ratios.DirectionRatios) <= 3
 
     @classmethod
-    def _check_poly_points_coord(cls, polyline: entity_instance):
+    def _check_poly_points_coord(cls, polyline: ifcos.entity_instance):
         """
         Check if a polyline has the correct coordinates.
 
@@ -879,7 +878,7 @@ class CheckLogicBPS(CheckLogicBase):
         return all(cls._check_coords(p) for p in polyline.Points)
 
     @classmethod
-    def _check_segments_poly_coord(cls, bound: entity_instance):
+    def _check_segments_poly_coord(cls, bound: ifcos.entity_instance):
         """
         Check segments coordinates of an outer boundary of a surface on
         relating element.
@@ -897,7 +896,7 @@ class CheckLogicBPS(CheckLogicBase):
                    OuterBoundary.Segments)
 
     @staticmethod
-    def _check_poly_points(polyline: entity_instance):
+    def _check_poly_points(polyline: ifcos.entity_instance):
         """
         Check if a polyline has the correct class.
 
@@ -912,7 +911,7 @@ class CheckLogicBPS(CheckLogicBase):
         return polyline.is_a('IfcPolyline')
 
     @classmethod
-    def _check_outer_boundary_poly(cls, bound: entity_instance):
+    def _check_outer_boundary_poly(cls, bound: ifcos.entity_instance):
         """
         Check points of outer boundary of a surface on relating element.
 
@@ -927,7 +926,7 @@ class CheckLogicBPS(CheckLogicBase):
             bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
 
     @staticmethod
-    def _check_outer_boundary_poly_coord(bound: entity_instance):
+    def _check_outer_boundary_poly_coord(bound: ifcos.entity_instance):
         """
         Check outer boundary of a surface on relating element.
 
@@ -942,7 +941,7 @@ class CheckLogicBPS(CheckLogicBase):
             bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
 
     @staticmethod
-    def _check_plane_position(bound: entity_instance):
+    def _check_plane_position(bound: ifcos.entity_instance):
         """
         Check class of plane position of space boundary.
 
@@ -957,7 +956,7 @@ class CheckLogicBPS(CheckLogicBase):
             Position.is_a('IfcAxis2Placement3D')
 
     @staticmethod
-    def _check_location(bound: entity_instance):
+    def _check_location(bound: ifcos.entity_instance):
         """
         Check that location of a space boundary is an IfcCartesianPoint.
 
@@ -972,7 +971,7 @@ class CheckLogicBPS(CheckLogicBase):
             Position.Location.is_a('IfcCartesianPoint')
 
     @staticmethod
-    def _check_axis(bound: entity_instance):
+    def _check_axis(bound: ifcos.entity_instance):
         """
         Check that axis of space boundary is an IfcDirection.
 
@@ -987,7 +986,7 @@ class CheckLogicBPS(CheckLogicBase):
             Position.Axis.is_a('IfcDirection')
 
     @staticmethod
-    def _check_refdirection(bound: entity_instance):
+    def _check_refdirection(bound: ifcos.entity_instance):
         """
         Check that reference direction of space boundary is an IfcDirection.
 
@@ -1002,7 +1001,7 @@ class CheckLogicBPS(CheckLogicBase):
             Position.RefDirection.is_a('IfcDirection')
 
     @classmethod
-    def _check_location_coord(cls, bound: entity_instance):
+    def _check_location_coord(cls, bound: ifcos.entity_instance):
         """
         Check if space boundary surface on relating element coordinates are
         correct.
@@ -1019,7 +1018,7 @@ class CheckLogicBPS(CheckLogicBase):
                                  Position.Location)
 
     @classmethod
-    def _check_axis_dir_ratios(cls, bound: entity_instance):
+    def _check_axis_dir_ratios(cls, bound: ifcos.entity_instance):
         """
         Check if space boundary surface on relating element axis are correct.
 
@@ -1035,7 +1034,7 @@ class CheckLogicBPS(CheckLogicBase):
             Position.Axis)
 
     @classmethod
-    def _check_refdirection_dir_ratios(cls, bound: entity_instance):
+    def _check_refdirection_dir_ratios(cls, bound: ifcos.entity_instance):
         """
         Check if space boundary surface on relating element reference direction
         are correct.
@@ -1052,7 +1051,7 @@ class CheckLogicBPS(CheckLogicBase):
             Position.RefDirection)
 
     @staticmethod
-    def _check_inst_sb(inst: entity_instance):
+    def _check_inst_sb(inst: ifcos.entity_instance):
         """
         Check that an instance has associated space boundaries (space or
         building element).
@@ -1088,7 +1087,7 @@ class CheckLogicBPS(CheckLogicBase):
         return False
 
     @staticmethod
-    def _check_inst_materials(inst: entity_instance):
+    def _check_inst_materials(inst: ifcos.entity_instance):
         """
         Check that an instance has associated materials.
 
@@ -1106,7 +1105,7 @@ class CheckLogicBPS(CheckLogicBase):
             return len(get_layers_ifc(inst)) > 0
         return True
 
-    def _check_inst_properties(self, inst: entity_instance):
+    def _check_inst_properties(self, inst: ifcos.entity_instance):
         """
         Check that an instance has the property sets and properties
         necessaries to the plugin.
@@ -1136,7 +1135,7 @@ class CheckLogicBPS(CheckLogicBase):
         return True
 
     @staticmethod
-    def _check_inst_contained_in_structure(inst: entity_instance):
+    def _check_inst_contained_in_structure(inst: ifcos.entity_instance):
         """
         Check that an instance is contained in an structure.
 
@@ -1160,7 +1159,7 @@ class CheckLogicBPS(CheckLogicBase):
             return True
 
     @staticmethod
-    def _check_inst_representation(inst: entity_instance):
+    def _check_inst_representation(inst: ifcos.entity_instance):
         """
         Check that an instance has a correct geometric representation.
 
@@ -1179,7 +1178,7 @@ class CheckLogicBPS(CheckLogicBase):
             return inst.Representation is not None
         return True
 
-    def validate_sub_inst(self, bound: entity_instance) -> list:
+    def validate_sub_inst(self, bound: ifcos.entity_instance) -> list:
         """
         Validation function for a space boundary that compiles all validation
         functions.
@@ -1288,7 +1287,7 @@ class CheckLogicBPS(CheckLogicBase):
         return error
 
 
-    def validate_elements(self, inst: entity_instance) -> list:
+    def validate_elements(self, inst: ifcos.entity_instance) -> list:
         """
         Validation function for an instance that compiles all instance
         validation functions.
@@ -1328,7 +1327,7 @@ class CheckLogicHVAC(CheckLogicBase):
     """Provides additional logic for ifc files checking regarding HVAC."""
 
     @staticmethod
-    def _check_assignments(inst: entity_instance) -> bool:
+    def _check_assignments(inst: ifcos.entity_instance) -> bool:
         """
         Check that the inst (also spec. port) has at least one assignment.
 
@@ -1343,7 +1342,7 @@ class CheckLogicHVAC(CheckLogicBase):
                    inst.HasAssignments)
 
     @staticmethod
-    def _check_connection(port: entity_instance) -> bool:
+    def _check_connection(port: ifcos.entity_instance) -> bool:
         """
         Check that the port is: "connected_to" or "connected_from".
 
@@ -1357,7 +1356,7 @@ class CheckLogicHVAC(CheckLogicBase):
         return len(port.ConnectedTo) > 0 or len(port.ConnectedFrom) > 0
 
     @staticmethod
-    def _check_contained_in(port: entity_instance) -> bool:
+    def _check_contained_in(port: ifcos.entity_instance) -> bool:
         """
         Check that the port is "contained_in".
 
@@ -1372,7 +1371,7 @@ class CheckLogicHVAC(CheckLogicBase):
 
     # elements check
     @staticmethod
-    def _check_inst_ports(inst: entity_instance) -> bool:
+    def _check_inst_ports(inst: ifcos.entity_instance) -> bool:
         """
         Check that an instance has associated ports.
 
@@ -1390,7 +1389,7 @@ class CheckLogicHVAC(CheckLogicBase):
             return False
 
     @staticmethod
-    def _check_contained_in_structure(inst: entity_instance) -> bool:
+    def _check_contained_in_structure(inst: ifcos.entity_instance) -> bool:
         """
         Check that an instance is contained in an structure.
 
@@ -1406,7 +1405,7 @@ class CheckLogicHVAC(CheckLogicBase):
         else:
             return False
 
-    def _check_inst_properties(self, inst: entity_instance):
+    def _check_inst_properties(self, inst: ifcos.entity_instance):
         """
         Check that an instance has the property sets and properties
         necessaries to the plugin.
@@ -1436,7 +1435,7 @@ class CheckLogicHVAC(CheckLogicBase):
         return True
 
     @staticmethod
-    def _check_inst_representation(inst: entity_instance):
+    def _check_inst_representation(inst: ifcos.entity_instance):
         """
         Check that an instance has a correct geometric representation.
 
@@ -1452,7 +1451,7 @@ class CheckLogicHVAC(CheckLogicBase):
         else:
             return False
 
-    def validate_sub_inst(self, port: entity_instance) -> list:
+    def validate_sub_inst(self, port: ifcos.entity_instance) -> list:
         """
         Runs validation functions for a port
 
@@ -1476,7 +1475,7 @@ class CheckLogicHVAC(CheckLogicBase):
                                        'The port is not contained in', error)
         return error
 
-    def validate_elements(self, inst: entity_instance) -> list:
+    def validate_elements(self, inst: ifcos.entity_instance) -> list:
         """
         Validation function for an instance that compiles all instance validation functions.
 
