@@ -1447,7 +1447,6 @@ class CheckLogicHVAC(CheckLogicBase):
             True: if check succeeds
             False: if check fails
         """
-        print("test repr")
         if hasattr(inst, 'Representation'):
             return inst.Representation is not None
         else:
