@@ -1435,6 +1435,24 @@ class CheckLogicHVAC(CheckLogicBase):
             return False
         return True
 
+    @staticmethod
+    def _check_inst_representation(inst: entity_instance):
+        """
+        Check that an instance has a correct geometric representation.
+
+        Args:
+            inst: IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        print("test repr")
+        if hasattr(inst, 'Representation'):
+            return inst.Representation is not None
+        else:
+            return False
+
     def validate_sub_inst(self, port: entity_instance) -> list:
         """
         Runs validation functions for a port
@@ -1483,6 +1501,10 @@ class CheckLogicHVAC(CheckLogicBase):
                                        'Missing Property_Sets - '
                                        'One or more instance\'s necessary '
                                        'property sets are missing', error)
+        self.apply_validation_function(self._check_inst_representation(inst),
+                                       'Representation - '
+                                       'The instance has no geometric '
+                                       'representation', error)
         return error
 if __name__ == '__main__':
     pass
