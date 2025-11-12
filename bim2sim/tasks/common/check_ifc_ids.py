@@ -1389,6 +1389,23 @@ class CheckLogicHVAC(CheckLogicBase):
         else:
             return False
 
+    @staticmethod
+    def _check_contained_in_structure(inst: entity_instance) -> bool:
+        """
+        Check that an instance is contained in an structure.
+
+        Args:
+            inst: IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        if hasattr(inst, 'ContainedInStructure'):
+            return len(inst.ContainedInStructure) > 0
+        else:
+            return False
+
     def validate_sub_inst(self, port: entity_instance) -> list:
         """
         Runs validation functions for a port
@@ -1429,6 +1446,10 @@ class CheckLogicHVAC(CheckLogicBase):
         self.apply_validation_function(self._check_inst_ports(inst),
                                        'Ports - '
                                        'The instance ports are missing', error)
+        self.apply_validation_function(self._check_contained_in_structure(inst),
+                                       'ContainedInStructure - '
+                                       'The instance is not contained in any '
+                                       'structure', error)
         return error
 if __name__ == '__main__':
     pass
