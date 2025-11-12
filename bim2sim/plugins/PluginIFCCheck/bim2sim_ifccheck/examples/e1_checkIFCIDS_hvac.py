@@ -21,7 +21,7 @@ def run_simple_project():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(tempfile.TemporaryDirectory(
-        prefix='bim2sim_e1_checkifc').name)
+        prefix='bim2sim_e1_checkifc_hvac').name)
 
     # Set the ifc path to use and define which domain the IFC belongs to.
     # This is done via a dictionary, where the key is the domain and the value
@@ -32,38 +32,10 @@ def run_simple_project():
     #
     # no error ifc file
     ifc_paths = {
-        IFCDomain.arch:
+        IFCDomain.hydraulic:
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
+            'test/resources/hydraulic/ifc/hvac_heating.ifc',
     }
-    # ifc_paths = {
-    #     IFCDomain.arch:
-    #         Path(bim2sim.__file__).parent.parent /
-    #         'test/resources/arch/ifc/AC20-FZK-Haus_with_SB55.ifc',
-    # }
-    #
-    # ifc file with not fitting ifc version
-    # ifc_paths = {
-    #     IFCDomain.arch:
-    #         Path(bim2sim.__file__).parent.parent.parent.parent /
-    #         '12_ifc_check_ids/AC20-FZK-Haus_NoneAndDoubleGUID2x3.ifc',
-    # }
-
-    # small example file
-    # but is not correct at all
-    # ifc_paths = {
-    #     IFCDomain.arch:
-    #         Path(bim2sim.__file__).parent.parent.parent.parent /
-    #         '12_ifc_check_ids/03_ifc_veronika/2024-04-23_3rooms_240317_Heater_AirTerminal_Table_with_SB.ifc',
-    # }
-
-    # small example file with errors
-    # but is not correct at all
-    # ifc_paths = {
-    #     IFCDomain.arch:
-    #         Path(bim2sim.__file__).parent.parent.parent.parent /
-    #         '12_ifc_check_ids/03_ifc_veronika/2024-04-23_3rooms_240317_Heater_AirTerminal_Table_with_SB_errors.ifc',
-    # }
 
     project = Project.create(
         project_path, ifc_paths, PluginIFCCheck)
@@ -90,7 +62,7 @@ def run_simple_project():
 
     project.sim_settings.ids_file_path = (
             Path(bim2sim.__file__).parent /
-            'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
+            'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_hvac.ids'
     )
 
     # Assign the enrichment for use conditions of thermal zones.
