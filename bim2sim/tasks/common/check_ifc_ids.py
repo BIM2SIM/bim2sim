@@ -13,7 +13,8 @@ from ifcopenshell import entity_instance, file
 from bim2sim.utilities.common_functions import all_subclasses  # used in _get_ifc_type_classes
 from bim2sim.elements.mapping import attribute  # used in _get_ifc_type_classes
 # get_layer_ifc needed for _check_inst_materials
-from bim2sim.elements.mapping.ifc2python import get_layers_ifc, get_property_sets  # , get_ports
+from bim2sim.elements.mapping.ifc2python import get_layers_ifc, \
+    get_property_sets, get_ports
 import ifctester
 import ifctester.ids
 import ifctester.reporter
@@ -136,6 +137,8 @@ class CheckIfc(ITask):
                 chlhvac = CheckLogicHVAC(self.sub_inst, self.elements,
                                        self.ps_summary, self.ifc_units)
                 self.error_summary_sub_inst = chlhvac.check_inst_sub()
+                self.error_summary_inst = chlhvac.check_elements()
+
             elif ifc_file.domain == IFCDomain.arch:
                 self.logger.info(f"Processing BPS-IfcCheck")  # todo
                 # used for preparing data for checking, is filder keyword
@@ -1367,6 +1370,25 @@ class CheckLogicHVAC(CheckLogicBase):
         """
         return len(port.ContainedIn) > 0
 
+    # elements check
+    @staticmethod
+    def _check_inst_ports(inst: entity_instance) -> bool:
+        """
+        Check that an instance has associated ports.
+
+        Args:
+            inst: IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        ports = get_ports(inst)
+        if ports:
+            return True
+        else:
+            return False
+
     def validate_sub_inst(self, port: entity_instance) -> list:
         """
         Runs validation functions for a port
@@ -1391,6 +1413,22 @@ class CheckLogicHVAC(CheckLogicBase):
                                        'The port is not contained in', error)
         return error
 
+    def validate_elements(self, inst: entity_instance) -> list:
+        """
+        Validation function for an instance that compiles all instance validation functions.
 
+        Args:
+            inst: IFC instance being checked
+
+        Returns:
+            error: list of elements error
+
+        """
+        error = []
+
+        self.apply_validation_function(self._check_inst_ports(inst),
+                                       'Ports - '
+                                       'The instance ports are missing', error)
+        return error
 if __name__ == '__main__':
     pass
