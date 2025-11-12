@@ -18,7 +18,7 @@ from bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck.sim_settings import \
     CheckIFCSimSettings
 from bim2sim.utilities.types import IFCDomain
 
-from bim2sim.tasks.common.check_ifc_ids import CheckIfc
+from bim2sim.tasks.common.check_ifc_ids import CheckIfc, CheckLogicBase
 
 class PluginDummy(Plugin):
     name = 'test'
@@ -81,7 +81,7 @@ class TestCheckIFC(unittest.TestCase):
 
         for ifc_file in ifc_files:
             # self.run_check_guid_unique(ifc_file)
-            all_guids_checks_passed, non_unique_guids = CheckIfc.run_check_guid_unique(self, ifc_file)
+            all_guids_checks_passed, non_unique_guids = CheckLogicBase.run_check_guid_unique(ifc_file)
             self.assertEqual(all_guids_checks_passed, True, "Should be True")
 
     def test_check_guid_unique_fail(self):
@@ -109,7 +109,7 @@ class TestCheckIFC(unittest.TestCase):
 
         for ifc_file in ifc_files:
             # self.run_check_guid_unique(ifc_file)
-            all_guids_checks_passed, non_unique_guids = CheckIfc.run_check_guid_unique(self, ifc_file)
+            all_guids_checks_passed, non_unique_guids = CheckLogicBase.run_check_guid_unique(ifc_file)
             self.assertEqual(all_guids_checks_passed, False, "Should be False")
 
     def test_check_guid_unique_specific_guid_return(self):
@@ -137,7 +137,7 @@ class TestCheckIFC(unittest.TestCase):
         predicted_result = ['25OWQvmXj5BPgyergP43tY', '1Oms875aH3Wg$9l65H2ZGw']
         for ifc_file in ifc_files:
             # self.run_check_guid_unique(ifc_file)
-            all_guids_checks_passed, non_unique_guids = CheckIfc.run_check_guid_unique(self, ifc_file)
+            all_guids_checks_passed, non_unique_guids = CheckLogicBase.run_check_guid_unique(ifc_file)
             list_guids_non_unique = list(non_unique_guids.keys())
             self.assertEqual(list_guids_non_unique, predicted_result, "Should be a list of 2 GUIDs")
 
@@ -165,7 +165,7 @@ class TestCheckIFC(unittest.TestCase):
 
         for ifc_file in ifc_files:
             # self.run_check_guid_unique(ifc_file)
-            all_guids_filled_passed, empty_guids = CheckIfc.run_check_guid_empty(self, ifc_file)
+            all_guids_filled_passed, empty_guids = CheckLogicBase.run_check_guid_empty(ifc_file)
             self.assertEqual(all_guids_filled_passed, False, "Should be false")
 
     def test_run_check_guid_empty_pass(self):
@@ -192,7 +192,7 @@ class TestCheckIFC(unittest.TestCase):
 
         for ifc_file in ifc_files:
             # self.run_check_guid_unique(ifc_file)
-            all_guids_filled_passed, empty_guids = CheckIfc.run_check_guid_empty(self, ifc_file)
+            all_guids_filled_passed, empty_guids = CheckLogicBase.run_check_guid_empty(ifc_file)
             self.assertEqual(all_guids_filled_passed, True, "Should be true")
 
     def test_run_check_ifc_version_error(self):
@@ -220,7 +220,7 @@ class TestCheckIFC(unittest.TestCase):
         ifc_files = self.project.playground.state['ifc_files']
 
         for ifc_file in ifc_files:
-            check_error, ifc_version = CheckIfc.run_check_ifc_version(ifc_file)
+            check_error, ifc_version = CheckLogicBase.run_check_ifc_version(ifc_file)
             self.assertEqual(check_error, True, "Should be True (ifc file has wrong ifc version))")
 
     def test_run_check_ifc_version_no_error(self):
@@ -248,7 +248,7 @@ class TestCheckIFC(unittest.TestCase):
         ifc_files = self.project.playground.state['ifc_files']
 
         for ifc_file in ifc_files:
-            check_error, ifc_version = CheckIfc.run_check_ifc_version(ifc_file)
+            check_error, ifc_version = CheckLogicBase.run_check_ifc_version(ifc_file)
             self.assertEqual(check_error, False, "Should be False (ifc file has fitting ifc version))")
 
 class TestCheckIFCIfctester(unittest.TestCase):
