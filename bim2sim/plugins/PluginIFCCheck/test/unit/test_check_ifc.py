@@ -51,8 +51,7 @@ class TestCheckIFC(unittest.TestCase):
         '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_NoneAndDoubleGUID.ifc')
     ifc_file_fkz_SB55_DoubleAndNoneGUID = Path(
         '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55_NoneAndDoubleGUID.ifc')
-    ifc_file_fkz_SB55 = Path(
-        '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc')
+    ifc_file_fkz_SB55 = Path(bim2sim.__file__).parent.parent / 'test/resources/arch/ifc/AC20-FZK-Haus_with_SB55.ifc'
     ifc_file_fkz_ifc23 = Path(
         '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_ifc23.ifc')
 
