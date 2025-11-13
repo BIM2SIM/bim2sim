@@ -11,10 +11,3 @@ class CheckIFCSimSettings(BaseSimSettings):
     for the IFC Check are added here.
 
     """
-    ids_file_path = PathSetting(
-        default=None,
-        description='Path to the IDS (Information Delivery Specification) file'
-                    'that should be used for the check of the ifc files based'
-                    'on ifctester.',
-        mandatory=False
-    )
