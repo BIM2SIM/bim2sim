@@ -1,0 +1,7 @@
+bim2sim.plugins.PluginOpenFOAM.test.unit package
+================================================
+
+.. automodule:: bim2sim.plugins.PluginOpenFOAM.test.unit
+   :members:
+   :undoc-members:
+   :show-inheritance:
