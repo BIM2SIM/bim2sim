@@ -47,21 +47,7 @@ def visualize_zoning_of_complex_building():
         bps.EnrichUseConditions,
         bps.CombineThermalZones,
     ]
-    # We get the use conditions and usages from predefined templates, look at
-    # example e2 to get more information how this works
-    project.sim_settings.prj_use_conditions = (Path(
-        bim2sim.__file__).parent.parent /
-            "test/resources/arch/custom_usages/"
-            "UseConditionsFM_ARC_DigitalHub.json")
-    project.sim_settings.prj_custom_usages = (Path(
-        bim2sim.__file__).parent.parent /
-            "test/resources/arch/custom_usages/"
-            "customUsagesFM_ARC_DigitalHub_with_SB89.json")
 
-    # set weather file data
-    project.sim_settings.weather_file_path = (
-            Path(bim2sim.__file__).parent.parent /
-            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
     # Run a simulation directly with dymola after model creation
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     space_boundary_genenerator = 'Other'
@@ -72,7 +58,25 @@ def visualize_zoning_of_complex_building():
     # resulting visualizations.
     for zoning_criteria in list(ZoningCriteria):
 
+        # set the simm settings
         project.sim_settings.zoning_criteria = zoning_criteria
+
+        # We get the use conditions and usages from predefined templates, look at
+        # example e2 to get more information how this works
+        project.sim_settings.prj_use_conditions = (Path(
+            bim2sim.__file__).parent.parent /
+                                                   "test/resources/arch/custom_usages/"
+                                                   "UseConditionsFM_ARC_DigitalHub.json")
+        project.sim_settings.prj_custom_usages = (Path(
+            bim2sim.__file__).parent.parent /
+                                                  "test/resources/arch/custom_usages/"
+                                                  "customUsagesFM_ARC_DigitalHub_with_SB89.json")
+
+        # set weather file data
+        project.sim_settings.weather_file_path = (
+                Path(bim2sim.__file__).parent.parent /
+                'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+
 
         handler = DebugDecisionHandler(answers)
 

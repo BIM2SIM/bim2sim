@@ -1,9 +1,8 @@
 from pathlib import Path
 from teaser.project import Project
 
-from bim2sim_teaser.task import CreateTEASER
 from e5_serialize_teaser_prj import run_serialize_teaser_project_example
-
+import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
 
 def load_serialized_teaser_project():
     """This function demonstrates different loading options of TEASER"""
@@ -61,7 +60,7 @@ def load_serialized_teaser_project():
     # As calc_all_buildings() recalculates the heating loads and thus the max
     # ideal heater PI-control values, we might reset those as they can be too
     # low and lead to too low zone temperatures
-    orig_heat_loads, orig_cool_loads = CreateTEASER.overwrite_heatloads(
+    orig_heat_loads, orig_cool_loads = teaser_task.CreateTEASER.overwrite_heatloads(
         prj.buildings)
 
     prj.export_aixlib(

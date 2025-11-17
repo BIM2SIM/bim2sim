@@ -47,7 +47,7 @@ def run_serialize_teaser_project_example():
     # overwrite existing layer structures and materials based on templates
     project.sim_settings.layers_and_materials = LOD.low
     # specify templates for the layer and material overwrite
-    project.sim_settings.construction_class_walls = 'heavy'
+    project.sim_settings.construction_class_walls = 'iwu_heavy'
     project.sim_settings.construction_class_windows = \
         'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
 
