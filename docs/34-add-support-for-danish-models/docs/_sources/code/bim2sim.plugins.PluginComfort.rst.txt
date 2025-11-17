@@ -1,0 +1,16 @@
+bim2sim.plugins.PluginComfort package
+=====================================
+
+.. automodule:: bim2sim.plugins.PluginComfort
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   bim2sim.plugins.PluginComfort.bim2sim_comfort
+   bim2sim.plugins.PluginComfort.test

@@ -1,0 +1,29 @@
+bim2sim.tasks package
+=====================
+
+.. automodule:: bim2sim.tasks
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   bim2sim.tasks.bps
+   bim2sim.tasks.cfd
+   bim2sim.tasks.common
+   bim2sim.tasks.hvac
+
+Submodules
+----------
+
+bim2sim.tasks.base module
+-------------------------
+
+.. automodule:: bim2sim.tasks.base
+   :members:
+   :undoc-members:
+   :show-inheritance:
