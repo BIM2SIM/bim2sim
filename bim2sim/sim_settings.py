@@ -1000,35 +1000,35 @@ class BuildingSimSettings(BaseSimSettings):
         any_string=True
     )
     ahu_heating_overwrite = BooleanSetting(
-        value=None,
+        value=False,
         description="Choose if the central AHU should provide heating. "
     )
     ahu_cooling_overwrite = BooleanSetting(
-        value=None,
+        value=False,
         description="Choose if the central AHU should provide cooling."
     )
     ahu_dehumidification_overwrite = BooleanSetting(
-        value=None,
+        value=False,
         description="Choose if the central AHU should provide "
                     "dehumidification."
     )
     ahu_humidification_overwrite = BooleanSetting(
-        value=None,
+        value=False,
         description="Choose if the central AHU should provide humidification."
                     "otherwise this has no effect. "
     )
     ahu_heat_recovery_overwrite = BooleanSetting(
-        value=None,
+        value=False,
         description="Choose if the central AHU should zuse heat recovery."
     )
     ahu_heat_recovery_efficiency_overwrite = NumberSetting(
-        value=None,
+        value=0.8,
         min_value=0.5,
         max_value=0.99,
         description="Choose the heat recovery efficiency of the central AHU."
     )
     use_constant_infiltration_overwrite = BooleanSetting(
-        value=None,
+        value=False,
         description="If only constant base infiltration should be used and no "
                     "dynamic ventilation through e.g. windows."
     )
