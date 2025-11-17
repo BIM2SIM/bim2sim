@@ -835,7 +835,7 @@ class Pipe(HVACProduct):
             raise AttributeError("No representation to determine length.")
         if len(candidates) > 1:
             raise AttributeError(
-                "Too many representations to dertermine length %s." % candidates)
+                "Too many representations to determine length %s." % candidates)
 
         return candidates[0]
 

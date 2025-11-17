@@ -107,9 +107,9 @@ class Setting(BaseModel, validate_assignment=True, validate_default=True):
     def __set__(self, bound_simulation_settings, value):
         """Creates a new attribute with the name and value of the simulation setting instance,
         stored in sim_settings. This makes it easier to access the setting's payload.
-        
+
         Example:
-        
+
         sim_settings = {e.g. BuildingSimSettings}
             ...
             example_setting_name = {bool}True
@@ -407,29 +407,6 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         mandatory=False
     )
 
-    weather_file_path_ep = PathSetting(
-        default=None,
-        description='Path to the weather file that should be used for the '
-                    'simulation. If no path is provided, we will try to get '
-                    'the location from the IFC and download a fitting weather'
-                    ' file. For Modelica provide .mos files, for EnergyPlus '
-                    '.epw files. If the format does not fit, we will try to '
-                    'convert.',
-        for_frontend=True,
-        mandatory=False
-    )
-
-    weather_file_path = DeprecatedSetting(
-        replacement_settings=["weather_file_path_ep",
-                              "weather_file_path_modelica"],
-        default=None,
-        description='DEPRECATED: Use weather_file_path_ep or '
-                    'weather_file_path_modelica instead. ' +
-                    'Path to the weather file that should be used for the'
-                    ' simulation.',
-        for_frontend=False
-    )
-
     building_rotation_overwrite = NumberSetting(
         value=0,
         min_value=0,
@@ -523,7 +500,7 @@ class PlantSimSettings(BaseSimSettings):
                     "ports."
     )
     outer_heat_ports = BooleanSetting(
-        default=False,
+        value=False,
         description='Add outer heat ports to allow connections to other '
                     'models.',
         for_frontend=True
