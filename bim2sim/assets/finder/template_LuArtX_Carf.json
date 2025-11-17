@@ -37,5 +37,15 @@
       "internal_pump": ["VDI 710.05-Luft-Wasser-Wärmepumpe", "Heizkreispumpe intern"],
       "vdi_performance_data_table": ["VDI-Tables", "Leistungsdaten"]
     }
+  },
+  "AirDuct": {
+      "type": ["Element Specific", "ObjectType"],
+      "": ["MyTab1", "[BEZ] Bezeichnung"],
+      "cross_section": ["MyTab1", "[Querschnitt] G"],
+      "width": ["MyTab1", "[a] (a)"],
+      "height": ["MyTab1", "[b] (b)"],
+      "diameter": ["MyTab1", "[d1] DN"],
+      "length": ["MyTab1", "[l] Länge (l)"],
+      "flow_velocity": ["MyTab1", "[v] Luftgeschw."],
   }
 }

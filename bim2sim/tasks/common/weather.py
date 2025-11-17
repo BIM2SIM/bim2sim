@@ -1,9 +1,13 @@
-from pathlib import Path
-
 from bim2sim.tasks.base import ITask
-
+from bim2sim.utilities.common_functions import filter_elements
+from typing import Any
+from pathlib import WindowsPath, Path
+from typing import Optional
 
 class Weather(ITask):
+    """Task to get the weather file for later simulation"""
+    reads = ('elements',)
+    touches = ('weather_file',)
     """Task to get the weather file for later simulation"""
     reads = ('elements',)
     touches = ('weather_file_modelica', 'weather_file_ep')
