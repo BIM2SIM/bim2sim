@@ -1,0 +1,82 @@
+bim2sim.tasks.common package
+============================
+
+.. automodule:: bim2sim.tasks.common
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+bim2sim.tasks.common.base\_tasks module
+---------------------------------------
+
+.. automodule:: bim2sim.tasks.common.base_tasks
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.common.check\_ifc module
+--------------------------------------
+
+.. automodule:: bim2sim.tasks.common.check_ifc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.common.create\_elements module
+--------------------------------------------
+
+.. automodule:: bim2sim.tasks.common.create_elements
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.common.create\_relations module
+---------------------------------------------
+
+.. automodule:: bim2sim.tasks.common.create_relations
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.common.deserialize\_elements module
+-------------------------------------------------
+
+.. automodule:: bim2sim.tasks.common.deserialize_elements
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.common.inner\_loop\_remover module
+------------------------------------------------
+
+.. automodule:: bim2sim.tasks.common.inner_loop_remover
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.common.load\_ifc module
+-------------------------------------
+
+.. automodule:: bim2sim.tasks.common.load_ifc
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.common.serialize\_elements module
+-----------------------------------------------
+
+.. automodule:: bim2sim.tasks.common.serialize_elements
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.tasks.common.weather module
+-----------------------------------
+
+.. automodule:: bim2sim.tasks.common.weather
+   :members:
+   :undoc-members:
+   :show-inheritance:
