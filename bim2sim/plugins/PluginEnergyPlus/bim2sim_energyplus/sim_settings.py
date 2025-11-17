@@ -56,7 +56,9 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         for_frontend=True,
         any_string=True
     )
-    ep_install_path = PathSetting(
+    # ep_install_path is instantiated without validation using BaseModel.model_construct
+    # to enable linux path as default value for CI pipeline
+    ep_install_path = PathSetting.model_construct(
         value=Path('/usr/local/EnergyPlus-9-4-0/'),
         description='Choose EnergyPlus Installation Path',
         for_frontend=False,
