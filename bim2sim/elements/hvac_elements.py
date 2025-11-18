@@ -1314,6 +1314,10 @@ class ThreeWayValve(Valve):
 class Duct(HVACProduct):
     ifc_types = {"IfcDuctSegment": ['*', 'RIGIDSEGMENT', 'FLEXIBLESEGMENT']}
 
+    @property
+    def expected_hvac_ports(self):
+        return (2, float('inf'))
+
     pattern_ifc_type = [
         re.compile('Duct.?segment', flags=re.IGNORECASE)
     ]
@@ -1335,6 +1339,10 @@ class DuctFitting(HVACProduct):
              'OBSTRUCTION', 'TRANSITION']
     }
 
+    @property
+    def expected_hvac_ports(self):
+        return (0, float('inf'))
+
     pattern_ifc_type = [
         re.compile('Duct.?fitting', flags=re.IGNORECASE)
     ]
@@ -1354,6 +1362,10 @@ class AirTerminal(HVACProduct):
         "IfcAirTerminal":
             ['*', 'DIFFUSER', 'GRILLE', 'LOUVRE', 'REGISTER']
     }
+
+    @property
+    def expected_hvac_ports(self):
+        return (1, 2)
 
     pattern_ifc_type = [
         re.compile('Air.?terminal', flags=re.IGNORECASE)
