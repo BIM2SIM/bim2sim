@@ -506,6 +506,102 @@
       "absolute_roughness_factor": ["Pset_DuctFittingTypeCommon", "AbsoluteRoughnessFactor"]
     }
   },
+  "PipeDuct_round": {
+    "default_ps": {
+      "air_type": ["MyTab1", "[ANLAGE] Luftart"],
+      "width_b": ["MyTab1", "[a] Breitendurchmesser B"],
+      "designation": ["MyTab1", "[BEZ] Bezeichnung (IS)"],
+      "nominal_diameter_d1": ["MyTab1", "[d1] DN"],
+      "isolation_type": ["MyTab1", "[ISOL-TYPE] Isolationstyp"],
+      "edge": ["MyTab1", "[KANTE] Kante"],
+      "code": ["MyTab1", "[KBZ] KBZ"],
+      "key": ["MyTab1", "[KEY] Schlüssel"],
+      "length": ["MyTab1", "[l] Länge"],
+      "material": ["MyTab1", "[MAT] Material"],
+      "data_mask_number": ["MyTab1", "[MSKNR] Datenmaskennummer"],
+      "on_list": ["MyTab1", "[ON_LST] Auf Liste"],
+      "pen": ["MyTab1", "[PEN] Schtift"],
+      "system": ["MyTab1", "[PLANT] Anlage"],
+      "position": ["MyTab1", "[POS] Position"],
+      "cross_section": ["MyTab1", "[QS] Querschnitt"],
+      "connection_type": ["MyTab1", "[RAHMEN] Rahmen"],
+      "floor": ["MyTab1", "[STOCK] Stockwerk"],
+      "version": ["MyTab1", "[VERS] Version"],
+      "air_velocity": ["MyTab1", "[v] Luftgeschw."]
+    }
+  },
+  "AirDuct_oval": {
+    "default_ps": {
+      "air_type": ["MyTab1", "[ANLAGE] Luftart"],
+      "width_b": ["MyTab1", "[a] Breitendurchmesser B"],
+      "designation": ["MyTab1", "[BEZ] Bezeichnung (IS)"],
+      "height_h": ["MyTab1", "[b] Höhendurchmesser H"],
+      "isolation_type": ["MyTab1", "[ISOL-TYPE] Isolationstyp"],
+      "edge": ["MyTab1", "[KANTE] Kante"],
+      "code": ["MyTab1", "[KBZ] KBZ"],
+      "key": ["MyTab1", "[KEY] Schlüssel"],
+      "reference_edge": ["MyTab1", "[K] Bezugskante"],
+      "length": ["MyTab1", "[l] Länge"],
+      "material": ["MyTab1", "[MAT] Material"],
+      "data_mask_number": ["MyTab1", "[MSKNR] Datenmaskennummer"],
+      "on_list": ["MyTab1", "[ON_LST] Auf Liste"],
+      "pen": ["MyTab1", "[PEN] Schtift"],
+      "system": ["MyTab1", "[PLANT] Anlage"],
+      "position": ["MyTab1", "[POS] Position"],
+      "cross_section": ["MyTab1", "[QS] Querschnitt"],
+      "connection_type": ["MyTab1", "[RAHMEN] Rahmen"],
+      "floor": ["MyTab1", "[STOCK] Stockwerk"],
+      "version": ["MyTab1", "[VERS] Version"],
+      "air_velocity": ["MyTab1", "[v] Luftgeschw."]
+    }
+  },
+  "Bend_round": {
+    "default_ps": {
+      "radius": ["Profile", "Radius"],
+      "air_type": ["MyTab1", "[ANLAGE] Luftart"],
+      "designation": ["MyTab1", "[BEZ] Bezeichnung (IS)"],
+      "nominal_diameter_d1": ["MyTab1", "[d1] DN"],
+      "neutral_axis": ["MyTab1", "[l] Neutrale Fase"],
+      "insertion_length": ["MyTab1", "[le2] Einstedekaenge"],
+      "material": ["MyTab1", "[MAT] Material"],
+      "data_mask_number": ["MyTab1", "[MSKNR] Datenmaskennummer"],
+      "on_list": ["MyTab1", "[ON_LST] Auf Liste"],
+      "pen": ["MyTab1", "[PEN] Schtift"],
+      "system": ["MyTab1", "[PLANT] Anlage"],
+      "position": ["MyTab1", "[POS] Position"],
+      "connection_type": ["MyTab1", "[N] Bogen Radius"],
+      "floor": ["MyTab1", "[STOCK] Stockwerk"],
+      "version": ["MyTab1", "[VERS] Version"],
+      "air_velocity": ["MyTab1", "[v] Luftgeschw."],
+      "angle": ["MyTab1", "[w] Winkel"],
+      "length": ["Pset_DuctSegmentTypeCommon", "Length"]
+    }
+  },
+  "Reduction_concentric": {
+    "default_ps": {
+      "air_type": ["MyTab1", "[ANLAGE] Luftart"],
+      "designation": ["MyTab1", "[BEZ] Bezeichnung (IS)"],
+      "nominal_diameter_d1": ["MyTab1", "[d1] DN1"],
+      "nominal_diameter_d2": ["MyTab1", "[d2] DN2"],
+      "isolation_type": ["MyTab1", "[ISOL-TYPE] Isolationstyp"],
+      "edge": ["MyTab1", "[KANTE] Kante"],
+      "code": ["MyTab1", "[KBZ] KBZ"],
+      "key": ["MyTab1", "[KEY] Schlüssel"],
+      "insertion_length": ["MyTab1", "[le2] Einstedekaenge"],
+      "length": ["MyTab1", "[l] Länge"],
+      "material": ["MyTab1", "[MAT] Material"],
+      "data_mask_number": ["MyTab1", "[MSKNR] Datenmaskennummer"],
+      "on_list": ["MyTab1", "[ON_LST] Auf Liste"],
+      "pen": ["MyTab1", "[PEN] Schtift"],
+      "system": ["MyTab1", "[PLANT] Anlage"],
+      "position": ["MyTab1", "[POS] Position"],
+      "connection_type": ["MyTab1", "[RAHMEN] Verbindungsart"],
+      "floor": ["MyTab1", "[STOCK] Stockwerk"],
+      "type": ["MyTab1", "[TYP] Typ"],
+      "version": ["MyTab1", "[VERS] Version"],
+      "air_velocity": ["MyTab1", "[v] Luftgeschw."]
+    }
+  },
   "AirValve": {
     "default_ps": {
       "radius": ["Profile", "Radius"],

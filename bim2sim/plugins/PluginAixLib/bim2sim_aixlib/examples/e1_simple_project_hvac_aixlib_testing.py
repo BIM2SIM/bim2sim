@@ -4,7 +4,9 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.utilities.types import IFCDomain
-
+from bim2sim.elements.base_elements import Material
+from bim2sim.elements import bps_elements as bps_elements, \
+    hvac_elements as hvac_elements
 
 def run_example_simple_hvac_aixlib():
     """Run an HVAC simulation with the AixLib backend.
@@ -24,12 +26,17 @@ def run_example_simple_hvac_aixlib():
 
     # Set path of ifc for hydraulic domain with the fresh downloaded test models
     ifc_paths = {
-        IFCDomain.ventilation:
-            Path(r"D:\03_Cloud\Sciebo\BIM2Praxis\IFC-Modelle\EDGE\ueberarbeitet_2025-10\BIM2PRAXIS_RLT-2025-09-11_cleaned_jho.ifc")
+        IFCDomain.hydraulic:
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/hydraulic/ifc/'
+            'hvac_heating.ifc'
     }
+
     # Create a project including the folder structure for the project with
     # teaser as backend and no specified workflow (default workflow is taken)
     project = Project.create(project_path, ifc_paths, 'aixlib')
+
+    project.sim_settings.relevant_elements = {*hvac_elements.ventilation_items, Material}
 
     # set weather file data
     project.sim_settings.weather_file_path_modelica = (
