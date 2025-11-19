@@ -1794,6 +1794,7 @@ class RectangularTransition(DuctTransition):
     pattern_ifc_type = [
         re.compile('Übergang Asym', flags=re.IGNORECASE),
         re.compile('Übergangsbogen', flags=re.IGNORECASE),
+        re.compile(r'Bogen \(eckig BS, BA, 107\)', flags=re.IGNORECASE),
     ]
 
     height_a = attribute.Attribute(
