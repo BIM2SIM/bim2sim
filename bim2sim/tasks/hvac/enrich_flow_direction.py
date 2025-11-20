@@ -1,4 +1,5 @@
 from bim2sim.elements.graphs.hvac_graph import HvacGraph
+from bim2sim.elements.hvac_elements import HVACPort
 from bim2sim.tasks.base import ITask
 import logging
 from bim2sim.kernel.decision import BoolDecision, DecisionBunch
@@ -39,13 +40,12 @@ class EnrichFlowDirection(ITask):
         while True:
             unset_port = None
             for port in list(graph.nodes):
-                if port.flow_side == FlowSide.unknown and graph.graph[port] \
+                if port.flow_side == FlowSide.unknown and graph[port] \
                         and port not in accepted:
                     unset_port = port
                     break
             if unset_port:
-                side, visited, masters = self.recurse_set_unknown_sides(
-                    unset_port)
+                side, visited, masters = self.recurse_set_unknown_sides(graph, unset_port)
                 if side in (-1, 1):
                     # apply suggestions
                     for port in visited:
@@ -108,7 +108,10 @@ class EnrichFlowDirection(ITask):
 
         return known
 
-    def recurse_set_unknown_sides(self, port, visited: list = None,
+    def recurse_set_unknown_sides(self,
+                                  graph: HvacGraph,
+                                  port: HVACPort,
+                                  visited: list = None,
                                   masters: list = None):
         """Recursive checks neighbours flow_side.
         :returns tuple of
@@ -131,17 +134,15 @@ class EnrichFlowDirection(ITask):
 
         # call neighbours
         neighbour_sides = {}
-        for neigh in self.neighbors(port):
+        for neigh in graph.neighbors(port):
             if neigh not in visited:
                 if (neigh.parent.is_consumer() or neigh.parent.is_generator()) \
                         and port.parent is neigh.parent:
                     # switch flag over consumers / generators
-                    side, _, _ = self.recurse_set_unknown_sides(
-                        neigh, visited, masters)
+                    side, _, _ = self.recurse_set_unknown_sides(graph, neigh, visited, masters)
                     side = -side
                 else:
-                    side, _, _ = self.recurse_set_unknown_sides(
-                        neigh, visited, masters)
+                    side, _, _ = self.recurse_set_unknown_sides(graph, neigh, visited, masters)
                 neighbour_sides[neigh] = side
 
         sides = set(neighbour_sides.values())
