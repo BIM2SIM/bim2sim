@@ -444,9 +444,9 @@ class RelationBased(IFCBased):
         return "%s" % self.__class__.__name__
 
 
-class RelationBased(IFCBased):
-
-    pass
+# class RelationBased(IFCBased):
+#
+#     pass
 
 
 class ProductBased(IFCBased):
