@@ -8,6 +8,7 @@ import ast
 import os.path
 from typing import Union, Optional, List
 import sys
+from pathlib import Path
 from pydantic import BaseModel, Field, model_validator, field_validator, FilePath, DirectoryPath
 from pydantic_core import PydanticCustomError
 from typing_extensions import Self
@@ -204,6 +205,25 @@ class ChoiceSetting(Setting):
 class PathSetting(Setting):
     value: Optional[Union[DirectoryPath, FilePath]]
 
+    def __set__(self, bound_simulation_settings, value):
+        """Creates a new attribute with the name and value of the simulation setting instance,
+        stored in sim_settings. This makes it easier to access the setting's payload.
+
+        Example:
+
+        sim_settings = {e.g. BuildingSimSettings}
+            ...
+            example_setting_name = {bool}True
+            manager {SettingsManager}
+                'example_setting_name' = {BooleanSetting}(name='ahu_heating_overwrite',value=True, ...)
+                ...
+            ...
+        """
+        setting = bound_simulation_settings.manager[self.name]
+        # assign the value without triggering pydantic's
+        # assignment validation (allows non-existing paths, etc.).
+        object.__setattr__(setting, "value", value)
+
 
 class BooleanSetting(Setting):
     value: Optional[bool]
@@ -238,7 +258,12 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
 
         for setting in self.manager.values():
             default = self.manager.defaults[setting.name]
-            setting.value = default
+            # No default set of setting values for PathSettings, since defaults
+            if isinstance(setting, PathSetting):
+                object.__setattr__(setting, "value", default)
+            else:
+                setting.value = default
+
 
     def update_from_config(self, config):
         """Updates the simulation settings specification from the config

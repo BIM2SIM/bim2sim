@@ -34,7 +34,7 @@ def run_example_complex_building_energyplus():
 
     # Set the install path to your EnergyPlus installation according to your
     # system requirements
-    # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+    project.sim_settings.ep_install_path = Path('C://EnergyPlusV9-4-0/')
 
     # combine spaces to thermal zones based on their usage
     # use cooling
