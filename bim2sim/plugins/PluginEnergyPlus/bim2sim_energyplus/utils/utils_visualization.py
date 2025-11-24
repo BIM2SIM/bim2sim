@@ -224,8 +224,11 @@ class VisualizationUtils:
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
         settings.set(settings.USE_WORLD_COORDS, True)
-        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-        settings.set(settings.INCLUDE_CURVES, True)
+        settings.set(
+            "dimensionality",
+            ifcopenshell.ifcopenshell_wrapper.CURVES_SURFACES_AND_SOLIDS)  # 2
+        # settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+        # settings.set(settings.INCLUDE_CURVES, True)
 
         display, start_display, add_menu, add_function_to_menu = init_display(
             display_triedron=False, background_gradient_color1=3 * [255],
