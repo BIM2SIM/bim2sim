@@ -233,11 +233,14 @@ class ThermalZone(BPSProduct):
 
     def _get_space_shape(self, name):
         """returns topods shape of the IfcSpace"""
-        settings = ifcopenshell.geom.main.settings()
+        settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
         settings.set(settings.USE_WORLD_COORDS, True)
-        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-        settings.set(settings.INCLUDE_CURVES, True)
+        settings.set(
+            "dimensionality",
+            ifcopenshell.ifcopenshell_wrapper.CURVES_SURFACES_AND_SOLIDS)  # 2
+        # settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+        # settings.set(settings.INCLUDE_CURVES, True)
         return ifcopenshell.geom.create_shape(settings, self.ifc).geometry
 
     def _get_space_center(self, name) -> float:
@@ -910,8 +913,11 @@ class SpaceBoundary(RelationBased):
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
         settings.set(settings.USE_WORLD_COORDS, True)
-        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-        settings.set(settings.INCLUDE_CURVES, True)
+        settings.set(
+            "dimensionality",
+            ifcopenshell.ifcopenshell_wrapper.CURVES_SURFACES_AND_SOLIDS)  # 2
+        # settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+        # settings.set(settings.INCLUDE_CURVES, True)
 
         # check if the space boundary shapes need a unit conversion (i.e.,
         # an additional transformation to the correct size and position)

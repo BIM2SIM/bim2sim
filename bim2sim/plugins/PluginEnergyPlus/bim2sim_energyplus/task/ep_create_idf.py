@@ -200,7 +200,7 @@ class CreateIdf(ITask):
         """
         logger.info("Initialize the idf ...")
         # set the installation path for the EnergyPlus installation
-        ep_install_path = sim_settings.ep_install_path
+        ep_install_path = Path(sim_settings.ep_install_path)
         # set the plugin path of the PluginEnergyPlus within the BIM2SIM Tool
         plugin_ep_path = str(Path(__file__).parent.parent.parent)
         # set Energy+.idd as base for new idf
