@@ -175,7 +175,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         project.sim_settings.zoningCriteria = ZoningCriteria.individual_spaces
         answers = (True, 'solid_brick_h', True, 'hardwood', True,
                    'Concrete_DK', True, 'Light_Concrete_DK',
-                   'heavy', 1, 'Door', 1, 'Brick', 'solid_brick_h', 'EnEv',
+                   'iwu_heavy', 1, 'Door', 1, 'Brick', 'solid_brick_h', 'EnEv',
                    *(1,) * 8)
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -193,7 +193,7 @@ class TestIntegrationTEASER(IntegrationBaseTEASER, unittest.TestCase):
         answers = ('Glas', True, 'glas_generic', 500, 1.5, 0.2,
                    True, 'air_layer', 'sandstone', True, 'lime_sandstone_1',
                    True, 'aluminium', 0.1, True, 'Concrete_DK', 2015,
-                   "heavy", 1, 'Beton', 'Light_Concrete_DK', 1, 'Door', 1,
+                   "iwu_heavy", 1, 'Beton', 'Light_Concrete_DK', 1, 'Door', 1,
                    'Beton', 1, 'Beton', 1, 'fenster', 'Glas1995_2015Aluoder'
                    'StahlfensterWaermeschutzverglasungzweifach', 1, 'Door',
                    1, 'Beton', 1, 'Beton', *(1,) * 8)
