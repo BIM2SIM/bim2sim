@@ -203,7 +203,7 @@ class ChoiceSetting(Setting):
 
 
 class PathSetting(Setting):
-    value: Optional[Union[DirectoryPath, FilePath]]
+    value: Optional[Union[str, DirectoryPath, FilePath]]
 
     def __set__(self, bound_simulation_settings, value):
         """Creates a new attribute with the name and value of the simulation setting instance,
@@ -222,7 +222,10 @@ class PathSetting(Setting):
         setting = bound_simulation_settings.manager[self.name]
         # assign the value without triggering pydantic's
         # assignment validation (allows non-existing paths, etc.).
-        object.__setattr__(setting, "value", value)
+        if isinstance(value, str):
+            object.__setattr__(setting, "value", Path(value))
+        else:
+            object.__setattr__(setting, "value", value)
 
 
 class BooleanSetting(Setting):
