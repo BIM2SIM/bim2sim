@@ -6,7 +6,8 @@ from bim2sim.tasks.base import ITask
 from bim2sim.elements.mapping.units import ureg
 from bim2sim.utilities.common_functions import filter_elements
 
-# Important: if these are adjusted, also adjust export_vars in ExportTEASER
+# Important: if these are adjusted, also adjust export_vars in ExportTEASER,
+#  and sim_setting sim_results in TEASER sim_settings
 bim2sim_teaser_mapping_base = {
     "multizonePostProcessing.PHeaterSum": "heat_demand_total",
     "multizonePostProcessing.PHeater[numZones]": "heat_demand_rooms",
@@ -35,6 +36,16 @@ bim2sim_teaser_mapping_base = {
     "multizone.zone[numZones].ventRate": "mech_ventilation_rooms",
     "tableTSet.y[numZones]": "heat_set_rooms",
     "tableTSetCool.y[numZones]": "cool_set_rooms",
+    "multizonePostProcessing.PelAHU": "el_demand_ahu",
+    "multizonePostProcessing.PHeatAHU": "heat_demand_ahu",
+    "multizonePostProcessing.PCoolAHU": "cool_demand_ahu",
+    "multizonePostProcessing.WElAHU": "el_energy_ahu",
+    "multizonePostProcessing.WHeatAHU": "heat_energy_ahu",
+    "multizonePostProcessing.WCoolAHU": "cool_energy_ahu",
+    "multizone.AHU[1]": "t_set_ahu",
+    "multizone.AHU[2]": "phi_min_ahu",
+    "multizone.AHU[3]": "phi_max_ahu",
+    "multizone.AHU[4]": "rel_flow_ahu",
     "CPUtime": "cpu_time"
 }
 

@@ -1145,3 +1145,11 @@ class BuildingSimSettings(BaseSimSettings):
         description="Overwrite base value for the natural infiltration in 1/h "
                     " without window openings"
     )
+    fixed_usage = ChoiceSetting(
+        default=None,
+        choices={
+            None: "do not use fix usage",
+            "Open-plan Office (7 or more employees)": "Big Office",
+            "Group Office (between 2 and 6 employees)": "Group Office"
+        }
+    )

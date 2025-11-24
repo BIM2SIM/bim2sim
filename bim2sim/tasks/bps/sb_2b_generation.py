@@ -118,6 +118,8 @@ class AddSpaceBoundaries2B(ITask):
                 space_obj.b_bound_shape = BRepAlgoAPI_Cut(
                     space_obj.b_bound_shape, bound.bound_shape).Shape()
             # extract faces from the leftover shape.
+            # TODO not all faces found here have to be 2B boundaries, e.g.
+            #  Institute building shape with GUID 2_rG4oliv3CxmStpGPieup
             faces = PyOCCTools.get_faces_from_shape(space_obj.b_bound_shape)
             if faces:
                 # create a new 2b space boundary for each face..

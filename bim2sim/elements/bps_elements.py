@@ -315,43 +315,29 @@ class ThermalZone(BPSProduct):
             space_name = self.ifc.Name
         return space_name
 
-    def get_bound_floor_area(self, name):
+    def _get_bound_floor_area(self, name):
         """Get bound floor area of zone. This is currently set by sum of all
         horizontal gross area and take half of it due to issues with
         TOP BOTTOM"""
-        leveled_areas = {}
-        for height, sbs in self.horizontal_sbs.items():
-            if height not in leveled_areas:
-                leveled_areas[height] = 0
-            leveled_areas[height] += sum([sb.bound_area for sb in sbs])
+        bound_floor_area = 0
 
-        return sum(leveled_areas.values()) / 2
+        for sb in self.sbs_without_corresponding:
+            if sb.top_bottom == BoundaryOrientation.bottom:
+                bound_floor_area += sb.bound_area
+
+        return bound_floor_area
 
     def get_net_bound_floor_area(self, name):
         """Get net bound floor area of zone. This is currently set by sum of all
         horizontal net area and take half of it due to issues with TOP BOTTOM."""
-        leveled_areas = {}
-        for height, sbs in self.horizontal_sbs.items():
-            if height not in leveled_areas:
-                leveled_areas[height] = 0
-            leveled_areas[height] += sum([sb.net_bound_area for sb in sbs])
 
-        return sum(leveled_areas.values()) / 2
+        net_bound_floor_area = 0
 
-    def _get_horizontal_sbs(self, name):
-        """get all horizonal SBs in a zone and convert them into a dict with
-         key z-height in room and the SB as value."""
-        # todo: use only bottom when TOP bottom is working correctly
-        valid = [BoundaryOrientation.top, BoundaryOrientation.bottom]
-        leveled_sbs = {}
         for sb in self.sbs_without_corresponding:
-            if sb.top_bottom in valid:
-                pos = round(sb.position[2], 1)
-                if pos not in leveled_sbs:
-                    leveled_sbs[pos] = []
-                leveled_sbs[pos].append(sb)
+            if sb.top_bottom == BoundaryOrientation.bottom:
+                net_bound_floor_area += sb.net_bound_area
 
-        return leveled_sbs
+        return net_bound_floor_area
 
     def _area_specific_post_processing(self, value):
         return value / self.net_area
@@ -412,12 +398,6 @@ class ThermalZone(BPSProduct):
         description="Returns the footprint of a space shape, which can be "
                     "used e.g., to visualize floor plans.",
         functions=[_get_footprint_shape]
-    )
-
-    horizontal_sbs = attribute.Attribute(
-        description="All horizontal space boundaries in a zone as dict. Key is" 
-                    " the z-zeight in the room and value the SB.",
-        functions=[_get_horizontal_sbs]
     )
 
     zone_name = attribute.Attribute(
@@ -482,13 +462,11 @@ class ThermalZone(BPSProduct):
     )
 
     gross_area = attribute.Attribute(
-        default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
-        functions=[get_bound_floor_area],
+        functions=[_get_bound_floor_area],
         unit=ureg.meter ** 2
     )
 
     net_area = attribute.Attribute(
-        default_ps=("Qto_SpaceBaseQuantities", "NetFloorArea"),
         functions=[get_net_bound_floor_area],
         unit=ureg.meter ** 2
     )
@@ -649,6 +627,7 @@ class ThermalZone(BPSProduct):
     )
 
     base_infiltration = attribute.Attribute(
+        # unit=1/ureg.hour
     )
 
     max_user_infiltration = attribute.Attribute(
@@ -664,11 +643,18 @@ class ThermalZone(BPSProduct):
     )
 
     min_ahu = attribute.Attribute(
+        unit=ureg.meter ** 3 / (ureg.meter ** 2 * ureg.s),
+        description="Zone area specific minimum air flow supplied by the "
+                "AHU. Absolute profile will be calculated with the "
+                "Building attribute ahu_v_flow_profile."
     )
     # TODO
     max_ahu = attribute.Attribute(
         default_ps=("Pset_AirSideSystemInformation", "TotalAirflow"),
         unit=ureg.meter ** 3 / ureg.h / ureg.meter ** 2
+        description="Zone area specific maximum air flow supplied by the "
+                "AHU. Absolute profile will be calculated with the "
+                "Building attribute ahu_v_flow_profile."
     )
 
     with_ideal_thresholds = attribute.Attribute(
@@ -1237,13 +1223,13 @@ class Wall(BPSProductWithLayers):
         return OuterWall if self.is_external else InnerWall
 
     net_area = attribute.Attribute(
-        default_ps=("Qto_WallBaseQuantities", "NetSideArea"),
+        # default_ps=("Qto_WallBaseQuantities", "NetSideArea"),
         functions=[BPSProduct.get_net_bound_area],
         unit=ureg.meter ** 2
     )
 
     gross_area = attribute.Attribute(
-        default_ps=("Qto_WallBaseQuantities", "GrossSideArea"),
+        # default_ps=("Qto_WallBaseQuantities", "GrossSideArea"),
         functions=[BPSProduct.get_bound_area],
         unit=ureg.meter ** 2
     )
@@ -1507,7 +1493,7 @@ class Window(BPSProductWithLayers):
     )
 
     gross_area = attribute.Attribute(
-        default_ps=("Qto_WindowBaseQuantities", "Area"),
+        # default_ps=("Qto_WindowBaseQuantities", "Area"),
         functions=[BPSProduct.get_bound_area],
         unit=ureg.meter ** 2
     )
@@ -1585,7 +1571,7 @@ class Door(BPSProductWithLayers):
     )
 
     gross_area = attribute.Attribute(
-        default_ps=("Qto_DoorBaseQuantities", "Area"),
+        # default_ps=("Qto_DoorBaseQuantities", "Area"),
         functions=[BPSProduct.get_bound_area],
         unit=ureg.meter ** 2
     )
@@ -1661,13 +1647,11 @@ class Slab(BPSProductWithLayers):
         return -1
 
     net_area = attribute.Attribute(
-        default_ps=("Qto_SlabBaseQuantities", "NetArea"),
         functions=[BPSProduct.get_net_bound_area],
         unit=ureg.meter ** 2
     )
 
     gross_area = attribute.Attribute(
-        default_ps=("Qto_SlabBaseQuantities", "GrossArea"),
         functions=[BPSProduct.get_bound_area],
         unit=ureg.meter ** 2
     )
@@ -1874,37 +1858,69 @@ class Building(BPSProduct):
     occupancy_type = attribute.Attribute(
         default_ps=("Pset_BuildingCommon", "OccupancyType"),
     )
-
     avg_storey_height = attribute.Attribute(
         unit=ureg.meter,
         functions=[_get_avg_storey_height]
     )
-
     with_ahu = attribute.Attribute(
         functions=[_check_tz_ahu]
     )
-
     ahu_heating = attribute.Attribute(
         attr_type=bool
     )
-
     ahu_cooling = attribute.Attribute(
         attr_type=bool
     )
-
     ahu_dehumidification = attribute.Attribute(
         attr_type=bool
     )
-
     ahu_humidification = attribute.Attribute(
         attr_type=bool
     )
-
     ahu_heat_recovery = attribute.Attribute(
         attr_type=bool
     )
-
+    ahu_by_pass_dehumidification = attribute.Attribute(
+        default=0.2
+    )
     ahu_heat_recovery_efficiency = attribute.Attribute(
+        default=0.85
+    )
+    ahu_efficiency_fan_supply = attribute.Attribute(
+        default=0.7
+    )
+    ahu_efficiency_fan_return = attribute.Attribute(
+        default=0.7
+    )
+    ahu_pressure_drop_fan_supply = attribute.Attribute(
+        default=400,
+        unit=ureg.pascal
+    )
+    ahu_pressure_drop_fan_return = attribute.Attribute(
+        default=400,
+        unit=ureg.pascal
+    )
+    ahu_temperature_profile = attribute.Attribute(
+        default=24 * [295.15],
+        description="Temperature setpoint profile for AHU. Must be a list. "
+                    "List is periodized to 1 year if possible."
+    )
+    ahu_min_relative_humidity_profile = attribute.Attribute(
+        default=24 * [0.45],
+        description="Min humidity setpoint profile for AHU. Must be a list. "
+                    "List is periodized to 1 year if possible."
+    )
+    ahu_max_relative_humidity_profile = attribute.Attribute(
+        default=24 * [0.65],
+        description="Max humidity setpoint profile for AHU. Must be a list. "
+                    "List is periodized to 1 year if possible."
+    )
+    ahu_v_flow_profile = attribute.Attribute(
+        default=24 * [1],
+        description="Relative volume flow profile for AHU. Must be a list. "
+                    "List is periodized to 1 year if possible. Absolute value "
+                    "of volume flow is calculated based on min_ahu and max_ahu"
+                    " values in use conditions, which "
     )
 
 
