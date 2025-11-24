@@ -16,16 +16,18 @@ from bim2sim.utilities.common_functions import filter_elements
 
 bim2sim_energyplus_mapping_base = {
     "NOT_AVAILABLE": "heat_demand_total",
-    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Heating "
-    "Rate [W](Hourly)": "heat_demand_rooms",
+    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Supply Air Total "
+    "Heating Rate [W](Hourly)": "heat_demand_rooms",
     "NOT_AVAILABLE": "cool_demand_total",
-    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Cooling "
-    "Rate [W](Hourly)": "cool_demand_rooms",
-    "Heating:EnergyTransfer [J](Hourly)": "heat_energy_total",
-    "Cooling:EnergyTransfer [J](Hourly) ": "cool_energy_total",
-    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Heating Energy [J](Hourly)":
+    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Supply Air Total "
+    "Cooling Rate [W](Hourly)": "cool_demand_rooms",
+    "DistrictHeating:HVAC [J](Hourly)": "heat_energy_total",
+    "DistrictCooling:HVAC [J](Hourly) ": "cool_energy_total",
+    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Supply Air Total "
+    "Heating Energy [J](Hourly)":
         "heat_energy_rooms",
-    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Zone Total Cooling Energy [J](Hourly)":
+    "SPACEGUID IDEAL LOADS AIR SYSTEM:Zone Ideal Loads Supply Air Total "
+    "Cooling Energy [J](Hourly)":
         "cool_energy_rooms",
     "Environment:Site Outdoor Air Drybulb Temperature [C](Hourly)":
         "air_temp_out",
@@ -50,6 +52,7 @@ unit_mapping = {
     "heat_energy": ureg.joule,
     "cool_energy": ureg.joule,
     "operative_temp": ureg.degree_Celsius,
+    "surf_inside_temp": ureg.degree_Celsius,
     "air_temp": ureg.degree_Celsius,
     "heat_set": ureg.degree_Celsius,
     "cool_set": ureg.degree_Celsius,
@@ -57,6 +60,10 @@ unit_mapping = {
     "n_persons": ureg.dimensionless,
     "infiltration": ureg.hour ** (-1),
     "mech_ventilation": (ureg.meter ** 3) / ureg.second,
+}
+final_units = {
+    "heat_energy": ureg.watthour,
+    "cool_energy": ureg.watthour,
 }
 
 
@@ -112,6 +119,7 @@ class CreateResultDF(ITask):
 
         # create dict for mapping surfaces to spaces
         space_bound_dict = {}
+        space_bound_renamed_dict = {}
         spaces = filter_elements(elements, 'ThermalZone')
         for space in spaces:
             space_guids = []
@@ -120,10 +128,19 @@ class CreateResultDF(ITask):
                     space_guids.append(bound)
                 else:
                     space_guids.append(bound.guid)
+            # rename space boundaries according to their surface orientation
+            # for better identification in surface temperature plots.
+            space_bound_renamed_dict[space.guid] = self.oriented_surface_names(
+                idf,
+                                                                 space.guid)
             space_bound_dict[space.guid] = space_guids
         with open(sim_results_path / self.prj_name / 'space_bound_dict.json',
-                  'w+') as file:
-            json.dump(space_bound_dict, file, indent=4)
+                  'w+') as file1:
+            json.dump(space_bound_dict, file1, indent=4)
+        with open(sim_results_path / self.prj_name /
+                  'space_bound_renamed_dict.json',
+                  'w+') as file2:
+            json.dump(space_bound_renamed_dict, file2, indent=4)
 
         df_original = PostprocessingUtils.read_csv_and_format_datetime(
             raw_csv_path)
@@ -176,6 +193,9 @@ class CreateResultDF(ITask):
             for key, unit in unit_mapping.items():
                 if key in column:
                     df_final[column] = PintArray(df_final[column], unit)
+            for key, unit in final_units.items():
+                if key in column:
+                    df_final[column] = df_final[column].pint.to(unit)
 
         return df_final
 
@@ -237,3 +257,58 @@ class CreateResultDF(ITask):
             else:
                 bim2sim_energyplus_mapping[key] = value
         return bim2sim_energyplus_mapping
+
+    @staticmethod
+    def oriented_surface_names(idf, space_guid):
+
+        """
+        Identify surface names for each individual surface in a zone based on
+        boundary conditions, constructions, and surface orientations for a
+        proper identification in plots of surface variables (e.g., temperature)
+        Args:
+            idf: Eppy IDF
+            space_guid: single space GUID
+
+        Returns: dictionary of renamed space boundaries
+
+        """
+        space_bounds_renamed = {}
+        temp_name_list = []
+        for ib in idf.getobject("ZONE", space_guid).zonesurfaces:
+            temp_name = None
+            if ib is not None:
+                try:
+                    az = PostprocessingUtils.true_azimuth(ib)
+                except:
+                    az = None
+                if az is None:
+                    continue
+                for key in PostprocessingUtils.azimuth_orientations:
+                    if (float(key) - 22.5) <= az < (float(key) + 22.5):
+                        if ib.Outside_Boundary_Condition == 'Surface':
+                            temp_name = 'Inner'
+                        elif ib.Outside_Boundary_Condition == 'Outdoors':
+                            temp_name = 'Outer'
+                        elif ib.Outside_Boundary_Condition == 'Ground':
+                            temp_name = 'Ground'
+                        elif ib.Outside_Boundary_Condition == 'Adiabatic':
+                            temp_name = 'Adiabatic'
+                        else:
+                            temp_name = ''
+                        surface_type = ib.Surface_Type
+                        if ib.Construction_Name == '_AirWall':
+                            surface_type = ib.Construction_Name
+                        temp_name = temp_name + surface_type
+                        if ib.Surface_Type == 'Wall':
+                            temp_name = temp_name + "_" + PostprocessingUtils.azimuth_orientations[key]
+                        if temp_name not in temp_name_list:
+                            temp_name_list.append(temp_name)
+                        else:
+                            temp_count = len([True for s in temp_name_list if
+                                              temp_name in s])
+                            temp_name = temp_name + "_" + str(temp_count)
+                        space_bounds_renamed[ib.Name] = temp_name
+                        break
+            else:
+                continue
+        return space_bounds_renamed

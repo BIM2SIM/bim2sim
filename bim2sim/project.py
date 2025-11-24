@@ -1,4 +1,5 @@
 """Project handling"""
+import hashlib
 import logging
 import os
 import sys
@@ -48,7 +49,7 @@ def add_config_section(
                   if not callable(getattr(sim_settings, attr)) and not
                   attr.startswith('__')]
     for attr in attributes:
-        default_value = getattr(sim_settings, attr).default
+        default_value = getattr(sim_settings, attr).value
         if isinstance(default_value, Enum):
             default_value = str(default_value)
         if not attr in config[name]:
@@ -302,8 +303,18 @@ class Project:
         self.logger = logging.getLogger('bim2sim')
         # try to get name of project from ifc name
         try:
-            self.name = list(
-                filter(Path.is_file, self.paths.ifc_base.glob('**/*')))[0].stem
+            # prioritize the name of the architectural model, otherwise the
+            # name of the project may be an arbitrary model name in
+            # multi-model projects
+            arch_name_list = [i.stem for i in list(
+                    filter(Path.is_file, self.paths.ifc_base.glob('**/*')))
+                if 'arch' in i.as_posix()]
+            if arch_name_list:
+                self.name = arch_name_list[0]
+            else:
+                self.name = list(
+                    filter(
+                        Path.is_file, self.paths.ifc_base.glob('**/*')))[0].stem
         except:
             self.logger.warning(
                 'Could not set correct project name, using "Project"!')
@@ -314,10 +325,8 @@ class Project:
                                  "Use Project.create() to create a new Project")
         self._made_decisions = DecisionBunch()
         self.loaded_decisions = load(self.paths.decisions)
-
         self.plugin_cls = self._get_plugin(plugin)
         self.playground = Playground(self)
-        # link sim_settings to project to make set of settings easier
         self.sim_settings = self.playground.sim_settings
 
     def _get_plugin(self, plugin):
@@ -467,9 +476,17 @@ class Project:
                              self.playground.available_tasks()}
             choices = [(name, task.__doc__) for name, task in
                        tasks_classes.items()]
-            task_decision = ListDecision("What shall we do?",
-                                         choices=choices,
-                                         global_key = "_task_%s_decision" % (self.__class__.__name__)) # add global key: or task.__name__
+            task_infos = [f"{task.__module__}.{task.__name__}" for task in
+                          tasks_classes.values()]
+            task_infos_sorted = sorted(task_infos)
+            task_key_base = ",".join(task_infos_sorted)
+            task_key_hash = hashlib.sha256(task_key_base.encode()).hexdigest()
+            global_key = f"_task_{task_key_hash}_decision"
+            task_decision = ListDecision(
+                "What shall we do?",
+                choices=choices,
+                global_key=global_key
+            )
             yield DecisionBunch([task_decision])
             task_name = task_decision.value
             task_class = tasks_classes[task_name]

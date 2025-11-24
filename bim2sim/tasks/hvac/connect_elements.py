@@ -33,7 +33,7 @@ class ConnectElements(ITask):
         1. Checks the ports of elements.
         2. Connects the relevant elements based on relations.
         3. Checks the positions of connections and connects ports based on
-            geometric distance.
+           geometric distance.
         4. Connects remaining unconnected ports by position.
         5. Logs information about the number of connected and unconnected ports.
 

@@ -49,11 +49,11 @@ git submodule update --init --recursive
 ## Update test resources
 If test resources needs to be updated, please follow the following procedure:
 
-#### [Test Resources Repository](https://github.com/BIM2SIM/bim2sim-test-resources)
+### [Test Resources Repository](https://github.com/BIM2SIM/bim2sim-test-resources)
 1. Create a branch `update_test_resources`
 2. In this branch update the test resources as required
 3. Push the branch with the changes to the remote repository
-#### [Main bim2sim Repository](https://github.com/BIM2SIM/bim2sim)
+### [Main bim2sim Repository](https://github.com/BIM2SIM/bim2sim)
 4. Create a branch called `update_resources_submodule` from the current `development` branch
 5. Checkout this branch on your local device and perform the following commands in the root path:
    1. open the .gitmodules file in the room of bim2sim and adjust the branch to the new test-resources branch (in this case `update_test_resources`)
@@ -63,12 +63,12 @@ If test resources needs to be updated, please follow the following procedure:
    5. `git push`
 6. Wait for the pipeline to run through on your branch, this makes sure that the code runs with the new test resources without issues
 7. If the pipeline with all tests passes, perform the following steps, otherwise fix the issues before you continue
-#### [Test Resources Repository](https://github.com/BIM2SIM/bim2sim-test-resources)
+### [Test Resources Repository](https://github.com/BIM2SIM/bim2sim-test-resources)
 8. Create a Pull Request (PR) from `update_test_resources` into the `main` branch 
 9. Link the succeeded pipeline in this PR and assign a reviewer
 10. When review finished, merge the PR
-#### [Main bim2sim Repository](https://github.com/BIM2SIM/bim2sim)
+### [Main bim2sim Repository](https://github.com/BIM2SIM/bim2sim)
 11. Repeat the same steps as under step 6, but this time in step 5.1 use `main` instead `update_test_resources` as branch name
 12. again wait for the pipeline to succeed
-13. Create a PR to merge `update_resources_submodule` branch in the `main` branch and assign a reviewer
+13. Create a PR to merge `update_resources_submodule` branch in the `development` branch and assign a reviewer
 14. If pipeline has passed (what it should) and review is approved merge the PR

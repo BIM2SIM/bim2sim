@@ -1,0 +1,293 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1706+                                |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+/* Butterfly 0.0.5                https://github.com/ladybug-tools/butterfly *\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+	version		4.0;
+	format		ascii;
+	class		dictionary;
+	location	"system";
+	object		fvSolution;
+}
+
+solvers
+{
+
+    p
+    {
+
+        solver		GAMG;
+
+        tolerance		1e-7;
+
+        relTol		0.1;
+
+        smoother		GaussSeidel;
+
+        nPreSweeps		0;
+
+        nPostSweeps		2;
+
+        cacheAgglomeration		on;
+
+        agglomerator		faceAreaPair;
+
+        nCellsInCoarsestLevel		10;
+
+        mergeLevels		1;
+
+    }
+
+    U
+    {
+
+        solver		PBiCGStab;
+
+        smoother		GaussSeidel;
+
+        tolerance		1E-08;
+
+        relTol		0.1;
+
+        nSweeps		1;
+
+        preconditioner		DILU;
+
+    }
+
+    k
+    {
+
+        solver		PBiCGStab;
+
+        smoother		GaussSeidel;
+
+        tolerance		1E-08;
+
+        relTol		0.1;
+
+        nSweeps		1;
+
+        preconditioner		DILU;
+
+    }
+
+    epsilon
+    {
+
+        solver		smoothSolver;
+
+        smoother		GaussSeidel;
+
+        tolerance		1e-8;
+
+        relTol		0.1;
+
+        nSweeps		1;
+
+    }
+
+    h
+    {
+
+        relTol		0.1;
+
+        tolerance		1E-08;
+
+        preconditioner		DILU;
+
+        solver		PBiCGStab;
+
+    }
+
+    omega
+    {
+
+        relTol		0.1;
+
+        tolerance		1E-08;
+
+        preconditioner		DILU;
+
+        solver		PBiCGStab;
+
+    }
+
+    G
+    {
+
+        solver		GAMG;
+
+        tolerance		1e-6;
+
+        relTol		0.1;
+
+        smoother		DIC;
+
+        cacheAgglomeration		true;
+
+        nCellsInCoarsestLevel		10;
+
+        agglomerator		faceAreaPair;
+
+        mergeLevels		1;
+
+    }
+
+    Ii
+    {
+
+        solver		GAMG;
+
+        tolerance		1e-4;
+
+        relTol		0;
+
+        smoother		symGaussSeidel;
+
+        cacheAgglomeration		false;
+
+        nCellsInCoarsestLevel		100;
+
+        agglomerator		faceAreaPair;
+
+        mergeLevels		1;
+
+        nPreSweeps		0;
+
+        nPostSweeps		1;
+
+    }
+
+    p_rgh
+    {
+
+        mergeLevels		1;
+
+        agglomerator		faceAreaPair;
+
+        nCellsInCoarsestLevel		10;
+
+        cacheAgglomeration		true;
+
+        smoother		DIC;
+
+        relTol		0.01;
+
+        tolerance		1e-8;
+
+        solver		GAMG;
+
+        preconditioner		DIC;
+
+    }
+
+    AoA
+    {
+
+        solver		GAMG;
+
+        tolerance		1e-6;
+
+        relTol		0.1;
+
+        nPreSweeps		0;
+
+        nPostSweeps		2;
+
+        cacheAgglomeration		true;
+
+        smoother		GaussSeidel;
+
+        agglomerator		faceAreaPair;
+
+        nCellsInCoarsestLevel		10;
+
+        mergeLevels		1;
+
+        maxIter		100;
+
+    }
+
+}
+
+SIMPLE
+{
+
+    nNonOrthogonalCorrectors		0;
+
+    residualControl
+    {
+
+        p_rgh		1e-4;
+
+        U		1e-3;
+
+        h		1e-3;
+
+        G               1e-3;
+
+        "(k|epsilon|omega)" 1e-3;
+
+        "ILambda.*"     1e-3;
+
+    }
+
+    pRefCell		0;
+
+    pRefValue		0;
+
+}
+
+relaxationFactors
+{
+
+    p		0.3;
+
+    U		0.7;
+
+    k		0.7;
+
+    epsilon		0.7;
+
+    equations
+    {
+
+        U		table ( (0 0.01) (50 0.03) (100 0.2) (200 0.5) );
+
+        T		0.5;
+
+        h		table ( (0 0.03) (100 0.3) (200 0.5) );
+
+        rho		table ( (0 0.001) (50 0.01) (150 0.3) (200 1.0) );
+
+        k		0.3;
+
+        omega		0.3;
+
+        "ILambda.*"		0.7;
+
+        G		table ( (0 0.01) (50 0.03) (150 0.2) (400 0.3) );
+
+        GFinal		table ( (0 0.01) (50 0.03) (150 0.2) (400 0.3) );
+
+        qr		table ( (0 0.01) (50 0.03) (150 0.2) (400 0.3) );
+
+        AoA		0.8;
+
+    }
+
+    fields
+    {
+
+        p_rgh		table ( (0 0.0002) (10 0.0003) (50 0.003) (150 0.03) (300 0.3) );
+
+    }
+
+}

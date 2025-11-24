@@ -9,18 +9,8 @@ from ebcpy import DymolaAPI
 import teaser
 from teaser.project import Project
 
-from teaser.data.dataclass import DataClass
-from teaser.data.utilities import ConstructionData
-
-from bim2sim_teaser.task import CreateTEASER
 from e5_serialize_teaser_prj import run_serialize_teaser_project_example
-
-import bim2sim
-from bim2sim.utilities.common_functions import download_library
-
-
-
-
+import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
 
 def load_serialized_teaser_project():
     """This function demonstrates different loading options of TEASER"""
@@ -170,26 +160,11 @@ def manipulate_teaser_model(teaser_prj,
             print(f"New window to wall ratio of thermal zone "
                   f"{tz.name} is {round(win_ratio_res*100,2 )} %.")"""
 
-            # element and material types
-            for outer_wall in tz.outer_walls:
-                outer_wall.load_type_element(year=construction_classes["year_of_construction"],
-                                             construction=construction_classes["construction_class_walls"])
-            for inner_wall in tz.inner_walls:
-                inner_wall.load_type_element(year=construction_classes["year_of_construction"],
-                                             construction=construction_classes["construction_class_walls"])
-            for rooftop in tz.rooftops:
-                rooftop.load_type_element(year=construction_classes["year_of_construction"],
-                                          construction=construction_classes["construction_class_walls"])
-            for ground_floor in tz.ground_floors:
-                ground_floor.load_type_element(year=construction_classes["year_of_construction"],
-                                               construction=construction_classes["construction_class_walls"])
-            for window in tz.windows:
-                window.load_type_element(year=construction_classes["year_of_construction_windows"],
-                                         construction=construction_classes["construction_class_windows"],
-                                         data_class=DataClass(construction_data=ConstructionData.iwu_heavy))
-            for door in tz.doors:
-                door.load_type_element(year=construction_classes["year_of_construction"],
-                                       construction=construction_classes["construction_class_doors"])
+    # As calc_all_buildings() recalculates the heating loads and thus the max
+    # ideal heater PI-control values, we might reset those as they can be too
+    # low and lead to too low zone temperatures
+    orig_heat_loads, orig_cool_loads = teaser_task.CreateTEASER.overwrite_heatloads(
+        prj.buildings)
 
 def simulate_dymola_ebcpy(teaser_prj, prj_export_path, path_aixlib):
     """Simulates the exported TEASER model by using ebcpy.

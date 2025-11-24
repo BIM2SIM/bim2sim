@@ -11,6 +11,7 @@ from pint import UnitRegistry, set_application_registry
 # to avoid temperature problems
 ureg = UnitRegistry(autoconvert_offset_to_baseunit=True)
 set_application_registry(ureg)
+ureg.define('watthour = watt * hour = Wh')
 ureg.define('percent = 0.01*count = %')
 ureg.define('EUR = currency')
 ureg.define('USD = currency')

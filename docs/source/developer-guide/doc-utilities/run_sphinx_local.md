@@ -4,15 +4,12 @@ In the bim2sim project [Sphinx](https://www.sphinx-doc.org) is used to generate
 the documentation. The documentation is generate via the CI.
 But to extend or adapt the documentation it is very useful to run the documentation generation locally. Following it is shown how to do that.
 
-First install the following python packages.
+First install the following python packages based on the pyproject.toml.
+Therefore you need to switch into the root directory of the bim2sim repo, which includes the project.toml file. 
 ```shell
- pip install sphinx==6.2.1 anybadge m2r2 sphinx-material autodoc_pydantic sphinx-rtd-theme
- pip install myst_parser
- pip install sphinx_autodoc_typehints
- pip install sphinxcontrib.mermaid
+  cd [bim2sim-Root]/bim2sim/
+  pip install -e '.[docu]'
 ```
-
-#TODO: add these dependencies to the pyproject.toml (in docu) and adapt this guide here.
 
 After that, switch in to the docs folder of the bim2sim repo.
 ```shell

@@ -1,0 +1,267 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1706+                                |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+/* Butterfly 0.0.5                https://github.com/ladybug-tools/butterfly *\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+	version		4.0;
+	format		ascii;
+	class		dictionary;
+	location	"system";
+	object		controlDict;
+}
+
+application		buoyantPimpleFoam;
+
+startFrom		startTime;
+
+startTime		0;
+
+stopAt		endTime;
+
+endTime		10;
+
+deltaT		0.0001;
+
+writeControl		adjustable;
+
+writeInterval		0.2;
+
+purgeWrite		5;
+
+writeFormat		ascii;
+
+writePrecision		9;
+
+writeCompression		on;
+
+timeFormat		general;
+
+timePrecision		6;
+
+runTimeModifiable		true;
+
+adjustTimeStep  yes;
+
+maxCo           0.5;
+
+functions
+{
+
+    MinMax
+    {
+
+        type		fieldMinMax;
+
+        libs		( "libfieldFunctionObjects.dll" );
+
+        fields		( p_rgh U T G h qr AoA PMV PPD DR Co yPlus);
+
+        enabled		true;
+
+        useUserTime		false;
+
+        region		region0;
+
+        log		true;
+
+        timeStart		0;
+
+        timeEnd		25000;
+
+        executeControl		timeStep;
+
+        executeInterval		1;
+
+        writeControl		timeStep;
+
+        writeInterval		1;
+
+    }
+    volFieldValue
+    {
+	type	volFieldValue;
+	libs	(fieldFunctionObjects);
+	fields	(T U);
+	operation	average;
+	regionType	all;
+	region		region0;
+	writeFields	false;
+	enabled		true;
+	log		true;
+	writeControl	timeStep;
+	writeInterval	1;
+    }
+    wallHeatFlux
+    {
+
+        type		wallHeatFlux;
+
+        libs		( "libfieldFunctionObjects.dll" );
+
+        qr		qr;
+
+        enabled		true;
+
+        useUserTime		false;
+
+        region		region0;
+
+        log		true;
+
+        timeStart		0;
+
+        timeEnd		25000;
+
+        executeControl		writeTime;
+
+        executeInterval		1;
+
+        writeControl		writeTime;
+
+        writeInterval		1;
+
+    }
+    AoA
+    {
+
+        fvOptions
+        {
+
+            IncrementTime
+            {
+
+                scalarSemiImplicitSourceCoeffs
+                {
+
+                    injectionRateSuSp
+                    {
+
+                        AoA		(1 0);
+
+                    }
+
+                    volumeMode		specific;
+
+                    selectionMode		all;
+
+                }
+
+                type		scalarSemiImplicitSource;
+
+                enabled		true;
+
+                cellZone		all;
+
+            }
+
+        }
+
+        type		scalarTransport;
+
+        libs		( "libsolverFunctionObjects.dll" );
+
+        enabled		true;
+
+        writeControl		writeTime;
+
+        writeInterval		1;
+
+        field		AoA;
+
+        bounded01		false;
+
+        resetOnStartUp		false;
+
+        schemesField		AoA;
+
+        write		true;
+
+    }
+
+     Co1
+    {
+
+        type		CourantNo;
+
+        libs		(fieldFunctionObjects);
+
+        rho		rho;
+
+        region		region0;
+
+        enabled		true;
+
+        log		true;
+
+        timeStart		0;
+
+        timeEnd		25000;
+
+        executeControl		writeTime;
+
+        executeInterval		1;
+
+        writeControl		writeTime;
+
+        writeInterval		1;
+
+    }
+
+    yPlus1
+    {
+
+        type		yPlus;
+
+        libs		(fieldFunctionObjects);
+
+        writePrecision		8;
+
+        writeToFile		true;
+
+        useUserTime		true;
+
+        region		region0;
+
+        enabled		true;
+
+        log		true;
+
+        timeStart		0;
+
+        timeEnd		25000;
+
+        executeControl		writeTime;
+
+        executeInterval		1;
+
+        writeControl		writeTime;
+
+        writeInterval		1;
+
+    }
+
+    solverInfo
+    {
+        type            solverInfo;
+
+        libs
+        (
+            "libutilityFunctionObjects.so"
+        );
+
+        fields          (U h);
+
+        writeResidualFields no;
+
+        executeControl  timeStep;
+
+        executeInterval 10;
+    }
+
+}
