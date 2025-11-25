@@ -196,7 +196,7 @@ class TestOFIntegration(IntegrationBaseOF, unittest.TestCase):
                                                   'west',
                                                   'Concert',
                                                   200,
-                                                  valid_number_furniture=153)
+                                                  valid_number_furniture=158)
         self.run_test_furniture_setup_with_people(project,
                                                   '3hiy47ppf5B8MyZqbpTfpc',
                                                   'door',
