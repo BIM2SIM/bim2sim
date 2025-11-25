@@ -236,6 +236,7 @@ class ThermalZone(BPSProduct):
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
         settings.set(settings.USE_WORLD_COORDS, True)
+        settings.set(settings.PRECISION, 1e-6)
         settings.set(
             "dimensionality",
             ifcopenshell.ifcopenshell_wrapper.CURVES_SURFACES_AND_SOLIDS)  # 2
@@ -913,6 +914,7 @@ class SpaceBoundary(RelationBased):
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
         settings.set(settings.USE_WORLD_COORDS, True)
+        settings.set(settings.PRECISION, 1e-6)
         settings.set(
             "dimensionality",
             ifcopenshell.ifcopenshell_wrapper.CURVES_SURFACES_AND_SOLIDS)  # 2
