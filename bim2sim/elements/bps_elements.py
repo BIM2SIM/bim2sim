@@ -942,6 +942,31 @@ class SpaceBoundary(RelationBased):
                     temp_sore.InnerBoundaries = ()
                     shape = ifcopenshell.geom.create_shape(settings, temp_sore)
                 else:
+                    # hotfix: ifcopenshell 0.8.4 does not sufficiently produce
+                    # faces with inner holes (as opposed to ifcopenshell
+                    # 0.7.0). This workaround "manually" performs a boolean
+                    # operation to generate a TopoDS_Shape with inner holes
+                    # before removing the inner loops with the dedicated
+                    # inner_loop_remover function
+                    ### START OF HOTFIX #####
+                    inners = []
+                    for inn in sore.InnerBoundaries:
+                        ifc_new = ifcopenshell.file()
+                        temp_sore = ifc_new.create_entity(
+                            'IfcCurveBoundedPlane',
+                            OuterBoundary=inn,
+                            BasisSurface=sore.BasisSurface)
+                        temp_sore.InnerBoundaries = ()
+                        compound = ifcopenshell.geom.create_shape(settings,
+                                                                  temp_sore)
+                        faces = PyOCCTools.get_face_from_shape(compound)
+                        inners.append(faces)
+                    sore.InnerBoundaries = ()
+                    outer_shape_data = ifcopenshell.geom.create_shape(settings,
+                                                                      sore)
+                    shape = PyOCCTools.triangulate_bound_shape(
+                        outer_shape_data, inners)
+                    #### END OF HOTFIX ####
                     shape = remove_inner_loops(shape)
             if not (sore.InnerBoundaries and not self.bound_element.ifc.is_a(
                     'IfcWall')):
