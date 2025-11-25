@@ -927,8 +927,9 @@ class SpaceBoundary(RelationBased):
         try:
             sore = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement
             # if sore.get_info()["InnerBoundaries"] is None:
+            if sore.InnerBoundaries is None:
+                sore.InnerBoundaries = ()
             shape = ifcopenshell.geom.create_shape(settings, sore)
-
             if sore.InnerBoundaries:
                 # shape = remove_inner_loops(shape)  # todo: return None if not horizontal shape
                 # if not shape:
