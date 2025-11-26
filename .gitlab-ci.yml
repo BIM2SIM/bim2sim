@@ -286,3 +286,4 @@ PluginOpenFOAM_reg:py3.11:
   image: $CI_REGISTRY/bim2sim:energyplus9.4.0-py3.11
   variables:
     plugin: "PluginOpenFOAM"
+
