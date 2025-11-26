@@ -19,7 +19,7 @@ from OCC.Core.ShapeFix import ShapeFix_Shape, ShapeFix_Face, ShapeFix_Wire
 from OCC.Core.ShapeAnalysis import ShapeAnalysis_FreeBounds
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_WIRE, TopAbs_VERTEX
-from OCC.Core.TopoDS import topods_Face, topods_Wire, topods_Vertex, TopoDS_Compound
+from OCC.Core.TopoDS import topods, TopoDS_Compound
 from OCC.Core.BRep import BRep_Builder
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace
