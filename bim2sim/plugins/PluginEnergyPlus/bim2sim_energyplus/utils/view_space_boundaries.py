@@ -29,6 +29,8 @@ from OCC.Core.ShapeFix import ShapeFix_ShapeTolerance
 from OCC.Core.BRepCheck import BRepCheck_Analyzer
 from OCC.Core.TopAbs import TopAbs_EDGE
 
+from bim2sim.utilities.pyocc_tools import PyOCCTools
+
 
 def heal_boundary_shape(shape: TopoDS_Shape) -> TopoDS_Shape:
     # Global shape fix and tolerance normalization
@@ -57,7 +59,7 @@ def heal_boundary_shape(shape: TopoDS_Shape) -> TopoDS_Shape:
     try:
         exp_face = TopExp_Explorer(shape, TopAbs_FACE)
         while exp_face.More():
-            face = topods_Face(exp_face.Current())
+            face = topods.Face(exp_face.Current())
             try:
                 sff = ShapeFix_Face(face)
                 sff.SetPrecision(1e-7)
@@ -224,7 +226,7 @@ def heal_boundary_shape(shape: TopoDS_Shape) -> TopoDS_Shape:
         # First: aggressive wire fix
         try:
             try:
-                wfix = ShapeFix_Wire(topods_Wire(wire))
+                wfix = ShapeFix_Wire(topods.Wire(wire))
             except Exception:
                 wfix = ShapeFix_Wire(wire)
             wfix.SetPrecision(1e-7)
@@ -330,12 +332,12 @@ def heal_boundary_shape(shape: TopoDS_Shape) -> TopoDS_Shape:
             pts = []
             expV = TopExp_Explorer(wire, TopAbs_VERTEX)
             while expV.More():
-                v = topods_Vertex(expV.Current())
+                v = topods.Vertex(expV.Current())
                 pts.append(BRep_Tool.Pnt(v))
                 expV.Next()
             plane = _infer_plane_from_points(pts)
             if plane:
-                mf = BRepBuilderAPI_MakeFace(plane, topods_Wire(wire), True)
+                mf = BRepBuilderAPI_MakeFace(plane, topods.Wire(wire), True)
                 f = mf.Face()
                 if not f.IsNull():
                     sff = ShapeFix_Face(f)
@@ -355,7 +357,7 @@ def heal_boundary_shape(shape: TopoDS_Shape) -> TopoDS_Shape:
             closed = fb.GetClosedWires()
             exp_wire = TopExp_Explorer(closed, TopAbs_WIRE)
             while exp_wire.More():
-                wire = topods_Wire(exp_wire.Current())
+                wire = topods.Wire(exp_wire.Current())
                 f = _build_face_from_wire(wire)
                 if f and not f.IsNull():
                     faces.append(f)
@@ -585,14 +587,31 @@ def build_space_boundary_shapes(ifc):
         if not item:
             continue
         try:
-            shape_data = ifcopenshell.geom.create_shape(gs, item)
+            if item.InnerBoundaries:
+                inners = []
+
+                for inn in item.InnerBoundaries:
+                    ifc_new = ifcopenshell.file()
+                    temp_sore = ifc_new.create_entity('IfcCurveBoundedPlane',
+                                                      OuterBoundary=inn,
+                                                      BasisSurface=item.BasisSurface)
+                    temp_sore.InnerBoundaries = ()
+                    compound = ifcopenshell.geom.create_shape(gs, temp_sore)
+                    faces = PyOCCTools.get_face_from_shape(compound)
+                    inners.append(faces)
+                item.InnerBoundaries = ()
+                outer_shape_data = ifcopenshell.geom.create_shape(gs, item)
+                shape_data = PyOCCTools.triangulate_bound_shape(outer_shape_data, inners)
+            else:
+                shape_data = ifcopenshell.geom.create_shape(gs, item)
+
         except Exception as ex:
             print(f"Exception {ex} for {rb}!")
             continue
         occ_shape = shape_data  # TopoDS_Shape
         tr = _product_world_trsf(prod)
         tr_shape = BRepBuilderAPI_Transform(occ_shape, tr, True).Shape()
-        tr_shape = heal_boundary_shape(tr_shape)  # <-- shape healing
+        # tr_shape = heal_boundary_shape(tr_shape)  # <-- shape healing
         shapes.append([rb.GlobalId, tr_shape])
 
     return shapes

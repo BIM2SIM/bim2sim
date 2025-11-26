@@ -9,10 +9,10 @@ from typing import Union, TYPE_CHECKING
 import pandas as pd
 from OCC.Core.BRep import BRep_Tool
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace
-from OCC.Core.BRepTools import breptools_UVBounds, BRepTools_WireExplorer
+from OCC.Core.BRepTools import breptools, BRepTools_WireExplorer
 from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_WIRE
 from OCC.Core.TopExp import TopExp_Explorer
-from OCC.Core.TopoDS import topods_Face, topods_Wire
+from OCC.Core.TopoDS import topods
 from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 
 from OCC.Core.gp import gp_Dir, gp_XYZ, gp_Pln
@@ -2435,8 +2435,8 @@ class IdfObject:
         # print("TOO MANY EDGES")
         obj_pnts = []
         exp = TopExp_Explorer(inst_obj.bound_shape, TopAbs_FACE)
-        face = topods_Face(exp.Current())
-        umin, umax, vmin, vmax = breptools_UVBounds(face)
+        face = topods.Face(exp.Current())
+        umin, umax, vmin, vmax = breptools.UVBounds(face)
         surf = BRep_Tool.Surface(face)
         plane = Handle_Geom_Plane_DownCast(surf)
         plane = gp_Pln(plane.Location(), plane.Axis().Direction())
@@ -2446,7 +2446,7 @@ class IdfObject:
                                            vmin,
                                            vmax).Face().Reversed()
         face_exp = TopExp_Explorer(new_face, TopAbs_WIRE)
-        w_exp = BRepTools_WireExplorer(topods_Wire(face_exp.Current()))
+        w_exp = BRepTools_WireExplorer(topods.Wire(face_exp.Current()))
         while w_exp.More():
             wire_vert = w_exp.CurrentVertex()
             obj_pnts.append(BRep_Tool.Pnt(wire_vert))

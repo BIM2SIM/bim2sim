@@ -9,10 +9,10 @@ from typing import Set, List, Union
 
 import ifcopenshell
 import ifcopenshell.geom
-from OCC.Core.BRepBndLib import brepbndlib_Add
+from OCC.Core.BRepBndLib import brepbndlib
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
-from OCC.Core.BRepGProp import brepgprop_SurfaceProperties
+from OCC.Core.BRepGProp import brepgprop
 from OCC.Core.BRepLib import BRepLib_FuseEdges
 from OCC.Core.Bnd import Bnd_Box
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
@@ -251,7 +251,7 @@ class ThermalZone(BPSProduct):
         :return: center of space bounding box (gp_Pnt)
         """
         bbox = Bnd_Box()
-        brepbndlib_Add(self.space_shape, bbox)
+        brepbndlib.Add(self.space_shape, bbox)
         bbox_center = ifcopenshell.geom.utils.get_bounding_box_center(bbox)
         return bbox_center
 
@@ -716,7 +716,7 @@ class SpaceBoundary(RelationBased):
     def get_bound_area(self, name) -> ureg.Quantity:
         """compute area of a space boundary"""
         bound_prop = GProp_GProps()
-        brepgprop_SurfaceProperties(self.bound_shape, bound_prop)
+        brepgprop.SurfaceProperties(self.bound_shape, bound_prop)
         area = bound_prop.Mass()
         return area * ureg.meter ** 2
 
@@ -757,7 +757,7 @@ class SpaceBoundary(RelationBased):
     def _get_bound_center(self, name):
         """ compute center of the bounding box of a space boundary"""
         p = GProp_GProps()
-        brepgprop_SurfaceProperties(self.bound_shape, p)
+        brepgprop.SurfaceProperties(self.bound_shape, p)
         return p.CentreOfMass().XYZ()
 
     def _get_related_bound(self, name):
