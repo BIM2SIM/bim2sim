@@ -6,6 +6,11 @@ import unittest
 import logging
 from pathlib import Path
 
+import difflib
+import multiprocessing as mp
+import queue  # für queue.Empty
+from typing import Optional
+
 import bim2sim
 from bim2sim.tasks import common, bps
 from bim2sim.plugins.PluginComfort.bim2sim_comfort import task as comfort_tasks
@@ -35,6 +40,45 @@ class RegressionTestOpenFOAM(RegressionTestBase):
         os.chdir(self.working_dir)
         sys.stderr = self.old_stderr
         super().tearDown()
+    @staticmethod
+    def _make_table_worker(q: mp.Queue,
+                           ref_lines, gen_lines,
+                           desc_from: str, desc_to: str,
+                           context_lines: int):
+        try:
+            differ = difflib.HtmlDiff(tabsize=4, wrapcolumn=80)
+            table = differ.make_table(
+                ref_lines, gen_lines,
+                fromdesc=desc_from, todesc=desc_to,
+                context=True, numlines=context_lines
+            )
+            q.put(("ok", table))
+        except Exception as e:
+            q.put(("err", f"{type(e).__name__}: {e}"))
+
+    @staticmethod
+    def make_table_with_timeout(ref_lines, gen_lines,
+                                desc_from: str, desc_to: str,
+                                context_lines: int,
+                                timeout_s: float = 3.0) -> Optional[str]:
+        q = mp.Queue(maxsize=1)
+        p = mp.Process(
+            target=RegressionTestOpenFOAM._make_table_worker,
+            args=(q, ref_lines, gen_lines, desc_from, desc_to, context_lines),
+        )
+        p.start()
+        try:
+            status, payload = q.get(timeout=timeout_s)
+        except queue.Empty:
+            p.kill()
+            p.join()
+            return None  # Timeout
+        else:
+            p.join()
+            if status == "ok":
+                return payload
+            else:
+                return None
 
     @staticmethod
     def generate_html_diff_report(new_dir: Path, ref_dir: Path,
@@ -85,83 +129,87 @@ class RegressionTestOpenFOAM(RegressionTestBase):
 
                 desc_from = f"Reference: {os.path.join(rel_root, f)}"
                 desc_to = f"Generated: {os.path.join(rel_root, f)}"
-                table_html = differ.make_table(ref_lines, gen_lines,
-                                               fromdesc=desc_from,
-                                               todesc=desc_to,
-                                               context=True,
-                                               numlines=context_lines)
-                if "No Differences Found".lower() in table_html.lower():
-                    continue
-                ''' Todo: Activate to truncate individual html tables after 
-                MAX_LINES rows. 
-                lower = table_html.lower()
-                tbody_start = lower.find("<tbody>")
-                tbody_end = lower.find("</tbody>")
-
-                if tbody_start != -1 and tbody_end != -1:
-                    prefix = table_html[:tbody_start + len("<tbody>")]
-                    tbody = table_html[
-                            tbody_start + len("<tbody>"):tbody_end]
-                    suffix = table_html[
-                             tbody_end:]
-                    rows = tbody.split("<tr")
-                    if len(rows) - 1 > MAX_LINES:
-                        truncated = True
-                        kept_rows = rows[0]  # text before first <tr>
-                        for r in rows[1:MAX_LINES + 1]:
-                            kept_rows += "<tr" + r
-                        table_html = (prefix + kept_rows + "\n</tbody>" +
-                                      suffix[
-                                      suffix.lower().find("</table>"):])
+                table_html = RegressionTestOpenFOAM.make_table_with_timeout(
+                    ref_lines, gen_lines, desc_from,
+                                                desc_to, context_lines,
+                                                timeout_s=10)
+                if table_html is not None:
+                    if "No Differences Found".lower() in table_html.lower():
+                        continue
+                    html_sections.append(
+                        f"<h2>{os.path.join(rel_root, f)}</h2>\n{table_html}")
+                    final_diffs_found += 1
+                else:
+                    ''' Todo: Activate to truncate individual html tables after 
+                    MAX_LINES rows. 
+                    lower = table_html.lower()
+                    tbody_start = lower.find("<tbody>")
+                    tbody_end = lower.find("</tbody>")
+    
+                    if tbody_start != -1 and tbody_end != -1:
+                        prefix = table_html[:tbody_start + len("<tbody>")]
+                        tbody = table_html[
+                                tbody_start + len("<tbody>"):tbody_end]
+                        suffix = table_html[
+                                 tbody_end:]
+                        rows = tbody.split("<tr")
+                        if len(rows) - 1 > MAX_LINES:
+                            truncated = True
+                            kept_rows = rows[0]  # text before first <tr>
+                            for r in rows[1:MAX_LINES + 1]:
+                                kept_rows += "<tr" + r
+                            table_html = (prefix + kept_rows + "\n</tbody>" +
+                                          suffix[
+                                          suffix.lower().find("</table>"):])
+                        else:
+                            truncated = False
                     else:
                         truncated = False
-                else:
+    
+                    section_html = f"<h2>{os.path.join(rel_root, f)}</h2>\n{table_html}"
+                    if truncated:
+                        section_html += (
+                            f"<p><i>Diff truncated to {MAX_LINES} rows in the "
+                            f"HTML table; "
+                            f"additional diff rows were omitted.</i></p>"
+                        )
+    
+                    html_sections.append(section_html)'''
+
+                    ''' Todo: Activate to truncate files after MAX_LINES (does not 
+                    scan full files for diffs)'''
                     truncated = False
 
-                section_html = f"<h2>{os.path.join(rel_root, f)}</h2>\n{table_html}"
-                if truncated:
-                    section_html += (
-                        f"<p><i>Diff truncated to {MAX_LINES} rows in the "
-                        f"HTML table; "
-                        f"additional diff rows were omitted.</i></p>"
+                    if len(ref_lines) > MAX_LINES or len(gen_lines) > MAX_LINES:
+                        truncated = True
+                        ref_trunc = ref_lines[:MAX_LINES]
+                        gen_trunc = gen_lines[:MAX_LINES]
+                    else:
+                        ref_trunc = ref_lines
+                        gen_trunc = gen_lines
+
+                    table_html = differ.make_table(
+                        ref_trunc,
+                        gen_trunc,
+                        fromdesc=desc_from,
+                        todesc=desc_to,
+                        context=True,
+                        numlines=context_lines
                     )
 
-                html_sections.append(section_html)'''
+                    section_html = f"<h2>{os.path.join(rel_root, f)}</h2>\n{table_html}"
 
-                ''' Todo: Activate to truncate files after MAX_LINES (does not 
-                scan full files for diffs)
-                truncated = False
+                    if truncated:
+                        section_html += (
+                            f"<p><i>Diff truncated to the first {MAX_LINES} lines of each file; "
+                            f"additional lines were omitted.</i></p>"
+                        )
 
-                if len(ref_lines) > MAX_LINES or len(gen_lines) > MAX_LINES:
-                    truncated = True
-                    ref_trunc = ref_lines[:MAX_LINES]
-                    gen_trunc = gen_lines[:MAX_LINES]
-                else:
-                    ref_trunc = ref_lines
-                    gen_trunc = gen_lines
-
-                table_html = differ.make_table(
-                    ref_trunc,
-                    gen_trunc,
-                    fromdesc=desc_from,
-                    todesc=desc_to,
-                    context=True,
-                    numlines=context_lines
-                )
-
-                section_html = f"<h2>{os.path.join(rel_root, f)}</h2>\n{table_html}"
-
-                if truncated:
-                    section_html += (
-                        f"<p><i>Diff truncated to the first {MAX_LINES} lines of each file; "
-                        f"additional lines were omitted.</i></p>"
-                    )
-
-                html_sections.append(section_html)'''
-                # todo: comment this out if any truncation is active
-                html_sections.append(
-                    f"<h2>{os.path.join(rel_root, f)}</h2>\n{table_html}")
-                final_diffs_found += 1
+                    html_sections.append(section_html)
+                    # todo: comment this out if any truncation is active
+                    # html_sections.append(
+                    #     f"<h2>{os.path.join(rel_root, f)}</h2>\n{table_html}")
+                    final_diffs_found += 1
 
         # Check for unexpected extra files in generated_dir
         extra_files = []
