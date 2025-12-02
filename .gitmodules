@@ -1,7 +1,7 @@
 [submodule "test/resources"]
 	path = test/resources
 	url = https://github.com/BIM2SIM/bim2sim-test-resources.git
-    branch = main
+    branch = 13-update-energyplus-based-results-for-ios-version-084
 [submodule "butterfly"]
 	path = butterfly
 	url = https://github.com/BIM2SIM/butterfly.git
