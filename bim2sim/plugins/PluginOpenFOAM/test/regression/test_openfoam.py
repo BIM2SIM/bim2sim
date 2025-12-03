@@ -39,7 +39,8 @@ class RegressionTestOpenFOAM(RegressionTestBase):
     def tearDown(self):
         os.chdir(self.working_dir)
         sys.stderr = self.old_stderr
-        super().tearDown()
+        # super().tearDown()
+
     @staticmethod
     def _make_table_worker(q: mp.Queue,
                            ref_lines, gen_lines,
@@ -56,14 +57,13 @@ class RegressionTestOpenFOAM(RegressionTestBase):
         except Exception as e:
             q.put(("err", f"{type(e).__name__}: {e}"))
 
-    @staticmethod
-    def make_table_with_timeout(ref_lines, gen_lines,
+    def make_table_with_timeout(self, ref_lines, gen_lines,
                                 desc_from: str, desc_to: str,
                                 context_lines: int,
                                 timeout_s: float = 3.0) -> Optional[str]:
         q = mp.Queue(maxsize=1)
         p = mp.Process(
-            target=RegressionTestOpenFOAM._make_table_worker,
+            target=self._make_table_worker,
             args=(q, ref_lines, gen_lines, desc_from, desc_to, context_lines),
         )
         p.start()
@@ -72,7 +72,8 @@ class RegressionTestOpenFOAM(RegressionTestBase):
         except queue.Empty:
             p.kill()
             p.join()
-            return None  # Timeout
+            print('Table not finished due to timeout.')
+            return None
         else:
             p.join()
             if status == "ok":
@@ -80,10 +81,55 @@ class RegressionTestOpenFOAM(RegressionTestBase):
             else:
                 return None
 
+    def table_from_truncated_files(self, ref_lines, gen_lines, desc_from: str,
+                                   desc_to: str, context_lines: int,
+                                   truncated: bool):
+        if len(ref_lines) > MAX_LINES or len(gen_lines) > MAX_LINES:
+            truncated = True
+            ref_trunc = ref_lines[:MAX_LINES]
+            gen_trunc = gen_lines[:MAX_LINES]
+        else:
+            ref_trunc = ref_lines
+            gen_trunc = gen_lines
+        table_html = self.make_table_with_timeout(ref_trunc, gen_trunc,
+                                                  desc_from, desc_to,
+                                                  context_lines,
+                                                  timeout_s=5)
+        return table_html, truncated
+
     @staticmethod
-    def generate_html_diff_report(new_dir: Path, ref_dir: Path,
-                                  output_html: str,
-                                  context_lines: int = 5):
+    def truncate_html_tables(table_html: str, section_html: str):
+        """Truncate individual html tables after
+        MAX_LINES rows."""
+        lower = table_html.lower()
+        tbody_start = lower.find("<tbody>")
+        tbody_end = lower.find("</tbody>")
+        if tbody_start != -1 and tbody_end != -1:
+            prefix = table_html[:tbody_start + len("<tbody>")]
+            tbody = table_html[tbody_start + len("<tbody>"):tbody_end]
+            suffix = table_html[tbody_end:]
+            rows = tbody.split("<tr")
+            if len(rows) - 1 > MAX_LINES:
+                truncated = True
+                kept_rows = rows[0]  # text before first <tr>
+                for r in rows[1:MAX_LINES + 1]:
+                    kept_rows += "<tr" + r
+                table_html = (prefix + kept_rows + "\n</tbody>" +
+                              suffix[suffix.lower().find("</table>"):])
+            else:
+                truncated = False
+        else:
+            truncated = False
+        section_html += f"{table_html}"
+        if truncated:
+            section_html += (
+                f"<p><i>Diff truncated to {MAX_LINES} rows in the HTML table; "
+                f"additional diff rows were omitted.</i></p>")
+        return section_html
+
+    def generate_html_diff_report(self, new_dir: Path, ref_dir: Path,
+                                  output_html: str, context_lines: int = 5,
+                                  truncate: str = None):
         """
         Recursively compare reference vs generated directories and produce an HTML report.
         Returns a tuple (has_diffs: bool, html_path: str).
@@ -91,7 +137,6 @@ class RegressionTestOpenFOAM(RegressionTestBase):
         html_sections = []
         diffs_found = False
         final_diffs_found = 0
-        differ = difflib.HtmlDiff(tabsize=4, wrapcolumn=80)
         for root, _, files in os.walk(ref_dir):
             rel_root = os.path.relpath(root, ref_dir)
             if 'temp' in rel_root.lower():
@@ -111,10 +156,8 @@ class RegressionTestOpenFOAM(RegressionTestBase):
                 gen_file = gen_root / f
                 if not gen_file.exists():
                     diffs_found = True
-                    html_sections.append(
-                        f"<h4>Missing file in generated: "
-                        f"{os.path.join(rel_root, f)}</h4>"
-                    )
+                    html_sections.append(f"<h4>Missing file in generated: "
+                                         f"{os.path.join(rel_root, f)}</h4>")
                     final_diffs_found += 1
                     continue
                 if filecmp.cmp(ref_file, gen_file, shallow=False):
@@ -129,10 +172,15 @@ class RegressionTestOpenFOAM(RegressionTestBase):
 
                 desc_from = f"Reference: {os.path.join(rel_root, f)}"
                 desc_to = f"Generated: {os.path.join(rel_root, f)}"
-                table_html = RegressionTestOpenFOAM.make_table_with_timeout(
-                    ref_lines, gen_lines, desc_from,
-                                                desc_to, context_lines,
-                                                timeout_s=10)
+                truncated = False
+                if truncate == 'file':
+                    table_html, truncated = self.table_from_truncated_files(
+                        ref_lines, gen_lines, desc_from, desc_to,
+                        context_lines, truncated)
+                else:
+                    table_html = self.make_table_with_timeout(
+                        ref_lines, gen_lines, desc_from, desc_to, context_lines,
+                        timeout_s=5)
                 if table_html is not None:
                     if "No Differences Found".lower() in table_html.lower():
                         continue
@@ -140,75 +188,17 @@ class RegressionTestOpenFOAM(RegressionTestBase):
                         f"<h2>{os.path.join(rel_root, f)}</h2>\n{table_html}")
                     final_diffs_found += 1
                 else:
-                    ''' Todo: Activate to truncate individual html tables after 
-                    MAX_LINES rows. 
-                    lower = table_html.lower()
-                    tbody_start = lower.find("<tbody>")
-                    tbody_end = lower.find("</tbody>")
-    
-                    if tbody_start != -1 and tbody_end != -1:
-                        prefix = table_html[:tbody_start + len("<tbody>")]
-                        tbody = table_html[
-                                tbody_start + len("<tbody>"):tbody_end]
-                        suffix = table_html[
-                                 tbody_end:]
-                        rows = tbody.split("<tr")
-                        if len(rows) - 1 > MAX_LINES:
-                            truncated = True
-                            kept_rows = rows[0]  # text before first <tr>
-                            for r in rows[1:MAX_LINES + 1]:
-                                kept_rows += "<tr" + r
-                            table_html = (prefix + kept_rows + "\n</tbody>" +
-                                          suffix[
-                                          suffix.lower().find("</table>"):])
-                        else:
-                            truncated = False
+                    section_html = f"<h2>{os.path.join(rel_root, f)}</h2>\n"
+                    if truncate == 'table':
+                        section_html = self.truncate_scanned_table(
+                            table_html, section_html)
                     else:
-                        truncated = False
-    
-                    section_html = f"<h2>{os.path.join(rel_root, f)}</h2>\n{table_html}"
-                    if truncated:
-                        section_html += (
-                            f"<p><i>Diff truncated to {MAX_LINES} rows in the "
-                            f"HTML table; "
-                            f"additional diff rows were omitted.</i></p>"
-                        )
-    
-                    html_sections.append(section_html)'''
-
-                    ''' Todo: Activate to truncate files after MAX_LINES (does not 
-                    scan full files for diffs)'''
-                    truncated = False
-
-                    if len(ref_lines) > MAX_LINES or len(gen_lines) > MAX_LINES:
-                        truncated = True
-                        ref_trunc = ref_lines[:MAX_LINES]
-                        gen_trunc = gen_lines[:MAX_LINES]
-                    else:
-                        ref_trunc = ref_lines
-                        gen_trunc = gen_lines
-
-                    table_html = differ.make_table(
-                        ref_trunc,
-                        gen_trunc,
-                        fromdesc=desc_from,
-                        todesc=desc_to,
-                        context=True,
-                        numlines=context_lines
-                    )
-
-                    section_html = f"<h2>{os.path.join(rel_root, f)}</h2>\n{table_html}"
-
-                    if truncated:
-                        section_html += (
-                            f"<p><i>Diff truncated to the first {MAX_LINES} lines of each file; "
-                            f"additional lines were omitted.</i></p>"
-                        )
-
+                        section_html += f"{table_html}"
+                        if truncated:
+                            section_html += (
+                                f"<p><i>Diff truncated to the first {MAX_LINES} lines of each file; "
+                                f"additional lines were omitted.</i></p>")
                     html_sections.append(section_html)
-                    # todo: comment this out if any truncation is active
-                    # html_sections.append(
-                    #     f"<h2>{os.path.join(rel_root, f)}</h2>\n{table_html}")
                     final_diffs_found += 1
 
         # Check for unexpected extra files in generated_dir
@@ -226,7 +216,7 @@ class RegressionTestOpenFOAM(RegressionTestBase):
                     extra_files.append(os.path.join(rel_root, f))
                     print(
                         f"Extra file in generated: "
-                        f"{os.path.join(rel_root, f)}")  # progress print, todo
+                        f"{os.path.join(rel_root, f)}")
                     final_diffs_found += 1
 
         if extra_files:
@@ -291,8 +281,9 @@ class RegressionTestOpenFOAM(RegressionTestBase):
         html_report_path = regression_results_dir / "diff_report.html"
         print(f"Generating HTML diff report: {html_report_path}")
         has_diffs, report_path = self.generate_html_diff_report(sim_output_dir,
-                                                           ref_results_dir,
-                                                           html_report_path)
+                                                            ref_results_dir,
+                                                            html_report_path,
+                                                            truncate='file')
         if has_diffs:
             passed_regression_test = False
             logger.error(
