@@ -111,10 +111,13 @@ class TestIntegrationIFCCheck(IntegrationBaseIFCCheck, unittest.TestCase):
 
     def test_run_three_rooms_with_SB_fail(self):
         """Run project with
-        2024-04-23_3rooms_240317_Heater_AirTerminal_Table_with_SB.ifc"""
+        2024-04-23_3rooms_240317_Heater_AirTerminal_Table_with_SB_errors.ifc"""
 
+        # ifc_3rooms_with_sb = Path(
+        #     '/home/cudok/Documents/12_ifc_check_ids/03_ifc_veronika/2024-04-23_3rooms_240317_Heater_AirTerminal_Table_with_SB.ifc'
+        # )
         ifc_3rooms_with_sb_fail = Path(
-            '/home/cudok/Documents/12_ifc_check_ids/03_ifc_veronika/2024-04-23_3rooms_240317_Heater_AirTerminal_Table_with_SB_errors.ifc'
+            '/home/cudok/Documents/12_ifc_check_ids/03_ifc_veronika/2024-04-23_3rooms_240317_Heater_AirTerminal_Table_with_SB_errors_falk.ifc'
         )
         ifc_names = {IFCDomain.arch: ifc_3rooms_with_sb_fail}
         project = self.create_project(ifc_names, PluginIFCCheck)
