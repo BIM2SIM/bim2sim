@@ -656,7 +656,8 @@ class CheckLogicBPS(CheckLogicBase):
             True: if check succeeds
             False: if check fails
         """
-        return bound.ConnectionGeometry.is_a('IfcConnectionGeometry')
+        if bound.ConnectionGeometry is not None:
+            return bound.ConnectionGeometry.is_a('IfcConnectionGeometry')
 
     @staticmethod
     def _check_on_relating_elem(bound: ifcos.entity_instance):
@@ -671,7 +672,8 @@ class CheckLogicBPS(CheckLogicBase):
             True: if check succeeds
             False: if check fails
         """
-        return bound.ConnectionGeometry.SurfaceOnRelatingElement.is_a(
+        if bound.ConnectionGeometry is not None:
+            return bound.ConnectionGeometry.SurfaceOnRelatingElement.is_a(
             'IfcCurveBoundedPlane')
 
     @staticmethod
@@ -687,9 +689,10 @@ class CheckLogicBPS(CheckLogicBase):
             True: if check succeeds
             False: if check fails
         """
-        return (bound.ConnectionGeometry.SurfaceOnRelatedElement is None or
-                bound.ConnectionGeometry.SurfaceOnRelatedElement.is_a(
-                    'IfcCurveBoundedPlane'))
+        if bound.ConnectionGeometry is not None:
+            return (bound.ConnectionGeometry.SurfaceOnRelatedElement is None or
+                    bound.ConnectionGeometry.SurfaceOnRelatedElement.is_a(
+                        'IfcCurveBoundedPlane'))
 
     @staticmethod
     def _check_basis_surface(bound: ifcos.entity_instance):
@@ -704,8 +707,9 @@ class CheckLogicBPS(CheckLogicBase):
             True: if check succeeds
             False: if check fails
         """
-        return bound.ConnectionGeometry.SurfaceOnRelatingElement. \
-            BasisSurface.is_a('IfcPlane')
+        if bound.ConnectionGeometry is not None:
+            return bound.ConnectionGeometry.SurfaceOnRelatingElement. \
+                BasisSurface.is_a('IfcPlane')
 
     @staticmethod
     def _check_inner_boundaries(bound: ifcos.entity_instance):
@@ -720,10 +724,11 @@ class CheckLogicBPS(CheckLogicBase):
             True: if check succeeds
             False: if check fails
         """
-        return (bound.ConnectionGeometry.SurfaceOnRelatingElement.
-                InnerBoundaries is None) or \
-               (i.is_a('IfcCompositeCurve') for i in bound.ConnectionGeometry.
-                   SurfaceOnRelatingElement.InnerBoundaries)
+        if bound.ConnectionGeometry is not None:
+            return (bound.ConnectionGeometry.SurfaceOnRelatingElement.
+                    InnerBoundaries is None) or \
+                   (i.is_a('IfcCompositeCurve') for i in bound.ConnectionGeometry.
+                       SurfaceOnRelatingElement.InnerBoundaries)
 
     @staticmethod
     def _check_outer_boundary_composite(bound: ifcos.entity_instance):
@@ -831,7 +836,7 @@ class CheckLogicBPS(CheckLogicBase):
             True: if check succeeds
             False: if check fails
         """
-        print(polyline)
+        # print(polyline)
         return polyline.is_a('IfcPolyline')
 
     @classmethod
@@ -1114,6 +1119,7 @@ class CheckLogicBPS(CheckLogicBase):
             error: list of errors found in the ifc space boundaries
         """
         error = []
+        # print(bound)
         self.apply_validation_function(self._check_rel_space(bound),
                                        'RelatingSpace - '
                                        'The space boundary does not have a '
@@ -1145,69 +1151,70 @@ class CheckLogicBPS(CheckLogicBase):
                                        'The space boundary surface on '
                                        'relating element inner boundaries are '
                                        'missing',  error)
-        if hasattr(
-                bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary,
-                'Segments'):
+        if bound.ConnectionGeometry is not None:
+            if hasattr(
+                    bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary,
+                    'Segments'):
+                self.apply_validation_function(
+                    self._check_outer_boundary_composite(bound),
+                    'OuterBoundary - '
+                    'The space boundary surface on relating element outer '
+                    'boundary is missing', error)
+                self.apply_validation_function(self._check_segments(bound),
+                                               'OuterBoundary Segments - '
+                                               'The space boundary surface on '
+                                               'relating element outer boundary '
+                                               'geometry is missing', error)
+                self.apply_validation_function(
+                    self._check_segments_poly_coord(bound),
+                    'OuterBoundary Coordinates - '
+                    'The space boundary surface on relating element outer boundary '
+                    'coordinates are missing', error)
+            else:
+                self.apply_validation_function(
+                    self._check_outer_boundary_poly(bound),
+                    'OuterBoundary - '
+                    'The space boundary surface on relating element outer boundary '
+                    'is missing', error)
+                self.apply_validation_function(
+                    self._check_outer_boundary_poly_coord(bound),
+                    'OuterBoundary Coordinates - '
+                    'The space boundary surface on relating element outer boundary '
+                    'coordinates are missing', error)
+            self.apply_validation_function(self._check_plane_position(bound),
+                                           'Position - '
+                                           'The space boundary surface on relating '
+                                           'element plane position is missing',
+                                           error)
+            self.apply_validation_function(self._check_location(bound),
+                                           'Location - '
+                                           'The space boundary surface on relating '
+                                           'element location is missing', error)
+            self.apply_validation_function(self._check_axis(bound),
+                                           'Axis - '
+                                           'The space boundary surface on relating '
+                                           'element axis are missing',
+                                           error)
+            self.apply_validation_function(self._check_refdirection(bound),
+                                           'RefDirection - '
+                                           'The space boundary surface on relating '
+                                           'element reference direction is '
+                                           'missing', error)
+            self.apply_validation_function(self._check_location_coord(bound),
+                                           'LocationCoordinates - '
+                                           'The space boundary surface on relating '
+                                           'element location coordinates are '
+                                           'missing', error)
+            self.apply_validation_function(self._check_axis_dir_ratios(bound),
+                                           'AxisDirectionRatios - '
+                                           'The space boundary surface on relating '
+                                           'element axis direction ratios are '
+                                           'missing', error)
             self.apply_validation_function(
-                self._check_outer_boundary_composite(bound),
-                'OuterBoundary - '
-                'The space boundary surface on relating element outer '
-                'boundary is missing', error)
-            self.apply_validation_function(self._check_segments(bound),
-                                           'OuterBoundary Segments - '
-                                           'The space boundary surface on '
-                                           'relating element outer boundary '
-                                           'geometry is missing', error)
-            self.apply_validation_function(
-                self._check_segments_poly_coord(bound),
-                'OuterBoundary Coordinates - '
-                'The space boundary surface on relating element outer boundary '
-                'coordinates are missing', error)
-        else:
-            self.apply_validation_function(
-                self._check_outer_boundary_poly(bound),
-                'OuterBoundary - '
-                'The space boundary surface on relating element outer boundary '
-                'is missing', error)
-            self.apply_validation_function(
-                self._check_outer_boundary_poly_coord(bound),
-                'OuterBoundary Coordinates - '
-                'The space boundary surface on relating element outer boundary '
-                'coordinates are missing', error)
-        self.apply_validation_function(self._check_plane_position(bound),
-                                       'Position - '
-                                       'The space boundary surface on relating '
-                                       'element plane position is missing',
-                                       error)
-        self.apply_validation_function(self._check_location(bound),
-                                       'Location - '
-                                       'The space boundary surface on relating '
-                                       'element location is missing', error)
-        self.apply_validation_function(self._check_axis(bound),
-                                       'Axis - '
-                                       'The space boundary surface on relating '
-                                       'element axis are missing',
-                                       error)
-        self.apply_validation_function(self._check_refdirection(bound),
-                                       'RefDirection - '
-                                       'The space boundary surface on relating '
-                                       'element reference direction is '
-                                       'missing', error)
-        self.apply_validation_function(self._check_location_coord(bound),
-                                       'LocationCoordinates - '
-                                       'The space boundary surface on relating '
-                                       'element location coordinates are '
-                                       'missing', error)
-        self.apply_validation_function(self._check_axis_dir_ratios(bound),
-                                       'AxisDirectionRatios - '
-                                       'The space boundary surface on relating '
-                                       'element axis direction ratios are '
-                                       'missing', error)
-        self.apply_validation_function(
-                                       self._check_refdirection_dir_ratios(bound),
-                                      'RefDirectionDirectionRatios - '
-                                      'The space boundary surface on relating element position '
-                                      'reference direction is missing', error)
+                                           self._check_refdirection_dir_ratios(bound),
+                                          'RefDirectionDirectionRatios - '
+                                          'The space boundary surface on relating element position '
+                                          'reference direction is missing', error)
         return error
 
 
