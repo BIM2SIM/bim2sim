@@ -60,7 +60,7 @@ class RegressionTestOpenFOAM(RegressionTestBase):
     def make_table_with_timeout(self, ref_lines, gen_lines,
                                 desc_from: str, desc_to: str,
                                 context_lines: int,
-                                timeout_s: float = 3.0) -> Optional[str]:
+                                timeout_s: float = 10.0) -> Optional[str]:
         q = mp.Queue(maxsize=1)
         p = mp.Process(
             target=self._make_table_worker,
@@ -94,7 +94,7 @@ class RegressionTestOpenFOAM(RegressionTestBase):
         table_html = self.make_table_with_timeout(ref_trunc, gen_trunc,
                                                   desc_from, desc_to,
                                                   context_lines,
-                                                  timeout_s=5)
+                                                  timeout_s=10)
         return table_html, truncated
 
     @staticmethod
@@ -180,7 +180,7 @@ class RegressionTestOpenFOAM(RegressionTestBase):
                 else:
                     table_html = self.make_table_with_timeout(
                         ref_lines, gen_lines, desc_from, desc_to, context_lines,
-                        timeout_s=5)
+                        timeout_s=10)
                 if table_html is not None:
                     if "No Differences Found".lower() in table_html.lower():
                         continue
