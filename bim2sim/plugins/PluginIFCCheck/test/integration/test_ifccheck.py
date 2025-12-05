@@ -20,10 +20,9 @@ class TestIntegrationIFCCheck(IntegrationBaseIFCCheck, unittest.TestCase):
         project = self.create_project(ifc_names, PluginIFCCheck)
 
         # assign an IDS file, which is needed to check the ifc file by ifctester
-        # TODO exchange to a more sophisticated ids file
         project.sim_settings.ids_file_path = (
-                Path(bim2sim.__file__).parent.parent /
-                'test/resources/ids/fail-a_minimal_ids_can_check_a_minimal_ifc_1_2.ids'
+                Path(bim2sim.__file__).parent /
+                'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
         )
 
         # In the next step we assign this file to the project by setting:
@@ -50,10 +49,9 @@ class TestIntegrationIFCCheck(IntegrationBaseIFCCheck, unittest.TestCase):
         project = self.create_project(ifc_names, PluginIFCCheck)
 
         # assign an IDS file, which is needed to check the ifc file by ifctester
-        # TODO exchange to a more sophisticated ids file
         project.sim_settings.ids_file_path = (
-                Path(bim2sim.__file__).parent.parent /
-                'test/resources/ids/fail-a_minimal_ids_can_check_a_minimal_ifc_1_2.ids'
+                Path(bim2sim.__file__).parent /
+                'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
         )
 
         # In the next step we assign this file to the project by setting:
@@ -85,10 +83,9 @@ class TestIntegrationIFCCheck(IntegrationBaseIFCCheck, unittest.TestCase):
         project = self.create_project(ifc_names, PluginIFCCheck)
 
         # assign an IDS file, which is needed to check the ifc file by ifctester
-        # TODO exchange to a more sophisticated ids file
         project.sim_settings.ids_file_path = (
-                Path(bim2sim.__file__).parent.parent /
-                'test/resources/ids/fail-a_minimal_ids_can_check_a_minimal_ifc_1_2.ids'
+                Path(bim2sim.__file__).parent /
+                'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
         )
 
         # In the next step we assign this file to the project by setting:
@@ -123,12 +120,10 @@ class TestIntegrationIFCCheck(IntegrationBaseIFCCheck, unittest.TestCase):
         project = self.create_project(ifc_names, PluginIFCCheck)
 
         # assign an IDS file, which is needed to check the ifc file by ifctester
-        # TODO exchange to a more sophisticated ids file
         project.sim_settings.ids_file_path = (
-                Path(bim2sim.__file__).parent.parent /
-                'test/resources/ids/fail-a_minimal_ids_can_check_a_minimal_ifc_1_2.ids'
+                Path(bim2sim.__file__).parent /
+                'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
         )
-
         # In the next step we assign this file to the project by setting:
         project.sim_settings.prj_custom_usages = (Path(
             bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
