@@ -72,7 +72,7 @@ class RegressionTestOpenFOAM(RegressionTestBase):
         except queue.Empty:
             p.kill()
             p.join()
-            print('Table not finished due to timeout.')
+            logger.warning('Table not finished due to timeout.')
             return None
         else:
             p.join()
@@ -214,7 +214,7 @@ class RegressionTestOpenFOAM(RegressionTestBase):
                 ref_path = ref_dir / rel_root / f
                 if not ref_path.exists():
                     extra_files.append(os.path.join(rel_root, f))
-                    print(
+                    logger.warning(
                         f"Extra file in generated: "
                         f"{os.path.join(rel_root, f)}")
                     final_diffs_found += 1
@@ -262,8 +262,8 @@ class RegressionTestOpenFOAM(RegressionTestBase):
         out_path = Path(output_html)
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(html_page, encoding="utf-8")
-        print(f"HTML diff report written to: {out_path}. Differences were "
-              f"found in {final_diffs_found} files.")
+        logger.warning(f"HTML diff report written to: {out_path}. Differences "
+                       f"were found in {final_diffs_found} files.")
         if final_diffs_found == 0:
             diffs_found = False
         return diffs_found, str(out_path)
@@ -279,7 +279,7 @@ class RegressionTestOpenFOAM(RegressionTestBase):
                                   self.project.name / "OpenFOAM")
         regression_results_dir.mkdir(parents=True, exist_ok=True)
         html_report_path = regression_results_dir / "diff_report.html"
-        print(f"Generating HTML diff report: {html_report_path}")
+        logger.warning(f"Generating HTML diff report: {html_report_path}")
         has_diffs, report_path = self.generate_html_diff_report(sim_output_dir,
                                                             ref_results_dir,
                                                             html_report_path,
