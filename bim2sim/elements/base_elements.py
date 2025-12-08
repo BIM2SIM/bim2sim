@@ -21,8 +21,10 @@ from bim2sim.utilities.types import IFCDomain, AttributeDataSource
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
-settings_products = ifcopenshell.geom.main.settings()
+settings_products = ifcopenshell.geom.settings()
 settings_products.set(settings_products.USE_PYTHON_OPENCASCADE, True)
+settings_products.set(settings_products.USE_WORLD_COORDS, True)
+settings_products.set(settings_products.PRECISION, 1e-6)
 
 
 class ElementError(Exception):

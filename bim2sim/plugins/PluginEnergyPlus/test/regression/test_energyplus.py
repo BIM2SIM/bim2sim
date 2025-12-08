@@ -165,11 +165,11 @@ class TestRegressionEnergyPlus(RegressionTestEnergyPlus, unittest.TestCase):
         self.assertEqual(0, handler.return_value,
                          "Project export and simulation did not finish "
                          "successfully.")
-        self.assertEqual(len(project.playground.elements), 213)
         reg_test_res = self.run_regression_test()
         self.assertEqual(True, reg_test_res,
                          "EnergyPlus Regression test did not finish "
                          "successfully or created deviations.")
+        self.assertEqual(213, len(project.playground.elements))
 
     def test_regression_DigitalHub_SB89(self):
         """Test DigitalHub IFC, includes regression test."""
