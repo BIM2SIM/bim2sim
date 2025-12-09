@@ -45,7 +45,7 @@ micromamba activate bim2sim
 git clone --recurse-submodules -b development https://github.com/BIM2SIM/bim2sim.git
 
 # install conda-forge packages (OCC not available via PyPi)
-micromamba install -c conda-forge pythonocc-core=7.7.0
+micromamba install -c conda-forge pythonocc-core=7.9.0
 
 # change into bim2sim folder
 cd bim2sim

@@ -5,6 +5,7 @@ import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.utilities.types import IFCDomain, LOD, ZoningCriteria
 from bim2sim.plugins.PluginTEASER.bim2sim_teaser import PluginTEASER
+from bim2sim.utilities.common_functions import download_library
 
 def run_example_simple_building_teaser():
     """Run a building performance simulation with the TEASER backend.
@@ -51,6 +52,17 @@ def run_example_simple_building_teaser():
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
     # Run a simulation directly with dymola after model creation
     project.sim_settings.dymola_simulation = True
+    # Make sure that AixLib modelica library exist on machine by cloning it and
+    #  setting the path of it as a sim_setting
+    repo_url = "https://github.com/RWTH-EBC/AixLib.git"
+    branch_name = "main"
+    repo_name = "AixLib"
+    path_aixlib = Path(r"D:\01_Git\bim2sim\local\library_AixLib")
+    # path_aixlib = (
+    #         Path(bim2sim.__file__).parent.parent / "local" / f"library_{repo_name}")
+    download_library(repo_url, branch_name, path_aixlib)
+    project.sim_settings.path_aixlib = path_aixlib / repo_name / 'package.mo'
+
     project.sim_settings.create_plots = True
     # Select results to output:
     project.sim_settings.sim_results = [

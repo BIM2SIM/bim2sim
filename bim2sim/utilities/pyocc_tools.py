@@ -12,29 +12,28 @@ from OCC.Core.BRepOffsetAPI import BRepOffsetAPI_MakeOffsetShape
 from OCC.Core.GeomAPI import GeomAPI_IntCS
 from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
 from scipy.spatial import KDTree
-from OCC.Core.BRepBndLib import brepbndlib_Add
+from OCC.Core.BRepBndLib import brepbndlib
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace, \
     BRepBuilderAPI_Transform, BRepBuilderAPI_MakePolygon, \
     BRepBuilderAPI_MakeShell, BRepBuilderAPI_MakeSolid, BRepBuilderAPI_Sewing, \
     BRepBuilderAPI_MakeVertex
 from OCC.Core.BRepClass3d import BRepClass3d_SolidClassifier
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
-from OCC.Core.BRepGProp import brepgprop_SurfaceProperties, \
-    brepgprop_LinearProperties, brepgprop_VolumeProperties, BRepGProp_Face
+from OCC.Core.BRepGProp import brepgprop, BRepGProp_Face
 from OCC.Core.BRepMesh import BRepMesh_IncrementalMesh
 from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeBox, BRepPrimAPI_MakePrism
 from OCC.Core.BRepTools import BRepTools_WireExplorer
 from OCC.Core.Bnd import Bnd_Box
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.GProp import GProp_GProps
-from OCC.Core.Geom import Handle_Geom_Plane_DownCast, Geom_Line, \
-    Handle_Geom_Curve_DownCast, Handle_Geom_Surface_DownCast
+from OCC.Core.Geom import Geom_Plane, Geom_Line, \
+    Geom_Curve, Geom_Surface
 from OCC.Core.ShapeAnalysis import ShapeAnalysis_ShapeContents
 from OCC.Core.ShapeFix import ShapeFix_Face, ShapeFix_Shape
 from OCC.Core.TopAbs import TopAbs_WIRE, TopAbs_FACE, TopAbs_OUT
 from OCC.Core.TopExp import TopExp_Explorer
-from OCC.Core.TopoDS import topods_Wire, TopoDS_Face, TopoDS_Shape, \
-    topods_Face, TopoDS_Edge, TopoDS_Solid, TopoDS_Shell, TopoDS_Builder, \
+from OCC.Core.TopoDS import topods, TopoDS_Shape, \
+    TopoDS_Face, TopoDS_Edge, TopoDS_Solid, TopoDS_Shell, TopoDS_Builder, \
     TopoDS_Compound
 from OCC.Core.gp import gp_XYZ, gp_Pnt, gp_Trsf, gp_Vec, gp_Ax1, gp_Dir, gp_Lin
 
@@ -125,7 +124,7 @@ class PyOCCTools:
         an_exp = TopExp_Explorer(shape, TopAbs_WIRE)
         pnt_list = []
         while an_exp.More():
-            wire = topods_Wire(an_exp.Current())
+            wire = topods.Wire(an_exp.Current())
             w_exp = BRepTools_WireExplorer(wire)
             while w_exp.More():
                 pnt1 = BRep_Tool.Pnt(w_exp.CurrentVertex())
@@ -141,7 +140,7 @@ class PyOCCTools:
         of mass.
         """
         prop = GProp_GProps()
-        brepgprop_SurfaceProperties(face, prop)
+        brepgprop.SurfaceProperties(face, prop)
         return prop.CentreOfMass()
 
     @staticmethod
@@ -151,7 +150,7 @@ class PyOCCTools:
         center of mass.
         """
         prop = GProp_GProps()
-        brepgprop_VolumeProperties(shape, prop)
+        brepgprop.VolumeProperties(shape, prop)
         return prop.CentreOfMass()
 
     @staticmethod
@@ -161,7 +160,7 @@ class PyOCCTools:
         of mass.
         """
         prop = GProp_GProps()
-        brepgprop_LinearProperties(edge, prop)
+        brepgprop.LinearProperties(edge, prop)
         return prop.CentreOfMass()
 
     @staticmethod
@@ -174,7 +173,7 @@ class PyOCCTools:
         Returns: gp_Pnt of the center of mass
         """
         prop = GProp_GProps()
-        brepgprop_VolumeProperties(volume, prop)
+        brepgprop.VolumeProperties(volume, prop)
         return prop.CentreOfMass()
 
     @staticmethod
@@ -344,7 +343,7 @@ class PyOCCTools:
         surf = BRep_Tool.Surface(face)
         obj = surf
         assert obj.DynamicType().Name() == "Geom_Plane"
-        plane = Handle_Geom_Plane_DownCast(surf)
+        plane = Geom_Plane.DownCast(surf)
         face_normal = plane.Axis().Direction().XYZ()
         if check_orientation:
             if face.Orientation() == 1:
@@ -361,12 +360,12 @@ class PyOCCTools:
     def get_face_from_shape(shape: TopoDS_Shape) -> TopoDS_Face:
         """Return first face of a TopoDS_Shape."""
         exp = TopExp_Explorer(shape, TopAbs_FACE)
-        face = exp.Current()
+        face = topods.Face(exp.Current())
         try:
-            face = topods_Face(face)
+            face = topods.Face(face)
         except:
             exp1 = TopExp_Explorer(shape, TopAbs_WIRE)
-            wire = exp1.Current()
+            wire = topods.Wire(exp1.Current())
             face = BRepBuilderAPI_MakeFace(wire).Face()
         return face
 
@@ -376,7 +375,7 @@ class PyOCCTools:
         faces = []
         an_exp = TopExp_Explorer(shape, TopAbs_FACE)
         while an_exp.More():
-            face = topods_Face(an_exp.Current())
+            face = topods.Face(an_exp.Current())
             faces.append(face)
             an_exp.Next()
         return faces
@@ -385,7 +384,7 @@ class PyOCCTools:
     def get_shape_area(shape: TopoDS_Shape) -> float:
         """compute area of a space boundary"""
         bound_prop = GProp_GProps()
-        brepgprop_SurfaceProperties(shape, bound_prop)
+        brepgprop.SurfaceProperties(shape, bound_prop)
         area = bound_prop.Mass()
         return area
 
@@ -422,7 +421,7 @@ class PyOCCTools:
             volume: float
         """
         props = GProp_GProps()
-        brepgprop_VolumeProperties(shape, props)
+        brepgprop.VolumeProperties(shape, props)
         volume = props.Mass()
         return volume
 
@@ -526,7 +525,7 @@ class PyOCCTools:
             return_shape = footprint_shapes[0]
         elif len(footprint_shapes) > 1:
             bbox = Bnd_Box()
-            brepbndlib_Add(shape, bbox)
+            brepbndlib.Add(shape, bbox)
             xmin, ymin, zmin, xmax, ymax, zmax = bbox.Get()
             bbox_ground_face = PyOCCTools.make_faces_from_pnts(
                 [(xmin, ymin, zmin),
@@ -657,8 +656,8 @@ class PyOCCTools:
 
         an_exp = TopExp_Explorer(shape, TopAbs_FACE)
         while an_exp.More():
-            face = topods_Face(an_exp.Current())
-            brepbndlib_Add(face, bbox)
+            face = topods.Face(an_exp.Current())
+            brepbndlib.Add(face, bbox)
             an_exp.Next()
 
         # Get the minimal bounding box
@@ -676,10 +675,10 @@ class PyOCCTools:
          """
         bbox = Bnd_Box()
         if isinstance(shapes, TopoDS_Shape):
-            brepbndlib_Add(shapes, bbox)
+            brepbndlib.Add(shapes, bbox)
         else:
             for shape in shapes:
-                brepbndlib_Add(shape, bbox)
+                brepbndlib.Add(shape, bbox)
         min_x, min_y, min_z, max_x, max_y, max_z = bbox.Get()
 
         return (min_x, min_y, min_z), (max_x, max_y, max_z)
@@ -873,7 +872,7 @@ class PyOCCTools:
         points = []
         explorer = TopExp_Explorer(shape, TopAbs_FACE)
         while explorer.More():
-            face = topods_Face(explorer.Current())
+            face = topods.Face(explorer.Current())
             surface = BRepAdaptor_Surface(face)
             # Get the parameter range of the surface
             u_min, u_max = surface.FirstUParameter(), surface.LastUParameter()
@@ -1007,18 +1006,18 @@ class PyOCCTools:
         # Create a Geom_Line (infinite, but we limit it to the maximum distance)
         line = Geom_Line(gp_Lin(start_point, direction))
         # assert line.DynamicType().Name() == "Geom_Curve"
-        line_handle = Handle_Geom_Curve_DownCast(line)
+        line_handle = Geom_Curve.DownCast(line)
 
         # Explore the faces of the shape
         explorer = TopExp_Explorer(shape, TopAbs_FACE)
         intersections = []
 
         while explorer.More():
-            face = explorer.Current()
+            face = topods.Face(explorer.Current())
             # Get the geometry of the face
             geom_face = BRep_Tool.Surface(face)
             # assert geom_face.DynamicType().Name() == "Geom_Surface"
-            surf_handle = Handle_Geom_Surface_DownCast(geom_face)
+            surf_handle = Geom_Surface.DownCast(geom_face)
 
             # Calculate the intersection between the line and the face
             intersector = GeomAPI_IntCS(line_handle, surf_handle)
@@ -1137,13 +1136,13 @@ class PyOCCTools:
             for shape_index, shape in enumerate(shapes):
                 explorer = TopExp_Explorer(shape, TopAbs_FACE)
                 while explorer.More():
-                    face = explorer.Current()
+                    face = topods.Face(explorer.Current())
                     # Get the surface geometry of the face
                     face_surface = BRep_Tool.Surface(face)
-                    surf_handle = Handle_Geom_Surface_DownCast(face_surface)
+                    surf_handle = Geom_Surface.DownCast(face_surface)
 
                     # Prepare the line for intersection
-                    line_handle = Handle_Geom_Curve_DownCast(
+                    line_handle = Geom_Curve.DownCast(
                         geom_translated_line)
 
                     # Compute intersection
