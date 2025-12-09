@@ -12,7 +12,7 @@ ENV PYTHON_VERSION=${PYTHON_VERSION}
 RUN echo "Python version argument: ${PYTHON_VERSION}"
 
 # Install specific python version and python occ to save time
-RUN micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} pythonocc-core=7.7.0 pip gcc git --retry-clean-cache && \
+RUN micromamba install -y -n base -c conda-forge python=${PYTHON_VERSION} pythonocc-core=7.9.0 pip gcc git --retry-clean-cache && \
     micromamba clean --all --yes
 
 # # Copy files

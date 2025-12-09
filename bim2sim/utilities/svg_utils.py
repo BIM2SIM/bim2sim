@@ -77,11 +77,14 @@ def convert_ifc_to_svg(ifc_file_instance: IfcFileClass,
                        target_path: Path) -> Path:
     """Create an SVG floor plan based on the given IFC file using IfcConvert"""
     settings = ifcopenshell.geom.settings(
-        INCLUDE_CURVES=True,
-        EXCLUDE_SOLIDS_AND_SURFACES=False,
+        # INCLUDE_CURVES=True,
+        # EXCLUDE_SOLIDS_AND_SURFACES=False,
         APPLY_DEFAULT_MATERIALS=True,
         DISABLE_TRIANGULATION=True
     )
+    settings.set(
+        "dimensionality",
+        ifcopenshell.ifcopenshell_wrapper.CURVES_SURFACES_AND_SOLIDS)  # 2
     svg_file_name = ifc_file_instance.ifc_file_name[:-4] + '.svg'
     svg_target_path = target_path / svg_file_name
 
