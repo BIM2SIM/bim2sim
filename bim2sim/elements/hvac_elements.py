@@ -1513,7 +1513,6 @@ class AirDuctRectangular(AirDuct):
 
     pattern_ifc_type = [
         re.compile(r'Gerader\s+Kanal.*\(.*K.*:.*101.*\)', flags=re.IGNORECASE),
-        re.compile(r'^Kanal\s+\d+\s*x\s*\d+', flags=re.IGNORECASE),
     ]
 
     height_a = attribute.Attribute(
@@ -1542,7 +1541,6 @@ class AirDuctOval(AirDuct):
 
     pattern_ifc_type = [
         re.compile(r'Ovalrohr.*\(.*170.*\)', flags=re.IGNORECASE),
-        re.compile(r'^Kanal\s+\d+\s*x\s*\d+', flags=re.IGNORECASE),
     ]
 
     width_b = attribute.Attribute(
@@ -2040,6 +2038,7 @@ class AirDuctTransitionRectangularAsymmetric(AirDuctFitting):
     pattern_ifc_type = [
         re.compile(r'Etage.*,.*Übergang.*\(.*ES.*,.*US.*,.*UA.*:.*105.*\)', flags=re.IGNORECASE),
         re.compile(r'^Übergang\s+Asym', flags=re.IGNORECASE),
+        re.compile(r'^Übergang\s+Sym', flags=re.IGNORECASE),
     ]
 
     air_velocity = attribute.Attribute(
@@ -2359,32 +2358,32 @@ class AirDuctRoundStub(AirDuctFitting):
     )
 
 
-# class AirDuctRivetedEdge(AirDuctFitting):
-#     """Riveted edge/flange (Nietbord)"""
-#
-#     @property
-#     def expected_hvac_ports(self):
-#         return 0
-#
-#     pattern_ifc_type = [
-#         re.compile(r'Nietbord.*\(.*K.*:.*125.*\)', flags=re.IGNORECASE),
-#         re.compile(r'^Nietbord', flags=re.IGNORECASE),
-#     ]
-#
-#     dimension_a = attribute.Attribute(
-#         description='Dimension a',
-#         unit=ureg.millimeter,
-#     )
-#     dimension_b = attribute.Attribute(
-#         description='Dimension b',
-#         unit=ureg.millimeter,
-#     )
-#     cross_section = attribute.Attribute(
-#         description='Cross section',
-#     )
-#     type = attribute.Attribute(
-#         description='Type (Round/Rectangular)',
-#     )
+class AirDuctRivetedEdge(AirDuctFitting):
+    """Riveted edge/flange (Nietbord)"""
+
+    @property
+    def expected_hvac_ports(self):
+        return 0
+
+    pattern_ifc_type = [
+        re.compile(r'Nietbord.*\(.*K.*:.*125.*\)', flags=re.IGNORECASE),
+        re.compile(r'^Nietbord', flags=re.IGNORECASE),
+    ]
+
+    dimension_a = attribute.Attribute(
+        description='Dimension a',
+        unit=ureg.millimeter,
+    )
+    dimension_b = attribute.Attribute(
+        description='Dimension b',
+        unit=ureg.millimeter,
+    )
+    cross_section = attribute.Attribute(
+        description='Cross section',
+    )
+    type = attribute.Attribute(
+        description='Type (Round/Rectangular)',
+    )
 
 class AirDuctRoundCoupling(AirDuctFitting):
     """Round duct coupling/sleeve (Muffe)"""
@@ -2893,6 +2892,7 @@ class AHUSilencer(AHUComponent):
 
     pattern_ifc_type = [
         re.compile(r'^Schalld[aä]mpfer\s+Allgemein', flags=re.IGNORECASE),
+        re.compile(r'^Schalld[aä]mpfer', flags=re.IGNORECASE),
     ]
 
 # collect all domain classes

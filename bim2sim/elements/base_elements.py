@@ -749,6 +749,8 @@ class Factory:
             ifc_domain: IFCDomain,
             finder: Union[TemplateFinder, None] = None,
             dummy=Dummy):
+
+        self.relevant_elements = relevant_elements
         self.mapping, self.blacklist, self.defaults = self.create_ifc_mapping(relevant_elements)
         self.dummy_cls = dummy
         self.ifc_domain = ifc_domain
@@ -794,6 +796,21 @@ class Factory:
                     f"Element has {self.ifc_domain} but f{element_cls.__name__}"
                     f" will only be created for IFC files of domain "
                     f"{element_cls.from_ifc_domains}")
+
+        descriptions = ifc2python.get_descriptions(ifc_entity)
+
+        if descriptions and not any(
+                any(p.search(desc) for p in element_cls.pattern_ifc_type)
+                for desc in descriptions):
+            ele_matches = []
+            for ele in self.relevant_elements:
+                if any(any(p.search(desc) for p in ele.pattern_ifc_type)
+                        for desc in descriptions):
+                    ele_matches.append(ele)
+            if len(ele_matches) != 1:
+                raise LookupError(f"No element found for {ifc_entity}")
+            else:
+                element_cls = ele_matches[0]
 
         element = self.create(element_cls, ifc_entity, *args, **kwargs)
         return element
