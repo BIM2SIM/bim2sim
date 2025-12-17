@@ -178,11 +178,12 @@ class IFCBased(Element):
                  **kwargs):
         super().__init__(*args, **kwargs)
 
+
         self.ifc = ifc
         self.predefined_type = ifc2python.get_predefined_type(ifc)
         self.ifc_domain = ifc_domain
         self.finder = finder
-        self.ifc_units = ifc_units
+        self.ifc_units = ifc_units # ToDo Attribute enrichment in here
         self.source_tool: SourceTool = None
 
         # TBD
@@ -203,6 +204,7 @@ class IFCBased(Element):
         """Factory method to create instance from ifc"""
         ifc_args, ifc_kwargs = cls.ifc2args(ifc)
         kwargs.update(ifc_kwargs)
+        test = cls(*(args + ifc_args), **kwargs)
         return cls(*(args + ifc_args), **kwargs)
 
     @property
@@ -804,15 +806,24 @@ class Factory:
                 for desc in descriptions):
             ele_matches = []
             for ele in self.relevant_elements:
-                if any(any(p.search(desc) for p in ele.pattern_ifc_type)
-                        for desc in descriptions):
-                    ele_matches.append(ele)
-            if len(ele_matches) != 1:
+                match_count = 0
+                for p in ele.pattern_ifc_type:
+                    for desc in descriptions:
+                        if p.search(desc):
+                            match_count += 1
+                if match_count > 0:
+                    ele_matches.append((ele, match_count))
+            if not ele_matches:
                 raise LookupError(f"No element found for {ifc_entity}")
+            elif len(ele_matches) == 1:
+                element_cls = ele_matches[0][0]
             else:
-                element_cls = ele_matches[0]
+                best_ele, _ = max(ele_matches, key=lambda x: x[1])
+                element_cls = best_ele
 
         element = self.create(element_cls, ifc_entity, *args, **kwargs)
+        if not element.air_type:
+            test = self.create(element_cls, ifc_entity, *args, **kwargs)
         return element
 
     def create(self, element_cls, ifc_entity, *args, **kwargs):

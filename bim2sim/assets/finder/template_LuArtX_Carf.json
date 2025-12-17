@@ -50,7 +50,7 @@
       "code": ["MyTab1", "[KBZ] KBZ"],
       "key": ["MyTab1", "[KEY] Schlüssel"],
       "reference_edge": ["MyTab1", "[K] Bezugskante"],
-      "length": ["MyTab1", "[l] Länge"],
+      "length": ["MyTab1", "[l] Länge (l)"],
       "material": ["MyTab1", "[MAT] Material"],
       "data_mask_number": ["MyTab1", "[MSKNR] Datenmaskennummer"],
       "on_list": ["MyTab1", "[ON_LST] Auf Liste"],

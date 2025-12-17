@@ -26,7 +26,7 @@ def run_example_complex_hvac_aixlib():
 
     # Set path of ifc for hydraulic domain with the fresh downloaded test models
     ifc_paths = {
-        IFCDomain.hydraulic:
+        IFCDomain.ventilation:
             Path(
                 r"D:\03_Cloud\Sciebo\BIM2Praxis\IFC-Modelle\EDGE\ueberarbeitet_2025-10\BIM2PRAXIS_RLT-2025-09-11_cleaned_jho.ifc")
     }

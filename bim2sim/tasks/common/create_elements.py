@@ -239,7 +239,10 @@ class CreateElementsOnIfcTypes(ITask):
             bps.LayerSet, bps.Layer, Material
         ]
 
-        for entity, ifc_type_or_element_cls in entities_dict.items():
+        entities_dict = sorted(entities_dict)
+
+        for entity in entities_dict:
+            ifc_type_or_element_cls = entity.is_a()
             try:
                 if isinstance(ifc_type_or_element_cls, str):
                     if ifc_type_or_element_cls in blacklist:
