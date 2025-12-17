@@ -39,7 +39,7 @@ def run_simple_project():
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
-            '/home/cudok/Documents/12_ifc_check_ids/03_ifc_veronika/2024-04-23_3rooms_240317_Heater_AirTerminal_Table_with_SB_errors_falk.ifc',
+            'test/resources/arch/ifc/3rooms_Heater_AirTerminal_Table_with_SB_errors.ifc',
     }
     project = Project.create(
         project_path, ifc_paths, PluginIFCCheck)

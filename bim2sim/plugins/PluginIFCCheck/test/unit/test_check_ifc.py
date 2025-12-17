@@ -46,14 +46,16 @@ class TestCheckIFC(unittest.TestCase):
                 'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
 
     # TODO move test ifc file into resources and adapt path
-    ifc_file_fkz = Path(bim2sim.__file__).parent.parent / 'test/resources/arch/ifc/AC20-FZK-Haus.ifc'
-    ifc_file_fkz_DoubleAndNoneGUID = Path(
-        '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_NoneAndDoubleGUID.ifc')
-    ifc_file_fkz_SB55_DoubleAndNoneGUID = Path(
-        '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55_NoneAndDoubleGUID.ifc')
-    ifc_file_fkz_SB55 = Path(bim2sim.__file__).parent.parent / 'test/resources/arch/ifc/AC20-FZK-Haus_with_SB55.ifc'
-    ifc_file_fkz_ifc23 = Path(
-        '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_ifc23.ifc')
+    ifc_file_fkz = (Path(bim2sim.__file__).parent.parent /
+                    'test/resources/arch/ifc/AC20-FZK-Haus.ifc')
+    ifc_file_fkz_DoubleAndNoneGUID = (Path(bim2sim.__file__).parent.parent /
+                'test/resources/arch/ifc/AC20-FZK-Haus_NoneAndDoubleGUID.ifc')
+    ifc_file_fkz_SB55_DoubleAndNoneGUID = (Path(bim2sim.__file__).parent.parent /
+        'test/resources/arch/ifc/AC20-FZK-Haus_with_SB55_NoneAndDoubleGUID.ifc')
+    ifc_file_fkz_SB55 = (Path(bim2sim.__file__).parent.parent /
+                    'test/resources/arch/ifc/AC20-FZK-Haus_with_SB55.ifc')
+    ifc_file_fkz_ifc23 = (Path(bim2sim.__file__).parent.parent /
+        'test/resources/arch/ifc/AC20-FZK-Haus_ifc23.ifc')
 
     def test_check_guid_unique_pass(self):
         """test the boolean of the GUID uniqueness check, check pass
@@ -318,8 +320,11 @@ class TestCheckIFCIfctester(unittest.TestCase):
         """check ifctester for use case guid/GlobalID length = 22 character
         """
         # TODO move test ifc file into resources and adapt path
-        ifc_file = '/home/cudok/Documents/12_ifc_check_ids/AC20-FZK-Haus_with_SB55.ifc'
-        ids_file = '/home/cudok/Documents/12_ifc_check_ids/check_guid_length_equals_22_character.ids'
+
+        ifc_file = (Path(bim2sim.__file__).parent.parent /
+                    'test/resources/arch/ifc/AC20-FZK-Haus_with_SB55.ifc')
+        ids_file = (Path(bim2sim.__file__).parent.parent /
+        '/home/cudok/Documents/12_ifc_check_ids/check_guid_length_equals_22_character.ids')
         all_checks_passed = CheckIfc.run_ids_check_on_ifc(ifc_file, ids_file)
         self.assertEqual(all_checks_passed, True, "Should be true")
 
