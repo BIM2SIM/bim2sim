@@ -49,7 +49,6 @@ class IntegrationBaseComfort(IntegrationBase):
         sys.stderr = self.old_stderr
         super().tearDown()
 
-
     def model_domain_path(self) -> str:
         return 'arch'
 

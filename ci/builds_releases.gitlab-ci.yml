@@ -51,11 +51,11 @@ stages:
 
 # Builds
 # Development branch base builds
-build:py3.10-occ7.7.0:
+build:py3.10-occ7.9.0:
   <<: *build_template
   variables:
     PYTHON_VERSION: "3.10"
-    TAG: "py3.10-occ7.7.0"
+    TAG: "py3.10-occ7.9.0"
     DOCKERFILE: ci/Dockerfile
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
@@ -65,11 +65,11 @@ build:py3.10-occ7.7.0:
         - .gitlab-ci.yml
         - bim2sim/plugins/**/*.Dockerfile
 
-build:py3.11-occ7.7.0:
+build:py3.11-occ7.9.0:
   <<: *build_template
   variables:
     PYTHON_VERSION: "3.11"
-    TAG: "py3.11-occ7.7.0"
+    TAG: "py3.11-occ7.9.0"
     DOCKERFILE: ci/Dockerfile
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
@@ -83,11 +83,11 @@ build:py3.11-occ7.7.0:
 build:energyplus-py3.10:
   <<: *build_template
   variables:
-    FROM_BUILD_TAG: "py3.10-occ7.7.0"
+    FROM_BUILD_TAG: "py3.10-occ7.9.0"
     TAG: energyplus9.4.0-py3.10
     DOCKERFILE: ci/EnergyPlus.Dockerfile
   needs:
-    - build:py3.10-occ7.7.0
+    - build:py3.10-occ7.9.0
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -99,11 +99,11 @@ build:energyplus-py3.10:
 build:energyplus-py3.11:
   <<: *build_template
   variables:
-    FROM_BUILD_TAG: "py3.11-occ7.7.0"
+    FROM_BUILD_TAG: "py3.11-occ7.9.0"
     TAG: energyplus9.4.0-py3.11
     DOCKERFILE: ci/EnergyPlus.Dockerfile
   needs:
-    - build:py3.11-occ7.7.0
+    - build:py3.11-occ7.9.0
   rules:
     - if: '$CI_COMMIT_REF_NAME == "main" || $CI_COMMIT_REF_NAME == "development" || $CI_COMMIT_REF_NAME =~ /image_testing/'
       changes:
@@ -146,7 +146,7 @@ build:dymola2022-py3.11:
 release:dev-PluginTEASER-py3.10:
   <<: *release_modelica_template
   variables:
-    FROM_BUILD_TAG: "py3.10-occ7.7.0"
+    FROM_BUILD_TAG: "py3.10-occ7.9.0"
     TAG: dev-PluginTEASER-py3.10
     DOCKERFILE: bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
   rules:
@@ -160,7 +160,7 @@ release:dev-PluginTEASER-py3.10:
 release:dev-PluginTEASER-py3.11:
   <<: *release_modelica_template
   variables:
-    FROM_BUILD_TAG: "py3.11-occ7.7.0"
+    FROM_BUILD_TAG: "py3.11-occ7.9.0"
     TAG: dev-PluginTEASER-py3.11
     DOCKERFILE: bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
   rules:
@@ -174,7 +174,7 @@ release:dev-PluginTEASER-py3.11:
 release:dev-PluginAixLib-py3.10:
   <<: *release_modelica_template
   variables:
-    FROM_BUILD_TAG: "py3.10-occ7.7.0"
+    FROM_BUILD_TAG: "py3.10-occ7.9.0"
     TAG: dev-PluginAixLib-py3.10
     DOCKERFILE: bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
   rules:
@@ -188,7 +188,7 @@ release:dev-PluginAixLib-py3.10:
 release:dev-PluginAixLib-py3.11:
   <<: *release_modelica_template
   variables:
-    FROM_BUILD_TAG: "py3.11-occ7.7.0"
+    FROM_BUILD_TAG: "py3.11-occ7.9.0"
     TAG: dev-PluginAixLib-py3.11
     DOCKERFILE: bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
   rules:
@@ -202,7 +202,7 @@ release:dev-PluginAixLib-py3.11:
 release:dev-PluginHKESim-py3.10:
   <<: *release_modelica_template
   variables:
-    FROM_BUILD_TAG: "py3.10-occ7.7.0"
+    FROM_BUILD_TAG: "py3.10-occ7.9.0"
     TAG: dev-PluginHKESim-py3.10
     DOCKERFILE: bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
   rules:
@@ -216,7 +216,7 @@ release:dev-PluginHKESim-py3.10:
 release:dev-PluginHKESim-py3.11:
   <<: *release_modelica_template
   variables:
-    FROM_BUILD_TAG: "py3.11-occ7.7.0"
+    FROM_BUILD_TAG: "py3.11-occ7.9.0"
     TAG: dev-PluginHKESim-py3.11
     DOCKERFILE: bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
   rules:
@@ -315,7 +315,7 @@ release:dev-PluginOpenFOAM-py3.11:
 release:dev-PluginLCA-py3.10:
   <<: *release_modelica_template
   variables:
-    FROM_BUILD_TAG: "py3.10-occ7.7.0"
+    FROM_BUILD_TAG: "py3.10-occ7.9.0"
     TAG: dev-PluginLCA-py3.10
     DOCKERFILE: bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
   rules:
@@ -330,7 +330,7 @@ release:dev-PluginLCA-py3.10:
 release:dev-PluginLCA-py3.11:
   <<: *release_modelica_template
   variables:
-    FROM_BUILD_TAG: "py3.11-occ7.7.0"
+    FROM_BUILD_TAG: "py3.11-occ7.9.0"
     TAG: dev-PluginLCA-py3.11
     DOCKERFILE: bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
   rules:
@@ -345,7 +345,7 @@ release:dev-PluginLCA-py3.11:
 release:main-PluginTEASER-py3.10:
   <<: *release_modelica_template
   variables:
-    FROM_BUILD_TAG: "py3.10-occ7.7.0"
+    FROM_BUILD_TAG: "py3.10-occ7.9.0"
     TAG: main-PluginTEASER-py3.10
     DOCKERFILE: bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
   rules:
@@ -359,7 +359,7 @@ release:main-PluginTEASER-py3.10:
 release:main-PluginTEASER-py3.11:
   <<: *release_modelica_template
   variables:
-    FROM_BUILD_TAG: "py3.11-occ7.7.0"
+    FROM_BUILD_TAG: "py3.11-occ7.9.0"
     TAG: main-PluginTEASER-py3.11
     DOCKERFILE: bim2sim/plugins/PluginTEASER/PluginTEASER.Dockerfile
   rules:
@@ -373,7 +373,7 @@ release:main-PluginTEASER-py3.11:
 release:main-PluginAixLib-py3.10:
   <<: *release_modelica_template
   variables:
-    FROM_BUILD_TAG: "py3.10-occ7.7.0"
+    FROM_BUILD_TAG: "py3.10-occ7.9.0"
     TAG: main-PluginAixLib-py3.10
     DOCKERFILE: bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
   rules:
@@ -387,7 +387,7 @@ release:main-PluginAixLib-py3.10:
 release:main-PluginAixLib-py3.11:
   <<: *release_modelica_template
   variables:
-    FROM_BUILD_TAG: "py3.11-occ7.7.0"
+    FROM_BUILD_TAG: "py3.11-occ7.9.0"
     TAG: main-PluginAixLib-py3.11
     DOCKERFILE: bim2sim/plugins/PluginAixLib/PluginAixLib.Dockerfile
   rules:
@@ -401,7 +401,7 @@ release:main-PluginAixLib-py3.11:
 release:main-PluginHKESim-py3.10:
   <<: *release_modelica_template
   variables:
-    FROM_BUILD_TAG: "py3.10-occ7.7.0"
+    FROM_BUILD_TAG: "py3.10-occ7.9.0"
     TAG: main-PluginHKESim-py3.10
     DOCKERFILE: bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
   rules:
@@ -415,7 +415,7 @@ release:main-PluginHKESim-py3.10:
 release:main-PluginHKESim-py3.11:
   <<: *release_modelica_template
   variables:
-    FROM_BUILD_TAG: "py3.11-occ7.7.0"
+    FROM_BUILD_TAG: "py3.11-occ7.9.0"
     TAG: main-PluginHKESim-py3.11
     DOCKERFILE: bim2sim/plugins/PluginHKESim/PluginHKESim.Dockerfile
   rules:
@@ -513,7 +513,7 @@ release:main-PluginOpenFOAM-py3.11:
 release:main-PluginLCA-py3.10:
   <<: *release_modelica_template
   variables:
-    FROM_BUILD_TAG: "py3.10-occ7.7.0"
+    FROM_BUILD_TAG: "py3.10-occ7.9.0"
     TAG: main-PluginLCA-py3.10
     DOCKERFILE: bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
   rules:
@@ -527,7 +527,7 @@ release:main-PluginLCA-py3.10:
 release:main-PluginLCA-py3.11:
   <<: *release_modelica_template
   variables:
-    FROM_BUILD_TAG: "py3.11-occ7.7.0"
+    FROM_BUILD_TAG: "py3.11-occ7.9.0"
     TAG: main-PluginLCA-py3.11
     DOCKERFILE: bim2sim/plugins/PluginLCA/PluginLCA.Dockerfile
   rules:

@@ -9,10 +9,10 @@ from typing import Set, List, Union
 
 import ifcopenshell
 import ifcopenshell.geom
-from OCC.Core.BRepBndLib import brepbndlib_Add
+from OCC.Core.BRepBndLib import brepbndlib
 from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_Transform
 from OCC.Core.BRepExtrema import BRepExtrema_DistShapeShape
-from OCC.Core.BRepGProp import brepgprop_SurfaceProperties
+from OCC.Core.BRepGProp import brepgprop
 from OCC.Core.BRepLib import BRepLib_FuseEdges
 from OCC.Core.Bnd import Bnd_Box
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
@@ -234,11 +234,15 @@ class ThermalZone(BPSProduct):
 
     def _get_space_shape(self, name):
         """returns topods shape of the IfcSpace"""
-        settings = ifcopenshell.geom.main.settings()
+        settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
         settings.set(settings.USE_WORLD_COORDS, True)
-        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-        settings.set(settings.INCLUDE_CURVES, True)
+        settings.set(settings.PRECISION, 1e-6)
+        settings.set(
+            "dimensionality",
+            ifcopenshell.ifcopenshell_wrapper.CURVES_SURFACES_AND_SOLIDS)  # 2
+        # settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+        # settings.set(settings.INCLUDE_CURVES, True)
         return ifcopenshell.geom.create_shape(settings, self.ifc).geometry
 
     def _get_space_center(self, name) -> float:
@@ -248,7 +252,7 @@ class ThermalZone(BPSProduct):
         :return: center of space bounding box (gp_Pnt)
         """
         bbox = Bnd_Box()
-        brepbndlib_Add(self.space_shape, bbox)
+        brepbndlib.Add(self.space_shape, bbox)
         bbox_center = ifcopenshell.geom.utils.get_bounding_box_center(bbox)
         return bbox_center
 
@@ -724,7 +728,7 @@ class SpaceBoundary(RelationBased):
     def get_bound_area(self, name) -> ureg.Quantity:
         """compute area of a space boundary"""
         bound_prop = GProp_GProps()
-        brepgprop_SurfaceProperties(self.bound_shape, bound_prop)
+        brepgprop.SurfaceProperties(self.bound_shape, bound_prop)
         area = bound_prop.Mass()
         return area * ureg.meter ** 2
 
@@ -765,7 +769,7 @@ class SpaceBoundary(RelationBased):
     def _get_bound_center(self, name):
         """ compute center of the bounding box of a space boundary"""
         p = GProp_GProps()
-        brepgprop_SurfaceProperties(self.bound_shape, p)
+        brepgprop.SurfaceProperties(self.bound_shape, p)
         return p.CentreOfMass().XYZ()
 
     def _get_related_bound(self, name):
@@ -922,8 +926,12 @@ class SpaceBoundary(RelationBased):
         settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
         settings.set(settings.USE_WORLD_COORDS, True)
-        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-        settings.set(settings.INCLUDE_CURVES, True)
+        settings.set(settings.PRECISION, 1e-6)
+        settings.set(
+            "dimensionality",
+            ifcopenshell.ifcopenshell_wrapper.CURVES_SURFACES_AND_SOLIDS)  # 2
+        # settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+        # settings.set(settings.INCLUDE_CURVES, True)
 
         # check if the space boundary shapes need a unit conversion (i.e.,
         # an additional transformation to the correct size and position)
@@ -933,8 +941,9 @@ class SpaceBoundary(RelationBased):
         try:
             sore = self.ifc.ConnectionGeometry.SurfaceOnRelatingElement
             # if sore.get_info()["InnerBoundaries"] is None:
+            if sore.InnerBoundaries is None:
+                sore.InnerBoundaries = ()
             shape = ifcopenshell.geom.create_shape(settings, sore)
-
             if sore.InnerBoundaries:
                 # shape = remove_inner_loops(shape)  # todo: return None if not horizontal shape
                 # if not shape:
@@ -947,6 +956,31 @@ class SpaceBoundary(RelationBased):
                     temp_sore.InnerBoundaries = ()
                     shape = ifcopenshell.geom.create_shape(settings, temp_sore)
                 else:
+                    # hotfix: ifcopenshell 0.8.4 does not sufficiently produce
+                    # faces with inner holes (as opposed to ifcopenshell
+                    # 0.7.0). This workaround "manually" performs a boolean
+                    # operation to generate a TopoDS_Shape with inner holes
+                    # before removing the inner loops with the dedicated
+                    # inner_loop_remover function
+                    ### START OF HOTFIX #####
+                    inners = []
+                    for inn in sore.InnerBoundaries:
+                        ifc_new = ifcopenshell.file()
+                        temp_sore = ifc_new.create_entity(
+                            'IfcCurveBoundedPlane',
+                            OuterBoundary=inn,
+                            BasisSurface=sore.BasisSurface)
+                        temp_sore.InnerBoundaries = ()
+                        compound = ifcopenshell.geom.create_shape(settings,
+                                                                  temp_sore)
+                        faces = PyOCCTools.get_face_from_shape(compound)
+                        inners.append(faces)
+                    sore.InnerBoundaries = ()
+                    outer_shape_data = ifcopenshell.geom.create_shape(settings,
+                                                                      sore)
+                    shape = PyOCCTools.triangulate_bound_shape(
+                        outer_shape_data, inners)
+                    #### END OF HOTFIX ####
                     shape = remove_inner_loops(shape)
             if not (sore.InnerBoundaries and not self.bound_element.ifc.is_a(
                     'IfcWall')):
