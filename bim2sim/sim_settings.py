@@ -901,7 +901,7 @@ class BuildingSimSettings(BaseSimSettings):
                     " the windows of the selected building.",
     )
     year_of_construction_overwrite = NumberSetting(
-        default=None,
+        value=None,
         min_value=0,
         max_value=2015,
         description="Force an overwrite of the year of construction as a "
@@ -909,7 +909,7 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True,
     )
     heating = BooleanSetting(
-        default=True,
+        value=True,
         description='Whether the building should be supplied with heating.',
     )
     heating_tz_overwrite = BooleanSetting(
@@ -1149,7 +1149,7 @@ class BuildingSimSettings(BaseSimSettings):
                     " without window openings"
     )
     fixed_usage = ChoiceSetting(
-        default=None,
+        value=None,
         choices={
             None: "do not use fix usage",
             "Open-plan Office (7 or more employees)": "Big Office",
