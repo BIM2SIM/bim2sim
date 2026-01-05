@@ -72,7 +72,7 @@
       }
     }
   },
-  "OuterWall_[2016, 2100]_Standard_0_10": {
+  "OuterWall_[2016, 2100]_custom_U_0_10": {
     "_comment": "custom out of ubakus generator",
     "building_age_group": [
       2016,
@@ -123,7 +123,7 @@
       }
     }
   },
-  "Roof_[2016, 2100]_Standard_0_10": {
+  "Roof_[2016, 2100]_custom_U_0_10": {
     "_comment": "Passivhausdach (ubakus)",
     "building_age_group": [
       2016,
@@ -174,7 +174,7 @@
       }
     }
   },
-  "GroundFloor_[2016, 2100]_Standard_0_10": {
+  "GroundFloor_[2016, 2100]_custom_U_0_10": {
     "_comment": "Kellderdecke (ubakus)",
     "building_age_group": [
       2016,
@@ -223,7 +223,7 @@
       }
     }
   },
-  "Door_[2016, 2100]_Standard_0_10": {
+  "Door_[2016, 2100]_custom_U_0_10": {
     "_comment": "Door_[2016, 2100]_tabula_adv_retrofit_1_SFH",
     "building_age_group": [
       2016,
@@ -260,7 +260,7 @@
       }
     }
   },
-  "InnerWall_[2016, 2100]_Standard_0_10": {
+  "InnerWall_[2016, 2100]_custom_U_0_10": {
     "_comment": "InnerWall_[1995, 2015]_tabula_standard",
     "building_age_group": [
       2016,
@@ -294,7 +294,7 @@
       }
     }
   },
-  "Ceiling_[2016, 2100]_Standard_0_10": {
+  "Ceiling_[2016, 2100]_custom_U_0_10": {
     "_comment": "Ceiling_[1995, 2015]_tabula_standard",
     "building_age_group": [
       2016,
@@ -328,7 +328,7 @@
       }
     }
   },
-  "Floor_[2016, 2100]_Standard_0_10": {
+  "Floor_[2016, 2100]_custom_U_0_10": {
     "_comment": "Floor_[1995, 2015]_tabula_standard",
     "building_age_group": [
       2016,
@@ -369,7 +369,7 @@
       }
     }
   },
-  "OuterWall_[2016, 2100]_Standard_0_15": {
+  "OuterWall_[2016, 2100]_custom_U_0_15": {
     "_comment": "custom out of ubakus generator",
     "building_age_group": [
       2016,
@@ -420,7 +420,7 @@
       }
     }
   },
-  "Roof_[2016, 2100]_Standard_0_15": {
+  "Roof_[2016, 2100]_custom_U_0_15": {
     "_comment": "Passivhausdach (ubakus)",
     "building_age_group": [
       2016,
@@ -471,7 +471,7 @@
       }
     }
   },
-  "GroundFloor_[2016, 2100]_Standard_0_15": {
+  "GroundFloor_[2016, 2100]_custom_U_0_15": {
     "_comment": "Kellderdecke (ubakus)",
     "building_age_group": [
       2016,
@@ -520,7 +520,7 @@
       }
     }
   },
-  "Door_[2016, 2100]_Standard_0_15": {
+  "Door_[2016, 2100]_custom_U_0_15": {
     "_comment": "Door_[2016, 2100]_tabula_adv_retrofit_1_SFH",
     "building_age_group": [
       2016,
@@ -557,7 +557,7 @@
       }
     }
   },
-  "InnerWall_[2016, 2100]_Standard_0_15": {
+  "InnerWall_[2016, 2100]_custom_U_0_15": {
     "_comment": "InnerWall_[1995, 2015]_tabula_standard",
     "building_age_group": [
       2016,
@@ -591,7 +591,7 @@
       }
     }
   },
-  "Ceiling_[2016, 2100]_Standard_0_15": {
+  "Ceiling_[2016, 2100]_custom_U_0_15": {
     "_comment": "Ceiling_[1995, 2015]_tabula_standard",
     "building_age_group": [
       2016,
@@ -625,7 +625,7 @@
       }
     }
   },
-  "Floor_[2016, 2100]_Standard_0_15": {
+  "Floor_[2016, 2100]_custom_U_0_15": {
     "_comment": "Floor_[1995, 2015]_tabula_standard",
     "building_age_group": [
       2016,
@@ -666,7 +666,7 @@
       }
     }
   },
-  "OuterWall_[2016, 2100]_Standard_0_20": {
+  "OuterWall_[2016, 2100]_custom_U_0_20": {
     "_comment": "custom out of ubakus generator",
     "building_age_group": [
       2016,
@@ -717,7 +717,7 @@
       }
     }
   },
-  "Roof_[2016, 2100]_Standard_0_20": {
+  "Roof_[2016, 2100]_custom_U_0_20": {
     "_comment": "Passivhausdach (ubakus)",
     "building_age_group": [
       2016,
@@ -768,7 +768,7 @@
       }
     }
   },
-  "GroundFloor_[2016, 2100]_Standard_0_20": {
+  "GroundFloor_[2016, 2100]_custom_U_0_20": {
     "_comment": "Kellderdecke (ubakus)",
     "building_age_group": [
       2016,
@@ -817,7 +817,7 @@
       }
     }
   },
-  "Door_[2016, 2100]_Standard_0_20": {
+  "Door_[2016, 2100]_custom_U_0_20": {
     "_comment": "Door_[2016, 2100]_tabula_adv_retrofit_1_SFH",
     "building_age_group": [
       2016,
@@ -854,7 +854,7 @@
       }
     }
   },
-  "InnerWall_[2016, 2100]_Standard_0_20": {
+  "InnerWall_[2016, 2100]_custom_U_0_20": {
     "_comment": "InnerWall_[1995, 2015]_tabula_standard",
     "building_age_group": [
       2016,
@@ -888,7 +888,7 @@
       }
     }
   },
-  "Ceiling_[2016, 2100]_Standard_0_20": {
+  "Ceiling_[2016, 2100]_custom_U_0_20": {
     "_comment": "Ceiling_[1995, 2015]_tabula_standard",
     "building_age_group": [
       2016,
@@ -922,7 +922,7 @@
       }
     }
   },
-  "Floor_[2016, 2100]_Standard_0_20": {
+  "Floor_[2016, 2100]_custom_U_0_20": {
     "_comment": "Floor_[1995, 2015]_tabula_standard",
     "building_age_group": [
       2016,
@@ -963,7 +963,7 @@
       }
     }
   },
-  "OuterWall_[2016, 2100]_Standard_0_25": {
+  "OuterWall_[2016, 2100]_custom_U_0_25": {
     "_comment": "custom out of ubakus generator",
     "building_age_group": [
       2016,
@@ -1014,7 +1014,7 @@
       }
     }
   },
-  "Roof_[2016, 2100]_Standard_0_25": {
+  "Roof_[2016, 2100]_custom_U_0_25": {
     "_comment": "Passivhausdach (ubakus)",
     "building_age_group": [
       2016,
@@ -1065,7 +1065,7 @@
       }
     }
   },
-  "GroundFloor_[2016, 2100]_Standard_0_25": {
+  "GroundFloor_[2016, 2100]_custom_U_0_25": {
     "_comment": "Kellderdecke (ubakus)",
     "building_age_group": [
       2016,
@@ -1114,7 +1114,7 @@
       }
     }
   },
-  "Door_[2016, 2100]_Standard_0_25": {
+  "Door_[2016, 2100]_custom_U_0_25": {
     "_comment": "Door_[2016, 2100]_tabula_adv_retrofit_1_SFH",
     "building_age_group": [
       2016,
@@ -1151,7 +1151,7 @@
       }
     }
   },
-  "InnerWall_[2016, 2100]_Standard_0_25": {
+  "InnerWall_[2016, 2100]_custom_U_0_25": {
     "_comment": "InnerWall_[1995, 2015]_tabula_standard",
     "building_age_group": [
       2016,
@@ -1185,7 +1185,7 @@
       }
     }
   },
-  "Ceiling_[2016, 2100]_Standard_0_25": {
+  "Ceiling_[2016, 2100]_custom_U_0_25": {
     "_comment": "Ceiling_[1995, 2015]_tabula_standard",
     "building_age_group": [
       2016,
@@ -1219,7 +1219,7 @@
       }
     }
   },
-  "Floor_[2016, 2100]_Standard_0_25": {
+  "Floor_[2016, 2100]_custom_U_0_25": {
     "_comment": "Floor_[1995, 2015]_tabula_standard",
     "building_age_group": [
       2016,
@@ -1260,7 +1260,7 @@
       }
     }
   },
-  "OuterWall_[2016, 2100]_Standard_0_30": {
+  "OuterWall_[2016, 2100]_custom_U_0_30": {
     "_comment": "custom out of ubakus generator",
     "building_age_group": [
       2016,
@@ -1311,7 +1311,7 @@
       }
     }
   },
-  "Roof_[2016, 2100]_Standard_0_30": {
+  "Roof_[2016, 2100]_custom_U_0_30": {
     "_comment": "Passivhausdach (ubakus)",
     "building_age_group": [
       2016,
@@ -1362,7 +1362,7 @@
       }
     }
   },
-  "GroundFloor_[2016, 2100]_Standard_0_30": {
+  "GroundFloor_[2016, 2100]_custom_U_0_30": {
     "_comment": "Kellderdecke (ubakus)",
     "building_age_group": [
       2016,
@@ -1411,7 +1411,7 @@
       }
     }
   },
-  "Door_[2016, 2100]_Standard_0_30": {
+  "Door_[2016, 2100]_custom_U_0_30": {
     "_comment": "Door_[2016, 2100]_tabula_adv_retrofit_1_SFH",
     "building_age_group": [
       2016,
@@ -1448,7 +1448,7 @@
       }
     }
   },
-  "InnerWall_[2016, 2100]_Standard_0_30": {
+  "InnerWall_[2016, 2100]_custom_U_0_30": {
     "_comment": "InnerWall_[1995, 2015]_tabula_standard",
     "building_age_group": [
       2016,
@@ -1482,7 +1482,7 @@
       }
     }
   },
-  "Ceiling_[2016, 2100]_Standard_0_30": {
+  "Ceiling_[2016, 2100]_custom_U_0_30": {
     "_comment": "Ceiling_[1995, 2015]_tabula_standard",
     "building_age_group": [
       2016,
@@ -1516,7 +1516,7 @@
       }
     }
   },
-  "Floor_[2016, 2100]_Standard_0_30": {
+  "Floor_[2016, 2100]_custom_U_0_30": {
     "_comment": "Floor_[1995, 2015]_tabula_standard",
     "building_age_group": [
       2016,
@@ -1557,7 +1557,7 @@
       }
     }
   },
-  "OuterWall_[2016, 2100]_Standard_0_35": {
+  "OuterWall_[2016, 2100]_custom_U_0_35": {
     "_comment": "custom out of ubakus generator",
     "building_age_group": [
       2016,
@@ -1608,7 +1608,7 @@
       }
     }
   },
-  "Roof_[2016, 2100]_Standard_0_35": {
+  "Roof_[2016, 2100]_custom_U_0_35": {
     "_comment": "Passivhausdach (ubakus)",
     "building_age_group": [
       2016,
@@ -1659,7 +1659,7 @@
       }
     }
   },
-  "GroundFloor_[2016, 2100]_Standard_0_35": {
+  "GroundFloor_[2016, 2100]_custom_U_0_35": {
     "_comment": "Kellderdecke (ubakus)",
     "building_age_group": [
       2016,
@@ -1708,7 +1708,7 @@
       }
     }
   },
-  "Door_[2016, 2100]_Standard_0_35": {
+  "Door_[2016, 2100]_custom_U_0_35": {
     "_comment": "Door_[2016, 2100]_tabula_adv_retrofit_1_SFH",
     "building_age_group": [
       2016,
@@ -1745,7 +1745,7 @@
       }
     }
   },
-  "InnerWall_[2016, 2100]_Standard_0_35": {
+  "InnerWall_[2016, 2100]_custom_U_0_35": {
     "_comment": "InnerWall_[1995, 2015]_tabula_standard",
     "building_age_group": [
       2016,
@@ -1779,7 +1779,7 @@
       }
     }
   },
-  "Ceiling_[2016, 2100]_Standard_0_35": {
+  "Ceiling_[2016, 2100]_custom_U_0_35": {
     "_comment": "Ceiling_[1995, 2015]_tabula_standard",
     "building_age_group": [
       2016,
@@ -1813,7 +1813,7 @@
       }
     }
   },
-  "Floor_[2016, 2100]_Standard_0_35": {
+  "Floor_[2016, 2100]_custom_U_0_35": {
     "_comment": "Floor_[1995, 2015]_tabula_standard",
     "building_age_group": [
       2016,
