@@ -317,27 +317,34 @@
         "inner_convection": 1.7,
         "u_value": 0.53,
         "layer": {
-            "0": {
-                "thickness": 0.16,
-                "material": {
-                    "name": "concrete_CEM_II_BS325R_wz05",
-                    "material_id": "253f8030-3a43-11e7-8735-2cd444b2e704"
-                }
-            },
-            "1": {
-                "thickness": 0.06,
-                "material": {
-                    "name": "EPS_040_15",
-                    "material_id": "25d281da-3a43-11e7-8191-2cd444b2e704"
-                }
-            },
-            "2": {
-                "thickness": 0.04,
-                "material": {
-                    "name": "cement_floating_screed_2_bottom",
-                    "material_id": "6755e6e6-3a43-11e7-adad-2cd444b2e704"
-                }
+          "0": {
+            "thickness": 0.16,
+            "material": {
+              "name": "concrete_CEM_II_BS325R_wz05",
+              "material_id": "253f8030-3a43-11e7-8735-2cd444b2e704"
             }
+          },
+          "1": {
+            "thickness": 0.06,
+            "material": {
+              "name": "EPS_040_15",
+              "material_id": "25d281da-3a43-11e7-8191-2cd444b2e704"
+            }
+          },
+          "2": {
+            "thickness": 0.04,
+            "material": {
+              "name": "cement_floating_screed_2_bottom",
+              "material_id": "6755e6e6-3a43-11e7-adad-2cd444b2e704"
+            }
+          },
+          "3": {
+            "thickness": 0.01,
+            "material": {
+              "name": "parquet",
+              "material_id": "c21ad9d2-8859-11ee-bcb0-e8b1fc95108b"
+            }
+          }
         }
     },
     "OuterWall_[2016, 2100]_kfw_55": {
@@ -607,27 +614,34 @@
         "inner_convection": 1.7,
         "u_value": 0.53,
         "layer": {
-            "0": {
-                "thickness": 0.16,
-                "material": {
-                    "name": "concrete_CEM_II_BS325R_wz05",
-                    "material_id": "253f8030-3a43-11e7-8735-2cd444b2e704"
-                }
-            },
-            "1": {
-                "thickness": 0.06,
-                "material": {
-                    "name": "EPS_040_15",
-                    "material_id": "25d281da-3a43-11e7-8191-2cd444b2e704"
-                }
-            },
-            "2": {
-                "thickness": 0.04,
-                "material": {
-                    "name": "cement_floating_screed_2_bottom",
-                    "material_id": "6755e6e6-3a43-11e7-adad-2cd444b2e704"
-                }
+          "0": {
+            "thickness": 0.16,
+            "material": {
+              "name": "concrete_CEM_II_BS325R_wz05",
+              "material_id": "253f8030-3a43-11e7-8735-2cd444b2e704"
             }
+          },
+          "1": {
+            "thickness": 0.06,
+            "material": {
+              "name": "EPS_040_15",
+              "material_id": "25d281da-3a43-11e7-8191-2cd444b2e704"
+            }
+          },
+          "2": {
+            "thickness": 0.04,
+            "material": {
+              "name": "cement_floating_screed_2_bottom",
+              "material_id": "6755e6e6-3a43-11e7-adad-2cd444b2e704"
+            }
+          },
+          "3": {
+            "thickness": 0.01,
+            "material": {
+              "name": "parquet",
+              "material_id": "c21ad9d2-8859-11ee-bcb0-e8b1fc95108b"
+            }
+          }
         }
     },
     "OuterWall_[2016, 2100]_kfw_70": {
@@ -897,27 +911,34 @@
         "inner_convection": 1.7,
         "u_value": 0.53,
         "layer": {
-            "0": {
-                "thickness": 0.16,
-                "material": {
-                    "name": "concrete_CEM_II_BS325R_wz05",
-                    "material_id": "253f8030-3a43-11e7-8735-2cd444b2e704"
-                }
-            },
-            "1": {
-                "thickness": 0.06,
-                "material": {
-                    "name": "EPS_040_15",
-                    "material_id": "25d281da-3a43-11e7-8191-2cd444b2e704"
-                }
-            },
-            "2": {
-                "thickness": 0.04,
-                "material": {
-                    "name": "cement_floating_screed_2_bottom",
-                    "material_id": "6755e6e6-3a43-11e7-adad-2cd444b2e704"
-                }
+          "0": {
+            "thickness": 0.16,
+            "material": {
+              "name": "concrete_CEM_II_BS325R_wz05",
+              "material_id": "253f8030-3a43-11e7-8735-2cd444b2e704"
             }
+          },
+          "1": {
+            "thickness": 0.06,
+            "material": {
+              "name": "EPS_040_15",
+              "material_id": "25d281da-3a43-11e7-8191-2cd444b2e704"
+            }
+          },
+          "2": {
+            "thickness": 0.04,
+            "material": {
+              "name": "cement_floating_screed_2_bottom",
+              "material_id": "6755e6e6-3a43-11e7-adad-2cd444b2e704"
+            }
+          },
+          "3": {
+            "thickness": 0.01,
+            "material": {
+              "name": "parquet",
+              "material_id": "c21ad9d2-8859-11ee-bcb0-e8b1fc95108b"
+            }
+          }
         }
     },
     "OuterWall_[2016, 2100]_kfw_85": {
@@ -1180,27 +1201,34 @@
         "inner_convection": 1.7,
         "u_value": 0.53,
         "layer": {
-            "0": {
-                "thickness": 0.16,
-                "material": {
-                    "name": "concrete_CEM_II_BS325R_wz05",
-                    "material_id": "253f8030-3a43-11e7-8735-2cd444b2e704"
-                }
-            },
-            "1": {
-                "thickness": 0.06,
-                "material": {
-                    "name": "EPS_040_15",
-                    "material_id": "25d281da-3a43-11e7-8191-2cd444b2e704"
-                }
-            },
-            "2": {
-                "thickness": 0.04,
-                "material": {
-                    "name": "cement_floating_screed_2_bottom",
-                    "material_id": "6755e6e6-3a43-11e7-adad-2cd444b2e704"
-                }
+          "0": {
+            "thickness": 0.16,
+            "material": {
+              "name": "concrete_CEM_II_BS325R_wz05",
+              "material_id": "253f8030-3a43-11e7-8735-2cd444b2e704"
             }
+          },
+          "1": {
+            "thickness": 0.06,
+            "material": {
+              "name": "EPS_040_15",
+              "material_id": "25d281da-3a43-11e7-8191-2cd444b2e704"
+            }
+          },
+          "2": {
+            "thickness": 0.04,
+            "material": {
+              "name": "cement_floating_screed_2_bottom",
+              "material_id": "6755e6e6-3a43-11e7-adad-2cd444b2e704"
+            }
+          },
+          "3": {
+            "thickness": 0.01,
+            "material": {
+              "name": "parquet",
+              "material_id": "c21ad9d2-8859-11ee-bcb0-e8b1fc95108b"
+            }
+          }
         }
     },
     "OuterWall_[2016, 2100]_kfw_100": {
@@ -1463,27 +1491,34 @@
         "inner_convection": 1.7,
         "u_value": 0.53,
         "layer": {
-            "0": {
-                "thickness": 0.16,
-                "material": {
-                    "name": "concrete_CEM_II_BS325R_wz05",
-                    "material_id": "253f8030-3a43-11e7-8735-2cd444b2e704"
-                }
-            },
-            "1": {
-                "thickness": 0.06,
-                "material": {
-                    "name": "EPS_040_15",
-                    "material_id": "25d281da-3a43-11e7-8191-2cd444b2e704"
-                }
-            },
-            "2": {
-                "thickness": 0.04,
-                "material": {
-                    "name": "cement_floating_screed_2_bottom",
-                    "material_id": "6755e6e6-3a43-11e7-adad-2cd444b2e704"
-                }
+          "0": {
+            "thickness": 0.16,
+            "material": {
+              "name": "concrete_CEM_II_BS325R_wz05",
+              "material_id": "253f8030-3a43-11e7-8735-2cd444b2e704"
             }
+          },
+          "1": {
+            "thickness": 0.06,
+            "material": {
+              "name": "EPS_040_15",
+              "material_id": "25d281da-3a43-11e7-8191-2cd444b2e704"
+            }
+          },
+          "2": {
+            "thickness": 0.04,
+            "material": {
+              "name": "cement_floating_screed_2_bottom",
+              "material_id": "6755e6e6-3a43-11e7-adad-2cd444b2e704"
+            }
+          },
+          "3": {
+            "thickness": 0.01,
+            "material": {
+              "name": "parquet",
+              "material_id": "c21ad9d2-8859-11ee-bcb0-e8b1fc95108b"
+            }
+          }
         }
     }
 }
