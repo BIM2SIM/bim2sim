@@ -42,8 +42,7 @@ class PostprocessingUtils:
 
     @staticmethod
     def read_csv_and_format_datetime(csv_name):
-        with open(csv_name, "r") as csv_file:
-            res_df = pd.read_csv(csv_file)
+        res_df = pd.read_csv(csv_name)
         res_df["Date/Time"] = res_df["Date/Time"].apply(
             PostprocessingUtils._string_to_datetime)
         # correct the year based on the length to something useful. This is
@@ -72,8 +71,7 @@ class PostprocessingUtils:
 
     @staticmethod
     def export_df_for_webtool(csv_name):
-        with open(csv_name, "r") as csv_file:
-            res_df = pd.read_csv(csv_file)
+        res_df = pd.read_csv(csv_name)
         res_df["Date/Time"] = res_df["Date/Time"].apply(
             PostprocessingUtils._string_to_datetime)
         res_df['Date/Time'] = res_df['Date/Time'].dt.strftime('%m-%d '
@@ -102,8 +100,7 @@ class PostprocessingUtils:
         date=[int(month), int(day)]
         :return:
         """
-        with open(csv_name, "r") as csv_file:
-            res_df = pd.read_csv(csv_file)
+        res_df = pd.read_csv(csv_name)
         res_df["Date/Time"] = res_df["Date/Time"].apply(
             PostprocessingUtils._string_to_datetime)
         # df = res_df.loc[:, ~res_df.columns.str.contains('Surface Inside

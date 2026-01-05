@@ -18,7 +18,6 @@ from OCC.Core.Bnd import Bnd_Box
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.GProp import GProp_GProps
 from OCC.Core.ShapeUpgrade import ShapeUpgrade_UnifySameDomain
-from OCC.Core import gp
 from OCC.Core.gp import gp_Trsf, gp_Vec, gp_XYZ, gp_Pnt, \
     gp_Mat, gp_Quaternion
 from ifcopenshell import guid
@@ -256,25 +255,6 @@ class ThermalZone(BPSProduct):
         bbox_center = ifcopenshell.geom.utils.get_bounding_box_center(bbox)
         return bbox_center
 
-    def _get_space_corners(self, name):
-        """
-        This function returns the corners of the bounding box of an ifc space
-        shape
-        :return: corners of space bounding box (gp_Pnt,gp_Pnt)
-        """
-        bbox = Bnd_Box()
-        brepbndlib.Add(self.space_shape, bbox)
-
-        bbmin = [0.0] * 3
-        bbmax = [0.0] * 3
-
-        bbmin[0], bbmin[1], bbmin[2], bbmax[0], bbmax[1], bbmax[2] = bbox.Get()
-
-        min_point = gp.gp_Pnt(bbmin[0], bbmin[1], bbmin[2])
-        max_point = gp.gp_Pnt(bbmax[0], bbmax[1], bbmax[2])
-
-        return min_point, max_point
-
     def _get_footprint_shape(self, name):
         """
         This function returns the footprint of a space shape. This can be
@@ -319,29 +299,43 @@ class ThermalZone(BPSProduct):
             space_name = self.ifc.Name
         return space_name
 
-    def _get_bound_floor_area(self, name):
+    def get_bound_floor_area(self, name):
         """Get bound floor area of zone. This is currently set by sum of all
         horizontal gross area and take half of it due to issues with
         TOP BOTTOM"""
-        bound_floor_area = 0
+        leveled_areas = {}
+        for height, sbs in self.horizontal_sbs.items():
+            if height not in leveled_areas:
+                leveled_areas[height] = 0
+            leveled_areas[height] += sum([sb.bound_area for sb in sbs])
 
-        for sb in self.sbs_without_corresponding:
-            if sb.top_bottom == BoundaryOrientation.bottom:
-                bound_floor_area += sb.bound_area
-
-        return bound_floor_area
+        return sum(leveled_areas.values()) / 2
 
     def get_net_bound_floor_area(self, name):
         """Get net bound floor area of zone. This is currently set by sum of all
         horizontal net area and take half of it due to issues with TOP BOTTOM."""
+        leveled_areas = {}
+        for height, sbs in self.horizontal_sbs.items():
+            if height not in leveled_areas:
+                leveled_areas[height] = 0
+            leveled_areas[height] += sum([sb.net_bound_area for sb in sbs])
 
-        net_bound_floor_area = 0
+        return sum(leveled_areas.values()) / 2
 
+    def _get_horizontal_sbs(self, name):
+        """get all horizonal SBs in a zone and convert them into a dict with
+         key z-height in room and the SB as value."""
+        # todo: use only bottom when TOP bottom is working correctly
+        valid = [BoundaryOrientation.top, BoundaryOrientation.bottom]
+        leveled_sbs = {}
         for sb in self.sbs_without_corresponding:
-            if sb.top_bottom == BoundaryOrientation.bottom:
-                net_bound_floor_area += sb.net_bound_area
+            if sb.top_bottom in valid:
+                pos = round(sb.position[2], 1)
+                if pos not in leveled_sbs:
+                    leveled_sbs[pos] = []
+                leveled_sbs[pos].append(sb)
 
-        return net_bound_floor_area
+        return leveled_sbs
 
     def _area_specific_post_processing(self, value):
         return value / self.net_area
@@ -392,16 +386,16 @@ class ThermalZone(BPSProduct):
         functions=[_get_space_center]
     )
 
-    space_corners = attribute.Attribute(
-        description="Returns the corners of the bounding box of an ifc space "
-                    "shape.",
-        functions=[_get_space_corners]
-    )
-
     footprint_shape = attribute.Attribute(
         description="Returns the footprint of a space shape, which can be "
                     "used e.g., to visualize floor plans.",
         functions=[_get_footprint_shape]
+    )
+
+    horizontal_sbs = attribute.Attribute(
+        description="All horizontal space boundaries in a zone as dict. Key is" 
+                    " the z-zeight in the room and value the SB.",
+        functions=[_get_horizontal_sbs]
     )
 
     zone_name = attribute.Attribute(
@@ -466,11 +460,13 @@ class ThermalZone(BPSProduct):
     )
 
     gross_area = attribute.Attribute(
-        functions=[_get_bound_floor_area],
+        default_ps=("Qto_SpaceBaseQuantities", "GrossFloorArea"),
+        functions=[get_bound_floor_area],
         unit=ureg.meter ** 2
     )
 
     net_area = attribute.Attribute(
+        default_ps=("Qto_SpaceBaseQuantities", "NetFloorArea"),
         functions=[get_net_bound_floor_area],
         unit=ureg.meter ** 2
     )
@@ -631,7 +627,6 @@ class ThermalZone(BPSProduct):
     )
 
     base_infiltration = attribute.Attribute(
-        # unit=1/ureg.hour
     )
 
     max_user_infiltration = attribute.Attribute(
@@ -647,18 +642,11 @@ class ThermalZone(BPSProduct):
     )
 
     min_ahu = attribute.Attribute(
-        unit=ureg.meter ** 3 / (ureg.meter ** 2 * ureg.s),
-        description="Zone area specific minimum air flow supplied by the "
-                "AHU. Absolute profile will be calculated with the "
-                "Building attribute ahu_v_flow_profile."
     )
-    # TODO
+
     max_ahu = attribute.Attribute(
         default_ps=("Pset_AirSideSystemInformation", "TotalAirflow"),
-        unit=ureg.meter ** 3 / ureg.h / ureg.meter ** 2,
-        description="Zone area specific maximum air flow supplied by the "
-                "AHU. Absolute profile will be calculated with the "
-                "Building attribute ahu_v_flow_profile."
+        unit=ureg.meter ** 3 / ureg.s
     )
 
     with_ideal_thresholds = attribute.Attribute(
@@ -1142,7 +1130,7 @@ class SpaceBoundary(RelationBased):
 
     level_description = attribute.Attribute(
         functions=[get_level_description],
-        # Todo this should be removed in near future. We should either 
+        # Todo this should be removed in near future. We should either
         #  find # a way to distinguish the level of SB by something
         #  different or should check this during the creation of SBs
         #  and throw an error if the level is not defined.
@@ -1257,13 +1245,13 @@ class Wall(BPSProductWithLayers):
         return OuterWall if self.is_external else InnerWall
 
     net_area = attribute.Attribute(
-        # default_ps=("Qto_WallBaseQuantities", "NetSideArea"),
+        default_ps=("Qto_WallBaseQuantities", "NetSideArea"),
         functions=[BPSProduct.get_net_bound_area],
         unit=ureg.meter ** 2
     )
 
     gross_area = attribute.Attribute(
-        # default_ps=("Qto_WallBaseQuantities", "GrossSideArea"),
+        default_ps=("Qto_WallBaseQuantities", "GrossSideArea"),
         functions=[BPSProduct.get_bound_area],
         unit=ureg.meter ** 2
     )
@@ -1527,7 +1515,7 @@ class Window(BPSProductWithLayers):
     )
 
     gross_area = attribute.Attribute(
-        # default_ps=("Qto_WindowBaseQuantities", "Area"),
+        default_ps=("Qto_WindowBaseQuantities", "Area"),
         functions=[BPSProduct.get_bound_area],
         unit=ureg.meter ** 2
     )
@@ -1605,7 +1593,7 @@ class Door(BPSProductWithLayers):
     )
 
     gross_area = attribute.Attribute(
-        # default_ps=("Qto_DoorBaseQuantities", "Area"),
+        default_ps=("Qto_DoorBaseQuantities", "Area"),
         functions=[BPSProduct.get_bound_area],
         unit=ureg.meter ** 2
     )
@@ -1681,11 +1669,13 @@ class Slab(BPSProductWithLayers):
         return -1
 
     net_area = attribute.Attribute(
+        default_ps=("Qto_SlabBaseQuantities", "NetArea"),
         functions=[BPSProduct.get_net_bound_area],
         unit=ureg.meter ** 2
     )
 
     gross_area = attribute.Attribute(
+        default_ps=("Qto_SlabBaseQuantities", "GrossArea"),
         functions=[BPSProduct.get_bound_area],
         unit=ureg.meter ** 2
     )
@@ -1892,25 +1882,32 @@ class Building(BPSProduct):
     occupancy_type = attribute.Attribute(
         default_ps=("Pset_BuildingCommon", "OccupancyType"),
     )
+
     avg_storey_height = attribute.Attribute(
         unit=ureg.meter,
         functions=[_get_avg_storey_height]
     )
+
     with_ahu = attribute.Attribute(
         functions=[_check_tz_ahu]
     )
+
     ahu_heating = attribute.Attribute(
         attr_type=bool
     )
+
     ahu_cooling = attribute.Attribute(
         attr_type=bool
     )
+
     ahu_dehumidification = attribute.Attribute(
         attr_type=bool
     )
+
     ahu_humidification = attribute.Attribute(
         attr_type=bool
     )
+
     ahu_heat_recovery = attribute.Attribute(
         attr_type=bool
     )

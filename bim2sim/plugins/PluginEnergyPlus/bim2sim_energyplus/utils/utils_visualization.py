@@ -118,8 +118,7 @@ class VisualizationUtils:
         Returns:
             df: pandas dataframe
         """
-        with open(csv_name, "r") as csv_file:
-            res_df = pd.read_csv(csv_file)
+        res_df = pd.read_csv(csv_name)
         # extract data that includes the column_key
         df = PostprocessingUtils._extract_cols_from_df(
             res_df, column_key)

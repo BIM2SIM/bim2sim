@@ -11,39 +11,32 @@ class ComfortUtils:
     def convert_use_conditions_to_xls(json_file, result_path=""):
         """ convert a given UseConditions.json file to .xls.
         """
-        with open(json_file, "r") as file:
-            df_json = pd.read_json(file)
+        df_json = pd.read_json(json_file)
         df_json = df_json.transpose()
         df_json.to_excel(result_path + 'UseConditions_EXTENDED.xlsx')
 
     @staticmethod
     def new_empty_json_keeping_first_keys(json_file):
-        with open(json_file, "r") as file:
-            df_json = pd.read_json(file)
+        df_json = pd.read_json(json_file)
         json_keys = df_json.keys()
         new_json = pd.DataFrame(index=json_keys, columns=['clo', 'met'])
         new_json.to_excel('EmptyUseConditions.xlsx')
 
     @staticmethod
     def convert_xlsx_to_json(xls_name, json_name):
-        with open(xls_name, "rb") as excel_file:
-            file = pd.read_excel(excel_file, engine="openpyxl")
+        file = pd.read_excel(xls_name)
         json_file = file.to_json(json_name)
 
     @staticmethod
     def convert_csv_to_json(csv_name, json_name, sep=';'):
-        with open(csv_name, "r") as csv_file:
-            file = pd.read_csv(csv_file, sep=sep, index_col=0).transpose()
+        file = pd.read_csv(filepath_or_buffer=csv_name, sep=sep,
+                           index_col=0).transpose()
         json_file = file.to_json(json_name, indent=4)
 
     @staticmethod
     def extend_use_conditions(json_name, use_conditions):
-        with open(use_conditions, "r") as f:
-            json_file = pd.read_json(f)
-        file = json_file.transpose()
-        with open(json_name, "r") as f:
-            json_file = pd.read_json(f)
-        new_parameters_json = json_file.transpose()
+        file = pd.read_json(use_conditions).transpose()
+        new_parameters_json = pd.read_json(json_name).transpose()
 
         # replace TEASER Template Values with new derived values from
         # ISO7730 and ASHRAE
@@ -80,4 +73,3 @@ if __name__ == '__main__':
         r'\activity_clothing_ISO7730_ASHRAE_V002.csv', new_json_name)
     ComfortUtils.extend_use_conditions(new_json_name, usage_path /
                                        'UseConditions.json')
-

@@ -261,12 +261,6 @@ class PathSetting(Setting):
 class BooleanSetting(Setting):
     value: Optional[bool]
 
-class LockSetting(Setting):
-    def check_value(self, bound_simulation_settings, value):
-        if not isinstance(value, type(threading.Lock())):
-            raise ValueError(f"The provided value {value} is not a Lock")
-        else:
-            return True
 
 class GuidListSetting(Setting):
     value: Optional[List[str]] = None
