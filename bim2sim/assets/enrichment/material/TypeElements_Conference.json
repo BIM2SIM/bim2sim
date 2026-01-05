@@ -1,17 +1,63 @@
 {
   "version": "Custom templates with varying OuterWall U-values based on TEASER KfW40 templates",
+  "Window_[2016, 2100]_Holzfenster, zweifach": {
+    "building_age_group": [
+      2016,
+      2100
+    ],
+    "construction_data": "Holzfenster, zweifach",
+    "inner_radiation": 5.0,
+    "inner_convection": 2.7,
+    "outer_radiation": 5.0,
+    "outer_convection": 20.0,
+    "g_value": 0.67,
+    "a_conv": 0.03,
+    "shading_g_total": 1.0,
+    "shading_max_irr": 100.0,
+    "layer": {
+      "0": {
+        "thickness": 0.024,
+        "material": {
+          "name": "Glas1995_2015Holzfensterzweifach",
+          "material_id": "0abbb19d-83ff-11e6-b8bb-2cd444b2e704"
+        }
+      }
+    }
+  },
+  "Window_[2016, 2100]_Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach": {
+    "building_age_group": [
+      2016,
+      2100
+    ],
+    "construction_data": "Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach",
+    "inner_radiation": 5.0,
+    "inner_convection": 2.7,
+    "outer_radiation": 5.0,
+    "outer_convection": 20.0,
+    "g_value": 0.65,
+    "a_conv": 0.07,
+    "shading_g_total": 1.0,
+    "shading_max_irr": 100.0,
+    "layer": {
+      "0": {
+        "thickness": 0.024,
+        "material": {
+          "name": "Glas1995_2015AluoderStahlfensterWaermeschutzverglasungzweifach",
+          "material_id": "0abbb1a1-83ff-11e6-b229-2cd444b2e704"
+        }
+      }
+    }
+  },
   "Window_[2016, 2100]_Waermeschutzverglasung, dreifach": {
-    "_comment": "from TypeElements_IWU",
     "building_age_group": [
       2016,
       2100
     ],
     "construction_data": "Waermeschutzverglasung, dreifach",
-    "inner_radiation": 5,
+    "inner_radiation": 5.0,
     "inner_convection": 2.7,
     "outer_radiation": 5.0,
     "outer_convection": 20.0,
-    "u_value": 0.8,
     "g_value": 0.5,
     "a_conv": 0.07,
     "shading_g_total": 1.0,
@@ -22,30 +68,6 @@
         "material": {
           "name": "Glas1995_2015Waermeschutzverglasungdreifach",
           "material_id": "0abbb1a2-83ff-11e6-946a-2cd444b2e704"
-        }
-      }
-    }
-  },
-  "Window_[1995, 2100]_EnEv": {
-    "building_age_group": [
-      2016,
-      2100
-    ],
-    "construction_data": "EnEv",
-    "inner_radiation": 5.0,
-    "inner_convection": 2.7,
-    "outer_radiation": 5.0,
-    "outer_convection": 20.0,
-    "g_value": 0.6,
-    "a_conv": 0.03,
-    "shading_g_total": 1.0,
-    "shading_max_irr": 100.0,
-    "layer": {
-      "0": {
-        "thickness": 0.024,
-        "material": {
-          "name": "Glas1995_2015EnEV",
-          "material_id": "36eb3906-855e-11e6-a498-2cd444b2e704"
         }
       }
     }
@@ -244,7 +266,7 @@
       2016,
       2100
     ],
-    "construction_data": "kfw_40",
+    "construction_data": "Standard_0_10",
     "inner_radiation": 5,
     "inner_convection": 2.7,
     "u_value": 0.69,
@@ -278,7 +300,7 @@
       2016,
       2100
     ],
-    "construction_data": "kfw_40",
+    "construction_data": "Standard_0_10",
     "inner_radiation": 5,
     "inner_convection": 1.7,
     "u_value": 0.53,
@@ -312,7 +334,7 @@
       2016,
       2100
     ],
-    "construction_data": "kfw_40",
+    "construction_data": "Standard_0_10",
     "inner_radiation": 5,
     "inner_convection": 1.7,
     "u_value": 0.53,
@@ -339,12 +361,12 @@
         }
       },
       "3": {
-            "thickness": 0.01,
-            "material": {
-              "name": "parquet",
-              "material_id": "c21ad9d2-8859-11ee-bcb0-e8b1fc95108b"
-            }
+        "thickness": 0.01,
+        "material": {
+          "name": "parquet",
+          "material_id": "c21ad9d2-8859-11ee-bcb0-e8b1fc95108b"
         }
+      }
     }
   },
   "OuterWall_[2016, 2100]_Standard_0_15": {
@@ -541,7 +563,7 @@
       2016,
       2100
     ],
-    "construction_data": "kfw_40",
+    "construction_data": "Standard_0_15",
     "inner_radiation": 5,
     "inner_convection": 2.7,
     "u_value": 0.69,
@@ -575,7 +597,7 @@
       2016,
       2100
     ],
-    "construction_data": "kfw_40",
+    "construction_data": "Standard_0_15",
     "inner_radiation": 5,
     "inner_convection": 1.7,
     "u_value": 0.53,
@@ -609,7 +631,7 @@
       2016,
       2100
     ],
-    "construction_data": "kfw_40",
+    "construction_data": "Standard_0_15",
     "inner_radiation": 5,
     "inner_convection": 1.7,
     "u_value": 0.53,
@@ -636,12 +658,12 @@
         }
       },
       "3": {
-            "thickness": 0.01,
-            "material": {
-              "name": "parquet",
-              "material_id": "c21ad9d2-8859-11ee-bcb0-e8b1fc95108b"
-            }
+        "thickness": 0.01,
+        "material": {
+          "name": "parquet",
+          "material_id": "c21ad9d2-8859-11ee-bcb0-e8b1fc95108b"
         }
+      }
     }
   },
   "OuterWall_[2016, 2100]_Standard_0_20": {
@@ -838,7 +860,7 @@
       2016,
       2100
     ],
-    "construction_data": "kfw_40",
+    "construction_data": "Standard_0_2",
     "inner_radiation": 5,
     "inner_convection": 2.7,
     "u_value": 0.69,
@@ -872,7 +894,7 @@
       2016,
       2100
     ],
-    "construction_data": "kfw_40",
+    "construction_data": "Standard_0_2",
     "inner_radiation": 5,
     "inner_convection": 1.7,
     "u_value": 0.53,
@@ -906,7 +928,7 @@
       2016,
       2100
     ],
-    "construction_data": "kfw_40",
+    "construction_data": "Standard_0_2",
     "inner_radiation": 5,
     "inner_convection": 1.7,
     "u_value": 0.53,
@@ -933,12 +955,12 @@
         }
       },
       "3": {
-            "thickness": 0.01,
-            "material": {
-              "name": "parquet",
-              "material_id": "c21ad9d2-8859-11ee-bcb0-e8b1fc95108b"
-            }
+        "thickness": 0.01,
+        "material": {
+          "name": "parquet",
+          "material_id": "c21ad9d2-8859-11ee-bcb0-e8b1fc95108b"
         }
+      }
     }
   },
   "OuterWall_[2016, 2100]_Standard_0_25": {
@@ -1135,7 +1157,7 @@
       2016,
       2100
     ],
-    "construction_data": "kfw_40",
+    "construction_data": "Standard_0_25",
     "inner_radiation": 5,
     "inner_convection": 2.7,
     "u_value": 0.69,
@@ -1169,7 +1191,7 @@
       2016,
       2100
     ],
-    "construction_data": "kfw_40",
+    "construction_data": "Standard_0_25",
     "inner_radiation": 5,
     "inner_convection": 1.7,
     "u_value": 0.53,
@@ -1203,7 +1225,7 @@
       2016,
       2100
     ],
-    "construction_data": "kfw_40",
+    "construction_data": "Standard_0_25",
     "inner_radiation": 5,
     "inner_convection": 1.7,
     "u_value": 0.53,
@@ -1230,12 +1252,12 @@
         }
       },
       "3": {
-            "thickness": 0.01,
-            "material": {
-              "name": "parquet",
-              "material_id": "c21ad9d2-8859-11ee-bcb0-e8b1fc95108b"
-            }
+        "thickness": 0.01,
+        "material": {
+          "name": "parquet",
+          "material_id": "c21ad9d2-8859-11ee-bcb0-e8b1fc95108b"
         }
+      }
     }
   },
   "OuterWall_[2016, 2100]_Standard_0_30": {
@@ -1432,7 +1454,7 @@
       2016,
       2100
     ],
-    "construction_data": "kfw_40",
+    "construction_data": "Standard_0_3",
     "inner_radiation": 5,
     "inner_convection": 2.7,
     "u_value": 0.69,
@@ -1466,7 +1488,7 @@
       2016,
       2100
     ],
-    "construction_data": "kfw_40",
+    "construction_data": "Standard_0_3",
     "inner_radiation": 5,
     "inner_convection": 1.7,
     "u_value": 0.53,
@@ -1500,7 +1522,7 @@
       2016,
       2100
     ],
-    "construction_data": "kfw_40",
+    "construction_data": "Standard_0_3",
     "inner_radiation": 5,
     "inner_convection": 1.7,
     "u_value": 0.53,
@@ -1527,12 +1549,12 @@
         }
       },
       "3": {
-            "thickness": 0.01,
-            "material": {
-              "name": "parquet",
-              "material_id": "c21ad9d2-8859-11ee-bcb0-e8b1fc95108b"
-            }
+        "thickness": 0.01,
+        "material": {
+          "name": "parquet",
+          "material_id": "c21ad9d2-8859-11ee-bcb0-e8b1fc95108b"
         }
+      }
     }
   },
   "OuterWall_[2016, 2100]_Standard_0_35": {
@@ -1729,7 +1751,7 @@
       2016,
       2100
     ],
-    "construction_data": "kfw_40",
+    "construction_data": "Standard_0_35",
     "inner_radiation": 5,
     "inner_convection": 2.7,
     "u_value": 0.69,
@@ -1763,7 +1785,7 @@
       2016,
       2100
     ],
-    "construction_data": "kfw_40",
+    "construction_data": "Standard_0_35",
     "inner_radiation": 5,
     "inner_convection": 1.7,
     "u_value": 0.53,
@@ -1797,7 +1819,7 @@
       2016,
       2100
     ],
-    "construction_data": "kfw_40",
+    "construction_data": "Standard_0_35",
     "inner_radiation": 5,
     "inner_convection": 1.7,
     "u_value": 0.53,
@@ -1824,12 +1846,12 @@
         }
       },
       "3": {
-            "thickness": 0.01,
-            "material": {
-              "name": "parquet",
-              "material_id": "c21ad9d2-8859-11ee-bcb0-e8b1fc95108b"
-            }
+        "thickness": 0.01,
+        "material": {
+          "name": "parquet",
+          "material_id": "c21ad9d2-8859-11ee-bcb0-e8b1fc95108b"
         }
+      }
     }
   }
 }
