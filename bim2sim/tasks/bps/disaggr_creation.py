@@ -54,6 +54,9 @@ class DisaggregationCreationAndTypeCheck(ITask):
                         bps_product_layer_ele in
                         all_subclasses(BPSProductWithLayers)]):
                 continue
+            # todo overlapping roofs have only one SB but not all area of roof
+            #  is relevant for thermal transfer, how to proceed?
+
             # no disaggregation needed
             if len(ele.space_boundaries) < 2:
                 self.logger.info(f'No disggregation needed for {ele}')

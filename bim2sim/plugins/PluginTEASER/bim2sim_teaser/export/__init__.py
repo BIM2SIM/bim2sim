@@ -1,7 +1,6 @@
 """Package for TEASER export"""
 
 import logging
-from threading import Lock
 from typing import Union, Type, Dict, Container, Tuple, Callable, List
 
 import pint
@@ -15,7 +14,6 @@ from bim2sim.elements.base_elements import Element
 from bim2sim.elements.base_elements import Dummy as ElementDummy
 from bim2sim.utilities.types import BoundaryOrientation
 
-lock = Lock()
 
 logger = logging.getLogger(__name__)
 user_logger = log.get_user_logger(__name__)

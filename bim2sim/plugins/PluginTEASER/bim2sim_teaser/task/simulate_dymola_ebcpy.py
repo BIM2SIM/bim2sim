@@ -1,5 +1,8 @@
 import re
 from pathlib import Path
+import subprocess
+import time
+import psutil
 
 from ebcpy import DymolaAPI
 
@@ -9,11 +12,11 @@ from bim2sim.tasks.base import ITask
 
 class SimulateModelEBCPy(ITask):
     """Simulate TEASER model, run() method holds detailed information."""
-    reads = ('bldg_names',)
+    reads = ('bldg_names', 'teaser_prj')
     touches = ('sim_results_path',)
     final = True
 
-    def run(self, bldg_names):
+    def run(self, bldg_names, teaser_prj):
         """Simulates the exported TEASER model by using ebcpy.
 
         The Modelica model that is created through TEASER is simulated by using
@@ -30,6 +33,8 @@ class SimulateModelEBCPy(ITask):
             sim_results_path: path where the sim results are stored, including
                 the subdirectory with the model name
         """
+        self.lock = self.playground.sim_settings.lock
+        
         if not self.playground.sim_settings.dymola_simulation:
             self.logger.warning(
                 f"Skipping task {self.name} as sim_setting 'dymola_simulation' "
@@ -96,12 +101,13 @@ class SimulateModelEBCPy(ITask):
                         n_restart=-1,
                         equidistant_output=True,
                         debug=True
-                    )
+                        )
                 except Exception:
                     raise Exception(
                         "Dymola API could not be initialized, there"
                         "are several possible reasons."
                         " One could be a missing Dymola license.")
+
                 dym_api.set_sim_setup(sim_setup=simulation_setup)
                 # activate spare solver as TEASER models are mostly sparse
                 dym_api.dymola.ExecuteCommand(
@@ -113,10 +119,101 @@ class SimulateModelEBCPy(ITask):
                 )
                 if teaser_mat_result_path:
                     n_success += 1
+
+                if self.playground.sim_settings.edit_mat_result_file_flag:
+                    mos_file_path = self.edit_mat_result_file(teaser_prj, bldg_name, bldg_result_dir)
+                    dym_api.dymola.RunScript(mos_file_path)
+                    time.sleep(10)
+                dym_api.close()
             self.playground.sim_settings.simulated = True
             self.logger.info(f"Successfully simulated "
                              f"{n_success}/{len(bldg_names)}"
                              f" Simulations.")
             self.logger.info(f"You can find the results under "
                              f"{str(sim_results_path)}")
+
+
             return sim_results_path,
+
+
+    def edit_mat_result_file(self, teaser_prj, bldg_name, bldg_result_dir):
+        """Creates .mos script to extract specific data out of dymola mat result file
+            and safe it to a new .mat file
+
+        Args:
+            teaser_prj: teaser project instance (to extract number of thermal zones in building)
+            bldg_result_dir: Path to dymola result directory
+        Returns:
+            mos_script_post_path: Path to created .mos script
+        """
+        #TODO Make generic with input simsettings.var_names
+
+        var_names_heating = [
+            "multizonePostProcessing.PHeater",
+            "multizonePostProcessing.WHeaterSum"
+        ]
+        var_names_cooling = [
+            "multizonePostProcessing.PCooler",
+            "multizonePostProcessing.WCoolerSum"
+        ]
+        var_names_ahu = [
+            "multizonePostProcessing.PelAHU",
+            "multizonePostProcessing.PHeatAHU",
+            "multizonePostProcessing.PCoolAHU"
+        ]
+
+        zone_var = [
+            "multizonePostProcessing.PHeater",
+            "multizonePostProcessing.PCooler"
+        ]
+
+        var_names = var_names_heating
+        if self.playground.sim_settings.cooling:
+            var_names += var_names_cooling
+        if self.playground.sim_settings.overwrite_ahu_by_settings:
+            var_names += var_names_ahu
+
+
+        for building in teaser_prj.buildings:
+            if bldg_name == building.name:
+                n = len(building.thermal_zones) # number of thermal zones
+
+        script = f'cd("{str(bldg_result_dir)}");\n'
+        script += f'resultFile = "teaser_results.mat";\n'
+        script += f'outName = "teaser_results_edited.mat";\n\n'
+        script += 'varNames = {"Time",\n'
+
+        # Internal gains
+        for i in range(1, n + 1):
+            script += f'"multizonePostProcessing.QIntGains_flow[{i}, 1]",\n'
+            script += f'"multizonePostProcessing.QIntGains_flow[{i}, 2]",\n'
+            script += f'"multizonePostProcessing.QIntGains_flow[{i}, 3]",\n'
+        for var in var_names:
+            if var in zone_var:
+                for i in range(1, n + 1):
+                    script += f'"{var}[{i}]",\n'
+            else:
+                if var != var_names[-1]:
+                    script += f'"{var}",\n'
+                else:
+                    script += f'"{var}"\n'
+
+        script += '};\n\n'
+        script += f'n = readTrajectorySize(resultFile);\n'
+        script += f'writeTrajectory(outName, varNames, transpose(readTrajectory(resultFile, varNames, n)));'
+
+        mos_file_path = bldg_result_dir / "edit_result_file.mos"
+        with self.lock:
+            with open(mos_file_path, 'w') as file:
+                file.write(script)
+
+        if isinstance(mos_file_path, Path):
+            mos_file_path = str(mos_file_path)
+
+        mos_file_path = mos_file_path.replace("\\", "/")
+        # Search for e.g. "D:testzone" and replace it with D:/testzone
+        loc = mos_file_path.find(":")
+        if mos_file_path[loc + 1] != "/" and loc != -1:
+            path = mos_file_path.replace(":", ":/")
+
+        return mos_file_path

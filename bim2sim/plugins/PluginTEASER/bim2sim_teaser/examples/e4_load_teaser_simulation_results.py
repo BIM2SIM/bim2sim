@@ -8,13 +8,10 @@ from e1_simple_project_bps_teaser import run_example_simple_building_teaser
 
 
 def run_example_load_existing_project():
-    """Run a building performance simulation with the TEASER backend.
+    """Load an existing TEASER simulation project and work with it.
 
-    This example runs a BPS with the TEASER backend. Specifies project
-    directory and location of the IFC file. Then, it creates a bim2sim
-    project with the TEASER backend. Workflow settings are specified (here,
-    the zoning setup is specified to be with a medium level of detail),
-    before the project is executed with the previously specified settings.
+    # TODO
+    ...
     """
     # First run the previous example e1: run_example_simple_building_teaser
     project = run_example_simple_building_teaser()
@@ -23,7 +20,6 @@ def run_example_load_existing_project():
     # postprocessing, we don't need to run it again. Therefore we get the
     # project path from the previous run
     #
-    print(project)
     project_path_existing = project.paths.root
 
     # Set the project path to the previous executed project

@@ -1,0 +1,6 @@
+openpyxl
+itertools
+#pandapipes
+git+https://github.com/e2nIEE/pandapipes@develop
+requests
+pathlib

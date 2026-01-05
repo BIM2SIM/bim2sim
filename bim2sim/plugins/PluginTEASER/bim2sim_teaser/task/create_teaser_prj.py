@@ -21,7 +21,8 @@ class CreateTEASER(ITask):
         """Creates the TEASER project based on `bim2sim` elements.
 
         The previous created and enriched `bim2sim` elements are used to
-        parametrize a TEASER project instance. Therefore we map each `bim2sim`
+        parametrize a TEASER pro
+        ject instance. Therefore we map each `bim2sim`
         element to it's corresponding TEASER element.
 
         Args:
@@ -68,6 +69,9 @@ class CreateTEASER(ITask):
             instance.collect_params()
 
         self.prepare_export(exported_buildings)
+
+        teaser_prj.number_of_elements_calc = (
+            self.playground.sim_settings.number_elements_calc)
         teaser_prj.calc_all_buildings()
         orig_heat_loads, orig_cool_loads =\
             self.overwrite_heatloads(exported_buildings)

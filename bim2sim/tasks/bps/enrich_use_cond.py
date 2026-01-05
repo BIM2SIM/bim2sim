@@ -32,14 +32,19 @@ class EnrichUseConditions(ITask):
         # case no thermal zones found
         if len(tz_elements) == 0:
             self.logger.warning("Found no spaces to enrich")
-        else:
-            custom_use_cond_path = (
-                self.playground.sim_settings.prj_use_conditions)
-            custom_usage_path = \
-                self.playground.sim_settings.prj_custom_usages
+            return
+        custom_use_cond_path = (
+            self.playground.sim_settings.prj_use_conditions)
+        custom_usage_path = \
+            self.playground.sim_settings.prj_custom_usages
 
-            self.logger.info("enriches thermal zones usage")
-            self.use_conditions = get_use_conditions_dict(custom_use_cond_path)
+        self.logger.info("Enriching thermal zones usage")
+        self.use_conditions = get_use_conditions_dict(custom_use_cond_path)
+        if self.playground.sim_settings.fixed_usage is not None:
+            final_usages = {}
+            for tz in tz_elements.values():
+                final_usages[tz] = self.playground.sim_settings.fixed_usage
+        else:
             pattern_usage = get_pattern_usage(self.use_conditions,
                                               custom_usage_path)
             final_usages = yield from self.enrich_usages(
@@ -48,6 +53,15 @@ class EnrichUseConditions(ITask):
                 orig_usage = tz.usage
                 tz.usage = usage
                 self.load_usage(tz)
+                # overwrite lighting power if use_maintained_illuminance == True
+
+                if tz.use_maintained_illuminance == None:
+                    tz.use_maintained_illuminance = False
+                if tz.use_maintained_illuminance:
+                    tz.lighting_power = tz.maintained_illuminance / tz.lighting_efficiency_lumen
+                else:
+                    tz.lighting_power = tz.fixed_lighting_power
+
                 # overwrite loaded heating and cooling profiles with
                 # template values if setpoints_from_template == True
                 if self.playground.sim_settings.setpoints_from_template:
@@ -220,7 +234,7 @@ class EnrichUseConditions(ITask):
             thermal_zones: dict with tz elements guid as key and the element
             itself as value
         Returns:
-            final_usages: key: str of usage type, value: ThermalZone element
+            final_usages: key: ThermalZone element, value: str of usage type
 
         """
         # selected_usage = {}

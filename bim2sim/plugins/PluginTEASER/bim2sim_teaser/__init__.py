@@ -21,6 +21,7 @@ class LoadLibrariesTEASER(base.ITask):
 class PluginTEASER(Plugin):
     name = 'TEASER'
     sim_settings = TEASERSimSettings
+
     default_tasks = [
         common.LoadIFC,
         # common.CheckIfc,
@@ -40,6 +41,6 @@ class PluginTEASER(Plugin):
         common.SerializeElements,
         teaser_task.ExportTEASER,
         teaser_task.SimulateModelEBCPy,
-        teaser_task.CreateResultDF,
-        bps.PlotBEPSResults,
+        #teaser_task.CreateResultDF,
+        #bps.PlotBEPSResults,
     ]

@@ -249,7 +249,8 @@ class EnrichMaterial(ITask):
             'Kunststofffenster, Isolierverglasung',
             'Alu- oder Stahlfenster, Isolierverglasung',
             'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
-            'Waermeschutzverglasung, dreifach'
+            'Waermeschutzverglasung, dreifach',
+            'EnEv'
         ]
 
         if construction_type == 'window' and any(

@@ -72,6 +72,7 @@ namespaces = false
 bim2sim = "bim2sim.__main__:commandline_interface"
 
 [project.optional-dependencies]
+
 PluginTEASER = [
     "pyqt5",
     "pillow",
@@ -80,8 +81,11 @@ PluginTEASER = [
     "ebcpy",
     "reportlab",
     "svglib",
-    "TEASER[report]==1.1.0",
+    "TEASER[report]@git+https://github.com/RWTH-EBC/TEASER.git@simplified_transfer_and_ahu",
     "BuildingsPy@git+https://github.com/DaJansenGit/BuildingsPy.git",
+    "reportlab",
+    "svglib",
+    "psutil"
 ]
 PluginEnergyPlus = [
     "shapely",
@@ -102,8 +106,25 @@ PluginCFD = [ # prepared to add dependencies, same installtion routine like othe
 PluginHKESim = [
     "pyvis@git+https://github.com/squidKid-deluxe/pyvis@fix-show#egg=pyvis",
 ]
-PluginLCA = [ # prepared to add dependencies, same installtion routine like other plugins
+PluginHydraulicSystem = [
+    "colebrook",
+    "colorama",
+    "ebcpy",
+    "pathlib",
+    "shapely",
 ]
+PluginVentilationSystem = [
+    "openpyxl",
+    #"e2nIEE@git+https://github.com/e2nIEE/pandapipes@develop",
+    "pandapipes",
+    "requests",
+    "pathlib",
+]
+PluginLCA = [
+    "pathlib",
+    "requests",
+]
+
 PluginComfort = [
     "pyqt5",
     "shapely",

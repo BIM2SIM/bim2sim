@@ -301,7 +301,7 @@ def generate_plugin_structure_fig(path_file: str,
     except FileNotFoundError as e:
         print(e)
         print("Pls choose an existing (absolut) path.")
-        print("At the end of the path add the filename.")
+        print("At the end of the path add the filepath.")
 
 
 if __name__ == '__main__':

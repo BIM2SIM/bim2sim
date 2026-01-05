@@ -15,8 +15,6 @@
   },
   "OuterWall": {
     "default_ps": {
-      "net_area": ["BaseQuantities", "NetSideArea"],
-      "gross_area": ["BaseQuantities", "GrossSideArea"],
       "width": ["BaseQuantities", "Width"],
       "height": ["BaseQuantities", "Height"],
       "tilt": ["ArchiCADProperties", "\u00c4u\u00dferer Neigungswinkel"],
@@ -26,8 +24,6 @@
   },
   "InnerWall": {
     "default_ps": {
-      "net_area": ["BaseQuantities", "NetSideArea"],
-      "gross_area": ["BaseQuantities", "GrossSideArea"],
       "width": ["BaseQuantities", "Width"],
       "height": ["BaseQuantities", "Height"],
       "tilt": ["ArchiCADProperties", "\u00c4u\u00dferer Neigungswinkel"],
@@ -37,8 +33,6 @@
   },
   "Wall": {
     "default_ps": {
-      "net_area": ["BaseQuantities", "NetSideArea"],
-      "gross_area": ["BaseQuantities", "GrossSideArea"],
       "width": ["BaseQuantities", "Width"],
       "height": ["BaseQuantities", "Height"],
       "tilt": ["ArchiCADProperties", "\u00c4u\u00dferer Neigungswinkel"],
@@ -48,8 +42,6 @@
   },
   "Roof": {
     "default_ps": {
-      "net_area": ["BaseQuantities", "NetArea"],
-      "gross_area": ["BaseQuantities", "GrossArea"],
       "width" : ["BaseQuantities", "Width"],
       "u_value" : ["Pset_SlabCommon", "ThermalTransmittance"],
       "net_volume": ["BaseQuantities", "NetVolume"],
@@ -58,8 +50,6 @@
   },
   "Floor": {
     "default_ps": {
-      "net_area": ["BaseQuantities", "NetArea"],
-      "gross_area": ["BaseQuantities", "GrossArea"],
       "width" : ["BaseQuantities", "Width"],
       "net_volume": ["BaseQuantities", "NetVolume"],
       "gross_volume": ["BaseQuantities", "GrossVolume"]
@@ -67,8 +57,6 @@
   },
   "GroundFloor": {
     "default_ps": {
-      "net_area": ["BaseQuantities", "NetArea"],
-      "gross_area": ["BaseQuantities", "GrossArea"],
       "width" : ["BaseQuantities", "Width"],
       "net_volume": ["BaseQuantities", "NetVolume"],
       "gross_volume": ["BaseQuantities", "GrossVolume"]
@@ -76,9 +64,7 @@
   },
   "Window": {
     "default_ps": {
-      "net_area" : ["BaseQuantities", "Area"],
       "width" : ["BaseQuantities", "Depth"],
-      "glass_area": ["Konstruktion", "Glasflaeche"],
       "g_value": ["Analytische Eigenschaften (type)", "Gesamtenergiedurchlassgrad"],
       "glass_thickness": ["Konstruktion(type)", "Glasst\u00e4rke"],
       "net_volume": ["BaseQuantities", "Volume"]
@@ -86,7 +72,6 @@
   },
   "Door": {
     "default_ps": {
-      "gross_area" : ["BaseQuantities", "Area"],
       "width" : ["BaseQuantities", "Depth"],
       "u_value" : ["Pset_DoorCommon", "ThermalTransmittance"],
       "net_volume": ["BaseQuantities", "Volume"]
@@ -94,7 +79,6 @@
   },
   "InnerDoor": {
     "default_ps": {
-      "gross_area" : ["BaseQuantities", "Area"],
       "width" : ["BaseQuantities", "Depth"],
       "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"],
       "net_volume": ["BaseQuantities", "Volume"]
@@ -102,7 +86,6 @@
   },
   "OuterDoor": {
     "default_ps": {
-      "gross_area" : ["BaseQuantities", "Area"],
       "width" : ["BaseQuantities", "Depth"],
       "u_value" : ["Pset_WindowCommon", "ThermalTransmittance"],
       "net_volume": ["BaseQuantities", "Volume"]
@@ -111,8 +94,6 @@
   "ThermalZone": {
     "default_ps": {
       "zone_name" : ["ArchiCADProperties", "Raumname"],
-      "net_area": ["BaseQuantities", "NetFloorArea"],
-      "gross_area": ["BaseQuantities", "GrossFloorArea"],
       "height" : ["BaseQuantities", "Height"],
       "length" : ["BaseQuantities", "Length"],
       "net_volume" : ["BaseQuantities", "NetVolume"],

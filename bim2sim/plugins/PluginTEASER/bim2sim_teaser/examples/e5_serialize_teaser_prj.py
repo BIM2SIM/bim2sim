@@ -1,5 +1,6 @@
 import tempfile
 from pathlib import Path
+import threading
 
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
@@ -16,8 +17,7 @@ def run_serialize_teaser_project_example():
     """Serialize a TEASER Project for further use."""
     # Create the default logging to for quality log and bim2sim main log
     # (see logging documentation for more information)
-    project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
+    project_path = Path("D:\dja-jho\Testing\Test")
 
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
@@ -35,14 +35,18 @@ def run_serialize_teaser_project_example():
 
 
 
-    project.sim_settings.zoning_criteria = ZoningCriteria.usage
+    project.sim_settings.zoning_criteria = ZoningCriteria.individual_spaces
     # use cooling
-    project.sim_settings.cooling_tz_overwrite = False
+    project.sim_settings.cooling = False
     project.sim_settings.setpoints_from_template = True
 
-    project.sim_settings.ahu_heating_overwrite = True
-    project.sim_settings.ahu_cooling_overwrite = True
-    project.sim_settings.ahu_heat_recovery_overwrite = True
+    project.sim_settings.overwrite_ahu_by_settings = True
+    project.sim_settings.ahu_heating = True
+    project.sim_settings.ahu_cooling = True
+    project.sim_settings.ahu_heat_recovery = True
+    project.sim_settings.ahu_heat_recovery_efficiency = 0.8
+
+
 
     # overwrite existing layer structures and materials based on templates
     project.sim_settings.layers_and_materials = LOD.low
@@ -51,10 +55,11 @@ def run_serialize_teaser_project_example():
     project.sim_settings.construction_class_windows = \
         'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
 
+    # Set Lock class
+    project.sim_settings.lock = threading.Lock()
+
     # set weather file data
-    project.sim_settings.weather_file_path = (
-            Path(bim2sim.__file__).parent.parent /
-            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+    project.sim_settings.weather_file_path = fr"D:\dja-jho\Git\Dissertation_coding\outer_optimization\clustering\DEU_NW_Aachen.105010_TMYx2015.mos"
     # Run a simulation directly with dymola after model creation
     project.sim_settings.dymola_simulation = True
     # Make sure that AixLib modelica library exist on machine by cloning it and
@@ -62,8 +67,7 @@ def run_serialize_teaser_project_example():
     repo_url = "https://github.com/RWTH-EBC/AixLib.git"
     branch_name = "main"
     repo_name = "AixLib"
-    path_aixlib = (
-            Path(bim2sim.__file__).parent.parent / "local" / f"library_{repo_name}")
+    path_aixlib = (Path(bim2sim.__file__).parent.parent / "local" / f"library_{repo_name}")
     download_library(repo_url, branch_name, path_aixlib)
     project.sim_settings.path_aixlib = path_aixlib / repo_name / 'package.mo'
 

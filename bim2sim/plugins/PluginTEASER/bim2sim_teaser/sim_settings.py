@@ -1,5 +1,4 @@
-from bim2sim.sim_settings import BuildingSimSettings, ChoiceSetting, \
-    PathSetting
+from bim2sim.sim_settings import BuildingSimSettings, ChoiceSetting, PathSetting, BooleanSetting
 from bim2sim.utilities.types import LOD, ZoningCriteria
 
 
@@ -20,26 +19,36 @@ class TEASERSimSettings(BuildingSimSettings):
             "internal_gains_machines_rooms", "internal_gains_persons_rooms",
             "internal_gains_lights_rooms", "n_persons_rooms",
             "infiltration_rooms", "mech_ventilation_rooms",
-            "heat_set_rooms", "cool_set_rooms", "cpu_time"
-
+            "heat_set_rooms", "cool_set_rooms",
+            "heat_demand_ahu", "cool_demand_ahu", "el_energy_ahu",
+            "heat_energy_ahu", "cool_energy_ahu", "t_set_ahu", "phi_min_ahu",
+            "phi_max_ahu", "rel_flow_ahu", "cpu_time"
                  ],
         choices={
             "heat_demand_total":
-                "Total heating demand (power) as time series data",
+                "Total heating demand (power) as time series data for static "
+                "heating (without AHU)",
             "cool_demand_total":
-                "Total cooling demand (power) as time series data",
+                "Total cooling demand (power) as time series data for static "
+                "heating (without AHU)",
             "heat_demand_rooms":
-                "Zone based heating demand (power) as time series data",
+                "Zone based heating demand (power) as time series data for"
+                " static heating (without AHU)",
             "cool_demand_rooms":
-                "Zone based cooling demand (power) as time series data",
+                "Zone based cooling demand (power) as time series data "
+                "for static heating (without AHU)",
             "heat_energy_total":
-                "Total heating energy as time series data",
+                "Total heating energy as time series data for static "
+                "heating (without AHU)",
             "cool_energy_total":
-                "Total cooling energy as time series data",
+                "Total cooling energy as time series data for static "
+                "heating (without AHU)",
             "heat_energy_rooms":
-                "Zone based heating energy as time series data",
+                "Zone based heating energy as time series data for static "
+                "heating (without AHU)",
             "cool_energy_rooms":
-                "Zone cooling heating energy as time series data",
+                "Zone cooling heating energy as time series data for static "
+                "heating (without AHU)",
             "air_temp_out":
                 "Outdoor air temperature as time series data",
             "operative_temp_rooms":
@@ -62,6 +71,15 @@ class TEASERSimSettings(BuildingSimSettings):
                 "Heating set point in °C time series data",
             "cool_set_rooms":
                 "Cooling set point in °C time series data",
+            "heat_demand_ahu": "Heat demand through AHU as time series data",
+            "cool_demand_ahu": "Cool demand through AHU as time series data",
+            "el_energy_ahu": "Electric demand through AHU as time series data",
+            "heat_energy_ahu": "Heat energy through AHU as time series data",
+            "cool_energy_ahu": "Cool energy through AHU as time series data",
+            "t_set_ahu": "Set temperature profile for AHU",
+            "phi_min_ahu": "Min profile of rel humidity set values for AHU",
+            "phi_max_ahu": "Max profile of rel humidity set values for AHU",
+            "rel_flow_ahu": "Relative set profile for flow of AHU [0,1]",
             "cpu_time": "Computational time taken for simulation."
         },
         multiple_choice=True,
@@ -104,4 +122,11 @@ class TEASERSimSettings(BuildingSimSettings):
                     'prepare_regression_tests.py script.',
         for_frontend=False,
         mandatory=False
+    )
+
+    edit_mat_result_file_flag = BooleanSetting(
+        value=False,
+        description='Whether to change dymola mat result file or not.'
+                    'Not generic at this time',
+        for_frontend=True
     )

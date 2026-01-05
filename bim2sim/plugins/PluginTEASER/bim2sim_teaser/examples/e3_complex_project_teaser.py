@@ -1,4 +1,5 @@
 import tempfile
+import threading
 from pathlib import Path
 
 import bim2sim
@@ -23,7 +24,7 @@ def run_example_complex_building_teaser():
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc',
+            'test/resources/arch/ifc/AC20-Institute-Var-2.ifc',
     }
 
     # Create a project including the folder structure for the project with
@@ -33,7 +34,7 @@ def run_example_complex_building_teaser():
     # specify simulation settings (please have a look at the documentation of
     # all under concepts/sim_settings
     # combine spaces to thermal zones based on their usage
-    project.sim_settings.zoning_criteria = ZoningCriteria.usage
+    project.sim_settings.zoning_criteria = ZoningCriteria.individual_spaces
     # use cooling
     project.sim_settings.cooling_tz_overwrite = True
     project.sim_settings.setpoints_from_template = True
@@ -48,6 +49,9 @@ def run_example_complex_building_teaser():
     project.sim_settings.construction_class_walls = 'iwu_heavy'
     project.sim_settings.construction_class_windows = \
         'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
+
+    # Set Lock class
+    project.sim_settings.lock = threading.Lock
 
     # set weather file data
     project.sim_settings.weather_file_path = (

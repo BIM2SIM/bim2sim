@@ -1,0 +1,114 @@
+{
+   "kfw_40": {
+      "KG300": 2080.0
+   },
+   "kfw_55": {
+      "KG300": 1958.0
+   },
+   "kfw_70": {
+      "KG300": 1857.0
+   },
+   "kfw_100": {
+      "KG300": 1799.0
+   },
+   "iwu_heavy": {
+      "KG300": 1575.0
+   },
+   "iwu_light": {
+      "KG300": 1575.0
+   },
+   "Fussbodenheizung_Copper_100mm_m2": {
+      "Components": 25.0,
+      "Pipe": 20.0,
+      "Installation": 35.0
+   },
+   "Fussbodenheizung_Copper_200mm_m2": {
+      "Components": 25.0,
+      "Pipe": 12.0,
+      "Installation": 35.0
+   },
+   "Fussbodenheizung_PEX_100mm_m2": {
+      "Components": 25.0,
+      "Pipe": 8.0,
+      "Installation": 35.0
+   },
+   "Fussbodenheizung_PEX_200mm_m2": {
+      "Components": 25.0,
+      "Pipe": 5.0,
+      "Installation": 35.0
+   },
+   "Fussbodenheizung_PP_100mm_m2": {
+      "Components": 25.0,
+      "Pipe": 7.0,
+      "Installation": 35.0
+   },
+   "Fussbodenheizung_PP_200mm_m2": {
+      "Components": 25.0,
+      "Pipe": 4.0,
+      "Installation": 35.0
+   },
+   "Lueftungskanal_m2": {
+      "Blechkanal": 35.0,
+      "Dämmung": 10.0,
+      "Installation": 45.0
+   },
+   "Innenverzinne_Kupferrohre_pro_1kg": {
+      "Pipe_kg": 12.0,
+      "Isolation_kg": 25.0,
+      "Installation_m": 45.0
+   },
+   "Stahlrohr": {
+      "Pipe_kg": 5.0,
+      "Isolation_kg": 25.0,
+      "Installation_m": 45.0
+   },
+   "VentilationSystem": {
+      "Maintenance": 0.01
+   },
+   "HydraulicSystem": {
+      "Maintenance": 0.01
+   },
+   "Pumpe": {
+      "Components": 500
+   },
+   "Trennung": {
+      "Components": 20.0
+   },
+   "Kruemmer": {
+      "Components": 15.0
+   },
+   "Verteiler": {
+      "Components": 500.0
+   },
+   "Magnetventil": {
+      "Components": 120.0
+   },
+   "Schwerkraftbremse": {
+      "Components": 45.0
+   },
+   "Ruecklaufabsperrung": {
+      "Components": 10.0
+   },
+   "Absperrschieber": {
+      "Components": 170.0
+   },
+   "Schmutzfaenger": {
+      "Components": 100.0
+   },
+   "Vereinigung": {
+      "Components": 20.0
+   },
+   "Membranausdehnungsgefaeß": {
+      "Components": 75.0
+   },
+   "Brandschutzklappe": {
+      "Components": 550.0
+   },
+   "Volumenstromregler": {
+      "Components": 258.0
+   },
+   "Schalldaempfer": {
+      "Components": 320.0
+   }
+}
+

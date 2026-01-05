@@ -163,6 +163,35 @@ class NumberSetting(Setting):
                 )
         return self
 
+class StringSetting(Setting):
+    def __init__(
+            self,
+            default=None,
+            description: Union[str, None] = None,
+            for_frontend: bool = False
+    ):
+        super().__init__(default, description, for_frontend)
+
+    def check_value(self, bound_simulation_settings, value):
+        """Checks the value that should be set for correctness
+
+        Checks if value is in limits.
+        Args:
+            bound_simulation_settings: the sim setting belonging to the value
+            value: value that should be checked for correctness
+        Returns:
+            True: if check was successful
+        Raises:
+            ValueError: if check was not successful
+            """
+        # None is allowed for settings that should not be used at all but have
+        #  number values if used
+        if value is None:
+            return True
+        if not isinstance(value, str):
+            raise ValueError("The provided value is not a string.")
+        else:
+            return True
 
 class ChoiceSetting(Setting):
     value: Union[str, List[str], Enum, None]
@@ -231,6 +260,12 @@ class PathSetting(Setting):
 class BooleanSetting(Setting):
     value: Optional[bool]
 
+class LockSetting(Setting):
+    def check_value(self, bound_simulation_settings, value):
+        if not isinstance(value, type(threading.Lock())):
+            raise ValueError(f"The provided value {value} is not a Lock")
+        else:
+            return True
 
 class GuidListSetting(Setting):
     value: Optional[List[str]] = None
@@ -547,7 +582,7 @@ class BuildingSimSettings(BaseSimSettings):
     year_of_construction_overwrite = NumberSetting(
         value=None,
         min_value=0,
-        max_value=2015,
+        max_value=2100,
         description="Force an overwrite of the year of construction as a "
                     "base for the selected construction set.",
         for_frontend=True,
@@ -677,6 +712,8 @@ class BuildingSimSettings(BaseSimSettings):
     construction_class_windows = ChoiceSetting(
         value='Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
         choices={
+            'EnEv':
+                'EnEV 2016',
             'Holzfenster, zweifach':
                 'Zeifachverglasung mit Holzfenstern',
             'Kunststofffenster, Isolierverglasung':
@@ -831,13 +868,57 @@ class BuildingSimSettings(BaseSimSettings):
         description="Select the most fitting construction class type for"
                     " the windows of the selected building.",
     )
+
+    construction_class_doors = ChoiceSetting(
+        value='kfw_40',
+        choices={
+            'kfw_40': 'Doors according to kfw 40 standard',
+            'kfw_55': 'Doors according to kfw 55 standard',
+            'kfw_70': 'Doors according to kfw 70 standard',
+            'kfw_85': 'Doors according to kfw 85 standard',
+            'kfw_100': 'Doors according to kfw 100 standard',
+            'tabula_de_standard_1_SFH': 'Windows according to german tabula standard 1 for single family '
+                                        'houses',
+            'tabula_de_retrofit_1_SFH': 'Windows according to german tabula retrofit 1 for single family '
+                                        'houses',
+            'tabula_de_adv_retrofit_1_SFH': 'Windows according to german tabula advanced retrofit 1 for single '
+                                            'family houses',
+            'tabula_de_standard_1_TH': 'Windows according to german tabula standard 1 for terraced houses',
+            'tabula_de_retrofit_1_TH': 'Windows according to german tabula retrofit 1 for terraced houses',
+            'tabula_de_adv_retrofit_1_TH': 'Windows according to german tabula advanced retrofit 1 for terraced houses',
+            'tabula_de_standard_1_MFH': 'Windows according to german tabula standard 1 for multi family houses',
+            'tabula_de_retrofit_1_MFH': 'Windows according to german tabula retrofit 1 for multi family houses',
+            'tabula_de_adv_retrofit_1_MFH': 'Windows according to german tabula advanced retrofit 1 for multi '
+                                            'family houses',
+            'tabula_de_standard_1_AB': 'Windows according to german tabula standard 1 for apartment blocks',
+            'tabula_de_retrofit_1_AB': 'Windows according to german tabula retrofit 1 for apartment blocks',
+            'tabula_de_adv_retrofit_1_AB': 'Windows according to german tabula advanced retrofit 1 for '
+                                           'apartment blocks',
+            'tabula_dk_standard_1_SFH': 'Windows according to danish tabula standard 1 for single family '
+                                        'houses'
+        },
+        description="Select the most fitting construction class type for"
+                    " the windows of the selected building.",
+    )
+    year_of_construction_overwrite = NumberSetting(
+        value=None,
+        min_value=0,
+        max_value=2015,
+        description="Force an overwrite of the year of construction as a "
+                    "base for the selected construction set.",
+        for_frontend=True,
+    )
+    heating = BooleanSetting(
+        value=True,
+        description='Whether the building should be supplied with heating.',
+    )
     heating_tz_overwrite = BooleanSetting(
         value=None,
         description='If True, all thermal zones will be provided with heating,'
                     'if False no heating for thermal zones is provided, '
                     'regardless of information in the IFC or in the use '
                     'condition file.',
-        for_frontend=True
+        for_frontend=True,
     )
     cooling_tz_overwrite = BooleanSetting(
         value=None,
@@ -1066,4 +1147,12 @@ class BuildingSimSettings(BaseSimSettings):
         max_value=5,
         description="Overwrite base value for the natural infiltration in 1/h "
                     " without window openings"
+    )
+    fixed_usage = ChoiceSetting(
+        value=None,
+        choices={
+            None: "do not use fix usage",
+            "Open-plan Office (7 or more employees)": "Big Office",
+            "Group Office (between 2 and 6 employees)": "Group Office"
+        }
     )

@@ -124,14 +124,34 @@ class BuildingAHU(TEASER, BuildingAHU_Teaser):
         self.efficiency_recovery = None
 
     def request_params(self):
-        self.request_param("ahu_heating", export_name="heating")
-        self.request_param("ahu_cooling", export_name="cooling")
+        self.request_param("ahu_heating",
+                           export_name="heating")
+        self.request_param("ahu_cooling",
+                           export_name="cooling")
         self.request_param("ahu_dehumidification",
                            export_name="dehumidification")
-        self.request_param("ahu_humidification", export_name="humidification")
-        self.request_param("ahu_heat_recovery", export_name="heat_recovery")
+        self.request_param("ahu_humidification",
+                           export_name="humidification")
+        self.request_param("ahu_heat_recovery",
+                           export_name="heat_recovery")
         self.request_param("ahu_heat_recovery_efficiency",
                            export_name="efficiency_recovery")
+        self.request_param("ahu_efficiency_fan_supply",
+                           export_name="efficiency_fan_supply ")
+        self.request_param("ahu_efficiency_fan_return",
+                           export_name="efficiency_fan_return")
+        self.request_param("ahu_pressure_drop_fan_supply",
+                           export_name="pressure_drop_fan_supply")
+        self.request_param("ahu_pressure_drop_fan_return",
+                           export_name="pressure_drop_fan_return")
+        self.request_param("ahu_by_pass_dehumidification",
+                           export_name="by_pass_dehumidification")
+        self.request_param("ahu_temperature_profile",
+                           export_name="temperature_profile")
+        self.request_param("ahu_min_relative_humidity_profile",
+                           export_name="min_relative_humidity_profile")
+        self.request_param("ahu_max_relative_humidity_profile",
+                           export_name="max_relative_humidity_profile")
 
 
 class UseConditions(TEASER, UseConditions_Teaser):
@@ -165,8 +185,12 @@ class UseConditions(TEASER, UseConditions_Teaser):
         self.machines = None
         self.ratio_conv_rad_machines = None
 
+        self.use_maintained_illuminance = None
         self.lighting_power = None
+        self.fixed_lighting_power = None
         self.ratio_conv_rad_lighting = None
+        self.maintained_illuminance = None
+        self.lighting_efficiency_lumen = None
 
         self.use_constant_infiltration = None
         self.base_infiltration = None
@@ -218,7 +242,11 @@ class UseConditions(TEASER, UseConditions_Teaser):
         self.request_param("ratio_conv_rad_machines", None)
         self.request_param("lighting_power",
                            None, export_unit=ureg.W/ureg.m**2)
+        self.request_param("fixed_lighting_power", None, export_unit=ureg.W/ureg.m**2)
         self.request_param("ratio_conv_rad_lighting", None)
+        self.request_param("maintained_illuminance", None)
+        self.request_param("lighting_efficiency_lumen", None)
+        self.request_param("use_maintained_illuminance", None)
         self.request_param("use_constant_infiltration", None)
         self.request_param("base_infiltration", None)
         self.request_param("max_user_infiltration", None)

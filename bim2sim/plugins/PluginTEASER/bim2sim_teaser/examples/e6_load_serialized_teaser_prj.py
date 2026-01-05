@@ -1,4 +1,12 @@
 from pathlib import Path
+import ast
+import time
+import psutil
+import re
+
+from ebcpy import DymolaAPI
+
+import teaser
 from teaser.project import Project
 
 from e5_serialize_teaser_prj import run_serialize_teaser_project_example
@@ -6,22 +14,120 @@ import bim2sim.plugins.PluginTEASER.bim2sim_teaser.task as teaser_task
 
 def load_serialized_teaser_project():
     """This function demonstrates different loading options of TEASER"""
-    prj_export_path, prj_json_path = run_serialize_teaser_project_example()
-    prj = Project()
+    project_path = Path("D:\dja-jho\Testing\SerializedTEASER")
+    prj_export_path = Path(project_path, "export", "TEASER")
+    prj_model_path = Path(prj_export_path, "Model")
+    prj_json_path = Path(prj_export_path, "serialized_teaser", "AC20-Institute-Var-2.json")
 
+    repo_url = "https://github.com/RWTH-EBC/AixLib.git"
+    branch_name = "main"
+    repo_name = "AixLib"
+    path_aixlib = (Path(bim2sim.__file__).parent.parent / "local" / f"library_{repo_name}")
+    download_library(repo_url, branch_name, path_aixlib)
+    path_aixlib = path_aixlib / repo_name / 'package.mo'
+
+    prj = Project()
     prj.load_project(path=prj_json_path)
-    export_vars = {
-        "HeatingDemands": ["*multizone.PHeater*", "*multizone.PHeatAHU"],
-        "CoolingDemands": ["*multizone.PCooler*", "*multizone.PCoolAHU"],
-        "Temperatures": ["*multizone.TAir*", "*multizone.TRad*"]
-    }
+
+    prj.data = DataClass(construction_data=ConstructionData.kfw_40)
+
+
+
+    # set weather file data
+    weather_file_path = fr"D:\dja-jho\Git\Dissertation_coding\outer_optimization\clustering\DEU_NW_Aachen.105010_TMYx2015.mos"
+
+
+    # Select results to output:
+    sim_results = [
+        "heat_demand_total", "cool_demand_total",
+        "heat_demand_rooms", "cool_demand_rooms",
+        "heat_energy_total", "cool_energy_total",
+        "heat_energy_rooms", "cool_energy_rooms",
+        "operative_temp_rooms", "air_temp_rooms", "air_temp_out",
+        "internal_gains_machines_rooms", "internal_gains_persons_rooms",
+        "internal_gains_lights_rooms",
+        "heat_set_rooms",
+        "cool_set_rooms"
+    ]
+    prj_custom_usages = (Path(bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
+                                              "customUsagesAC20-Institute-Var-2_with_SB-1-0.json")
 
     # Do some work on the model, e.g. increase total window area of each
+
     # thermal zone by 10 %
     window_increase_percentage = 0.1
-    for bldg in prj.buildings:
+
+    # specify templates for the layer and material overwrite
+    construction_classes = {"year_of_construction": 2016,
+                            "year_of_construction_windows": 2015,
+                            "construction_class_walls": "kfw_40",
+                            "construction_class_windows": "Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach",
+                            "construction_class_doors": "kfw_40"}
+
+    # Specify hvac parameters
+    hvac_params = {"heating_bool": True,
+                   "cooling_bool": False,
+                   "ahu_central_bool": True,
+                   "ahu_heat_bool": True,
+                   "ahu_cool_bool": True,
+                   "ahu_hum_bool": False,
+                   "ahu_heat_recovery": True,
+                   "ahu_efficiency": 0.7,
+                   "ahu_heat_recovery_efficiency": 0.8,
+                   }
+
+    manipulate_teaser_model(teaser_prj=prj,
+                            window_increase_percentage=window_increase_percentage,
+                            construction_classes=construction_classes,
+                            hvac_params=hvac_params)
+
+    # calculate all buildings, this is needed as model_attr and library_attr
+    # are not saved via json export.
+    prj.calc_all_buildings()
+
+    # As calc_all_buildings() recalculates the heating loads and thus the max
+    # ideal heater PI-control values, we might reset those as they can be too
+    # low and lead to too low zone temperatures
+    orig_heat_loads, orig_cool_loads = CreateTEASER.overwrite_heatloads(prj.buildings)
+
+    prj.export_aixlib(
+        path=prj_model_path,
+        use_postprocessing_calc=True,
+        report=True
+    )
+
+    simulate_dymola_ebcpy(teaser_prj=prj,
+                          prj_export_path=prj_export_path,
+                          path_aixlib=path_aixlib)
+
+def manipulate_teaser_model(teaser_prj,
+                            window_increase_percentage,
+                            construction_classes,
+                            hvac_params):
+
+    for bldg in teaser_prj.buildings:
+
+        bldg.with_ahu = hvac_params["ahu_central_bool"]
+
+        bldg.central_ahu.heating = hvac_params["ahu_heat_bool"]
+        bldg.central_ahu.cooling = hvac_params["ahu_cool_bool"]
+        bldg.central_ahu.humidification = hvac_params["ahu_hum_bool"]
+        bldg.central_ahu.heat_recovery = hvac_params["ahu_heat_recovery"]
+        bldg.central_ahu.efficiency_recovery = hvac_params["ahu_heat_recovery_efficiency"]
+        bldg.central_ahu.efficiency_recovery_false = hvac_params["ahu_heat_recovery_efficiency"]
+
+        bldg.central_ahu.efficiency_fan_return = hvac_params["ahu_efficiency"]
+        bldg.central_ahu.efficiency_fan_return = hvac_params["ahu_efficiency"]
+
         for tz in bldg.thermal_zones:
-            ow_area_old = 0
+
+            tz.use_conditions.with_heating = hvac_params["heating_bool"]
+            tz.use_conditions.with_cooling = hvac_params["cooling_bool"]
+            if not hvac_params["ahu_central_bool"]:
+                tz.use_conditions.with_ahu = False
+
+            # Increase window-wall ratio
+            """ow_area_old = 0
             for ow in tz.outer_walls:
                 ow_area_old += ow.area
             win_area_old = 0
@@ -52,10 +158,7 @@ def load_serialized_teaser_project():
                 win_area_res += win.area
             win_ratio_res = win_area_res/ow_area_res
             print(f"New window to wall ratio of thermal zone "
-                  f"{tz.name} is {round(win_ratio_res*100,2 )} %.")
-    # calculate all buildings, this is needed as model_attr and library_attr
-    # are not saved via json export.
-    prj.calc_all_buildings()
+                  f"{tz.name} is {round(win_ratio_res*100,2 )} %.")"""
 
     # As calc_all_buildings() recalculates the heating loads and thus the max
     # ideal heater PI-control values, we might reset those as they can be too
@@ -63,12 +166,166 @@ def load_serialized_teaser_project():
     orig_heat_loads, orig_cool_loads = teaser_task.CreateTEASER.overwrite_heatloads(
         prj.buildings)
 
-    prj.export_aixlib(
-        path=prj_export_path,
-        use_postprocessing_calc=True,
-        report=True,
-        export_vars=export_vars
-    )
+def simulate_dymola_ebcpy(teaser_prj, prj_export_path, path_aixlib):
+    """Simulates the exported TEASER model by using ebcpy.
+
+    The Modelica model that is created through TEASER is simulated by using
+    ebcpy and its DymolaAPI. Modelica/Dymola stores simulation results
+    in .mat files which are stored in the export folder of the `bim2sim`
+    project.
+
+    Args:
+
+
+    Returns:
+
+    """
+
+    # Function for extracting relevant information out of simulation result file
+    def edit_mat_result_file(self, teaser_prj, bldg_name, bldg_result_dir):
+        """Creates .mos script to extract specific data out of dymola mat result file
+            and safe it to a new .mat file
+
+        Args:
+            teaser_prj: teaser project instance (to extract number of thermal zones in building)
+            bldg_result_dir: Path to dymola result directory
+        Returns:
+            mos_script_post_path: Path to created .mos script
+        """
+        # TODO Make generic with input simsettings.var_names
+
+        var_names_heating = [
+            "multizonePostProcessing.PHeater",
+            "multizonePostProcessing.WHeaterSum"
+        ]
+        var_names_cooling = [
+            "multizonePostProcessing.PCooler",
+            "multizonePostProcessing.WCoolerSum"
+        ]
+        var_names_ahu = [
+            "multizonePostProcessing.PelAHU",
+            "multizonePostProcessing.PHeatAHU",
+            "multizonePostProcessing.PCoolAHU"
+        ]
+
+        zone_var = [
+            "multizonePostProcessing.PHeater",
+            "multizonePostProcessing.PCooler"
+        ]
+
+        var_names = var_names_heating
+        if self.playground.sim_settings.cooling:
+            var_names += var_names_cooling
+        if self.playground.sim_settings.overwrite_ahu_by_settings:
+            var_names += var_names_ahu
+
+        for building in teaser_prj.buildings:
+            if bldg_name == building.name:
+                n = len(building.thermal_zones)  # number of thermal zones
+
+        script = f'cd("{str(bldg_result_dir)}");\n'
+        script += f'resultFile = "teaser_results.mat";\n'
+        script += f'outName = "teaser_results_edited.mat";\n\n'
+        script += 'varNames = {"Time",\n'
+
+        # Internal gains
+        for i in range(1, n + 1):
+            script += f'"multizonePostProcessing.QIntGains_flow[{i}, 1]",\n'
+            script += f'"multizonePostProcessing.QIntGains_flow[{i}, 2]",\n'
+            script += f'"multizonePostProcessing.QIntGains_flow[{i}, 3]",\n'
+        for var in var_names:
+            if var in zone_var:
+                for i in range(1, n + 1):
+                    script += f'"{var}[{i}]",\n'
+            else:
+                if var != var_names[-1]:
+                    script += f'"{var}",\n'
+                else:
+                    script += f'"{var}"\n'
+
+        script += '};\n\n'
+        script += f'n = readTrajectorySize(resultFile);\n'
+        script += f'writeTrajectory(outName, varNames, transpose(readTrajectory(resultFile, varNames, n)));'
+
+        mos_file_path = bldg_result_dir / "edit_result_file.mos"
+        with self.lock:
+            with open(mos_file_path, 'w') as file:
+                file.write(script)
+
+        if isinstance(mos_file_path, Path):
+            mos_file_path = str(mos_file_path)
+
+        mos_file_path = mos_file_path.replace("\\", "/")
+        # Search for e.g. "D:testzone" and replace it with D:/testzone
+        loc = mos_file_path.find(":")
+        if mos_file_path[loc + 1] != "/" and loc != -1:
+            path = mos_file_path.replace(":", ":/")
+
+        return mos_file_path
+
+    for bldg in teaser_prj.buildings:
+        # needed because teaser removes special characters
+        model_export_name = teaser_prj.name
+        dir_model_package = Path(prj_export_path, "Model", model_export_name, "package.mo")
+        sim_results_path = Path(prj_export_path / "SimResults" / model_export_name)
+        packages = [
+            dir_model_package,
+            path_aixlib
+        ]
+
+        simulation_setup = {"start_time": 0,
+                            "stop_time": 3.1536e+07,
+                            "output_interval": 3600,
+                            "solver": "Cvode",
+                            "tolerance": 0.001}
+        n_success = 0
+
+        print(f"Starting simulation for model {model_export_name}.")
+
+        sim_model = \
+            model_export_name + '.' + bldg.name + '.' + bldg.name
+        bldg_result_dir = sim_results_path / bldg.name
+        bldg_result_dir.mkdir(parents=True, exist_ok=True)
+
+        try:
+            dym_api = DymolaAPI(
+                model_name=sim_model,
+                working_directory=bldg_result_dir,
+                packages=packages,
+                show_window=True,
+                n_restart=-1,
+                equidistant_output=True,
+                debug=True
+            )
+        except Exception:
+            raise Exception(
+                "Dymola API could not be initialized, there"
+                "are several possible reasons."
+                " One could be a missing Dymola license.")
+
+        dym_api.set_sim_setup(sim_setup=simulation_setup)
+        # activate spare solver as TEASER models are mostly sparse
+        dym_api.dymola.ExecuteCommand(
+            "Advanced.SparseActivate=true")
+        teaser_mat_result_path = dym_api.simulate(
+            return_option="savepath",
+            savepath=str(sim_results_path / bldg.name),
+            result_file_name="teaser_results"
+        )
+
+        mos_file_path = edit_mat_result_file(teaser_prj=teaser_prj,
+                                             bldg_name=bldg.name,
+                                             bldg_result_dir=bldg_result_dir)
+
+        dym_api.dymola.RunScript(mos_file_path)
+        time.sleep(10)
+
+        dym_api.close()
+
+        print(f"Successfully simulated building")
+        print(f"You can find the results under {str(sim_results_path)}")
+
+
 
 
 if __name__ == "__main__":
