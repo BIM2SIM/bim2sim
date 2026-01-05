@@ -197,9 +197,10 @@ class ChoiceSetting(Setting):
     value: Union[str, List[str], Enum, None]
     choices: dict
     multiple_choice: bool = False
+    custom_choice: bool = False # Determines if custom choice is possible
 
     def _check_for_value_in_choices(self, value):
-        if value not in self.choices:
+        if value not in self.choices and not self.custom_choice:
             if not self.any_string:
                 raise PydanticCustomError(
                     "value_not_in_choices",
@@ -706,7 +707,8 @@ class BuildingSimSettings(BaseSimSettings):
         description="Select the most fitting construction class type for"
                     "the walls of the selected building. For all settings but "
                     "kfw_* the  year of construction is required.",
-        for_frontend=True
+        for_frontend=True,
+        custom_choice=True
     )
 
     construction_class_windows = ChoiceSetting(
@@ -819,6 +821,7 @@ class BuildingSimSettings(BaseSimSettings):
         },
         description="Select the most fitting construction class type for"
                     " the windows of the selected building.",
+        custom_choice=True
     )
     construction_class_doors = ChoiceSetting(
         value='iwu_typical',
@@ -867,47 +870,9 @@ class BuildingSimSettings(BaseSimSettings):
         },
         description="Select the most fitting construction class type for"
                     " the windows of the selected building.",
+        custom_choice=True
     )
 
-    construction_class_doors = ChoiceSetting(
-        value='kfw_40',
-        choices={
-            'kfw_40': 'Doors according to kfw 40 standard',
-            'kfw_55': 'Doors according to kfw 55 standard',
-            'kfw_70': 'Doors according to kfw 70 standard',
-            'kfw_85': 'Doors according to kfw 85 standard',
-            'kfw_100': 'Doors according to kfw 100 standard',
-            'tabula_de_standard_1_SFH': 'Windows according to german tabula standard 1 for single family '
-                                        'houses',
-            'tabula_de_retrofit_1_SFH': 'Windows according to german tabula retrofit 1 for single family '
-                                        'houses',
-            'tabula_de_adv_retrofit_1_SFH': 'Windows according to german tabula advanced retrofit 1 for single '
-                                            'family houses',
-            'tabula_de_standard_1_TH': 'Windows according to german tabula standard 1 for terraced houses',
-            'tabula_de_retrofit_1_TH': 'Windows according to german tabula retrofit 1 for terraced houses',
-            'tabula_de_adv_retrofit_1_TH': 'Windows according to german tabula advanced retrofit 1 for terraced houses',
-            'tabula_de_standard_1_MFH': 'Windows according to german tabula standard 1 for multi family houses',
-            'tabula_de_retrofit_1_MFH': 'Windows according to german tabula retrofit 1 for multi family houses',
-            'tabula_de_adv_retrofit_1_MFH': 'Windows according to german tabula advanced retrofit 1 for multi '
-                                            'family houses',
-            'tabula_de_standard_1_AB': 'Windows according to german tabula standard 1 for apartment blocks',
-            'tabula_de_retrofit_1_AB': 'Windows according to german tabula retrofit 1 for apartment blocks',
-            'tabula_de_adv_retrofit_1_AB': 'Windows according to german tabula advanced retrofit 1 for '
-                                           'apartment blocks',
-            'tabula_dk_standard_1_SFH': 'Windows according to danish tabula standard 1 for single family '
-                                        'houses'
-        },
-        description="Select the most fitting construction class type for"
-                    " the windows of the selected building.",
-    )
-    year_of_construction_overwrite = NumberSetting(
-        value=None,
-        min_value=0,
-        max_value=2015,
-        description="Force an overwrite of the year of construction as a "
-                    "base for the selected construction set.",
-        for_frontend=True,
-    )
     heating = BooleanSetting(
         value=True,
         description='Whether the building should be supplied with heating.',
