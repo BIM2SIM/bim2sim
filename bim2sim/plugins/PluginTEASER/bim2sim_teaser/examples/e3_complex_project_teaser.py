@@ -17,8 +17,7 @@ def run_example_complex_building_teaser():
     """
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    project_path = Path(
-        tempfile.TemporaryDirectory(prefix='bim2sim_example1').name)
+    project_path = Path(r"D:\02_Daten\Testing\bim2sim\teaser")
 
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
@@ -80,10 +79,10 @@ def run_example_complex_building_teaser():
         "heat_set_rooms",
         "cool_set_rooms"
     ]
-    project.sim_settings.prj_use_conditions = (Path(
-        bim2sim.__file__).parent.parent /
-            "test/resources/arch/custom_usages/"
-            "UseConditionsFM_ARC_DigitalHub.json")
+    # project.sim_settings.prj_use_conditions = (Path(
+    #     bim2sim.__file__).parent.parent /
+    #         "test/resources/arch/custom_usages/"
+    #         "UseConditionsFM_ARC_DigitalHub.json")
     project.sim_settings.prj_custom_usages = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
@@ -98,6 +97,7 @@ def run_example_complex_building_teaser():
     answers = (space_boundary_genenerator,
                *handle_proxies,
                construction_year)
+    answers = (construction_year,)
     handler = DebugDecisionHandler(answers)
     handler.handle(project.run())
 

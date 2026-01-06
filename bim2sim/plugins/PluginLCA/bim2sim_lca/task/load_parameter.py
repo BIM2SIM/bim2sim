@@ -14,8 +14,6 @@ class LoadMaterialEmissionParameter(ITask):
 
         self.logger.info("Load material emission & cost data")
 
-        self.lock = self.playground.sim_settings.lock
-
         emission_mapping = {
             "A1-A3": "Herstellung",
             "A1": "Rohstoffbereitstellung",
@@ -42,11 +40,10 @@ class LoadMaterialEmissionParameter(ITask):
         material_emissions_file_path = Path(Path(bim2sim.__file__).parent, r"assets/enrichment/material/MaterialEmissions.json")
         material_costs_file_path = Path(Path(__file__).parent.parent, 'assets', 'MaterialCosts.json')
 
-        with self.lock:
-            with open(material_emissions_file_path,'r') as json_file:
-                material_emission_parameter_dict = json.load(json_file)
-            with open(material_costs_file_path,'r') as json_file:
-                material_costs_parameter_dict = json.load(json_file)
+        with open(material_emissions_file_path,'r') as json_file:
+            material_emission_parameter_dict = json.load(json_file)
+        with open(material_costs_file_path,'r') as json_file:
+            material_costs_parameter_dict = json.load(json_file)
 
         if self.playground.sim_settings.update_emission_parameter_from_oekobdauat:
             self.logger.info("Update material emission parameter from Ökobaudat")
@@ -62,9 +59,8 @@ class LoadMaterialEmissionParameter(ITask):
                 for key, value in gwp_data.items():
                     material_emission_parameter_dict[material][key] = float(value)
 
-            with self.lock:
-                with open(material_emissions_file_path, 'w') as json_file:
-                    json.dump(material_emission_parameter_dict, json_file, indent=3)
+            with open(material_emissions_file_path, 'w') as json_file:
+                json.dump(material_emission_parameter_dict, json_file, indent=3)
             self.logger.info("Finished updating material emission parameter from Ökobaudat")
 
         material_emission_dict = {}

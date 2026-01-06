@@ -83,8 +83,6 @@ class CalculateHydraulicSystem(ITask):
 
     def run(self, heating_graph, heat_demand_dict, elements):
 
-        self.lock = self.playground.sim_settings.lock
-
         self.hydraulic_system_directory = Path(self.paths.export / 'hydraulic system')
         self.material_result_file = self.hydraulic_system_directory / "material_quantities_hydraulic_system.xlsx"
         self.heat_demand_dict = heat_demand_dict
@@ -258,9 +256,8 @@ class CalculateHydraulicSystem(ITask):
         file = self.hydraulic_system_directory / filename
         self.logger.info(f"Save Networkx {graph} with type {type_grid} in {file}.")
         data = json_graph.node_link_data(graph)
-        with self.lock:
-            with open(file, 'w') as f:
-                json.dump(data, f, indent=4)
+        with open(file, 'w') as f:
+            json.dump(data, f, indent=4)
 
     def select_heating_model(self, model_dict: dict, calculated_heat_flow):
         """
@@ -321,9 +318,8 @@ class CalculateHydraulicSystem(ITask):
         Returns:
 
         """
-        with self.lock:
-            with open(filename, "rb") as excel_file:
-                data = pd.read_excel(excel_file, engine="openpyxl", sheet_name=sheet_name)
+        with open(filename, "rb") as excel_file:
+            data = pd.read_excel(excel_file, engine="openpyxl", sheet_name=sheet_name)
 
             # Daten aus der Tabelle auslesen und verarbeiten
             model_dict = {}
@@ -1284,9 +1280,8 @@ class CalculateHydraulicSystem(ITask):
         Returns:
         """
         self.logger.info("Calculate Inner diameter")
-        with self.lock:
-            with open(self.playground.sim_settings.hydraulic_components_data_file_path, "rb") as excel_file:
-                pipe_data = pd.read_excel(excel_file, engine="openpyxl", sheet_name=self.playground.sim_settings.hydraulic_components_data_file_pipe_sheet)
+        with open(self.playground.sim_settings.hydraulic_components_data_file_path, "rb") as excel_file:
+            pipe_data = pd.read_excel(excel_file, engine="openpyxl", sheet_name=self.playground.sim_settings.hydraulic_components_data_file_pipe_sheet)
         # list(nx.topological_sort(graph))
         for node in graph.nodes():
             successors = list(graph.successors(node))
@@ -2224,9 +2219,8 @@ class CalculateHydraulicSystem(ITask):
 
     def define_standard_indoor_temperature(self, usage):
         UseConditions_Path = Path(__file__).parent.parent / 'assets/useConditions.json'
-        with self.lock:
-            with open(UseConditions_Path, 'r') as file:
-                UseConditions = json.load(file)
+        with open(UseConditions_Path, 'r') as file:
+            UseConditions = json.load(file)
 
         standard_indoor_temperature = 0
         for key, values in UseConditions.items():
@@ -2365,12 +2359,11 @@ class CalculateHydraulicSystem(ITask):
 
         df_components = pd.DataFrame.from_dict(bom, orient='index')
         df_components_quantities = pd.DataFrame.from_dict(bom_types_quantities, orient='index')
-        with self.lock:
-            with pd.ExcelWriter(filepath, mode='a', engine='openpyxl') as writer:
-                # Schreiben Sie das neue Sheet in die Excel-Datei
+        with pd.ExcelWriter(filepath, mode='a', engine='openpyxl') as writer:
+            # Schreiben Sie das neue Sheet in die Excel-Datei
 
-                df_components.to_excel(writer, sheet_name='Components', index_label='Node')
-                df_components_quantities.to_excel(writer, sheet_name='Component Quantities', index_label='Type')
+            df_components.to_excel(writer, sheet_name='Components', index_label='Node')
+            df_components_quantities.to_excel(writer, sheet_name='Component Quantities', index_label='Type')
 
 
 

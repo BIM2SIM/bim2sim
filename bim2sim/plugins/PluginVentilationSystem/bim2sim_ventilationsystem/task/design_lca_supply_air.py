@@ -49,8 +49,6 @@ class DesignSupplyLCA(ITask):
 
     def run(self, elements):
 
-        self.lock = self.playground.sim_settings.lock
-
         self.elements = elements
 
         # Todo add the following to sim settings
@@ -404,9 +402,9 @@ class DesignSupplyLCA(ITask):
 
         self.logger.info(f'Read {filename} Graph from file {filepath}')
         data = json_graph.node_link_data(graph)
-        with self.lock:
-            with open(filepath / filename, 'w') as f:
-                json.dump(data, f, indent=4)
+
+        with open(filepath / filename, 'w') as f:
+            json.dump(data, f, indent=4)
 
     def visualization_graph(self,
                             G,

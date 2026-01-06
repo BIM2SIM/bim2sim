@@ -69,9 +69,6 @@ class CreateTEASER(ITask):
             instance.collect_params()
 
         self.prepare_export(exported_buildings)
-
-        teaser_prj.number_of_elements_calc = (
-            self.playground.sim_settings.number_elements_calc)
         teaser_prj.calc_all_buildings()
         orig_heat_loads, orig_cool_loads =\
             self.overwrite_heatloads(exported_buildings)

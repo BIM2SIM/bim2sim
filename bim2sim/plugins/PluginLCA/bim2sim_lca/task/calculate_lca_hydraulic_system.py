@@ -17,15 +17,12 @@ class CalculateEmissionHydraulicSystem(ITask):
         total_gwp_hydraulic_pipe = 0
         total_gwp_hydraulic_component = 0
 
-        self.lock = self.playground.sim_settings.lock
-
         if self.playground.sim_settings.calculate_lca_hydraulic_system:
-            with self.lock:
-                pipe_dict = self.load_pipe_data()
-                component_dict = self.load_component_data()
-                radiator_dict = self.read_radiator_material_excel(
-                    filename=self.playground.sim_settings.hydraulic_components_data_file_path,
-                    sheet_name=self.playground.sim_settings.hydraulic_components_data_file_radiator_sheet)
+            pipe_dict = self.load_pipe_data()
+            component_dict = self.load_component_data()
+            radiator_dict = self.read_radiator_material_excel(
+                filename=self.playground.sim_settings.hydraulic_components_data_file_path,
+                sheet_name=self.playground.sim_settings.hydraulic_components_data_file_radiator_sheet)
 
             (component_material_emission_cost, pump_component, 
              total_gwp_hydraulic_component, total_cost_hydraulic_component,

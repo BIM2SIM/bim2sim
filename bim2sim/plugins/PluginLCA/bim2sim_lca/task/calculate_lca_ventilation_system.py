@@ -17,8 +17,6 @@ class CalculateEmissionVentilationSystem(ITask):
         total_cost_ventilation_duct = 0
         total_cost_ventilation_component = 0
 
-        self.lock = self.playground.sim_settings.lock
-
         if self.playground.sim_settings.calculate_lca_ventilation_system:
             supply_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_supply_system_material_xlsx)
             exhaust_dict = self.load_pipe_data(self.playground.sim_settings.ventilation_exhaust_system_material_xlsx)
