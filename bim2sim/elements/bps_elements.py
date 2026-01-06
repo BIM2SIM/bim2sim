@@ -651,7 +651,7 @@ class ThermalZone(BPSProduct):
     # TODO
     max_ahu = attribute.Attribute(
         default_ps=("Pset_AirSideSystemInformation", "TotalAirflow"),
-        unit=ureg.meter ** 3 / ureg.h / ureg.meter ** 2
+        unit=ureg.meter ** 3 / ureg.h / ureg.meter ** 2,
         description="Zone area specific maximum air flow supplied by the "
                 "AHU. Absolute profile will be calculated with the "
                 "Building attribute ahu_v_flow_profile."

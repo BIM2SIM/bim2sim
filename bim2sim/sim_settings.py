@@ -20,7 +20,6 @@ from bim2sim.elements import bps_elements as bps_elements, \
     hvac_elements as hvac_elements
 from bim2sim.elements.mapping.ifc2python import check_guid
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -108,9 +107,9 @@ class Setting(BaseModel, validate_assignment=True, validate_default=True):
     def __set__(self, bound_simulation_settings, value):
         """Creates a new attribute with the name and value of the simulation setting instance,
         stored in sim_settings. This makes it easier to access the setting's payload.
-        
+
         Example:
-        
+
         sim_settings = {e.g. BuildingSimSettings}
             ...
             example_setting_name = {bool}True
@@ -163,6 +162,7 @@ class NumberSetting(Setting):
                 )
         return self
 
+
 class StringSetting(Setting):
     def __init__(
             self,
@@ -193,17 +193,20 @@ class StringSetting(Setting):
         else:
             return True
 
+
 class ChoiceSetting(Setting):
     value: Union[str, List[str], Enum, None]
     choices: dict
     multiple_choice: bool = False
+    custom_choice: bool = False  # Determines if custom choice is possible
 
     def _check_for_value_in_choices(self, value):
-        if value not in self.choices:
+        if value not in self.choices and not self.custom_choice:
             if not self.any_string:
                 raise PydanticCustomError(
                     "value_not_in_choices",
-                    f'{value} is no valid value for setting {self.name}, select one of {self.choices}.' # type: ignore[misc]
+                    f'{value} is no valid value for setting {self.name}, select one of {self.choices}.'
+                    # type: ignore[misc]
                 )
 
     @field_validator('choices', mode='after')
@@ -220,8 +223,9 @@ class ChoiceSetting(Setting):
     def check_content(self):
         if isinstance(self.value, list):
             if not self.multiple_choice:
-                raise PydanticCustomError("one_choice_allowed", f'Only one choice is allowed for setting'  # type: ignore[misc]
-                                                                f' {self.name}, but {len(self.value)} choices are given.')  # type: ignore[misc]
+                raise PydanticCustomError("one_choice_allowed",
+                                          f'Only one choice is allowed for setting'  # type: ignore[misc]
+                                          f' {self.name}, but {len(self.value)} choices are given.')  # type: ignore[misc]
             else:
                 for val in self.value:
                     self._check_for_value_in_choices(val)
@@ -232,7 +236,7 @@ class ChoiceSetting(Setting):
 
 
 class PathSetting(Setting):
-    value: Optional[Union[DirectoryPath, FilePath]]
+    value: Optional[Union[str, DirectoryPath, FilePath]]
 
     def __set__(self, bound_simulation_settings, value):
         """Creates a new attribute with the name and value of the simulation setting instance,
@@ -251,11 +255,15 @@ class PathSetting(Setting):
         setting = bound_simulation_settings.manager[self.name]
         # assign the value without triggering pydantic's
         # assignment validation (allows non-existing paths, etc.).
-        object.__setattr__(setting, "value", value)
+        if isinstance(value, str):
+            object.__setattr__(setting, "value", Path(value))
+        else:
+            object.__setattr__(setting, "value", value)
 
 
 class BooleanSetting(Setting):
     value: Optional[bool]
+
 
 class LockSetting(Setting):
     def check_value(self, bound_simulation_settings, value):
@@ -263,6 +271,7 @@ class LockSetting(Setting):
             raise ValueError(f"The provided value {value} is not a Lock")
         else:
             return True
+
 
 class GuidListSetting(Setting):
     value: Optional[List[str]] = None
@@ -298,7 +307,6 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                 object.__setattr__(setting, "value", default)
             else:
                 setting.value = default
-
 
     def update_from_config(self, config):
         """Updates the simulation settings specification from the config
@@ -370,7 +378,6 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                         f"{setting.name} is not specified, "
                         f"but is marked as mandatory. Please configure "
                         f"{setting.name} before running your project.")
-
 
     dymola_simulation = BooleanSetting(
         value=False,
@@ -579,7 +586,7 @@ class BuildingSimSettings(BaseSimSettings):
     year_of_construction_overwrite = NumberSetting(
         value=None,
         min_value=0,
-        max_value=2015,
+        max_value=2100,
         description="Force an overwrite of the year of construction as a "
                     "base for the selected construction set.",
         for_frontend=True,
@@ -703,7 +710,8 @@ class BuildingSimSettings(BaseSimSettings):
         description="Select the most fitting construction class type for"
                     "the walls of the selected building. For all settings but "
                     "kfw_* the  year of construction is required.",
-        for_frontend=True
+        for_frontend=True,
+        custom_choice=True
     )
 
     construction_class_windows = ChoiceSetting(
@@ -816,6 +824,7 @@ class BuildingSimSettings(BaseSimSettings):
         },
         description="Select the most fitting construction class type for"
                     " the windows of the selected building.",
+        custom_choice=True
     )
     construction_class_doors = ChoiceSetting(
         value='iwu_typical',
@@ -864,49 +873,11 @@ class BuildingSimSettings(BaseSimSettings):
         },
         description="Select the most fitting construction class type for"
                     " the windows of the selected building.",
+        custom_choice=True
     )
 
-    construction_class_doors = ChoiceSetting(
-        default='kfw_40',
-        choices={
-            'kfw_40': 'Doors according to kfw 40 standard',
-            'kfw_55': 'Doors according to kfw 55 standard',
-            'kfw_70': 'Doors according to kfw 70 standard',
-            'kfw_85': 'Doors according to kfw 85 standard',
-            'kfw_100': 'Doors according to kfw 100 standard',
-            'tabula_de_standard_1_SFH': 'Windows according to german tabula standard 1 for single family '
-                                        'houses',
-            'tabula_de_retrofit_1_SFH': 'Windows according to german tabula retrofit 1 for single family '
-                                        'houses',
-            'tabula_de_adv_retrofit_1_SFH': 'Windows according to german tabula advanced retrofit 1 for single '
-                                            'family houses',
-            'tabula_de_standard_1_TH': 'Windows according to german tabula standard 1 for terraced houses',
-            'tabula_de_retrofit_1_TH': 'Windows according to german tabula retrofit 1 for terraced houses',
-            'tabula_de_adv_retrofit_1_TH': 'Windows according to german tabula advanced retrofit 1 for terraced houses',
-            'tabula_de_standard_1_MFH': 'Windows according to german tabula standard 1 for multi family houses',
-            'tabula_de_retrofit_1_MFH': 'Windows according to german tabula retrofit 1 for multi family houses',
-            'tabula_de_adv_retrofit_1_MFH': 'Windows according to german tabula advanced retrofit 1 for multi '
-                                            'family houses',
-            'tabula_de_standard_1_AB': 'Windows according to german tabula standard 1 for apartment blocks',
-            'tabula_de_retrofit_1_AB': 'Windows according to german tabula retrofit 1 for apartment blocks',
-            'tabula_de_adv_retrofit_1_AB': 'Windows according to german tabula advanced retrofit 1 for '
-                                           'apartment blocks',
-            'tabula_dk_standard_1_SFH': 'Windows according to danish tabula standard 1 for single family '
-                                        'houses'
-        },
-        description="Select the most fitting construction class type for"
-                    " the windows of the selected building.",
-    )
-    year_of_construction_overwrite = NumberSetting(
-        default=None,
-        min_value=0,
-        max_value=2015,
-        description="Force an overwrite of the year of construction as a "
-                    "base for the selected construction set.",
-        for_frontend=True,
-    )
     heating = BooleanSetting(
-        default=True,
+        value=True,
         description='Whether the building should be supplied with heating.',
     )
     heating_tz_overwrite = BooleanSetting(
@@ -1146,7 +1117,7 @@ class BuildingSimSettings(BaseSimSettings):
                     " without window openings"
     )
     fixed_usage = ChoiceSetting(
-        default=None,
+        value=None,
         choices={
             None: "do not use fix usage",
             "Open-plan Office (7 or more employees)": "Big Office",
