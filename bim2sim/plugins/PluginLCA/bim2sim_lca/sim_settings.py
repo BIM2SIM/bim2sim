@@ -12,49 +12,49 @@ class LCAExportSettings(BuildingSimSettings):
                                   Material}
 
     update_emission_parameter_from_oekobdauat = BooleanSetting(
-        default=False,
+        value=False,
         description='Whether to update material emission parameter from Ökobaudat',
         for_frontend=True
     )
     only_cradle_to_gate = BooleanSetting(
-        default=False,
+        value=False,
         description='Whether to calculate lca only between cradle and gate phase',
         for_frontend=True
     )
     calculate_lca_building = BooleanSetting(
-        default=True,
+        value=True,
         description='Whether to calculate lca of building or not',
         for_frontend=True
     )
     calculate_lca_hydraulic_system = BooleanSetting(
-        default=True,
+        value=True,
         description='Whether to calculate lca of hydraulic system or not',
         for_frontend=True
     )
     calculate_lca_ventilation_system = BooleanSetting(
-        default=True,
+        value=True,
         description='Whether to calculate lca of ventilation system or not',
         for_frontend=True
     )
     calculate_costs_building = BooleanSetting(
-        default=True,
+        value=True,
         description='Whether to calculate costs of building or not',
         for_frontend=True
     )
     calculate_costs_hydraulic_system = BooleanSetting(
-        default=True,
+        value=True,
         description='Whether to calculate costs of hydraulic system or not',
         for_frontend=True
     )
     calculate_costs_ventilation_system = BooleanSetting(
-        default=True,
+        value=True,
         description='Whether to calculate costs of ventilation system or not',
         for_frontend=True
     )
 
     # Building Settings
     building_standard = ChoiceSetting(
-        default='kfw_40',
+        value='kfw_40',
         choices={
             'kfw_40': 'Building according to kfw 40 standard',
             'kfw_55': 'Building according to kfw 55 standard',
@@ -70,7 +70,7 @@ class LCAExportSettings(BuildingSimSettings):
 
     # Hydraulic Settings
     pipe_type = ChoiceSetting(
-        default='Stahlrohr',
+        value='Stahlrohr',
         choices={
             'Stahlrohr': 'Stahlrohr',
             'Innenverzinne_Kupferrohre_pro_1kg': 'Kupferrohr'
@@ -79,7 +79,7 @@ class LCAExportSettings(BuildingSimSettings):
                     'Should be the same as used in Plugin HydraulicSystem'
     )
     heat_delivery_type = ChoiceSetting(
-        default=['Radiator'],
+        value=['Radiator'],
         choices={
             'Radiator': 'Radiator',
             'UFH': 'UFH',
@@ -91,7 +91,7 @@ class LCAExportSettings(BuildingSimSettings):
         for_frontend=True
     )
     ufh_pipe_type = ChoiceSetting(
-        default='PP',
+        value='PP',
         choices={
             'Copper': 'Copper',
             'PEX': 'PEX',
@@ -101,7 +101,7 @@ class LCAExportSettings(BuildingSimSettings):
         for_frontend=True
     )
     hydraulic_components_data_file_path = PathSetting(
-        default=Path(__file__).parent /
+        value=Path(__file__).parent /
                 'assets/hydraulic_components.xlsx',
         description='Path to the data file which holds information'
                     'about possible hydraulic system components',
@@ -109,13 +109,13 @@ class LCAExportSettings(BuildingSimSettings):
         mandatory=False
     )
     hydraulic_components_data_file_radiator_sheet = StringSetting(
-        default="Profilierte Flachheizkörper",
+        value="Profilierte Flachheizkörper",
         description='Name of sheet in hydraulic components data file'
                     'which holds data about the desired radiators',
         for_frontend=True
     )
     hydraulic_system_material_xlsx = PathSetting(
-        default=None,
+        value=None,
         description='Path to the excel file which holds information'
                     'about used material in hydraulic system'
                     '(Output of PluginHydraulicSystem)',
@@ -124,35 +124,35 @@ class LCAExportSettings(BuildingSimSettings):
 
     # Ventilation Settings
     ventilation_supply_system_material_xlsx = PathSetting(
-        default=None,
+        value=None,
         description='Path to the excel file which holds information'
                     'about used material in ventilation supply system'
                     '(Output of PluginVentilationSystem)',
         for_frontend=True
     )
     ventilation_exhaust_system_material_xlsx = PathSetting(
-        default=None,
+        value=None,
         description='Path to the excel file which holds information'
                     'about used material in ventilation exhaust system'
                     '(Output of PluginVentilationSystem)',
         for_frontend=True
     )
     ventilation_rooms_supply_xlsx = PathSetting(
-        default=None,
+        value=None,
         description='Path to the excel file which holds information'
                     'about room specific information in ventilation supply'
                     ' system (Output of PluginVentilationSystem)',
         for_frontend=True
     )
     ventilation_rooms_exhaust_xlsx = PathSetting(
-        default=None,
+        value=None,
         description='Path to the excel file which holds information'
                     'about room specific information in ventilation exhaust'
                     ' system (Output of PluginVentilationSystem)',
         for_frontend=True
     )
     ventilation_fire_damper_xlsx = PathSetting(
-        default=None,
+        value=None,
         description='Path to the excel file which holds information'
                     'about fire damper data in ventilation'
                     ' system (Output of PluginVentilationSystem)',

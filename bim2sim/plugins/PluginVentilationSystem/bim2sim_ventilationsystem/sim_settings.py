@@ -12,7 +12,7 @@ class VentilationSystemSimSettings(BuildingSimSettings):
                                       Material}
 
     export_graphs = BooleanSetting(
-        default=True,
+        value=True,
         description="Export the figures of the ventilation graphs")
 
 

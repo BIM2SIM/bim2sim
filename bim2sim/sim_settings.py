@@ -166,11 +166,11 @@ class NumberSetting(Setting):
 class StringSetting(Setting):
     def __init__(
             self,
-            default=None,
+            value=None,
             description: Union[str, None] = None,
             for_frontend: bool = False
     ):
-        super().__init__(default, description, for_frontend)
+        super().__init__(value, description, for_frontend)
 
     def check_value(self, bound_simulation_settings, value):
         """Checks the value that should be set for correctness
@@ -264,13 +264,6 @@ class PathSetting(Setting):
 class BooleanSetting(Setting):
     value: Optional[bool]
 
-
-class LockSetting(Setting):
-    def check_value(self, bound_simulation_settings, value):
-        if not isinstance(value, type(threading.Lock())):
-            raise ValueError(f"The provided value {value} is not a Lock")
-        else:
-            return True
 
 
 class GuidListSetting(Setting):
