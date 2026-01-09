@@ -859,7 +859,7 @@
       2016,
       2100
     ],
-    "construction_data": "custom_U_0_2",
+    "construction_data": "custom_U_0_20",
     "inner_radiation": 5,
     "inner_convection": 2.7,
     "u_value": 0.69,
@@ -893,7 +893,7 @@
       2016,
       2100
     ],
-    "construction_data": "custom_U_0_2",
+    "construction_data": "custom_U_0_20",
     "inner_radiation": 5,
     "inner_convection": 1.7,
     "u_value": 0.53,
@@ -927,7 +927,7 @@
       2016,
       2100
     ],
-    "construction_data": "custom_U_0_2",
+    "construction_data": "custom_U_0_20",
     "inner_radiation": 5,
     "inner_convection": 1.7,
     "u_value": 0.53,
@@ -1453,7 +1453,7 @@
       2016,
       2100
     ],
-    "construction_data": "custom_U_0_3",
+    "construction_data": "custom_U_0_30",
     "inner_radiation": 5,
     "inner_convection": 2.7,
     "u_value": 0.69,
@@ -1487,7 +1487,7 @@
       2016,
       2100
     ],
-    "construction_data": "custom_U_0_3",
+    "construction_data": "custom_U_0_30",
     "inner_radiation": 5,
     "inner_convection": 1.7,
     "u_value": 0.53,
@@ -1521,7 +1521,7 @@
       2016,
       2100
     ],
-    "construction_data": "custom_U_0_3",
+    "construction_data": "custom_U_0_30",
     "inner_radiation": 5,
     "inner_convection": 1.7,
     "u_value": 0.53,
