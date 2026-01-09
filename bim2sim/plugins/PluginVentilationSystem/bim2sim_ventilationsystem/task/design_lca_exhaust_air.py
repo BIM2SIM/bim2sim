@@ -63,7 +63,7 @@ class DesignExhaustLCA(ITask):
         position_ahu = [25, building_shaft_exhaust_air[1], building_shaft_exhaust_air[2]]
         # y-axis of shaft and ahu must be identical
         cross_section_type = 'optimal'  # choose between round, angular and optimal
-        suspended_ceiling_space = 200 * ureg.millimeter  # The available height (in [mmm]) in the suspended ceiling is
+        suspended_ceiling_space = 300 * ureg.millimeter  # The available height (in [mmm]) in the suspended ceiling is
         # specified here! This corresponds to the available distance between UKRD (lower edge of raw ceiling) and OKFD
         # (upper edge of finished ceiling), see https://www.ctb.de/_wiki/swb/Massbezuege.php
 

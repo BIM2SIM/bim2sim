@@ -164,34 +164,7 @@ class NumberSetting(Setting):
 
 
 class StringSetting(Setting):
-    def __init__(
-            self,
-            value=None,
-            description: Union[str, None] = None,
-            for_frontend: bool = False
-    ):
-        super().__init__(value, description, for_frontend)
-
-    def check_value(self, bound_simulation_settings, value):
-        """Checks the value that should be set for correctness
-
-        Checks if value is in limits.
-        Args:
-            bound_simulation_settings: the sim setting belonging to the value
-            value: value that should be checked for correctness
-        Returns:
-            True: if check was successful
-        Raises:
-            ValueError: if check was not successful
-            """
-        # None is allowed for settings that should not be used at all but have
-        #  number values if used
-        if value is None:
-            return True
-        if not isinstance(value, str):
-            raise ValueError("The provided value is not a string.")
-        else:
-            return True
+    value: str
 
 
 class ChoiceSetting(Setting):

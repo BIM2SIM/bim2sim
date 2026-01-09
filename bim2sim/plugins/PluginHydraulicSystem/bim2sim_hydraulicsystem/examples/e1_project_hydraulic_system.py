@@ -60,7 +60,7 @@ def run_example_project_hydraulic_system():
     #but loading in mos script, customizing it, saving it again and then using it probably wont work,
     #since python uses the original mos script when the python script was started
 
-    project.sim_settings.heat_demand_mat_file_path = \
+    project.sim_settings.teaser_result_file = \
         r"D:\dja-jho\Testing\Teaser3\export\TEASER\SimResults\AC20InstituteVar2\Buerogebaeude\teaser_results_edited.mat"
     project.sim_settings.heat_delivery_type = "UFH" # UFH or Radiator
     project.sim_settings.hydraulic_components_data_file_radiator_sheet = "Profilierte Flachheizkörper"

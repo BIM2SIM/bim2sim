@@ -41,7 +41,7 @@ class InterfaceToPluginTeaser(ITask):
             tzs = filter_elements(elements, 'ThermalZone')
 
         self.logger.info("Load heat demand data")
-        plugin_teaser_dict = self.read_heat_demand_mat_file()
+        plugin_teaser_dict = self.read_teaser_result_file()
         heat_demand_dict = self.merge_dicts(plugin_teaser_dict=plugin_teaser_dict, zone_dict=zone_dict, tzs=tzs)
 
         if self.playground.sim_settings.disaggregate_heat_demand_thermal_zones:
@@ -99,8 +99,8 @@ class InterfaceToPluginTeaser(ITask):
             i = i + 1
         return space_dict
 
-    def read_heat_demand_mat_file(self):
-        filepath = self.playground.sim_settings.heat_demand_mat_file_path
+    def read_teaser_result_file(self):
+        filepath = self.playground.sim_settings.teaser_result_file
         tsd = TimeSeriesData(filepath)
 
         time_column = tsd.index
@@ -127,7 +127,7 @@ class InterfaceToPluginTeaser(ITask):
                     if var not in plugin_teaser_thermal_zone_dict[thermal_zone]:
                         plugin_teaser_thermal_zone_dict[thermal_zone][var] = {}
                     value_list = (tsd[plugin_teaser_name].values.tolist())
-                    result_dict = {time_column[i]: value_list[i][0] * 10 ** (-3) for i in range(len(time_column))}
+                    result_dict = {time_column[i]: value_list[i] * 10 ** (-3) for i in range(len(time_column))}
                     plugin_teaser_thermal_zone_dict[thermal_zone][var] = result_dict
                 # Nicht thermal_zonenplugin_teasern
                 else:
@@ -135,7 +135,7 @@ class InterfaceToPluginTeaser(ITask):
                     if plugin_teaser not in plugin_teaser_dict:
                         plugin_teaser_dict[plugin_teaser] = {}
                     value_list = (tsd[plugin_teaser_name].values.tolist())
-                    result_dict = {time_column[i]: value_list[i][0] * 10 ** (-3) for i in range(len(time_column))}
+                    result_dict = {time_column[i]: value_list[i] * 10 ** (-3) for i in range(len(time_column))}
                     plugin_teaser_dict[plugin_teaser] = result_dict
         return plugin_teaser_thermal_zone_dict
 
@@ -149,11 +149,11 @@ class InterfaceToPluginTeaser(ITask):
             heat_demand_dict[i]["space_guids"].append(tz.guid)
             i += 1
 
-        for key, values in plugin_teaser_dict.items():
-            heat_demand_dict[int(key)]["PHeater"] = max(plugin_teaser_dict[key]["PHeater"].values())
+        for key, values in heat_demand_dict.items():
+            values["PHeater"] = max(list(plugin_teaser_dict[str(key)]["PHeater"].values())[24:])
 
             for tz_values in tzs:
-                if tz_values.guid == heat_demand_dict[int(key)]["space_guids"][0]:
-                    heat_demand_dict[int(key)]["usage"] = tz_values.usage
+                if tz_values.guid == values["space_guids"][0]:
+                    values["usage"] = tz_values.usage
 
         return heat_demand_dict
