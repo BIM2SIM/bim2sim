@@ -63,7 +63,7 @@ class DesignExhaustLCA(ITask):
         position_ahu = [25, building_shaft_exhaust_air[1], building_shaft_exhaust_air[2]]
         # y-axis of shaft and ahu must be identical
         cross_section_type = 'optimal'  # choose between round, angular and optimal
-        suspended_ceiling_space = 300 * ureg.millimeter  # The available height (in [mmm]) in the suspended ceiling is
+        suspended_ceiling_space = 500 * ureg.millimeter  # The available height (in [mmm]) in the suspended ceiling is
         # specified here! This corresponds to the available distance between UKRD (lower edge of raw ceiling) and OKFD
         # (upper edge of finished ceiling), see https://www.ctb.de/_wiki/swb/Massbezuege.php
 
@@ -3361,13 +3361,15 @@ class DesignExhaustLCA(ITask):
         Volume flow controllers
         """
 
-        # Data for Trox RN Volume_flow_controller
+        # Data for Trox RN Volume_flow_controller (Diameters 500, 625 and 750 mm via Polynomial Extrapolation)
         # https://cdn.trox.de/4ab7c57caaf55be6/3450dc5eb9d7/TVR_PD_2022_08_03_DE_de.pdf
         trox_tvr_diameter_weight = {
             'diameter': [100 * ureg.millimeter, 125 * ureg.millimeter, 160 * ureg.millimeter, 200 * ureg.millimeter,
-                            250 * ureg.millimeter, 315 * ureg.millimeter, 400 * ureg.millimeter],
+                            250 * ureg.millimeter, 315 * ureg.millimeter, 400 * ureg.millimeter,
+                            500 * ureg.millimeter, 625 * ureg.millimeter, 750 * ureg.millimeter],
             'weight': [3.3 * ureg.kilogram, 3.6 * ureg.kilogram, 4.2 * ureg.kilogram, 5.1 * ureg.kilogram,
-                        6.1 * ureg.kilogram, 7.2 * ureg.kilogram, 9.4 * ureg.kilogram]
+                        6.1 * ureg.kilogram, 7.2 * ureg.kilogram, 9.4 * ureg.kilogram,
+                        1.95 * ureg.kilogram, 15.6 * ureg.kilogram, 19.69 * ureg.kilogram]
         }
         df_trox_tvr_diameter_weight = pd.DataFrame(trox_tvr_diameter_weight)
        
@@ -3414,11 +3416,14 @@ class DesignExhaustLCA(ITask):
         def weight_round_volume_flow_controller(row):
             if row['volume_flow_controller'] == 1 and 'Ø' in row['cross_section']:
                 calculated_diameter = row['equivalent_diameter']
-                next_diameter = df_trox_tvr_diameter_weight[
-                    df_trox_tvr_diameter_weight['diameter'] >= calculated_diameter]['diameter'].min()
-                return \
-                    df_trox_tvr_diameter_weight[df_trox_tvr_diameter_weight['diameter'] == next_diameter][
-                        'weight'].values[0]
+                valid_options = df_trox_tvr_diameter_weight[
+                    df_trox_tvr_diameter_weight['diameter'] >= calculated_diameter]
+
+                if valid_options.empty:
+                    raise ValueError(f"Calculated diameter {calculated_diameter} exceeds the largest available size.")
+
+                # Sort by diameter (smallest to largest) and pick the top one's weight directly
+                return valid_options.sort_values(by='diameter').iloc[0]['weight']
             return None
 
         def weight_angular_volume_flow_controller(row):
