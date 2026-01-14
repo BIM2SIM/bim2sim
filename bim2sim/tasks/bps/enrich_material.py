@@ -367,6 +367,13 @@ class EnrichMaterial(ITask):
                 'doors': get_type_building_elements(construction_files.doors)
             }
 
+            if sim_settings.construction_class_walls == "custom":
+                construction_class_walls = sim_settings.custom_construction_class_walls
+            if sim_settings.construction_class_doors == "custom":
+                construction_class_doors = sim_settings.custom_construction_class_doors
+            if sim_settings.construction_class_windows == "custom":
+                construction_class_windows = sim_settings.custom_construction_class_windows
+
             # Build template for current building
             bldg_template = {}
             for element_type, years_dict in element_templates[
@@ -374,19 +381,19 @@ class EnrichMaterial(ITask):
                 if element_type == 'Window':
                     bldg_template[element_type] = self.get_element_template(
                         element_type, year_of_construction, years_dict,
-                        sim_settings.construction_class_windows, self.logger)
+                        construction_class_windows, self.logger)
 
             for element_type, years_dict in element_templates['doors'].items():
                 if element_type == 'Door':
                     bldg_template[element_type] = self.get_element_template(
                         element_type, year_of_construction, years_dict,
-                        sim_settings.construction_class_doors, self.logger)
+                        construction_class_doors, self.logger)
 
             for element_type, years_dict in element_templates['walls'].items():
                 if element_type not in ('Window', 'Door'):
                     bldg_template[element_type] = self.get_element_template(
                         element_type, year_of_construction, years_dict,
-                        sim_settings.construction_class_walls, self.logger)
+                        construction_class_walls, self.logger)
 
             templates[building] = bldg_template
 

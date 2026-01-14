@@ -671,7 +671,9 @@ class BuildingSimSettings(BaseSimSettings):
                                            '2 for '
                                            'apartment blocks',
             'tabula_dk_standard': 'Wall structures according to danish '
-                                  'tabula standard'
+                                  'tabula standard',
+            'custom': 'Custom construction class type.'
+                      'Set prj_custom_type_elements and custom_construction_class_walls'
         },
         description="Select the most fitting construction class type for"
                     "the walls of the selected building. For all settings but "
@@ -786,7 +788,9 @@ class BuildingSimSettings(BaseSimSettings):
             'tabula_dk_adv_retrofit_2_AB': 'Windows according to danish '
                                            'tabula advanced retrofit 2 for '
                                            'apartment blocks',
-            'tabula_dk_standard': 'Windows according to danish tabula standard'
+            'tabula_dk_standard': 'Windows according to danish tabula standard',
+            'custom': 'Custom construction class type.'
+                      'Set prj_custom_type_elements and custom_construction_class_windows'
         },
         description="Select the most fitting construction class type for"
                     " the windows of the selected building.",
@@ -835,13 +839,29 @@ class BuildingSimSettings(BaseSimSettings):
                                            'apartment blocks',
             'tabula_dk_standard_1_SFH': 'Windows according to danish tabula '
                                         'standard 1 for single family '
-                                        'houses'
+                                        'houses',
+            'custom': 'Custom construction class type.'
+                      'Set prj_custom_type_elements and custom_construction_class_doors'
         },
         description="Select the most fitting construction class type for"
-                    " the windows of the selected building.",
+                    " the doors of the selected building.",
         custom_choice=True
     )
-
+    custom_construction_class_walls = StringSetting(
+        value="None",
+        description='Custom construction walls for walls. '
+                    'Only usable, when construction_class_walls is set to "custom"',
+    )
+    custom_construction_class_windows = StringSetting(
+        value="None",
+        description='Custom construction class for windows. '
+                    'Only usable, when construction_class_windows is set to "custom"',
+    )
+    custom_construction_class_doors = StringSetting(
+        value="None",
+        description='Custom construction class for doors. '
+                    'Only usable, when construction_class_doors is set to "custom"',
+    )
     heating = BooleanSetting(
         value=True,
         description='Whether the building should be supplied with heating.',
@@ -883,6 +903,14 @@ class BuildingSimSettings(BaseSimSettings):
         value=None,
         description="Path to a custom customUsages.json for the specific "
                     "project, that holds mappings between space names from "
+                    "IFC "
+                    "and usage conditions from UseConditions.json.",
+        for_frontend=True
+    )
+    prj_custom_type_elements = PathSetting(
+        value=None,
+        description="Path to a custom TypeElements.json for the specific "
+                    "project, that holds wall structure data"
                     "IFC "
                     "and usage conditions from UseConditions.json.",
         for_frontend=True
