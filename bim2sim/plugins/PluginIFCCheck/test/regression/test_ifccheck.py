@@ -4,6 +4,7 @@ import logging
 import re
 import shutil
 import unittest
+import filecmp  # compare files
 from pathlib import Path
 
 import buildingspy.development.regressiontest as u
@@ -12,6 +13,7 @@ import bim2sim
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import RegressionTestBase
 from bim2sim.utilities.types import IFCDomain, ZoningCriteria
+from bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck import PluginIFCCheck
 
 logger = logging.getLogger(__name__)
 
@@ -66,8 +68,32 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
     def test_run_ifc_check_fzk_haus(self):
         """Run IFCCheck regression test with AC20-FZK-Haus.ifc"""
 
-        # ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
-        # project = self.create_project(ifc_names, 'TEASER')
+        ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
+        project = self.create_project(ifc_names, PluginIFCCheck)
+
+        
+        # assign an IDS file, which is needed to check the ifc file by ifctester
+        project.sim_settings.ids_file_path = (
+                Path(bim2sim.__file__).parent /
+                'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
+        )
+
+        # In the next step we assign this file to the project by setting:
+        project.sim_settings.prj_custom_usages = (Path(
+            bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
+                "customUsagesAC20-FZK-Haus.json")
+
+        project.sim_settings.prj_use_conditions = (Path(
+            bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
+                "UseConditionsAC20-FZK-Haus.json")
+
+        project.sim_settings.setpoints_from_template = True
+
+        answers = ()
+        handler = DebugDecisionHandler(answers)
+        for decision, answer in handler.decision_answer_mapping(project.run()):
+            decision.value = answer
+
         # project.sim_settings.zoning_criteria = (
         #     ZoningCriteria.combined_single_zone)
         # project.sim_settings.ahu_tz_overwrite = False
@@ -91,6 +117,12 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         # self.assertEqual(0, reg_test_res,
         #                  "Regression test with simulation did not finish"
         #                  " successfully or created deviations.")
-        A = 'A'
-        self.assertEqual('AB', A,
+
+        file_a = Path(bim2sim.__file__).parent.parent \
+            / "test/resources/ifc_check/regression_results/test_compare_file.txt"
+        file_b = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/test_file_reg.txt"
+        result = filecmp.cmp(file_a, file_b, shallow=True)
+        print(result)
+        print('NACH DEM TEST')
+        self.assertEqual(result, True,
                          "Dummy Test fail")
