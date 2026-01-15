@@ -78,21 +78,24 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
                 'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
         )
 
-        # In the next step we assign this file to the project by setting:
-        project.sim_settings.prj_custom_usages = (Path(
-            bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
-                "customUsagesAC20-FZK-Haus.json")
+        # # In the next step we assign this file to the project by setting:
+        # project.sim_settings.prj_custom_usages = (Path(
+        #     bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
+        #         "customUsagesAC20-FZK-Haus.json")
 
-        project.sim_settings.prj_use_conditions = (Path(
-            bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
-                "UseConditionsAC20-FZK-Haus.json")
+        # project.sim_settings.prj_use_conditions = (Path(
+        #     bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
+        #         "UseConditionsAC20-FZK-Haus.json")
 
-        project.sim_settings.setpoints_from_template = True
+        # project.sim_settings.setpoints_from_template = True
 
         answers = ()
         handler = DebugDecisionHandler(answers)
-        for decision, answer in handler.decision_answer_mapping(project.run()):
-            decision.value = answer
+
+        handler.handle(project.run())
+
+        # for decision, answer in handler.decision_answer_mapping(project.run()):
+        #     decision.value = answer
 
         # project.sim_settings.zoning_criteria = (
         #     ZoningCriteria.combined_single_zone)
