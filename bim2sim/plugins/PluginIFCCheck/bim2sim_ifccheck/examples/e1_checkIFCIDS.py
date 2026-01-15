@@ -89,9 +89,9 @@ def run_simple_project():
     # "Galerie". We already stored the .json file under the test resources,
     # have a look at it.
     # In the next step we assign this file to the project by setting:
-    project.sim_settings.prj_custom_usages = (Path(
-        bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
-            "customUsagesAC20-FZK-Haus.json")
+    # project.sim_settings.prj_custom_usages = (Path(
+    #     bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
+    #         "customUsagesAC20-FZK-Haus.json")
 
     # If we don't want to use the standard data for usage conditions, we
     # can change them. We created a project specific UseConditions file for
@@ -101,15 +101,15 @@ def run_simple_project():
     # untouched.
 
     # Let's assign this use conditions file:
-    project.sim_settings.prj_use_conditions = (Path(
-        bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
-            "UseConditionsAC20-FZK-Haus.json")
+    # project.sim_settings.prj_use_conditions = (Path(
+    #     bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
+    #         "UseConditionsAC20-FZK-Haus.json")
 
     # By default bim2sim tries to calculate the heating profile based on given
     # information from the IFC. As the used IFC has information about the set
     # temperature, we need an additional `sim_setting` to force the overwrite
     # of the existing data in the IFC.
-    project.sim_settings.setpoints_from_template = True
+    # project.sim_settings.setpoints_from_template = True
 
     # Before we can run the project, we need to assign a DecisionHandler. To
     # understand this, we need to understand why we need such a handler.
