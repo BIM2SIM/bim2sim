@@ -26,7 +26,6 @@ class RegressionTestIFCCheck(RegressionTestBase):
         super().setUp()
 
     def tearDown(self):
-
         super().tearDown()
 
     def create_regression_setup(self):
@@ -47,6 +46,7 @@ class RegressionTestIFCCheck(RegressionTestBase):
         return passed_regression_test
 
     def run_regression_test(self):
+        # TODO later I put here the difffile/difffolder calls
         print("run reg test")
         reg_test_res = False
         return reg_test_res
@@ -121,11 +121,14 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         #                  "Regression test with simulation did not finish"
         #                  " successfully or created deviations.")
 
+        file_result_ifc_tester = self.project.paths.log / "ifc_ids_check.html"
+        print(file_result_ifc_tester)
         file_a = Path(bim2sim.__file__).parent.parent \
             / "test/resources/ifc_check/regression_results/test_compare_file.txt"
         file_b = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/test_file_reg.txt"
-        result = filecmp.cmp(file_a, file_b, shallow=True)
+        file_result_ifc_tester_res = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/ifc_ids_check.html"
+        result = filecmp.cmp(file_result_ifc_tester, file_result_ifc_tester_res, shallow=True)
         print(result)
-        print('NACH DEM TEST')
+        print('vor DEM TEST')
         self.assertEqual(result, True,
                          "Dummy Test fail")
