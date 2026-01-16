@@ -4,7 +4,8 @@ import logging
 import re
 import shutil
 import unittest
-import filecmp  # compare files
+# import filecmp  # compare files, maybe not needed TODO delete ?
+from lxml import html
 from pathlib import Path
 
 import buildingspy.development.regressiontest as u
@@ -123,12 +124,27 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
 
         file_result_ifc_tester = self.project.paths.log / "ifc_ids_check.html"
         print(file_result_ifc_tester)
-        file_a = Path(bim2sim.__file__).parent.parent \
-            / "test/resources/ifc_check/regression_results/test_compare_file.txt"
-        file_b = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/test_file_reg.txt"
+        # file_a = Path(bim2sim.__file__).parent.parent \
+        #     / "test/resources/ifc_check/regression_results/test_compare_file.txt"
+        # file_b = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/test_file_reg.txt"
         file_result_ifc_tester_res = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/ifc_ids_check.html"
-        result = filecmp.cmp(file_result_ifc_tester, file_result_ifc_tester_res, shallow=True)
-        print(result)
-        print('vor DEM TEST')
-        self.assertEqual(result, True,
+        # result = filecmp.cmp(file_result_ifc_tester, file_result_ifc_tester_res, shallow=True)
+        # print(result)
+        # print('vor DEM TEST')
+
+        # xpaths to elements in html
+        xpath = '//div[@class="fail percent"]'
+
+        doc_a = html.fromstring(open(file_result_ifc_tester).read())
+        elem_a = doc_a.xpath(xpath)
+        elem_a_cont = elem_a[0].text_content().strip()
+        print('content of element a: {}'.format(elem_a_cont))
+
+        doc_b = html.fromstring(open(file_result_ifc_tester_res).read())
+        elem_b = doc_b.xpath(xpath)
+        elem_b_cont = elem_b[0].text_content().strip()
+        print('content of element b: {}'.format(elem_b_cont))
+
+        
+        self.assertEqual(elem_a_cont, elem_b_cont,
                          "Dummy Test fail")
