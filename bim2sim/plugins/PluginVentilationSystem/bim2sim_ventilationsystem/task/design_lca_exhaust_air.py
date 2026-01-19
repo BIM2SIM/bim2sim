@@ -3000,31 +3000,179 @@ class DesignExhaustLCA(ITask):
         mdot_kg_per_s_ahu = (air_volume_ahu * density).to(ureg.kilogram / ureg.second)
 
         # Create an external grid, as the visualization is then better
-        pp.create_ext_grid(net, junction=index_ahu, p_bar=0, t_k=293.15, name='Air handling unit')
+        # pp.create_ext_grid(net, junction=index_ahu, p_bar=1.01325, t_k=293.15, name='Air handling unit')
 
-        # Add air handling unit to network
-        pp.create_source(net,
-                         mdot_kg_per_s=-mdot_kg_per_s_ahu.magnitude,
-                         junction=index_ahu,
-                         p_bar=0,
-                         t_k=293.15,
-                         name='Air handling unit')
-
+        # Adding the ventilation inlets as sources
         list_ventilation_inlets = list()
-
-        # Adding the ventilation inlets
         for index, element in enumerate(air_volume):
             if element == tuple(position_ahu):
-                continue  
+                continue
             if element[0] == position_shaft[0] and element[1] == position_shaft[1]:
                 continue
             if air_volume[element] == 0:
                 continue
-            pp.create_sink(net,
-                           junction=name_junction.index(element),
-                           mdot_kg_per_s=(-air_volume[element] * density).to(ureg.kilogram / ureg.second).magnitude,
-                           )
+            pp.create_source(net,  # SOURCE statt SINK
+                             junction=name_junction.index(element),
+                             mdot_kg_per_s=(air_volume[element] * density).to(ureg.kilogram / ureg.second).magnitude,
+                             p_bar=1.01325,
+                             t_k=293.15)
             list_ventilation_inlets.append(name_junction.index(element))
+
+        # Add air handling unit to network
+        pp.create_sink(net,
+                       mdot_kg_per_s=-mdot_kg_per_s_ahu.magnitude,
+                       junction=index_ahu)
+        ###################################
+
+        def check_pandapipes_network(net, ref_junction=None, tol=1e-6):
+            issues = []
+
+            # 1) NaN/fehlende Werte in Tabellen
+            tables = ["junction", "pipe", "pump", "valve", "sink", "source", "ext_grid"]
+            for t in tables:
+                if t in net and not net[t].empty:
+                    if net[t].isnull().values.any():
+                        issues.append(f"NaN oder fehlende Werte in net.{t}")
+
+            # 2) Massenbilanz: Summe aller Quellen + Senken sollte ~0 sein
+            total_source = 0.0
+            total_sink = 0.0
+            if "source" in net and not net.source.empty:
+                total_source = net.source["mdot_kg_per_s"].sum()
+            if "sink" in net and not net.sink.empty:
+                total_sink = net.sink["mdot_kg_per_s"].sum()
+            imbalance = total_source + total_sink  # in pandapipes sind senken oft negativ
+            if abs(imbalance) > tol:
+                issues.append(f"Massenbilanzabweichung: sum(sources)+sum(sinks) = {imbalance:.6e} kg/s")
+
+            # 3) Auffällige Werte in Pipes (Länge, Durchmesser, roughness)
+            if "pipe" in net and not net.pipe.empty:
+                if (net.pipe["length_km"] <= 0).any() if "length_km" in net.pipe.columns else False:
+                    issues.append("Pipes mit Länge <= 0 (Spalte length_km)")
+                if "diameter_m" in net.pipe.columns and (net.pipe["diameter_m"] <= 0).any():
+                    issues.append("Pipes mit Durchmesser <= 0 (Spalte diameter_m)")
+
+            # 4) Isolierte Junctions (keine Pipe-Verbindungen)
+            junc_idx = net.junction.index.tolist()
+            adj = {int(i): set() for i in junc_idx}
+            # Verwende Tabellen mit from_junction/to_junction (pipes, pumps, valves)
+            for tbl in ("pipe", "pump", "valve"):
+                if tbl in net and not net[tbl].empty:
+                    for _, r in net[tbl].iterrows():
+                        if "from_junction" in r and "to_junction" in r:
+                            a, b = int(r["from_junction"]), int(r["to_junction"])
+                            adj.setdefault(a, set()).add(b)
+                            adj.setdefault(b, set()).add(a)
+            isolated = [j for j, neigh in adj.items() if len(neigh) == 0]
+            if isolated:
+                issues.append(
+                    f"Isolierte Junctions (keine Rohr-Verbindung): {isolated[:20]}{'' if len(isolated) <= 20 else '...'}")
+
+            # 5) Referenz/Junction des AHU prüfen (falls übergeben)
+            if ref_junction is not None and ref_junction not in junc_idx:
+                issues.append(f"Referenz-Junction (AHU) {ref_junction} nicht in net.junction")
+
+            # Ausgabe
+            if not issues:
+                print("check_pandapipes_network: keine offensichtlichen Probleme gefunden.")
+                return True
+            else:
+                print("check_pandapipes_network: Probleme gefunden:")
+                for it in issues:
+                    print(" -", it)
+                return False
+
+        def _stringify_cell(x):
+            """Konvertiert beliebige Zellenwerte in sichere Strings für Text-Export."""
+            if x is None:
+                return ""
+            # pandas/Numpy NA
+            try:
+                if pd.isna(x):
+                    return ""
+            except Exception:
+                pass
+            # pint.Quantity
+            try:
+                if isinstance(x, Quantity):
+                    # zeige Wert mit Einheit
+                    return f"{x.magnitude} {x.units}"
+            except Exception:
+                pass
+            # numpy scalar/array
+            if isinstance(x, (np.ndarray, np.generic)):
+                try:
+                    return np.array2string(x, separator=",", max_line_width=1000)
+                except Exception:
+                    return str(x)
+            # häufige komplexe Typen
+            if isinstance(x, (list, tuple, dict, set)):
+                try:
+                    return json.dumps(x, default=str, ensure_ascii=False)
+                except Exception:
+                    return str(x)
+            # sonst str
+            try:
+                return str(x)
+            except Exception:
+                return repr(x)
+
+        def _df_to_tsv(df: pd.DataFrame, path: Path):
+            """Schreibt ein DataFrame als TSV; wandelt alle Zellen in Strings."""
+            df_c = df.copy()
+            # Index als Spalte falls Index nicht default RangeIndex
+            if not isinstance(df_c.index, pd.RangeIndex):
+                df_c = df_c.reset_index()
+            # Apply map/stringify effizient
+            for col in df_c.columns:
+                # Vectorisierte Anwendung bei numerischen Typen (schneller)
+                if pd.api.types.is_numeric_dtype(df_c[col]) and not df_c[col].apply(
+                        lambda v: isinstance(v, Quantity)).any():
+                    # konvertiere NaN -> leere Strings sonst str()
+                    df_c[col] = df_c[col].apply(lambda v: "" if pd.isna(v) else str(v))
+                else:
+                    df_c[col] = df_c[col].apply(_stringify_cell)
+            df_c.to_csv(path, sep="\t", index=False, encoding="utf-8")
+
+        def export_pandapipes_net_to_txt(net, out_dir="pandapipes_export"):
+            """
+            Exportiert relevante pandapipes-Tabellen in out_dir.
+            Zurückgegeben wird der absolute Pfad des Export-Ordners.
+            """
+            out = Path(out_dir)
+            out.mkdir(parents=True, exist_ok=True)
+
+            tables_to_export = ["junction", "pipe", "source", "sink", "ext_grid",
+                                "res_junction", "res_pipe", "junction_geodata"]
+            saved = []
+
+            for tbl in tables_to_export:
+                if tbl in net.keys() and isinstance(net[tbl], pd.DataFrame) and not net[tbl].empty:
+                    path = out / f"{tbl}.txt"
+                    try:
+                        _df_to_tsv(net[tbl], path)
+                        saved.append((tbl, path, net[tbl].shape))
+                    except Exception as e:
+                        # Falls ein Export fehlschlägt, schreibe Fehlermeldung
+                        with open(out / f"{tbl}_export_error.txt", "w", encoding="utf-8") as fh:
+                            fh.write(f"Fehler beim Export von {tbl}: {e}")
+
+            # Schreibe eine kurze Zusammenfassung
+            summary = []
+            summary.append(f"Export-Verzeichnis: {out.resolve()}")
+            if hasattr(net, "name"):
+                summary.append(f"net.name: {getattr(net, 'name')}")
+            summary.append("Exportierte Tabellen:")
+            for name, path, shape in saved:
+                summary.append(f" - {name}: {path.name} (rows,cols)={shape}")
+            if not saved:
+                summary.append(" - Keine Tabellen exportiert (keine Daten gefunden).")
+
+            summary_path = out / "summary.txt"
+            summary_path.write_text("\n".join(summary), encoding="utf-8")
+
+            return str(out.resolve())
+
 
         # The actual calculation is started with the pipeflow command:
         pp.pipeflow(net)

@@ -2617,7 +2617,7 @@ class DesignSupplyLCA(ITask):
                 continue
             pp.create_sink(net,
                            junction=name_junction.index(element),
-                           mdot_kg_per_s=(air_volume[element] * density).to(ureg.kilogram / ureg.second).magnitude,
+                           mdot_kg_per_s=-(air_volume[element] * density).to(ureg.kilogram / ureg.second).magnitude,
                            )
             list_ventilation_outlets.append(name_junction.index(element))
 
