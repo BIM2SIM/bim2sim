@@ -29,6 +29,24 @@ class RegressionTestIFCCheck(RegressionTestBase):
     def tearDown(self):
         super().tearDown()
 
+    @staticmethod
+    def get_elements_html_file(filepath, xpaths):
+        """Get specific elements for a html file.
+
+        Args:
+            filepath: path to a html file
+            xpaths: list of xpaths (strings), like '//div[@class="fail percent"]'
+        Returns:
+            results: list of the specific elements
+        """
+        doc = html.fromstring(open(filepath).read())
+        results = []
+        for xpath in xpaths:
+            elem = doc.xpath(xpath)
+            elem_str = elem[0].text_content().strip()
+            results.append(elem_str)
+        return results
+
     def create_regression_setup(self):
         """
         Create a regression test setup based on BuildingsPy regression tests.
@@ -47,10 +65,21 @@ class RegressionTestIFCCheck(RegressionTestBase):
         return passed_regression_test
 
     def run_regression_test(self):
-        # TODO later I put here the difffile/difffolder calls
+        """Run the regression test."""
+
         print("run reg test")
-        reg_test_res = False
-        return reg_test_res
+
+        # html elements from test resources
+        result_res = self.get_elements_html_file(
+            self.path_result_file_ifc_tester_res,
+            self.xpaths)
+        # html elements from generated reports (while test run)
+        result_test = self.get_elements_html_file(
+            self.path_result_file_ifc_tester,
+            self.xpaths)
+        reg_test_res = (result_res == result_test)
+
+        return [reg_test_res, result_res, result_test]
 
     def create_regression_results(self):
         """Creates regression results based on simulation model.
@@ -95,56 +124,35 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
 
         handler.handle(project.run())
 
-        # for decision, answer in handler.decision_answer_mapping(project.run()):
-        #     decision.value = answer
-
-        # project.sim_settings.zoning_criteria = (
-        #     ZoningCriteria.combined_single_zone)
-        # project.sim_settings.ahu_tz_overwrite = False
-        # answers = ()
-        # handler = DebugDecisionHandler(answers)
-        # for decision, answer in handler.decision_answer_mapping(project.run()):
-        #     decision.value = answer
-        # orientation_dict = {}
-        # elements = project.playground.state['elements']
-        # for ele in elements.values():
-        #     if hasattr(ele, 'teaser_orientation'):
-        #         if ele.teaser_orientation:
-        #             orientation_dict[ele] = ele.teaser_orientation
-        # self.assertEqual(0, handler.return_value,
-        #                  "Project export did not finish successfully.")
-        # self.create_regression_setup(tolerance=1E-3, batch_mode=True)
-        # reg_test_res = self.run_regression_test()
-        # if reg_test_res == 3:
-        #     logger.error("Can't run dymola Simulation as no Dymola executable "
-        #                  "found")
-        # self.assertEqual(0, reg_test_res,
-        #                  "Regression test with simulation did not finish"
-        #                  " successfully or created deviations.")
-
-        file_result_ifc_tester = self.project.paths.log / "ifc_ids_check.html"
-        print(file_result_ifc_tester)
-        # file_a = Path(bim2sim.__file__).parent.parent \
-        #     / "test/resources/ifc_check/regression_results/test_compare_file.txt"
-        # file_b = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/test_file_reg.txt"
-        file_result_ifc_tester_res = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/ifc_ids_check.html"
-        # result = filecmp.cmp(file_result_ifc_tester, file_result_ifc_tester_res, shallow=True)
-        # print(result)
-        # print('vor DEM TEST')
+        # paths result file ifc tester (ids)
+        self.path_result_file_ifc_tester = self.project.paths.log / "ifc_ids_check.html"
+        self.path_result_file_ifc_tester_res = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/ifc_ids_check.html"
 
         # xpaths to elements in html
-        xpath = '//div[@class="fail percent"]'
+        # fail percent (unique)
+        xpath_fail_perc = '//div[@class="fail percent"]'
+        # Specifications passed
+        xpath_spec_pass = '//p/span[@class="item" and contains(normalize-space(.),"Specifications passed")]/ strong[1]'
+        # Specifications total 
+        xpath_spec_total = '//p/span[@class="item" and contains(normalize-space(.),"Specifications passed")]/ strong[2]'
+        # Requirements passed
+        xpath_req_pass = '//p/span[@class="item" and contains(normalize-space(.),"Requirements passed")]/ strong[1]'
+        # Requirements total 
+        xpath_req_total = '//p/span[@class="item" and contains(normalize-space(.),"Requirements passed")]/ strong[2]'
+        # Checks passed
+        xpath_checks_pass = '//p/span[@class="item" and contains(normalize-space(.),"Checks passed")]/ strong[1]'
+        # Checks total 
+        xpath_checks_total = '//p/span[@class="item" and contains(normalize-space(.),"Checks passed")]/ strong[2]'
+        self.xpaths = [xpath_fail_perc,
+                  xpath_spec_pass, xpath_spec_total,
+                  xpath_req_pass, xpath_req_total,
+                  xpath_checks_pass, xpath_checks_total]
+        # filepaths = [path_html_file_a, path_html_file_b]
 
-        doc_a = html.fromstring(open(file_result_ifc_tester).read())
-        elem_a = doc_a.xpath(xpath)
-        elem_a_cont = elem_a[0].text_content().strip()
-        print('content of element a: {}'.format(elem_a_cont))
+        reg_result = self.run_regression_test()
+        print(reg_result)
 
-        doc_b = html.fromstring(open(file_result_ifc_tester_res).read())
-        elem_b = doc_b.xpath(xpath)
-        elem_b_cont = elem_b[0].text_content().strip()
-        print('content of element b: {}'.format(elem_b_cont))
-
-        
-        self.assertEqual(elem_a_cont, elem_b_cont,
-                         "Dummy Test fail")
+        self.assertTrue(reg_result[0], "Comparison of the ifc tester " +
+                        "html reports (IDS) fails. " +
+                        "expected: {} ".format(reg_result[1]) +
+                        "test: {}".format(reg_result[2]))
