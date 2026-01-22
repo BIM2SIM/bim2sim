@@ -280,3 +280,88 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
                         "html reports (bim2sim specific check) fails. " +
                         "expected: {} ".format(reg_result[1]) +
                         "test: {}".format(reg_result[2]))
+
+    def test_run_ifc_check_fzk_haus_sum(self):
+        """Run IFCCheck regression test with AC20-FZK-Haus.ifc
+           checking the html report "summary" generated
+           by bim2sim specific checks.
+        """
+
+        ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
+        project = self.create_project(ifc_names, PluginIFCCheck)
+
+        # assign an IDS file, which is needed to check the ifc file
+        # by ifctester
+        project.sim_settings.ids_file_path = (
+                Path(bim2sim.__file__).parent /
+                'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
+        )
+
+        answers = ()
+        handler = DebugDecisionHandler(answers)
+
+        handler.handle(project.run())
+
+        # paths result file ifc tester (ids)
+        self.path_result_file_ifc_tester = self.project.paths.log / "ARCH_AC20-FZK-Haus_error_summary.html"
+        self.path_result_file_ifc_tester_res = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/ARCH_AC20-FZK-Haus_error_summary.html"
+
+        # xpaths to elements in html
+        # IFC Version:
+        xpath_ifc_version = (
+            '//tr[td[@class="tg-dvpl" and ' +
+            'normalize-space(.)="IFC Version:"]]' +
+            '/td[@class="tg-dvpl"][2]'
+                   )
+        # Version error:
+        xpath_ifc_version_error = (
+            '//tr[td[@class="tg-dvpl" and ' +
+            'normalize-space(.)="Version error:"]]' +
+            '/td[@class="tg-dvpl"][2]'
+                   )
+        # Unique GUID:
+        xpath_unique_guid = (
+            '//tr[td[@class="tg-dvpl" and ' +
+            'normalize-space(.)="Unique GUID:"]]' +
+            '/td[@class="tg-dvpl"][2]'
+                   )
+        # Total non-unique GUIDs:
+        xpath_nonunique_guid_total = (
+            '//tr[td[@class="tg-dvpl" and ' +
+            'normalize-space(.)="Total non-unique GUIDs:"]]' +
+            '/td[@class="tg-dvpl"][2]'
+                   )
+        # Empty GUID:
+        xpath_empty_guid = (
+            '//tr[td[@class="tg-dvpl" and ' +
+            'normalize-space(.)="Empty GUID:"]]' +
+            '/td[@class="tg-dvpl"][2]'
+                   )
+        # Total Empty GUIDs:
+        xpath_empty_guid_total = (
+            '//tr[td[@class="tg-dvpl" and ' +
+            'normalize-space(.)="Total Empty GUIDs:"]]' +
+            '/td[@class="tg-dvpl"][2]'
+                   )
+        # Total IFCProduct with errors
+        xpath_prod_with_errors_total = (
+            '//tr[td[@class="tg-dvpl" and ' +
+            'normalize-space(.)="Total IFCProduct with errors:"]]' +
+            '/td[@class="tg-dvpl"][2]'
+                   )
+        self.xpaths = [
+                xpath_ifc_version,
+                xpath_ifc_version_error,
+                xpath_unique_guid,
+                xpath_nonunique_guid_total,
+                xpath_empty_guid,
+                xpath_empty_guid_total,
+                xpath_prod_with_errors_total,
+                       ]
+
+        reg_result = self.run_regression_test()
+
+        self.assertTrue(reg_result[0], "Comparison of the 'summary' " +
+                        "html reports (bim2sim specific check) fails. " +
+                        "expected: {} ".format(reg_result[1]) +
+                        "test: {}".format(reg_result[2]))
