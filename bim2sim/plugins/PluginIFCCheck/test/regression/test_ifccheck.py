@@ -144,3 +144,54 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
                         "html reports (IDS) fails. " +
                         "expected: {} ".format(reg_result[1]) +
                         "test: {}".format(reg_result[2]))
+
+    def test_run_ifc_check_fzk_haus_sum_prop(self):
+        """Run IFCCheck regression test with AC20-FZK-Haus.ifc
+           checking the html report "summary_prob" generated
+           by bim2sim specific checks.
+        """
+
+        ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
+        project = self.create_project(ifc_names, PluginIFCCheck)
+
+        # assign an IDS file, which is needed to check the ifc file
+        # by ifctester
+        project.sim_settings.ids_file_path = (
+                Path(bim2sim.__file__).parent /
+                'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
+        )
+
+        answers = ()
+        handler = DebugDecisionHandler(answers)
+
+        handler.handle(project.run())
+
+        # paths result file ifc tester (ids)
+        self.path_result_file_ifc_tester = self.project.paths.log / "ARCH_AC20-FZK-Haus_error_summary_prop.html"
+        self.path_result_file_ifc_tester_res = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/ARCH_AC20-FZK-Haus_error_summary_prop_1.html"
+
+        # xpaths to elements in html
+        # Total IFCProduct with missing properties
+        xpath_prod_with_miss_prop_total = (
+            '//tr[td[@class="tg-fymr" and ' +
+            'normalize-space(.)="Total IFCProduct with missing properties:"]]' +
+            '/td[@class="tg-dvpl"][normalize-space()]'
+                   )
+        # Total missing properties in IFCProducts:
+        xpath_miss_prop_in_prod_total = (
+            '//tr[td[@class="tg-fymr" and ' +
+            'normalize-space(.)="Total missing properties in IFCProducts:"]]' +
+            '/td[@class="tg-dvpl"][normalize-space()]'
+                   )
+        self.xpaths = [
+                  xpath_prod_with_miss_prop_total,
+                  xpath_miss_prop_in_prod_total,
+
+                       ]
+
+        reg_result = self.run_regression_test()
+
+        self.assertTrue(reg_result[0], "Comparison of the 'summary prop' " +
+                        "html reports (bim2sim specific check) fails. " +
+                        "expected: {} ".format(reg_result[1]) +
+                        "test: {}".format(reg_result[2]))
