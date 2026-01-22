@@ -219,7 +219,7 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
 
         # paths result file ifc tester (ids)
         self.path_result_file_ifc_tester = self.project.paths.log / "ARCH_AC20-FZK-Haus_error_summary_inst.html"
-        self.path_result_file_ifc_tester_res = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/ARCH_AC20-FZK-Haus_error_summary_inst_1.html"
+        self.path_result_file_ifc_tester_res = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/ARCH_AC20-FZK-Haus_error_summary_inst.html"
 
         # xpaths to elements in html
         # Total IFCProduct with errors
@@ -234,10 +234,25 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
             'normalize-space(.)="Total errors in IFCProducts:"]]' +
             '/td[@class="tg-dvpl"][normalize-space()]'
                    )
+
+        # Total IfcRelSpaceBoundary with errors:
+        xpath_errors_in_sb_total = (
+            '//tr[td[@class="tg-fymr" and ' +
+            'normalize-space(.)="Total IfcRelSpaceBoundary with errors:"]]' +
+            '/td[@class="tg-dvpl"][normalize-space()]'
+                   )
+
+        # Total errors in IfcRelSpaceBoundary:
+        xpath_errors_in_relsb_total = (
+            '//tr[td[@class="tg-fymr" and ' +
+            'normalize-space(.)="Total errors in IfcRelSpaceBoundary:"]]' +
+            '/td[@class="tg-dvpl"][normalize-space()]'
+                   )
         self.xpaths = [
                   xpath_prod_with_errors_total,
                   xpath_errors_in_prod_total,
-
+                  xpath_errors_in_sb_total,
+                  xpath_errors_in_relsb_total,
                        ]
 
         reg_result = self.run_regression_test()
