@@ -132,11 +132,11 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         xpath_checks_pass = '//p/span[@class="item" and contains(normalize-space(.),"Checks passed")]/ strong[1]'
         # Checks total 
         xpath_checks_total = '//p/span[@class="item" and contains(normalize-space(.),"Checks passed")]/ strong[2]'
-        self.xpaths = [xpath_fail_perc,
-                  xpath_spec_pass, xpath_spec_total,
-                  xpath_req_pass, xpath_req_total,
-                  xpath_checks_pass, xpath_checks_total]
-        # filepaths = [path_html_file_a, path_html_file_b]
+        self.xpaths = [
+            xpath_fail_perc,
+            xpath_spec_pass, xpath_spec_total,
+            xpath_req_pass, xpath_req_total,
+            xpath_checks_pass, xpath_checks_total]
 
         reg_result = self.run_regression_test()
 
