@@ -121,17 +121,36 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         # fail percent (unique)
         xpath_fail_perc = '//div[@class="fail percent"]'
         # Specifications passed
-        xpath_spec_pass = '//p/span[@class="item" and contains(normalize-space(.),"Specifications passed")]/ strong[1]'
-        # Specifications total 
-        xpath_spec_total = '//p/span[@class="item" and contains(normalize-space(.),"Specifications passed")]/ strong[2]'
+        xpath_spec_pass = (
+          '//p/span[@class="item" and ' +
+          'contains(normalize-space(.),"Specifications passed")]/ strong[1]'
+        )
+        # Specifications total
+        xpath_spec_total = (
+          '//p/span[@class="item" ' +
+          'and contains(normalize-space(.),"Specifications passed")]/ strong[2]'
+        )
         # Requirements passed
-        xpath_req_pass = '//p/span[@class="item" and contains(normalize-space(.),"Requirements passed")]/ strong[1]'
-        # Requirements total 
-        xpath_req_total = '//p/span[@class="item" and contains(normalize-space(.),"Requirements passed")]/ strong[2]'
+        xpath_req_pass = (
+            '//p/span[@class="item" and ' +
+            'contains(normalize-space(.),"Requirements passed")]/ strong[1]'
+        )
+        # Requirements total
+        xpath_req_total = (
+            '//p/span[@class="item" and ' +
+            'contains(normalize-space(.),"Requirements passed")]/ strong[2]'
+        )
         # Checks passed
-        xpath_checks_pass = '//p/span[@class="item" and contains(normalize-space(.),"Checks passed")]/ strong[1]'
-        # Checks total 
-        xpath_checks_total = '//p/span[@class="item" and contains(normalize-space(.),"Checks passed")]/ strong[2]'
+        xpath_checks_pass = (
+            '//p/span[@class="item" and ' +
+            'contains(normalize-space(.),"Checks passed")]/ strong[1]'
+        )
+        # Checks total
+        xpath_checks_total = (
+          '//p/span[@class="item" and ' +
+          'contains(normalize-space(.),"Checks passed")]/ strong[2]'
+        )
+
         self.xpaths = [
             xpath_fail_perc,
             xpath_spec_pass, xpath_spec_total,
