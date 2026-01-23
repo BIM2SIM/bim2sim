@@ -97,7 +97,6 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, PluginIFCCheck)
 
-        
         # assign an IDS file, which is needed to check the ifc file by ifctester
         project.sim_settings.ids_file_path = (
                 Path(bim2sim.__file__).parent /
@@ -110,8 +109,13 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         handler.handle(project.run())
 
         # paths result file ifc tester (ids)
-        self.path_result_file_ifc_tester = self.project.paths.log / "ifc_ids_check.html"
-        self.path_result_file_ifc_tester_res = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/ifc_ids_check.html"
+        self.path_result_file_ifc_tester = (
+            self.project.paths.log / "ifc_ids_check.html"
+        )
+        self.path_result_file_ifc_tester_res = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/ifc_check/regression_results/ifc_ids_check.html'
+        )
 
         # xpaths to elements in html
         # fail percent (unique)
@@ -182,8 +186,15 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         handler.handle(project.run())
 
         # paths result file ifc tester (ids)
-        self.path_result_file_ifc_tester = self.project.paths.log / "ARCH_AC20-FZK-Haus_error_summary_prop.html"
-        self.path_result_file_ifc_tester_res = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/ARCH_AC20-FZK-Haus_error_summary_prop.html"
+        self.path_result_file_ifc_tester = (
+            self.project.paths.log /
+            "ARCH_AC20-FZK-Haus_error_summary_prop.html"
+        )
+        self.path_result_file_ifc_tester_res = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/ifc_check/regression_results/' /
+            'ARCH_AC20-FZK-Haus_error_summary_prop.html'
+        )
 
         # xpaths to elements in html
         # Total IFCProduct with missing properties
@@ -233,8 +244,15 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         handler.handle(project.run())
 
         # paths result file ifc tester (ids)
-        self.path_result_file_ifc_tester = self.project.paths.log / "ARCH_AC20-FZK-Haus_error_summary_inst.html"
-        self.path_result_file_ifc_tester_res = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/ARCH_AC20-FZK-Haus_error_summary_inst.html"
+        self.path_result_file_ifc_tester = (
+            self.project.paths.log /
+            "ARCH_AC20-FZK-Haus_error_summary_inst.html"
+        )
+        self.path_result_file_ifc_tester_res = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/ifc_check/regression_results/' /
+            'ARCH_AC20-FZK-Haus_error_summary_inst.html'
+        )
 
         # xpaths to elements in html
         # Total IFCProduct with errors
@@ -299,8 +317,15 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         handler.handle(project.run())
 
         # paths result file ifc tester (ids)
-        self.path_result_file_ifc_tester = self.project.paths.log / "ARCH_AC20-FZK-Haus_error_summary.html"
-        self.path_result_file_ifc_tester_res = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/ARCH_AC20-FZK-Haus_error_summary.html"
+        self.path_result_file_ifc_tester = (
+            self.project.paths.log /
+            "ARCH_AC20-FZK-Haus_error_summary.html"
+        )
+        self.path_result_file_ifc_tester_res = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/ifc_check/regression_results/' /
+            'ARCH_AC20-FZK-Haus_error_summary.html'
+        )
 
         # xpaths to elements in html
         # IFC Version:
@@ -384,8 +409,15 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         handler.handle(project.run())
 
         # paths result file ifc tester (ids)
-        self.path_result_file_ifc_tester = self.project.paths.log / "ARCH_AC20-FZK-Haus_error_summary_guid.html"
-        self.path_result_file_ifc_tester_res = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/ARCH_AC20-FZK-Haus_error_summary_guid.html"
+        self.path_result_file_ifc_tester = (
+            self.project.paths.log /
+            "ARCH_AC20-FZK-Haus_error_summary_guid.html"
+        )
+        self.path_result_file_ifc_tester_res = (
+            Path(bim2sim.__file__).parent.parent /
+            'test/resources/ifc_check/regression_results/' /
+            'ARCH_AC20-FZK-Haus_error_summary_guid.html'
+        )
 
         # xpaths to elements in html
         # Total non-unique GUIDs:
