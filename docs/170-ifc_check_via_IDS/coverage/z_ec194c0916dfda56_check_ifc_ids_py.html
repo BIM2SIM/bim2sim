@@ -54,9 +54,9 @@
             </div>
         </aside>
         <h2>
-            <span class="text">489 statements &nbsp;</span>
+            <span class="text">488 statements &nbsp;</span>
             <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">124<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">365<span class="text"> missing</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">364<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_ec194c0916dfda56_create_elements_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.1">coverage.py v7.13.1</a>,
-            created at 2026-01-23 08:18 +0000
+            created at 2026-01-23 10:36 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -358,7 +358,7 @@
     <p class="mis show_mis"><span class="n"><a id="t276" href="#t276">276</a></span><span class="t">            <span class="nam">output_file</span> <span class="op">=</span> <span class="nam">Path</span><span class="op">(</span><span class="nam">log_path</span> <span class="op">/</span> <span class="str">'ifc_ids_check.html'</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t">            <span class="nam">engine</span><span class="op">.</span><span class="nam">to_file</span><span class="op">(</span><span class="nam">output_file</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t">            <span class="com"># can comment out, if not the browser should show the report</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t">            <span class="nam">webbrowser</span><span class="op">.</span><span class="nam">open</span><span class="op">(</span><span class="str">f"file://{output_file}"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t">            <span class="com"># webbrowser.open(f"file://{output_file}")</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t">        <span class="key">return</span> <span class="nam">all_spec_pass</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
@@ -428,7 +428,7 @@
     <p class="pln"><span class="n"><a id="t346" href="#t346">346</a></span><span class="t"><span class="str">            base_name: str of file base name for reports</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t"><span class="str">            domain: IFCDomain of the checked IFC</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t348" href="#t348">348</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t349" href="#t349">349</a></span><span class="t">        <span class="nam">show_report</span> <span class="op">=</span> <span class="key">True</span> <span class="com"># enable the automatic popup of the reports</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t349" href="#t349">349</a></span><span class="t">        <span class="nam">show_report</span> <span class="op">=</span> <span class="key">False</span>  <span class="com"># enable the automatic popup of the reports</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t">        <span class="nam">templates</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">get_html_templates</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t">        <span class="nam">summary_inst</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_categorize_errors</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">error_summary_inst</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t">        <span class="nam">summary_sbs</span> <span class="op">=</span> <span class="nam">self</span><span class="op">.</span><span class="nam">_categorize_errors</span><span class="op">(</span><span class="nam">self</span><span class="op">.</span><span class="nam">error_summary_sub_inst</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -1532,7 +1532,7 @@
             <a class="nav" href="z_ec194c0916dfda56_create_elements_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.1">coverage.py v7.13.1</a>,
-            created at 2026-01-23 08:18 +0000
+            created at 2026-01-23 10:36 +0000
         </p>
     </div>
 </footer>
