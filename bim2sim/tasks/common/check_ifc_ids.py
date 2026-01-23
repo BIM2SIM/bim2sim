@@ -276,7 +276,7 @@ class CheckIfc(ITask):
             output_file = Path(log_path / 'ifc_ids_check.html')
             engine.to_file(output_file)
             # can comment out, if not the browser should show the report
-            webbrowser.open(f"file://{output_file}")
+            # webbrowser.open(f"file://{output_file}")
 
         return all_spec_pass
 
@@ -346,7 +346,7 @@ class CheckIfc(ITask):
             base_name: str of file base name for reports
             domain: IFCDomain of the checked IFC
         """
-        show_report = True # enable the automatic popup of the reports
+        show_report = False  # enable the automatic popup of the reports
         templates = self.get_html_templates()
         summary_inst = self._categorize_errors(self.error_summary_inst)
         summary_sbs = self._categorize_errors(self.error_summary_sub_inst)
