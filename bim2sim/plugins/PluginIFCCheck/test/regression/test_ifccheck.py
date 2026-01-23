@@ -35,7 +35,9 @@ class RegressionTestIFCCheck(RegressionTestBase):
         Returns:
             results: list of the specific elements
         """
-        doc = html.fromstring(open(filepath).read())
+        with open(filepath, 'r') as f:
+            html_code = f.read()
+        doc = html.fromstring(html_code)
         results = []
         for xpath in xpaths:
             elem = doc.xpath(xpath)
