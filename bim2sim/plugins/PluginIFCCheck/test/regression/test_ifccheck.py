@@ -365,3 +365,53 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
                         "html reports (bim2sim specific check) fails. " +
                         "expected: {} ".format(reg_result[1]) +
                         "test: {}".format(reg_result[2]))
+
+    def test_run_ifc_check_fzk_haus_guid(self):
+        """Run IFCCheck regression test with AC20-FZK-Haus.ifc
+           checking the html report "summary_guid" generated
+           by bim2sim specific checks.
+        """
+
+        ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
+        project = self.create_project(ifc_names, PluginIFCCheck)
+
+        # assign an IDS file, which is needed to check the ifc file
+        # by ifctester
+        project.sim_settings.ids_file_path = (
+                Path(bim2sim.__file__).parent /
+                'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
+        )
+
+        answers = ()
+        handler = DebugDecisionHandler(answers)
+
+        handler.handle(project.run())
+
+        # paths result file ifc tester (ids)
+        self.path_result_file_ifc_tester = self.project.paths.log / "ARCH_AC20-FZK-Haus_error_summary_guid.html"
+        self.path_result_file_ifc_tester_res = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/ARCH_AC20-FZK-Haus_error_summary_guid_1.html"
+
+        # xpaths to elements in html
+        # Total non-unique GUIDs:
+        xpath_nonunique_guid_total = (
+            '//tr[td[@class="tg-fymr" and ' +
+            'normalize-space(.)="Total non-unique GUIDs:"]]' +
+            '/td[@class="tg-dvpl"][1]'
+                   )
+        # Total Empty GUIDs:
+        xpath_empty_guid_total = (
+            '//tr[td[@class="tg-fymr" and ' +
+            'normalize-space(.)="Total Empty GUIDs:"]]' +
+            '/td[@class="tg-dvpl"][1]'
+                   )
+        self.xpaths = [
+                xpath_nonunique_guid_total,
+                xpath_empty_guid_total,
+                       ]
+
+        reg_result = self.run_regression_test()
+
+        self.assertTrue(reg_result[0], "Comparison of the 'summary_guid' " +
+                        "html reports (bim2sim specific check) fails. " +
+                        "expected: {} ".format(reg_result[1]) +
+                        "test: {}".format(reg_result[2]))
