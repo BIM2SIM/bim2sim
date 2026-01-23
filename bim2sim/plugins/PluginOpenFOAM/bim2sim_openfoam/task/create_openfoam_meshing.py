@@ -65,6 +65,8 @@ class CreateOpenFOAMMeshing(ITask):
         n_div_xyz = (round(len_xyz[0] / mesh_size),
                      round(len_xyz[1] / mesh_size),
                      round(len_xyz[2] / mesh_size))
+        scaled_min_pt = [of_utils.float_cutoff(i) for i in scaled_min_pt]
+        scaled_max_pt = [of_utils.float_cutoff(i) for i in scaled_max_pt]
         openfoam_case.blockMeshDict = blockMeshDict.BlockMeshDict.from_min_max(
             scaled_min_pt, scaled_max_pt, n_div_xyz=n_div_xyz)
         openfoam_case.blockMeshDict.save(openfoam_case.openfoam_dir)
