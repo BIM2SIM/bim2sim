@@ -3029,7 +3029,7 @@ class DesignExhaustLCA(ITask):
             list_ventilation_inlets.append(name_junction.index(element))
 
         # The actual calculation is started with the pipeflow command:
-        pp.pipeflow(net)
+        pp.pipeflow(net, iter=100, friction_model='nikuradse')
 
         # Determination of the pressure_loss
         greatest_pressure_loss = abs(net.res_junction['p_bar'].min())
@@ -3046,7 +3046,7 @@ class DesignExhaustLCA(ITask):
         net['ext_grid'].at[ext_grid_index, 'p_bar'] = greatest_pressure_loss
 
         # Recalculation
-        pp.pipeflow(net)
+        pp.pipeflow(net, iter=100, friction_model='nikuradse')
 
         greatest_pressure_loss = net.res_junction['p_bar'].min()
 
@@ -3062,7 +3062,7 @@ class DesignExhaustLCA(ITask):
         # Changing the pressure value
         net['ext_grid'].at[ext_grid_index, 'p_bar'] -= greatest_pressure_loss
 
-        pp.pipeflow(net)
+        pp.pipeflow(net, iter=100, friction_model='nikuradse')
 
         # Results are saved in tables with the prefix res_... prefix. After the calculation, these tables are also
         #         # stored in the net container after the calculation.
