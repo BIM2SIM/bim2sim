@@ -1,19 +1,14 @@
 """regession tests for the pluging IFC Check"""
-# TODO check needed imports (intialy copied from regression/test_teaser.py)
 import logging
-import re
-import shutil
 import unittest
-# import filecmp  # compare files, maybe not needed TODO delete ?
 from lxml import html
 from pathlib import Path
 
-import buildingspy.development.regressiontest as u
 
 import bim2sim
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 from bim2sim.utilities.test import RegressionTestBase
-from bim2sim.utilities.types import IFCDomain, ZoningCriteria
+from bim2sim.utilities.types import IFCDomain
 from bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck import PluginIFCCheck
 
 logger = logging.getLogger(__name__)
@@ -35,7 +30,8 @@ class RegressionTestIFCCheck(RegressionTestBase):
 
         Args:
             filepath: path to a html file
-            xpaths: list of xpaths (strings), like '//div[@class="fail percent"]'
+            xpaths: list of xpaths (strings),
+                    like '//div[@class="fail percent"]'
         Returns:
             results: list of the specific elements
         """
@@ -389,7 +385,7 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
 
         # paths result file ifc tester (ids)
         self.path_result_file_ifc_tester = self.project.paths.log / "ARCH_AC20-FZK-Haus_error_summary_guid.html"
-        self.path_result_file_ifc_tester_res = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/ARCH_AC20-FZK-Haus_error_summary_guid_1.html"
+        self.path_result_file_ifc_tester_res = "/home/cudok/Documents/12_ifc_check_ids/regression_stuff/ARCH_AC20-FZK-Haus_error_summary_guid.html"
 
         # xpaths to elements in html
         # Total non-unique GUIDs:
