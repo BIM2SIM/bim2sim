@@ -295,7 +295,7 @@ class TestCheckIFCIfctester(unittest.TestCase):
         all_checks_passed = CheckIfc.run_ids_check_on_ifc(ifc_file, ids_file)
         self.assertEqual(all_checks_passed, True, "Should be true")
 
-
+    @unittest.skip("issue in ifcTester returns wrong results")
     def test_checkIFC_IDS_examples_specification_optionality_pass(self):
         """check ifctester is working correctly by do check with IDS and ifc
         files from the IDS repo
