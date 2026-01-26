@@ -1,0 +1,66 @@
+bim2sim.plugins.PluginOpenFOAM.bim2sim\_openfoam.task package
+=============================================================
+
+.. automodule:: bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Submodules
+----------
+
+bim2sim.plugins.PluginOpenFOAM.bim2sim\_openfoam.task.add\_comfort module
+-------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.add_comfort
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginOpenFOAM.bim2sim\_openfoam.task.create\_openfoam\_geometry module
+---------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginOpenFOAM.bim2sim\_openfoam.task.create\_openfoam\_meshing module
+--------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_meshing
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginOpenFOAM.bim2sim\_openfoam.task.init\_openfoam\_setup module
+----------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.init_openfoam_setup
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginOpenFOAM.bim2sim\_openfoam.task.run\_meshing module
+-------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.run_meshing
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginOpenFOAM.bim2sim\_openfoam.task.run\_openfoam\_simulation module
+--------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.run_openfoam_simulation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginOpenFOAM.bim2sim\_openfoam.task.set\_boundary\_conditions module
+--------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.set_boundary_conditions
+   :members:
+   :undoc-members:
+   :show-inheritance:
