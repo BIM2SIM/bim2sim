@@ -2386,7 +2386,7 @@ class DesignSupplyLCA(ITask):
                     if 'Ø' in dimension_duct:
                         diameter = self.find_dimension(dimension_duct)
                         zeta_arch = drag_coefficient_arc_round(angle=90,
-                                                               mean_radius=0.75 * ureg.meter,
+                                                               mean_radius=0.6 * diameter,
                                                                diameter=diameter)
                         # self.logger.info(f'Zeta kink round: {zeta_arch}')
 
@@ -2394,7 +2394,7 @@ class DesignSupplyLCA(ITask):
                         width = self.find_dimension(dimension_duct)[0].to(ureg.meter)
                         height = self.find_dimension(dimension_duct)[1].to(ureg.meter)
                         zeta_arch = drag_coefficient_arc_angular(angle=90,
-                                                                 mean_radius=0.75 * ureg.meter,
+                                                                 mean_radius=0.6 * calculated_diameter,
                                                                  height=height,
                                                                  width=width,
                                                                  calculated_diameter=calculated_diameter)
