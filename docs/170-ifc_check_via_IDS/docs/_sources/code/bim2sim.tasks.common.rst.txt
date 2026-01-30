@@ -25,10 +25,10 @@ bim2sim.tasks.common.check\_ifc module
    :undoc-members:
    :show-inheritance:
 
-bim2sim.tasks.common.check\_ifc\_ids module
+bim2sim.tasks.common.check\_ifc\_old module
 -------------------------------------------
 
-.. automodule:: bim2sim.tasks.common.check_ifc_ids
+.. automodule:: bim2sim.tasks.common.check_ifc_old
    :members:
    :undoc-members:
    :show-inheritance:
