@@ -13,7 +13,7 @@ class PluginIFCCheck(Plugin):
     sim_settings = CheckIFCSimSettings
     default_tasks = [
         common.LoadIFC,
-        common.CheckIfcIds,
+        common.CheckIfc,
         # common.CreateElementsOnIfcTypes,
         # bps.CreateSpaceBoundaries,
         # bps.EnrichUseConditions,

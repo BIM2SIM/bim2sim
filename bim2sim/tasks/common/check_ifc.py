@@ -1,31 +1,38 @@
-from __future__ import annotations
+"""Check ifc input file mainly based on IDS files."""
 
-import types
-import inspect
-import json
-import logging
+import inspect  # used for _get_ifc_type_classes
+import types  # used for _get_class_property_sets
 import os
-import warnings
-from typing import Dict, Callable
 
-from ifcopenshell import file, entity_instance
+from pathlib import Path
+
+from typing import Callable, Dict  # Dict used for _get_class_property_sets
+
+import ifcopenshell as ifcos
+from bim2sim.utilities.common_functions import all_subclasses  # used in _get_ifc_type_classes
+from bim2sim.elements.mapping import attribute  # used in _get_ifc_type_classes
+# get_layer_ifc needed for _check_inst_materials
+from bim2sim.elements.mapping.ifc2python import get_layers_ifc, \
+    get_property_sets, get_ports
+
+import ifctester.ids
+import ifctester.reporter
+import webbrowser
+
+
 from mako.lookup import TemplateLookup
 from mako.template import Template
 
-from bim2sim.elements import hvac_elements as hvac, bps_elements as bps
-from bim2sim.elements.mapping import attribute
-from bim2sim.elements.mapping.ifc2python import get_property_sets, get_ports, \
-    get_layers_ifc
-from bim2sim.kernel.ifc_file import IfcFileClass
+from bim2sim.elements import bps_elements as bps, hvac_elements as hvac
 from bim2sim.tasks.base import ITask, Playground
-from bim2sim.utilities.common_functions import all_subclasses
-from bim2sim.utilities.types import IFCDomain
 
+from bim2sim.kernel.ifc_file import IfcFileClass
+from bim2sim.utilities.types import IFCDomain
+from bim2sim import __file__ as bs_file
 
 class CheckIfc(ITask):
     """
-    Check an IFC file, for a number of conditions (missing information,
-    incorrect information, etc) that could lead on future tasks to fatal errors.
+    Check ifc files for their quality regarding simulation.
     """
     reads = ('ifc_files',)
 
@@ -34,6 +41,12 @@ class CheckIfc(ITask):
         self.error_summary_sub_inst: dict = {}
         self.error_summary_inst: dict = {}
         self.error_summary_prop: dict = {}
+        self.error_version: bool = False
+        self.ifc_version: str = None
+        self.all_guids_unique: bool = True
+        self.double_guids: dict = {}
+        self.all_guids_filled: bool = True
+        self.empty_guids: dict = {}
         self.sub_inst: list = []
         self.id_list: list = []
         self.elements: list = []
@@ -42,33 +55,114 @@ class CheckIfc(ITask):
         self.sub_inst_cls = None
         self.plugin = None
 
-    def run(self, ifc_files: [IfcFileClass]) -> [dict, dict]:
+    def run(self, ifc_files: [IfcFileClass]):
         """
         Analyzes sub_elements and elements of an IFC file for the validation
         functions and export the errors found as .json and .html files.
 
-        Args:
-            ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc
-                instance
-
-        Returns:
-            error_summary_sub_inst: summary of errors related to sub_elements
-            error_summary_inst: summary of errors related to elements
         """
+
+        self.logger.info(f"Processing IFC Checks with ifcTester")
+
+        base_path = self.paths.ifc_base
+        # begin part from load_ifc.py
+        # used to get path of the ifc file for ifctester
+        if not base_path.is_dir():
+            raise AssertionError(f"Given base_path {base_path} is not a"
+                                 f" directory. Please provide a directory.")
+
+        ifc_files_paths = list(base_path.glob("**/*.ifc")) + list(
+            base_path.glob("**/*.ifcxml")) + list(
+            base_path.glob("**/*.ifczip"))
+        self.logger.info(f"Found {len(ifc_files_paths)} IFC files in project "
+                         f"directory.")
+        # end part from load_ifc.py
+        log_path = self.paths.log
+        # ids check call start
+        if self.playground.sim_settings.ids_file_path is None:
+            self.logger.critical("Default ids file is used, pls set " +
+                                  "project.sim_settings.ids_file_path!")
+            self.playground.sim_settings.ids_file_path = (
+                Path(bs_file).parent /
+                'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
+            )
+
+        ids_file_path = self.playground.sim_settings.ids_file_path
+        for ifc_file_path in ifc_files_paths:
+            all_spec_pass = self.run_ids_check_on_ifc(
+                ifc_file_path, ids_file_path,
+                report_html=True, log_path=log_path)
+
+            if all_spec_pass:
+                self.logger.info(
+                    "all checks of the specifications of this IDS pass: {}".format(all_spec_pass))
+            else:
+                self.logger.warning(
+                    "all checks of the specifications of this IDS pass: {}".format(all_spec_pass))
+        # ids check call end
+        
+        self.logger.info(f"Processing IFC Checks without ifcTester")
+
         paths = self.paths
         for ifc_file in ifc_files:
+            # checks are domain specific
             # Reset class based on domain to run the right check.
             # Not pretty but works. This might be refactored in #170
+
+            # check uniqueness of GUIDs
+            self.all_guids_unique, self.double_guids = CheckLogicBase.run_check_guid_unique(ifc_file)
+            list_guids_non_unique = list(self.double_guids.keys())
+            self.logger.info("the GUIDs of all elements are unique: {}".format(self.all_guids_unique))
+            if self.all_guids_unique is False:
+                self.logger.critical("non-unique GUIDs: {}".format(list_guids_non_unique))
+            # check emptyness of GUID fields
+            self.all_guids_filled, self.empty_guids = CheckLogicBase.run_check_guid_empty(ifc_file)
+            list_guids_empty = list(self.empty_guids.keys())
+            self.logger.info("the GUIDs of all elements are filled (NOT empty): {}".format(self.all_guids_filled))
+            if self.all_guids_filled is False:
+                self.logger.critical("empty GUIDs: {}".format(list_guids_empty))
+            # check ifc version
+            self.version_error, self.ifc_version = CheckLogicBase.run_check_ifc_version(ifc_file)
+            # for doc string
+            #   Logs:
+            #       critical: if loaded IFC is not IFC4
+            if self.version_error:
+                self.logger.critical(f"ifc Version is not fitting. Should be IFC4, but here: " + self.ifc_version)
+
             if ifc_file.domain == IFCDomain.hydraulic:
                 self.logger.info(f"Processing HVAC-IfcCheck")  # todo
-                self.__class__ = CheckIfcHVAC
-                self.__class__.__init__(self, self.playground)
-                self.paths = paths
+                # used for preparing data for checking, is filder keyword
+                self.sub_inst_cls = 'IfcDistributionPort'
+                self.plugin = hvac
+                self.ps_summary = self._get_class_property_sets(self.plugin)
+                self.sub_inst = ifc_file.file.by_type(self.sub_inst_cls)
+                self.elements = self.get_relevant_elements(ifc_file.file)
+                self.ifc_units = ifc_file.ifc_units
+                # checking itself
+                chlhvac = CheckLogicHVAC(self.sub_inst, self.elements,
+                                       self.ps_summary, self.ifc_units)
+                self.error_summary_sub_inst = chlhvac.check_inst_sub()
+                self.error_summary_inst = chlhvac.check_elements()
+
             elif ifc_file.domain == IFCDomain.arch:
                 self.logger.info(f"Processing BPS-IfcCheck")  # todo
-                self.__class__ = CheckIfcBPS
-                self.__class__.__init__(self, self.playground)
-                self.paths = paths
+                # used for preparing data for checking, is filder keyword
+                self.sub_inst_cls = 'IfcRelSpaceBoundary'
+                self.plugin = bps
+                self.ps_summary = self._get_class_property_sets(self.plugin)
+                self.sub_inst = ifc_file.file.by_type(self.sub_inst_cls)
+                self.elements = self.get_relevant_elements(ifc_file.file)
+                self.ifc_units = ifc_file.ifc_units
+                # checking itself
+                chlbps = CheckLogicBPS(self.sub_inst, self.elements,
+                                       self.ps_summary, self.ifc_units)
+                self.error_summary_sub_inst = chlbps.check_inst_sub()
+                self.error_summary_inst = chlbps.check_elements()
+                self.error_summary_prop = chlbps.error_summary_prop  # TODO not nice,
+                                                                     # better
+                                                                     # transfer
+                                                                     # from class
+                self.paths = paths  # TODO needed in if loop, here need better solution
             elif ifc_file.domain == IFCDomain.unknown:
                 self.logger.info(f"No domain specified for ifc file "
                                  f"{ifc_file.ifc_file_name}, not processing "
@@ -79,63 +173,29 @@ class CheckIfc(ITask):
                     f"For the Domain {ifc_file.domain} no specific checks are"
                     f" implemented currently. Just running the basic checks."
                     f"")
-                self.__class__ = CheckIfc
-            self.ps_summary = self._get_class_property_sets(self.plugin)
-            self.ifc_units = ifc_file.ifc_units
-            self.sub_inst = ifc_file.file.by_type(self.sub_inst_cls)
-            self.elements = self.get_relevant_elements(ifc_file.file)
-            self.id_list = [e.GlobalId for e in ifc_file.file.by_type("IfcRoot")]
-            self.check_critical_errors(ifc_file.file, self.id_list)
-            self.error_summary_sub_inst = self.check_inst(
-                self.validate_sub_inst, self.sub_inst)
-            self.error_summary_inst = self.check_inst(
-                self.validate_elements, self.elements)
-            instance_errors = sum(len(errors) for errors in
-                                  self.error_summary_inst.values())
-            quality_logger = logging.getLogger('bim2sim.QualityReport')
-            quality_logger.warning(
-                '%d errors were found on %d elements' %
-                (instance_errors, len(self.error_summary_inst)))
-            sub_inst_errors = sum(len(errors) for errors in list(
-                self.error_summary_sub_inst.values()))
-            quality_logger.warning(
-                '%d errors were found on %d sub_elements' % (
-                    sub_inst_errors, len(self.error_summary_sub_inst)))
+
+            # write reportes self made checks
             base_name = f"/{ifc_file.domain.name.upper()}_" \
                         f"{ifc_file.ifc_file_name[:-4]}"
-            self._write_errors_to_json(base_name)
             self._write_errors_to_html_table(base_name, ifc_file.domain)
 
-    def check_critical_errors(self, ifc: file, id_list: list):
+    def get_relevant_elements(self, ifc: ifcos.file):
         """
-        Checks for critical errors in the IFC file.
+        Gets all relevant ifc elements based on the plugin's classes that
+        represent an IFCProduct
 
         Args:
-            ifc: ifc file loaded with IfcOpenShell
-            id_list: list of all GUID's in IFC File
-        Raises:
-            TypeError: if a critical error is found
-        """
-        self.check_ifc_version(ifc)
-        self.check_critical_uniqueness(id_list)
+            ifc: IFC file translated with ifcopenshell
 
-    @staticmethod
-    def check_ifc_version(ifc: file):
-        """
-        Checks the IFC version.
+        Returns:
+            ifc_elements: list of IFC instance (Products)
 
-        Only IFC4 files are valid for bim2sim.
-
-        Args:
-            ifc: ifc file loaded with IfcOpenShell
-        Raises:
-            TypeError: if loaded IFC is not IFC4
         """
-        schema = ifc.schema
-        if "IFC4" not in schema:
-            raise TypeError(f"Loaded IFC file is of type {schema} but only IFC4"
-                            f"is supported. Please ask the creator of the model"
-                            f" to provide a valid IFC4 file.")
+        relevant_ifc_types = list(self.ps_summary.keys())
+        ifc_elements = []
+        for ifc_type in relevant_ifc_types:
+            ifc_elements.extend(ifc.by_type(ifc_type))
+        return ifc_elements
 
     @staticmethod
     def _get_ifc_type_classes(plugin: types.ModuleType):
@@ -190,90 +250,72 @@ class CheckIfc(ITask):
                     ps_summary[ifc_type][attr[0]] = attr[1].default_ps
         return ps_summary
 
-    def get_relevant_elements(self, ifc: file):
-        """
-        Gets all relevant ifc elements based on the plugin's classes that
-        represent an IFCProduct
-
-        Args:
-            ifc: IFC file translated with ifcopenshell
-
-        Returns:
-            ifc_elements: list of IFC instance (Products)
-
-        """
-        relevant_ifc_types = list(self.ps_summary.keys())
-        ifc_elements = []
-        for ifc_type in relevant_ifc_types:
-            ifc_elements.extend(ifc.by_type(ifc_type))
-        return ifc_elements
-
-    @staticmethod
-    def check_inst(validation_function: Callable, elements: list):
-        """
-        Uses sb_validation/ports/elements functions in order to check each
-        one and adds error to dictionary if object has errors.
-        Args:
-            validation_function: function that compiles all the validations
-                to be performed on the object (sb/port/instance)
-            elements: list containing all objects to be evaluates
-
-        Returns:
-            summary: summarized dictionary of errors, where the key is the
-                GUID + the ifc_type
-
-        """
-        summary = {}
-        for inst in elements:
-            error = validation_function(inst)
-            if len(error) > 0:
-                if hasattr(inst, 'GlobalId'):
-                    key = inst.GlobalId + ' ' + inst.is_a()
-                else:
-                    key = inst.is_a()
-                summary.update({key: error})
-        return summary
-
     def validate_sub_inst(self, sub_inst: list) -> list:
         raise NotImplementedError
 
-    def validate_elements(self, inst: list) -> list:
-        raise NotImplementedError
-
     @staticmethod
-    def apply_validation_function(fct: bool, err_name: str, error: list):
+    def run_ids_check_on_ifc(ifc_file: str, ids_file: str, report_html: bool = False, log_path: str = None) -> bool:
+        """run check on IFC file based on IDS
+
+        print the check of specifications pass(true) or fail(false)
+        and the name of the specification
+        and if all specifications of one IDS pass
+
+        Input:
+            ifc_file: path of the IFC file, which is checked
+            ids_file: path of the IDS file, which includes the specifications
+            log_path: path of the log folder as part of the project structur 
+            report_html: generate, save and open the report about checking
+                         default = False
+        Returns:
+            all_spec_pass: boolean
+                          (true: all specification passed,
+                           false: one or more specification not passed)
         """
-        Function to apply a validation to an instance, space boundary or
-        port, it stores the error to the list of errors.
+        model = ifcos.open(ifc_file)
+        my_ids = ifctester.ids.open(ids_file)
+        my_ids.validate(model)
+        all_spec_pass = True
+        for spec in my_ids.specifications:
+            if not spec.status:
+                all_spec_pass = False
 
-        Args:
-            fct: validation function to be applied
-            err_name: string that define the error
-            error: list of errors
+        # generate html report
+        if report_html:
+            engine = ifctester.reporter.Html(my_ids)
+            engine.report()
+            output_file = Path(log_path / 'ifc_ids_check.html')
+            engine.to_file(output_file)
+            # can comment out, if not the browser should show the report
+            # webbrowser.open(f"file://{output_file}")
 
+        return all_spec_pass
+
+    def get_html_templates(self):
         """
-        if not fct:
-            error.append(err_name)
+        Gets all stored html templates that will be used to export the errors
+        summaries
 
-    def _write_errors_to_json(self, base_name: str):
+        Returns:
+            templates: dictionary containing all error html templates
         """
-        Function to write the resulting list of errors to a .json file as a
-        summary.
-
-        Args:ps
-            base_name: str of file base name for reports
-
-        """
-        with open(str(self.paths.log) +
-                  base_name +
-                  f"_sub_inst_error_summary.json",
-                  'w+') as fp:
-            json.dump(self.error_summary_sub_inst, fp, indent="\t")
-        with open(str(self.paths.log) +
-                  base_name +
-                  f"_inst_error_summary.json",
-                  'w+') as fp:
-            json.dump(self.error_summary_inst, fp, indent="\t")
+        templates = {}
+        path_templates = os.path.join(
+            self.paths.assets, "templates", "check_ifc")
+        lookup = TemplateLookup(directories=[path_templates])
+        templates["inst_template"] = Template(
+            filename=os.path.join(path_templates, "inst_template"),
+            lookup=lookup)
+        templates["prop_template"] = Template(
+            filename=os.path.join(path_templates, "prop_template"),
+            lookup=lookup)
+        templates["summary_template"] = Template(
+            filename=os.path.join(path_templates, "summary_template_extend"),
+            lookup=lookup)
+        templates["guid_template"] = Template(
+            filename=os.path.join(path_templates, "guid_template"),
+            lookup=lookup)
+        return templates
 
     @staticmethod
     def _categorize_errors(error_dict: dict):
@@ -307,121 +349,6 @@ class CheckIfc(ITask):
                 categorized_dict['per_error'][error_com[0]] += 1
         return categorized_dict
 
-    # general check functions
-    @staticmethod
-    def _check_unique(inst: entity_instance, id_list: list):
-        """
-        Check that the global id (GUID) is unique for the analyzed instance
-
-        Args:
-            inst: IFC instance
-            id_list: list of all GUID's in IFC File
-        Returns:
-            True: if check succeeds
-            False: if check fails
-        """
-        # Materials have no GlobalId
-        blacklist = [
-            'IfcMaterialLayer', 'IfcMaterialLayer', 'IfcMaterialLayerSet'
-        ]
-        if inst.is_a() in blacklist:
-            return True
-        return id_list.count(inst.GlobalId) == 1
-
-    @staticmethod
-    def check_critical_uniqueness(id_list: list):
-        """
-        Checks if all GlobalIds are unique.
-
-        Only files containing unique GUIDs are valid for bim2sim.
-
-        Args:
-            id_list: list of all GUID's in IFC File
-        Raises:
-            TypeError: if loaded file does not have unique GUIDs
-            Warning: if uppercase GUIDs are equal
-        """
-        if len(id_list) > len(set(id_list)):
-            raise TypeError(
-                f"The GUIDs of the loaded IFC file are not uniquely defined"
-                f" but files containing unique GUIDs can be used. Please ask "
-                f"the creator of the model to provide a valid IFC4 "
-                f"file.")
-        ids_upper = list(map(lambda x: x.upper(), id_list))
-        if len(ids_upper) > len(set(ids_upper)):
-            warnings.warn(
-                "Uppercase GUIDs are not uniquely defined. A restart using the"
-                "option of generating new GUIDs should be considered.")
-
-    def _check_inst_properties(self, inst: entity_instance):
-        """
-        Check that an instance has the property sets and properties
-        necessaries to the plugin.
-
-        Args:
-            inst: IFC instance
-
-        Returns:
-            True: if check succeeds
-            False: if check fails
-        """
-        inst_prop2check = self.ps_summary.get(inst.is_a(), {})
-        inst_prop = get_property_sets(inst, self.ifc_units)
-        inst_prop_errors = []
-        for prop2check, ps2check in inst_prop2check.items():
-            ps = inst_prop.get(ps2check[0], None)
-            if ps:
-                if not ps.get(ps2check[1], None):
-                    inst_prop_errors.append(
-                        prop2check+' - '+', '.join(ps2check))
-            else:
-                inst_prop_errors.append(prop2check+' - '+', '.join(ps2check))
-        if inst_prop_errors:
-            key = inst.GlobalId + ' ' + inst.is_a()
-            self.error_summary_prop.update({key: inst_prop_errors})
-            return False
-        return True
-
-    @staticmethod
-    def _check_inst_representation(inst: entity_instance):
-        """
-        Check that an instance has a correct geometric representation.
-
-        Args:
-            inst: IFC instance
-
-        Returns:
-            True: if check succeeds
-            False: if check fails
-        """
-        if hasattr(inst, 'Representation'):
-            return inst.Representation is not None
-        else:
-            return False
-
-    def get_html_templates(self):
-        """
-        Gets all stored html templates that will be used to export the errors
-        summaries
-
-        Returns:
-            templates: dictionary containing all error html templates
-        """
-        templates = {}
-        path_templates = os.path.join(
-            self.paths.assets, "templates", "check_ifc")
-        lookup = TemplateLookup(directories=[path_templates])
-        templates["inst_template"] = Template(
-            filename=os.path.join(path_templates, "inst_template"),
-            lookup=lookup)
-        templates["prop_template"] = Template(
-            filename=os.path.join(path_templates, "prop_template"),
-            lookup=lookup)
-        templates["summary_template"] = Template(
-            filename=os.path.join(path_templates, "summary_template"),
-            lookup=lookup)
-        return templates
-
     def _write_errors_to_html_table(self, base_name: str, domain: IFCDomain):
         """
         Writes all errors in the html templates in a summarized way
@@ -430,7 +357,7 @@ class CheckIfc(ITask):
             base_name: str of file base name for reports
             domain: IFCDomain of the checked IFC
         """
-
+        show_report = False  # enable the automatic popup of the reports
         templates = self.get_html_templates()
         summary_inst = self._categorize_errors(self.error_summary_inst)
         summary_sbs = self._categorize_errors(self.error_summary_sub_inst)
@@ -447,6 +374,9 @@ class CheckIfc(ITask):
                 summary_sbs=summary_sbs,
                 all_errors=all_errors))
             out_file.close()
+            if show_report:
+                # can comment out, if not the browser should show the report
+                webbrowser.open(f"file://{out_file.buffer.name}")
         with open(str(self.paths.log) +
                   base_name +
                   '_error_summary_prop.html', 'w+') as \
@@ -455,10 +385,19 @@ class CheckIfc(ITask):
                 task=self,
                 summary_props=summary_props))
             out_file.close()
+            if show_report:
+                # can comment out, if not the browser should show the report
+                webbrowser.open(f"file://{out_file.buffer.name}")
         with open(str(self.paths.log) +
                   base_name +
                   '_error_summary.html', 'w+') as out_file:
             out_file.write(templates["summary_template"].render_unicode(
+                ifc_version=self.ifc_version,
+                version_error = self.version_error,
+                all_guids_unique = self.all_guids_unique,
+                double_guids = self.double_guids,
+                all_guids_filled = self.all_guids_filled,
+                empty_guids = self.empty_guids,
                 task=self,
                 plugin_name=domain.name.upper(),
                 base_name=base_name[1:],
@@ -466,431 +405,203 @@ class CheckIfc(ITask):
                 summary_sbs=summary_sbs,
                 summary_props=summary_props))
             out_file.close()
+            if show_report:
+                # can comment out, if not the browser should show the report
+                webbrowser.open(f"file://{out_file.buffer.name}")
+
+        with open(str(self.paths.log) + base_name + '_error_summary_guid.html',
+                  'w+') as \
+                out_file:
+            out_file.write(templates["guid_template"].render_unicode(
+                task=self,
+                double_guids = self.double_guids,
+                empty_guids = self.empty_guids,
+                summary_inst=summary_inst,
+                summary_sbs=summary_sbs,
+                all_errors=all_errors))
+            out_file.close()
+            if show_report:
+                # can comment out, if not the browser should show the report
+                webbrowser.open(f"file://{out_file.buffer.name}")
 
 
-class CheckIfcHVAC(CheckIfc):
-    """
-    Check an IFC file for a number of conditions (missing information, incorrect information, etc) that could lead on
-    future tasks to fatal errors.
-    """
+class CheckLogicBase():
+    """Provides logic for ifc files checking regarding simulation.
 
-    def __init__(self, playground: Playground):
-        super().__init__(playground)
-        self.sub_inst_cls = 'IfcDistributionPort'
-        self.plugin = hvac
+    This is a base class. This base class includes all check logic, which is
+    useful for all checking use cases.
 
-    def validate_sub_inst(self, port: entity_instance) -> list:
-        """
-        Validation function for a port that compiles all validation functions.
-
-        Args:
-            port: IFC port entity
-
-        Returns:
-            error: list of errors found in the IFC port
-
-        """
-        error = []
-        self.apply_validation_function(self._check_unique(port, self.id_list),
-                                       'GlobalId - '
-                                       'The space boundary GlobalID is not '
-                                       'unique', error)
-        self.apply_validation_function(self._check_flow_direction(port),
-                                       'FlowDirection - '
-                                       'The port flow direction is missing', error)
-        self.apply_validation_function(self._check_assignments(port),
-                                       'Assignments - '
-                                       'The port assignments are missing', error)
-        self.apply_validation_function(self._check_connection(port),
-                                       'Connections - '
-                                       'The port has no connections', error)
-        self.apply_validation_function(self._check_contained_in(port),
-                                       'ContainedIn - '
-                                       'The port is not contained in', error)
-
-        return error
-
-    def validate_elements(self, inst: entity_instance) -> list:
-        """
-        Validation function for an instance that compiles all instance validation functions.
-
-        Args:
-            inst: IFC instance being checked
-
-        Returns:
-            error: list of elements error
-
-        """
-        error = []
-        self.apply_validation_function(self._check_unique(inst, self.id_list),
-                                       'GlobalId - '
-                                       'The instance GlobalID is not unique', error)
-        self.apply_validation_function(self._check_inst_ports(inst),
-                                       'Ports - '
-                                       'The instance ports are missing', error)
-        self.apply_validation_function(self._check_contained_in_structure(inst),
-                                       'ContainedInStructure - '
-                                       'The instance is not contained in any '
-                                       'structure', error)
-        self.apply_validation_function(self._check_inst_properties(inst),
-                                       'Missing Property_Sets - '
-                                       'One or more instance\'s necessary '
-                                       'property sets are missing', error)
-        self.apply_validation_function(self._check_inst_representation(inst),
-                                       'Representation - '
-                                       'The instance has no geometric '
-                                       'representation', error)
-        self.apply_validation_function(self._check_assignments(inst),
-                                       'Assignments - ' 
-                                       'The instance assignments are missing', error)
-
-        return error
-
-    @staticmethod
-    def _check_flow_direction(port: entity_instance) -> bool:
-        """
-        Check that the port has a defined flow direction.
-
-        Args:
-            port: port IFC entity
-
-        Returns:
-            True if check succeeds, False otherwise
-        """
-        return port.FlowDirection in ['SOURCE', 'SINK', 'SINKANDSOURCE',
-                                      'SOURCEANDSINK']
-
-    @staticmethod
-    def _check_assignments(port: entity_instance) -> bool:
-        """
-        Check that the port has at least one assignment.
-
-        Args:
-            port: port ifc entity
-
-        Returns:
-            True: if check succeeds
-            False: if check fails
-        """
-        return any(assign.is_a('IfcRelAssignsToGroup') for assign in
-                   port.HasAssignments)
-
-    @staticmethod
-    def _check_connection(port: entity_instance) -> bool:
-        """
-        Check that the port is: "connected_to" or "connected_from".
-
-        Args:
-            port: port ifc entity
-
-        Returns:
-            True: if check succeeds
-            False: if check fails
-        """
-        return len(port.ConnectedTo) > 0 or len(port.ConnectedFrom) > 0
-
-    @staticmethod
-    def _check_contained_in(port: entity_instance) -> bool:
-        """
-        Check that the port is "contained_in".
-
-        Args:
-            port: port ifc entity
-
-        Returns:
-            True: if check succeeds
-            False: if check fails
-        """
-        return len(port.ContainedIn) > 0
-
-    # elements check
-    @staticmethod
-    def _check_inst_ports(inst: entity_instance) -> bool:
-        """
-        Check that an instance has associated ports.
-
-        Args:
-            inst: IFC instance
-
-        Returns:
-            True: if check succeeds
-            False: if check fails
-        """
-        ports = get_ports(inst)
-        if ports:
-            return True
-        else:
-            return False
-
-    @staticmethod
-    def _check_contained_in_structure(inst: entity_instance) -> bool:
-        """
-        Check that an instance is contained in an structure.
-
-        Args:
-            inst: IFC instance
-
-        Returns:
-            True: if check succeeds
-            False: if check fails
-        """
-        if hasattr(inst, 'ContainedInStructure'):
-            return len(inst.ContainedInStructure) > 0
-        else:
-            return False
-
-
-class CheckIfcBPS(CheckIfc):
-    """
-    Check an IFC file, for a number of conditions (missing information,
-    incorrect information, etc.) that could lead on future tasks to
-    fatal errors.
+    Attributes:
+        extract_data (list): filered/extract data from ifc file
+        # TODO add other inputs
     """
 
-    def __init__(self, playground: Playground, ):
-        super().__init__(playground)
-        self.sub_inst_cls = 'IfcRelSpaceBoundary'
-        self.plugin = bps
-        self.space_indicator = True
+    def __init__(self, extract_data, elements, ps_summary, ifc_units):
+        self.space_ndicator = True
+        # filered data, which will be processed
+        self.extract_data = extract_data
+        self.elements = elements
+        self.ps_summary = ps_summary
+        self.ifc_units = ifc_units
+        self.error_summary_prop: dict = {}  # TODO only as tempopry solution >> needs
+                                            # to transfer to out of the class
+    def run_check_guid_unique(ifc_file) -> (bool, dict):
+        """check the uniqueness of the guids of the IFC file
 
-    def check_critical_errors(self, ifc: file, id_list: list):
+        Input:
+            ifc_file: path of the IFC file, which is checked
+
+        Returns:
+            all_guids_unique: boolean
+                          (true: all guids are unique
+                           false: one or more guids are not unique)
+
+           double_guid: dict
+
         """
-        Checks for critical errors in the IFC file.
+        # TODO bring output into the log
+        used_guids: dict[str, ifcos.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
+        double_guids: dict[str, ifcos.entity_instance] = dict() # dict of elements with guids, which are not unique
+        all_guids_unique = True
+
+        for inst in ifc_file.file:
+           if hasattr(inst, "GlobalId"):
+               guid = inst.GlobalId
+               name = inst.Name
+               # print(guid)
+               if guid in used_guids:
+                   double_guids[guid] = inst
+                   all_guids_unique = False
+               else:
+                   used_guids[guid] = inst
+
+        return (all_guids_unique, double_guids)
+
+    def run_check_guid_empty(ifc_file) -> (bool, dict):
+        """check it there is/are guid/s, which is/are empty in the IFC file
+
+        Input:
+            ifc_file: path of the IFC file, which is checked
+
+        Returns:
+            all_guids_filled: boolean
+                          (true: all guids has a value (not empty)
+                           false: one or more guids has not value (empty))
+
+           empty_guid: dict
+
+        """
+
+        used_guids: dict[str, ifcos.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
+        empty_guids: dict[str, ifcos.entity_instance] = dict() # dict of elements with guids, which are empty
+        all_guids_filled = True
+        guid_empty_no = 0 # count the number of guids without value (empty), this number is used to make unique identifier
+        for inst in ifc_file.file:
+           if hasattr(inst, "GlobalId"):
+               guid = inst.GlobalId
+               name = inst.Name
+               if guid == '':
+                   all_guids_filled = False
+                   guid_empty_no = guid_empty_no + 1
+                   name_dict = name + '--' + str(guid_empty_no)
+                   empty_guids[name_dict] = inst
+               else:
+                   used_guids[guid] = inst
+
+        return (all_guids_filled, empty_guids)
+
+
+    @staticmethod
+    def run_check_ifc_version(ifc: ifcos.file) -> (bool, str):
+        """
+        Checks the IFC version.
+
+        Only IFC4 files are valid for bim2sim.
+
+        Attention: no Error is raised anymore.
 
         Args:
             ifc: ifc file loaded with IfcOpenShell
-            id_list: list of all GUID's in IFC File
-        Raises:
-            TypeError: if a critical error is found
+        Return:
+            version_error: True if version NOT fit
+            ifc_version: version of the ifc file
         """
-        self.check_ifc_version(ifc)
-        self.check_critical_uniqueness(id_list)
-        self.check_sub_inst_exist()
-        self.check_rel_space_exist()
-
-    def check_sub_inst_exist(self):
-        """
-        Checks for the existence of IfcRelSpaceBoundaries.
-
-        Only files containing elements of type 'IfcRelSpaceBoundary' are
-        valid for bim2sim.
-
-        Raises:
-            TypeError: if loaded file does not contain IfcRelSpaceBoundaries
-        """
-        if len(self.sub_inst) == 0:
-            raise TypeError(
-                f"Loaded IFC file does not contain elements of type "
-                f"'IfcRelSpaceBoundary' but only files containing "
-                f"IfcRelSpaceBoundaries can be validated. Please ask the "
-                f"creator of the model to provide a valid IFC4 file.")
-
-    def check_rel_space_exist(self):
-        """
-        Checks for the existence of RelatedSpace attribute of
-        IfcRelSpaceBoundaries.
-
-        Only IfcRelSpaceBoundaries with an IfcSpace or
-        IfcExternalSpatialElement are valid for bim2sim.
-
-        Raises:
-            TypeError: if loaded file only contain IfcRelSpaceBoundaries
-            without a valid RelatedSpace.
-        """
-        indicator = False
-        for inst in self.sub_inst:
-            if inst.RelatingSpace is not None:
-                indicator = True
-                break
-        if not indicator:
-            raise TypeError(
-                f"Loaded IFC file does only contain IfcRelSpaceBoundaries "
-                f"that do not have an IfcSpace or IfcExternalSpatialElement "
-                f"as RelatedSpace but those are necessary for further "
-                f"calculations. Please ask the creator of the model to provide"
-                f" a valid IFC4 file.")
-
-    def validate_sub_inst(self, bound: entity_instance) -> list:
-        """
-        Validation function for a space boundary that compiles all validation
-        functions.
-
-        Args:
-            bound: ifc space boundary entity
-
-        Returns:
-            error: list of errors found in the ifc space boundaries
-        """
-        error = []
-        self.apply_validation_function(self._check_unique(bound, self.id_list),
-                                       'GlobalId - '
-                                       'The space boundary GlobalID is not '
-                                       'unique',
-                                       error)
-        self.apply_validation_function(self._check_level(bound),
-                                       '2ndLevel - '
-                                       'The space boundary is not 2nd level',
-                                       error)
-        self.apply_validation_function(self._check_description(bound),
-                                       'Description - '
-                                       'The space boundary description does '
-                                       'not provide level information',
-                                       error)
-        self.apply_validation_function(self._check_rel_space(bound),
-                                       'RelatingSpace - '
-                                       'The space boundary does not have a '
-                                       'relating space associated', error)
-        self.apply_validation_function(self._check_rel_building_elem(bound),
-                                       'RelatedBuildingElement - '
-                                       'The space boundary does not have a '
-                                       'related building element associated',
-                                       error)
-        self.apply_validation_function(self._check_conn_geom(bound),
-                                       'ConnectionGeometry - '
-                                       'The space boundary does not have a '
-                                       'connection geometry', error)
-        self.apply_validation_function(self._check_phys_virt_bound(bound),
-                                       'PhysicalOrVirtualBoundary - '
-                                       'The space boundary is neither '
-                                       'physical or virtual', error)
-        self.apply_validation_function(self._check_int_ext_bound(bound),
-                                       'InternalOrExternalBoundary - '
-                                       'The space boundary is neither '
-                                       'external or internal', error)
-        self.apply_validation_function(self._check_on_relating_elem(bound),
-                                       'SurfaceOnRelatingElement - '
-                                       'The space boundary does not have a '
-                                       'surface on the relating element', error)
-        self.apply_validation_function(self._check_on_related_elem(bound),
-                                       'SurfaceOnRelatedElement - '
-                                       'The space boundary does not have a '
-                                       'surface on the related element', error)
-        self.apply_validation_function(self._check_basis_surface(bound),
-                                       'BasisSurface - '
-                                       'The space boundary surface on '
-                                       'relating element geometry is missing',
-                                       error)
-        self.apply_validation_function(self._check_inner_boundaries(bound),
-                                       'InnerBoundaries - '
-                                       'The space boundary surface on '
-                                       'relating element inner boundaries are '
-                                       'missing',  error)
-        if hasattr(
-                bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary,
-                'Segments'):
-            self.apply_validation_function(
-                self._check_outer_boundary_composite(bound),
-                'OuterBoundary - '
-                'The space boundary surface on relating element outer '
-                'boundary is missing', error)
-            self.apply_validation_function(self._check_segments(bound),
-                                           'OuterBoundary Segments - '
-                                           'The space boundary surface on '
-                                           'relating element outer boundary '
-                                           'geometry is missing', error)
-            self.apply_validation_function(self._check_segments_poly(bound),
-                                           'OuterBoundary SegmentsPolyline - '
-                                           'The space boundary surface on '
-                                           'relating element outer boundary '
-                                           'geometry is not well structured',
-                                           error)
-            self.apply_validation_function(
-                self._check_segments_poly_coord(bound),
-                'OuterBoundary Coordinates - '
-                'The space boundary surface on relating element outer boundary '
-                'coordinates are missing', error)
+        schema = ifc.schema
+        if "IFC4" not in schema:
+            version_error = True
+            # raise TypeError(f"Loaded IFC file is of type {schema} but only IFC4"
+            #                 f"is supported. Please ask the creator of the model"
+            #                 f" to provide a valid IFC4 file.")
         else:
-            self.apply_validation_function(
-                self._check_outer_boundary_poly(bound),
-                'OuterBoundary - '
-                'The space boundary surface on relating element outer boundary '
-                'is missing', error)
-            self.apply_validation_function(
-                self._check_outer_boundary_poly_coord(bound),
-                'OuterBoundary Coordinates - '
-                'The space boundary surface on relating element outer boundary '
-                'coordinates are missing', error)
+            version_error = False
+        return (version_error, schema)
 
-        self.apply_validation_function(self._check_plane_position(bound),
-                                       'Position - '
-                                       'The space boundary surface on relating '
-                                       'element plane position is missing',
-                                       error)
-        self.apply_validation_function(self._check_location(bound),
-                                       'Location - '
-                                       'The space boundary surface on relating '
-                                       'element location is missing', error)
-        self.apply_validation_function(self._check_axis(bound),
-                                       'Axis - '
-                                       'The space boundary surface on relating '
-                                       'element axis are missing',
-                                       error)
-        self.apply_validation_function(self._check_refdirection(bound),
-                                       'RefDirection - '
-                                       'The space boundary surface on relating '
-                                       'element reference direction is '
-                                       'missing', error)
-        self.apply_validation_function(self._check_location_coord(bound),
-                                       'LocationCoordinates - '
-                                       'The space boundary surface on relating '
-                                       'element location coordinates are '
-                                       'missing', error)
-        self.apply_validation_function(self._check_axis_dir_ratios(bound),
-                                       'AxisDirectionRatios - '
-                                       'The space boundary surface on relating '
-                                       'element axis direction ratios are '
-                                       'missing', error)
-        self.apply_validation_function(
-            self._check_refdirection_dir_ratios(bound),
-            'RefDirectionDirectionRatios - '
-            'The space boundary surface on relating element position '
-            'reference direction is missing', error)
 
-        return error
+    def check_inst_sub(self):
+        """Checks sub instances for errors.
 
-    def validate_elements(self, inst: entity_instance) -> list:
+        Based on functions in validate_sub_inst via check_inst
         """
-        Validation function for an instance that compiles all instance
-        validation functions.
+        error_summary_sub_inst = self.check_inst(
+                    self.validate_sub_inst, self.extract_data)
+        return error_summary_sub_inst
 
-        Args:
-            inst:IFC instance being checked
+    def check_elements(self):
+        """Checks elements for errors.
 
-        Returns:
-            error: list of elements error
-
+        Based on functions in validate_sub_inst via check_inst
         """
-        error = []
-        self.apply_validation_function(self._check_unique(inst, self.id_list),
-                                       'GlobalId - '
-                                       'The instance GlobalID is not unique'
-                                       , error)
-        self.apply_validation_function(self._check_inst_sb(inst),
-                                       'SpaceBoundaries - '
-                                       'The instance space boundaries are '
-                                       'missing', error)
-        self.apply_validation_function(self._check_inst_materials(inst),
-                                       'MaterialLayers - '
-                                       'The instance materials are missing',
-                                       error)
-        self.apply_validation_function(self._check_inst_properties(inst),
-                                       'Missing Property_Sets - '
-                                       'One or more instance\'s necessary '
-                                       'property sets are missing', error)
-        self.apply_validation_function(self._check_inst_contained_in_structure(inst),
-                                       'ContainedInStructure - '
-                                       'The instance is not contained in any '
-                                       'structure', error)
-        self.apply_validation_function(self._check_inst_representation(inst),
-                                       'Representation - '
-                                       'The instance has no geometric '
-                                       'representation', error)
-        return error
+        error_summary = self.check_inst(
+                    self.validate_elements, self.elements)
+        return error_summary
 
     @staticmethod
-    def _check_level(bound: entity_instance):
+    def check_inst(validation_function: Callable, elements: list):
+        """Uses sb_validation/ports/elements functions in order to check each
+        one and adds error to dictionary if object has errors. Combines the
+        (error) return of the specific validation function with the key (mostly
+        the GlobalID).
+
+        Args: validation_function: function that compiles all the
+        validations to be performed on the object (sb/port/instance) elements:
+        list containing all objects to be evaluates
+
+        Returns:
+            summary: summarized dictionary of errors, where the key is the
+                GUID + the ifc_type
+
         """
-        Check that the space boundary is of the second level type
+        summary = {}
+        for inst in elements:
+            error = validation_function(inst)
+            if len(error) > 0:
+                if hasattr(inst, 'GlobalId'):
+                    key = inst.GlobalId + ' ' + inst.is_a()
+                else:
+                    key = inst.is_a()
+                summary.update({key: error})
+        return summary
+
+    @staticmethod
+    def apply_validation_function(fct: bool, err_name: str, error: list):
+        """
+        Function to apply a validation to an instance, space boundary or
+        port, it stores the error to the list of errors.
+
+        Args:
+            fct: validation function to be applied
+            err_name: string that define the error
+            error: list of errors
+
+        """
+        if not fct:
+            error.append(err_name)
+
+    @staticmethod
+    def _check_rel_space(bound: ifcos.entity_instance):
+        """
+        Check that the space boundary relating space exists and has the
+        correct class.
 
         Args:
             bound: Space boundary IFC instance
@@ -899,24 +610,19 @@ class CheckIfcBPS(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        return bound.Name == "2ndLevel"
+        return any(
+            [bound.RelatingSpace.is_a('IfcSpace') or
+             bound.RelatingSpace.is_a('IfcExternalSpatialElement')])
+
+    def validate_sub_inst(self, sub_inst: list) -> list:
+        raise NotImplementedError
+
+class CheckLogicBPS(CheckLogicBase):
+    """Provides additional logic for ifc files checking regarding BPS."""
+
 
     @staticmethod
-    def _check_description(bound: entity_instance):
-        """
-        Check that the space boundary description is 2a or 2b
-
-        Args:
-            bound: Space boundary IFC instance
-
-        Returns:
-            True: if check succeeds
-            False: if check fails
-        """
-        return bound.Description in {'2a', '2b'}
-
-    @staticmethod
-    def _check_rel_space(bound: entity_instance):
+    def _check_rel_space(bound: ifcos.entity_instance):
         """
         Check that the space boundary relating space exists and has the
         correct class.
@@ -933,7 +639,7 @@ class CheckIfcBPS(CheckIfc):
              bound.RelatingSpace.is_a('IfcExternalSpatialElement')])
 
     @staticmethod
-    def _check_rel_building_elem(bound: entity_instance):
+    def _check_rel_building_elem(bound: ifcos.entity_instance):
         """
         Check that the space boundary related building element exists and has
         the correct class.
@@ -949,7 +655,7 @@ class CheckIfcBPS(CheckIfc):
             return bound.RelatedBuildingElement.is_a('IfcElement')
 
     @staticmethod
-    def _check_conn_geom(bound: entity_instance):
+    def _check_conn_geom(bound: ifcos.entity_instance):
         """
         Check that the space boundary has a connection geometry and has the
         correct class.
@@ -961,44 +667,11 @@ class CheckIfcBPS(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        return bound.ConnectionGeometry.is_a('IfcConnectionGeometry')
+        if bound.ConnectionGeometry is not None:
+            return bound.ConnectionGeometry.is_a('IfcConnectionGeometry')
 
     @staticmethod
-    def _check_phys_virt_bound(bound: entity_instance):
-        """
-        Check that the space boundary is virtual or physical.
-
-        Args:
-            bound: Space boundary IFC instance
-
-        Returns:
-            True: if check succeeds
-            False: if check fails
-        """
-        return bound.PhysicalOrVirtualBoundary.upper() in \
-            {'PHYSICAL', 'VIRTUAL', 'NOTDEFINED'}
-
-    @staticmethod
-    def _check_int_ext_bound(bound: entity_instance):
-        """
-        Check that the space boundary is internal or external.
-
-        Args:
-            bound: Space boundary IFC instance
-
-        Returns:
-            True: if check succeeds
-            False: if check fails
-        """
-        return bound.InternalOrExternalBoundary.upper() in {'INTERNAL',
-                                                            'EXTERNAL',
-                                                            'EXTERNAL_EARTH',
-                                                            'EXTERNAL_FIRE',
-                                                            'EXTERNAL_WATER'
-                                                            }
-
-    @staticmethod
-    def _check_on_relating_elem(bound: entity_instance):
+    def _check_on_relating_elem(bound: ifcos.entity_instance):
         """
         Check that the surface on relating element of a space boundary has
         the geometric information.
@@ -1010,11 +683,12 @@ class CheckIfcBPS(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        return bound.ConnectionGeometry.SurfaceOnRelatingElement.is_a(
+        if bound.ConnectionGeometry is not None:
+            return bound.ConnectionGeometry.SurfaceOnRelatingElement.is_a(
             'IfcCurveBoundedPlane')
 
     @staticmethod
-    def _check_on_related_elem(bound: entity_instance):
+    def _check_on_related_elem(bound: ifcos.entity_instance):
         """
         Check that the surface on related element of a space boundary has no
         geometric information.
@@ -1026,12 +700,13 @@ class CheckIfcBPS(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        return (bound.ConnectionGeometry.SurfaceOnRelatedElement is None or
-                bound.ConnectionGeometry.SurfaceOnRelatedElement.is_a(
-                    'IfcCurveBoundedPlane'))
+        if bound.ConnectionGeometry is not None:
+            return (bound.ConnectionGeometry.SurfaceOnRelatedElement is None or
+                    bound.ConnectionGeometry.SurfaceOnRelatedElement.is_a(
+                        'IfcCurveBoundedPlane'))
 
     @staticmethod
-    def _check_basis_surface(bound: entity_instance):
+    def _check_basis_surface(bound: ifcos.entity_instance):
         """
         Check that the surface on relating element of a space boundary is
         represented by an IFC Place.
@@ -1043,11 +718,12 @@ class CheckIfcBPS(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        return bound.ConnectionGeometry.SurfaceOnRelatingElement. \
-            BasisSurface.is_a('IfcPlane')
+        if bound.ConnectionGeometry is not None:
+            return bound.ConnectionGeometry.SurfaceOnRelatingElement. \
+                BasisSurface.is_a('IfcPlane')
 
     @staticmethod
-    def _check_inner_boundaries(bound: entity_instance):
+    def _check_inner_boundaries(bound: ifcos.entity_instance):
         """
         Check if the surface on relating element of a space boundary inner
         boundaries don't exists or are composite curves.
@@ -1059,13 +735,14 @@ class CheckIfcBPS(CheckIfc):
             True: if check succeeds
             False: if check fails
         """
-        return (bound.ConnectionGeometry.SurfaceOnRelatingElement.
-                InnerBoundaries is None) or \
-               (i.is_a('IfcCompositeCurve') for i in bound.ConnectionGeometry.
-                   SurfaceOnRelatingElement.InnerBoundaries)
+        if bound.ConnectionGeometry is not None:
+            return (bound.ConnectionGeometry.SurfaceOnRelatingElement.
+                    InnerBoundaries is None) or \
+                   (i.is_a('IfcCompositeCurve') for i in bound.ConnectionGeometry.
+                       SurfaceOnRelatingElement.InnerBoundaries)
 
     @staticmethod
-    def _check_outer_boundary_composite(bound: entity_instance):
+    def _check_outer_boundary_composite(bound: ifcos.entity_instance):
         """
         Check if the surface on relating element of a space boundary outer
         boundaries are composite curves.
@@ -1081,7 +758,7 @@ class CheckIfcBPS(CheckIfc):
             OuterBoundary.is_a('IfcCompositeCurve')
 
     @staticmethod
-    def _check_segments(bound: entity_instance):
+    def _check_segments(bound: ifcos.entity_instance):
         """
         Check if the surface on relating element of a space boundary outer
         boundaries segments are polyline.
@@ -1097,25 +774,51 @@ class CheckIfcBPS(CheckIfc):
                 bound.ConnectionGeometry.SurfaceOnRelatingElement.
                 OuterBoundary.Segments)
 
-    @classmethod
-    def _check_segments_poly(cls, bound: entity_instance):
+    @staticmethod
+    def _check_coords(points: ifcos.entity_instance):
         """
-        Check segments of an outer boundary of a surface on relating element.
+        Check coordinates of a group of points (class and length).
 
         Args:
-            bound: Space boundary IFC instance
+            points: Points IFC instance
 
         Returns:
             True: if check succeeds
             False: if check fails
         """
-        return all(cls._check_poly_points(s.ParentCurve)
-                   for s in
-                   bound.ConnectionGeometry.SurfaceOnRelatingElement
-                   .OuterBoundary.Segments)
+        return points.is_a('IfcCartesianPoint') and 1 <= len(
+            points.Coordinates) <= 4
+
+    @staticmethod
+    def _check_dir_ratios(dir_ratios: ifcos.entity_instance):
+        """
+        Check length of direction ratios.
+
+        Args:
+            dir_ratios: direction ratios IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return 2 <= len(dir_ratios.DirectionRatios) <= 3
 
     @classmethod
-    def _check_segments_poly_coord(cls, bound: entity_instance):
+    def _check_poly_points_coord(cls, polyline: ifcos.entity_instance):
+        """
+        Check if a polyline has the correct coordinates.
+
+        Args:
+            polyline: Polyline IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return all(cls._check_coords(p) for p in polyline.Points)
+
+    @classmethod
+    def _check_segments_poly_coord(cls, bound: ifcos.entity_instance):
         """
         Check segments coordinates of an outer boundary of a surface on
         relating element.
@@ -1132,8 +835,23 @@ class CheckIfcBPS(CheckIfc):
                    bound.ConnectionGeometry.SurfaceOnRelatingElement.
                    OuterBoundary.Segments)
 
+    @staticmethod
+    def _check_poly_points(polyline: ifcos.entity_instance):
+        """
+        Check if a polyline has the correct class.
+
+        Args:
+            polyline: Polyline IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        # print(polyline)
+        return polyline.is_a('IfcPolyline')
+
     @classmethod
-    def _check_outer_boundary_poly(cls, bound: entity_instance):
+    def _check_outer_boundary_poly(cls, bound: ifcos.entity_instance):
         """
         Check points of outer boundary of a surface on relating element.
 
@@ -1148,7 +866,7 @@ class CheckIfcBPS(CheckIfc):
             bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
 
     @staticmethod
-    def _check_outer_boundary_poly_coord(bound: entity_instance):
+    def _check_outer_boundary_poly_coord(bound: ifcos.entity_instance):
         """
         Check outer boundary of a surface on relating element.
 
@@ -1163,7 +881,7 @@ class CheckIfcBPS(CheckIfc):
             bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
 
     @staticmethod
-    def _check_plane_position(bound: entity_instance):
+    def _check_plane_position(bound: ifcos.entity_instance):
         """
         Check class of plane position of space boundary.
 
@@ -1178,7 +896,7 @@ class CheckIfcBPS(CheckIfc):
             Position.is_a('IfcAxis2Placement3D')
 
     @staticmethod
-    def _check_location(bound: entity_instance):
+    def _check_location(bound: ifcos.entity_instance):
         """
         Check that location of a space boundary is an IfcCartesianPoint.
 
@@ -1193,7 +911,7 @@ class CheckIfcBPS(CheckIfc):
             Position.Location.is_a('IfcCartesianPoint')
 
     @staticmethod
-    def _check_axis(bound: entity_instance):
+    def _check_axis(bound: ifcos.entity_instance):
         """
         Check that axis of space boundary is an IfcDirection.
 
@@ -1208,7 +926,7 @@ class CheckIfcBPS(CheckIfc):
             Position.Axis.is_a('IfcDirection')
 
     @staticmethod
-    def _check_refdirection(bound: entity_instance):
+    def _check_refdirection(bound: ifcos.entity_instance):
         """
         Check that reference direction of space boundary is an IfcDirection.
 
@@ -1223,7 +941,7 @@ class CheckIfcBPS(CheckIfc):
             Position.RefDirection.is_a('IfcDirection')
 
     @classmethod
-    def _check_location_coord(cls, bound: entity_instance):
+    def _check_location_coord(cls, bound: ifcos.entity_instance):
         """
         Check if space boundary surface on relating element coordinates are
         correct.
@@ -1240,7 +958,7 @@ class CheckIfcBPS(CheckIfc):
                                  Position.Location)
 
     @classmethod
-    def _check_axis_dir_ratios(cls, bound: entity_instance):
+    def _check_axis_dir_ratios(cls, bound: ifcos.entity_instance):
         """
         Check if space boundary surface on relating element axis are correct.
 
@@ -1256,7 +974,7 @@ class CheckIfcBPS(CheckIfc):
             Position.Axis)
 
     @classmethod
-    def _check_refdirection_dir_ratios(cls, bound: entity_instance):
+    def _check_refdirection_dir_ratios(cls, bound: ifcos.entity_instance):
         """
         Check if space boundary surface on relating element reference direction
         are correct.
@@ -1273,64 +991,7 @@ class CheckIfcBPS(CheckIfc):
             Position.RefDirection)
 
     @staticmethod
-    def _check_poly_points(polyline: entity_instance):
-        """
-        Check if a polyline has the correct class.
-
-        Args:
-            polyline: Polyline IFC instance
-
-        Returns:
-            True: if check succeeds
-            False: if check fails
-        """
-        return polyline.is_a('IfcPolyline')
-
-    @staticmethod
-    def _check_coords(points: entity_instance):
-        """
-        Check coordinates of a group of points (class and length).
-
-        Args:
-            points: Points IFC instance
-
-        Returns:
-            True: if check succeeds
-            False: if check fails
-        """
-        return points.is_a('IfcCartesianPoint') and 1 <= len(
-            points.Coordinates) <= 4
-
-    @staticmethod
-    def _check_dir_ratios(dir_ratios: entity_instance):
-        """
-        Check length of direction ratios.
-
-        Args:
-            dir_ratios: direction ratios IFC instance
-
-        Returns:
-            True: if check succeeds
-            False: if check fails
-        """
-        return 2 <= len(dir_ratios.DirectionRatios) <= 3
-
-    @classmethod
-    def _check_poly_points_coord(cls, polyline: entity_instance):
-        """
-        Check if a polyline has the correct coordinates.
-
-        Args:
-            polyline: Polyline IFC instance
-
-        Returns:
-            True: if check succeeds
-            False: if check fails
-        """
-        return all(cls._check_coords(p) for p in polyline.Points)
-
-    @staticmethod
-    def _check_inst_sb(inst: entity_instance):
+    def _check_inst_sb(inst: ifcos.entity_instance):
         """
         Check that an instance has associated space boundaries (space or
         building element).
@@ -1366,7 +1027,7 @@ class CheckIfcBPS(CheckIfc):
         return False
 
     @staticmethod
-    def _check_inst_materials(inst: entity_instance):
+    def _check_inst_materials(inst: ifcos.entity_instance):
         """
         Check that an instance has associated materials.
 
@@ -1384,8 +1045,37 @@ class CheckIfcBPS(CheckIfc):
             return len(get_layers_ifc(inst)) > 0
         return True
 
+    def _check_inst_properties(self, inst: ifcos.entity_instance):
+        """
+        Check that an instance has the property sets and properties
+        necessaries to the plugin.
+
+        Args:
+            inst: IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        inst_prop2check = self.ps_summary.get(inst.is_a(), {})
+        inst_prop = get_property_sets(inst, self.ifc_units)
+        inst_prop_errors = []
+        for prop2check, ps2check in inst_prop2check.items():
+            ps = inst_prop.get(ps2check[0], None)
+            if ps:
+                if not ps.get(ps2check[1], None):
+                    inst_prop_errors.append(
+                        prop2check+' - '+', '.join(ps2check))
+            else:
+                inst_prop_errors.append(prop2check+' - '+', '.join(ps2check))
+        if inst_prop_errors:
+            key = inst.GlobalId + ' ' + inst.is_a()
+            self.error_summary_prop.update({key: inst_prop_errors})
+            return False
+        return True
+
     @staticmethod
-    def _check_inst_contained_in_structure(inst: entity_instance):
+    def _check_inst_contained_in_structure(inst: ifcos.entity_instance):
         """
         Check that an instance is contained in an structure.
 
@@ -1409,7 +1099,7 @@ class CheckIfcBPS(CheckIfc):
             return True
 
     @staticmethod
-    def _check_inst_representation(inst: entity_instance):
+    def _check_inst_representation(inst: ifcos.entity_instance):
         """
         Check that an instance has a correct geometric representation.
 
@@ -1427,3 +1117,338 @@ class CheckIfcBPS(CheckIfc):
         if not (inst.is_a() in blacklist):
             return inst.Representation is not None
         return True
+
+    def validate_sub_inst(self, bound: ifcos.entity_instance) -> list:
+        """
+        Validation function for a space boundary that compiles all validation
+        functions.
+
+        Args:
+            bound: ifc space boundary entity
+
+        Returns:
+            error: list of errors found in the ifc space boundaries
+        """
+        error = []
+        # print(bound)
+        self.apply_validation_function(self._check_rel_space(bound),
+                                       'RelatingSpace - '
+                                       'The space boundary does not have a '
+                                       'relating space associated', error)
+        self.apply_validation_function(self._check_rel_building_elem(bound),
+                                       'RelatedBuildingElement - '
+                                       'The space boundary does not have a '
+                                       'related building element associated',
+                                       error)
+        self.apply_validation_function(self._check_conn_geom(bound),
+                                       'ConnectionGeometry - '
+                                       'The space boundary does not have a '
+                                       'connection geometry', error)
+        self.apply_validation_function(self._check_on_relating_elem(bound),
+                                       'SurfaceOnRelatingElement - '
+                                       'The space boundary does not have a '
+                                       'surface on the relating element', error)
+        self.apply_validation_function(self._check_on_related_elem(bound),
+                                       'SurfaceOnRelatedElement - '
+                                       'The space boundary does not have a '
+                                       'surface on the related element', error)
+        self.apply_validation_function(self._check_basis_surface(bound),
+                                       'BasisSurface - '
+                                       'The space boundary surface on '
+                                       'relating element geometry is missing',
+                                       error)
+        self.apply_validation_function(self._check_inner_boundaries(bound),
+                                       'InnerBoundaries - '
+                                       'The space boundary surface on '
+                                       'relating element inner boundaries are '
+                                       'missing',  error)
+        if bound.ConnectionGeometry is not None:
+            if hasattr(
+                    bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary,
+                    'Segments'):
+                self.apply_validation_function(
+                    self._check_outer_boundary_composite(bound),
+                    'OuterBoundary - '
+                    'The space boundary surface on relating element outer '
+                    'boundary is missing', error)
+                self.apply_validation_function(self._check_segments(bound),
+                                               'OuterBoundary Segments - '
+                                               'The space boundary surface on '
+                                               'relating element outer boundary '
+                                               'geometry is missing', error)
+                self.apply_validation_function(
+                    self._check_segments_poly_coord(bound),
+                    'OuterBoundary Coordinates - '
+                    'The space boundary surface on relating element outer boundary '
+                    'coordinates are missing', error)
+            else:
+                self.apply_validation_function(
+                    self._check_outer_boundary_poly(bound),
+                    'OuterBoundary - '
+                    'The space boundary surface on relating element outer boundary '
+                    'is missing', error)
+                self.apply_validation_function(
+                    self._check_outer_boundary_poly_coord(bound),
+                    'OuterBoundary Coordinates - '
+                    'The space boundary surface on relating element outer boundary '
+                    'coordinates are missing', error)
+            self.apply_validation_function(self._check_plane_position(bound),
+                                           'Position - '
+                                           'The space boundary surface on relating '
+                                           'element plane position is missing',
+                                           error)
+            self.apply_validation_function(self._check_location(bound),
+                                           'Location - '
+                                           'The space boundary surface on relating '
+                                           'element location is missing', error)
+            self.apply_validation_function(self._check_axis(bound),
+                                           'Axis - '
+                                           'The space boundary surface on relating '
+                                           'element axis are missing',
+                                           error)
+            self.apply_validation_function(self._check_refdirection(bound),
+                                           'RefDirection - '
+                                           'The space boundary surface on relating '
+                                           'element reference direction is '
+                                           'missing', error)
+            self.apply_validation_function(self._check_location_coord(bound),
+                                           'LocationCoordinates - '
+                                           'The space boundary surface on relating '
+                                           'element location coordinates are '
+                                           'missing', error)
+            self.apply_validation_function(self._check_axis_dir_ratios(bound),
+                                           'AxisDirectionRatios - '
+                                           'The space boundary surface on relating '
+                                           'element axis direction ratios are '
+                                           'missing', error)
+            self.apply_validation_function(
+                                           self._check_refdirection_dir_ratios(bound),
+                                          'RefDirectionDirectionRatios - '
+                                          'The space boundary surface on relating element position '
+                                          'reference direction is missing', error)
+        return error
+
+
+    def validate_elements(self, inst: ifcos.entity_instance) -> list:
+        """
+        Validation function for an instance that compiles all instance
+        validation functions.
+
+        Args:
+            inst:IFC instance being checked
+
+        Returns:
+            error: list of elements error
+
+        """
+        error = []
+        self.apply_validation_function(self._check_inst_sb(inst),
+                                       'SpaceBoundaries - '
+                                       'The instance space boundaries are '
+                                       'missing', error)
+        self.apply_validation_function(self._check_inst_materials(inst),
+                                       'MaterialLayers - '
+                                       'The instance materials are missing',
+                                       error)
+        self.apply_validation_function(self._check_inst_properties(inst),
+                                       'Missing Property_Sets - '
+                                       'One or more instance\'s necessary '
+                                       'property sets are missing', error)
+        self.apply_validation_function(self._check_inst_contained_in_structure(inst),
+                                       'ContainedInStructure - '
+                                       'The instance is not contained in any '
+                                       'structure', error)
+        self.apply_validation_function(self._check_inst_representation(inst),
+                                       'Representation - '
+                                       'The instance has no geometric '
+                                       'representation', error)
+        return error
+
+
+class CheckLogicHVAC(CheckLogicBase):
+    """Provides additional logic for ifc files checking regarding HVAC."""
+
+    @staticmethod
+    def _check_assignments(inst: ifcos.entity_instance) -> bool:
+        """
+        Check that the inst (also spec. port) has at least one assignment.
+
+        Args:
+            port: port ifc entity
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return any(assign.is_a('IfcRelAssignsToGroup') for assign in
+                   inst.HasAssignments)
+
+    @staticmethod
+    def _check_connection(port: ifcos.entity_instance) -> bool:
+        """
+        Check that the port is: "connected_to" or "connected_from".
+
+        Args:
+            port: port ifc entity
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return len(port.ConnectedTo) > 0 or len(port.ConnectedFrom) > 0
+
+    @staticmethod
+    def _check_contained_in(port: ifcos.entity_instance) -> bool:
+        """
+        Check that the port is "contained_in".
+
+        Args:
+            port: port ifc entity
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        return len(port.ContainedIn) > 0
+
+    # elements check
+    @staticmethod
+    def _check_inst_ports(inst: ifcos.entity_instance) -> bool:
+        """
+        Check that an instance has associated ports.
+
+        Args:
+            inst: IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        ports = get_ports(inst)
+        if ports:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def _check_contained_in_structure(inst: ifcos.entity_instance) -> bool:
+        """
+        Check that an instance is contained in an structure.
+
+        Args:
+            inst: IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        if hasattr(inst, 'ContainedInStructure'):
+            return len(inst.ContainedInStructure) > 0
+        else:
+            return False
+
+    def _check_inst_properties(self, inst: ifcos.entity_instance):
+        """
+        Check that an instance has the property sets and properties
+        necessaries to the plugin.
+
+        Args:
+            inst: IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        inst_prop2check = self.ps_summary.get(inst.is_a(), {})
+        inst_prop = get_property_sets(inst, self.ifc_units)
+        inst_prop_errors = []
+        for prop2check, ps2check in inst_prop2check.items():
+            ps = inst_prop.get(ps2check[0], None)
+            if ps:
+                if not ps.get(ps2check[1], None):
+                    inst_prop_errors.append(
+                        prop2check+' - '+', '.join(ps2check))
+            else:
+                inst_prop_errors.append(prop2check+' - '+', '.join(ps2check))
+        if inst_prop_errors:
+            key = inst.GlobalId + ' ' + inst.is_a()
+            self.error_summary_prop.update({key: inst_prop_errors})
+            return False
+        return True
+
+    @staticmethod
+    def _check_inst_representation(inst: ifcos.entity_instance):
+        """
+        Check that an instance has a correct geometric representation.
+
+        Args:
+            inst: IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        """
+        if hasattr(inst, 'Representation'):
+            return inst.Representation is not None
+        else:
+            return False
+
+    def validate_sub_inst(self, port: ifcos.entity_instance) -> list:
+        """
+        Runs validation functions for a port
+
+        Args:
+            port: IFC port entity
+
+        Returns:
+            error: list of errors found in the IFC port
+
+        """
+        error = []
+        self.apply_validation_function(self._check_assignments(port),
+                                       'Assignments - '
+                                       'The port assignments are missing',
+                                       error)
+        self.apply_validation_function(self._check_connection(port),
+                                       'Connections - '
+                                       'The port has no connections', error)
+        self.apply_validation_function(self._check_contained_in(port),
+                                       'ContainedIn - '
+                                       'The port is not contained in', error)
+        return error
+
+    def validate_elements(self, inst: ifcos.entity_instance) -> list:
+        """
+        Validation function for an instance that compiles all instance validation functions.
+
+        Args:
+            inst: IFC instance being checked
+
+        Returns:
+            error: list of elements error
+
+        """
+        error = []
+
+        self.apply_validation_function(self._check_inst_ports(inst),
+                                       'Ports - '
+                                       'The instance ports are missing', error)
+        self.apply_validation_function(self._check_contained_in_structure(inst),
+                                       'ContainedInStructure - '
+                                       'The instance is not contained in any '
+                                       'structure', error)
+        self.apply_validation_function(self._check_inst_properties(inst),
+                                       'Missing Property_Sets - '
+                                       'One or more instance\'s necessary '
+                                       'property sets are missing', error)
+        self.apply_validation_function(self._check_inst_representation(inst),
+                                       'Representation - '
+                                       'The instance has no geometric '
+                                       'representation', error)
+        self.apply_validation_function(self._check_assignments(inst),
+                                       'Assignments - '
+                                       'The instance assignments are missing',
+                                       error)
+        return error
+if __name__ == '__main__':
+    pass

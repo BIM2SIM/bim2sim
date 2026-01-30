@@ -435,6 +435,19 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         mandatory=True
     )
 
+    ids_file_path = PathSetting(
+        value=None,
+        description='Path to the IDS(Information Delivery Specification) file'
+                    'that should be used for the check of the IFC file. '
+                    'The file is a xml file, with .ids extension'
+                    'An Example can be find in'
+                    '/bim2sim/plugins/PluginIFCCheck/bim2sim_ifccheck',
+        for_frontend=True,
+        mandatory=False  # TODO make is mandatory AND
+        # adapt all tests and examples AND
+        # remove default values in check_ifc.py
+    )
+
     building_rotation_overwrite = NumberSetting(
         value=0,
         min_value=0,
