@@ -949,11 +949,15 @@ class SpaceHeater(HVACProduct):
 
     def _get_radiator_shape(self, name):
         """returns topods shape of the radiator"""
-        settings = ifcopenshell.geom.main.settings()
+        settings = ifcopenshell.geom.settings()
         settings.set(settings.USE_PYTHON_OPENCASCADE, True)
         settings.set(settings.USE_WORLD_COORDS, True)
-        settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-        settings.set(settings.INCLUDE_CURVES, True)
+        settings.set(settings.PRECISION, 1e-6)
+        settings.set(
+            "dimensionality",
+            ifcopenshell.ifcopenshell_wrapper.CURVES_SURFACES_AND_SOLIDS)  # 2
+        # settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+        # settings.set(settings.INCLUDE_CURVES, True)
         return ifcopenshell.geom.create_shape(settings, self.ifc).geometry
 
     shape = attribute.Attribute(
@@ -2941,6 +2945,16 @@ for name, cls in inspect.getmembers(
                        and member not in (VentilationElement, AirSilencer, AirVolumeFlowController, AHUComponent)  # but not sub base class
                        and member.__module__ == __name__):  # declared here
     items.add(cls)
+
+hydraulic_items: Set[HVACProduct] = set()
+for name, cls in inspect.getmembers(
+        sys.modules[__name__],
+        lambda member: inspect.isclass(member)  # class at all
+                       and issubclass(member, HVACProduct)  # domain subclass
+                       and member is not HVACProduct  # but not base class
+                       and not issubclass(member, VentilationElement)  # but not ventilation element
+                       and member.__module__ == __name__):  # declared here
+    hydraulic_items.add(cls)
 
 # collect all domain classes
 ventilation_items: Set[VentilationElement] = set()

@@ -36,7 +36,7 @@ class LoadIFC(ITask):
         if not base_path.is_dir():
             raise AssertionError(f"Given base_path {base_path} is not a"
                                  f" directory. Please provide a directory.")
-        ifc_files_dict = {k: [] for k in ['arch', 'hydraulic', 'ventilation']}
+        ifc_files_dict = {k: [] for k in ['arch', 'hydraulic', 'ventilation', 'mixed']}
         ifc_files_unsorted = []
         ifc_files = []
         ifc_files_paths = list(base_path.glob("**/*.ifc")) + list(
@@ -64,7 +64,7 @@ class LoadIFC(ITask):
                              f"This took {t_loading} seconds")
         for file in ifc_files_unsorted:
             ifc_files_dict[file.domain.name].append(file)
-        for domain in ('arch', 'hydraulic', 'ventilation'):
+        for domain in ('arch', 'hydraulic', 'ventilation', 'mixed'):
             ifc_files.extend(ifc_files_dict[domain])
         if not ifc_files:
             self.logger.error("No ifc found in project folder.")

@@ -799,31 +799,31 @@ class Factory:
                     f" will only be created for IFC files of domain "
                     f"{element_cls.from_ifc_domains}")
 
-        descriptions = ifc2python.get_descriptions(ifc_entity)
-
-        if descriptions and not any(
-                any(p.search(desc) for p in element_cls.pattern_ifc_type)
-                for desc in descriptions):
-            ele_matches = []
-            for ele in self.relevant_elements:
-                match_count = 0
-                for p in ele.pattern_ifc_type:
-                    for desc in descriptions:
-                        if p.search(desc):
-                            match_count += 1
-                if match_count > 0:
-                    ele_matches.append((ele, match_count))
-            if not ele_matches:
-                raise LookupError(f"No element found for {ifc_entity}")
-            elif len(ele_matches) == 1:
-                element_cls = ele_matches[0][0]
-            else:
-                best_ele, _ = max(ele_matches, key=lambda x: x[1])
-                element_cls = best_ele
+        # descriptions = ifc2python.get_descriptions(ifc_entity)
+        #
+        # if descriptions and not any(
+        #         any(p.search(desc) for p in element_cls.pattern_ifc_type)
+        #         for desc in descriptions if desc):
+        #     ele_matches = []
+        #     for ele in self.relevant_elements:
+        #         match_count = 0
+        #         for p in ele.pattern_ifc_type:
+        #             for desc in descriptions:
+        #                 if desc:
+        #                     if p.search(desc):
+        #                         match_count += 1
+        #         if match_count > 0:
+        #             ele_matches.append((ele, match_count))
+        #     if not ele_matches:
+        #         raise LookupError(f"No element found for {ifc_entity}")
+        #     elif len(ele_matches) == 1:
+        #         element_cls = ele_matches[0][0]
+        #     else:
+        #         best_ele, _ = max(ele_matches, key=lambda x: x[1])
+        #         element_cls = best_ele
 
         element = self.create(element_cls, ifc_entity, *args, **kwargs)
-        if not element.air_type:
-            test = self.create(element_cls, ifc_entity, *args, **kwargs)
+
         return element
 
     def create(self, element_cls, ifc_entity, *args, **kwargs):
