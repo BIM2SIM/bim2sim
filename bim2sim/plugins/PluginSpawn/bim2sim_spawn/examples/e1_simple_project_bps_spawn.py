@@ -2,11 +2,13 @@ import tempfile
 from pathlib import Path
 
 import bim2sim
-from bim2sim import Project, ConsoleDecisionHandler
+from bim2sim import Project, ConsoleDecisionHandler, run_project
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
 # from bim2sim.kernel.log import default_logging_setup
 from bim2sim.utilities.types import IFCDomain
-
+from bim2sim.elements.base_elements import Material
+from bim2sim.elements import bps_elements as bps_elements, \
+    hvac_elements as hvac_elements
 
 def run_example_spawn_1():
     """Export a SpawnOfEnergyPlus simulation model.
@@ -27,7 +29,7 @@ def run_example_spawn_1():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    project_path = Path(r"D:\00_Temp\Testing\bim2sim\Spawn")
+    project_path = Path(r"D:\00_Temp\Testing\bim2sim\Spawn1")
 
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
@@ -43,8 +45,8 @@ def run_example_spawn_1():
 
     # Set the install path to your EnergyPlus installation according to your
     # system requirements
-    project.sim_settings.ep_install_path = Path("C:")
-    project.sim_settings.ep_version = "9-4-0"
+    project.sim_settings.ep_install_path = Path(r"C:\EnergyPlusV9-6-0")
+    project.sim_settings.ep_version = "9-6-0"
     project.sim_settings.weather_file_path_ep = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
@@ -55,6 +57,8 @@ def run_example_spawn_1():
     project.sim_settings.outer_heat_ports = True
 
     project.sim_settings.hvac_modelica_library = "AixLib"
+
+    project.sim_settings.relevant_elements = {*bps_elements.items, *hvac_elements.hydraulic_items, Material}
 
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.aggregations = [
@@ -83,9 +87,34 @@ def run_example_spawn_1():
         8.5,  # nominal power of boiler (in kW)
         50,  # nominal return temperature of boiler
     )
-    # handler = ConsoleDecisionHandler()
+
+    # answers = (
+    #     'HVAC-PipeFitting',  # Identify PipeFitting 03TbBCNszVXaBWMuR55Ezt
+    #     'HVAC-PipeFitting',  # Identify PipeFitting 05GeK0Vqi$b4sUg10dylS4
+    #     'HVAC-PipeFitting',  # Identify PipeFitting 0LhPEcsRAfWKRlvc$odfB3
+    #     'HVAC-Distributor',  # Identify Distributor 1259naiEpIkasmH4NcC8DL
+    #     'HVAC-PipeFitting',  # Identify PipeFitting 1fX98DWWkmb4_lxVNY2CYM
+    #     'HVAC-Pipe',  # Identify PipeFitting 05lPOiNJdAe41k1zmv0NgS
+    #     'HVAC-ThreeWayValve',  # Identify ThreeWayValve 05lPOiNJdAe41k1zmv0NgS
+    #     2010,  # year of construction of building
+    #     *(True,) * 7,  # 7 real dead ends found
+    #     *(0.001,) * 13,  # volume of junctions
+    #     2000, 175,  # rated_pressure_difference + rated_volume_flow pump of 1st storey (big)
+    #     4000, 200,  # rated_pressure_difference + rated_volume_flow for 2nd storey
+    #     *(70, 50,) * 7,  # flow and return temp for 7 space heaters
+    #     0.056,  # nominal_mass_flow_rate 2nd storey TRV (kg/s),
+    #     20,  # dT water of boiler
+    #     70,  # nominal flow temperature of boiler
+    #     0.3,  # minimal part load range of boiler
+    #     8.5,  # nominal power of boiler (in kW)
+    #     50,  # nominal return temperature of boiler
+    # )
+
+    handler = ConsoleDecisionHandler()
     handler = DebugDecisionHandler(answers)
     handler.handle(project.run())
+
+    # run_project(project, ConsoleDecisionHandler())
 
 
 if __name__ == '__main__':

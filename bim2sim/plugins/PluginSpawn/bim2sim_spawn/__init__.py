@@ -21,7 +21,7 @@ class PluginSpawnOfEP(Plugin):
     sim_settings = SpawnOfEnergyPlusSimSettings
     default_tasks = [
         common.LoadIFC,
-        common.CheckIfc,
+        # common.CheckIfc,
         common.CreateElementsOnIfcTypes,
 
         bps.CreateSpaceBoundaries,
