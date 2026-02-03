@@ -29,17 +29,8 @@ class Weather(ITask):
                                       "implement this")
             # lat, long = self.get_location_lat_long_from_ifc(elements)
             # weather_file = self.get_weatherfile_from_dwd(lat, long)
-        self.check_weather_file(weather_file_modelica, weather_file_ep)
-        if self.playground.sim_settings.weather_file_path_ep:
-            weather_file_ep = self.playground.sim_settings.weather_file_path_ep
+        # self.check_weather_file(weather_file_modelica, weather_file_ep)
 
-        # try to get TRY weather file for location of IFC
-        if not weather_file_ep and not weather_file_modelica:
-            raise NotImplementedError("Waiting for response from DWD if we can"
-                                      "implement this")
-            # lat, long = self.get_location_lat_long_from_ifc(elements)
-            # weather_file = self.get_weatherfile_from_dwd(lat, long)
-        self.check_weather_file(weather_file_modelica, weather_file_ep)
         if not weather_file_ep and not weather_file_modelica:
             raise ValueError("No weather file provided for the simulation, "
                              "can't continue model generation.")
