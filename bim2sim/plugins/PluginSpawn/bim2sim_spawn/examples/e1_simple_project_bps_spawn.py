@@ -27,7 +27,7 @@ def run_example_spawn_1():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    project_path = Path(r"D:\02_Daten\Testing\Spawn\example1")
+    project_path = Path(r"D:\00_Temp\Testing\bim2sim\Spawn")
 
     # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
@@ -43,7 +43,7 @@ def run_example_spawn_1():
 
     # Set the install path to your EnergyPlus installation according to your
     # system requirements
-    project.sim_settings.ep_install_path = Path("D:\99_Programme\EnergyPlus")
+    project.sim_settings.ep_install_path = Path("C:")
     project.sim_settings.ep_version = "9-4-0"
     project.sim_settings.weather_file_path_ep = (
             Path(bim2sim.__file__).parent.parent /

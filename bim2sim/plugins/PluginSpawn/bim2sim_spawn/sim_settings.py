@@ -14,7 +14,7 @@ class SpawnOfEnergyPlusSimSettings(EnergyPlusSimSettings, PlantSimSettings):
         self.outer_heat_ports = True
 
     hvac_modelica_library = ChoiceSetting(
-        default='AixLib',
+        value='AixLib',
         choices={
             'AixLib': 'Using AixLib for HVAC simulation',
             'HKESim': 'Using HKESim for HVAC simulation'
