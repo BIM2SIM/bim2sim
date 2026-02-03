@@ -123,7 +123,7 @@ class CreateIdf(ITask):
                 weather_file_sizing = (
                     self.playground.sim_settings.weather_file_for_sizing)
             else:
-                weather_file_sizing = str(weather_file)
+                weather_file_sizing = str(weather_file_ep)
             self.apply_system_sizing(
                 idf, weather_file_sizing,
                 sim_results_path)
@@ -213,6 +213,8 @@ class CreateIdf(ITask):
         # initialize the idf with a minimal idf setup
         idf = IDF(plugin_ep_path + '/data/Minimal.idf')
         # remove location and design days
+        idf.idfobjects['VERSION'][0].Version_Identifier = sim_settings.ep_version.replace("_", ".")
+
         idf.removeallidfobjects('SIZINGPERIOD:DESIGNDAY')
         idf.removeallidfobjects('SITE:LOCATION')
         if sim_settings.system_weather_sizing != 'DesignDay':
@@ -1024,7 +1026,7 @@ class CreateIdf(ITask):
             idf.newidfobject(
                 "ZONEINFILTRATION:DESIGNFLOWRATE",
                 Name=name,
-                Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
+                Zone_or_ZoneList_Name=zone_name,
                 Schedule_Name="Continuous",
                 Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
                 Air_Changes_per_Hour=space.base_infiltration
@@ -1250,7 +1252,7 @@ class CreateIdf(ITask):
             idf.newidfobject(
                 "ZONEVENTILATION:DESIGNFLOWRATE",
                 Name=name + '_winter',
-                Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
+                Zone_or_ZoneList_Name=zone_name,
                 Schedule_Name="Continuous",
                 Ventilation_Type="Natural",
                 Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
@@ -1264,7 +1266,7 @@ class CreateIdf(ITask):
             idf.newidfobject(
                 "ZONEVENTILATION:DESIGNFLOWRATE",
                 Name=name + '_summer',
-                Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
+                Zone_or_ZoneList_Name=zone_name,
                 Schedule_Name="Continuous",
                 Ventilation_Type="Natural",
                 Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
@@ -1278,7 +1280,7 @@ class CreateIdf(ITask):
             idf.newidfobject(
                 "ZONEVENTILATION:DESIGNFLOWRATE",
                 Name=name + '_overheating',
-                Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
+                Zone_or_ZoneList_Name=zone_name,
                 Schedule_Name="Continuous",
                 Ventilation_Type="Natural",
                 Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
