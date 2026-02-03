@@ -39,6 +39,9 @@ Modelica.Thermal.HeatTransfer.Interfaces.HeatPort_a heatPortOuterRad[${len(model
     annotation (Placement(transformation(extent={{-110,-22},{-90,-2}})));
 % endif
 
+Buildings.BoundaryConditions.WeatherData.Bus weaBus "Weather data bus"
+    annotation (Placement(transformation(extent={{-110,-110},{-90,-90}})));
+
 equation
 % for con1, con2, pos1, pos2 in model.connections:
   connect(${con1}, ${con2})

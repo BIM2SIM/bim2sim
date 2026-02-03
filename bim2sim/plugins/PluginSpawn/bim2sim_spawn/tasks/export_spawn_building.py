@@ -1,11 +1,13 @@
 import codecs
 from pathlib import Path
-from typing import List
+from typing import List, Tuple, Optional, Dict
+from collections import defaultdict
 
 from mako.template import Template
 
 import bim2sim
 from bim2sim.export.modelica import parse_to_modelica
+from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.tasks.base import ITask
 
 
@@ -37,6 +39,9 @@ class ExportSpawnBuilding(ITask):
         self.logger.info("Export building of Spawn model to Modelica code")
         model_name_building = 'BuildingModel'
 
+        tz_elements = filter_elements(elements, 'ThermalZone')
+        base_infiltration = self._get_base_infiltration_per_zone(tz_elements, ep_zone_lists)
+
         # Setup export paths
         export_package_path = self.paths.export / Path(package_name)
 
@@ -46,7 +51,8 @@ class ExportSpawnBuilding(ITask):
             model_name=model_name_building,
             weather_file_ep=weather_file_ep,
             weather_file_modelica=weather_file_modelica,
-            ep_zone_lists=ep_zone_lists
+            ep_zone_lists=ep_zone_lists,
+            base_infiltration=base_infiltration
         )
 
         # Write the generated Modelica code to file
@@ -55,6 +61,25 @@ class ExportSpawnBuilding(ITask):
             building_template_data)
 
         return model_name_building,
+
+    @staticmethod
+    def _get_base_infiltration_per_zone(tz_elements: List,
+                                        ep_zone_lists: List) -> List[float]:
+        """Get base infiltration per zones according to the zone's UseConditions
+
+        Args:
+            tz_elements: List of thermal zone elements.
+            ep_zone_lists: List of zones in energy plus idf file
+
+        Returns:
+             base_infiltration: Dict mapping base infiltration to zones.
+        """
+        base_infiltration = []
+        for ep_zone in ep_zone_lists:
+            for tz in tz_elements:
+                if tz.guid == ep_zone:
+                    base_infiltration.append(tz.base_infiltration)
+        return base_infiltration
 
     @staticmethod
     def _load_template() -> Template:
@@ -74,7 +99,8 @@ class ExportSpawnBuilding(ITask):
                                   model_name: str,
                                   weather_file_ep: Path,
                                   weather_file_modelica: Path,
-                                  ep_zone_lists: list) -> str:
+                                  ep_zone_lists: list,
+                                  base_infiltration: list) -> str:
         """Render the building Modelica template using provided data.
 
         Args:
@@ -99,6 +125,7 @@ class ExportSpawnBuilding(ITask):
             weather_path_mos=parse_to_modelica(
                 name=None, value=weather_file_modelica),
             ep_zone_lists=parse_to_modelica(name=None, value=ep_zone_lists),
+            base_infiltration=parse_to_modelica(name=None, value=base_infiltration),
             idf_path=parse_to_modelica(name=None, value=idf_path),
             n_zones=len(ep_zone_lists)
         )

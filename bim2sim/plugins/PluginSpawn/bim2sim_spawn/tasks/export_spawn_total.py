@@ -142,12 +142,15 @@ class ExportSpawnTotal(ITask):
                             zone_to_heaters[tz.guid].append(space_heater.guid)
         return zone_to_heaters
 
-    def _save_total_modelica_model(
-            self, model_name_total: str, model_name_building: str,
-            model_name_hydraulic: str,
-            cons_heat_ports_conv_building_hvac: List[Tuple[str, str]],
-            cons_heat_ports_rad_building_hvac: List[Tuple[str, str]],
-            weather_path_mos: Path, package_path: Path):
+    def _save_total_modelica_model(self,
+                                   model_name_total: str,
+                                   model_name_building: str,
+                                   model_name_hydraulic: str,
+                                   cons_heat_ports_conv_building_hvac: List[Tuple[str, str]],
+                                   cons_heat_ports_rad_building_hvac: List[Tuple[str, str]],
+                                   weather_path_mos: Path,
+                                   package_path: Path):
+
         """Render and save the total Modelica model file using a template.
 
         Args:
@@ -179,6 +182,7 @@ class ExportSpawnTotal(ITask):
                          f"{export_path}")
         with codecs.open(export_path, "w", "utf-8") as file:
             file.write(total_template_data)
+
 
     @classmethod
     def get_port_mapping(
@@ -213,6 +217,7 @@ class ExportSpawnTotal(ITask):
                               f"{hvac_outer_port}")
             mapping.append((building_port, hydraulic_port))
         return mapping
+
 
     @staticmethod
     def get_building_index(
