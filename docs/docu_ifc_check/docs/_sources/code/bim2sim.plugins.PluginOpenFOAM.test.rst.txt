@@ -1,0 +1,17 @@
+bim2sim.plugins.PluginOpenFOAM.test package
+===========================================
+
+.. automodule:: bim2sim.plugins.PluginOpenFOAM.test
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   bim2sim.plugins.PluginOpenFOAM.test.integration
+   bim2sim.plugins.PluginOpenFOAM.test.regression
+   bim2sim.plugins.PluginOpenFOAM.test.unit
