@@ -630,9 +630,8 @@ subgraph taskCheckIfc[&quot;task CheckIfc&quot;]
 
   tCheckIfc[&quot;bim2sim &gt; tasks &gt; common &gt;  
  CheckIfc&quot;]
-  extCheckIfc(&quot;  Check an IFC file, for a number of conditions
-(missing information, incorrect information, etc)
-that could lead on future tasks to fatal errors. &quot; )
+  extCheckIfc(&quot;  Check ifc files for their quality regarding
+simulation. &quot; )
  end
 
 stateCheckIfc[(&quot;state
@@ -642,21 +641,21 @@ stateCheckIfc -- ifc_files --&gt; tCheckIfc
 direction RL
 end
     
-subgraph taskCreateElements[&quot;task CreateElements&quot;]
+subgraph taskCreateElementsOnIfcTypes[&quot;task CreateElementsOnIfcTypes&quot;]
  subgraph &quot;&quot; 
 
-  tCreateElements[&quot;bim2sim &gt; tasks &gt; common &gt;  
- CreateElements&quot;]
-  extCreateElements(&quot; Create bim2sim elements based on information in
-IFC. &quot; )
+  tCreateElementsOnIfcTypes[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ CreateElementsOnIfcTypes&quot;]
+  extCreateElementsOnIfcTypes(&quot; Create bim2sim elements based on information of
+IFC types. &quot; )
  end
 
-stateCreateElements[(&quot;state
+stateCreateElementsOnIfcTypes[(&quot;state
  (reads/touches)&quot;)]
     
-stateCreateElements -- ifc_files --&gt; tCreateElements
+stateCreateElementsOnIfcTypes -- ifc_files --&gt; tCreateElementsOnIfcTypes
 
-tCreateElements -- elements, ifc_files --&gt; stateCreateElements
+tCreateElementsOnIfcTypes -- elements, _initial_elements, ifc_files --&gt; stateCreateElementsOnIfcTypes
 
 end
     
@@ -672,24 +671,6 @@ stateCreateSpaceBoundaries[(&quot;state
  (reads/touches)&quot;)]
     
 stateCreateSpaceBoundaries -- ifc_files, elements --&gt; tCreateSpaceBoundaries
-
-tCreateSpaceBoundaries -- space_boundaries --&gt; stateCreateSpaceBoundaries
-
-end
-    
-subgraph taskCorrectSpaceBoundaries[&quot;task CorrectSpaceBoundaries&quot;]
- subgraph &quot;&quot; 
-
-  tCorrectSpaceBoundaries[&quot;bim2sim &gt; tasks &gt; bps &gt;  
- CorrectSpaceBoundaries&quot;]
-  extCorrectSpaceBoundaries(&quot; Advanced geometric preprocessing for Space
-Boundaries. &quot; )
- end
-
-stateCorrectSpaceBoundaries[(&quot;state
- (reads/touches)&quot;)]
-    
-stateCorrectSpaceBoundaries -- elements, space_boundaries --&gt; tCorrectSpaceBoundaries
 direction RL
 end
     
@@ -711,75 +692,52 @@ tAddSpaceBoundaries2B -- elements --&gt; stateAddSpaceBoundaries2B
 
 end
     
-subgraph taskFilterTZ[&quot;task FilterTZ&quot;]
+subgraph taskCorrectSpaceBoundaries[&quot;task CorrectSpaceBoundaries&quot;]
  subgraph &quot;&quot; 
 
-  tFilterTZ[&quot;bim2sim &gt; tasks &gt; bps &gt;  
- FilterTZ&quot;]
-  extFilterTZ(&quot; Filters the thermal zones for later usage and
-stores them in state. &quot; )
+  tCorrectSpaceBoundaries[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ CorrectSpaceBoundaries&quot;]
+  extCorrectSpaceBoundaries(&quot; Advanced geometric preprocessing for Space
+Boundaries. &quot; )
  end
 
-stateFilterTZ[(&quot;state
+stateCorrectSpaceBoundaries[(&quot;state
  (reads/touches)&quot;)]
     
-stateFilterTZ -- elements --&gt; tFilterTZ
-
-tFilterTZ -- tz_elements --&gt; stateFilterTZ
-
+stateCorrectSpaceBoundaries -- elements --&gt; tCorrectSpaceBoundaries
+direction RL
 end
     
-subgraph taskBindStoreys[&quot;task BindStoreys&quot;]
+subgraph taskCreateRelations[&quot;task CreateRelations&quot;]
  subgraph &quot;&quot; 
 
-  tBindStoreys[&quot;bim2sim &gt; tasks &gt; common &gt;  
- BindStoreys&quot;]
-  extBindStoreys(&quot; None. &quot; )
+  tCreateRelations[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ CreateRelations&quot;]
+  extCreateRelations(&quot; Relations of elements, run() method holds detailed
+information. &quot; )
  end
 
-stateBindStoreys[(&quot;state
+stateCreateRelations[(&quot;state
  (reads/touches)&quot;)]
     
-stateBindStoreys -- elements --&gt; tBindStoreys
-
-tBindStoreys -- elements --&gt; stateBindStoreys
-
+stateCreateRelations -- elements --&gt; tCreateRelations
+direction RL
 end
     
-subgraph taskEnrichUseConditions[&quot;task EnrichUseConditions&quot;]
+subgraph taskDisaggregationCreationAndTypeCheck[&quot;task DisaggregationCreationAndTypeCheck&quot;]
  subgraph &quot;&quot; 
 
-  tEnrichUseConditions[&quot;bim2sim &gt; tasks &gt; bps &gt;  
- EnrichUseConditions&quot;]
-  extEnrichUseConditions(&quot; Enriches Use Conditions of thermal zones based on
-decisions and translation of zone names. &quot; )
+  tDisaggregationCreationAndTypeCheck[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ DisaggregationCreationAndTypeCheck&quot;]
+  extDisaggregationCreationAndTypeCheck(&quot; Disaggregation of elements, run() method holds
+detailed information. &quot; )
  end
 
-stateEnrichUseConditions[(&quot;state
+stateDisaggregationCreationAndTypeCheck[(&quot;state
  (reads/touches)&quot;)]
     
-stateEnrichUseConditions -- tz_elements --&gt; tEnrichUseConditions
-
-tEnrichUseConditions -- enriched_tz --&gt; stateEnrichUseConditions
-
-end
-    
-subgraph taskVerifyLayersMaterials[&quot;task VerifyLayersMaterials&quot;]
- subgraph &quot;&quot; 
-
-  tVerifyLayersMaterials[&quot;bim2sim &gt; tasks &gt; bps &gt;  
- VerifyLayersMaterials&quot;]
-  extVerifyLayersMaterials(&quot; Verifies if layers and materials and their
-properties are meaningful. &quot; )
- end
-
-stateVerifyLayersMaterials[(&quot;state
- (reads/touches)&quot;)]
-    
-stateVerifyLayersMaterials -- elements --&gt; tVerifyLayersMaterials
-
-tVerifyLayersMaterials -- invalid --&gt; stateVerifyLayersMaterials
-
+stateDisaggregationCreationAndTypeCheck -- elements --&gt; tDisaggregationCreationAndTypeCheck
+direction RL
 end
     
 subgraph taskEnrichMaterial[&quot;task EnrichMaterial&quot;]
@@ -794,10 +752,24 @@ as invalid LOD. &quot; )
 stateEnrichMaterial[(&quot;state
  (reads/touches)&quot;)]
     
-stateEnrichMaterial -- elements, invalid --&gt; tEnrichMaterial
+stateEnrichMaterial -- elements --&gt; tEnrichMaterial
+direction RL
+end
+    
+subgraph taskEnrichUseConditions[&quot;task EnrichUseConditions&quot;]
+ subgraph &quot;&quot; 
 
-tEnrichMaterial -- elements --&gt; stateEnrichMaterial
+  tEnrichUseConditions[&quot;bim2sim &gt; tasks &gt; bps &gt;  
+ EnrichUseConditions&quot;]
+  extEnrichUseConditions(&quot; Enriches Use Conditions of thermal zones based on
+decisions and translation of zone names. &quot; )
+ end
 
+stateEnrichUseConditions[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateEnrichUseConditions -- elements --&gt; tEnrichUseConditions
+direction RL
 end
     
 subgraph taskWeather[&quot;task Weather&quot;]
@@ -841,7 +813,7 @@ subgraph taskIdfPostprocessing[&quot;task IdfPostprocessing&quot;]
   tIdfPostprocessing[&quot;bim2sim &gt; plugins &gt; PluginEnergyPlus &gt; 
 bim2sim_energyplus &gt; task &gt;  
  IdfPostprocessing&quot;]
-  extIdfPostprocessing(&quot; None. &quot; )
+  extIdfPostprocessing(&quot; Idf Postprocessin task. &quot; )
  end
 
 stateIdfPostprocessing[(&quot;state
@@ -857,7 +829,7 @@ subgraph taskExportIdfForCfd[&quot;task ExportIdfForCfd&quot;]
   tExportIdfForCfd[&quot;bim2sim &gt; plugins &gt; PluginEnergyPlus &gt; 
 bim2sim_energyplus &gt; task &gt;  
  ExportIdfForCfd&quot;]
-  extExportIdfForCfd(&quot; Export Idf shapes as . &quot; )
+  extExportIdfForCfd(&quot;  Export Idf shapes as . &quot; )
  end
 
 stateExportIdfForCfd[(&quot;state
@@ -867,13 +839,31 @@ stateExportIdfForCfd -- elements, idf --&gt; tExportIdfForCfd
 direction RL
 end
     
+subgraph taskSerializeElements[&quot;task SerializeElements&quot;]
+ subgraph &quot;&quot; 
+
+  tSerializeElements[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ SerializeElements&quot;]
+  extSerializeElements(&quot; Serialize element structure, run() method holds
+detailed information. &quot; )
+ end
+
+stateSerializeElements[(&quot;state
+ (reads/touches)&quot;)]
+    
+stateSerializeElements -- elements --&gt; tSerializeElements
+
+tSerializeElements -- serialized_elements --&gt; stateSerializeElements
+
+end
+    
 subgraph taskRunEnergyPlusSimulation[&quot;task RunEnergyPlusSimulation&quot;]
  subgraph &quot;&quot; 
 
   tRunEnergyPlusSimulation[&quot;bim2sim &gt; plugins &gt; PluginEnergyPlus &gt; 
 bim2sim_energyplus &gt; task &gt;  
  RunEnergyPlusSimulation&quot;]
-  extRunEnergyPlusSimulation(&quot; None. &quot; )
+  extRunEnergyPlusSimulation(&quot; Run EnergyPlus simulation. &quot; )
  end
 
 stateRunEnergyPlusSimulation[(&quot;state
@@ -890,13 +880,14 @@ subgraph taskCreateResultDF[&quot;task CreateResultDF&quot;]
 bim2sim_energyplus &gt; task &gt;  
  CreateResultDF&quot;]
   extCreateResultDF(&quot; This ITask creates a result dataframe for
-EnergyPlus BEPS simulations. &quot; )
+EnergyPlus BEPS simulations See detailed
+explanation in the run function below. &quot; )
  end
 
 stateCreateResultDF[(&quot;state
  (reads/touches)&quot;)]
     
-stateCreateResultDF -- idf, sim_results_path --&gt; tCreateResultDF
+stateCreateResultDF -- idf, sim_results_path, elements --&gt; tCreateResultDF
 
 tCreateResultDF -- df_finals --&gt; stateCreateResultDF
 
@@ -907,30 +898,30 @@ subgraph taskPlotBEPSResults[&quot;task PlotBEPSResults&quot;]
 
   tPlotBEPSResults[&quot;bim2sim &gt; tasks &gt; bps &gt;  
  PlotBEPSResults&quot;]
-  extPlotBEPSResults(&quot; Plots the results for BEPS simulations. &quot; )
+  extPlotBEPSResults(&quot; Class for plotting results of BEPS. &quot; )
  end
 
 statePlotBEPSResults[(&quot;state
  (reads/touches)&quot;)]
     
-statePlotBEPSResults -- df_finals, sim_results_path, ifc_files --&gt; tPlotBEPSResults
+statePlotBEPSResults -- df_finals, sim_results_path, ifc_files, elements --&gt; tPlotBEPSResults
 direction RL
 end
     taskLoadIFC --&gt; taskCheckIfc 
-taskCheckIfc --&gt; taskCreateElements 
-taskCreateElements --&gt; taskCreateSpaceBoundaries 
-taskCreateSpaceBoundaries --&gt; taskCorrectSpaceBoundaries 
-taskCorrectSpaceBoundaries --&gt; taskAddSpaceBoundaries2B 
-taskAddSpaceBoundaries2B --&gt; taskFilterTZ 
-taskFilterTZ --&gt; taskBindStoreys 
-taskBindStoreys --&gt; taskEnrichUseConditions 
-taskEnrichUseConditions --&gt; taskVerifyLayersMaterials 
-taskVerifyLayersMaterials --&gt; taskEnrichMaterial 
-taskEnrichMaterial --&gt; taskWeather 
+taskCheckIfc --&gt; taskCreateElementsOnIfcTypes 
+taskCreateElementsOnIfcTypes --&gt; taskCreateSpaceBoundaries 
+taskCreateSpaceBoundaries --&gt; taskAddSpaceBoundaries2B 
+taskAddSpaceBoundaries2B --&gt; taskCorrectSpaceBoundaries 
+taskCorrectSpaceBoundaries --&gt; taskCreateRelations 
+taskCreateRelations --&gt; taskDisaggregationCreationAndTypeCheck 
+taskDisaggregationCreationAndTypeCheck --&gt; taskEnrichMaterial 
+taskEnrichMaterial --&gt; taskEnrichUseConditions 
+taskEnrichUseConditions --&gt; taskWeather 
 taskWeather --&gt; taskCreateIdf 
 taskCreateIdf --&gt; taskIdfPostprocessing 
 taskIdfPostprocessing --&gt; taskExportIdfForCfd 
-taskExportIdfForCfd --&gt; taskRunEnergyPlusSimulation 
+taskExportIdfForCfd --&gt; taskSerializeElements 
+taskSerializeElements --&gt; taskRunEnergyPlusSimulation 
 taskRunEnergyPlusSimulation --&gt; taskCreateResultDF 
 taskCreateResultDF --&gt; taskPlotBEPSResults 
     </pre><p>This figure is generated by the script template_mermaid.py (see <a class="reference internal" href="../developer-guide/doc-utilities/gen_plugin_visu.html#genvisplugins"><span class="std std-ref">Visualization of bim2sim plugin structure</span></a>).</p>

@@ -612,9 +612,8 @@ subgraph taskCheckIfc[&quot;task CheckIfc&quot;]
 
   tCheckIfc[&quot;bim2sim &gt; tasks &gt; common &gt;  
  CheckIfc&quot;]
-  extCheckIfc(&quot;  Check an IFC file, for a number of conditions
-(missing information, incorrect information, etc)
-that could lead on future tasks to fatal errors. &quot; )
+  extCheckIfc(&quot;  Check ifc files for their quality regarding
+simulation. &quot; )
  end
 
 stateCheckIfc[(&quot;state
@@ -624,21 +623,21 @@ stateCheckIfc -- ifc_files --&gt; tCheckIfc
 direction RL
 end
     
-subgraph taskCreateElements[&quot;task CreateElements&quot;]
+subgraph taskCreateElementsOnIfcTypes[&quot;task CreateElementsOnIfcTypes&quot;]
  subgraph &quot;&quot; 
 
-  tCreateElements[&quot;bim2sim &gt; tasks &gt; common &gt;  
- CreateElements&quot;]
-  extCreateElements(&quot; Create bim2sim elements based on information in
-IFC. &quot; )
+  tCreateElementsOnIfcTypes[&quot;bim2sim &gt; tasks &gt; common &gt;  
+ CreateElementsOnIfcTypes&quot;]
+  extCreateElementsOnIfcTypes(&quot; Create bim2sim elements based on information of
+IFC types. &quot; )
  end
 
-stateCreateElements[(&quot;state
+stateCreateElementsOnIfcTypes[(&quot;state
  (reads/touches)&quot;)]
     
-stateCreateElements -- ifc_files --&gt; tCreateElements
+stateCreateElementsOnIfcTypes -- ifc_files --&gt; tCreateElementsOnIfcTypes
 
-tCreateElements -- elements, ifc_files --&gt; stateCreateElements
+tCreateElementsOnIfcTypes -- elements, _initial_elements, ifc_files --&gt; stateCreateElementsOnIfcTypes
 
 end
     
@@ -665,7 +664,7 @@ subgraph taskMakeGraph[&quot;task MakeGraph&quot;]
 
   tMakeGraph[&quot;bim2sim &gt; tasks &gt; hvac &gt;  
  MakeGraph&quot;]
-  extMakeGraph(&quot; Instantiate HVACGraph. &quot; )
+  extMakeGraph(&quot; None. &quot; )
  end
 
 stateMakeGraph[(&quot;state
@@ -682,8 +681,7 @@ subgraph taskExpansionTanks[&quot;task ExpansionTanks&quot;]
 
   tExpansionTanks[&quot;bim2sim &gt; tasks &gt; hvac &gt;  
  ExpansionTanks&quot;]
-  extExpansionTanks(&quot; Analyses graph network for expansion tanks and
-removes them. &quot; )
+  extExpansionTanks(&quot; None. &quot; )
  end
 
 stateExpansionTanks[(&quot;state
@@ -700,7 +698,7 @@ subgraph taskReduce[&quot;task Reduce&quot;]
 
   tReduce[&quot;bim2sim &gt; tasks &gt; hvac &gt;  
  Reduce&quot;]
-  extReduce(&quot; Reduce number of elements by aggregation. &quot; )
+  extReduce(&quot; None. &quot; )
  end
 
 stateReduce[(&quot;state
@@ -717,8 +715,7 @@ subgraph taskDeadEnds[&quot;task DeadEnds&quot;]
 
   tDeadEnds[&quot;bim2sim &gt; tasks &gt; hvac &gt;  
  DeadEnds&quot;]
-  extDeadEnds(&quot; Analyses graph network for dead ends and removes
-ports due to dead ends. &quot; )
+  extDeadEnds(&quot; None. &quot; )
  end
 
 stateDeadEnds[(&quot;state
@@ -757,11 +754,13 @@ stateExport[(&quot;state
  (reads/touches)&quot;)]
     
 stateExport -- libraries, graph --&gt; tExport
-direction RL
+
+tExport -- modelica_model --&gt; stateExport
+
 end
     taskLoadIFC --&gt; taskCheckIfc 
-taskCheckIfc --&gt; taskCreateElements 
-taskCreateElements --&gt; taskConnectElements 
+taskCheckIfc --&gt; taskCreateElementsOnIfcTypes 
+taskCreateElementsOnIfcTypes --&gt; taskConnectElements 
 taskConnectElements --&gt; taskMakeGraph 
 taskMakeGraph --&gt; taskExpansionTanks 
 taskExpansionTanks --&gt; taskReduce 
