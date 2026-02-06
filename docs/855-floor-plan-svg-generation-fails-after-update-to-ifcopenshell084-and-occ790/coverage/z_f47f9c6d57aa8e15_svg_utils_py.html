@@ -54,9 +54,9 @@
             </div>
         </aside>
         <h2>
-            <span class="text">231 statements &nbsp;</span>
+            <span class="text">224 statements &nbsp;</span>
             <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">19<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">212<span class="text"> missing</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">205<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_f47f9c6d57aa8e15_test_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.3">coverage.py v7.13.3</a>,
-            created at 2026-02-06 14:34 +0000
+            created at 2026-02-06 16:54 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -178,7 +178,7 @@
     <p class="pln"><span class="n"><a id="t96" href="#t96">96</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t97" href="#t97">97</a></span><span class="t">    <span class="nam">file</span> <span class="op">=</span> <span class="nam">ifc_file_instance</span><span class="op">.</span><span class="nam">file</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t98" href="#t98">98</a></span><span class="t">    <span class="nam">sr</span><span class="op">.</span><span class="nam">setFile</span><span class="op">(</span><span class="nam">file</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t">    <span class="nam">sr</span><span class="op">.</span><span class="nam">setSectionHeightsFromStoreys</span><span class="op">(</span><span class="nam">offset</span><span class="op">=</span><span class="num">0.0</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t99" href="#t99">99</a></span><span class="t">    <span class="nam">sr</span><span class="op">.</span><span class="nam">setSectionHeightsFromStoreys</span><span class="op">(</span><span class="nam">offset</span><span class="op">=</span><span class="num">2.0</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t100" href="#t100">100</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t101" href="#t101">101</a></span><span class="t">    <span class="nam">sr</span><span class="op">.</span><span class="nam">setDrawDoorArcs</span><span class="op">(</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t102" href="#t102">102</a></span><span class="t">    <span class="nam">sr</span><span class="op">.</span><span class="nam">setPrintSpaceAreas</span><span class="op">(</span><span class="key">True</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -608,15 +608,15 @@
     <p class="mis show_mis"><span class="n"><a id="t526" href="#t526">526</a></span><span class="t">        <span class="nam">combine_two_svgs</span><span class="op">(</span><span class="nam">svg_file</span><span class="op">,</span> <span class="nam">color_mapping_file</span><span class="op">,</span> <span class="nam">output_svg_file</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t527" href="#t527">527</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t528" href="#t528">528</a></span><span class="t">        <span class="com"># cleanup</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t529" href="#t529">529</a></span><span class="t">        <span class="key">for</span> <span class="nam">file</span> <span class="key">in</span> <span class="op">[</span><span class="nam">original_svg</span><span class="op">,</span> <span class="nam">svg_file</span><span class="op">,</span> <span class="nam">color_mapping_file</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t530" href="#t530">530</a></span><span class="t">            <span class="key">try</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t531" href="#t531">531</a></span><span class="t">                <span class="nam">file</span><span class="op">.</span><span class="nam">unlink</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t532" href="#t532">532</a></span><span class="t">            <span class="key">except</span> <span class="nam">FileNotFoundError</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t533" href="#t533">533</a></span><span class="t">                <span class="nam">logger</span><span class="op">.</span><span class="nam">warning</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t534" href="#t534">534</a></span><span class="t">                    <span class="str">f"{file.name} in path {file.parent} not found and thus "</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t535" href="#t535">535</a></span><span class="t">                    <span class="str">f"couldn't be removed."</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t536" href="#t536">536</a></span><span class="t">            <span class="key">except</span> <span class="nam">OSError</span> <span class="key">as</span> <span class="nam">e</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t537" href="#t537">537</a></span><span class="t">                <span class="nam">logger</span><span class="op">.</span><span class="nam">warning</span><span class="op">(</span><span class="str">f"Error: {e.filename} - {e.strerror}"</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t529" href="#t529">529</a></span><span class="t">        <span class="com"># for file in [original_svg, svg_file, color_mapping_file]:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t530" href="#t530">530</a></span><span class="t">        <span class="com">#     try:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t531" href="#t531">531</a></span><span class="t">        <span class="com">#         file.unlink()</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t532" href="#t532">532</a></span><span class="t">        <span class="com">#     except FileNotFoundError:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t533" href="#t533">533</a></span><span class="t">        <span class="com">#         logger.warning(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t534" href="#t534">534</a></span><span class="t">        <span class="com">#             f"{file.name} in path {file.parent} not found and thus "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t535" href="#t535">535</a></span><span class="t">        <span class="com">#             f"couldn't be removed.")</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t536" href="#t536">536</a></span><span class="t">        <span class="com">#     except OSError as e:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t537" href="#t537">537</a></span><span class="t">        <span class="com">#         logger.warning(f"Error: {e.filename} - {e.strerror}")</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t538" href="#t538">538</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t539" href="#t539">539</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t540" href="#t540">540</a></span><span class="t"><span class="key">def</span> <span class="nam">add_floor_plan_with_room_names</span><span class="op">(</span><span class="nam">ifc_file_class_inst</span><span class="op">:</span> <span class="nam">IfcFileClass</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
@@ -640,7 +640,7 @@
             <a class="nav" href="z_f47f9c6d57aa8e15_test_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.3">coverage.py v7.13.3</a>,
-            created at 2026-02-06 14:34 +0000
+            created at 2026-02-06 16:54 +0000
         </p>
     </div>
 </footer>
