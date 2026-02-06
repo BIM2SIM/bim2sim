@@ -110,11 +110,11 @@ def run_example_spawn_1():
     #     50,  # nominal return temperature of boiler
     # )
 
-    handler = ConsoleDecisionHandler()
-    handler = DebugDecisionHandler(answers)
-    handler.handle(project.run())
+    # handler = ConsoleDecisionHandler()
+    # handler = DebugDecisionHandler(answers)
+    # handler.handle(project.run())
 
-    # run_project(project, ConsoleDecisionHandler())
+    run_project(project, ConsoleDecisionHandler())
 
 
 if __name__ == '__main__':
