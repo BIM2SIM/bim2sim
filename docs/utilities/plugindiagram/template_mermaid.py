@@ -306,6 +306,14 @@ def generate_plugin_structure_fig(path_file: str,
 
 if __name__ == '__main__':
 
+    # Examples 9
+    # setup simple plugin, here template decentral state
+    # visualisation
+    PATH_NAME = ("/home/cudok/Documents/10_Git/bim2sim/docs/source/img/" +
+                 "dynamic/plugindiagram/ifccheck_structure_decentral_state.mmd")
+    generate_plugin_structure_fig(PATH_NAME,
+                                  plugin_name='IFCCheck',
+                                  central_state=False)
     # Examples 8
     # setup simple plugin, here template decentral state
     # visualisation
