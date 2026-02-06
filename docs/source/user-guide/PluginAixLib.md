@@ -56,9 +56,8 @@ subgraph taskCheckIfc["task CheckIfc"]
 
   tCheckIfc["bim2sim > tasks > common >  
  CheckIfc"]
-  extCheckIfc("  Check an IFC file, for a number of conditions
-(missing information, incorrect information, etc)
-that could lead on future tasks to fatal errors. " )
+  extCheckIfc("  Check ifc files for their quality regarding
+simulation. " )
  end
 
 stateCheckIfc[("state
@@ -68,21 +67,21 @@ stateCheckIfc -- ifc_files --> tCheckIfc
 direction RL
 end
     
-subgraph taskCreateElements["task CreateElements"]
+subgraph taskCreateElementsOnIfcTypes["task CreateElementsOnIfcTypes"]
  subgraph "" 
 
-  tCreateElements["bim2sim > tasks > common >  
- CreateElements"]
-  extCreateElements(" Create bim2sim elements based on information in
-IFC. " )
+  tCreateElementsOnIfcTypes["bim2sim > tasks > common >  
+ CreateElementsOnIfcTypes"]
+  extCreateElementsOnIfcTypes(" Create bim2sim elements based on information of
+IFC types. " )
  end
 
-stateCreateElements[("state
+stateCreateElementsOnIfcTypes[("state
  (reads/touches)")]
     
-stateCreateElements -- ifc_files --> tCreateElements
+stateCreateElementsOnIfcTypes -- ifc_files --> tCreateElementsOnIfcTypes
 
-tCreateElements -- elements, ifc_files --> stateCreateElements
+tCreateElementsOnIfcTypes -- elements, _initial_elements, ifc_files --> stateCreateElementsOnIfcTypes
 
 end
     
@@ -109,7 +108,7 @@ subgraph taskMakeGraph["task MakeGraph"]
 
   tMakeGraph["bim2sim > tasks > hvac >  
  MakeGraph"]
-  extMakeGraph(" Instantiate HVACGraph. " )
+  extMakeGraph(" None. " )
  end
 
 stateMakeGraph[("state
@@ -126,8 +125,7 @@ subgraph taskExpansionTanks["task ExpansionTanks"]
 
   tExpansionTanks["bim2sim > tasks > hvac >  
  ExpansionTanks"]
-  extExpansionTanks(" Analyses graph network for expansion tanks and
-removes them. " )
+  extExpansionTanks(" None. " )
  end
 
 stateExpansionTanks[("state
@@ -144,7 +142,7 @@ subgraph taskReduce["task Reduce"]
 
   tReduce["bim2sim > tasks > hvac >  
  Reduce"]
-  extReduce(" Reduce number of elements by aggregation. " )
+  extReduce(" None. " )
  end
 
 stateReduce[("state
@@ -161,8 +159,7 @@ subgraph taskDeadEnds["task DeadEnds"]
 
   tDeadEnds["bim2sim > tasks > hvac >  
  DeadEnds"]
-  extDeadEnds(" Analyses graph network for dead ends and removes
-ports due to dead ends. " )
+  extDeadEnds(" None. " )
  end
 
 stateDeadEnds[("state
@@ -201,11 +198,13 @@ stateExport[("state
  (reads/touches)")]
     
 stateExport -- libraries, graph --> tExport
-direction RL
+
+tExport -- modelica_model --> stateExport
+
 end
     taskLoadIFC --> taskCheckIfc 
-taskCheckIfc --> taskCreateElements 
-taskCreateElements --> taskConnectElements 
+taskCheckIfc --> taskCreateElementsOnIfcTypes 
+taskCreateElementsOnIfcTypes --> taskConnectElements 
 taskConnectElements --> taskMakeGraph 
 taskMakeGraph --> taskExpansionTanks 
 taskExpansionTanks --> taskReduce 
