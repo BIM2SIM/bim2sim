@@ -369,10 +369,16 @@ class EnrichMaterial(ITask):
 
             if sim_settings.construction_class_walls == "custom":
                 construction_class_walls = sim_settings.custom_construction_class_walls
+            else:
+                construction_class_walls = sim_settings.construction_class_walls
             if sim_settings.construction_class_doors == "custom":
                 construction_class_doors = sim_settings.custom_construction_class_doors
+            else:
+                construction_class_doors = sim_settings.construction_class_doors
             if sim_settings.construction_class_windows == "custom":
                 construction_class_windows = sim_settings.custom_construction_class_windows
+            else:
+                construction_class_windows = sim_settings.construction_class_windows
 
             # Build template for current building
             bldg_template = {}
