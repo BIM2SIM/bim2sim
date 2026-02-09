@@ -80,6 +80,7 @@ def convert_ifc_to_svg(ifc_file_instance: IfcFileClass,
         # INCLUDE_CURVES=True,
         # EXCLUDE_SOLIDS_AND_SURFACES=False,
         APPLY_DEFAULT_MATERIALS=True,
+        PRECISION=1e-6
     )
     settings.set(
         "dimensionality",
@@ -95,7 +96,7 @@ def convert_ifc_to_svg(ifc_file_instance: IfcFileClass,
 
     file = ifc_file_instance.file
     sr.setFile(file)
-    sr.setSectionHeightsFromStoreys(offset=0.0)
+    sr.setSectionHeightsFromStoreys(offset=0.8)
 
     sr.setDrawDoorArcs(True)
     sr.setPrintSpaceAreas(True)
