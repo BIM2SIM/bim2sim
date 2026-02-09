@@ -96,7 +96,7 @@ def convert_ifc_to_svg(ifc_file_instance: IfcFileClass,
 
     file = ifc_file_instance.file
     sr.setFile(file)
-    sr.setSectionHeightsFromStoreys(offset=2.0)
+    sr.setSectionHeightsFromStoreys(offset=0.8)
 
     sr.setDrawDoorArcs(True)
     sr.setPrintSpaceAreas(True)
@@ -526,15 +526,15 @@ def combine_svgs_complete(
         combine_two_svgs(svg_file, color_mapping_file, output_svg_file)
 
         # cleanup
-        # for file in [original_svg, svg_file, color_mapping_file]:
-        #     try:
-        #         file.unlink()
-        #     except FileNotFoundError:
-        #         logger.warning(
-        #             f"{file.name} in path {file.parent} not found and thus "
-        #             f"couldn't be removed.")
-        #     except OSError as e:
-        #         logger.warning(f"Error: {e.filename} - {e.strerror}")
+        for file in [original_svg, svg_file, color_mapping_file]:
+            try:
+                file.unlink()
+            except FileNotFoundError:
+                logger.warning(
+                    f"{file.name} in path {file.parent} not found and thus "
+                    f"couldn't be removed.")
+            except OSError as e:
+                logger.warning(f"Error: {e.filename} - {e.strerror}")
 
 
 def add_floor_plan_with_room_names(ifc_file_class_inst: IfcFileClass,
