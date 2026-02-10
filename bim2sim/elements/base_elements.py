@@ -178,11 +178,12 @@ class IFCBased(Element):
                  **kwargs):
         super().__init__(*args, **kwargs)
 
+
         self.ifc = ifc
         self.predefined_type = ifc2python.get_predefined_type(ifc)
         self.ifc_domain = ifc_domain
         self.finder = finder
-        self.ifc_units = ifc_units
+        self.ifc_units = ifc_units # ToDo Attribute enrichment in here
         self.source_tool: SourceTool = None
 
         # TBD
@@ -203,17 +204,13 @@ class IFCBased(Element):
         """Factory method to create instance from ifc"""
         ifc_args, ifc_kwargs = cls.ifc2args(ifc)
         kwargs.update(ifc_kwargs)
+        test = cls(*(args + ifc_args), **kwargs)
         return cls(*(args + ifc_args), **kwargs)
 
     @property
     def ifc_type(self):
         if self.ifc:
             return self.ifc.is_a()
-
-    @classmethod
-    def pre_validate(cls, ifc) -> bool:
-        """Check if ifc meets conditions to create element from it"""
-        raise NotImplementedError
 
     def _calc_position(self, name):
         """returns absolute position"""
@@ -451,9 +448,9 @@ class RelationBased(IFCBased):
         return "%s" % self.__class__.__name__
 
 
-class RelationBased(IFCBased):
-
-    pass
+# class RelationBased(IFCBased):
+#
+#     pass
 
 
 class ProductBased(IFCBased):
@@ -474,6 +471,7 @@ class ProductBased(IFCBased):
         self.ports = self.get_ports()
         self.material = None
         self.material_set = {}
+        self.storeys = []
         self.cost_group = self.calc_cost_group()
 
     def __init_subclass__(cls, **kwargs):
@@ -753,6 +751,8 @@ class Factory:
             ifc_domain: IFCDomain,
             finder: Union[TemplateFinder, None] = None,
             dummy=Dummy):
+
+        self.relevant_elements = relevant_elements
         self.mapping, self.blacklist, self.defaults = self.create_ifc_mapping(relevant_elements)
         self.dummy_cls = dummy
         self.ifc_domain = ifc_domain
@@ -799,7 +799,31 @@ class Factory:
                     f" will only be created for IFC files of domain "
                     f"{element_cls.from_ifc_domains}")
 
+        # descriptions = ifc2python.get_descriptions(ifc_entity)
+        #
+        # if descriptions and not any(
+        #         any(p.search(desc) for p in element_cls.pattern_ifc_type)
+        #         for desc in descriptions if desc):
+        #     ele_matches = []
+        #     for ele in self.relevant_elements:
+        #         match_count = 0
+        #         for p in ele.pattern_ifc_type:
+        #             for desc in descriptions:
+        #                 if desc:
+        #                     if p.search(desc):
+        #                         match_count += 1
+        #         if match_count > 0:
+        #             ele_matches.append((ele, match_count))
+        #     if not ele_matches:
+        #         raise LookupError(f"No element found for {ifc_entity}")
+        #     elif len(ele_matches) == 1:
+        #         element_cls = ele_matches[0][0]
+        #     else:
+        #         best_ele, _ = max(ele_matches, key=lambda x: x[1])
+        #         element_cls = best_ele
+
         element = self.create(element_cls, ifc_entity, *args, **kwargs)
+
         return element
 
     def create(self, element_cls, ifc_entity, *args, **kwargs):

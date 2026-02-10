@@ -318,6 +318,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                                 # handle all other strings
                                 val = set_from_cfg
                         else:
+
                             # handle all other data types
                             val = set_from_cfg
                         setattr(self, setting, val)
@@ -426,13 +427,12 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         value=None,
         description='Path to the weather file that should be used for the '
                     'simulation. If no path is provided, we will try to get '
-                    'the'
-                    'location from the IFC and download a fitting weather'
+                    'the location from the IFC and download a fitting weather'
                     ' file. For Modelica provide .mos files, for EnergyPlus '
                     '.epw files. If the format does not fit, we will try to '
                     'convert.',
         for_frontend=True,
-        mandatory=True
+        mandatory=False
     )
 
     building_rotation_overwrite = NumberSetting(
@@ -450,11 +450,13 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     'performance simulation and co-simulations.',
         for_frontend=True
     )
+
     correct_space_boundaries = BooleanSetting(
         value=False,
         description='Apply geometric correction to space boundaries.',
         for_frontend=True
     )
+
     close_space_boundary_gaps = BooleanSetting(
         value=False,
         description='Close gaps in the set of space boundaries by adding '
@@ -525,6 +527,13 @@ class PlantSimSettings(BaseSimSettings):
                     " should be validated by the geometric position of the "
                     "ports."
     )
+    outer_heat_ports = BooleanSetting(
+        value=False,
+        description='Add outer heat ports to allow connections to other '
+                    'models.',
+        for_frontend=True
+    )
+
 
 
 class BuildingSimSettings(BaseSimSettings):

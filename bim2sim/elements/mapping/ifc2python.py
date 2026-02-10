@@ -414,6 +414,12 @@ def get_predefined_type(ifcElement) -> Union[str, None]:
     except AttributeError:
         return None
 
+def get_descriptions(ifcElement):
+    """Return the object type of the IFC element"""
+    try:
+        return [ifcElement.ObjectType, ifcElement.Name, ifcElement.Description]
+    except TypeError:
+        pass
 
 def getElementType(ifcElement):
     """Return the ifctype of the IFC element"""

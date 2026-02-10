@@ -4,7 +4,7 @@ import logging
 import math
 import os
 from pathlib import Path, PosixPath
-from typing import Union, TYPE_CHECKING
+from typing import Union, TYPE_CHECKING, List
 
 import pandas as pd
 from OCC.Core.BRep import BRep_Tool
@@ -49,15 +49,16 @@ class CreateIdf(ITask):
     function below.
     """
 
-    reads = ('elements', 'weather_file',)
-    touches = ('idf', 'sim_results_path')
+    reads = ('elements', 'weather_file_ep',)
+    touches = ('idf', 'sim_results_path', 'ep_zone_lists')
 
     def __init__(self, playground):
         super().__init__(playground)
         self.idf = None
         self.hash_line = None
 
-    def run(self, elements: dict, weather_file: Path) -> tuple[IDF, Path]:
+    def run(self, elements: dict, weather_file_ep: Path) -> (
+            tuple)[IDF, Path, List]:
         """Execute all methods to export an IDF from BIM2SIM.
 
         This task includes all functions for exporting EnergyPlus Input files
@@ -78,17 +79,21 @@ class CreateIdf(ITask):
         Args:
             elements (dict): dictionary in the format dict[guid: element],
                 holds preprocessed elements including space boundaries.
-            weather_file (Path): path to weather file in .epw data format
+            weather_file_ep (Path): path to weather file in .epw data format
         Returns:
             idf (IDF): EnergyPlus input file
             sim_results_path (Path): path to the simulation results.
+            ep_zone_lists (List): List of thermal zone EP items
         """
         logger.info("IDF generation started ...")
-        idf, sim_results_path = self.init_idf(self.playground.sim_settings,
-                                              self.paths, weather_file,
-                                              self.prj_name)
+        idf, sim_results_path = self.init_idf(
+            self.playground.sim_settings,
+            self.paths,
+            weather_file_ep,
+            self.prj_name)
         self.init_zone(self.playground.sim_settings, elements, idf)
         self.init_zonegroups(elements, idf)
+        ep_zone_lists = [z.Name for z in idf.idfobjects['ZONE']]
         self.get_preprocessed_materials_and_constructions(
             self.playground.sim_settings, elements, idf)
         if self.playground.sim_settings.add_shadings:
@@ -118,14 +123,14 @@ class CreateIdf(ITask):
                 weather_file_sizing = (
                     self.playground.sim_settings.weather_file_for_sizing)
             else:
-                weather_file_sizing = str(weather_file)
+                weather_file_sizing = str(weather_file_ep)
             self.apply_system_sizing(
                 idf, weather_file_sizing,
                 sim_results_path)
             logger.info("Idf has been updated with limits from weather file "
                         "sizing.")
 
-        return idf, sim_results_path
+        return idf, sim_results_path, ep_zone_lists
 
     def apply_system_sizing(self, idf, sizing_weather_file, sim_results_path):
         """
@@ -208,6 +213,8 @@ class CreateIdf(ITask):
         # initialize the idf with a minimal idf setup
         idf = IDF(plugin_ep_path + '/data/Minimal.idf')
         # remove location and design days
+        idf.idfobjects['VERSION'][0].Version_Identifier = sim_settings.ep_version.replace("_", ".")
+
         idf.removeallidfobjects('SIZINGPERIOD:DESIGNDAY')
         idf.removeallidfobjects('SITE:LOCATION')
         if sim_settings.system_weather_sizing != 'DesignDay':
@@ -365,6 +372,9 @@ class CreateIdf(ITask):
         Args:
             elements: dict[guid: element]
             idf: idf file object
+        Returns
+            zone_lists: list of all zones with their name in EP
+            @Veronika Richter, correct?
         """
         spaces = get_spaces_with_bounds(elements)
         space_usage_dict = {}
@@ -390,6 +400,7 @@ class CreateIdf(ITask):
                              Zone_List_Name=zlist.Name,
                              Zone_List_Multiplier=1
                              )
+
     @staticmethod
     def check_preprocessed_materials_and_constructions(rel_elem, layers):
         """Check if preprocessed materials and constructions are valid."""
@@ -1015,7 +1026,7 @@ class CreateIdf(ITask):
             idf.newidfobject(
                 "ZONEINFILTRATION:DESIGNFLOWRATE",
                 Name=name,
-                Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
+                Zone_or_ZoneList_Name=zone_name,
                 Schedule_Name="Continuous",
                 Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
                 Air_Changes_per_Hour=space.base_infiltration
@@ -1241,7 +1252,7 @@ class CreateIdf(ITask):
             idf.newidfobject(
                 "ZONEVENTILATION:DESIGNFLOWRATE",
                 Name=name + '_winter',
-                Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
+                Zone_or_ZoneList_Name=zone_name,
                 Schedule_Name="Continuous",
                 Ventilation_Type="Natural",
                 Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
@@ -1255,7 +1266,7 @@ class CreateIdf(ITask):
             idf.newidfobject(
                 "ZONEVENTILATION:DESIGNFLOWRATE",
                 Name=name + '_summer',
-                Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
+                Zone_or_ZoneList_Name=zone_name,
                 Schedule_Name="Continuous",
                 Ventilation_Type="Natural",
                 Design_Flow_Rate_Calculation_Method="AirChanges/Hour",
@@ -1269,7 +1280,7 @@ class CreateIdf(ITask):
             idf.newidfobject(
                 "ZONEVENTILATION:DESIGNFLOWRATE",
                 Name=name + '_overheating',
-                Zone_or_ZoneList_or_Space_or_SpaceList_Name=zone_name,
+                Zone_or_ZoneList_Name=zone_name,
                 Schedule_Name="Continuous",
                 Ventilation_Type="Natural",
                 Design_Flow_Rate_Calculation_Method="AirChanges/Hour",

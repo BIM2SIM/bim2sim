@@ -33,7 +33,7 @@ def run_example_load_existing_project():
     project = Project.create(project_path, plugin='energyplus')
 
     # set weather file data
-    project.sim_settings.weather_file_path = (
+    project.sim_settings.weather_file_path_ep = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
     # Run a simulation directly with dymola after model creation

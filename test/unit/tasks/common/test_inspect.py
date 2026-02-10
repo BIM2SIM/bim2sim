@@ -46,7 +46,7 @@ class TestInspect(unittest.TestCase):
                                  'hydraulic/ifc/B01_2_HeatExchanger_Pipes.ifc'}
         self.project = Project.create(self.test_dir.name, ifc_paths,
                                  plugin=PluginDummy, )
-        self.project.sim_settings.weather_file_path = (
+        self.project.sim_settings.weather_file_path_modelica = (
                 test_rsrc_path / 'weather_files/DEU_NW_Aachen.105010_TMYx.mos')
         handler = DebugDecisionHandler([HeatExchanger.key])
         handler.handle(self.project.run(cleanup=False))
@@ -65,7 +65,7 @@ class TestInspect(unittest.TestCase):
                                  'B01_3_HeatExchanger_noPorts.ifc'}
         self.project = Project.create(self.test_dir.name, ifc_paths,
                                       plugin=PluginDummy, )
-        self.project.sim_settings.weather_file_path = (
+        self.project.sim_settings.weather_file_path_modelica = (
                 test_rsrc_path / 'weather_files/DEU_NW_Aachen.105010_TMYx.mos')
         handler = DebugDecisionHandler([HeatExchanger.key,
                                         *(Pipe.key,) * 4])
@@ -86,7 +86,7 @@ class TestInspect(unittest.TestCase):
                                  'B01_4_HeatExchanger_noConnection.ifc'}
         self.project = Project.create(self.test_dir.name, ifc_paths,
                                  plugin=PluginDummy, )
-        self.project.sim_settings.weather_file_path = (
+        self.project.sim_settings.weather_file_path_modelica = (
                 test_rsrc_path / 'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
         handler = DebugDecisionHandler([HeatExchanger.key])
         handler.handle(self.project.run(cleanup=False))
@@ -105,7 +105,7 @@ class TestInspect(unittest.TestCase):
                                  'B01_5_HeatExchanger_mixConnection.ifc'}
         self.project = Project.create(self.test_dir.name, ifc_paths,
                                  plugin=PluginDummy, )
-        self.project.sim_settings.weather_file_path = (
+        self.project.sim_settings.weather_file_path_modelica = (
                 test_rsrc_path / 'weather_files/DEU_NW_Aachen.105010_TMYx.mos')
         handler = DebugDecisionHandler([HeatExchanger.key])
         handler.handle(self.project.run(cleanup=False))

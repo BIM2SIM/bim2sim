@@ -1,3 +1,4 @@
+import inspect
 import tempfile
 import unittest
 from typing import Union
@@ -54,7 +55,10 @@ class TestTask(unittest.TestCase):
         self.playground.sim_settings.load_default_settings()
 
     def run_task(self, answers, reads):
-        return DebugDecisionHandler(answers).handle(self.test_task.run(*reads))
+        if inspect.isgeneratorfunction(self.test_task.run):
+            return DebugDecisionHandler(answers).handle(self.test_task.run(*reads))
+        else:
+            return self.test_task.run(*reads)
 
     @classmethod
     def simSettingsClass(cls) -> Union[BaseSimSettings, None]:

@@ -136,6 +136,7 @@ class SetupHelperHVAC(SetupHelper):
         consumer = self.element_generator(
             hvac_aggregations.Consumer,
             rated_power=20 * ureg.kilowatt,
+            rated_volume_flow=1 * ureg.meter**3 / ureg.second,
             base_graph=nx.Graph(),
             match_graph=nx.Graph()
         )
@@ -332,6 +333,33 @@ class SetupHelperHVAC(SetupHelper):
                 return False
         return True
 
+    def get_pipe(self):
+        pipe = self.element_generator(
+            hvac.Pipe,
+            diameter=0.02 * ureg.m,
+            length=1 * ureg.m
+        )
+        return HvacGraph([pipe])
+
+    def get_pump(self):
+        pump = self.element_generator(
+            hvac.Pump,
+            rated_volume_flow=1 * ureg.m ** 3 / ureg.s,
+            rated_pressure_difference=10000 * ureg.N / (ureg.m ** 2))
+        return HvacGraph([pump])
+
+    def get_two_radiators(self):
+        radiator_1 = self.element_generator(
+            hvac.SpaceHeater, rated_power=1 * ureg.kilowatt,
+            flow_temperature=70 * ureg.celsius,
+            return_temperature=50 * ureg.celsius
+        )
+        radiator_2 = self.element_generator(
+            hvac.SpaceHeater, rated_power=1 * ureg.kilowatt,
+            flow_temperature=70 * ureg.celsius,
+            return_temperature=50 * ureg.celsius
+        )
+        return HvacGraph([radiator_1, radiator_2])
 
 class SetupHelperBPS(SetupHelper):
     def element_generator(self, element_cls, flags=None, **kwargs):

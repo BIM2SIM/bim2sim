@@ -1,10 +1,10 @@
 ﻿"""Package for Modelica export"""
-import codecs
 import logging
-import os
+from enum import Enum
 from pathlib import Path
 from threading import Lock
-from typing import Union, Type, Dict, Container, Callable, List, Any, Iterable
+from typing import (Union, Type, Dict, Container, Callable, List, Any,
+                    Iterable)
 
 import numpy as np
 import pint
@@ -42,6 +42,70 @@ def clean_string(string: str) -> str:
     return string.replace('$', '_')
 
 
+def help_package(path: Path, name: str, uses: str = None, within: str = None):
+    """Creates a package.mo file.
+
+    Parameters
+    ----------
+
+    path : Path
+        path of where the package.mo should be placed
+    name : string
+        name of the Modelica package
+    uses :
+    within : string
+        path of Modelica package containing this package
+    """
+
+    # Create the directory if it doesn't exist
+    path.mkdir(parents=True, exist_ok=True)
+
+    # Define the path to the template and render the package.mo
+    template_path_package = (Path(bim2sim.__file__).parent /
+                             "assets/templates/modelica/package.txt")
+    package_template = Template(filename=str(template_path_package))
+    # Write the rendered template to 'package.mo' in the specified path
+    with open(path / 'package.mo', 'w') as out_file:
+        out_file.write(package_template.render_unicode(
+            name=name,
+            within=within,
+            uses=uses))
+        # out_file.close()
+
+
+def help_package_order(path: Path, package_list: List[str], addition=None,
+                       extra=None):
+    """Creates a package.order file.
+
+    Parameters
+    ----------
+
+    path : Path
+        path of where the package.mo should be placed
+    package_list : string
+        name of all models or packages contained in the package
+    addition : string
+        if there should be a suffix in front of package_list.string it can
+        be specified
+    extra : string
+        an extra package or model not contained in package_list can be
+        specified
+    """
+
+    template_package_order_path = Path(bim2sim.__file__).parent / \
+                                  "assets/templates/modelica/package_order.txt"
+    package_order_template = Template(filename=str(
+        template_package_order_path))
+
+    rendered_content = package_order_template.render_unicode(
+        list=package_list,
+        addition=addition,
+        extra=extra
+    )
+    final_output = rendered_content.rstrip()
+    with open(path / 'package.order', 'w', newline='\n') as out_file:
+        out_file.write(final_output)
+
 class ModelicaModel:
     """Modelica model"""
 
@@ -49,7 +113,10 @@ class ModelicaModel:
                  name: str,
                  comment: str,
                  modelica_elements: List['ModelicaElement'],
-                 connections: list):
+                 connections: list,
+                 connections_heat_ports_conv: list,
+                 connections_heat_ports_rad: list
+                 ):
         """
         Args:
             name: The name of the model.
@@ -65,6 +132,9 @@ class ModelicaModel:
         self.size_y = (-100, 100)
 
         self.connections = self.set_positions(modelica_elements, connections)
+
+        self.connections_heat_ports_conv = connections_heat_ports_conv
+        self.connections_heat_ports_rad = connections_heat_ports_rad
 
     def set_positions(self, elements: list, connections: list) -> list:
         """ Sets the position of elements relative to min/max positions of
@@ -108,7 +178,7 @@ class ModelicaModel:
             )
         return connections_positions
 
-    def code(self) -> str:
+    def render_modelica_code(self) -> str:
         """ Returns the Modelica code for the model.The mako template is used to
             render the Modelica code based on the model's elements, connections,
             and unknown parameters.
@@ -136,24 +206,33 @@ class ModelicaModel:
             unknown_parameters.extend(unknown_parameter)
         return unknown_parameters
 
-    def save(self, path: str):
+    def save(self, path: Path):
         """ Save the model as Modelica file.
 
         Args:
-            path (str): The path where the Modelica file should be saved.
+            path (Path): The path where the Modelica file should be saved.
         """
-        _path = os.path.normpath(path)
-        if os.path.isdir(_path):
-            _path = os.path.join(_path, self.name)
+        _path = path.resolve()
 
-        if not _path.endswith(".mo"):
-            _path += ".mo"
+        if _path.is_dir():
+            _path = _path / self.name
 
-        data = self.code()
+        if not str(_path).endswith(".mo"):
+            _path = _path.with_suffix(".mo")
+
+        data = self.render_modelica_code()
 
         user_logger.info("Saving '%s' to '%s'", self.name, _path)
-        with codecs.open(_path, "w", "utf-8") as file:
+        with _path.open("w", encoding="utf-8") as file:
             file.write(data)
+
+    def save_pkg(self, pkg_path: Path):
+
+        pkg_name = pkg_path.stem
+        help_package(path=pkg_path, name=pkg_name,
+                     within=pkg_path.parent.stem)
+        help_package_order(path=pkg_path, package_list=[pkg_name])
+        self.save(pkg_path / pkg_name)
 
 
 class ModelicaElement:
@@ -200,6 +279,7 @@ class ModelicaElement:
         self.guid = self._get_clean_guid()
         self.name = self._get_name()
         self.comment = self.get_comment()
+        self.heat_ports = []
 
     def _get_clean_guid(self) -> str:
         """ Gets a clean GUID of the element.
@@ -369,6 +449,10 @@ class ModelicaElement:
         """
         return "%s.%s" % (self.name, self.get_port_name(port))
 
+    def get_heat_port_names(self):
+        """Returns names of heat ports if existing"""
+        return {}
+
     def __repr__(self):
         return "<%s %s>" % (self.path, self.name)
 
@@ -508,7 +592,8 @@ class ModelicaParameter:
             self.value = self._answers[self.name]
         elif self.attributes:
             attribute_value = self.get_attribute_value()
-            self.value = self.convert_parameter(attribute_value)
+            if attribute_value is not None:
+                self.value = self.convert_parameter(attribute_value)
         elif self.value is not None:
             self.value = self.convert_parameter(self.value)
         else:
@@ -533,7 +618,10 @@ class ModelicaParameter:
                 self._value = value
             else:
                 logger.warning("Parameter check failed for '%s' with value: "
-                               "%s", self.name, self._value)
+                               "%s of element %s with GUID %s",
+                               self.name, self._value,
+                               self.element.__class__.__name__,
+                               self.element.guid)
                 self._value = None
         else:
             self._value = value
@@ -693,6 +781,58 @@ def check_none():
         return not isinstance(value, type(None))
 
     return inner_check
+
+
+class HeatTransferType(Enum):
+    CONVECTIVE = "convective"
+    RADIATIVE = "radiative"
+    GENERIC = "generic"
+
+
+class HeatPort:
+    """Simplified representation of a heat port in Modelica.
+
+    This does not represent a bim2sim element, as IFC doesn't have the concept
+    of heat ports. This class is just for better differentiation between
+    radiative, convective and generic heat ports.
+
+   Args:
+        heat_transfer_type (HeatTransferType): The type of heat transfer.
+        name (str): name of the heat port in the parent modelica element
+        parent (Instance): Modelica Instance that holds this heat port
+    """
+
+    def __init__(self,
+                 heat_transfer_type: Union[HeatTransferType, str],
+                 name: str,
+                 parent: ModelicaElement):
+        self.heat_transfer_type = heat_transfer_type
+        self.name = name
+        self.parent = parent
+
+    @property
+    def heat_transfer_type(self):
+        return self._heat_transfer_type
+
+    @heat_transfer_type.setter
+    def heat_transfer_type(self, value: Union[HeatTransferType, str]):
+        if isinstance(value, HeatTransferType):
+            self._heat_transfer_type = value
+        elif isinstance(value, str):
+            try:
+                self._heat_transfer_type = HeatTransferType[value.upper()]
+            except KeyError:
+                raise AttributeError(f'Cannot set heat_transfer_type to {value}, '
+                                     f'only "convective", "radiative", and '
+                                     f'"generic" are allowed')
+        else:
+            raise AttributeError(f'Cannot set heat_transfer_type to {value}, '
+                                 f'only instances of HeatTransferType or '
+                                 f'strings "convective", "radiative", and '
+                                 f'"generic" are allowed')
+
+    def get_full_name(self):
+        return f"{self.parent.name}.{self.name}"
 
 
 class Dummy(ModelicaElement):

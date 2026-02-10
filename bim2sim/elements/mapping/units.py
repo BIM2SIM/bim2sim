@@ -64,7 +64,7 @@ def parse_ifc(unit_entity):
             unit_part = ureg.parse_units('{}{}'.format(prefix_string,
                                                        ifc_pint_unitmap[
                                                            element.Unit.Name]))
-            if element.Unit.Dimensions:
+            if hasattr(element, "Dimensions"):
                 unit_part = unit_part ** element.Dimensions
             unit = unit * unit_part ** element.Exponent
         return unit

@@ -8,6 +8,7 @@ import sys
 from typing import Set, List, Tuple, Generator, Union, Type
 
 import numpy as np
+import ifcopenshell.geom
 
 from bim2sim.kernel.decision import ListDecision, DecisionBunch
 from bim2sim.elements.mapping import condition, attribute
@@ -15,6 +16,8 @@ from bim2sim.elements.base_elements import Port, ProductBased, IFCBased
 from bim2sim.elements.mapping.ifc2python import get_ports as ifc2py_get_ports
 from bim2sim.elements.mapping.ifc2python import get_predefined_type
 from bim2sim.elements.mapping.units import ureg
+from bim2sim.utilities.types import FlowDirection, FlowSide
+
 
 logger = logging.getLogger(__name__)
 quality_logger = logging.getLogger('bim2sim.QualityReport')
@@ -33,19 +36,32 @@ def length_post_processing(value):
 
 
 class HVACPort(Port):
-    """Port of HVACProduct."""
-    vl_pattern = re.compile('.*vorlauf.*',
-                            re.IGNORECASE)  # TODO: extend pattern
-    rl_pattern = re.compile('.*rücklauf.*', re.IGNORECASE)
+    """Port of HVACProduct.
 
+    Definitions:
+    flow_direction: is the direction of the port which can be sink, source,
+     sink_and_source or unknown depending on the IFC data.
+    groups: based on IFC assignment this might be "vorlauf" or something else.
+    flow_side: defines if the port is part of the supply or return network.
+    E.g. the radiator is a splitter where one port is part of the supply and
+    the other port is part of the return network
+
+    """
+    vl_pattern = re.compile('.*(vorlauf|supply|feed|forward).*', re.IGNORECASE)
+    rl_pattern = re.compile('.*(rücklauf|return|recirculation|back).*',
+                            re.IGNORECASE)
+
+    # TODO #733 Clean port flow side setup
     def __init__(
             self, *args, groups: Set = None,
-            flow_direction: int = 0, **kwargs):
+            flow_direction: FlowDirection = FlowDirection.unknown, **kwargs):
         super().__init__(*args, **kwargs)
 
         self._flow_master = False
-        self._flow_direction = None
+        # self._flow_direction = None
+
         self._flow_side = None
+        # groups and flow_direction coming from ifc2args kwargs
         self.groups = groups or set()
         self.flow_direction = flow_direction
 
@@ -54,13 +70,16 @@ class HVACPort(Port):
         args, kwargs = super().ifc2args(ifc)
         groups = {assg.RelatingGroup.ObjectType
                   for assg in ifc.HasAssignments}
-        flow_direction = None
         if ifc.FlowDirection == 'SOURCE':
-            flow_direction = 1
+            flow_direction = FlowDirection.source
         elif ifc.FlowDirection == 'SINK':
-            flow_direction = -1
+            flow_direction = FlowDirection.sink
         elif ifc.FlowDirection in ['SINKANDSOURCE', 'SOURCEANDSINK']:
-            flow_direction = 0
+            flow_direction = FlowDirection.sink_and_source
+        elif ifc.FlowDirection == 'NOTDEFINED':
+            flow_direction = FlowDirection.unknown
+        else:
+            flow_direction = FlowDirection.unknown
 
         kwargs['groups'] = groups
         kwargs['flow_direction'] = flow_direction
@@ -89,10 +108,6 @@ class HVACPort(Port):
             quality_logger.info("Suspect position [0, 0, 0] for %s", self)
         return coordinates
 
-    @classmethod
-    def pre_validate(cls, ifc) -> bool:
-        return True
-
     def validate_creation(self) -> bool:
         return True
 
@@ -105,34 +120,23 @@ class HVACPort(Port):
     def flow_master(self, value: bool):
         self._flow_master = value
 
-    @property
-    def flow_direction(self):
-        """Flow direction of port
+    # @property
+    # def flow_direction(self):
+    #     """Flow direction of port
+    #
+    #     -1 = medium flows into port
+    #     1 = medium flows out of port
+    #     0 = medium flow undirected
+    #     None = flow direction unknown"""
+    #     return self._flow_direction
 
-        -1 = medium flows into port
-        1 = medium flows out of port
-        0 = medium flow undirected
-        None = flow direction unknown"""
-        return self._flow_direction
-
-    @flow_direction.setter
-    def flow_direction(self, value):
-        if self._flow_master:
-            raise AttributeError("Can't set flow direction for flow master.")
-        if value not in (-1, 0, 1, None):
-            raise AttributeError("Invalid value. Use one of (-1, 0, 1, None).")
-        self._flow_direction = value
-
-    @property
-    def verbose_flow_direction(self):
-        """Flow direction of port"""
-        if self.flow_direction == -1:
-            return 'SINK'
-        if self.flow_direction == 0:
-            return 'SINKANDSOURCE'
-        if self.flow_direction == 1:
-            return 'SOURCE'
-        return 'UNKNOWN'
+    # @flow_direction.setter
+    # def flow_direction(self, value):
+    #     if self._flow_master:
+    #         raise AttributeError("Can't set flow direction for flow master.")
+    #     if value not in (-1, 0, 1, None):
+    #         raise AttributeError("Invalid value. Use one of (-1, 0, 1, None).")
+    #     self._flow_direction = value
 
     @property
     def flow_side(self):
@@ -149,39 +153,39 @@ class HVACPort(Port):
 
     @flow_side.setter
     def flow_side(self, value):
-        if value not in (-1, 0, 1):
-            raise ValueError("allowed values for flow_side are 1, 0, -1")
         previous = self._flow_side
         self._flow_side = value
         if previous:
             if previous != value:
-                logger.info("Overwriting flow_side for %r with %s" % (
-                    self, self.verbose_flow_side))
+                logger.info(
+                    f"Overwriting flow_side for {self} with {value.name}")
         else:
-            logger.debug(
-                "Set flow_side for %r to %s" % (self, self.verbose_flow_side))
-
-    @property
-    def verbose_flow_side(self):
-        if self.flow_side == 1:
-            return "VL"
-        if self.flow_side == -1:
-            return "RL"
-        return "UNKNOWN"
+            logger.debug(f"Set flow_side for {self} to {value.name}")
 
     def determine_flow_side(self):
-        """Check groups for hints of flow_side and returns flow_side if hints are definitely"""
+        """Check groups for hints of flow_side and returns flow_side if hints
+        are definitely.
+
+        First the flow_direction and the type of the element
+        (generator/consumer) is checked for clear information. If no
+        information can be obtained the pattern matches are evaluated based on
+        the groups from IFC, that come from RelatingGroup assignment.
+        If there are mismatching information from flow_direction and patterns
+        the flow_side is set to unknown, otherwise it's set to supply_flow or
+        supply_flow.
+        """
         vl = None
         rl = None
+
         if self.parent.is_generator():
-            if self.flow_direction == 1:
+            if self.flow_direction.name == "source":
                 vl = True
-            elif self.flow_direction == -1:
+            elif self.flow_direction.name == "sink":
                 rl = True
         elif self.parent.is_consumer():
-            if self.flow_direction == 1:
+            if self.flow_direction.name == "source":
                 rl = True
-            elif self.flow_direction == -1:
+            elif self.flow_direction.name == "sink":
                 vl = True
         if not vl:
             vl = any(filter(self.vl_pattern.match, self.groups))
@@ -189,10 +193,10 @@ class HVACPort(Port):
             rl = any(filter(self.rl_pattern.match, self.groups))
 
         if vl and not rl:
-            return 1
+            return FlowSide.supply_flow
         if rl and not vl:
-            return -1
-        return 0
+            return FlowSide.return_flow
+        return FlowSide.unknown
 
 
 class HVACProduct(ProductBased):
@@ -317,8 +321,8 @@ class HVACProduct(ProductBased):
         vl = port_dict[decision_vl.value]
         rl = port_dict[decision_rl.value]
         # set flow correct side
-        vl.flow_side = 1
-        rl.flow_side = -1
+        vl.flow_side = FlowSide.supply_flow
+        rl.flow_side = FlowSide.return_flow
         self.inner_connections.append((vl, rl))
 
     def validate_ports(self):
@@ -360,6 +364,9 @@ class HeatPump(HVACProduct):
         re.compile('Heat.?pump', flags=re.IGNORECASE),
         re.compile('W(ä|ae)rme.?pumpe', flags=re.IGNORECASE),
     ]
+
+    def is_generator(self):
+        return True
 
     min_power = attribute.Attribute(
         description='Minimum power that heat pump operates at.',
@@ -483,6 +490,10 @@ class CoolingTower(HVACProduct):
         re.compile('R(ü|ue)ck.?K(ü|ue)hl.?(werk|turm|er)', flags=re.IGNORECASE),
         re.compile('RKA', flags=re.IGNORECASE),
     ]
+
+    def is_consumer(self):
+        # TODO #733 check this
+        return True
 
     min_power = attribute.Attribute(
         description='Minimum power that CoolingTower operates at.',
@@ -683,7 +694,8 @@ class Boiler(HVACProduct):
     def _calc_min_power(self, name) -> ureg.Quantity:
         """Function to calculate the minimum power that boiler operates at,
         using the partial load efficiency and the nominal power consumption"""
-        return self.partial_load_efficiency * self.nominal_power_consumption
+        if self.partial_load_efficiency and self.nominal_power_consumption:
+            return self.partial_load_efficiency * self.nominal_power_consumption
 
     min_power = attribute.Attribute(
         description="Minimum power that boiler operates at",
@@ -701,13 +713,13 @@ class Boiler(HVACProduct):
         unit=ureg.dimensionless,
         functions=[_calc_min_PLR],
     )
-    flow_temperature = attribute.Attribute(
-        description="Nominal inlet temperature",
+    return_temperature = attribute.Attribute(
+        description="Nominal return temperature",
         default_ps=('Pset_BoilerTypeCommon', 'WaterInletTemperatureRange'),
         unit=ureg.celsius,
     )
-    return_temperature = attribute.Attribute(
-        description="Nominal outlet temperature",
+    flow_temperature = attribute.Attribute(
+        description="Nominal flow temperature",
         default_ps=('Pset_BoilerTypeCommon', 'OutletTemperatureRange'),
         unit=ureg.celsius,
     )
@@ -934,6 +946,24 @@ class SpaceHeater(HVACProduct):
 
     def is_consumer(self):
         return True
+
+    def _get_radiator_shape(self, name):
+        """returns topods shape of the radiator"""
+        settings = ifcopenshell.geom.settings()
+        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
+        settings.set(settings.USE_WORLD_COORDS, True)
+        settings.set(settings.PRECISION, 1e-6)
+        settings.set(
+            "dimensionality",
+            ifcopenshell.ifcopenshell_wrapper.CURVES_SURFACES_AND_SOLIDS)  # 2
+        # settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+        # settings.set(settings.INCLUDE_CURVES, True)
+        return ifcopenshell.geom.create_shape(settings, self.ifc).geometry
+
+    shape = attribute.Attribute(
+        description="Returns topods shape of the radiator.",
+        functions=[_get_radiator_shape]
+    )
 
     number_of_panels = attribute.Attribute(
         description="Number of panels of heater",
@@ -1284,61 +1314,6 @@ class ThreeWayValve(Valve):
     def expected_hvac_ports(self):
         return 3
 
-
-class Duct(HVACProduct):
-    ifc_types = {"IfcDuctSegment": ['*', 'RIGIDSEGMENT', 'FLEXIBLESEGMENT']}
-
-    pattern_ifc_type = [
-        re.compile('Duct.?segment', flags=re.IGNORECASE)
-    ]
-
-    diameter = attribute.Attribute(
-        description='Duct diameter',
-        unit=ureg.millimeter,
-    )
-    length = attribute.Attribute(
-        description='Length of Duct',
-        unit=ureg.meter,
-    )
-
-
-class DuctFitting(HVACProduct):
-    ifc_types = {
-        "IfcDuctFitting":
-            ['*', 'BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION',
-             'OBSTRUCTION', 'TRANSITION']
-    }
-
-    pattern_ifc_type = [
-        re.compile('Duct.?fitting', flags=re.IGNORECASE)
-    ]
-
-    diameter = attribute.Attribute(
-        description='Duct diameter',
-        unit=ureg.millimeter,
-    )
-    length = attribute.Attribute(
-        description='Length of Duct',
-        unit=ureg.meter,
-    )
-
-
-class AirTerminal(HVACProduct):
-    ifc_types = {
-        "IfcAirTerminal":
-            ['*', 'DIFFUSER', 'GRILLE', 'LOUVRE', 'REGISTER']
-    }
-
-    pattern_ifc_type = [
-        re.compile('Air.?terminal', flags=re.IGNORECASE)
-    ]
-
-    diameter = attribute.Attribute(
-        description='Terminal diameter',
-        unit=ureg.millimeter,
-    )
-
-
 class Medium(HVACProduct):
     # is deprecated?
     ifc_types = {"IfcDistributionSystem": ['*']}
@@ -1357,6 +1332,9 @@ class CHP(HVACProduct):
     @property
     def expected_hvac_ports(self):
         return 2
+
+    def is_generator(self):
+        return True
 
     rated_power = attribute.Attribute(
         default_ps=('Pset_ElectricGeneratorTypeCommon', 'MaximumPowerOutput'),
@@ -1384,6 +1362,1578 @@ class CHP(HVACProduct):
     #     unit=ureg.meter ** 3,
     # )
 
+# Old ventilation classes
+"""
+class Duct(HVACProduct):
+    ifc_types = {"IfcDuctSegment": ['*', 'RIGIDSEGMENT', 'FLEXIBLESEGMENT']}
+
+    @property
+    def expected_hvac_ports(self):
+        return (2, float('inf'))
+
+    pattern_ifc_type = [
+        re.compile('Duct.?segment', flags=re.IGNORECASE)
+    ]
+
+    diameter = attribute.Attribute(
+        description='Duct diameter',
+        unit=ureg.millimeter,
+    )
+    length = attribute.Attribute(
+        description='Length of Duct',
+        unit=ureg.meter,
+    )
+
+
+class DuctFitting(HVACProduct):
+    ifc_types = {
+        "IfcDuctFitting":
+            ['*', 'BEND', 'CONNECTOR', 'ENTRY', 'EXIT', 'JUNCTION',
+             'OBSTRUCTION', 'TRANSITION']
+    }
+
+    @property
+    def expected_hvac_ports(self):
+        return (0, float('inf'))
+
+    pattern_ifc_type = [
+        re.compile('Duct.?fitting', flags=re.IGNORECASE)
+    ]
+
+    diameter = attribute.Attribute(
+        description='Duct diameter',
+        unit=ureg.millimeter,
+    )
+    length = attribute.Attribute(
+        description='Length of Duct',
+        unit=ureg.meter,
+    )
+
+
+class AirTerminal(HVACProduct):
+    ifc_types = {
+        "IfcAirTerminal":
+            ['*', 'DIFFUSER', 'GRILLE', 'LOUVRE', 'REGISTER']
+    }
+
+    @property
+    def expected_hvac_ports(self):
+        return (1, 2)
+
+    pattern_ifc_type = [
+        re.compile('Air.?terminal', flags=re.IGNORECASE)
+    ]
+
+    diameter = attribute.Attribute(
+        description='Terminal diameter',
+        unit=ureg.millimeter,
+    )
+
+    def is_consumer(self):
+        return True
+"""
+
+
+class VentilationElement(HVACProduct):
+    """Common properties for all ventilation elements"""
+
+    @property
+    def expected_hvac_ports(self):
+        return (2, float('inf'))
+
+    air_type = attribute.Attribute(
+        description='Air type',
+    )
+    system = attribute.Attribute(
+        description='System',
+    )
+    position_in_ifc = attribute.Attribute(
+        description='Position out of ifc entity',
+    )
+    floor = attribute.Attribute(
+        description='Floor',
+    )
+    version = attribute.Attribute(
+        description='Version',
+    )
+    isolation_type = attribute.Attribute(
+        description='Insulation type',
+    )
+    edge = attribute.Attribute(
+        description='Edge',
+    )
+    data_mask_number = attribute.Attribute(
+        description='Data mask number',
+    )
+    on_list = attribute.Attribute(
+        description='On list',
+    )
+    pen = attribute.Attribute(
+        description='Pen',
+    )
+    material = attribute.Attribute(
+        description='Material',
+    )
+    designation = attribute.Attribute(
+        description='Designation',
+    )
+    code = attribute.Attribute(
+        description='Code/KBZ',
+    )
+    key = attribute.Attribute(
+        description='Key',
+    )
+
+
+# ============================================================================
+# AIR DUCT FAMILY
+# ============================================================================
+
+class AirDuct(VentilationElement):
+    """Base class for all air ducts"""
+
+    ifc_types = {
+        'IfcDuctSegment': ['*']
+    }
+
+    length = attribute.Attribute(
+        description='Length',
+        unit=ureg.millimeter,
+        patterns=[
+            re.compile(r'\[l\] Länge', flags=re.IGNORECASE),
+            re.compile(r'\[l\] Länge \(l\)', flags=re.IGNORECASE),
+        ],
+    )
+    air_velocity = attribute.Attribute(
+        description='Air velocity',
+        unit=ureg.meter / ureg.second,
+    )
+    cross_section = attribute.Attribute(
+        description='Cross section',
+    )
+    reference_edge = attribute.Attribute(
+        description='Reference edge',
+    )
+
+
+class AirDuctRectangular(AirDuct):
+    """Rectangular air ducts"""
+
+    pattern_ifc_type = [
+        re.compile(r'Gerader\s+Kanal\s*\(\s*K\s*:\s*\d+\s*\)', flags=re.IGNORECASE),
+        re.compile(r'Kanal\s+\d+\s*x\s*\d+', flags=re.IGNORECASE),
+        re.compile(r'Kanal-Teil\s+\d+\s*x\s*\d+', flags=re.IGNORECASE)
+    ]
+
+    height_a = attribute.Attribute(
+        description='Height a',
+        unit=ureg.millimeter,
+    )
+    width_b = attribute.Attribute(
+        description='Width b',
+        unit=ureg.millimeter,
+    )
+    cross_section_area = attribute.Attribute(
+        description='Cross section area',
+        unit=ureg.millimeter ** 2,
+    )
+    isolation = attribute.Attribute(
+        description='Insulation thickness',
+        unit=ureg.millimeter,
+    )
+    connection_type = attribute.Attribute(
+        description='Connection type',
+    )
+
+
+class AirDuctOval(AirDuct):
+    """Oval air ducts (Ovalrohr)"""
+
+    pattern_ifc_type = [
+        re.compile(r'Ovalrohr.*\(.*170.*\)', flags=re.IGNORECASE),
+    ]
+
+    width_b = attribute.Attribute(
+        description='Width diameter B',
+        unit=ureg.millimeter,
+    )
+    height_h = attribute.Attribute(
+        description='Height diameter H',
+        unit=ureg.millimeter,
+    )
+    connection_type = attribute.Attribute(
+        description='Connection type',
+    )
+
+
+class AirDuctRound(AirDuct):
+    """Round/circular air ducts"""
+
+    pattern_ifc_type = [
+        re.compile(r'Rohr.*\(.*R.*,.*115.*\)', flags=re.IGNORECASE),
+        re.compile(r'^Rohr\s+DN\s*\d+', flags=re.IGNORECASE),
+    ]
+
+    radius = attribute.Attribute(
+        description='Radius',
+        unit=ureg.millimeter,
+    )
+    nominal_diameter_d1 = attribute.Attribute(
+        description='Nominal diameter DN',
+        unit=ureg.millimeter,
+    )
+    cross_section_d = attribute.Attribute(
+        description='Cross section diameter',
+        unit=ureg.millimeter,
+    )
+    pipe_connection = attribute.Attribute(
+        description='Pipe connection type',
+    )
+    list_round = attribute.Attribute(
+        description='On round list',
+    )
+
+
+
+# ============================================================================
+# AIR DUCT FITTINGS
+# ============================================================================
+
+class AirDuctFitting(VentilationElement):
+    """Base class for all air duct fittings"""
+
+    ifc_types = {
+        'IfcDuctFitting': ['*']
+    }
+
+    length = attribute.Attribute(
+        description='Length',
+        unit=ureg.millimeter,
+        patterns=[
+            re.compile(r'\[l\] Länge', flags=re.IGNORECASE),
+            re.compile(r'\[l\] Länge \(l\)', flags=re.IGNORECASE),
+        ],
+    )
+    manufacturer = attribute.Attribute(
+        description='Manufacturer',
+    )
+    type = attribute.Attribute(
+        description='Type',
+    )
+
+
+class AirDuctRectangularFitting(AirDuctFitting):
+    """Rectangular duct fittings (Komponente eckig)"""
+
+    pattern_ifc_type = [
+        re.compile(r'Komponente\s+eckig.*\(.*122.*\)', flags=re.IGNORECASE),
+        re.compile(r'\d+\s*x\s*\d+', flags=re.IGNORECASE),
+    ]
+
+    outer_dimension_a = attribute.Attribute(
+        description='Outer dimension A',
+        unit=ureg.millimeter,
+    )
+    cross_section_a = attribute.Attribute(
+        description='Cross section a',
+        unit=ureg.millimeter,
+    )
+    outer_dimension_b = attribute.Attribute(
+        description='Outer dimension B',
+        unit=ureg.millimeter,
+    )
+    cross_section_b = attribute.Attribute(
+        description='Cross section b',
+        unit=ureg.millimeter,
+    )
+    label_swap_ab = attribute.Attribute(
+        description='Swap label a/b',
+    )
+    insert = attribute.Attribute(
+        description='Insert dimension',
+        unit=ureg.millimeter,
+    )
+    isolation = attribute.Attribute(
+        description='Insulation thickness',
+        unit=ureg.millimeter,
+    )
+    cross_section = attribute.Attribute(
+        description='Cross section',
+    )
+    connection_type = attribute.Attribute(
+        description='Connection type',
+    )
+
+
+class AirDuctRoundFitting(AirDuctFitting):
+    """Round duct components (Komponente rund)"""
+
+    pattern_ifc_type = [
+        re.compile(r'Komponente\s+rund.*\(.*123.*\)', flags=re.IGNORECASE),
+        re.compile(r'BEZ', flags=re.IGNORECASE),
+    ]
+
+class AirDuctRoundFlexible(AirDuctFitting):
+    """Flexible round air ducts"""
+
+    pattern_ifc_type = [
+        re.compile(r'Flexibles\s+Rohr.*\(.*RF.*,.*121.*\)', flags=re.IGNORECASE),
+        re.compile(r'Flexibles[_\s]Rohr', flags=re.IGNORECASE),
+    ]
+
+    radius = attribute.Attribute(
+        description='Radius',
+        unit=ureg.millimeter,
+    )
+    nominal_diameter_d1 = attribute.Attribute(
+        description='Nominal diameter DN',
+        unit=ureg.millimeter,
+    )
+    cross_section_d = attribute.Attribute(
+        description='Cross section diameter',
+        unit=ureg.millimeter,
+    )
+    pipe_connection = attribute.Attribute(
+        description='Pipe connection type',
+    )
+
+class AirDuctRoundTransition(AirDuctFitting):
+    """Round/Oval transition ducts (Rohrübergang Asym.)"""
+
+    pattern_ifc_type = [
+        re.compile(r'Übergang\s+Oval\s*-\s*Rund/Oval.*\(.*172.*\)', flags=re.IGNORECASE),
+        re.compile(r'Rohrübergang\s+Asym', flags=re.IGNORECASE),
+    ]
+
+    width_b = attribute.Attribute(
+        description='Width diameter B',
+        unit=ureg.millimeter,
+    )
+    height_h = attribute.Attribute(
+        description='Height diameter H',
+        unit=ureg.millimeter,
+    )
+    connection_type = attribute.Attribute(
+        description='Connection type/frame',
+    )
+    designation_is = attribute.Attribute(
+        description='Designation (IS)',
+    )
+    cross_section_output = attribute.Attribute(
+        description='Cross section output',
+        unit=ureg.millimeter,
+    )
+    e_offset = attribute.Attribute(
+        description='E-offset',
+        unit=ureg.millimeter,
+    )
+    f_offset = attribute.Attribute(
+        description='F-offset',
+        unit=ureg.millimeter,
+    )
+    isolation = attribute.Attribute(
+        description='Insulation thickness',
+        unit=ureg.millimeter,
+    )
+
+
+class AirDuctRoundTransitionSymmetric(AirDuctFitting):
+    """Round transition symmetric (Rohrübergang RS, RA)"""
+
+    pattern_ifc_type = [
+        re.compile(r'Rohrübergang.*\(.*RS.*,.*RA.*:.*109.*\)', flags=re.IGNORECASE),
+    ]
+
+    width_b = attribute.Attribute(
+        description='Width diameter B',
+        unit=ureg.millimeter,
+    )
+    designation_is = attribute.Attribute(
+        description='Designation (IS)',
+    )
+    height_h = attribute.Attribute(
+        description='Height diameter H',
+        unit=ureg.millimeter,
+    )
+    cross_section_output = attribute.Attribute(
+        description='Cross section output',
+        unit=ureg.millimeter,
+    )
+    e_offset = attribute.Attribute(
+        description='E-offset',
+        unit=ureg.millimeter,
+    )
+    f_offset = attribute.Attribute(
+        description='F-offset',
+        unit=ureg.millimeter,
+    )
+    isolation_type = attribute.Attribute(
+        description='Isolation type',
+    )
+    isolation = attribute.Attribute(
+        description='Insulation',
+        unit=ureg.millimeter,
+    )
+    connection_type = attribute.Attribute(
+        description='Connection type',
+    )
+
+
+class AirDuctOvalBow(AirDuctFitting):
+    """Oval duct bows/bends (Ovalrohr Bogen / Bogen Sym.)"""
+
+    pattern_ifc_type = [
+        re.compile(r'Ovalrohr\s+Bogen.*\(.*171.*\)', flags=re.IGNORECASE),
+        re.compile(r'Bogen\s+Sym.*0/G2R', flags=re.IGNORECASE),
+    ]
+
+    radius = attribute.Attribute(
+        description='Radius',
+        unit=ureg.millimeter,
+    )
+    width_b = attribute.Attribute(
+        description='Width diameter B',
+        unit=ureg.millimeter,
+    )
+    designation_is = attribute.Attribute(
+        description='Designation (IS)',
+    )
+    height_h = attribute.Attribute(
+        description='Height diameter H',
+        unit=ureg.millimeter,
+    )
+    angle = attribute.Attribute(
+        description='Angle',
+        unit=ureg.degree,
+    )
+    air_velocity = attribute.Attribute(
+        description='Air velocity',
+        unit=ureg.meter / ureg.second,
+    )
+    cross_section = attribute.Attribute(
+        description='Cross section',
+    )
+    connection_type = attribute.Attribute(
+        description='Connection type',
+    )
+
+
+class AirDuctRoundBend(AirDuctFitting):
+    """Round duct bends (Bogen (rund))"""
+
+    pattern_ifc_type = [
+        re.compile(r'Bogen.*\(.*rund.*,.*116.*\)', flags=re.IGNORECASE),
+        re.compile(r'^Bogen\s+\(rund', flags=re.IGNORECASE),
+    ]
+
+    radius = attribute.Attribute(
+        description='Radius',
+        unit=ureg.millimeter,
+    )
+    designation_is = attribute.Attribute(
+        description='Designation (IS)',
+    )
+    nominal_diameter_d1 = attribute.Attribute(
+        description='Nominal diameter DN',
+        unit=ureg.millimeter,
+    )
+    neutral_axis = attribute.Attribute(
+        description='Neutral axis',
+        unit=ureg.millimeter,
+    )
+    insertion_length = attribute.Attribute(
+        description='Insertion length',
+        unit=ureg.millimeter,
+    )
+    connection_type = attribute.Attribute(
+        description='Bend radius connection',
+    )
+    angle = attribute.Attribute(
+        description='Angle',
+        unit=ureg.degree,
+    )
+    air_velocity = attribute.Attribute(
+        description='Air velocity',
+        unit=ureg.meter / ureg.second,
+    )
+
+
+class AirDuctConcentricReduction(AirDuctFitting):
+    """Concentric reductions (Reduktion_konzentrisch)"""
+
+    pattern_ifc_type = [
+        re.compile(r'Reduktion.*\(.*rund.*,.*117.*\)', flags=re.IGNORECASE),
+        re.compile(r'Reduktion[_\s]konzentrisch', flags=re.IGNORECASE),
+    ]
+
+    designation_is = attribute.Attribute(
+        description='Designation (IS)',
+    )
+    nominal_diameter_d1 = attribute.Attribute(
+        description='Nominal diameter DN1',
+        unit=ureg.millimeter,
+    )
+    nominal_diameter_d2 = attribute.Attribute(
+        description='Nominal diameter DN2',
+        unit=ureg.millimeter,
+    )
+    insertion_length = attribute.Attribute(
+        description='Insertion length',
+        unit=ureg.millimeter,
+    )
+    connection_type = attribute.Attribute(
+        description='Connection type',
+    )
+    air_velocity = attribute.Attribute(
+        description='Air velocity',
+        unit=ureg.meter / ureg.second,
+    )
+
+
+class AirDuctRectangularBow(AirDuctFitting):
+    """Rectangular bows/bends (Winkel)"""
+
+    pattern_ifc_type = [
+        re.compile(r'Bogen.*\(.*eckig.*WS.*,.*WA.*,.*111.*\)', flags=re.IGNORECASE),
+        re.compile(r'Winkel', flags=re.IGNORECASE),
+    ]
+
+    radius = attribute.Attribute(
+        description='Radius',
+        unit=ureg.millimeter,
+    )
+    height_a = attribute.Attribute(
+        description='Height a',
+        unit=ureg.millimeter,
+    )
+    width_start_b = attribute.Attribute(
+        description='Width start b',
+        unit=ureg.millimeter,
+    )
+    width_end_d = attribute.Attribute(
+        description='Width end d',
+        unit=ureg.millimeter,
+    )
+    insert_end = attribute.Attribute(
+        description='Insert end',
+        unit=ureg.millimeter,
+    )
+    insert_start = attribute.Attribute(
+        description='Insert start',
+        unit=ureg.millimeter,
+    )
+    guide_vanes = attribute.Attribute(
+        description='Guide vanes',
+    )
+    number_guide_vanes = attribute.Attribute(
+        description='Number of guide vanes',
+    )
+    inner_radius_is_bend = attribute.Attribute(
+        description='Inner radius is bend',
+    )
+    angle = attribute.Attribute(
+        description='Angle',
+        unit=ureg.degree,
+    )
+    fitting_length = attribute.Attribute(
+        description='Fitting length',
+        unit=ureg.millimeter,
+    )
+    pipe_connection = attribute.Attribute(
+        description='Pipe connection',
+    )
+    isolation = attribute.Attribute(
+        description='Insulation thickness',
+        unit=ureg.millimeter,
+    )
+    cross_section = attribute.Attribute(
+        description='Cross section',
+    )
+    air_velocity = attribute.Attribute(
+        description='Air velocity',
+        unit=ureg.meter / ureg.second,
+    )
+    absolute_roughness_factor = attribute.Attribute(
+        description='Absolute roughness factor',
+        unit=ureg.millimeter,
+    )
+
+
+class AirDuctEndCap(AirDuctFitting):
+    """Duct end caps (Endboden)"""
+
+    pattern_ifc_type = [
+        re.compile(r'Endboden.*\(.*eckig.*,.*138.*\)', flags=re.IGNORECASE),
+        re.compile(r'^Endboden', flags=re.IGNORECASE),
+    ]
+
+    width_a = attribute.Attribute(
+        description='Width a',
+        unit=ureg.millimeter,
+    )
+    height_b = attribute.Attribute(
+        description='Height b',
+        unit=ureg.millimeter,
+    )
+    isolation = attribute.Attribute(
+        description='Insulation thickness',
+        unit=ureg.millimeter,
+    )
+    cross_section = attribute.Attribute(
+        description='Cross section',
+    )
+
+
+class AirDuctTPiece(AirDuctFitting):
+    """T-pieces and branches (T-Stück)"""
+
+    pattern_ifc_type = [
+        re.compile(r'T-Stück.*\(.*TS.*,.*TA.*:.*114.*\)', flags=re.IGNORECASE),
+        re.compile(r'^T-Stück', flags=re.IGNORECASE),
+    ]
+
+    width_entrance_a = attribute.Attribute(
+        description='Width entrance a',
+        unit=ureg.millimeter,
+    )
+    height_entrance_b = attribute.Attribute(
+        description='Height entrance b',
+        unit=ureg.millimeter,
+    )
+    width_outlet_d = attribute.Attribute(
+        description='Width outlet d',
+        unit=ureg.millimeter,
+    )
+    width_branch_g = attribute.Attribute(
+        description='Width branch g',
+        unit=ureg.millimeter,
+    )
+    height_branch_h = attribute.Attribute(
+        description='Height branch h',
+        unit=ureg.millimeter,
+    )
+    height_branch_m = attribute.Attribute(
+        description='Height branch m',
+        unit=ureg.millimeter,
+    )
+    length_entrance_n = attribute.Attribute(
+        description='Length entrance n',
+        unit=ureg.millimeter,
+    )
+    second_branch_length_o = attribute.Attribute(
+        description='Second branch length o',
+        unit=ureg.millimeter,
+    )
+    second_branch_height_p = attribute.Attribute(
+        description='Second branch height p',
+        unit=ureg.millimeter,
+    )
+    cross_tee = attribute.Attribute(
+        description='Cross tee',
+    )
+    radius = attribute.Attribute(
+        description='Radius',
+        unit=ureg.millimeter,
+    )
+    cross_section = attribute.Attribute(
+        description='Cross section',
+    )
+    air_velocity = attribute.Attribute(
+        description='Air velocity',
+        unit=ureg.meter / ureg.second,
+    )
+    absolute_roughness_factor = attribute.Attribute(
+        description='Absolute roughness factor',
+        unit=ureg.millimeter,
+    )
+
+
+class AirDuctTransitionRectangularAsymmetric(AirDuctFitting):
+    """Rectangular duct transitions (Übergang Asym.)"""
+
+    pattern_ifc_type = [
+        re.compile(r'Etage.*,.*Übergang.*\(.*ES.*,.*US.*,.*UA.*:.*105.*\)', flags=re.IGNORECASE),
+        re.compile(r'^Übergang\s+Asym', flags=re.IGNORECASE),
+        re.compile(r'^Übergang\s+Sym', flags=re.IGNORECASE),
+        re.compile(r'Etage', flags=re.IGNORECASE),
+    ]
+
+    air_velocity = attribute.Attribute(
+        description='Air velocity',
+        unit=ureg.meter / ureg.second,
+    )
+    flow_rate = attribute.Attribute(
+        description='Flow rate',
+        unit=ureg.meter ** 3 / ureg.hour,
+    )
+    strand = attribute.Attribute(
+        description='Strand',
+    )
+    height_a = attribute.Attribute(
+        description='Height a',
+        unit=ureg.millimeter,
+    )
+    width_start_b = attribute.Attribute(
+        description='Width start b',
+        unit=ureg.millimeter,
+    )
+    height_end_c = attribute.Attribute(
+        description='Height end c',
+        unit=ureg.millimeter,
+    )
+    width_end_d = attribute.Attribute(
+        description='Width end d',
+        unit=ureg.millimeter,
+    )
+    e_offset = attribute.Attribute(
+        description='E-offset',
+        unit=ureg.millimeter,
+    )
+    f_offset = attribute.Attribute(
+        description='F-offset',
+        unit=ureg.millimeter,
+    )
+    insert_start = attribute.Attribute(
+        description='Insert start',
+        unit=ureg.millimeter,
+    )
+    extension_m = attribute.Attribute(
+        description='Extension m',
+        unit=ureg.millimeter,
+    )
+    extension_n = attribute.Attribute(
+        description='Extension n',
+        unit=ureg.millimeter,
+    )
+    box_lbh = attribute.Attribute(
+        description='Box length-width-height',
+    )
+    box_bottom_lbh = attribute.Attribute(
+        description='Box bottom length-width-height',
+    )
+    connection_length_height = attribute.Attribute(
+        description='Connection length height',
+    )
+    list_as_ua = attribute.Attribute(
+        description='List as UA',
+    )
+    isolation = attribute.Attribute(
+        description='Insulation thickness',
+        unit=ureg.millimeter,
+    )
+    cross_section = attribute.Attribute(
+        description='Cross section',
+    )
+    absolute_roughness_factor = attribute.Attribute(
+        description='Absolute roughness factor',
+        unit=ureg.millimeter,
+    )
+
+
+class AirDuctTransitionSymmetrical(AirDuctFitting):
+    """Symmetrical duct transitions (Bogen Sym.)"""
+
+    # @property
+    # def expected_hvac_ports(self):
+    #     return 0
+
+    pattern_ifc_type = [
+        re.compile(r'Bogen.*\(.*eckig\s+BS.*,.*BA.*,.*107.*\)', flags=re.IGNORECASE),
+        re.compile(r'^Bogen\s+Sym.*eckig', flags=re.IGNORECASE),
+        re.compile(r'Kanalbogen\s+\d+\s*x\s*\d+\s*x\s*\w+', flags=re.IGNORECASE)
+    ]
+
+    air_velocity = attribute.Attribute(
+        description='Air velocity',
+        unit=ureg.meter / ureg.second,
+    )
+    flow_rate = attribute.Attribute(
+        description='Flow rate',
+        unit=ureg.meter ** 3 / ureg.hour,
+    )
+    strand = attribute.Attribute(
+        description='Strand',
+    )
+    height_a = attribute.Attribute(
+        description='Height a',
+        unit=ureg.millimeter,
+    )
+    width_start_b = attribute.Attribute(
+        description='Width start b',
+        unit=ureg.millimeter,
+    )
+    width_end_d = attribute.Attribute(
+        description='Width end d',
+        unit=ureg.millimeter,
+    )
+    insert_end = attribute.Attribute(
+        description='Insert end',
+        unit=ureg.millimeter,
+    )
+    insert_start = attribute.Attribute(
+        description='Insert start',
+        unit=ureg.millimeter,
+    )
+    guide_vanes = attribute.Attribute(
+        description='Guide vanes',
+    )
+    number_guide_vanes = attribute.Attribute(
+        description='Number of guide vanes',
+    )
+    radius = attribute.Attribute(
+        description='Radius',
+        unit=ureg.millimeter,
+    )
+    inner_radius_is_bend = attribute.Attribute(
+        description='Inner radius is bend',
+    )
+    angle = attribute.Attribute(
+        description='Angle',
+        unit=ureg.degree,
+    )
+    isolation = attribute.Attribute(
+        description='Insulation thickness',
+        unit=ureg.millimeter,
+    )
+    cross_section = attribute.Attribute(
+        description='Cross section',
+    )
+    absolute_roughness_factor = attribute.Attribute(
+        description='Absolute roughness factor',
+        unit=ureg.millimeter,
+    )
+
+
+class AirDuctTransitionRectangularBow(AirDuctFitting):
+    """Rectangular duct transition bows (Übergangsbogen)"""
+
+    pattern_ifc_type = [
+        re.compile(r'^Übergangsbogen', flags=re.IGNORECASE),
+    ]
+
+    air_velocity = attribute.Attribute(
+        description='Air velocity',
+        unit=ureg.meter / ureg.second,
+    )
+    flow_rate = attribute.Attribute(
+        description='Flow rate',
+        unit=ureg.meter ** 3 / ureg.hour,
+    )
+    strand = attribute.Attribute(
+        description='Strand',
+    )
+    width_b = attribute.Attribute(
+        description='Width diameter B',
+        unit=ureg.millimeter,
+    )
+    designation_is = attribute.Attribute(
+        description='Designation (IS)',
+    )
+    height_h = attribute.Attribute(
+        description='Height diameter H',
+        unit=ureg.millimeter,
+    )
+    cross_section_output = attribute.Attribute(
+        description='Cross section output',
+        unit=ureg.millimeter,
+    )
+    e_offset = attribute.Attribute(
+        description='E-offset',
+        unit=ureg.millimeter,
+    )
+    f_offset = attribute.Attribute(
+        description='F-offset',
+        unit=ureg.millimeter,
+    )
+    isolation = attribute.Attribute(
+        description='Insulation thickness',
+        unit=ureg.millimeter,
+    )
+    cross_section = attribute.Attribute(
+        description='Cross section',
+    )
+    connection_type = attribute.Attribute(
+        description='Connection type',
+    )
+    absolute_roughness_factor = attribute.Attribute(
+        description='Absolute roughness factor',
+        unit=ureg.millimeter,
+    )
+
+class AirDuctRectangularPants(AirDuctFitting):
+    """Rectangular pants/Y-piece (Hosenstück eckig)"""
+
+    pattern_ifc_type = [
+        re.compile(r'Hosenstück.*\(.*HSE.*:.*131.*\)', flags=re.IGNORECASE),
+        re.compile(r'^Hosenstück\s+eckig', flags=re.IGNORECASE),
+        re.compile(r'Hosenstück', flags=re.IGNORECASE),
+    ]
+
+    cross_section_entrance_a = attribute.Attribute(
+        description='Cross section entrance a',
+        unit=ureg.millimeter,
+    )
+    cross_section_entrance_b = attribute.Attribute(
+        description='Cross section entrance b',
+        unit=ureg.millimeter,
+    )
+    cross_section_output_c = attribute.Attribute(
+        description='Cross section output c',
+        unit=ureg.millimeter,
+    )
+    cross_section_output_d = attribute.Attribute(
+        description='Cross section output d',
+        unit=ureg.millimeter,
+    )
+    e_offset = attribute.Attribute(
+        description='E-offset',
+        unit=ureg.millimeter,
+    )
+    f_offset = attribute.Attribute(
+        description='F-offset',
+        unit=ureg.millimeter,
+    )
+    cross_section_output_h = attribute.Attribute(
+        description='Cross section output h',
+        unit=ureg.millimeter,
+    )
+    center_distance = attribute.Attribute(
+        description='Center distance m',
+        unit=ureg.millimeter,
+    )
+    isolation = attribute.Attribute(
+        description='Insulation thickness',
+        unit=ureg.millimeter,
+    )
+    cross_section = attribute.Attribute(
+        description='Cross section',
+    )
+    connection_type = attribute.Attribute(
+        description='Connection type',
+    )
+
+
+class AirDuctRectangularInspectionCover(AirDuctFitting):
+    """Rectangular inspection cover (Revisionsdeckel)"""
+
+    pattern_ifc_type = [
+        re.compile(r'Revisionsdeckel.*\(.*REV.*,.*163.*\)', flags=re.IGNORECASE),
+        re.compile(r'^Revisionsdeckel.*Rohr', flags=re.IGNORECASE),
+    ]
+
+    length_a = attribute.Attribute(
+        description='Length a',
+        unit=ureg.millimeter,
+    )
+    remark = attribute.Attribute(
+        description='Remark',
+    )
+    designation_is = attribute.Attribute(
+        description='Designation (IS)',
+    )
+    width_b = attribute.Attribute(
+        description='Width b',
+        unit=ureg.millimeter,
+    )
+    nominal_diameter_dn = attribute.Attribute(
+        description='Nominal diameter DN',
+        unit=ureg.millimeter,
+    )
+    height_h = attribute.Attribute(
+        description='Height',
+        unit=ureg.millimeter,
+    )
+    radius = attribute.Attribute(
+        description='Radius',
+        unit=ureg.millimeter,
+    )
+    cross_section = attribute.Attribute(
+        description='Cross section',
+    )
+    connection_type = attribute.Attribute(
+        description='Connection type',
+    )
+
+
+class AirDuctRoundStub(AirDuctFitting):
+    """Round stub/nozzle (Stutzen rund)"""
+
+    pattern_ifc_type = [
+        re.compile(r'Stutzen.*rund.*\(.*SR.*:.*124.*\)', flags=re.IGNORECASE),
+        re.compile(r'^Stutzen[_\s]rund', flags=re.IGNORECASE),
+    ]
+
+    designation_is = attribute.Attribute(
+        description='Designation (IS)',
+    )
+    nominal_diameter_d1 = attribute.Attribute(
+        description='Nominal diameter DN',
+        unit=ureg.millimeter,
+    )
+    air_velocity = attribute.Attribute(
+        description='Air velocity',
+        unit=ureg.meter / ureg.second,
+    )
+
+
+class AirDuctRivetedEdge(AirDuctFitting):
+    """Riveted edge/flange (Nietbord)"""
+
+    @property
+    def expected_hvac_ports(self):
+        return 0
+
+    pattern_ifc_type = [
+        re.compile(r'Nietbord.*\(.*K.*:.*125.*\)', flags=re.IGNORECASE),
+        re.compile(r'^Nietbord', flags=re.IGNORECASE),
+    ]
+
+    dimension_a = attribute.Attribute(
+        description='Dimension a',
+        unit=ureg.millimeter,
+    )
+    dimension_b = attribute.Attribute(
+        description='Dimension b',
+        unit=ureg.millimeter,
+    )
+    cross_section = attribute.Attribute(
+        description='Cross section',
+    )
+    type = attribute.Attribute(
+        description='Type (Round/Rectangular)',
+    )
+
+class AirDuctRoundCoupling(AirDuctFitting):
+    """Round duct coupling/sleeve (Muffe)"""
+
+    pattern_ifc_type = [
+        re.compile(r'Muffe.*\(.*R.*,.*145.*\)', flags=re.IGNORECASE),
+        re.compile(r'^MUFFE\s+DN\d+', flags=re.IGNORECASE),
+        re.compile(r'^Muffe.*rund', flags=re.IGNORECASE),
+    ]
+
+    radius = attribute.Attribute(
+        description='Radius',
+        unit=ureg.millimeter,
+    )
+    designation_is = attribute.Attribute(
+        description='Designation (IS)',
+    )
+    cross_section_d1 = attribute.Attribute(
+        description='Cross section diameter',
+        unit=ureg.millimeter,
+    )
+    connection_type = attribute.Attribute(
+        description='Connection type',
+    )
+    air_velocity = attribute.Attribute(
+        description='Air velocity',
+        unit=ureg.meter / ureg.second,
+    )
+
+
+
+# ============================================================================
+# DAMPERS AND CONTROLLERS
+# ============================================================================
+
+
+class FireDamper(VentilationElement):
+    """Fire dampers (Brandschutzklappe)"""
+
+    ifc_types = {
+        'IfcDamper': ['*']
+    }
+
+    pattern_ifc_type = [
+        re.compile(r'Brandschutzklappe', flags=re.IGNORECASE),
+        re.compile(r'Komponente\s+eckig\s*\(\s*(\d+)\s*\)', flags=re.IGNORECASE),
+    ]
+
+    manufacturer = attribute.Attribute(
+        description='Manufacturer',
+    )
+    type = attribute.Attribute(
+        description='Type',
+    )
+    insert = attribute.Attribute(
+        description='Insert dimension',
+        unit=ureg.millimeter,
+    )
+    cross_section = attribute.Attribute(
+        description='Cross section',
+    )
+    flow_velocity = attribute.Attribute(
+        description='Flow velocity',
+        unit=ureg.meter / ureg.second,
+    )
+    drive_side = attribute.Attribute(
+        description='Drive side',
+    )
+    remark = attribute.Attribute(
+        description='Remark',
+    )
+    drive = attribute.Attribute(
+        description='Drive/actuator',
+    )
+    outer_dimension_a = attribute.Attribute(
+        description='Outer dimension A',
+        unit=ureg.millimeter,
+    )
+    cross_section_a = attribute.Attribute(
+        description='Cross section a',
+        unit=ureg.millimeter,
+    )
+    designation_is = attribute.Attribute(
+        description='Designation (IS)',
+    )
+    outer_dimension_b = attribute.Attribute(
+        description='Outer dimension B',
+        unit=ureg.millimeter,
+    )
+    cross_section_b = attribute.Attribute(
+        description='Cross section b',
+        unit=ureg.millimeter,
+    )
+    label_swap_ab = attribute.Attribute(
+        description='Swap label a/b',
+    )
+    pressure_loss_opening_1 = attribute.Attribute(
+        description='Pressure loss opening 1',
+        unit=ureg.pascal,
+    )
+    length = attribute.Attribute(
+        description='Length',
+        unit=ureg.millimeter,
+        patterns=[
+            re.compile(r'\[l\] Länge', flags=re.IGNORECASE),
+            re.compile(r'\[l\] Länge \(l\)', flags=re.IGNORECASE),
+        ],
+    )
+    air_volume = attribute.Attribute(
+        description='Air volume',
+        unit=ureg.meter ** 3 / ureg.hour,
+    )
+    zeta_opening_1 = attribute.Attribute(
+        description='Zeta opening 1',
+    )
+
+
+class AirVolumeFlowController(VentilationElement):
+    """Base class for volume flow controllers"""
+
+    flow_velocity = attribute.Attribute(
+        description='Flow velocity',
+        unit=ureg.meter / ureg.second,
+    )
+    manufacturer = attribute.Attribute(
+        description='Manufacturer',
+    )
+    type = attribute.Attribute(
+        description='Type',
+    )
+    insert = attribute.Attribute(
+        description='Insert dimension',
+        unit=ureg.millimeter,
+    )
+    length = attribute.Attribute(
+        description='Length',
+        unit=ureg.millimeter,
+        patterns=[
+            re.compile(r'\[l\] Länge', flags=re.IGNORECASE),
+            re.compile(r'\[l\] Länge \(l\)', flags=re.IGNORECASE),
+        ],
+    )
+
+
+class AirVolumeFlowControllerConstant(AirVolumeFlowController):
+    """Constant volume flow controllers (Konstant VSR)"""
+
+    ifc_types = {
+        'IfcFlowController': ['*']
+    }
+
+    pattern_ifc_type = [
+        re.compile(r'^Konstant\s+VSR', flags=re.IGNORECASE),
+        re.compile(r'Komponente\s+rund\s*\(\s*(\d+)\s*\)', flags=re.IGNORECASE),
+    ]
+
+    radius = attribute.Attribute(
+        description='Radius',
+        unit=ureg.millimeter,
+    )
+    designation_is = attribute.Attribute(
+        description='Designation (IS)',
+    )
+    nominal_diameter_d1 = attribute.Attribute(
+        description='Nominal diameter DN',
+        unit=ureg.millimeter,
+    )
+    outer_diameter = attribute.Attribute(
+        description='Outer diameter',
+        unit=ureg.millimeter,
+    )
+    air_volume = attribute.Attribute(
+        description='Air volume',
+        unit=ureg.meter ** 3 / ureg.hour,
+    )
+
+
+class AirVolumeFlowControllerDynamic(AirVolumeFlowController):
+    """Dynamic/variable volume flow controllers (Variabel VSR)"""
+
+    ifc_types = {
+        'IfcDuctFitting': ['*']
+    }
+
+    pattern_ifc_type = [
+        re.compile(r'^Variabel\s+VSR', flags=re.IGNORECASE),
+        re.compile(r'Komponente\s+eckig\s*\(\s*(\d+)\s*\)', flags=re.IGNORECASE),
+    ]
+
+    outer_dimension_a = attribute.Attribute(
+        description='Outer dimension A',
+        unit=ureg.millimeter,
+    )
+    cross_section_a = attribute.Attribute(
+        description='Cross section a',
+        unit=ureg.millimeter,
+    )
+    outer_dimension_b = attribute.Attribute(
+        description='Outer dimension B',
+        unit=ureg.millimeter,
+    )
+    cross_section_b = attribute.Attribute(
+        description='Cross section b',
+        unit=ureg.millimeter,
+    )
+    label_swap_ab = attribute.Attribute(
+        description='Swap label a/b',
+    )
+    isolation = attribute.Attribute(
+        description='Insulation thickness',
+        unit=ureg.millimeter,
+    )
+    cross_section = attribute.Attribute(
+        description='Cross section',
+    )
+    flow_rate_range = attribute.Attribute(
+        description='Flow rate range',
+        unit=ureg.meter ** 3 / ureg.hour,
+    )
+
+
+# ============================================================================
+# SILENCERS
+# ============================================================================
+
+class AirSilencer(VentilationElement):
+    """Base class for silencers/sound dampeners"""
+
+    manufacturer = attribute.Attribute(
+        description='Manufacturer',
+    )
+    type = attribute.Attribute(
+        description='Type',
+    )
+    length = attribute.Attribute(
+        description='Length',
+        unit=ureg.millimeter,
+        patterns=[
+            re.compile(r'\[l\] Länge', flags=re.IGNORECASE),
+            re.compile(r'\[l\] Länge \(l\)', flags=re.IGNORECASE),
+        ],
+    )
+
+
+class AirSilencerRoundFlexible(AirSilencer):
+    """Flexible round silencers (Flexibler Rohrschalldämpfer)"""
+
+    ifc_types = {
+        'IfcDuctFitting': ['*']
+    }
+
+    pattern_ifc_type = [
+        re.compile(r'^Flexibler\s+Rohrschalld(?:a|ä|ae)mpfer', flags=re.IGNORECASE),
+        re.compile(r'Komponente\s+rund\s*\(\s*(\d+)\s*\)', flags=re.IGNORECASE),
+    ]
+
+    flow_velocity = attribute.Attribute(
+        description='Flow velocity',
+        unit=ureg.meter / ureg.second,
+    )
+    designation_is = attribute.Attribute(
+        description='Designation (IS)',
+    )
+    nominal_diameter_d1 = attribute.Attribute(
+        description='Nominal diameter DN',
+        unit=ureg.millimeter,
+    )
+    outer_diameter = attribute.Attribute(
+        description='Outer diameter',
+        unit=ureg.millimeter,
+    )
+    insert_end = attribute.Attribute(
+        description='Insert end',
+        unit=ureg.millimeter,
+    )
+
+
+class AirSilencerTelephony(AirSilencer):
+    """Telephony silencers (Telefonie-Schalldämpfer)"""
+
+    ifc_types = {
+        'IfcDamper': ['*']
+    }
+
+    pattern_ifc_type = [
+        re.compile(r'^Telefonie-Schalld[aä]mpfer', flags=re.IGNORECASE),
+        re.compile(r'^Telefonie-Schalld(?:a|ä|ae)mpfer', flags=re.IGNORECASE),
+        re.compile(r'Komponente\s+rund\s*\(\s*(\d+)\s*\)', flags=re.IGNORECASE),
+    ]
+
+    radius = attribute.Attribute(
+        description='Radius',
+        unit=ureg.millimeter,
+    )
+    nominal_diameter_d1 = attribute.Attribute(
+        description='Nominal diameter DN',
+        unit=ureg.millimeter,
+    )
+    outer_diameter = attribute.Attribute(
+        description='Outer diameter',
+        unit=ureg.millimeter,
+    )
+    insert = attribute.Attribute(
+        description='Insert dimension',
+        unit=ureg.millimeter,
+    )
+    list_round = attribute.Attribute(
+        description='On round list',
+    )
+    rings = attribute.Attribute(
+        description='Number of rings',
+    )
+
+
+# ============================================================================
+# AIR TERMINALS
+# ============================================================================
+
+class AirTerminal(VentilationElement):
+    """Air terminals/outlets (Luftdurchlasse)"""
+
+    ifc_types = {
+        'IfcAirTerminal': ['*']
+    }
+
+    pattern_ifc_type = [
+        re.compile(r'Drallauslass.*\(.*M[_\s]20011.*\)', flags=re.IGNORECASE),
+        re.compile(r'^Luftdurchl[aä]sse', flags=re.IGNORECASE),
+        re.compile(r'^Auslass.*\(.*M[_\s]20011.*\)', flags=re.IGNORECASE),
+    ]
+
+    outlet_grille_graphic = attribute.Attribute(
+        description='Outlet grille graphic',
+    )
+    nominal_diameter_d1 = attribute.Attribute(
+        description='Nominal diameter DN',
+        unit=ureg.millimeter,
+    )
+    cylinder_1 = attribute.Attribute(
+        description='Cylinder 1: DN1 DN2 Length',
+    )
+    cylinder_2 = attribute.Attribute(
+        description='Cylinder 2: DN1 DN2 Length',
+    )
+    cylinder_3 = attribute.Attribute(
+        description='Cylinder 3: DN1 DN2 Length',
+    )
+    manufacturer = attribute.Attribute(
+        description='Manufacturer',
+    )
+    project = attribute.Attribute(
+        description='Project',
+    )
+    series = attribute.Attribute(
+        description='Series',
+    )
+    type = attribute.Attribute(
+        description='Type',
+    )
+    flow_rate = attribute.Attribute(
+        description='Flow rate',
+        unit=ureg.meter ** 3 / ureg.hour,
+    )
+    air_velocity = attribute.Attribute(
+        description='Air velocity',
+        unit=ureg.meter / ureg.second,
+    )
+
+
+class AirValve(VentilationElement):
+    """Air valves/disc valves (Tellerventile)"""
+
+    ifc_types = {
+        'IfcDuctFitting': ['*']
+    }
+
+    pattern_ifc_type = [
+        re.compile(r'Auslass.*\(.*M[_\s]20111.*\)', flags=re.IGNORECASE),
+        re.compile(r'^Tellerventile', flags=re.IGNORECASE),
+    ]
+
+    radius = attribute.Attribute(
+        description='Radius',
+        unit=ureg.millimeter,
+    )
+    outlet_grille_graphic = attribute.Attribute(
+        description='Outlet grille graphic',
+    )
+    nominal_diameter_connection = attribute.Attribute(
+        description='Nominal diameter connection',
+        unit=ureg.millimeter,
+    )
+    cylinder_1 = attribute.Attribute(
+        description='Cylinder 1: DN1 DN2 Length',
+    )
+    cylinder_2 = attribute.Attribute(
+        description='Cylinder 2: DN1 DN2 Length',
+    )
+    cylinder_3 = attribute.Attribute(
+        description='Cylinder 3: DN1 DN2 Length',
+    )
+    manufacturer = attribute.Attribute(
+        description='Manufacturer',
+    )
+    cross_tee = attribute.Attribute(
+        description='Cross tee',
+    )
+    cost_group = attribute.Attribute(
+        description='Cost group',
+    )
+    outlet_type = attribute.Attribute(
+        description='Outlet type',
+    )
+    project = attribute.Attribute(
+        description='Project',
+    )
+    rings = attribute.Attribute(
+        description='Number of rings',
+    )
+    series = attribute.Attribute(
+        description='Series',
+    )
+    type = attribute.Attribute(
+        description='Type',
+    )
+    flow_rate = attribute.Attribute(
+        description='Flow rate',
+        unit=ureg.meter ** 3 / ureg.hour,
+    )
+    air_velocity = attribute.Attribute(
+        description='Air velocity',
+        unit=ureg.meter / ureg.second,
+    )
+
+
+# ============================================================================
+# AIR HANDLING UNIT COMPONENTS
+# ============================================================================
+
+class AHUComponent(VentilationElement):
+    """Base class for air handling unit components"""
+
+    outer_dimension_a = attribute.Attribute(
+        description='Outer dimension A',
+        unit=ureg.millimeter,
+    )
+    cross_section_a = attribute.Attribute(
+        description='Cross section a',
+        unit=ureg.millimeter,
+    )
+    outer_dimension_b = attribute.Attribute(
+        description='Outer dimension B',
+        unit=ureg.millimeter,
+    )
+    cross_section_b = attribute.Attribute(
+        description='Cross section b',
+        unit=ureg.millimeter,
+    )
+    insert = attribute.Attribute(
+        description='Insert dimension',
+        unit=ureg.millimeter,
+    )
+    graphics = attribute.Attribute(
+        description='Graphics (top, bottom, front, back)',
+    )
+    length = attribute.Attribute(
+        description='Length',
+        unit=ureg.millimeter,
+        patterns=[
+            re.compile(r'\[l\] Länge', flags=re.IGNORECASE),
+            re.compile(r'\[l\] Länge \(l\)', flags=re.IGNORECASE),
+        ],
+    )
+    cross_section = attribute.Attribute(
+        description='Cross section',
+    )
+    strand = attribute.Attribute(
+        description='Strand',
+    )
+    flow_rate = attribute.Attribute(
+        description='Flow rate',
+        unit=ureg.meter ** 3 / ureg.hour,
+    )
+
+
+class AHUFan(AHUComponent):
+    """Air handling unit fan"""
+
+    ifc_types = {
+        'IfcFan': ['*']
+    }
+
+    pattern_ifc_type = [
+        re.compile(r'^Ventilator\s+allgemein', flags=re.IGNORECASE),
+    ]
+
+
+class AHUAirChamber(AHUComponent):
+    """Air handling unit air chamber"""
+
+    ifc_types = {
+        'IfcDistributionChamberElement': ['*']
+    }
+
+    pattern_ifc_type = [
+        re.compile(r'^Leerkammer', flags=re.IGNORECASE),
+    ]
+
+
+class AHUCooler(AHUComponent):
+    """Air handling unit cooler"""
+
+    ifc_types = {
+        'IfcDuctFitting': ['*']
+    }
+
+    pattern_ifc_type = [
+        re.compile(r'^Luftk[uü]hler', flags=re.IGNORECASE),
+    ]
+
+
+class AHUSilencer(AHUComponent):
+    """Air handling unit silencer"""
+
+    ifc_types = {
+        'IfcDamper': ['*']
+    }
+
+    pattern_ifc_type = [
+        re.compile(r'^Schalld(?:a|ä|ae)mpfer\s+Allgemein', flags=re.IGNORECASE),
+        re.compile(r'^Schalld(?:a|ä|ae)mpfer', flags=re.IGNORECASE),
+    ]
 
 # collect all domain classes
 items: Set[HVACProduct] = set()
@@ -1392,5 +2942,27 @@ for name, cls in inspect.getmembers(
         lambda member: inspect.isclass(member)  # class at all
                        and issubclass(member, HVACProduct)  # domain subclass
                        and member is not HVACProduct  # but not base class
+                       and member not in (VentilationElement, AirSilencer, AirVolumeFlowController, AHUComponent)  # but not sub base class
                        and member.__module__ == __name__):  # declared here
     items.add(cls)
+
+hydraulic_items: Set[HVACProduct] = set()
+for name, cls in inspect.getmembers(
+        sys.modules[__name__],
+        lambda member: inspect.isclass(member)  # class at all
+                       and issubclass(member, HVACProduct)  # domain subclass
+                       and member is not HVACProduct  # but not base class
+                       and not issubclass(member, VentilationElement)  # but not ventilation element
+                       and member.__module__ == __name__):  # declared here
+    hydraulic_items.add(cls)
+
+# collect all domain classes
+ventilation_items: Set[VentilationElement] = set()
+for name, cls in inspect.getmembers(
+        sys.modules[__name__],
+        lambda member: inspect.isclass(member)  # class at all
+                       and issubclass(member, VentilationElement)  # domain subclass
+                       and member is not VentilationElement  # but not base class
+                       and member not in (AirSilencer, AirVolumeFlowController, AHUComponent)  # but not sub base class
+                       and member.__module__ == __name__):  # declared here
+    ventilation_items.add(cls)

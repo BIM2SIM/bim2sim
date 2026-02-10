@@ -50,7 +50,7 @@ def run_example_complex_building_energyplus():
         'Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach'
 
     # set weather file data
-    project.sim_settings.weather_file_path = (
+    project.sim_settings.weather_file_path_ep = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
     # Run a simulation directly with dymola after model creation

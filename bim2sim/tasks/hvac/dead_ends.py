@@ -136,7 +136,7 @@ class DeadEnds(ITask):
                 cur_decision = BoolDecision(
                     question="Found possible dead end at port %s in system, "
                     "please check if it is a dead end" % dead_end,
-                    console_identifier="GUID: %s" % dead_end.guid,
+                    console_identifier="GUID: %s, Parent GUID: %s" % (dead_end.guid, related_guid),
                     key=dead_end,
                     global_key="deadEnd.%s" % dead_end.guid,
                     allow_skip=False,

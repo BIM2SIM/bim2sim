@@ -4,6 +4,9 @@ from pathlib import Path
 import bim2sim
 from bim2sim import Project, run_project, ConsoleDecisionHandler
 from bim2sim.utilities.types import IFCDomain
+from bim2sim.elements.base_elements import Material
+from bim2sim.elements import bps_elements as bps_elements, \
+    hvac_elements as hvac_elements
 
 
 def run_example_complex_hvac_aixlib():
@@ -19,24 +22,23 @@ def run_example_complex_hvac_aixlib():
 
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
-    project_path = Path(
-        tempfile.TemporaryDirectory(
-            prefix='bim2sim_example_complex_aixlib').name)
+    project_path = Path(r"D:\02_Daten\Testing\PluginAixLib\Test")
 
     # Set path of ifc for hydraulic domain with the fresh downloaded test models
     ifc_paths = {
-        IFCDomain.hydraulic:
-            Path(bim2sim.__file__).parent.parent /
-            'test/resources/hydraulic/ifc/'
-            'DigitalHub_Gebaeudetechnik-HEIZUNG_v2.ifc',
+        IFCDomain.ventilation:
+            Path(
+                r"D:\03_Cloud\Sciebo\BIM2Praxis\IFC-Modelle\EDGE\ueberarbeitet_2025-10\BIM2PRAXIS_RLT-2025-09-11_cleaned_jho.ifc")
     }
     # Create a project including the folder structure for the project with
     project = Project.create(project_path, ifc_paths, 'aixlib')
 
     # set weather file data
-    project.sim_settings.weather_file_path = (
+    project.sim_settings.weather_file_path_modelica = (
             Path(bim2sim.__file__).parent.parent /
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
+
+    project.sim_settings.relevant_elements = {*hvac_elements.ventilation_items, Material}
 
     # Set fuzzy threshold to 0.5 to reduce the number of decisions (this is
     # IFC-file specific and needs to be evaluated by the user

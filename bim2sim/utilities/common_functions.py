@@ -3,16 +3,19 @@ import json
 import logging
 import math
 import re
-import shutil
 import zipfile
-from urllib.request import urlopen
 from pathlib import Path
-from typing import Union
 from time import sleep
+from typing import TYPE_CHECKING, Type, Union
+from urllib.request import urlopen
+
 import git
 
 import bim2sim
 from bim2sim.utilities.types import IFCDomain
+
+if TYPE_CHECKING:
+    from bim2sim.elements.base_elements import IFCBased
 
 assets = Path(bim2sim.__file__).parent / 'assets'
 logger = logging.getLogger(__name__)
@@ -251,24 +254,29 @@ def get_material_templates():
 
 
 def filter_elements(
-        elements: Union[dict, list], type_name, create_dict=False)\
-        -> Union[list, dict]:
+        elements: Union[dict, list],
+                    type_name: Union[str, Type['IFCBased']], create_dict=False,
+                    include_sub_classes=False) -> Union[list, dict]:
     """Filters the inspected elements by type name (e.g. Wall) and
-    returns them as list or dict if wanted
+    returns them as a list or dict if wanted
 
     Args:
         elements: dict or list with all bim2sim elements
         type_name: str or element type to filter for
-        create_dict (Boolean): True if a dict instead of a list should be
-            created
+        create_dict (Boolean): True if a dict instead of a list should be created
+        include_sub_classes (Boolean): True if all subclasses of the given
+            type_name are included as well
     Returns:
         elements_filtered: list of all bim2sim elements of type type_name
     """
     from bim2sim.elements.base_elements import SerializedElement
+
     elements_filtered = []
-    list_elements = elements.values() if type(elements) is dict \
-        else elements
+    list_elements = elements.values() if isinstance(elements, dict) else elements
+
+    # Handle filtering based on type_name being a string or class
     if isinstance(type_name, str):
+        # Direct string comparison, subclasses are irrelevant
         for instance in list_elements:
             if isinstance(instance, SerializedElement):
                 if instance.element_type == type_name:
@@ -277,12 +285,25 @@ def filter_elements(
                 if type_name in type(instance).__name__:
                     elements_filtered.append(instance)
     else:
+        # type_name is a class type, include subclasses if requested
+        if include_sub_classes:
+            type_classes = all_subclasses(type_name, include_self=True)
+        else:
+            type_classes = [type_name]
+
         for instance in list_elements:
             if isinstance(instance, SerializedElement):
-                if instance.element_type == type_name.__name__:
+                # Check the class type or subclass match
+                if any(isinstance(instance, cls) for cls in type_classes):
                     elements_filtered.append(instance)
             if type_name is type(instance):
                 elements_filtered.append(instance)
+            else:
+                # Direct instance check for non-SerializedElement instances
+                if any(isinstance(instance, cls) for cls in type_classes):
+                    elements_filtered.append(instance)
+
+    # Return the results in the desired format
     if not create_dict:
         return elements_filtered
     else:
