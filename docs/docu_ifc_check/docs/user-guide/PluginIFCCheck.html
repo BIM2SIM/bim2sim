@@ -497,7 +497,7 @@ window.addEventListener("load", load);</script>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#todo-structure-of-the-plugin">TODO Structure of the plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#structure-of-the-plugin">Structure of the plugin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#how-to-create-a-project">How to create a project?</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#how-to-load-an-ifc-file">How to load an IFC file?</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#how-to-configure-my-project">How to configure my project?</a><ul>
@@ -595,8 +595,8 @@ runnable examples for the IFCCheck plugin. You can use these examples to test yo
 installation and learn from them. Additionally, they serve as good starting
 points for your own projects.”</p>
 </section>
-<section id="todo-structure-of-the-plugin">
-<h2>TODO Structure of the plugin<a class="headerlink" href="#todo-structure-of-the-plugin" title="Permalink to this heading"></a></h2>
+<section id="structure-of-the-plugin">
+<h2>Structure of the plugin<a class="headerlink" href="#structure-of-the-plugin" title="Permalink to this heading"></a></h2>
 <p>The following figure shows the structure of the TEASER plugin. Here you see which tasks are used and how they are combined.</p>
 <!--- 
 the following code is pasted from the a file from /bim2sim/docs/source/img/dynamic/plugindiagram
@@ -678,6 +678,30 @@ end
 </section>
 <section id="what-programs-tools-to-use-for-further-analysis">
 <h3>What programs/tools to use for further analysis?<a class="headerlink" href="#what-programs-tools-to-use-for-further-analysis" title="Permalink to this heading"></a></h3>
+<section id="correct-failure-in-ifc-check-ids-check-with-blender-bonsai">
+<h4>Correct failure in ifc check / IDS check (with blender/bonsai)<a class="headerlink" href="#correct-failure-in-ifc-check-ids-check-with-blender-bonsai" title="Permalink to this heading"></a></h4>
+<p>An easiest way to solve an issue in the ifc file can be to use Bonsai an
+extension for Blender. The process is explained below:</p>
+<figure class="align-default" id="id2">
+<span id="fighowtoifctester"></span><a class="with-border reference internal image-reference" href="img/dynamic/pluginIFCCheck/howto_use_ifctester_in_bonsai_numbers.png"><img alt="img/dynamic/pluginIFCCheck/howto_use_ifctester_in_bonsai_numbers.png" class="with-border" src="img/dynamic/pluginIFCCheck/howto_use_ifctester_in_bonsai_numbers.png" style="width: 100%;" /></a>
+<figcaption>
+<p><span class="caption-text">Fig.: Howto check and correct errors with bonsai</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<ol class="arabic simple">
+<li><p>Load ifc file</p></li>
+<li><p>Go to “Scene Quality and Coordination” (1)</p></li>
+<li><p>Enlarge IFC Tester (2)</p></li>
+<li><p>Choose “Load from Memory” (3)</p></li>
+<li><p>Choose the IDS file (4)</p></li>
+<li><p>Execute ifcTester (5)</p></li>
+<li><p>Select failing element via pressing location button (6)</p></li>
+<li><p>Correct attribute value</p></li>
+</ol>
+<p>More information about <a class="reference external" href="https://www.blender.org/">Blender</a> /
+<a class="reference external" href="https://bonsaibim.org">Bonsai</a>. Some basic information about bonsai you can
+find in <a class="reference external" href="https://www.youtube.com/&#64;bim2sim">bim2sim youtube channel</a>.</p>
+</section>
 </section>
 </section>
 </section>
