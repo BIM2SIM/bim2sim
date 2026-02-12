@@ -58,6 +58,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#use-in-script">Use in script</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#start-with-plugintemplate">Start with PluginTemplate</a></li>
 </ul>
 </li>
 </ul>
@@ -167,6 +168,40 @@ Plugin.</p>
 </pre></div>
 </div>
 </section>
+</section>
+<section id="start-with-plugintemplate">
+<h2>Start with PluginTemplate<a class="headerlink" href="#start-with-plugintemplate" title="Permalink to this heading"></a></h2>
+<p>A good starting point is the PluginTemplate, which is included in the bim2sim
+repo. Following the general steps creating a new plugin are described:</p>
+<ol class="arabic simple">
+<li><p>generate a new project including your new plugin / task</p>
+<ol class="arabic simple">
+<li><p>start from the PluginTemplate</p>
+<ol class="arabic simple">
+<li><p>copy the folder PluginTemplate (rename it) (../bim2sim/bim2sim/plugins/)</p></li>
+<li><p>copy example project e1_template_plugin.py (../bim2sim/bim2sim/examples/)</p></li>
+<li><p>adapt relevant links, imports and so on</p>
+<ol class="arabic simple">
+<li><p>also rename the plugin folders, otherwise it is not callable in
+Project.create()</p></li>
+</ol>
+</li>
+</ol>
+</li>
+<li><p>always run the example to check our adaptions</p></li>
+</ol>
+</li>
+<li><p>write tests also/especially for development</p>
+<ol class="arabic simple">
+<li><p>there is a testTask</p>
+<ol class="arabic simple">
+<li><p>maybe needed to have access to specific variables</p></li>
+<li><p>bim2sim/test/unit/tasks/__init__.py &gt; class TestTask</p></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
 </section>
 </section>
 
