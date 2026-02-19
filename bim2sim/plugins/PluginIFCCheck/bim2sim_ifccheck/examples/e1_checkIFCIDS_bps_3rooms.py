@@ -13,29 +13,16 @@ from bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck import PluginIFCCheck
 
 def run_simple_project():
     """Run a bim2sim project with the PluginIFCCheck
-
-    This exmaple is used while the development of the ifc check based on IDS
-    task. After the development is finished, it can deleted or use as example
-    for the usage of this task.
     """
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(tempfile.TemporaryDirectory(
-        prefix='bim2sim_e1_checkifc_bps_3rooms').name)
+        prefix='bim2sim_e1_checkifc_bps_3rooms_').name)
 
     # Set the ifc path to use and define which domain the IFC belongs to.
     # This is done via a dictionary, where the key is the domain and the value
     # the path to the IFC file. We are using an architecture domain IFC file
     # here from the FZK-Haus which is a simple IFC provided by KIT.
-    # ifc_file = test_rsrc_path / 'ids/fail-a_minimal_ids_can_check_a_minimal_ifc_1_2.ifc'
-    # test_rsrc_path = Path(__file__).parent.parent.parent.parent / 'resources'
-    #
-    # no error ifc file
-    # ifc_paths = {
-    #     IFCDomain.arch:
-    #         Path(bim2sim.__file__).parent.parent /
-    #         'test/resources/arch/ifc/AC20-FZK-Haus.ifc',
-    # }
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
@@ -59,61 +46,10 @@ def run_simple_project():
             'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
 
     # assign an IDS file, which is needed to check the ifc file by ifctester
-    # project.sim_settings.ids_file_path = (
-    #         Path(bim2sim.__file__).parent.parent /
-    #         'test/resources/ids/fail-a_minimal_ids_can_check_a_minimal_ifc_1_2.ids'
-    # )
-
     project.sim_settings.ids_file_path = (
             Path(bim2sim.__file__).parent /
             'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
     )
-
-    # Assign the enrichment for use conditions of thermal zones.
-
-    # bim2sim allows to enrich the use conditions, e.g. how many persons are
-    # in a room at what times. For this we are using the data and profiles
-    # provided by DIN 18599. To assign the correct enrichment to specific
-    # rooms/thermal zones, we need to match these to the conditions provided
-    # by DIN 18599. bim2sim automatically does some matching based on regular
-    # expressions, translations, pre-configured mappings and the existing room
-    # information in the IFC, but this doesn't cover all cases. Especially
-    # if rooms are named "room 1" or similar and no further usage information
-    # is provided by the IFC. In this case user input decisions will be
-    # queried. To reduce these queries, we can set pre-configured .json files
-    # to match the room names to usages via `sim_settings`.
-    # The `sim_setting` `prj_custom_usages` allows to specify the path to the
-    # .json file that holds the mapping.
-
-    # As the IFC we are using has an attic which is identified by its
-    # IfcLongName and the commonUsages mapping as Living space. Let's assume
-    # this attic is used as a private gym because our residents are quite fit
-    # people. We can assign a different usage by simply creating a customUsages
-    # file and assign the usage type "Exercise room" to the room type
-    # "Galerie". We already stored the .json file under the test resources,
-    # have a look at it.
-    # In the next step we assign this file to the project by setting:
-    project.sim_settings.prj_custom_usages = (Path(
-        bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
-            "customUsagesAC20-FZK-Haus.json")
-
-    # If we don't want to use the standard data for usage conditions, we
-    # can change them. We created a project specific UseConditions file for
-    # this in the test resources section. In this we assume that our residents
-    # like to sleep at quite cold conditions of 16 °C. So we adjusted the
-    # "heating_profile" entry. We leave the data for the other usages
-    # untouched.
-
-    # Let's assign this use conditions file:
-    project.sim_settings.prj_use_conditions = (Path(
-        bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
-            "UseConditionsAC20-FZK-Haus.json")
-
-    # By default bim2sim tries to calculate the heating profile based on given
-    # information from the IFC. As the used IFC has information about the set
-    # temperature, we need an additional `sim_setting` to force the overwrite
-    # of the existing data in the IFC.
-    project.sim_settings.setpoints_from_template = True
 
     # Before we can run the project, we need to assign a DecisionHandler. To
     # understand this, we need to understand why we need such a handler.
@@ -134,38 +70,6 @@ def run_simple_project():
                )
     Handler = DebugDecisionHandler(answers)
     Handler.handle(project.run())
-
-    # run_project(project, ConsoleDecisionHandler())
-
-    # After the project is finished, we can review the results. As we don't
-    # create any simulation model with the template Plugin, our results are
-    # mainly the identified bim2sim elements and the enriched data in this
-    # elements. Let's get the created bim2sim elements. Everything that is
-    # created by the different tasks during the runtime is stored in the
-    # playground state. The playground manages the different tasks and their
-    # information. To get the bim2sim elements, we can simply get them from the
-    # state with the following command:
-    # b2s_elements = project.playground.state['elements']
-
-    # # Let's filter all ThermalZone entities, we can do this by a loop, or use
-    # # a pre-build function of bim2sim:
-    # all_thermal_zones = filter_elements(b2s_elements, 'ThermalZone')
-
-    # # Let's print some data about our zones and review the enriched data for
-    # # our zones:
-    # for tz in all_thermal_zones:
-    #     print('##########')
-    #     print(f"Name of the zone: {tz.name}")
-    #     print(f"Area of the zone: {tz.net_area}")
-    #     print(f"Volume of the zone: {tz.volume}")
-    #     print(f"Daily heating profile of the zone: {tz.heating_profile}")
-    #     print('##########')
-
-    # # We can see that our provided heating profiles are correctly taken into
-    # # account. The enriched thermal zones now hold all information required for
-    # # a building performance simulation. For complete examples with model
-    # # creation and simulations please go the examples of the plugins.
-
 
 if __name__ == '__main__':
     run_simple_project()
