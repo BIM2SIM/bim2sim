@@ -174,7 +174,7 @@ class CheckIfc(ITask):
                     f" implemented currently. Just running the basic checks."
                     f"")
 
-            # write reportes self made checks
+            # generating reportes (of the additional checks)
             base_name = f"/{ifc_file.domain.name.upper()}_" \
                         f"{ifc_file.ifc_file_name[:-4]}"
             self._write_errors_to_html_table(base_name, ifc_file.domain)
