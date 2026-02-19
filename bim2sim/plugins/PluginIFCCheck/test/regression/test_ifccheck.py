@@ -45,23 +45,6 @@ class RegressionTestIFCCheck(RegressionTestBase):
             results.append(elem_str)
         return results
 
-    def create_regression_setup(self):
-        """
-        Create a regression test setup based on BuildingsPy regression tests.
-
-        This method uses the BuildingsPy library to create a regression test for
-        the currents project TEASER modelica simulation model export.
-
-        Args:
-            tolerance: the tolerance in which the regression results will be
-                accepted as valid
-            batch_mode: in batch mode no input is required and no new results
-                can be created
-
-        """
-        passed_regression_test = False
-        return passed_regression_test
-
     def run_regression_test(self):
         """Run the regression test."""
 
