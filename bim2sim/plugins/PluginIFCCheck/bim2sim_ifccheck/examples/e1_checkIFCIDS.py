@@ -52,6 +52,7 @@ def run_simple_project():
             'test/resources/ids/fail-a_minimal_ids_can_check_a_minimal_ifc_1_2.ids'
     )
 
+    # run the project
     run_project(project, ConsoleDecisionHandler())
 
 
