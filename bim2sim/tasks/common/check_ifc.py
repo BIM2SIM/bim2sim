@@ -374,8 +374,8 @@ class CheckIfc(ITask):
                 summary_sbs=summary_sbs,
                 all_errors=all_errors))
             out_file.close()
+            # opens automaically browser tab showing the generated html report
             if show_report:
-                # can comment out, if not the browser should show the report
                 webbrowser.open(f"file://{out_file.buffer.name}")
         with open(str(self.paths.log) +
                   base_name +
@@ -385,8 +385,8 @@ class CheckIfc(ITask):
                 task=self,
                 summary_props=summary_props))
             out_file.close()
+            # opens automaically browser tab showing the generated html report
             if show_report:
-                # can comment out, if not the browser should show the report
                 webbrowser.open(f"file://{out_file.buffer.name}")
         with open(str(self.paths.log) +
                   base_name +
@@ -405,8 +405,8 @@ class CheckIfc(ITask):
                 summary_sbs=summary_sbs,
                 summary_props=summary_props))
             out_file.close()
+            # opens automaically browser tab showing the generated html report
             if show_report:
-                # can comment out, if not the browser should show the report
                 webbrowser.open(f"file://{out_file.buffer.name}")
 
         with open(str(self.paths.log) + base_name + '_error_summary_guid.html',
@@ -420,8 +420,8 @@ class CheckIfc(ITask):
                 summary_sbs=summary_sbs,
                 all_errors=all_errors))
             out_file.close()
+            # opens automaically browser tab showing the generated html report
             if show_report:
-                # can comment out, if not the browser should show the report
                 webbrowser.open(f"file://{out_file.buffer.name}")
 
 
