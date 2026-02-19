@@ -14,9 +14,4 @@ class PluginIFCCheck(Plugin):
     default_tasks = [
         common.LoadIFC,
         common.CheckIfc,
-        # common.CreateElementsOnIfcTypes,
-        # bps.CreateSpaceBoundaries,
-        # bps.EnrichUseConditions,
-        # common.CreateRelations,
-        # common.Weather,
     ]
