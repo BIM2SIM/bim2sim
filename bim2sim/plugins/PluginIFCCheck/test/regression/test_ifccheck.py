@@ -60,18 +60,6 @@ class RegressionTestIFCCheck(RegressionTestBase):
 
         return [reg_test_res, result_res, result_test]
 
-    def create_regression_results(self):
-        """Creates regression results based on simulation model.
-
-        If simulation is successful and regression results differ from
-        new simulation results, the user is asked if the results should be
-        overwritten.
-        If simulation  is successful and simulation results are same with
-        regression results nothing happens.
-        If simulation is not successful nothing happens.
-        """
-        # TODO put something in
-        pass
 
 class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
     def test_run_ifc_check_fzk_haus_ids(self):
