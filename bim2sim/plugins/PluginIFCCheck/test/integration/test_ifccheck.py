@@ -25,17 +25,6 @@ class TestIntegrationIFCCheck(IntegrationBaseIFCCheck, unittest.TestCase):
                 'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
         )
 
-        # In the next step we assign this file to the project by setting:
-        project.sim_settings.prj_custom_usages = (Path(
-            bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
-                "customUsagesAC20-FZK-Haus.json")
-
-        project.sim_settings.prj_use_conditions = (Path(
-            bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
-                "UseConditionsAC20-FZK-Haus.json")
-
-        project.sim_settings.setpoints_from_template = True
-
         answers = ()
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -53,17 +42,6 @@ class TestIntegrationIFCCheck(IntegrationBaseIFCCheck, unittest.TestCase):
                 Path(bim2sim.__file__).parent /
                 'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
         )
-
-        # In the next step we assign this file to the project by setting:
-        project.sim_settings.prj_custom_usages = (Path(
-            bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
-                "customUsagesAC20-FZK-Haus.json")
-
-        project.sim_settings.prj_use_conditions = (Path(
-            bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
-                "UseConditionsAC20-FZK-Haus.json")
-
-        project.sim_settings.setpoints_from_template = True
 
         answers = ('Other', 'Other')
         handler = DebugDecisionHandler(answers)
@@ -88,17 +66,6 @@ class TestIntegrationIFCCheck(IntegrationBaseIFCCheck, unittest.TestCase):
                 'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
         )
 
-        # In the next step we assign this file to the project by setting:
-        project.sim_settings.prj_custom_usages = (Path(
-            bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
-                "customUsagesAC20-FZK-Haus.json")
-
-        project.sim_settings.prj_use_conditions = (Path(
-            bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
-                "UseConditionsAC20-FZK-Haus.json")
-
-        project.sim_settings.setpoints_from_template = True
-
         answers = ('Other', 'Other')
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
@@ -122,14 +89,6 @@ class TestIntegrationIFCCheck(IntegrationBaseIFCCheck, unittest.TestCase):
                 Path(bim2sim.__file__).parent /
                 'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
         )
-        # In the next step we assign this file to the project by setting:
-        project.sim_settings.prj_custom_usages = (Path(
-            bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
-                "customUsagesAC20-FZK-Haus.json")
-
-        project.sim_settings.prj_use_conditions = (Path(
-            bim2sim.__file__).parent.parent / "test/resources/arch/custom_usages/"
-                "UseConditionsAC20-FZK-Haus.json")
 
         project.sim_settings.setpoints_from_template = True
 
