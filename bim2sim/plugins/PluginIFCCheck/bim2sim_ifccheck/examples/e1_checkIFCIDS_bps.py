@@ -17,7 +17,7 @@ def run_simple_project():
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(tempfile.TemporaryDirectory(
-        prefix='bim2sim_e1_checkifc').name)
+        prefix='bim2sim_e1_checkifc_').name)
 
     # Set the ifc path to use and define which domain the IFC belongs to.
     # This is done via a dictionary, where the key is the domain and the value
