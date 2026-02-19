@@ -13,7 +13,7 @@ from bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck import PluginIFCCheck
 def run_simple_project():
     """Run a bim2sim project with the PluginIFCCheck
 
-    This exmaple is used while the development of the ifc check based on IDS
+    This example is used while the development of the ifc check based on IDS
     task. After the development is finished, it can deleted or use as example
     for the usage of this task.
     """
