@@ -250,6 +250,12 @@ PluginIFCCheck:py3.11:
   variables:
     plugin: "PluginIFCCheck"
 
+PluginTEASERTest:py3.10:
+  <<: *test_template_plugin_integration
+  image: $CI_REGISTRY/bim2sim:py3.10-occ7.9.0
+  variables:
+    plugin: "PluginTEASER"
+
 # Regression tests
 PluginTEASER_reg:py3.10:
   <<: *test_template_plugin_regression
