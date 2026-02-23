@@ -438,7 +438,6 @@ class CheckLogicBase():
 
     Attributes:
         extract_data (list): filered/extract data from ifc file
-        # TODO add other inputs
     """
 
     def __init__(self, extract_data, elements, ps_summary, ifc_units):
@@ -464,7 +463,6 @@ class CheckLogicBase():
            double_guid: dict
 
         """
-        # TODO bring output into the log
         used_guids: dict[str, ifcos.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
         double_guids: dict[str, ifcos.entity_instance] = dict() # dict of elements with guids, which are not unique
         all_guids_unique = True
