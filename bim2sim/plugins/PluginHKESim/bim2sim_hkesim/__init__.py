@@ -23,7 +23,7 @@ class PluginHKESim(Plugin):
     tasks = {LoadLibrariesHKESim}
     default_tasks = [
         common.LoadIFC,
-        common.CheckIfc,
+        # common.CheckIfc,
         common.CreateElementsOnIfcTypes,
         hvac.ConnectElements,
         hvac.MakeGraph,
