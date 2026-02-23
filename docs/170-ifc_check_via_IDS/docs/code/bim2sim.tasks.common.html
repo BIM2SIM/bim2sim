@@ -207,7 +207,24 @@ represent an IFCProduct</p>
 <dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckIfc.run">
 <span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">ifc_files:</span> <span class="pre">[&lt;class</span> <span class="pre">'bim2sim.kernel.ifc_file.IfcFileClass'&gt;]</span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckIfc.run" title="Permalink to this definition"></a></dt>
 <dd><p>Analyzes sub_elements and elements of an IFC file for the validation
-functions and export the errors found as .json and .html files.</p>
+functions and export the errors found as .html files.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc</dt><dd><p>instance</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>error_summary_sub_inst: summary of errors related to sub_elements
+error_summary_inst: summary of errors related to elements
+error_summary_prop: summary of missing properties
+error_summary_guid: summary of GUID errors
+ifc_ids_check: results of checks based on IDS file</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1079,6 +1096,21 @@ Returns False if shape is non-convex</p>
 <span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('ifc_files',)</span></em><a class="headerlink" href="#bim2sim.tasks.common.load_ifc.LoadIFC.touches" title="Permalink to this definition"></a></dt>
 <dd></dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.tasks.common.load_ifc.extract_ifc_file_names">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.tasks.common.load_ifc.</span></span><span class="sig-name descname"><span class="pre">extract_ifc_file_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.load_ifc.extract_ifc_file_names" title="Permalink to this definition"></a></dt>
+<dd><p>Extract ifc file name of a given directory.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><dl class="simple">
+<dt>base_path: Pathlib path that holds the different domain folders,</dt><dd><p>which hold the ifc files.</p>
+</dd>
+</dl>
+</dd>
+<dt>Returns:</dt><dd><p>list: of ifc file names</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
