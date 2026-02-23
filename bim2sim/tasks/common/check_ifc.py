@@ -470,15 +470,15 @@ class CheckLogicBase():
         all_guids_unique = True
 
         for inst in ifc_file.file:
-           if hasattr(inst, "GlobalId"):
-               guid = inst.GlobalId
-               name = inst.Name
-               # print(guid)
-               if guid in used_guids:
-                   double_guids[guid] = inst
-                   all_guids_unique = False
-               else:
-                   used_guids[guid] = inst
+            if hasattr(inst, "GlobalId"):
+                guid = inst.GlobalId
+                name = inst.Name
+                # print(guid)
+                if guid in used_guids:
+                    double_guids[guid] = inst
+                    all_guids_unique = False
+                else:
+                    used_guids[guid] = inst
 
         return (all_guids_unique, double_guids)
 
