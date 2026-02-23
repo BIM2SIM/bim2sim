@@ -376,9 +376,14 @@ list containing all objects to be evaluates</p>
 <dt class="sig sig-object py" id="bim2sim.tasks.common.check_ifc.CheckLogicBase.run_check_guid_unique">
 <span class="sig-name descname"><span class="pre">run_check_guid_unique</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">)</span> <span class="pre">-&gt;</span> <span class="pre">(&lt;class</span> <span class="pre">'bool'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'dict'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.tasks.common.check_ifc.CheckLogicBase.run_check_guid_unique" title="Permalink to this definition"></a></dt>
 <dd><p>check the uniqueness of the guids of the IFC file</p>
+<p>Here the bijective uniqueness is check, but also
+the uniqueness of modified guids by transforming
+the lowercase letters into uppercase letter
+Input:</p>
+<blockquote>
+<div><p>ifc_file: path of the IFC file, which is checked</p>
+</div></blockquote>
 <dl>
-<dt>Input:</dt><dd><p>ifc_file: path of the IFC file, which is checked</p>
-</dd>
 <dt>Returns:</dt><dd><blockquote>
 <div><dl class="simple">
 <dt>all_guids_unique: boolean</dt><dd><dl class="simple">
