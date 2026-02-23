@@ -58,7 +58,18 @@ class CheckIfc(ITask):
     def run(self, ifc_files: [IfcFileClass]):
         """
         Analyzes sub_elements and elements of an IFC file for the validation
-        functions and export the errors found as .json and .html files.
+        functions and export the errors found as .html files.
+
+         Args:
+            ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc
+                instance
+
+        Returns:
+            error_summary_sub_inst: summary of errors related to sub_elements
+            error_summary_inst: summary of errors related to elements
+            error_summary_prop: summary of missing properties
+            error_summary_guid: summary of GUID errors
+            ifc_ids_check: results of checks based on IDS file
 
         """
 
