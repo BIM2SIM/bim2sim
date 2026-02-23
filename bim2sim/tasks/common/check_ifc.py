@@ -3,6 +3,7 @@
 import inspect  # used for _get_ifc_type_classes
 import types  # used for _get_class_property_sets
 import os
+import warnings
 
 from pathlib import Path
 
@@ -452,6 +453,9 @@ class CheckLogicBase():
     def run_check_guid_unique(ifc_file) -> (bool, dict):
         """check the uniqueness of the guids of the IFC file
 
+        Here the bijective uniqueness is check, but also
+        the uniqueness of modified guids by transforming
+        the lowercase letters into uppercase letter
         Input:
             ifc_file: path of the IFC file, which is checked
 
@@ -466,17 +470,36 @@ class CheckLogicBase():
         used_guids: dict[str, ifcos.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
         double_guids: dict[str, ifcos.entity_instance] = dict() # dict of elements with guids, which are not unique
         all_guids_unique = True
-
+        used_guids_upper = []  # to store temporally guid in uppercase letters
         for inst in ifc_file.file:
             if hasattr(inst, "GlobalId"):
                 guid = inst.GlobalId
                 name = inst.Name
                 # print(guid)
-                if guid in used_guids:
+                upper_guid = guid.upper()
+                # print(upper_guid)
+                if (guid in used_guids):
                     double_guids[guid] = inst
                     all_guids_unique = False
+                    warnings.warn(
+                        "Some GUIDs are not unique! A bijective ifc file have "
+                        "to have unique GUIDs. But bim2sim provides a option "
+                        "in sim_settings: rest_guids = True"
+                    )
+                elif (guid.upper() in used_guids_upper):
+                    double_guids[guid] = inst
+                    all_guids_unique = False
+                    warnings.warn(
+                        "Some GUIDs are not unique (for transformed GUIDS "
+                        "letters lowcase into uppercase)! "
+                        "A bijective ifc file have "
+                        "to have unique GUIDs. But bim2sim provides a option "
+                        "in sim_settings: rest_guids = True"
+                    )
                 else:
                     used_guids[guid] = inst
+                    # store temporally guid in uppercase letters
+                    used_guids_upper.append(upper_guid)
 
         return (all_guids_unique, double_guids)
 
