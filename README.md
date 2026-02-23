@@ -3,6 +3,7 @@
 [![documentation](https://bim2sim.github.io/bim2sim/development/docs/doc.svg)](https://bim2sim.github.io/bim2sim/development/docs/index.html)
 [![coverage (W/O Plugins)](https://bim2sim.github.io/bim2sim/development/coverage/badge.svg)](https://bim2sim.github.io/bim2sim/development/coverage)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11-blue)
 
 bim2sim is a library to create simulation models for different purposes based on BIM models in the IFC format. The project is based on a base code that provides the possiblity to map the IFC data into a uniform meta strucuture. This structure can then be used to create simulation models for different purposes which is done by plugins. The corresponding project BIM2SIM (see founding section below) adressed the following four domains:
 
@@ -14,7 +15,7 @@ The focus of the currently released tool is on BPS and HVAC but we already provi
 ![Toolchain](docs/source/img/static/bim2sim_framework_overview.png)
 
 ## Installation and Usage
-You can find detailed documentation and description how to install and to use in our [documentation](https://bim2sim.github.io/bim2sim//development/docs/index.html). We recommend reading at least:
+bim2sim requires Python >= 3.10 and < 3.12. You can find detailed documentation and description how to install and to use in our [documentation](https://bim2sim.github.io/bim2sim//development/docs/index.html). We recommend reading at least:
 * [Big Picture](https://bim2sim.github.io/bim2sim//development/docs/big-picture.html) to understand the concepts of bim2sim
 * [PluginTemplate - How to install?](https://bim2sim.github.io/bim2sim//development/docs/user-guide/PluginTemplate.html#how-to-install) to understand how to install the Base of the framework.
 

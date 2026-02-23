@@ -13,7 +13,7 @@ pip install -e '.[PluginEnergyPlus]'
 The [bim2sim core installation](coreInstalltion) needs to be done before.
 
 ### Trouble Shooting
-For python > 3.9: make sure that the correct geomeppy is installed (using requirements.txt in the plugin): in this fork of geomeppy, we fixed the imports working from python >= 3.10: https://github.com/BIM2SIM/geomeppy/tree/fix_dependencies
+For Python >=3.10: make sure that the correct geomeppy is installed (using requirements.txt in the plugin): in this fork of geomeppy, we fixed the imports for Python >=3.10: https://github.com/BIM2SIM/geomeppy/tree/fix_dependencies
 
 ### Test install
 
