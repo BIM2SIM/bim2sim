@@ -29,6 +29,7 @@ from bim2sim.tasks.base import ITask, Playground
 from bim2sim.kernel.ifc_file import IfcFileClass
 from bim2sim.utilities.types import IFCDomain
 from bim2sim import __file__ as bs_file
+from bim2sim.tasks.common.load_ifc import extract_ifc_file_names
 
 class CheckIfc(ITask):
     """
@@ -76,18 +77,11 @@ class CheckIfc(ITask):
         self.logger.info(f"Processing IFC Checks with ifcTester")
 
         base_path = self.paths.ifc_base
-        # begin part from load_ifc.py
-        # used to get path of the ifc file for ifctester
-        if not base_path.is_dir():
-            raise AssertionError(f"Given base_path {base_path} is not a"
-                                 f" directory. Please provide a directory.")
 
-        ifc_files_paths = list(base_path.glob("**/*.ifc")) + list(
-            base_path.glob("**/*.ifcxml")) + list(
-            base_path.glob("**/*.ifczip"))
+        ifc_files_paths = extract_ifc_file_names(base_path)
         self.logger.info(f"Found {len(ifc_files_paths)} IFC files in project "
                          f"directory.")
-        # end part from load_ifc.py
+
         log_path = self.paths.log
         # ids check call start
         if self.playground.sim_settings.ids_file_path is None:

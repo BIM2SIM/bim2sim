@@ -7,6 +7,24 @@ from bim2sim.kernel.ifc_file import IfcFileClass
 from bim2sim.tasks.base import ITask
 from bim2sim.utilities.types import IFCDomain
 
+@staticmethod
+def extract_ifc_file_names(base_path):
+    """Extract ifc file name of a given directory.
+
+       Args:
+        base_path: Pathlib path that holds the different domain folders,
+          which hold the ifc files.
+       Returns:
+         list: of ifc file names
+    """
+    if not base_path.is_dir():
+        raise AssertionError(f"Given base_path {base_path} is not a"
+                             f" directory. Please provide a directory.")
+    ifc_files_paths = list(base_path.glob("**/*.ifc")) + list(
+        base_path.glob("**/*.ifcxml")) + list(
+        base_path.glob("**/*.ifczip"))
+
+    return ifc_files_paths
 
 class LoadIFC(ITask):
     """Load all IFC files from PROJECT.ifc_base path.
@@ -33,17 +51,13 @@ class LoadIFC(ITask):
             base_path: Pathlib path that holds the different domain folders,
               which hold the ifc files.
         """
-        if not base_path.is_dir():
-            raise AssertionError(f"Given base_path {base_path} is not a"
-                                 f" directory. Please provide a directory.")
+
+        ifc_files_paths = extract_ifc_file_names(base_path)
+        self.logger.info(f"Found {len(ifc_files_paths)} IFC files in project "
+                         f"directory.")
         ifc_files_dict = {k: [] for k in ['arch', 'hydraulic', 'ventilation']}
         ifc_files_unsorted = []
         ifc_files = []
-        ifc_files_paths = list(base_path.glob("**/*.ifc")) + list(
-            base_path.glob("**/*.ifcxml")) + list(
-            base_path.glob("**/*.ifczip"))
-        self.logger.info(f"Found {len(ifc_files_paths)} IFC files in project "
-                         f"directory.")
         for i, total_ifc_path in enumerate(ifc_files_paths, start=1):
             self.logger.info(
                 f"Loading IFC file {total_ifc_path.name} {i}/{len(ifc_files_paths)}.")
