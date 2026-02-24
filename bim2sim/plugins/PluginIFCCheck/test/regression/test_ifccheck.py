@@ -25,7 +25,7 @@ class Gen_xpath:
         """
         self.xpath_incl_var = xpath_incl_var
 
-    def gen_xpath(self, name_ele: str, pos_ele: int) -> str:
+    def gen_xpath_name_pos(self, name_ele: str, pos_ele: int) -> str:
         """Generate a xpart in html report for checks.
 
         Args:
@@ -125,17 +125,17 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
                                   'contains(normalize-space(.),"{}")]/ strong[{}]'))
 
         # Specifications passed
-        xpath_spec_pass = xpath_ids_var.gen_xpath("Specifications passed", 1)
+        xpath_spec_pass = xpath_ids_var.gen_xpath_name_pos("Specifications passed", 1)
         # Specifications total
-        xpath_spec_total = xpath_ids_var.gen_xpath("Specifications passed", 2)
+        xpath_spec_total = xpath_ids_var.gen_xpath_name_pos("Specifications passed", 2)
         # Requirements passed
-        xpath_req_pass = xpath_ids_var.gen_xpath("Requirements passed", 1)
+        xpath_req_pass = xpath_ids_var.gen_xpath_name_pos("Requirements passed", 1)
         # Requirements total
-        xpath_req_total = xpath_ids_var.gen_xpath("Requirements passed", 2)
+        xpath_req_total = xpath_ids_var.gen_xpath_name_pos("Requirements passed", 2)
         # Checks passed
-        xpath_checks_pass = xpath_ids_var.gen_xpath("Checks passed", 1)
+        xpath_checks_pass = xpath_ids_var.gen_xpath_name_pos("Checks passed", 1)
         # Checks total
-        xpath_checks_total = xpath_ids_var.gen_xpath("Checks passed", 2)
+        xpath_checks_total = xpath_ids_var.gen_xpath_name_pos("Checks passed", 2)
 
         self.xpaths = [
             xpath_fail_perc,
