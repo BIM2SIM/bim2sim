@@ -14,6 +14,32 @@ from bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck import PluginIFCCheck
 logger = logging.getLogger(__name__)
 
 
+class Gen_xpath:
+    """for genaration of xpaths."""
+
+    def __init__(self, xpath_incl_var):
+        """Initiate Gen_xpath class.
+
+        Args:
+          xpaht_incl_var: xpaht including placeholder (here '{}')
+        """
+        self.xpath_incl_var = xpath_incl_var
+
+    def gen_xpath(self, name_ele: str, pos_ele: int) -> str:
+        """Generate a xpart in html report for checks.
+
+        Args:
+          name_ele: name of the element
+          pos_ele: number of the item in the element
+        Retruns:
+          xpath: str
+                 example = ('//p/span[@class="item" and ' +
+                           'contains(normalize-space(.),"{}")]/ strong[{}]')
+        """
+        xpath = self.xpath_incl_var.format(name_ele, pos_ele)
+        return xpath
+
+
 class RegressionTestIFCCheck(RegressionTestBase):
     """Class to setup up nad run regression test of PluginIFCCheck"""
     def setUp(self):
@@ -93,36 +119,23 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         # xpaths to elements in html
         # fail percent (unique)
         xpath_fail_perc = '//div[@class="fail percent"]'
+        # create function for xpath generation
+        xpath_ids_var = Gen_xpath(
+                xpath_incl_var = ('//p/span[@class="item" and ' +
+                                  'contains(normalize-space(.),"{}")]/ strong[{}]'))
+
         # Specifications passed
-        xpath_spec_pass = (
-          '//p/span[@class="item" and ' +
-          'contains(normalize-space(.),"Specifications passed")]/ strong[1]'
-        )
+        xpath_spec_pass = xpath_ids_var.gen_xpath("Specifications passed", 1)
         # Specifications total
-        xpath_spec_total = (
-          '//p/span[@class="item" ' +
-          'and contains(normalize-space(.),"Specifications passed")]/ strong[2]'
-        )
+        xpath_spec_total = xpath_ids_var.gen_xpath("Specifications passed", 2)
         # Requirements passed
-        xpath_req_pass = (
-            '//p/span[@class="item" and ' +
-            'contains(normalize-space(.),"Requirements passed")]/ strong[1]'
-        )
+        xpath_req_pass = xpath_ids_var.gen_xpath("Requirements passed", 1)
         # Requirements total
-        xpath_req_total = (
-            '//p/span[@class="item" and ' +
-            'contains(normalize-space(.),"Requirements passed")]/ strong[2]'
-        )
+        xpath_req_total = xpath_ids_var.gen_xpath("Requirements passed", 2)
         # Checks passed
-        xpath_checks_pass = (
-            '//p/span[@class="item" and ' +
-            'contains(normalize-space(.),"Checks passed")]/ strong[1]'
-        )
+        xpath_checks_pass = xpath_ids_var.gen_xpath("Checks passed", 1)
         # Checks total
-        xpath_checks_total = (
-          '//p/span[@class="item" and ' +
-          'contains(normalize-space(.),"Checks passed")]/ strong[2]'
-        )
+        xpath_checks_total = xpath_ids_var.gen_xpath("Checks passed", 2)
 
         self.xpaths = [
             xpath_fail_perc,
