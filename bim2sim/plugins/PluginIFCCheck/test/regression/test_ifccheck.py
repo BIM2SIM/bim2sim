@@ -39,6 +39,18 @@ class Gen_xpath:
         xpath = self.xpath_incl_var.format(name_ele, pos_ele)
         return xpath
 
+    def gen_xpath_name(self, name_ele: str) -> str:
+        """Generate a xpart in html report for checks.
+
+        Args:
+          name_ele: name of the element
+        Retruns:
+          xpath: str
+                 example = ('//p/span[@class="item" and ' +
+                           'contains(normalize-space(.),"{}")]/')
+        """
+        xpath = self.xpath_incl_var.format(name_ele)
+        return xpath
 
 class RegressionTestIFCCheck(RegressionTestBase):
     """Class to setup up nad run regression test of PluginIFCCheck"""
@@ -183,18 +195,20 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         )
 
         # xpaths to elements in html
+        # create function for xpath generation
+        xpath_prop_var = Gen_xpath(
+                xpath_incl_var = (
+            '//tr[td[@class="tg-fymr" and ' +
+            'normalize-space(.)="{}"]]' +
+            '/td[@class="tg-dvpl"][normalize-space()]'))
+
         # Total IFCProduct with missing properties
-        xpath_prod_with_miss_prop_total = (
-            '//tr[td[@class="tg-fymr" and ' +
-            'normalize-space(.)="Total IFCProduct with missing properties:"]]' +
-            '/td[@class="tg-dvpl"][normalize-space()]'
-                   )
+        xpath_prod_with_miss_prop_total = xpath_prop_var.gen_xpath_name(
+            "Total IFCProduct with missing properties:")
         # Total missing properties in IFCProducts:
-        xpath_miss_prop_in_prod_total = (
-            '//tr[td[@class="tg-fymr" and ' +
-            'normalize-space(.)="Total missing properties in IFCProducts:"]]' +
-            '/td[@class="tg-dvpl"][normalize-space()]'
-                   )
+        xpath_miss_prop_in_prod_total = xpath_prop_var.gen_xpath_name(
+            "Total missing properties in IFCProducts:")
+
         self.xpaths = [
                   xpath_prod_with_miss_prop_total,
                   xpath_miss_prop_in_prod_total,
