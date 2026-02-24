@@ -255,32 +255,25 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         )
 
         # xpaths to elements in html
+        # create function for xpath generation
+        xpath_inst_var = Gen_xpath(
+                xpath_incl_var = (
+            '//tr[td[@class="tg-fymr" and ' +
+            'normalize-space(.)="{}"]]' +
+            '/td[@class="tg-dvpl"][normalize-space()]'))
         # Total IFCProduct with errors
-        xpath_prod_with_errors_total = (
-            '//tr[td[@class="tg-fymr" and ' +
-            'normalize-space(.)="Total IFCProduct with errors:"]]' +
-            '/td[@class="tg-dvpl"][normalize-space()]'
-                   )
+        xpath_prod_with_errors_total = xpath_inst_var.gen_xpath_name(
+            "Total IFCProduct with errors:")
         # Total errors in IFCProducts:
-        xpath_errors_in_prod_total = (
-            '//tr[td[@class="tg-fymr" and ' +
-            'normalize-space(.)="Total errors in IFCProducts:"]]' +
-            '/td[@class="tg-dvpl"][normalize-space()]'
-                   )
-
+        xpath_errors_in_prod_total = xpath_inst_var.gen_xpath_name(
+            "Total errors in IFCProducts:")
         # Total IfcRelSpaceBoundary with errors:
-        xpath_errors_in_sb_total = (
-            '//tr[td[@class="tg-fymr" and ' +
-            'normalize-space(.)="Total IfcRelSpaceBoundary with errors:"]]' +
-            '/td[@class="tg-dvpl"][normalize-space()]'
-                   )
-
+        xpath_errors_in_sb_total = xpath_inst_var.gen_xpath_name(
+            "Total IfcRelSpaceBoundary with errors:")
         # Total errors in IfcRelSpaceBoundary:
-        xpath_errors_in_relsb_total = (
-            '//tr[td[@class="tg-fymr" and ' +
-            'normalize-space(.)="Total errors in IfcRelSpaceBoundary:"]]' +
-            '/td[@class="tg-dvpl"][normalize-space()]'
-                   )
+        xpath_errors_in_relsb_total = xpath_inst_var.gen_xpath_name(
+            "Total errors in IfcRelSpaceBoundary:")
+
         self.xpaths = [
                   xpath_prod_with_errors_total,
                   xpath_errors_in_prod_total,
@@ -328,48 +321,35 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         )
 
         # xpaths to elements in html
+        # create function for xpath generation
+        xpath_inst_var = Gen_xpath(
+                xpath_incl_var = (
+            '//tr[td[@class="tg-dvpl" and ' +
+            'normalize-space(.)="{}"]]' +
+            '/td[@class="tg-dvpl"][2]'))
+
         # IFC Version:
-        xpath_ifc_version = (
-            '//tr[td[@class="tg-dvpl" and ' +
-            'normalize-space(.)="IFC Version:"]]' +
-            '/td[@class="tg-dvpl"][2]'
-                   )
+        xpath_ifc_version = xpath_inst_var.gen_xpath_name(
+            "IFC Version:")
         # Version error:
-        xpath_ifc_version_error = (
-            '//tr[td[@class="tg-dvpl" and ' +
-            'normalize-space(.)="Version error:"]]' +
-            '/td[@class="tg-dvpl"][2]'
-                   )
+        xpath_ifc_version_error = xpath_inst_var.gen_xpath_name(
+            "Version error:")
         # Unique GUID:
-        xpath_unique_guid = (
-            '//tr[td[@class="tg-dvpl" and ' +
-            'normalize-space(.)="Unique GUID:"]]' +
-            '/td[@class="tg-dvpl"][2]'
-                   )
+        xpath_unique_guid = xpath_inst_var.gen_xpath_name(
+            "Unique GUID:")
         # Total non-unique GUIDs:
-        xpath_nonunique_guid_total = (
-            '//tr[td[@class="tg-dvpl" and ' +
-            'normalize-space(.)="Total non-unique GUIDs:"]]' +
-            '/td[@class="tg-dvpl"][2]'
-                   )
+        xpath_nonunique_guid_total = xpath_inst_var.gen_xpath_name(
+            "Total non-unique GUIDs:")
         # Empty GUID:
-        xpath_empty_guid = (
-            '//tr[td[@class="tg-dvpl" and ' +
-            'normalize-space(.)="Empty GUID:"]]' +
-            '/td[@class="tg-dvpl"][2]'
-                   )
+        xpath_empty_guid = xpath_inst_var.gen_xpath_name(
+            "Empty GUID:")
         # Total Empty GUIDs:
-        xpath_empty_guid_total = (
-            '//tr[td[@class="tg-dvpl" and ' +
-            'normalize-space(.)="Total Empty GUIDs:"]]' +
-            '/td[@class="tg-dvpl"][2]'
-                   )
+        xpath_empty_guid_total = xpath_inst_var.gen_xpath_name(
+            "Total Empty GUIDs:")
         # Total IFCProduct with errors
-        xpath_prod_with_errors_total = (
-            '//tr[td[@class="tg-dvpl" and ' +
-            'normalize-space(.)="Total IFCProduct with errors:"]]' +
-            '/td[@class="tg-dvpl"][2]'
-                   )
+        xpath_prod_with_errors_total = xpath_inst_var.gen_xpath_name(
+            "Total IFCProduct with errors:")
+
         self.xpaths = [
                 xpath_ifc_version,
                 xpath_ifc_version_error,
@@ -420,18 +400,23 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         )
 
         # xpaths to elements in html
+        # create function for xpath generation
+        xpath_inst_var = Gen_xpath(
+                xpath_incl_var = (
+            '//tr[td[@class="tg-fymr" and ' +
+            'normalize-space(.)="{}"]]' +
+            '/td[@class="tg-dvpl"][1]'))
+
+        # IFC Version:
+        xpath_ifc_version = xpath_inst_var.gen_xpath_name(
+            "IFC Version:")
         # Total non-unique GUIDs:
-        xpath_nonunique_guid_total = (
-            '//tr[td[@class="tg-fymr" and ' +
-            'normalize-space(.)="Total non-unique GUIDs:"]]' +
-            '/td[@class="tg-dvpl"][1]'
-                   )
+        xpath_nonunique_guid_total = xpath_inst_var.gen_xpath_name(
+            "Total non-unique GUIDs:")
         # Total Empty GUIDs:
-        xpath_empty_guid_total = (
-            '//tr[td[@class="tg-fymr" and ' +
-            'normalize-space(.)="Total Empty GUIDs:"]]' +
-            '/td[@class="tg-dvpl"][1]'
-                   )
+        xpath_empty_guid_total = xpath_inst_var.gen_xpath_name(
+            "Total Empty GUIDs:")
+
         self.xpaths = [
                 xpath_nonunique_guid_total,
                 xpath_empty_guid_total,
