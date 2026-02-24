@@ -152,7 +152,7 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
 
     def test_run_ifc_check_fzk_haus_sum_prop(self):
         """Run IFCCheck regression test with AC20-FZK-Haus.ifc
-           checking the html report "summary_prob" generated
+           checking the html report "summary_prop" generated
            by bim2sim specific checks.
         """
 
