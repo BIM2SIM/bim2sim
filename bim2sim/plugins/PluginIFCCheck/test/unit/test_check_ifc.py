@@ -18,7 +18,7 @@ from bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck.sim_settings import \
     CheckIFCSimSettings
 from bim2sim.utilities.types import IFCDomain
 
-from bim2sim.tasks.common.check_ifc import CheckIfc, CheckLogicBase
+from bim2sim.tasks.prepro.check_ifc import CheckIfc, CheckLogicBase
 
 class PluginDummy(Plugin):
     name = 'test'
