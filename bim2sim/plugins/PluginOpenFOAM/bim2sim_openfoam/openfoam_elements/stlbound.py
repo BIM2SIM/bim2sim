@@ -96,11 +96,18 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                                                      'Rate per Area [W/m2]('
                                                      'Hourly)')]
             self.heat_flux = prev_heat_flux
+            if self.add_solar_radiation:
+                # add load radiation contribution to wall heat fluxes
+                self.power += timestep_df[res_key + (
+                    'Surface Inside Face Solar Radiation Heat Gain Rate per '
+                    'Area [W/m2](Hourly)')] * self.bound_area
+                self.heat_flux += timestep_df[res_key + (
+                    'Surface Inside Face Solar Radiation Heat Gain Rate per Area [W/m2](Hourly)')]
         else:
             self.power = timestep_df[res_key + (
                 'Surface Window Net Heat Transfer '
                 'Rate [W](Hourly)')]
-            # remove solar load  for realistic window surface bc
+            # remove solar load for realistic window surface bc
             self.power -= timestep_df[res_key + ('Surface Window '
                                                  'Transmitted Solar '
                                                  'Radiation Rate [W]('
@@ -114,6 +121,7 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
             qr = 'qr'
         fixed_faces = ['INNER']
         if not self.add_solar_radiation:
+            # solar radiation often hits the floor and should be visible
             fixed_faces.append('FLOOR')
         if no_heatloss:
             pass

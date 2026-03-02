@@ -44,7 +44,6 @@ class SetOpenFOAMBoundaryConditions(ITask):
                           add_floor_heating=False):
         stl_bounds = filter_elements(openfoam_elements, 'StlBound')
         timestep_df = openfoam_case.timestep_df
-        # todo: check solar load calcs
         if self.playground.sim_settings.add_solar_radiation:
             openfoam_case.solar_azimuth_angle = timestep_df.filter(
                 like='Solar Azimuth Angle').values[0]
@@ -62,19 +61,12 @@ class SetOpenFOAMBoundaryConditions(ITask):
                                                   ':' + (
                                                       'Zone Mean Air Temperature [C]('
                                                       'Hourly)')] + 273.15
-        window_solar_heat_gains = 0
         for bound in stl_bounds:
             bound.read_boundary_conditions(timestep_df,
                                            openfoam_case.current_zone.air_temp,
                                            self.playground.sim_settings.add_solar_radiation)
             openfoam_case.current_zone.zone_heat_conduction += (
                     bound.bound_area * bound.heat_flux)
-            # add gains from solar radiation if activated
-            if (self.playground.sim_settings.add_solar_radiation and
-                    bound.bound_element_type == "Window"):
-                res_key = bound.guid.upper() + ':'
-                window_solar_heat_gains += timestep_df[res_key + (
-                    'Surface Window Transmitted Solar Radiation Rate [W](Hourly)')]
         # compute internal gains
         people = filter_elements(openfoam_elements, 'People')
         # todo: add other internal gains from equipment etc.
@@ -85,10 +77,6 @@ class SetOpenFOAMBoundaryConditions(ITask):
             openfoam_case.current_zone.zone_heat_conduction)
         if self.playground.sim_settings.level_heat_balance:
             openfoam_case.required_heating_power += openfoam_case.internal_gains
-            # add solar radiation from windows which is either provided as
-            # part of the window's heat flux or directly including solar
-            # radiation
-            openfoam_case.required_heating_power += window_solar_heat_gains
             if openfoam_case.required_heating_power > 0:
                 openfoam_case.required_cooling_power = (
                     openfoam_case.required_heating_power)
@@ -759,7 +747,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
             wall_AEModel = {'type': 'constantAbsorption', 'absorptivity':
                 '0.90', 'emissivity': '0.85'}
             window_AEModel = {'type': 'constantAbsorption', 'absorptivity':
-                '0.0', 'emissivity': '1.0'}
+                '0.1', 'emissivity': '0.9'}
             wallProperties = {'type': 'opaqueDiffusive',
                               'wallAbsorptionEmissionModel': wall_AEModel}
             windowProperties = {'type': 'transparent',
@@ -857,10 +845,9 @@ class SetOpenFOAMBoundaryConditions(ITask):
         sun_dir_str = ('(' + str(sun_dir[0]) + ' ' + str(sun_dir[1]) + ' ' +
                        str(sun_dir[2]) + ')')
         rP.values['solarLoadCoeffs'].update({'sunDirection': sun_dir_str})
-        rP.values['solarLoadCoeffs'].update({'directSolarRad': 2 *
-                                                               openfoam_case.direct_solar_rad})
-        rP.values['solarLoadCoeffs'].update({'diffuseSolarRad': 2 *
-                                                 openfoam_case.diffuse_solar_rad})
+        # todo: Strahlungswerte hier verdoppeln um OF Bug auszugleichen?
+        rP.values['solarLoadCoeffs'].update({'directSolarRad': openfoam_case.direct_solar_rad})
+        rP.values['solarLoadCoeffs'].update({'diffuseSolarRad': openfoam_case.diffuse_solar_rad})
         openfoam_case.radiationProperties.save(
             openfoam_case.openfoam_dir)
 
