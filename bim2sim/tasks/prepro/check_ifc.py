@@ -769,10 +769,10 @@ class CheckLogicBPS(CheckLogicBase):
 
     @staticmethod
     def _check_inner_boundaries(bound: ifcos.entity_instance):
-        """
+        """Check abtence of the surface and their structure.
+
         Check if the surface on relating element of a space boundary inner
         boundaries don't exists or are composite curves.
-
         Args:
             bound: Space boundary IFC instance
 
@@ -783,12 +783,14 @@ class CheckLogicBPS(CheckLogicBase):
         if bound.ConnectionGeometry is not None:
             return (bound.ConnectionGeometry.SurfaceOnRelatingElement.
                     InnerBoundaries is None) or \
-                   (i.is_a('IfcCompositeCurve') for i in bound.ConnectionGeometry.
-                       SurfaceOnRelatingElement.InnerBoundaries)
+                   (i.is_a('IfcCompositeCurve') for i in bound.
+                    ConnectionGeometry.SurfaceOnRelatingElement.
+                    InnerBoundaries)
 
     @staticmethod
     def _check_outer_boundary_composite(bound: ifcos.entity_instance):
-        """
+        """Check if the surface are composite curves.
+
         Check if the surface on relating element of a space boundary outer
         boundaries are composite curves.
 
@@ -804,7 +806,8 @@ class CheckLogicBPS(CheckLogicBase):
 
     @staticmethod
     def _check_segments(bound: ifcos.entity_instance):
-        """
+        """Check if the surface are polyline.
+
         Check if the surface on relating element of a space boundary outer
         boundaries segments are polyline.
 
@@ -821,8 +824,7 @@ class CheckLogicBPS(CheckLogicBase):
 
     @staticmethod
     def _check_coords(points: ifcos.entity_instance):
-        """
-        Check coordinates of a group of points (class and length).
+        """Check coordinates of a group of points (class and length).
 
         Args:
             points: Points IFC instance
@@ -836,8 +838,7 @@ class CheckLogicBPS(CheckLogicBase):
 
     @staticmethod
     def _check_dir_ratios(dir_ratios: ifcos.entity_instance):
-        """
-        Check length of direction ratios.
+        """Check length of direction ratios.
 
         Args:
             dir_ratios: direction ratios IFC instance
@@ -850,8 +851,7 @@ class CheckLogicBPS(CheckLogicBase):
 
     @classmethod
     def _check_poly_points_coord(cls, polyline: ifcos.entity_instance):
-        """
-        Check if a polyline has the correct coordinates.
+        """Check if a polyline has the correct coordinates.
 
         Args:
             polyline: Polyline IFC instance
@@ -864,7 +864,8 @@ class CheckLogicBPS(CheckLogicBase):
 
     @classmethod
     def _check_segments_poly_coord(cls, bound: ifcos.entity_instance):
-        """
+        """Check segments coordinates.
+
         Check segments coordinates of an outer boundary of a surface on
         relating element.
 
@@ -882,8 +883,7 @@ class CheckLogicBPS(CheckLogicBase):
 
     @staticmethod
     def _check_poly_points(polyline: ifcos.entity_instance):
-        """
-        Check if a polyline has the correct class.
+        """Check if a polyline has the correct class.
 
         Args:
             polyline: Polyline IFC instance
@@ -892,13 +892,11 @@ class CheckLogicBPS(CheckLogicBase):
             True: if check succeeds
             False: if check fails
         """
-        # print(polyline)
         return polyline.is_a('IfcPolyline')
 
     @classmethod
     def _check_outer_boundary_poly(cls, bound: ifcos.entity_instance):
-        """
-        Check points of outer boundary of a surface on relating element.
+        """Check points of outer boundary of a surface on relating element.
 
         Args:
             bound: Space boundary IFC instance
@@ -912,8 +910,7 @@ class CheckLogicBPS(CheckLogicBase):
 
     @staticmethod
     def _check_outer_boundary_poly_coord(bound: ifcos.entity_instance):
-        """
-        Check outer boundary of a surface on relating element.
+        """Check outer boundary of a surface on relating element.
 
         Args:
             bound: Space boundary IFC instance
@@ -957,8 +954,7 @@ class CheckLogicBPS(CheckLogicBase):
 
     @staticmethod
     def _check_axis(bound: ifcos.entity_instance):
-        """
-        Check that axis of space boundary is an IfcDirection.
+        """Check that axis of space boundary is an IfcDirection.
 
         Args:
             bound: Space boundary IFC instance
@@ -972,8 +968,7 @@ class CheckLogicBPS(CheckLogicBase):
 
     @staticmethod
     def _check_refdirection(bound: ifcos.entity_instance):
-        """
-        Check that reference direction of space boundary is an IfcDirection.
+        """Check that reference direction of space boundary is an IfcDirection.
 
         Args:
             bound: Space boundary IFC instance
@@ -987,7 +982,8 @@ class CheckLogicBPS(CheckLogicBase):
 
     @classmethod
     def _check_location_coord(cls, bound: ifcos.entity_instance):
-        """
+        """Check the correctness of related coordinates.
+
         Check if space boundary surface on relating element coordinates are
         correct.
 
@@ -997,6 +993,7 @@ class CheckLogicBPS(CheckLogicBase):
         Returns:
             True: if check succeeds
             False: if check fails
+
         """
         return cls._check_coords(bound.ConnectionGeometry.
                                  SurfaceOnRelatingElement.BasisSurface.
@@ -1004,7 +1001,8 @@ class CheckLogicBPS(CheckLogicBase):
 
     @classmethod
     def _check_axis_dir_ratios(cls, bound: ifcos.entity_instance):
-        """
+        """Check correctness of space boundary surface.
+
         Check if space boundary surface on relating element axis are correct.
 
         Args:
@@ -1020,7 +1018,8 @@ class CheckLogicBPS(CheckLogicBase):
 
     @classmethod
     def _check_refdirection_dir_ratios(cls, bound: ifcos.entity_instance):
-        """
+        """Check correctness of space boundary surface.
+
         Check if space boundary surface on relating element reference direction
         are correct.
 
@@ -1037,7 +1036,8 @@ class CheckLogicBPS(CheckLogicBase):
 
     @staticmethod
     def _check_inst_sb(inst: ifcos.entity_instance):
-        """
+        """Check association of an instance.
+
         Check that an instance has associated space boundaries (space or
         building element).
 
@@ -1073,8 +1073,7 @@ class CheckLogicBPS(CheckLogicBase):
 
     @staticmethod
     def _check_inst_materials(inst: ifcos.entity_instance):
-        """
-        Check that an instance has associated materials.
+        """Check that an instance has associated materials.
 
         Args:
             inst: IFC instance
@@ -1091,10 +1090,10 @@ class CheckLogicBPS(CheckLogicBase):
         return True
 
     def _check_inst_properties(self, inst: ifcos.entity_instance):
-        """
+        """Check exixtence of necessary property sets and properties.
+
         Check that an instance has the property sets and properties
         necessaries to the plugin.
-
         Args:
             inst: IFC instance
 
@@ -1121,8 +1120,7 @@ class CheckLogicBPS(CheckLogicBase):
 
     @staticmethod
     def _check_inst_contained_in_structure(inst: ifcos.entity_instance):
-        """
-        Check that an instance is contained in an structure.
+        """Check that an instance is contained in an structure.
 
         Args:
             inst: IFC instance
@@ -1164,7 +1162,8 @@ class CheckLogicBPS(CheckLogicBase):
         return True
 
     def validate_sub_inst(self, bound: ifcos.entity_instance) -> list:
-        """
+        """Validate space boundary.
+
         Validation function for a space boundary that compiles all validation
         functions.
 
@@ -1192,7 +1191,8 @@ class CheckLogicBPS(CheckLogicBase):
         self.apply_validation_function(self._check_on_relating_elem(bound),
                                        'SurfaceOnRelatingElement - '
                                        'The space boundary does not have a '
-                                       'surface on the relating element', error)
+                                       'surface on the relating element',
+                                       error)
         self.apply_validation_function(self._check_on_related_elem(bound),
                                        'SurfaceOnRelatedElement - '
                                        'The space boundary does not have a '
@@ -1209,8 +1209,8 @@ class CheckLogicBPS(CheckLogicBase):
                                        'missing',  error)
         if bound.ConnectionGeometry is not None:
             if hasattr(
-                    bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary,
-                    'Segments'):
+                    bound.ConnectionGeometry.SurfaceOnRelatingElement.
+                    OuterBoundary, 'Segments'):
                 self.apply_validation_function(
                     self._check_outer_boundary_composite(bound),
                     'OuterBoundary - '
@@ -1219,66 +1219,72 @@ class CheckLogicBPS(CheckLogicBase):
                 self.apply_validation_function(self._check_segments(bound),
                                                'OuterBoundary Segments - '
                                                'The space boundary surface on '
-                                               'relating element outer boundary '
+                                               'relating element outer '
+                                               'boundary '
                                                'geometry is missing', error)
                 self.apply_validation_function(
                     self._check_segments_poly_coord(bound),
                     'OuterBoundary Coordinates - '
-                    'The space boundary surface on relating element outer boundary '
-                    'coordinates are missing', error)
+                    'The space boundary surface on relating element outer '
+                    'boundary coordinates are missing', error)
             else:
                 self.apply_validation_function(
                     self._check_outer_boundary_poly(bound),
                     'OuterBoundary - '
-                    'The space boundary surface on relating element outer boundary '
-                    'is missing', error)
+                    'The space boundary surface on relating element outer '
+                    'boundary is missing', error)
                 self.apply_validation_function(
                     self._check_outer_boundary_poly_coord(bound),
                     'OuterBoundary Coordinates - '
-                    'The space boundary surface on relating element outer boundary '
-                    'coordinates are missing', error)
+                    'The space boundary surface on relating element outer '
+                    'boundary coordinates are missing', error)
             self.apply_validation_function(self._check_plane_position(bound),
                                            'Position - '
-                                           'The space boundary surface on relating '
+                                           'The space boundary surface on'
+                                           'relating '
                                            'element plane position is missing',
                                            error)
             self.apply_validation_function(self._check_location(bound),
                                            'Location - '
-                                           'The space boundary surface on relating '
-                                           'element location is missing', error)
+                                           'The space boundary surface on '
+                                           'relating element location is '
+                                           'missing', error)
             self.apply_validation_function(self._check_axis(bound),
                                            'Axis - '
-                                           'The space boundary surface on relating '
+                                           'The space boundary surface on'
+                                           'relating '
                                            'element axis are missing',
                                            error)
             self.apply_validation_function(self._check_refdirection(bound),
                                            'RefDirection - '
-                                           'The space boundary surface on relating '
+                                           'The space boundary surface on '
+                                           'relating '
                                            'element reference direction is '
                                            'missing', error)
             self.apply_validation_function(self._check_location_coord(bound),
                                            'LocationCoordinates - '
-                                           'The space boundary surface on relating '
+                                           'The space boundary surface on'
+                                           'relating '
                                            'element location coordinates are '
                                            'missing', error)
             self.apply_validation_function(self._check_axis_dir_ratios(bound),
                                            'AxisDirectionRatios - '
-                                           'The space boundary surface on relating '
+                                           'The space boundary surface on '
+                                           'relating '
                                            'element axis direction ratios are '
                                            'missing', error)
             self.apply_validation_function(
-                                           self._check_refdirection_dir_ratios(bound),
-                                          'RefDirectionDirectionRatios - '
-                                          'The space boundary surface on relating element position '
-                                          'reference direction is missing', error)
+                self._check_refdirection_dir_ratios(bound),
+                'RefDirectionDirectionRatios - '
+                'The space boundary surface on relating element position '
+                'reference direction is missing', error)
         return error
 
-
     def validate_elements(self, inst: ifcos.entity_instance) -> list:
-        """
+        """Validate elements.
+
         Validation function for an instance that compiles all instance
         validation functions.
-
         Args:
             inst:IFC instance being checked
 
@@ -1299,10 +1305,11 @@ class CheckLogicBPS(CheckLogicBase):
                                        'Missing Property_Sets - '
                                        'One or more instance\'s necessary '
                                        'property sets are missing', error)
-        self.apply_validation_function(self._check_inst_contained_in_structure(inst),
-                                       'ContainedInStructure - '
-                                       'The instance is not contained in any '
-                                       'structure', error)
+        self.apply_validation_function(
+            self._check_inst_contained_in_structure(inst),
+            'ContainedInStructure - '
+            'The instance is not contained in any '
+            'structure', error)
         self.apply_validation_function(self._check_inst_representation(inst),
                                        'Representation - '
                                        'The instance has no geometric '
@@ -1315,8 +1322,7 @@ class CheckLogicHVAC(CheckLogicBase):
 
     @staticmethod
     def _check_assignments(inst: ifcos.entity_instance) -> bool:
-        """
-        Check that the inst (also spec. port) has at least one assignment.
+        """Check that the inst (also spec. port) has at least one assignment.
 
         Args:
             port: port ifc entity
@@ -1330,8 +1336,7 @@ class CheckLogicHVAC(CheckLogicBase):
 
     @staticmethod
     def _check_connection(port: ifcos.entity_instance) -> bool:
-        """
-        Check that the port is: "connected_to" or "connected_from".
+        """Check that the port is: "connected_to" or "connected_from".
 
         Args:
             port: port ifc entity
@@ -1359,8 +1364,7 @@ class CheckLogicHVAC(CheckLogicBase):
     # elements check
     @staticmethod
     def _check_inst_ports(inst: ifcos.entity_instance) -> bool:
-        """
-        Check that an instance has associated ports.
+        """Check that an instance has associated ports.
 
         Args:
             inst: IFC instance
@@ -1377,8 +1381,7 @@ class CheckLogicHVAC(CheckLogicBase):
 
     @staticmethod
     def _check_contained_in_structure(inst: ifcos.entity_instance) -> bool:
-        """
-        Check that an instance is contained in an structure.
+        """Check that an instance is contained in an structure.
 
         Args:
             inst: IFC instance
@@ -1393,10 +1396,10 @@ class CheckLogicHVAC(CheckLogicBase):
             return False
 
     def _check_inst_properties(self, inst: ifcos.entity_instance):
-        """
+        """Check necessaries property sets and properties.
+
         Check that an instance has the property sets and properties
         necessaries to the plugin.
-
         Args:
             inst: IFC instance
 
@@ -1423,8 +1426,7 @@ class CheckLogicHVAC(CheckLogicBase):
 
     @staticmethod
     def _check_inst_representation(inst: ifcos.entity_instance):
-        """
-        Check that an instance has a correct geometric representation.
+        """Check that an instance has a correct geometric representation.
 
         Args:
             inst: IFC instance
@@ -1439,8 +1441,7 @@ class CheckLogicHVAC(CheckLogicBase):
             return False
 
     def validate_sub_inst(self, port: ifcos.entity_instance) -> list:
-        """
-        Runs validation functions for a port
+        """Run validation functions for a port.
 
         Args:
             port: IFC port entity
@@ -1463,8 +1464,10 @@ class CheckLogicHVAC(CheckLogicBase):
         return error
 
     def validate_elements(self, inst: ifcos.entity_instance) -> list:
-        """
-        Validation function for an instance that compiles all instance validation functions.
+        """Validate elements (carrier function).
+
+        Validation function for an instance that compiles all instance
+        validation functions.
 
         Args:
             inst: IFC instance being checked
@@ -1478,10 +1481,11 @@ class CheckLogicHVAC(CheckLogicBase):
         self.apply_validation_function(self._check_inst_ports(inst),
                                        'Ports - '
                                        'The instance ports are missing', error)
-        self.apply_validation_function(self._check_contained_in_structure(inst),
-                                       'ContainedInStructure - '
-                                       'The instance is not contained in any '
-                                       'structure', error)
+        self.apply_validation_function(
+            self._check_contained_in_structure(inst),
+            'ContainedInStructure - '
+            'The instance is not contained in any '
+            'structure', error)
         self.apply_validation_function(self._check_inst_properties(inst),
                                        'Missing Property_Sets - '
                                        'One or more instance\'s necessary '
@@ -1495,5 +1499,7 @@ class CheckLogicHVAC(CheckLogicBase):
                                        'The instance assignments are missing',
                                        error)
         return error
+
+
 if __name__ == '__main__':
     pass
