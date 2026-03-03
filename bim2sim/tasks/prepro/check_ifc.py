@@ -32,13 +32,14 @@ from bim2sim.utilities.types import IFCDomain
 from bim2sim import __file__ as bs_file
 from bim2sim.tasks.common.load_ifc import extract_ifc_file_names
 
+
 class CheckIfc(ITask):
-    """
-    Check ifc files for their quality regarding simulation.
-    """
+    """Check ifc files for their quality regarding simulation."""
+
     reads = ('ifc_files',)
 
     def __init__(self, playground: Playground):
+        """Intitilize CheckIFC."""
         super().__init__(playground)
         self.error_summary_sub_inst: dict = {}
         self.error_summary_inst: dict = {}
@@ -59,23 +60,23 @@ class CheckIfc(ITask):
 
     def run(self, ifc_files: [IfcFileClass]):
         """
-        Analyzes sub_elements and elements of an IFC file for the validation
-        functions and export the errors found as .html files.
+        Analyzes sub_elements and elements of an IFC file.
 
-         Args:
-            ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc
-                instance
+        Therefore validation functions check ifc files and export the errors
+        found as .html files.
 
-        Returns:
+        It creates following reports:
             error_summary_sub_inst: summary of errors related to sub_elements
             error_summary_inst: summary of errors related to elements
             error_summary_prop: summary of missing properties
             error_summary_guid: summary of GUID errors
             ifc_ids_check: results of checks based on IDS file
 
+        Args:
+            ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc
+                instance
         """
-
-        self.logger.info(f"Processing IFC Checks with ifcTester")
+        self.logger.info("Processing IFC Checks with ifcTester")
 
         base_path = self.paths.ifc_base
 
@@ -87,7 +88,7 @@ class CheckIfc(ITask):
         # ids check call start
         if self.playground.sim_settings.ids_file_path is None:
             self.logger.critical("Default ids file is used, pls set " +
-                                  "project.sim_settings.ids_file_path!")
+                                 "project.sim_settings.ids_file_path!")
             self.playground.sim_settings.ids_file_path = (
                 Path(bs_file).parent /
                 'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
@@ -101,13 +102,15 @@ class CheckIfc(ITask):
 
             if all_spec_pass:
                 self.logger.info(
-                    "all checks of the specifications of this IDS pass: {}".format(all_spec_pass))
+                    "all checks of the specifications of this IDS pass: " +
+                    "{}".format(all_spec_pass))
             else:
                 self.logger.warning(
-                    "all checks of the specifications of this IDS pass: {}".format(all_spec_pass))
+                    "all checks of the specifications of this IDS pass: " +
+                    "{}".format(all_spec_pass))
         # ids check call end
-        
-        self.logger.info(f"Processing IFC Checks without ifcTester")
+
+        self.logger.info("Processing IFC Checks without ifcTester")
 
         paths = self.paths
         for ifc_file in ifc_files:
@@ -116,27 +119,38 @@ class CheckIfc(ITask):
             # Not pretty but works. This might be refactored in #170
 
             # check uniqueness of GUIDs
-            self.all_guids_unique, self.double_guids = CheckLogicBase.run_check_guid_unique(ifc_file)
+            self.all_guids_unique, self.double_guids = (
+                CheckLogicBase.run_check_guid_unique(ifc_file)
+                )
             list_guids_non_unique = list(self.double_guids.keys())
-            self.logger.info("the GUIDs of all elements are unique: {}".format(self.all_guids_unique))
+            self.logger.info("the GUIDs of all elements are unique: " +
+                             "{}".format(self.all_guids_unique))
             if self.all_guids_unique is False:
-                self.logger.critical("non-unique GUIDs: {}".format(list_guids_non_unique))
+                self.logger.critical("non-unique GUIDs: " +
+                                     "{}".format(list_guids_non_unique))
             # check emptyness of GUID fields
-            self.all_guids_filled, self.empty_guids = CheckLogicBase.run_check_guid_empty(ifc_file)
+            self.all_guids_filled, self.empty_guids = (
+                CheckLogicBase.run_check_guid_empty(ifc_file)
+                )
             list_guids_empty = list(self.empty_guids.keys())
-            self.logger.info("the GUIDs of all elements are filled (NOT empty): {}".format(self.all_guids_filled))
+            self.logger.info("the GUIDs of all elements are filled " +
+                             "(NOT empty): {}".format(self.all_guids_filled))
             if self.all_guids_filled is False:
                 self.logger.critical("empty GUIDs: {}".format(list_guids_empty))
             # check ifc version
-            self.version_error, self.ifc_version = CheckLogicBase.run_check_ifc_version(ifc_file)
+            self.version_error, self.ifc_version = (
+                CheckLogicBase.run_check_ifc_version(ifc_file)
+                )
             # for doc string
             #   Logs:
             #       critical: if loaded IFC is not IFC4
             if self.version_error:
-                self.logger.critical(f"ifc Version is not fitting. Should be IFC4, but here: " + self.ifc_version)
+                self.logger.critical("ifc Version is not fitting. " +
+                                     "Should be IFC4, but here: " +
+                                     self.ifc_version)
 
             if ifc_file.domain == IFCDomain.hydraulic:
-                self.logger.info(f"Processing HVAC-IfcCheck")  # todo
+                self.logger.info("Processing HVAC-IfcCheck")
                 # used for preparing data for checking, is filder keyword
                 self.sub_inst_cls = 'IfcDistributionPort'
                 self.plugin = hvac
@@ -146,12 +160,12 @@ class CheckIfc(ITask):
                 self.ifc_units = ifc_file.ifc_units
                 # checking itself
                 chlhvac = CheckLogicHVAC(self.sub_inst, self.elements,
-                                       self.ps_summary, self.ifc_units)
+                                         self.ps_summary, self.ifc_units)
                 self.error_summary_sub_inst = chlhvac.check_inst_sub()
                 self.error_summary_inst = chlhvac.check_elements()
 
             elif ifc_file.domain == IFCDomain.arch:
-                self.logger.info(f"Processing BPS-IfcCheck")  # todo
+                self.logger.info("Processing BPS-IfcCheck")
                 # used for preparing data for checking, is filder keyword
                 self.sub_inst_cls = 'IfcRelSpaceBoundary'
                 self.plugin = bps
@@ -164,11 +178,8 @@ class CheckIfc(ITask):
                                        self.ps_summary, self.ifc_units)
                 self.error_summary_sub_inst = chlbps.check_inst_sub()
                 self.error_summary_inst = chlbps.check_elements()
-                self.error_summary_prop = chlbps.error_summary_prop  # TODO not nice,
-                                                                     # better
-                                                                     # transfer
-                                                                     # from class
-                self.paths = paths  # TODO needed in if loop, here need better solution
+                self.error_summary_prop = chlbps.error_summary_prop
+                self.paths = paths
             elif ifc_file.domain == IFCDomain.unknown:
                 self.logger.info(f"No domain specified for ifc file "
                                  f"{ifc_file.ifc_file_name}, not processing "
@@ -186,16 +197,16 @@ class CheckIfc(ITask):
             self._write_errors_to_html_table(base_name, ifc_file.domain)
 
     def get_relevant_elements(self, ifc: ifcos.file):
-        """
-        Gets all relevant ifc elements based on the plugin's classes that
-        represent an IFCProduct
+        """Get all relevant ifc elements.
+
+        This function based on the plugin's classes that
+        represent an IFCProduct.
 
         Args:
             ifc: IFC file translated with ifcopenshell
 
         Returns:
             ifc_elements: list of IFC instance (Products)
-
         """
         relevant_ifc_types = list(self.ps_summary.keys())
         ifc_elements = []
@@ -205,9 +216,9 @@ class CheckIfc(ITask):
 
     @staticmethod
     def _get_ifc_type_classes(plugin: types.ModuleType):
-        """
-        Gets all the classes of a plugin, that represent an IFCProduct,
-        and organize them on a dictionary for each ifc_type
+        """Get all the classes of a plugin that represent an IFCProduct.
+
+        Furthermore, organize them on a dictionary for each ifc_type.
         Args:
             plugin: plugin used in the check tasks (bps or hvac)
 
@@ -234,16 +245,16 @@ class CheckIfc(ITask):
 
     @classmethod
     def _get_class_property_sets(cls, plugin: types.ModuleType) -> Dict:
-        """
-        Gets all property sets and properties required for bim2sim for all
-        classes of a plugin, that represent an IFCProduct, and organize them on
-        a dictionary for each ifc_type
-        Args:
-            plugin: plugin used in the check tasks (bps or hvac)
+        """Get all property sets and properties.
+
+        Which are required for bim2sim for all classes of a plugin, that
+        represent an IFCProduct, and organize them on a dictionary for each
+        ifc_type Args: plugin: plugin used in the check tasks (bps or hvac)
 
         Returns:
             ps_summary: dictionary containing all the ifc_types on the
             plugin with the corresponding property sets
+
         """
         ps_summary = {}
         cls_summary = cls._get_ifc_type_classes(plugin)
@@ -257,11 +268,14 @@ class CheckIfc(ITask):
         return ps_summary
 
     def validate_sub_inst(self, sub_inst: list) -> list:
+        """Raise NotImplemented Error."""
         raise NotImplementedError
 
     @staticmethod
-    def run_ids_check_on_ifc(ifc_file: str, ids_file: str, report_html: bool = False, log_path: str = None) -> bool:
-        """run check on IFC file based on IDS
+    def run_ids_check_on_ifc(ifc_file: str, ids_file: str,
+                             report_html: bool = False,
+                             log_path: str = None) -> bool:
+        """Run check on IFC file based on IDS.
 
         print the check of specifications pass(true) or fail(false)
         and the name of the specification
@@ -270,7 +284,7 @@ class CheckIfc(ITask):
         Input:
             ifc_file: path of the IFC file, which is checked
             ids_file: path of the IDS file, which includes the specifications
-            log_path: path of the log folder as part of the project structur 
+            log_path: path of the log folder as part of the project structur
             report_html: generate, save and open the report about checking
                          default = False
         Returns:
@@ -298,9 +312,9 @@ class CheckIfc(ITask):
         return all_spec_pass
 
     def get_html_templates(self):
-        """
-        Gets all stored html templates that will be used to export the errors
-        summaries
+        """Get all stored html templates.
+
+        Which will be used to export the errors summaries.
 
         Returns:
             templates: dictionary containing all error html templates
@@ -325,8 +339,9 @@ class CheckIfc(ITask):
 
     @staticmethod
     def _categorize_errors(error_dict: dict):
-        """
-        categorizes the resulting errors in a dictionary containing two groups:
+        """Categorizes the resulting errors in a dictionary.
+
+        This dictionary contains two groups:
             'per_error' where the key is the error name and the value is the
                 number of errors with this name
             'per type' where the key is the ifc_type and the values are the
@@ -336,7 +351,6 @@ class CheckIfc(ITask):
 
         Returns:
             categorized_dict: dictionary containing all errors categorized
-
         """
         categorized_dict = {'per_error': {}, 'per_type': {}}
         for instance, errors in error_dict.items():
@@ -356,8 +370,7 @@ class CheckIfc(ITask):
         return categorized_dict
 
     def _write_errors_to_html_table(self, base_name: str, domain: IFCDomain):
-        """
-        Writes all errors in the html templates in a summarized way
+        """Write all errors in the html templates in a summarized way.
 
         Args:
             base_name: str of file base name for reports
@@ -399,11 +412,11 @@ class CheckIfc(ITask):
                   '_error_summary.html', 'w+') as out_file:
             out_file.write(templates["summary_template"].render_unicode(
                 ifc_version=self.ifc_version,
-                version_error = self.version_error,
-                all_guids_unique = self.all_guids_unique,
-                double_guids = self.double_guids,
-                all_guids_filled = self.all_guids_filled,
-                empty_guids = self.empty_guids,
+                version_error=self.version_error,
+                all_guids_unique=self.all_guids_unique,
+                double_guids=self.double_guids,
+                all_guids_filled=self.all_guids_filled,
+                empty_guids=self.empty_guids,
                 task=self,
                 plugin_name=domain.name.upper(),
                 base_name=base_name[1:],
@@ -420,8 +433,8 @@ class CheckIfc(ITask):
                 out_file:
             out_file.write(templates["guid_template"].render_unicode(
                 task=self,
-                double_guids = self.double_guids,
-                empty_guids = self.empty_guids,
+                double_guids=self.double_guids,
+                empty_guids=self.empty_guids,
                 summary_inst=summary_inst,
                 summary_sbs=summary_sbs,
                 all_errors=all_errors))
@@ -442,16 +455,17 @@ class CheckLogicBase():
     """
 
     def __init__(self, extract_data, elements, ps_summary, ifc_units):
+        """Initialize class."""
         self.space_ndicator = True
         # filered data, which will be processed
         self.extract_data = extract_data
         self.elements = elements
         self.ps_summary = ps_summary
         self.ifc_units = ifc_units
-        self.error_summary_prop: dict = {}  # TODO only as tempopry solution >> needs
-                                            # to transfer to out of the class
+        self.error_summary_prop: dict = {}
+
     def run_check_guid_unique(ifc_file) -> (bool, dict):
-        """check the uniqueness of the guids of the IFC file
+        """Check the uniqueness of the guids of the IFC file.
 
         Here the bijective uniqueness is check, but also
         the uniqueness of modified guids by transforming
@@ -467,14 +481,15 @@ class CheckLogicBase():
            double_guid: dict
 
         """
-        used_guids: dict[str, ifcos.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
-        double_guids: dict[str, ifcos.entity_instance] = dict() # dict of elements with guids, which are not unique
+        # dict of all elements with guids used in the checked ifc model
+        used_guids: dict[str, ifcos.entity_instance] = dict()
+        # dict of elements with guids, which are not unique
+        double_guids: dict[str, ifcos.entity_instance] = dict()
         all_guids_unique = True
         used_guids_upper = []  # to store temporally guid in uppercase letters
         for inst in ifc_file.file:
             if hasattr(inst, "GlobalId"):
                 guid = inst.GlobalId
-                name = inst.Name
                 # print(guid)
                 upper_guid = guid.upper()
                 # print(upper_guid)
@@ -504,9 +519,9 @@ class CheckLogicBase():
         return (all_guids_unique, double_guids)
 
     def run_check_guid_empty(ifc_file) -> (bool, dict):
-        """check it there is/are guid/s, which is/are empty in the IFC file
+        """Check it there is/are guid/s, which is/are empty in the IFC file.
 
-        Input:
+        Args:
             ifc_file: path of the IFC file, which is checked
 
         Returns:
@@ -515,32 +530,32 @@ class CheckLogicBase():
                            false: one or more guids has not value (empty))
 
            empty_guid: dict
-
         """
-
-        used_guids: dict[str, ifcos.entity_instance] = dict() # dict of all elements with guids used in the checked ifc model
-        empty_guids: dict[str, ifcos.entity_instance] = dict() # dict of elements with guids, which are empty
+        # dict of all elements with guids used in the checked ifc model
+        used_guids: dict[str, ifcos.entity_instance] = dict()
+        # dict of elements with guids, which are empty
+        empty_guids: dict[str, ifcos.entity_instance] = dict()
         all_guids_filled = True
-        guid_empty_no = 0 # count the number of guids without value (empty), this number is used to make unique identifier
+        # count the number of guids without value (empty), this number is used
+        # to make unique identifier
+        guid_empty_no = 0
         for inst in ifc_file.file:
-           if hasattr(inst, "GlobalId"):
-               guid = inst.GlobalId
-               name = inst.Name
-               if guid == '':
-                   all_guids_filled = False
-                   guid_empty_no = guid_empty_no + 1
-                   name_dict = name + '--' + str(guid_empty_no)
-                   empty_guids[name_dict] = inst
-               else:
-                   used_guids[guid] = inst
+            if hasattr(inst, "GlobalId"):
+                guid = inst.GlobalId
+                name = inst.Name
+                if guid == '':
+                    all_guids_filled = False
+                    guid_empty_no = guid_empty_no + 1
+                    name_dict = name + '--' + str(guid_empty_no)
+                    empty_guids[name_dict] = inst
+                else:
+                    used_guids[guid] = inst
 
         return (all_guids_filled, empty_guids)
 
-
     @staticmethod
     def run_check_ifc_version(ifc: ifcos.file) -> (bool, str):
-        """
-        Checks the IFC version.
+        """Check the IFC version.
 
         Only IFC4 files are valid for bim2sim.
 
@@ -548,23 +563,19 @@ class CheckLogicBase():
 
         Args:
             ifc: ifc file loaded with IfcOpenShell
-        Return:
+        Returns:
             version_error: True if version NOT fit
             ifc_version: version of the ifc file
         """
         schema = ifc.schema
         if "IFC4" not in schema:
             version_error = True
-            # raise TypeError(f"Loaded IFC file is of type {schema} but only IFC4"
-            #                 f"is supported. Please ask the creator of the model"
-            #                 f" to provide a valid IFC4 file.")
         else:
             version_error = False
         return (version_error, schema)
 
-
     def check_inst_sub(self):
-        """Checks sub instances for errors.
+        """Check sub instances for errors.
 
         Based on functions in validate_sub_inst via check_inst
         """
@@ -573,7 +584,7 @@ class CheckLogicBase():
         return error_summary_sub_inst
 
     def check_elements(self):
-        """Checks elements for errors.
+        """Check elements for errors.
 
         Based on functions in validate_sub_inst via check_inst
         """
@@ -583,14 +594,18 @@ class CheckLogicBase():
 
     @staticmethod
     def check_inst(validation_function: Callable, elements: list):
-        """Uses sb_validation/ports/elements functions in order to check each
-        one and adds error to dictionary if object has errors. Combines the
-        (error) return of the specific validation function with the key (mostly
-        the GlobalID).
+        """Check each element lists.
 
-        Args: validation_function: function that compiles all the
-        validations to be performed on the object (sb/port/instance) elements:
-        list containing all objects to be evaluates
+        Use sb_validation/ports/elements functions to check elements
+        adds error to dictionary if object has errors. Combines the
+        (error) return of the specific validation function with the
+        key (mostly the GlobalID).
+
+        Args:
+            validation_function: function that compiles all the validations
+                                 to be performed on the object
+                                 (sb/port/instance)
+            elements: list containing all objects to be evaluates
 
         Returns:
             summary: summarized dictionary of errors, where the key is the
@@ -610,7 +625,8 @@ class CheckLogicBase():
 
     @staticmethod
     def apply_validation_function(fct: bool, err_name: str, error: list):
-        """
+        """Apply a validation to an instance, space boundary or port.
+
         Function to apply a validation to an instance, space boundary or
         port, it stores the error to the list of errors.
 
@@ -625,9 +641,7 @@ class CheckLogicBase():
 
     @staticmethod
     def _check_rel_space(bound: ifcos.entity_instance):
-        """
-        Check that the space boundary relating space exists and has the
-        correct class.
+        """Check the existenz of related space.
 
         Args:
             bound: Space boundary IFC instance
@@ -641,17 +655,18 @@ class CheckLogicBase():
              bound.RelatingSpace.is_a('IfcExternalSpatialElement')])
 
     def validate_sub_inst(self, sub_inst: list) -> list:
+        """Raise NotImplemented Error."""
         raise NotImplementedError
+
 
 class CheckLogicBPS(CheckLogicBase):
     """Provides additional logic for ifc files checking regarding BPS."""
 
-
     @staticmethod
     def _check_rel_space(bound: ifcos.entity_instance):
-        """
-        Check that the space boundary relating space exists and has the
-        correct class.
+        """Check existence of related space.
+
+        And has the correctness of class type.
 
         Args:
             bound: Space boundary IFC instance
@@ -666,9 +681,9 @@ class CheckLogicBPS(CheckLogicBase):
 
     @staticmethod
     def _check_rel_building_elem(bound: ifcos.entity_instance):
-        """
-        Check that the space boundary related building element exists and has
-        the correct class.
+        """Check existence of related building element.
+
+        And the correctness of class type.
 
         Args:
             bound: Space boundary IFC instance
@@ -682,9 +697,9 @@ class CheckLogicBPS(CheckLogicBase):
 
     @staticmethod
     def _check_conn_geom(bound: ifcos.entity_instance):
-        """
-        Check that the space boundary has a connection geometry and has the
-        correct class.
+        """Check that the space boundary has a connection geometry.
+
+        And the correctness of class type.
 
         Args:
             bound: Space boundary IFC instance
@@ -698,9 +713,10 @@ class CheckLogicBPS(CheckLogicBase):
 
     @staticmethod
     def _check_on_relating_elem(bound: ifcos.entity_instance):
-        """
-        Check that the surface on relating element of a space boundary has
-        the geometric information.
+        """Check geometric information.
+
+        Check that the surface on relating element of a space boundary has the
+        geometric information and the correctness of class type.
 
         Args:
             bound: Space boundary IFC instance
@@ -708,16 +724,18 @@ class CheckLogicBPS(CheckLogicBase):
         Returns:
             True: if check succeeds
             False: if check fails
+
         """
         if bound.ConnectionGeometry is not None:
             return bound.ConnectionGeometry.SurfaceOnRelatingElement.is_a(
-            'IfcCurveBoundedPlane')
+                'IfcCurveBoundedPlane')
 
     @staticmethod
     def _check_on_related_elem(bound: ifcos.entity_instance):
-        """
+        """Check absence of geometric information.
+
         Check that the surface on related element of a space boundary has no
-        geometric information.
+        geometric information and the correctness of class type.
 
         Args:
             bound: Space boundary IFC instance
@@ -733,9 +751,10 @@ class CheckLogicBPS(CheckLogicBase):
 
     @staticmethod
     def _check_basis_surface(bound: ifcos.entity_instance):
-        """
+        """Check representation by an IFC Place.
+
         Check that the surface on relating element of a space boundary is
-        represented by an IFC Place.
+        represented by an IFC Place and the correctness of class type.
 
         Args:
             bound: Space boundary IFC instance
