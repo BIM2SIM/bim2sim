@@ -8,6 +8,7 @@ from bim2sim.utilities.test import IntegrationBase
 from bim2sim.utilities.types import IFCDomain
 from bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck import PluginIFCCheck
 
+
 class IntegrationBaseIFCCheck(IntegrationBase):
     def model_domain_path(self) -> str:
         return 'arch'
@@ -19,7 +20,8 @@ class TestIntegrationIFCCheck(IntegrationBaseIFCCheck, unittest.TestCase):
         ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, PluginIFCCheck)
 
-        # assign an IDS file, which is needed to check the ifc file by ifctester
+        # assign an IDS file,
+        # which is needed to check the ifc file by ifctester
         project.sim_settings.ids_file_path = (
                 Path(bim2sim.__file__).parent /
                 'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
@@ -37,7 +39,8 @@ class TestIntegrationIFCCheck(IntegrationBaseIFCCheck, unittest.TestCase):
         ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus_with_SB55.ifc'}
         project = self.create_project(ifc_names, PluginIFCCheck)
 
-        # assign an IDS file, which is needed to check the ifc file by ifctester
+        # assign an IDS file,
+        # which is needed to check the ifc file by ifctester
         project.sim_settings.ids_file_path = (
                 Path(bim2sim.__file__).parent /
                 'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
@@ -60,7 +63,8 @@ class TestIntegrationIFCCheck(IntegrationBaseIFCCheck, unittest.TestCase):
         ifc_names = {IFCDomain.arch: ifc_3rooms_with_sb}
         project = self.create_project(ifc_names, PluginIFCCheck)
 
-        # assign an IDS file, which is needed to check the ifc file by ifctester
+        # assign an IDS file,
+        # which is needed to check the ifc file by ifctester
         project.sim_settings.ids_file_path = (
                 Path(bim2sim.__file__).parent /
                 'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
@@ -84,7 +88,8 @@ class TestIntegrationIFCCheck(IntegrationBaseIFCCheck, unittest.TestCase):
         ifc_names = {IFCDomain.arch: ifc_3rooms_with_sb_fail}
         project = self.create_project(ifc_names, PluginIFCCheck)
 
-        # assign an IDS file, which is needed to check the ifc file by ifctester
+        # assign an IDS file,
+        # which is needed to check the ifc file by ifctester
         project.sim_settings.ids_file_path = (
                 Path(bim2sim.__file__).parent /
                 'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'

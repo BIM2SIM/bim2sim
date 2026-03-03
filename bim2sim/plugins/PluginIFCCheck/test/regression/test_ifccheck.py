@@ -52,6 +52,7 @@ class Gen_xpath:
         xpath = self.xpath_incl_var.format(name_ele)
         return xpath
 
+
 class RegressionTestIFCCheck(RegressionTestBase):
     """Class to setup up nad run regression test of PluginIFCCheck"""
     def setUp(self):
@@ -108,7 +109,8 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         ifc_names = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
         project = self.create_project(ifc_names, PluginIFCCheck)
 
-        # assign an IDS file, which is needed to check the ifc file by ifctester
+        # assign an IDS file,
+        # which is needed to check the ifc file by ifctester
         project.sim_settings.ids_file_path = (
                 Path(bim2sim.__file__).parent /
                 'plugins/PluginIFCCheck/bim2sim_ifccheck/ifc_bps.ids'
@@ -133,21 +135,29 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         xpath_fail_perc = '//div[@class="fail percent"]'
         # create function for xpath generation
         xpath_ids_var = Gen_xpath(
-                xpath_incl_var = ('//p/span[@class="item" and ' +
-                                  'contains(normalize-space(.),"{}")]/ strong[{}]'))
+                xpath_incl_var = (
+                    '//p/span[@class="item" and ' +
+                    'contains(normalize-space(.),"{}")]/ strong[{}]'
+                ))
 
         # Specifications passed
-        xpath_spec_pass = xpath_ids_var.gen_xpath_name_pos("Specifications passed", 1)
+        xpath_spec_pass = xpath_ids_var.gen_xpath_name_pos(
+            "Specifications passed", 1)
         # Specifications total
-        xpath_spec_total = xpath_ids_var.gen_xpath_name_pos("Specifications passed", 2)
+        xpath_spec_total = xpath_ids_var.gen_xpath_name_pos(
+            "Specifications passed", 2)
         # Requirements passed
-        xpath_req_pass = xpath_ids_var.gen_xpath_name_pos("Requirements passed", 1)
+        xpath_req_pass = xpath_ids_var.gen_xpath_name_pos(
+            "Requirements passed", 1)
         # Requirements total
-        xpath_req_total = xpath_ids_var.gen_xpath_name_pos("Requirements passed", 2)
+        xpath_req_total = xpath_ids_var.gen_xpath_name_pos(
+            "Requirements passed", 2)
         # Checks passed
-        xpath_checks_pass = xpath_ids_var.gen_xpath_name_pos("Checks passed", 1)
+        xpath_checks_pass = xpath_ids_var.gen_xpath_name_pos(
+            "Checks passed", 1)
         # Checks total
-        xpath_checks_total = xpath_ids_var.gen_xpath_name_pos("Checks passed", 2)
+        xpath_checks_total = xpath_ids_var.gen_xpath_name_pos(
+            "Checks passed", 2)
 
         self.xpaths = [
             xpath_fail_perc,
@@ -197,10 +207,11 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         # xpaths to elements in html
         # create function for xpath generation
         xpath_prop_var = Gen_xpath(
-                xpath_incl_var = (
-            '//tr[td[@class="tg-fymr" and ' +
-            'normalize-space(.)="{}"]]' +
-            '/td[@class="tg-dvpl"][normalize-space()]'))
+                xpath_incl_var=(
+                    '//tr[td[@class="tg-fymr" and '
+                    'normalize-space(.)="{}"]]'
+                    '/td[@class="tg-dvpl"][normalize-space()]'
+                    ))
 
         # Total IFCProduct with missing properties
         xpath_prod_with_miss_prop_total = xpath_prop_var.gen_xpath_name(
@@ -212,7 +223,6 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         self.xpaths = [
                   xpath_prod_with_miss_prop_total,
                   xpath_miss_prop_in_prod_total,
-
                        ]
 
         reg_result = self.run_regression_test()
@@ -257,10 +267,10 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         # xpaths to elements in html
         # create function for xpath generation
         xpath_inst_var = Gen_xpath(
-                xpath_incl_var = (
-            '//tr[td[@class="tg-fymr" and ' +
-            'normalize-space(.)="{}"]]' +
-            '/td[@class="tg-dvpl"][normalize-space()]'))
+            xpath_incl_var=(
+                '//tr[td[@class="tg-fymr" and ' +
+                'normalize-space(.)="{}"]]' +
+                '/td[@class="tg-dvpl"][normalize-space()]'))
         # Total IFCProduct with errors
         xpath_prod_with_errors_total = xpath_inst_var.gen_xpath_name(
             "Total IFCProduct with errors:")
@@ -323,10 +333,10 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         # xpaths to elements in html
         # create function for xpath generation
         xpath_inst_var = Gen_xpath(
-                xpath_incl_var = (
-            '//tr[td[@class="tg-dvpl" and ' +
-            'normalize-space(.)="{}"]]' +
-            '/td[@class="tg-dvpl"][2]'))
+            xpath_incl_var=(
+                '//tr[td[@class="tg-dvpl" and ' +
+                'normalize-space(.)="{}"]]' +
+                '/td[@class="tg-dvpl"][2]'))
 
         # IFC Version:
         xpath_ifc_version = xpath_inst_var.gen_xpath_name(
@@ -402,10 +412,10 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
         # xpaths to elements in html
         # create function for xpath generation
         xpath_inst_var = Gen_xpath(
-                xpath_incl_var = (
-            '//tr[td[@class="tg-fymr" and ' +
-            'normalize-space(.)="{}"]]' +
-            '/td[@class="tg-dvpl"][1]'))
+            xpath_incl_var=(
+                '//tr[td[@class="tg-fymr" and ' +
+                'normalize-space(.)="{}"]]' +
+                '/td[@class="tg-dvpl"][1]'))
 
         # IFC Version:
         xpath_ifc_version = xpath_inst_var.gen_xpath_name(
@@ -418,9 +428,9 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
             "Total Empty GUIDs:")
 
         self.xpaths = [
-                xpath_nonunique_guid_total,
-                xpath_empty_guid_total,
-                       ]
+            xpath_nonunique_guid_total,
+            xpath_empty_guid_total,
+        ]
 
         reg_result = self.run_regression_test()
 
