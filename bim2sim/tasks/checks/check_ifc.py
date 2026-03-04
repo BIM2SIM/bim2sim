@@ -499,7 +499,7 @@ class CheckLogicBase():
                     all_guids_unique = False
                     warnings.warn(
                         "Some GUIDs are not unique! A bijective ifc file have "
-                        "to have unique GUIDs. But bim2sim provides a option "
+                        "to have unique GUIDs. But bim2sim provides an option "
                         "in sim_settings: rest_guids = True"
                     )
                 elif (guid.upper() in used_guids_upper):
@@ -509,7 +509,7 @@ class CheckLogicBase():
                         "Some GUIDs are not unique (for transformed GUIDS "
                         "letters low-case into uppercase)! "
                         "A bijective ifc file have "
-                        "to have unique GUIDs. But bim2sim provides a option "
+                        "to have unique GUIDs. But bim2sim provides an option "
                         "in sim_settings: rest_guids = True"
                     )
                 else:
