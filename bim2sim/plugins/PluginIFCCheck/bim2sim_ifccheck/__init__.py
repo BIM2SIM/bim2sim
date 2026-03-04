@@ -1,17 +1,19 @@
-"""Template plugin for bim2sim
+"""Template plugin for bim2sim.
 
 Holds a plugin with only base tasks mostly for demonstration.
 """
 from bim2sim.plugins import Plugin
-from bim2sim.tasks import prepro, common, bps
-from bim2sim.sim_settings import BuildingSimSettings
+from bim2sim.tasks import checks, common
 from bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck.sim_settings import \
     CheckIFCSimSettings
 
+
 class PluginIFCCheck(Plugin):
+    """PluginIFCCheck template."""
+
     name = 'IFCCheck'
     sim_settings = CheckIFCSimSettings
     default_tasks = [
         common.LoadIFC,
-        prepro.CheckIfc,
+        checks.CheckIfc,
     ]

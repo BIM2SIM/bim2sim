@@ -20,7 +20,7 @@ from bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck.sim_settings import \
     CheckIFCSimSettings
 from bim2sim.utilities.types import IFCDomain
 
-from bim2sim.tasks.prepro.check_ifc import CheckIfc, CheckLogicBase
+from bim2sim.tasks.checks.check_ifc import CheckIfc, CheckLogicBase
 
 test_rsrc_path = (
     Path(__file__).parent.parent.parent.parent.parent.
