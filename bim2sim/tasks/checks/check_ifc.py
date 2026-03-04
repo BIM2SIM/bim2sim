@@ -494,7 +494,7 @@ class CheckLogicBase():
                 # print(guid)
                 upper_guid = guid.upper()
                 # print(upper_guid)
-                if (guid in used_guids):
+                if guid in used_guids:
                     double_guids[guid] = inst
                     all_guids_unique = False
                     warnings.warn(
