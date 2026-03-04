@@ -27,6 +27,7 @@ test_rsrc_path = (
     parent / 'test/resources'
     )
 
+
 class PluginDummy(Plugin):
     name = 'test'
     sim_settings = CheckIFCSimSettings
@@ -242,7 +243,9 @@ class TestCheckIFC(unittest.TestCase):
         ifc_files = self.project.playground.state['ifc_files']
 
         for ifc_file in ifc_files:
-            check_error, ifc_version = CheckLogicBase.run_check_ifc_version(ifc_file)
+            check_error, ifc_version = (
+                CheckLogicBase.run_check_ifc_version(ifc_file)
+                )
             self.assertEqual(check_error, True,
                              "Should be True (ifc file has wrong ifc version))"
                              )
@@ -373,7 +376,6 @@ class TestCheckIFCIfctester(unittest.TestCase):
         self.assertEqual(all_checks_passed, True,
                          "Should be true, fails because of issue in ifcTester,\
                          2025-03-12")
-
 
     def test_checkIFC_IDS_guid_length_22_pass(self):
         """check ifctester for use case guid/GlobalID length = 22 character
