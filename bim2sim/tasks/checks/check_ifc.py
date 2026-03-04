@@ -152,7 +152,7 @@ class CheckIfc(ITask):
 
             if ifc_file.domain == IFCDomain.hydraulic:
                 self.logger.info("Processing HVAC-IfcCheck")
-                # used for preparing data for checking, is finder keyword
+                # used for data preparing, it is a filter keyword
                 self.sub_inst_cls = 'IfcDistributionPort'
                 self.plugin = hvac
                 self.ps_summary = self._get_class_property_sets(self.plugin)
@@ -167,7 +167,7 @@ class CheckIfc(ITask):
 
             elif ifc_file.domain == IFCDomain.arch:
                 self.logger.info("Processing BPS-IfcCheck")
-                # used for preparing data for checking, is finder keyword
+                # used for data preparing, it is a filter keyword
                 self.sub_inst_cls = 'IfcRelSpaceBoundary'
                 self.plugin = bps
                 self.ps_summary = self._get_class_property_sets(self.plugin)
