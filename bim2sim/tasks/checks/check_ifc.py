@@ -516,7 +516,6 @@ class CheckLogicBase():
                     used_guids[guid] = inst
                     # store temporally guid in uppercase letters
                     used_guids_upper.append(upper_guid)
-
         return (all_guids_unique, double_guids)
 
     def run_check_guid_empty(ifc_file) -> (bool, dict):
@@ -551,7 +550,6 @@ class CheckLogicBase():
                     empty_guids[name_dict] = inst
                 else:
                     used_guids[guid] = inst
-
         return (all_guids_filled, empty_guids)
 
     @staticmethod
