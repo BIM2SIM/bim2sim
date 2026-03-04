@@ -24,7 +24,9 @@ test_rsrc_path = (
     Path(__file__).parent.parent.parent.parent.parent.
     parent / 'test/resources'
     )
-
+default_ids_file_path = (
+    Path(__file__).parent.parent.parent / 'bim2sim_ifccheck'
+    )
 
 class PluginDummy(Plugin):
     name = 'test'
@@ -48,6 +50,10 @@ class TestCheckIFC(unittest.TestCase):
     def weather_file_path(self) -> Path:
         return (test_rsrc_path /
                 'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
+
+    def ids_file_path(self) -> Path:
+        return (default_ids_file_path /
+                'ifc_bps.ids')
 
     ifc_file_fkz = (Path(bim2sim.__file__).parent.parent /
                     'test/resources/arch/ifc/AC20-FZK-Haus.ifc')
@@ -80,6 +86,7 @@ class TestCheckIFC(unittest.TestCase):
         # weather data path is mandatory and "mocking" is not working
         # so use a central defintion of weather file
         self.project.sim_settings.weather_file_path = self.weather_file_path()
+        self.project.sim_settings.ids_file_path = self.ids_file_path()
         # put project.run into DebugDecisionHandler is need, otherwise the
         # playground.state() is empty and ifc_files are not available
         # default answer for decision questions
@@ -110,6 +117,7 @@ class TestCheckIFC(unittest.TestCase):
         # weather data path is mandatory and "mocking" is not working
         # so use a central defintion of weather file
         self.project.sim_settings.weather_file_path = self.weather_file_path()
+        self.project.sim_settings.ids_file_path = self.ids_file_path()
         # put project.run into DebugDecisionHandler is need, otherwise the
         # playground.state() is empty and ifc_files are not available
         # default answer for decision questions
@@ -139,6 +147,7 @@ class TestCheckIFC(unittest.TestCase):
         # weather data path is mandatory and "mocking" is not working
         # so use a central defintion of weather file
         self.project.sim_settings.weather_file_path = self.weather_file_path()
+        self.project.sim_settings.ids_file_path = self.ids_file_path()
         # put project.run into DebugDecisionHandler is need, otherwise the
         # playground.state() is empty and ifc_files are not available
         # default answer for decision questions
@@ -171,6 +180,7 @@ class TestCheckIFC(unittest.TestCase):
         # weather data path is mandatory and "mocking" is not working
         # so use a central defintion of weather file
         self.project.sim_settings.weather_file_path = self.weather_file_path()
+        self.project.sim_settings.ids_file_path = self.ids_file_path()
         # put project.run into DebugDecisionHandler is need, otherwise the
         # playground.state() is empty and ifc_files are not available
         # default answer for decision questions
@@ -200,6 +210,7 @@ class TestCheckIFC(unittest.TestCase):
         # weather data path is mandatory and "mocking" is not working
         # so use a central defintion of weather file
         self.project.sim_settings.weather_file_path = self.weather_file_path()
+        self.project.sim_settings.ids_file_path = self.ids_file_path()
         # put project.run into DebugDecisionHandler is need, otherwise the
         # playground.state() is empty and ifc_files are not available
         # default answer for decision questions
@@ -231,6 +242,7 @@ class TestCheckIFC(unittest.TestCase):
         # weather data path is mandatory and "mocking" is not working
         # so use a central defintion of weather file
         self.project.sim_settings.weather_file_path = self.weather_file_path()
+        self.project.sim_settings.ids_file_path = self.ids_file_path()
         # put project.run into DebugDecisionHandler is need, otherwise the
         # playground.state() is empty and ifc_files are not available
         # default answer for decision questions
@@ -263,6 +275,7 @@ class TestCheckIFC(unittest.TestCase):
         # weather data path is mandatory and "mocking" is not working
         # so use a central defintion of weather file
         self.project.sim_settings.weather_file_path = self.weather_file_path()
+        self.project.sim_settings.ids_file_path = self.ids_file_path()
         # put project.run into DebugDecisionHandler is need, otherwise the
         # playground.state() is empty and ifc_files are not available
         # default answer for decision questions

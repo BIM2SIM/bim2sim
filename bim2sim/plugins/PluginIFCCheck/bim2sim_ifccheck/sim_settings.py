@@ -19,7 +19,5 @@ class CheckIFCSimSettings(BaseSimSettings):
                     'An Example can be find in'
                     '/bim2sim/plugins/PluginIFCCheck/bim2sim_ifccheck',
         for_frontend=True,
-        mandatory=False  # TODO make is mandatory AND
-        # adapt all tests and examples AND
-        # remove default values in check_ifc.py
+        mandatory=True
     )
