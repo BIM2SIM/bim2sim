@@ -1,5 +1,4 @@
-from bim2sim.sim_settings import BaseSimSettings, ChoiceSetting, \
-    PathSetting
+from bim2sim.sim_settings import BaseSimSettings, PathSetting
 # from bim2sim.utilities.types import LOD, ZoningCriteria
 
 
