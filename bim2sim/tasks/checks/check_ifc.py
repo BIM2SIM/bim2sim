@@ -66,7 +66,7 @@ class CheckIfc(ITask):
         found as .html files.
 
         It creates following reports:
-            error_summary_sub_inst: summary of errors related to sub_elements
+            error_summary: overview of all errors
             error_summary_inst: summary of errors related to elements
             error_summary_prop: summary of missing properties
             error_summary_guid: summary of GUID errors
