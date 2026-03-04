@@ -39,7 +39,7 @@ class CheckIfc(ITask):
     reads = ('ifc_files',)
 
     def __init__(self, playground: Playground):
-        """Intitilize CheckIFC."""
+        """Initialize CheckIFC."""
         super().__init__(playground)
         self.error_summary_sub_inst: dict = {}
         self.error_summary_inst: dict = {}
@@ -71,6 +71,7 @@ class CheckIfc(ITask):
             error_summary_prop: summary of missing properties
             error_summary_guid: summary of GUID errors
             ifc_ids_check: results of checks based on IDS file
+        These html files are stored in the log folder of the project folder.
 
         Args:
             ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc
@@ -151,7 +152,7 @@ class CheckIfc(ITask):
 
             if ifc_file.domain == IFCDomain.hydraulic:
                 self.logger.info("Processing HVAC-IfcCheck")
-                # used for preparing data for checking, is filder keyword
+                # used for preparing data for checking, is finder keyword
                 self.sub_inst_cls = 'IfcDistributionPort'
                 self.plugin = hvac
                 self.ps_summary = self._get_class_property_sets(self.plugin)
@@ -166,7 +167,7 @@ class CheckIfc(ITask):
 
             elif ifc_file.domain == IFCDomain.arch:
                 self.logger.info("Processing BPS-IfcCheck")
-                # used for preparing data for checking, is filder keyword
+                # used for preparing data for checking, is finder keyword
                 self.sub_inst_cls = 'IfcRelSpaceBoundary'
                 self.plugin = bps
                 self.ps_summary = self._get_class_property_sets(self.plugin)
@@ -191,7 +192,7 @@ class CheckIfc(ITask):
                     f" implemented currently. Just running the basic checks."
                     f"")
 
-            # generating reportes (of the additional checks)
+            # generating reports (of the additional checks)
             base_name = f"/{ifc_file.domain.name.upper()}_" \
                         f"{ifc_file.ifc_file_name[:-4]}"
             self._write_errors_to_html_table(base_name, ifc_file.domain)
@@ -284,7 +285,7 @@ class CheckIfc(ITask):
         Input:
             ifc_file: path of the IFC file, which is checked
             ids_file: path of the IDS file, which includes the specifications
-            log_path: path of the log folder as part of the project structur
+            log_path: path of the log folder as part of the project structure
             report_html: generate, save and open the report about checking
                          default = False
         Returns:
@@ -393,7 +394,7 @@ class CheckIfc(ITask):
                 summary_sbs=summary_sbs,
                 all_errors=all_errors))
             out_file.close()
-            # opens automaically browser tab showing the generated html report
+            # opens automatically browser tab showing the generated html report
             if show_report:
                 webbrowser.open(f"file://{out_file.buffer.name}")
         with open(str(self.paths.log) +
@@ -404,7 +405,7 @@ class CheckIfc(ITask):
                 task=self,
                 summary_props=summary_props))
             out_file.close()
-            # opens automaically browser tab showing the generated html report
+            # opens automatically browser tab showing the generated html report
             if show_report:
                 webbrowser.open(f"file://{out_file.buffer.name}")
         with open(str(self.paths.log) +
@@ -424,7 +425,7 @@ class CheckIfc(ITask):
                 summary_sbs=summary_sbs,
                 summary_props=summary_props))
             out_file.close()
-            # opens automaically browser tab showing the generated html report
+            # opens automatically browser tab showing the generated html report
             if show_report:
                 webbrowser.open(f"file://{out_file.buffer.name}")
 
@@ -439,7 +440,7 @@ class CheckIfc(ITask):
                 summary_sbs=summary_sbs,
                 all_errors=all_errors))
             out_file.close()
-            # opens automaically browser tab showing the generated html report
+            # opens automatically browser tab showing the generated html report
             if show_report:
                 webbrowser.open(f"file://{out_file.buffer.name}")
 
@@ -451,13 +452,13 @@ class CheckLogicBase():
     useful for all checking use cases.
 
     Attributes:
-        extract_data (list): filered/extract data from ifc file
+        extract_data (list): filtered/extract data from ifc file
     """
 
     def __init__(self, extract_data, elements, ps_summary, ifc_units):
         """Initialize class."""
         self.space_ndicator = True
-        # filered data, which will be processed
+        # filtered data, which will be processed
         self.extract_data = extract_data
         self.elements = elements
         self.ps_summary = ps_summary
@@ -506,7 +507,7 @@ class CheckLogicBase():
                     all_guids_unique = False
                     warnings.warn(
                         "Some GUIDs are not unique (for transformed GUIDS "
-                        "letters lowcase into uppercase)! "
+                        "letters low-case into uppercase)! "
                         "A bijective ifc file have "
                         "to have unique GUIDs. But bim2sim provides a option "
                         "in sim_settings: rest_guids = True"
@@ -641,7 +642,7 @@ class CheckLogicBase():
 
     @staticmethod
     def _check_rel_space(bound: ifcos.entity_instance):
-        """Check the existenz of related space.
+        """Check the existence of related space.
 
         Args:
             bound: Space boundary IFC instance
@@ -769,7 +770,7 @@ class CheckLogicBPS(CheckLogicBase):
 
     @staticmethod
     def _check_inner_boundaries(bound: ifcos.entity_instance):
-        """Check abtence of the surface and their structure.
+        """Check absence of the surface and their structure.
 
         Check if the surface on relating element of a space boundary inner
         boundaries don't exists or are composite curves.
@@ -806,10 +807,10 @@ class CheckLogicBPS(CheckLogicBase):
 
     @staticmethod
     def _check_segments(bound: ifcos.entity_instance):
-        """Check if the surface are polyline.
+        """Check if the surface are poly-line.
 
         Check if the surface on relating element of a space boundary outer
-        boundaries segments are polyline.
+        boundaries segments are poly-line.
 
         Args:
             bound: Space boundary IFC instance
@@ -851,10 +852,10 @@ class CheckLogicBPS(CheckLogicBase):
 
     @classmethod
     def _check_poly_points_coord(cls, polyline: ifcos.entity_instance):
-        """Check if a polyline has the correct coordinates.
+        """Check if a poly-line has the correct coordinates.
 
         Args:
-            polyline: Polyline IFC instance
+            polyline: Poly-line IFC instance
 
         Returns:
             True: if check succeeds
@@ -1090,7 +1091,7 @@ class CheckLogicBPS(CheckLogicBase):
         return True
 
     def _check_inst_properties(self, inst: ifcos.entity_instance):
-        """Check exixtence of necessary property sets and properties.
+        """Check existence of necessary property sets and properties.
 
         Check that an instance has the property sets and properties
         necessaries to the plugin.
