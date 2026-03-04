@@ -1,19 +1,16 @@
+"""Simple example for PluginIFCCheck with bps focus."""
 import tempfile
 from pathlib import Path
 
 import bim2sim
-from bim2sim import Project, ConsoleDecisionHandler, run_project
+from bim2sim import Project
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.elements import bps_elements
-from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.types import IFCDomain
-from bim2sim.elements.base_elements import Material
 from bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck import PluginIFCCheck
 
 
 def run_simple_project():
-    """Run a bim2sim project with the PluginIFCCheck
-    """
+    """Run a bim2sim project with the PluginIFCCheck."""
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(tempfile.TemporaryDirectory(
@@ -26,7 +23,8 @@ def run_simple_project():
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/arch/ifc/3rooms_Heater_AirTerminal_Table_with_SB_errors.ifc',
+            'test/resources/arch/ifc/'
+            '3rooms_Heater_AirTerminal_Table_with_SB_errors.ifc',
     }
     project = Project.create(
         project_path, ifc_paths, PluginIFCCheck)
@@ -70,6 +68,7 @@ def run_simple_project():
                )
     Handler = DebugDecisionHandler(answers)
     Handler.handle(project.run())
+
 
 if __name__ == '__main__':
     run_simple_project()
