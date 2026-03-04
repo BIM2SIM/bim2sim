@@ -282,7 +282,7 @@ class CheckIfc(ITask):
         and the name of the specification
         and if all specifications of one IDS pass
 
-        Input:
+        Args:
             ifc_file: path of the IFC file, which is checked
             ids_file: path of the IDS file, which includes the specifications
             log_path: path of the log folder as part of the project structure
@@ -471,7 +471,7 @@ class CheckLogicBase():
         Here the bijective uniqueness is check, but also
         the uniqueness of modified guids by transforming
         the lowercase letters into uppercase letter
-        Input:
+        Args:
             ifc_file: path of the IFC file, which is checked
 
         Returns:
