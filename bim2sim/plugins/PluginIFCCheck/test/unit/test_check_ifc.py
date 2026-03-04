@@ -12,10 +12,8 @@ from pathlib import Path
 
 import bim2sim.tasks.common.load_ifc
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
-from bim2sim.elements.base_elements import ProductBased
 from bim2sim.plugins import Plugin
 from bim2sim.project import Project
-from bim2sim.sim_settings import BaseSimSettings
 from bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck.sim_settings import \
     CheckIFCSimSettings
 from bim2sim.utilities.types import IFCDomain
