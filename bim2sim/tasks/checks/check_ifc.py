@@ -160,10 +160,11 @@ class CheckIfc(ITask):
                 self.elements = self.get_relevant_elements(ifc_file.file)
                 self.ifc_units = ifc_file.ifc_units
                 # checking itself
-                chlhvac = CheckLogicHVAC(self.sub_inst, self.elements,
-                                         self.ps_summary, self.ifc_units)
-                self.error_summary_sub_inst = chlhvac.check_inst_sub()
-                self.error_summary_inst = chlhvac.check_elements()
+                check_logic_hvac = CheckLogicHVAC(
+                    self.sub_inst, self.elements, self.ps_summary,
+                    self.ifc_units)
+                self.error_summary_sub_inst = check_logic_hvac.check_inst_sub()
+                self.error_summary_inst = check_logic_hvac.check_elements()
 
             elif ifc_file.domain == IFCDomain.arch:
                 self.logger.info("Processing BPS-IfcCheck")
@@ -175,11 +176,12 @@ class CheckIfc(ITask):
                 self.elements = self.get_relevant_elements(ifc_file.file)
                 self.ifc_units = ifc_file.ifc_units
                 # checking itself
-                chlbps = CheckLogicBPS(self.sub_inst, self.elements,
-                                       self.ps_summary, self.ifc_units)
-                self.error_summary_sub_inst = chlbps.check_inst_sub()
-                self.error_summary_inst = chlbps.check_elements()
-                self.error_summary_prop = chlbps.error_summary_prop
+                check_logic_bps = CheckLogicBPS(
+                    self.sub_inst, self.elements, self.ps_summary,
+                    self.ifc_units)
+                self.error_summary_sub_inst = check_logic_bps.check_inst_sub()
+                self.error_summary_inst = check_logic_bps.check_elements()
+                self.error_summary_prop = check_logic_bps.error_summary_prop
                 self.paths = paths
             elif ifc_file.domain == IFCDomain.unknown:
                 self.logger.info(f"No domain specified for ifc file "
