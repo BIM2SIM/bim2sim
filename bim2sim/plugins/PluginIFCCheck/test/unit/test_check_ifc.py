@@ -358,9 +358,9 @@ class TestCheckIFCIfctester(unittest.TestCase):
         https://github.com/buildingSMART/IDS/tree/development/Documentation/
         ImplementersDocumentation/TestCases/ids
 
-        date: 2025-03-12
-        this test fail, because there is an issue in ifcTester, see
-        https://github.com/IfcOpenShell/IfcOpenShell/issues/6323
+        date: 2026-03-04
+        this test fail, because there is potentially a bug in IDS itself, see
+        https://github.com/buildingSMART/IDS/issues/402
         remove this passage, when fixed
         """
 
