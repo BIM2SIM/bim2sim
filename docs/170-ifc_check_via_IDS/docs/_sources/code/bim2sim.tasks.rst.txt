@@ -14,9 +14,9 @@ Subpackages
 
    bim2sim.tasks.bps
    bim2sim.tasks.cfd
+   bim2sim.tasks.checks
    bim2sim.tasks.common
    bim2sim.tasks.hvac
-   bim2sim.tasks.prepro
 
 Submodules
 ----------

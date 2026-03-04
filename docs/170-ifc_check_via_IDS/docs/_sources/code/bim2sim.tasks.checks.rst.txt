@@ -1,7 +1,7 @@
-bim2sim.tasks.prepro package
+bim2sim.tasks.checks package
 ============================
 
-.. automodule:: bim2sim.tasks.prepro
+.. automodule:: bim2sim.tasks.checks
    :members:
    :undoc-members:
    :show-inheritance:
@@ -9,18 +9,18 @@ bim2sim.tasks.prepro package
 Submodules
 ----------
 
-bim2sim.tasks.prepro.check\_ifc module
+bim2sim.tasks.checks.check\_ifc module
 --------------------------------------
 
-.. automodule:: bim2sim.tasks.prepro.check_ifc
+.. automodule:: bim2sim.tasks.checks.check_ifc
    :members:
    :undoc-members:
    :show-inheritance:
 
-bim2sim.tasks.prepro.check\_ifc\_old module
+bim2sim.tasks.checks.check\_ifc\_old module
 -------------------------------------------
 
-.. automodule:: bim2sim.tasks.prepro.check_ifc_old
+.. automodule:: bim2sim.tasks.checks.check_ifc_old
    :members:
    :undoc-members:
    :show-inheritance:
