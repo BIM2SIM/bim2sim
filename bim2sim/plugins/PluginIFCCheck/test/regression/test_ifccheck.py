@@ -417,9 +417,6 @@ class TestRegressionIFCCheck(RegressionTestIFCCheck, unittest.TestCase):
                 'normalize-space(.)="{}"]]' +
                 '/td[@class="tg-dvpl"][1]'))
 
-        # IFC Version:
-        xpath_ifc_version = xpath_inst_var.gen_xpath_name(
-            "IFC Version:")
         # Total non-unique GUIDs:
         xpath_nonunique_guid_total = xpath_inst_var.gen_xpath_name(
             "Total non-unique GUIDs:")
