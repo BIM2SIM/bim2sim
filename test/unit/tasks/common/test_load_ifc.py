@@ -2,7 +2,6 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
-from unittest import mock
 
 import bim2sim
 from bim2sim.kernel.decision.decisionhandler import DebugDecisionHandler
@@ -13,6 +12,7 @@ from test.unit.elements.helper import SetupHelper
 from bim2sim.sim_settings import BaseSimSettings
 
 test_rsrc_path = Path(__file__).parent.parent.parent.parent / 'resources'
+
 
 class TestLoadIFC(TestTask):
     @classmethod
