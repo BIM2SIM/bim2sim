@@ -1,18 +1,15 @@
+"""Simple example for PluginIFCCheck."""
 import tempfile
 from pathlib import Path
 
 import bim2sim
 from bim2sim import Project, ConsoleDecisionHandler, run_project
-from bim2sim.elements import bps_elements
-from bim2sim.utilities.common_functions import filter_elements
 from bim2sim.utilities.types import IFCDomain
-from bim2sim.elements.base_elements import Material
 from bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck import PluginIFCCheck
 
 
 def run_simple_project():
-    """Run a bim2sim project with the PluginIFCCheck
-    """
+    """Run a bim2sim project with the PluginIFCCheck."""
     # Create a temp directory for the project, feel free to use a "normal"
     # directory
     project_path = Path(tempfile.TemporaryDirectory(
@@ -49,7 +46,8 @@ def run_simple_project():
     # assign an IDS file, which is needed to check the ifc file by ifctester
     project.sim_settings.ids_file_path = (
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/ids/fail-a_minimal_ids_can_check_a_minimal_ifc_1_2.ids'
+            'test/resources/ids/'
+            'fail-a_minimal_ids_can_check_a_minimal_ifc_1_2.ids'
     )
 
     # run the project
