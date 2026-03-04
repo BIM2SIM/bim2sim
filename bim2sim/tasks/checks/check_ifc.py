@@ -129,7 +129,7 @@ class CheckIfc(ITask):
             if self.all_guids_unique is False:
                 self.logger.critical("non-unique GUIDs: " +
                                      "{}".format(list_guids_non_unique))
-            # check emptyness of GUID fields
+            # check emptiness of GUID fields
             self.all_guids_filled, self.empty_guids = (
                 CheckLogicBase.run_check_guid_empty(ifc_file)
                 )
