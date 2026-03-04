@@ -21,11 +21,11 @@ def extract_ifc_file_names(base_path):
     if not base_path.is_dir():
         raise AssertionError(f"Given base_path {base_path} is not a"
                              f" directory. Please provide a directory.")
-    ifc_files_paths = list(base_path.glob("**/*.ifc")) + list(
+    ifc_file_paths = list(base_path.glob("**/*.ifc")) + list(
         base_path.glob("**/*.ifcxml")) + list(
         base_path.glob("**/*.ifczip"))
 
-    return ifc_files_paths
+    return ifc_file_paths
 
 
 class LoadIFC(ITask):
