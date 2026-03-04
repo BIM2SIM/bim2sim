@@ -44,7 +44,7 @@ class CheckIfc(ITask):
         self.error_summary_sub_inst: dict = {}
         self.error_summary_inst: dict = {}
         self.error_summary_prop: dict = {}
-        self.error_version: bool = False
+        self.version_error: bool = False
         self.ifc_version: str = None
         self.all_guids_unique: bool = True
         self.double_guids: dict = {}
