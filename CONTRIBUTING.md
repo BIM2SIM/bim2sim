@@ -40,7 +40,7 @@ When pushing changes to development, always update the version number in `pyproj
 1. Create your feature branch
 2. Update version in `pyproject.toml`
 3. Commit changes
-4. Push to development
+4. Create PR to development
 
 ### Example
 ```toml
