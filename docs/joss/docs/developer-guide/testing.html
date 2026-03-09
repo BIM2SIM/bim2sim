@@ -55,7 +55,10 @@
 <li class="toctree-l3"><a class="reference internal" href="#unit-testing">Unit Testing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#integration-testing">Integration Testing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#regression-testing">Regression Testing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#run-tests-local">Run Tests Local</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-tests-local">Run Tests Local</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#running-the-tests">Running the tests</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#update-test-resources">Update test resources</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#test-resources-repository">Test Resources Repository</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#main-bim2sim-repository">Main bim2sim Repository</a></li>
@@ -146,6 +149,24 @@ occurs, please delete this folder. Be careful, don’t delete anything else.</p>
 <span class="n">git</span> <span class="n">submodule</span> <span class="n">update</span> <span class="o">--</span><span class="n">init</span> <span class="o">--</span><span class="n">recursive</span>
 </pre></div>
 </div>
+<section id="running-the-tests">
+<h3>Running the tests<a class="headerlink" href="#running-the-tests" title="Permalink to this heading"></a></h3>
+<p>Once the test resources are available, run the unit tests from the repository root:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>unittest<span class="w"> </span>discover<span class="w"> </span><span class="nb">test</span>
+</pre></div>
+</div>
+<p>To run tests with coverage reporting (requires the <code class="docutils literal notranslate"><span class="pre">test</span></code> optional dependency):</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;.[test]&#39;</span>
+coverage<span class="w"> </span>run<span class="w"> </span>-m<span class="w"> </span>unittest<span class="w"> </span>discover<span class="w"> </span><span class="nb">test</span>
+coverage<span class="w"> </span>report
+</pre></div>
+</div>
+<p>Plugin-specific tests are located in each plugin’s <code class="docutils literal notranslate"><span class="pre">test/</span></code> directory and can be run separately:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example: run PluginAixLib unit tests</span>
+python<span class="w"> </span>-m<span class="w"> </span>unittest<span class="w"> </span>discover<span class="w"> </span>bim2sim/plugins/PluginAixLib/test/unit
+</pre></div>
+</div>
+</section>
 </section>
 <section id="update-test-resources">
 <h2>Update test resources<a class="headerlink" href="#update-test-resources" title="Permalink to this heading"></a></h2>

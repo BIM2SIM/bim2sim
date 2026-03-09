@@ -46,6 +46,29 @@ rd /s [pathToRepoBim2sim]\test\resources
 
 git submodule update --init --recursive
 ```
+
+### Running the tests
+
+Once the test resources are available, run the unit tests from the repository root:
+
+```shell
+python -m unittest discover test
+```
+
+To run tests with coverage reporting (requires the `test` optional dependency):
+
+```shell
+pip install -e '.[test]'
+coverage run -m unittest discover test
+coverage report
+```
+
+Plugin-specific tests are located in each plugin's `test/` directory and can be run separately:
+
+```shell
+# Example: run PluginAixLib unit tests
+python -m unittest discover bim2sim/plugins/PluginAixLib/test/unit
+```
 ## Update test resources
 If test resources needs to be updated, please follow the following procedure:
 
