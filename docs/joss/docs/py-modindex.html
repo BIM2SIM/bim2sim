@@ -1,0 +1,1259 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python Module Index &mdash; bim2sim  0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+      <script src="_static/jquery.js"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+      <script src="_static/doctools.js"></script>
+      <script src="_static/sphinx_highlight.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+      <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+ 
+
+
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html">
+            
+              <img src="_static/b2s_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="big-picture.html">Big Picture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide.html">User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulation-guide.html">Simulation-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced-user-guide.html">Advanced User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer-guide.html">Developer-Guide</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="code/modules.html">bim2sim</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">bim2sim </a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Python Module Index</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+
+   <h1>Python Module Index</h1>
+
+   <div class="modindex-jumpbox">
+   <a href="#cap-b"><strong>b</strong></a>
+   </div>
+
+   <table class="indextable modindextable">
+     <tr class="pcap"><td></td><td>&#160;</td><td></td></tr>
+     <tr class="cap" id="cap-b"><td></td><td>
+       <strong>b</strong></td><td></td></tr>
+     <tr>
+       <td><img src="_static/minus.png" class="toggler"
+              id="toggle-1" style="display: none" alt="-" /></td>
+       <td>
+       <a href="code/bim2sim.html#module-bim2sim"><code class="xref">bim2sim</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.elements.html#module-bim2sim.elements"><code class="xref">bim2sim.elements</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.elements.aggregation.html#module-bim2sim.elements.aggregation"><code class="xref">bim2sim.elements.aggregation</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.elements.aggregation.html#module-bim2sim.elements.aggregation.bps_aggregations"><code class="xref">bim2sim.elements.aggregation.bps_aggregations</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.elements.aggregation.html#module-bim2sim.elements.aggregation.hvac_aggregations"><code class="xref">bim2sim.elements.aggregation.hvac_aggregations</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.elements.html#module-bim2sim.elements.base_elements"><code class="xref">bim2sim.elements.base_elements</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.elements.html#module-bim2sim.elements.bps_elements"><code class="xref">bim2sim.elements.bps_elements</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.elements.graphs.html#module-bim2sim.elements.graphs"><code class="xref">bim2sim.elements.graphs</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.elements.graphs.html#module-bim2sim.elements.graphs.hvac_graph"><code class="xref">bim2sim.elements.graphs.hvac_graph</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.elements.html#module-bim2sim.elements.hvac_elements"><code class="xref">bim2sim.elements.hvac_elements</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.elements.mapping.html#module-bim2sim.elements.mapping"><code class="xref">bim2sim.elements.mapping</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.elements.mapping.html#module-bim2sim.elements.mapping.attribute"><code class="xref">bim2sim.elements.mapping.attribute</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.elements.mapping.html#module-bim2sim.elements.mapping.condition"><code class="xref">bim2sim.elements.mapping.condition</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.elements.mapping.html#module-bim2sim.elements.mapping.filter"><code class="xref">bim2sim.elements.mapping.filter</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.elements.mapping.html#module-bim2sim.elements.mapping.finder"><code class="xref">bim2sim.elements.mapping.finder</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.elements.mapping.html#module-bim2sim.elements.mapping.ifc2python"><code class="xref">bim2sim.elements.mapping.ifc2python</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.elements.mapping.html#module-bim2sim.elements.mapping.units"><code class="xref">bim2sim.elements.mapping.units</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.examples.html#module-bim2sim.examples"><code class="xref">bim2sim.examples</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.examples.html#module-bim2sim.examples.e1_template_plugin"><code class="xref">bim2sim.examples.e1_template_plugin</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.examples.html#module-bim2sim.examples.e2_interactive_project"><code class="xref">bim2sim.examples.e2_interactive_project</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.export.html#module-bim2sim.export"><code class="xref">bim2sim.export</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.export.modelica.html#module-bim2sim.export.modelica"><code class="xref">bim2sim.export.modelica</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.export.modelica.html#module-bim2sim.export.modelica.standardlibrary"><code class="xref">bim2sim.export.modelica.standardlibrary</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.kernel.html#module-bim2sim.kernel"><code class="xref">bim2sim.kernel</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.kernel.decision.html#module-bim2sim.kernel.decision"><code class="xref">bim2sim.kernel.decision</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.kernel.decision.html#module-bim2sim.kernel.decision.console"><code class="xref">bim2sim.kernel.decision.console</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.kernel.decision.html#module-bim2sim.kernel.decision.decisionhandler"><code class="xref">bim2sim.kernel.decision.decisionhandler</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.kernel.html#module-bim2sim.kernel.decorators"><code class="xref">bim2sim.kernel.decorators</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.kernel.html#module-bim2sim.kernel.ifc_file"><code class="xref">bim2sim.kernel.ifc_file</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.kernel.html#module-bim2sim.kernel.log"><code class="xref">bim2sim.kernel.log</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.html#module-bim2sim.plugins"><code class="xref">bim2sim.plugins</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginAixLib.html#module-bim2sim.plugins.PluginAixLib"><code class="xref">bim2sim.plugins.PluginAixLib</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginAixLib.bim2sim_aixlib.html#module-bim2sim.plugins.PluginAixLib.bim2sim_aixlib"><code class="xref">bim2sim.plugins.PluginAixLib.bim2sim_aixlib</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.html#module-bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples"><code class="xref">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.html#module-bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib"><code class="xref">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.html#module-bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib"><code class="xref">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e2_complex_project_hvac_aixlib</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models.html#module-bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models"><code class="xref">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.models</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginAixLib.bim2sim_aixlib.html#module-bim2sim.plugins.PluginAixLib.bim2sim_aixlib.sim_settings"><code class="xref">bim2sim.plugins.PluginAixLib.bim2sim_aixlib.sim_settings</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginAixLib.test.html#module-bim2sim.plugins.PluginAixLib.test"><code class="xref">bim2sim.plugins.PluginAixLib.test</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginAixLib.test.integration.html#module-bim2sim.plugins.PluginAixLib.test.integration"><code class="xref">bim2sim.plugins.PluginAixLib.test.integration</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginAixLib.test.integration.html#module-bim2sim.plugins.PluginAixLib.test.integration.test_aixlib"><code class="xref">bim2sim.plugins.PluginAixLib.test.integration.test_aixlib</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginAixLib.test.integration.html#module-bim2sim.plugins.PluginAixLib.test.integration.test_usage"><code class="xref">bim2sim.plugins.PluginAixLib.test.integration.test_usage</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginAixLib.test.regression.html#module-bim2sim.plugins.PluginAixLib.test.regression"><code class="xref">bim2sim.plugins.PluginAixLib.test.regression</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginAixLib.test.regression.html#module-bim2sim.plugins.PluginAixLib.test.regression.prepare_regression_tests"><code class="xref">bim2sim.plugins.PluginAixLib.test.regression.prepare_regression_tests</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginAixLib.test.unit.html#module-bim2sim.plugins.PluginAixLib.test.unit"><code class="xref">bim2sim.plugins.PluginAixLib.test.unit</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginAixLib.test.unit.kernel.html#module-bim2sim.plugins.PluginAixLib.test.unit.kernel"><code class="xref">bim2sim.plugins.PluginAixLib.test.unit.kernel</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginAixLib.test.unit.kernel.task.html#module-bim2sim.plugins.PluginAixLib.test.unit.kernel.task"><code class="xref">bim2sim.plugins.PluginAixLib.test.unit.kernel.task</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginComfort.html#module-bim2sim.plugins.PluginComfort"><code class="xref">bim2sim.plugins.PluginComfort</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginComfort.test.html#module-bim2sim.plugins.PluginComfort.test"><code class="xref">bim2sim.plugins.PluginComfort.test</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginComfort.test.integration.html#module-bim2sim.plugins.PluginComfort.test.integration"><code class="xref">bim2sim.plugins.PluginComfort.test.integration</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginComfort.test.integration.html#module-bim2sim.plugins.PluginComfort.test.integration.test_comfort"><code class="xref">bim2sim.plugins.PluginComfort.test.integration.test_comfort</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginComfort.test.integration.html#module-bim2sim.plugins.PluginComfort.test.integration.test_useage"><code class="xref">bim2sim.plugins.PluginComfort.test.integration.test_useage</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginComfort.test.regression.html#module-bim2sim.plugins.PluginComfort.test.regression"><code class="xref">bim2sim.plugins.PluginComfort.test.regression</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginComfort.test.regression.html#module-bim2sim.plugins.PluginComfort.test.regression.prepare_regression_tests"><code class="xref">bim2sim.plugins.PluginComfort.test.regression.prepare_regression_tests</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginEnergyPlus.html#module-bim2sim.plugins.PluginEnergyPlus"><code class="xref">bim2sim.plugins.PluginEnergyPlus</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.html#module-bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.sim_settings"><code class="xref">bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.sim_settings</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginEnergyPlus.test.html#module-bim2sim.plugins.PluginEnergyPlus.test"><code class="xref">bim2sim.plugins.PluginEnergyPlus.test</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginEnergyPlus.test.integration.html#module-bim2sim.plugins.PluginEnergyPlus.test.integration"><code class="xref">bim2sim.plugins.PluginEnergyPlus.test.integration</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginEnergyPlus.test.integration.html#module-bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage"><code class="xref">bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginEnergyPlus.test.regression.html#module-bim2sim.plugins.PluginEnergyPlus.test.regression"><code class="xref">bim2sim.plugins.PluginEnergyPlus.test.regression</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginEnergyPlus.test.regression.html#module-bim2sim.plugins.PluginEnergyPlus.test.regression.prepare_regression_tests"><code class="xref">bim2sim.plugins.PluginEnergyPlus.test.regression.prepare_regression_tests</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginEnergyPlus.test.unit.html#module-bim2sim.plugins.PluginEnergyPlus.test.unit"><code class="xref">bim2sim.plugins.PluginEnergyPlus.test.unit</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginEnergyPlus.test.unit.task.html#module-bim2sim.plugins.PluginEnergyPlus.test.unit.task"><code class="xref">bim2sim.plugins.PluginEnergyPlus.test.unit.task</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginEnergyPlus.test.unit.task.html#module-bim2sim.plugins.PluginEnergyPlus.test.unit.task.test_weather"><code class="xref">bim2sim.plugins.PluginEnergyPlus.test.unit.task.test_weather</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginHKESim.html#module-bim2sim.plugins.PluginHKESim"><code class="xref">bim2sim.plugins.PluginHKESim</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginHKESim.bim2sim_hkesim.html#module-bim2sim.plugins.PluginHKESim.bim2sim_hkesim"><code class="xref">bim2sim.plugins.PluginHKESim.bim2sim_hkesim</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.html#module-bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples"><code class="xref">bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.html#module-bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim"><code class="xref">bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models.html#module-bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models"><code class="xref">bim2sim.plugins.PluginHKESim.bim2sim_hkesim.models</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginHKESim.test.html#module-bim2sim.plugins.PluginHKESim.test"><code class="xref">bim2sim.plugins.PluginHKESim.test</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginHKESim.test.integration.html#module-bim2sim.plugins.PluginHKESim.test.integration"><code class="xref">bim2sim.plugins.PluginHKESim.test.integration</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginHKESim.test.integration.html#module-bim2sim.plugins.PluginHKESim.test.integration.test_hkesim"><code class="xref">bim2sim.plugins.PluginHKESim.test.integration.test_hkesim</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginHKESim.test.unit.html#module-bim2sim.plugins.PluginHKESim.test.unit"><code class="xref">bim2sim.plugins.PluginHKESim.test.unit</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginHKESim.test.unit.kernel.html#module-bim2sim.plugins.PluginHKESim.test.unit.kernel"><code class="xref">bim2sim.plugins.PluginHKESim.test.unit.kernel</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginHKESim.test.unit.kernel.task.html#module-bim2sim.plugins.PluginHKESim.test.unit.kernel.task"><code class="xref">bim2sim.plugins.PluginHKESim.test.unit.kernel.task</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginLCA.html#module-bim2sim.plugins.PluginLCA"><code class="xref">bim2sim.plugins.PluginLCA</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginLCA.bim2sim_lca.html#module-bim2sim.plugins.PluginLCA.bim2sim_lca"><code class="xref">bim2sim.plugins.PluginLCA.bim2sim_lca</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginLCA.bim2sim_lca.examples.html#module-bim2sim.plugins.PluginLCA.bim2sim_lca.examples"><code class="xref">bim2sim.plugins.PluginLCA.bim2sim_lca.examples</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginLCA.bim2sim_lca.examples.html#module-bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca"><code class="xref">bim2sim.plugins.PluginLCA.bim2sim_lca.examples.e1_export_quantities_for_lca</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginLCA.bim2sim_lca.html#module-bim2sim.plugins.PluginLCA.bim2sim_lca.sim_settings"><code class="xref">bim2sim.plugins.PluginLCA.bim2sim_lca.sim_settings</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginLCA.bim2sim_lca.task.html#module-bim2sim.plugins.PluginLCA.bim2sim_lca.task"><code class="xref">bim2sim.plugins.PluginLCA.bim2sim_lca.task</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginLCA.bim2sim_lca.task.html#module-bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca"><code class="xref">bim2sim.plugins.PluginLCA.bim2sim_lca.task.export_lca</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginLCA.test.html#module-bim2sim.plugins.PluginLCA.test"><code class="xref">bim2sim.plugins.PluginLCA.test</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginLCA.test.integration.html#module-bim2sim.plugins.PluginLCA.test.integration"><code class="xref">bim2sim.plugins.PluginLCA.test.integration</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginLCA.test.integration.html#module-bim2sim.plugins.PluginLCA.test.integration.test_lca"><code class="xref">bim2sim.plugins.PluginLCA.test.integration.test_lca</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginLCA.test.integration.html#module-bim2sim.plugins.PluginLCA.test.integration.test_useage"><code class="xref">bim2sim.plugins.PluginLCA.test.integration.test_useage</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginTEASER.html#module-bim2sim.plugins.PluginTEASER"><code class="xref">bim2sim.plugins.PluginTEASER</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginTEASER.test.html#module-bim2sim.plugins.PluginTEASER.test"><code class="xref">bim2sim.plugins.PluginTEASER.test</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginTEASER.test.integration.html#module-bim2sim.plugins.PluginTEASER.test.integration"><code class="xref">bim2sim.plugins.PluginTEASER.test.integration</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginTEASER.test.integration.html#module-bim2sim.plugins.PluginTEASER.test.integration.test_teaser"><code class="xref">bim2sim.plugins.PluginTEASER.test.integration.test_teaser</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginTEASER.test.integration.html#module-bim2sim.plugins.PluginTEASER.test.integration.test_useage"><code class="xref">bim2sim.plugins.PluginTEASER.test.integration.test_useage</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginTEASER.test.regression.html#module-bim2sim.plugins.PluginTEASER.test.regression"><code class="xref">bim2sim.plugins.PluginTEASER.test.regression</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginTEASER.test.regression.html#module-bim2sim.plugins.PluginTEASER.test.regression.prepare_regression_tests"><code class="xref">bim2sim.plugins.PluginTEASER.test.regression.prepare_regression_tests</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginTEASER.test.unit.html#module-bim2sim.plugins.PluginTEASER.test.unit"><code class="xref">bim2sim.plugins.PluginTEASER.test.unit</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginTEASER.test.unit.task.html#module-bim2sim.plugins.PluginTEASER.test.unit.task"><code class="xref">bim2sim.plugins.PluginTEASER.test.unit.task</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginTemplate.html#module-bim2sim.plugins.PluginTemplate"><code class="xref">bim2sim.plugins.PluginTemplate</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginTemplate.bim2sim_template.html#module-bim2sim.plugins.PluginTemplate.bim2sim_template"><code class="xref">bim2sim.plugins.PluginTemplate.bim2sim_template</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginTemplate.bim2sim_template.task.html#module-bim2sim.plugins.PluginTemplate.bim2sim_template.task"><code class="xref">bim2sim.plugins.PluginTemplate.bim2sim_template.task</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginTemplate.bim2sim_template.task.html#module-bim2sim.plugins.PluginTemplate.bim2sim_template.task.template_task"><code class="xref">bim2sim.plugins.PluginTemplate.bim2sim_template.task.template_task</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.html#module-bim2sim.project"><code class="xref">bim2sim.project</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.html#module-bim2sim.sim_settings"><code class="xref">bim2sim.sim_settings</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.html#module-bim2sim.tasks"><code class="xref">bim2sim.tasks</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.html#module-bim2sim.tasks.base"><code class="xref">bim2sim.tasks.base</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.bps.html#module-bim2sim.tasks.bps"><code class="xref">bim2sim.tasks.bps</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.combine_tz"><code class="xref">bim2sim.tasks.bps.combine_tz</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.disaggr_creation"><code class="xref">bim2sim.tasks.bps.disaggr_creation</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.enrich_material"><code class="xref">bim2sim.tasks.bps.enrich_material</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.enrich_use_cond"><code class="xref">bim2sim.tasks.bps.enrich_use_cond</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.plot_results"><code class="xref">bim2sim.tasks.bps.plot_results</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.sb_2b_generation"><code class="xref">bim2sim.tasks.bps.sb_2b_generation</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.sb_correction"><code class="xref">bim2sim.tasks.bps.sb_correction</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.bps.html#module-bim2sim.tasks.bps.sb_creation"><code class="xref">bim2sim.tasks.bps.sb_creation</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.cfd.html#module-bim2sim.tasks.cfd"><code class="xref">bim2sim.tasks.cfd</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.common.html#module-bim2sim.tasks.common"><code class="xref">bim2sim.tasks.common</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.common.html#module-bim2sim.tasks.common.base_tasks"><code class="xref">bim2sim.tasks.common.base_tasks</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.common.html#module-bim2sim.tasks.common.check_ifc"><code class="xref">bim2sim.tasks.common.check_ifc</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.common.html#module-bim2sim.tasks.common.create_elements"><code class="xref">bim2sim.tasks.common.create_elements</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.common.html#module-bim2sim.tasks.common.create_relations"><code class="xref">bim2sim.tasks.common.create_relations</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.common.html#module-bim2sim.tasks.common.deserialize_elements"><code class="xref">bim2sim.tasks.common.deserialize_elements</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.common.html#module-bim2sim.tasks.common.inner_loop_remover"><code class="xref">bim2sim.tasks.common.inner_loop_remover</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.common.html#module-bim2sim.tasks.common.load_ifc"><code class="xref">bim2sim.tasks.common.load_ifc</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.common.html#module-bim2sim.tasks.common.serialize_elements"><code class="xref">bim2sim.tasks.common.serialize_elements</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.common.html#module-bim2sim.tasks.common.weather"><code class="xref">bim2sim.tasks.common.weather</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac"><code class="xref">bim2sim.tasks.hvac</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.check_ifc"><code class="xref">bim2sim.tasks.hvac.check_ifc</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.connect_elements"><code class="xref">bim2sim.tasks.hvac.connect_elements</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.dead_ends"><code class="xref">bim2sim.tasks.hvac.dead_ends</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.expansiontanks"><code class="xref">bim2sim.tasks.hvac.expansiontanks</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.export"><code class="xref">bim2sim.tasks.hvac.export</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.fixports"><code class="xref">bim2sim.tasks.hvac.fixports</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.load_standardlibrary"><code class="xref">bim2sim.tasks.hvac.load_standardlibrary</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.make_graph"><code class="xref">bim2sim.tasks.hvac.make_graph</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.tasks.hvac.html#module-bim2sim.tasks.hvac.reduce"><code class="xref">bim2sim.tasks.hvac.reduce</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.utilities.html#module-bim2sim.utilities"><code class="xref">bim2sim.utilities</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.utilities.html#module-bim2sim.utilities.common_functions"><code class="xref">bim2sim.utilities.common_functions</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.utilities.html#module-bim2sim.utilities.pyocc_tools"><code class="xref">bim2sim.utilities.pyocc_tools</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.utilities.html#module-bim2sim.utilities.svg_utils"><code class="xref">bim2sim.utilities.svg_utils</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.utilities.html#module-bim2sim.utilities.test"><code class="xref">bim2sim.utilities.test</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.utilities.html#module-bim2sim.utilities.types"><code class="xref">bim2sim.utilities.types</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.utilities.html#module-bim2sim.utilities.visualize_spaces"><code class="xref">bim2sim.utilities.visualize_spaces</code></a></td><td>
+       <em></em></td></tr>
+   </table>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, RWTH Aachen University, EBC &amp; E3D; ROM Technik GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
