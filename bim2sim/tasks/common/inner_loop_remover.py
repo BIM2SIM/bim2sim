@@ -22,7 +22,7 @@ from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.TopAbs import TopAbs_FACE
 from OCC.Core.TopExp import TopExp_Explorer
 from OCC.Core.TopLoc import TopLoc_Location
-from OCC.Core.TopoDS import TopoDS_Iterator, TopoDS_Shape, topods_Face
+from OCC.Core.TopoDS import TopoDS_Iterator, TopoDS_Shape, topods
 from OCC.Core.gp import gp_Pnt, gp_XYZ
 
 from bim2sim.utilities.pyocc_tools import PyOCCTools
@@ -97,10 +97,10 @@ def _get_triangulation(face: TopoDS_Shape) -> Triangulation:
     result = []
     while ex.More():
         L = TopLoc_Location()
-        triangulation = bt.Triangulation(topods_Face(ex.Current()), L)
+        triangulation = bt.Triangulation(topods.Face(ex.Current()), L)
         if not triangulation:
             triangulation = bt.Triangulation(PyOCCTools.make_faces_from_pnts(
-                PyOCCTools.get_points_of_face(topods_Face(ex.Current()))), L)
+                PyOCCTools.get_points_of_face(topods.Face(ex.Current()))), L)
             if not triangulation:
                 ex.Next()
         triangles = triangulation.Triangles()
@@ -140,8 +140,8 @@ def _iterate_edges(polygon: List[Vertex], directed: bool = False):
         yield (v1, v2) if directed else _normalize((v1, v2))
 
 
-def _get_inside_outside_edges(triangulation: Triangulation) -> Tuple[
-    List[Edge], List[Edge]]:
+def _get_inside_outside_edges(triangulation: Triangulation, must_equal=False) \
+        -> Tuple[List[Edge], List[Edge]]:
     """
     Partitions all edges of the triangulation into two lists, edges that lay
     "outside" and edges that lay "inside". Outside edges are part of the
@@ -168,6 +168,8 @@ def _get_inside_outside_edges(triangulation: Triangulation) -> Tuple[
             outside.append(orientation[edge])
         else:
             inside.append(edge)
+    if must_equal:
+        assert len(inside) == len(outside)
     return inside, outside
 
 

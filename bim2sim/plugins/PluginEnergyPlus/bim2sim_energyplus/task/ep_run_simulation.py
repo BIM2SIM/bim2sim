@@ -32,8 +32,10 @@ class RunEnergyPlusSimulation(ITask):
         export_path = sim_results_path / self.prj_name
         ep_full = self.playground.sim_settings.run_full_simulation
         design_day = False
-        if not ep_full and not self.playground.sim_settings.set_run_period:
-            design_day = True
+        # if not ep_full and not self.playground.sim_settings.set_run_period:
+        #     design_day = True
+        # design_day calculation is replaced by
+        # "Run_Simulation_for_Sizing_Periods = 'Yes'" in ep_create_idf.py
 
         idf.run(output_directory=export_path, readvars=True, annual=ep_full,
                 design_day=design_day)

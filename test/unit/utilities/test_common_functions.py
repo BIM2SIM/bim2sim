@@ -163,7 +163,7 @@ class TestCommonFunctions(unittest.TestCase):
         """test all_subclasses function"""
         all_subclasses = cf.all_subclasses(BPSProduct)
         self.assertIsInstance(all_subclasses, set)
-        self.assertEqual(len(all_subclasses), 29)
+        self.assertEqual(len(all_subclasses), 28)
 
 
 class TestConstructionClassChoices(unittest.TestCase):
@@ -232,11 +232,11 @@ class TestConstructionClassChoices(unittest.TestCase):
     def test_default_values(self):
         """Test that default values are set and valid"""
         walls_default = self.settings_manager[
-            'construction_class_walls'].default
+            'construction_class_walls'].value
         windows_default = self.settings_manager[
-            'construction_class_windows'].default
+            'construction_class_windows'].value
         doors_default = self.settings_manager[
-            'construction_class_doors'].default
+            'construction_class_doors'].value
 
         self.assertEqual(walls_default, 'iwu_heavy')
         self.assertEqual(windows_default,

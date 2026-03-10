@@ -3,6 +3,7 @@ from pathlib import Path
 import subprocess
 import bim2sim
 
+
 def count_functions_with_correct_docstrings(directory):
     """Check how many functions have no docstrings and structure the output in a dict."""
     result = subprocess.run(['pydocstyle', directory], capture_output=True, text=True)
@@ -28,7 +29,6 @@ def count_functions_with_correct_docstrings(directory):
             functions_without_docstrings += 1
             structured_messages[file_msg] = error_msg
 
-
     return functions_without_docstrings, structured_messages
 
 
@@ -52,9 +52,10 @@ def generate_markdown_table(data):
     return table
 
 
-# run the function against current bim2sim repository
-functions_with_docstrings, structured_messages = count_functions_with_correct_docstrings(Path(bim2sim.__file__).parent)
-markdown_table = generate_markdown_table(structured_messages)
-print(f'Number of cuntions with Docstrings: {functions_with_docstrings}')
+if __name__ == '__main__':
+    # run the function against current bim2sim repository
+    functions_with_docstrings, structured_messages = count_functions_with_correct_docstrings(Path(bim2sim.__file__).parent)
+    markdown_table = generate_markdown_table(structured_messages)
+    print(f'Number of cuntions with Docstrings: {functions_with_docstrings}')
 
-print(markdown_table)
+    print(markdown_table)

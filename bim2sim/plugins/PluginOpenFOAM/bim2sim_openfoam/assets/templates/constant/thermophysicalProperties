@@ -1,0 +1,68 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1706+                                |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+/* Butterfly 0.0.5                https://github.com/ladybug-tools/butterfly *\
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+	version		4.0;
+	format		ascii;
+	class		dictionary;
+	location	"constant";
+	object		thermophysicalProperties;
+}
+
+thermoType
+{
+
+    type		heRhoThermo;
+
+    mixture		pureMixture;
+
+    transport		const;
+
+    thermo		hConst;
+
+    equationOfState		perfectGas;
+
+    specie		specie;
+
+    energy		sensibleEnthalpy;
+
+}
+
+mixture
+{
+
+    specie
+    {
+
+        molWeight		28.9644;
+
+        nMoles		1;
+
+    }
+
+    thermodynamics
+    {
+
+        Cp		1004.5;
+
+        Hf		0; // 2.544e+06;
+
+    }
+
+    transport
+    {
+
+        mu		1.8e-05;
+
+        Pr		0.71;
+
+    }
+
+}

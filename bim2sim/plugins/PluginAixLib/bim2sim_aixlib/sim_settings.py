@@ -10,7 +10,7 @@ class AixLibSimSettings(PlantSimSettings):
     """
 
     path_aixlib = PathSetting(
-        default=None,
+        value=None,
         description='Path to the local AixLib`s repository. This needs to '
                     'point to the root level package.mo file. If not'
                     ' provided, the version for regression testing will be '

@@ -2,65 +2,38 @@
 This targets both, settings to set for the later simulation and settings for
 the model generation process in bim2sim.
 """
+
 import logging
 import ast
 import os.path
-from pathlib import Path
-from typing import Union
+from typing import Union, Optional, List
 import sys
-
+from pathlib import Path
+from pydantic import BaseModel, Field, model_validator, field_validator, FilePath, DirectoryPath
+from pydantic_core import PydanticCustomError
+from typing_extensions import Self
+from enum import Enum
 from bim2sim.utilities import types
 from bim2sim.utilities.types import LOD
 from bim2sim.elements.base_elements import Material
 from bim2sim.elements import bps_elements as bps_elements, \
     hvac_elements as hvac_elements
+from bim2sim.elements.mapping.ifc2python import check_guid
+
 
 logger = logging.getLogger(__name__)
 
 
 class AutoSettingNameMeta(type):
-    """Adds the name to every SimulationSetting attribute based on its instance
+    """Sets the name to every SimulationSetting attribute based on its instance
     name.
-
-    This makes the definition of an extra attribute 'name' obsolete, as the
-    attributes 'name' is automatic defined based on the instance name.
-
-
-    Example:
-        >>> # create new simulation settings for your awesome simulation
-        >>> class MyAwesomeSimulationSettings(BaseSimSettings):
-        ...     def __init__(self):
-        ...         super().__init__()
-
-        >>> # create a new simulation setting, name will be taken automatic
-        from
-        >>> # instance name
-        >>> make_simulation_extra_fast = Setting(
-        ...     default=True,
-        ...     choices={
-            ...         True: 'This simulation will be incredible fast.',
-            ...         False: 'This simulation will be increbdile slow.'
-            ...     },
-            ...     description='Run the simulation in extra fast mode?',
-            ...     for_frontend=True
-            ... )
-
-        >>> # create a SimulationSettings instance and get the value
-        >>> my_awesome_settings = MyAwesomeSimulationSettings()
-        >>> # get initial value which is always none
-        >>> print(my_awesome_settings.make_simulation_extra_fast)
-        None
-        >>> # set default values and get the value
-        >>> my_awesome_settings.load_default_settings()
-        >>> print(my_awesome_settings.make_simulation_extra_fast)
-        True
-"""
+    """
 
     def __init__(cls, name, bases, namespace):
         super(AutoSettingNameMeta, cls).__init__(name, bases, namespace)
         # get all namespace objects
         for name, obj in namespace.items():
-            # filter for settings of simulaiton
+            # filter for settings of simulation
             if isinstance(obj, Setting):
                 # provide name of the setting as attribute
                 obj.name = name
@@ -79,6 +52,7 @@ class SettingsManager(dict):
         bound_simulation_settings: instance of sim_settings this manager is
         bound to. E.g. BuildingSimSettings.
     """
+    defaults = {}
 
     def __init__(self, bound_simulation_settings):
         super().__init__()
@@ -88,296 +62,211 @@ class SettingsManager(dict):
     def _create_settings(self):
         """Add all listed settings from the simulation in its attributes."""
         for name in self.names:
+            # Loads setting by name
             setting = getattr(type(self.bound_simulation_settings), name)
-            setting.initialize(self)
+            self[name] = setting
+
+            # Store predefined default values in the defaults dict,
+            # so they can be set back to their defaults later
+            self.defaults[setting.name] = setting.value
 
     @property
     def names(self):
-        """Returns a generator object with all settings that the
-         bound_simulation_settings owns."""
-        return (name for name in dir(type(self.bound_simulation_settings))
-                if
-                isinstance(getattr(type(self.bound_simulation_settings), name),
-                           Setting))
+        """Returns a generator object with all settings that the bound_simulation_settings owns."""
+        bound_simulation_settings_class = type(self.bound_simulation_settings)
+
+        for attribute_name in dir(bound_simulation_settings_class):
+            attribute = getattr(bound_simulation_settings_class, attribute_name)
+
+            if isinstance(attribute, Setting):
+                yield attribute_name
 
 
-class Setting:
-    """Define specific settings regarding model creation and simulation.
+class Setting(BaseModel, validate_assignment=True, validate_default=True):
+    """Base class for all simulation settings.
+
+    The attribute "value", which contains the payload of the simulation setting, is added in
+    the derived classes for the different data types (e.g. NumberSetting(Setting)).
+
+    The value, which is assigned to the attribute "value", when instancing the setting, serves
+    as a default value and can be changed according to the use case, if necessary.
 
     Args:
-        default: default value that will be applied when calling load_default()
-        choices: dict of possible choice for this setting as key and a
-        description per choice as value
-        description: description of what the settings does as Str
+        name: Name of the setting. Is set automatically by AutoSettingNameMeta(type)
+        description: description the setting
         for_frontend: should this setting be shown in the frontend
-        multiple_choice: allows multiple choice
         any_string: any string is allowed instead of a given choice
         mandatory: whether a setting needs to be set
     """
 
-    def __init__(
-            self,
-            default=None,
-            description: Union[str, None] = None,
-            for_frontend: bool = False,
-            any_string: bool = False,
-            mandatory=False
-    ):
-        self.name = None  # set by AutoSettingNameMeta
-        self.default = default
-        self.value = None
-        self.description = description
-        self.for_webapp = for_frontend
-        self.any_string = any_string
-        self.mandatory = mandatory
-        self.manager = None
+    name: str = Field(default="set automatically")
+    description: Optional[str] = None
+    for_frontend: bool = Field(default=False)
+    any_string: bool = Field(default=False)
+    mandatory: bool = Field(default=False)
 
-    def initialize(self, manager):
-        """Link between manager stored setting and direct setting of simulation
+    def __set__(self, bound_simulation_settings, value):
+        """Creates a new attribute with the name and value of the simulation setting instance,
+        stored in sim_settings. This makes it easier to access the setting's payload.
+        
+        Example:
+        
+        sim_settings = {e.g. BuildingSimSettings}
+            ...
+            example_setting_name = {bool}True
+            manager {SettingsManager}
+                'example_setting_name' = {BooleanSetting}(name='ahu_heating_overwrite',value=True, ...)
+                ...
+            ...
         """
-        if not self.name:
-            raise AttributeError("Attribute.name not set!")
-        self.check_setting_config()
-        self.manager = manager
-        self.manager[self.name] = self
-        self.manager[self.name].value = None
-
-    def check_setting_config(self):
-        """Checks if the setting is configured correctly"""
-        return True
-
-    def load_default(self):
-        if not self.value:
-            self.value = self.default
+        bound_simulation_settings.manager[self.name].value = value
 
     def __get__(self, bound_simulation_settings, owner):
-        """This is the get function that provides the value of the
-        simulation setting when calling sim_settings.<setting_name>"""
+        """Allows direct access to the setting's value"""
         if bound_simulation_settings is None:
             return self
 
-        return self._inner_get(bound_simulation_settings)
-
-    def _inner_get(self, bound_simulation_settings):
-        """Gets the value for the setting from the manager."""
         return bound_simulation_settings.manager[self.name].value
-
-    def _inner_set(self, bound_simulation_settings, value):
-        """Sets the value for the setting inside the manager."""
-        bound_simulation_settings.manager[self.name].value = value
-
-    def check_value(self, bound_simulation_settings, value):
-        """Checks the value that should be set for correctness
-
-        Args:
-            bound_simulation_settings: the sim setting belonging to the value
-            value: value that should be checked for correctness
-        Returns:
-            True: if check was successful
-        Raises:
-            ValueError: if check was not successful
-            """
-        return True
-
-    def __set__(self, bound_simulation_settings, value):
-        """This is the set function that sets the value in the simulation
-        setting when calling sim_settings.<setting_name> = <value>"""
-        if self.check_value(bound_simulation_settings, value):
-            self._inner_set(bound_simulation_settings, value)
 
 
 class NumberSetting(Setting):
-    def __init__(
-            self,
-            default=None,
-            description: Union[str, None] = None,
-            for_frontend: bool = False,
-            any_string: bool = False,
-            min_value: float = None,
-            max_value: float = None
-    ):
-        super().__init__(default, description, for_frontend, any_string)
-        self.min_value = min_value
-        self.max_value = max_value
+    value: Optional[Union[float, int]]
+    min_value: Optional[Union[float, int]] = None
+    max_value: Optional[Union[float, int]] = None
 
-    def check_setting_config(self):
-        """Make sure min and max values are reasonable"""
-        if not self.min_value:
+    @model_validator(mode='after')
+    def check_setting_config(self) -> Self:
+        if self.min_value is None:
             self.min_value = sys.float_info.epsilon
             logger.info(f'No min_value given for sim_setting {self}, assuming'
                         f'smallest float epsilon.')
-        if not self.max_value:
+
+        if self.max_value is None:
             self.max_value = float('inf')
             logger.info(f'No max_value given for sim_setting {self}, assuming'
                         f'biggest float inf.')
-        if self.default:
-            if self.default > self.max_value or self.default < self.min_value:
-                raise AttributeError(
-                    f"The specified limits for min_value, max_value and"
-                    f"default are contradictory min: {self.min_value} "
-                    f"max: {self.max_value}")
+
         if self.min_value > self.max_value:
-            raise AttributeError(
-                f"The specified limits for min_value and max_value are "
-                f"contradictory min: {self.min_value} max: {self.max_value}")
-        else:
-            return True
+            raise PydanticCustomError("contradictory_limits",
+                                      f"The specified limits for min_value and max_value are "  # type: ignore[misc]
+                                      f"contradictory min: {self.min_value} max: {self.max_value}")
 
-    def check_value(self, bound_simulation_settings, value):
-        """Checks the value that should be set for correctness
+        return self
 
-        Checks if value is in limits.
-        Args:
-            bound_simulation_settings: the sim setting belonging to the value
-            value: value that should be checked for correctness
-        Returns:
-            True: if check was successful
-        Raises:
-            ValueError: if check was not successful
-            """
-        # None is allowed for settings that should not be used at all but have
-        #  number values if used
-        if value is None:
-            return True
-        if not isinstance(value, (float, int)):
-            raise ValueError("The provided value is not a number.")
-        if self.min_value <= value <= self.max_value:
-            return True
-        else:
-            raise ValueError(
-                f"The provided value is not inside the limits: min: "
-                f"{self.min_value}, max: {self.max_value}, value: {value}")
+    @model_validator(mode='after')
+    def check_limits(self) -> Self:
+        if self.value is not None:
+            if not (self.min_value <= self.value <= self.max_value):
+                raise PydanticCustomError(
+                    "value_out_of_range",
+                    f"value ({self.value}) must be between {self.min_value} and {self.max_value}"  # type: ignore[misc]
+                )
+        return self
 
 
 class ChoiceSetting(Setting):
-    def __init__(
-            self,
-            default=None,
-            description: Union[str, None] = None,
-            for_frontend: bool = False,
-            any_string: bool = False,
-            choices: dict = None,
-            multiple_choice: bool = False
-    ):
-        super().__init__(default, description, for_frontend, any_string)
-        self.choices = choices
-        self.multiple_choice = multiple_choice
+    value: Union[str, List[str], Enum, None]
+    choices: dict
+    multiple_choice: bool = False
 
-    def check_setting_config(self):
-        """make sure str choices don't hold '.' as this is seperator for enums.
-        """
-        for choice in self.choices:
-            if isinstance(choice, str) and '.' in choice:
-                if '.' in choice:
-                    raise AttributeError(
-                        f"Provided setting {choice} has a choice with "
-                        f"character"
-                        f" '.', this is prohibited.")
-        return True
+    def _check_for_value_in_choices(self, value):
+        if value not in self.choices:
+            if not self.any_string:
+                raise PydanticCustomError(
+                    "value_not_in_choices",
+                    f'{value} is no valid value for setting {self.name}, select one of {self.choices}.' # type: ignore[misc]
+                )
 
-    def check_value(self, bound_simulation_settings, value):
-        """Checks the value that should be set for correctness
+    @field_validator('choices', mode='after')
+    @classmethod
+    def check_setting_config(cls, choices):
+        for choice in choices:
+            # Check for string type, to exclude enums
+            if isinstance(choice, str) and "." in choice:
+                raise PydanticCustomError("illegal_character",
+                                          f"Provided setting {choice} contains character '.', this is prohibited.")  # type: ignore[misc]
+        return choices
 
-        Checks if the selected value is in choices.
-        Args:
-            bound_simulation_settings: the sim setting belonging to the value
-            value: value that should be checked for correctness
-        Returns:
-            True: if check was successful
-        Raises:
-            ValueError: if check was not successful
-            """
-        choices = bound_simulation_settings.manager[self.name].choices
-        if isinstance(value, list):
+    @model_validator(mode='after')
+    def check_content(self):
+        if isinstance(self.value, list):
             if not self.multiple_choice:
-                raise ValueError(f'Only one choice is allowed for setting'
-                                 f' {self.name}, but {len(value)} choices '
-                                 f'are given.')
-            for val in value:
-                self.check_value(bound_simulation_settings, val)
-            return True
-        else:
-            if self.any_string and not isinstance(value, str):
-                raise ValueError(f'{value} is no valid value for setting '
-                                 f'{self.name}, please enter a string.')
-            elif value not in choices and not self.any_string:
-                raise ValueError(f'{value} is no valid value for setting '
-                                 f'{self.name}, select one of {choices}.')
+                raise PydanticCustomError("one_choice_allowed", f'Only one choice is allowed for setting'  # type: ignore[misc]
+                                                                f' {self.name}, but {len(self.value)} choices are given.')  # type: ignore[misc]
             else:
-                return True
+                for val in self.value:
+                    self._check_for_value_in_choices(val)
+        else:
+            self._check_for_value_in_choices(self.value)
+
+        return self
 
 
 class PathSetting(Setting):
-    def check_value(self, bound_simulation_settings, value):
-        """Checks the value that should be set for correctness
-
-        Checks if the value is a valid path
-        Args:
-            bound_simulation_settings: the sim setting belonging to the value
-            value: value that should be checked for correctness
-        Returns:
-            True: if check was successful
-        Raises:
-            ValueError: if check was not successful
-            """
-        # check for existence
-        # TODO #556 Do not check default path for existence because this might
-        #  not exist on system. This is a hack and should be solved when
-        #  improving communication between config and settings
-        if not value == self.default:
-            if not value.exists():
-                raise FileNotFoundError(
-                    f"The path provided for '{self.name}' does not exist."
-                    f" Please check the provided setting path which is: "
-                    f"{str(value)}")
-        return True
+    value: Optional[Union[str, DirectoryPath, FilePath]]
 
     def __set__(self, bound_simulation_settings, value):
-        """This is the set function that sets the value in the simulation
-        setting
-        when calling sim_settings.<setting_name> = <value>"""
-        if not isinstance(value, Path):
-            if value is not None:
-                try:
-                    value = Path(value)
-                except TypeError:
-                    raise TypeError(
-                        f"Could not convert the simulation setting for "
-                        f"{self.name} into a path, please check the path.")
-            # if default value is None this is ok
-            elif value == self.default:
-                pass
-            else:
-                raise ValueError(f"No Path provided for setting {self.name}.")
-        if self.check_value(bound_simulation_settings, value):
-            self._inner_set(bound_simulation_settings, value)
+        """Creates a new attribute with the name and value of the simulation setting instance,
+        stored in sim_settings. This makes it easier to access the setting's payload.
+
+        Example:
+
+        sim_settings = {e.g. BuildingSimSettings}
+            ...
+            example_setting_name = {bool}True
+            manager {SettingsManager}
+                'example_setting_name' = {BooleanSetting}(name='ahu_heating_overwrite',value=True, ...)
+                ...
+            ...
+        """
+        setting = bound_simulation_settings.manager[self.name]
+        # assign the value without triggering pydantic's
+        # assignment validation (allows non-existing paths, etc.).
+        if isinstance(value, str):
+            object.__setattr__(setting, "value", Path(value))
+        else:
+            object.__setattr__(setting, "value", value)
 
 
 class BooleanSetting(Setting):
-    def check_value(self, bound_simulation_settings, value):
-        if not isinstance(value, bool) and value is not None:
-            raise ValueError(f"The provided value {value} for sim_setting "
-                             f"{self.name} is not a Boolean")
-        else:
-            return True
+    value: Optional[bool]
+
+
+class GuidListSetting(Setting):
+    value: Optional[List[str]] = None
+
+    @field_validator('value', mode='after')
+    @classmethod
+    def check_value(cls, value):
+        if value is not None:
+            for i, guid in enumerate(value):
+                if not check_guid(guid):
+                    raise PydanticCustomError("invalid_guid",
+                                              f"Invalid IFC GUID format at index {i}: '{guid}'")  # type: ignore[misc]
+        return value
 
 
 class BaseSimSettings(metaclass=AutoSettingNameMeta):
     """Specification of basic bim2sim simulation settings which are common for
     all simulations"""
 
-    def __init__(self,
-                 filters: list = None):
+    def __init__(self, filters: list = None):
         self.manager = SettingsManager(bound_simulation_settings=self)
 
         self.relevant_elements = {}
         self.simulated = False
-        self.load_default_settings()
 
     def load_default_settings(self):
         """loads default values for all settings"""
+
         for setting in self.manager.values():
-            setting.load_default()
+            default = self.manager.defaults[setting.name]
+            # No default set of setting values for PathSettings, since defaults
+            if isinstance(setting, PathSetting):
+                object.__setattr__(setting, "value", default)
+            else:
+                setting.value = default
+
 
     def update_from_config(self, config):
         """Updates the simulation settings specification from the config
@@ -450,18 +339,21 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                         f"but is marked as mandatory. Please configure "
                         f"{setting.name} before running your project.")
 
+
     dymola_simulation = BooleanSetting(
-        default=False,
-        description='Run a Simulation with Dymola after model export?',
-        for_frontend=True
+        value=False,
+        description="Run a Simulation with Dymola after model export?",
+        for_frontend=True,
     )
+
     create_external_elements = BooleanSetting(
-        default=False,
+        value=False,
         description='Create external elements?',
         for_frontend=True
     )
+
     max_wall_thickness = NumberSetting(
-        default=0.3,
+        value=0.3,
         max_value=0.60,
         min_value=1e-3,
         description='Choose maximum wall thickness as a tolerance for mapping '
@@ -471,10 +363,30 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
     )
 
     group_unidentified = ChoiceSetting(
-        default='fuzzy',
+        value='fuzzy',
         choices={
-            'fuzzy': 'Use fuzzy search to find name similarities',
-            'name': 'Only group elements with exact same name'
+            'fuzzy': 'Use fuzzy search to find ifc name similarities',
+            'name': 'Only group elements with exact same ifc name',
+            'name_and_description': 'Only group elements with the same ifc'
+                                    ' name and ifc description'
+        },
+        description='To reduce the number of decisions by user to identify '
+                    'elements which can not be identified automatically by '
+                    'the '
+                    'system, you can either use simple grouping by same name '
+                    'of'
+                    ' IFC element or fuzzy search to group based on'
+                    ' similarities in name.',
+        for_frontend=True,
+    )
+
+    group_unidentified_ = ChoiceSetting(
+        value='fuzzy',
+        choices={
+            'fuzzy': 'Use fuzzy search to find ifc name similarities',
+            'name': 'Only group elements with exact same ifc name',
+            'name_and_description': 'Only group elements with the same ifc'
+                                    ' name and ifc description'
         },
         description='To reduce the number of decisions by user to identify '
                     'elements which can not be identified automatically by '
@@ -485,8 +397,9 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     ' similarities in name.',
         for_frontend=True
     )
+
     fuzzy_threshold = NumberSetting(
-        default=0.7,
+        value=0.7,
         min_value=0.5,
         max_value=0.9,
         description='If you want to use fuzzy search in the '
@@ -500,7 +413,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
     )
 
     reset_guids = BooleanSetting(
-        default=False,
+        value=False,
         description='Reset GlobalIDs from imported IFC if duplicate '
                     'GlobalIDs occur in the IFC. As EnergyPlus evaluates all'
                     'GlobalIDs upper case only, this might also be '
@@ -510,7 +423,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
     )
 
     weather_file_path = PathSetting(
-        default=None,
+        value=None,
         description='Path to the weather file that should be used for the '
                     'simulation. If no path is provided, we will try to get '
                     'the'
@@ -521,22 +434,47 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
         for_frontend=True,
         mandatory=True
     )
+
+    building_rotation_overwrite = NumberSetting(
+        value=0,
+        min_value=0,
+        max_value=359,
+        description='Overwrite the (clockwise) building rotation angle in '
+                    'degrees.',
+        for_frontend=True
+    )
+
     add_space_boundaries = BooleanSetting(
-        default=False,
+        value=False,
         description='Add space boundaries. Only required for building '
                     'performance simulation and co-simulations.',
         for_frontend=True
     )
     correct_space_boundaries = BooleanSetting(
-        default=False,
+        value=False,
         description='Apply geometric correction to space boundaries.',
         for_frontend=True
     )
     close_space_boundary_gaps = BooleanSetting(
-        default=False,
+        value=False,
         description='Close gaps in the set of space boundaries by adding '
                     'additional 2b space boundaries.',
         for_frontend=True
+    )
+
+    stories_to_load_guids = GuidListSetting(
+        value=[],
+        description='List of IFC GUIDs for the specific stories that should '
+                    'be loaded. If empty, all stories will be considered '
+                    'for loading. This setting is useful for large buildings '
+                    'to reduce computational time. Note that loading single '
+                    'storeys may lead to missing ceilings if the related '
+                    'slab is assigned to the storey above, which may require '
+                    'corrections to boundary conditions.'
+                    ' It is recommended to include GUIDs of neighboring'
+                    ' storeys to reduce boundary condition errors.',
+        for_frontend=True,
+        mandatory=False
     )
 
 
@@ -549,7 +487,7 @@ class PlantSimSettings(BaseSimSettings):
     # Todo maybe make every aggregation its own setting with LOD in the future,
     #  but currently we have no usage for this afaik.
     aggregations = ChoiceSetting(
-        default=[
+        value=[
             'UnderfloorHeating',
             'PipeStrand',
             'Consumer',
@@ -574,7 +512,7 @@ class PlantSimSettings(BaseSimSettings):
     )
 
     tolerance_connect_by_position = NumberSetting(
-        default=10,
+        value=10,
         description="Tolerance for distance for which ports should be "
                     "connected. Based on there position in IFC.",
         for_frontend=True,
@@ -582,11 +520,12 @@ class PlantSimSettings(BaseSimSettings):
     )
 
     verify_connection_by_position = BooleanSetting(
+        value=True,
         description="Choose if connection of elements via IfcDistributionPorts"
                     " should be validated by the geometric position of the "
-                    "ports.",
-        default=True
+                    "ports."
     )
+
 
 class BuildingSimSettings(BaseSimSettings):
 
@@ -596,7 +535,7 @@ class BuildingSimSettings(BaseSimSettings):
                                   Material}
 
     layers_and_materials = ChoiceSetting(
-        default=LOD.low,
+        value=LOD.low,
         choices={
             LOD.low: 'Override materials with predefined setups',
             # LOD.full: 'Get all information from IFC and enrich if needed'
@@ -606,7 +545,7 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
     year_of_construction_overwrite = NumberSetting(
-        default=None,
+        value=None,
         min_value=0,
         max_value=2015,
         description="Force an overwrite of the year of construction as a "
@@ -614,7 +553,7 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True,
     )
     construction_class_walls = ChoiceSetting(
-        default='iwu_heavy',
+        value='iwu_heavy',
         choices={
             'iwu_heavy': 'Wall structures according to iwu heavy standard',
             'iwu_light': 'Wall structures according to iwu light standard',
@@ -734,8 +673,9 @@ class BuildingSimSettings(BaseSimSettings):
                     "kfw_* the  year of construction is required.",
         for_frontend=True
     )
+
     construction_class_windows = ChoiceSetting(
-        default='Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
+        value='Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach',
         choices={
             'Holzfenster, zweifach':
                 'Zeifachverglasung mit Holzfenstern',
@@ -844,7 +784,7 @@ class BuildingSimSettings(BaseSimSettings):
                     " the windows of the selected building.",
     )
     construction_class_doors = ChoiceSetting(
-        default='iwu_typical',
+        value='iwu_typical',
         choices={
             'iwu_typical': 'Typical door data based',
             'kfw_40': 'Doors according to kfw 40 standard',
@@ -892,7 +832,7 @@ class BuildingSimSettings(BaseSimSettings):
                     " the windows of the selected building.",
     )
     heating_tz_overwrite = BooleanSetting(
-        default=None,
+        value=None,
         description='If True, all thermal zones will be provided with heating,'
                     'if False no heating for thermal zones is provided, '
                     'regardless of information in the IFC or in the use '
@@ -900,7 +840,7 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
     cooling_tz_overwrite = BooleanSetting(
-        default=None,
+        value=None,
         description='If True, all thermal zones will be provided with cooling,'
                     'if False no cooling for thermal zones is provided, '
                     'regardless of information in the IFC or in the use '
@@ -908,7 +848,7 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
     ahu_tz_overwrite = BooleanSetting(
-        default=None,
+        value=None,
         description='If True, all thermal zones will be provided with AHU,'
                     'if False no AHU for thermal zones is provided, '
                     'regardless of information in the IFC or in the use '
@@ -916,7 +856,7 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
     prj_use_conditions = PathSetting(
-        default=None,
+        value=None,
         description="Path to a custom UseConditions.json for the specific "
                     "project, that holds custom usage conditions for this "
                     "project. If this is used, this use_conditions file have "
@@ -925,7 +865,7 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
     prj_custom_usages = PathSetting(
-        default=None,
+        value=None,
         description="Path to a custom customUsages.json for the specific "
                     "project, that holds mappings between space names from "
                     "IFC "
@@ -933,7 +873,7 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
     setpoints_from_template = BooleanSetting(
-        default=False,
+        value=False,
         description="Use template heating and cooling profiles instead of "
                     "setpoints from IFC. Defaults to False, i.e., "
                     "use original data source. Set to True, "
@@ -941,14 +881,14 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
     use_maintained_illuminance = BooleanSetting(
-        default=True,
+        value=True,
         description="Use maintained illuminance required per zone based on "
                     "DIN V EN 18599 information to calculate internal loads"
                     "through lighting.",
         for_frontend=True
     )
     sim_results = ChoiceSetting(
-        default=[
+        value=[
             "heat_demand_total", "cool_demand_total",
             "heat_demand_rooms", "cool_demand_rooms",
             "heat_energy_total", "cool_energy_total",
@@ -1003,53 +943,53 @@ class BuildingSimSettings(BaseSimSettings):
         multiple_choice=True,
     )
     add_space_boundaries = BooleanSetting(
-        default=True,
+        value=True,
         description='Add space boundaries. Only required for building '
                     'performance simulation and co-simulations.',
         for_frontend=True
     )
     correct_space_boundaries = BooleanSetting(
-        default=False,
+        value=False,
         description='Apply geometric correction to space boundaries.',
         for_frontend=True
     )
     split_bounds = BooleanSetting(
-        default=False,
+        value=False,
         description='Whether to convert up non-convex space boundaries or '
                     'not.',
         for_frontend=True
     )
     add_shadings = BooleanSetting(
-        default=False,
+        value=False,
         description='Whether to add shading surfaces if available or not.',
         for_frontend=True
     )
     split_shadings = BooleanSetting(
-        default=False,
+        value=False,
         description='Whether to convert up non-convex shading boundaries or '
                     'not.',
         for_frontend=True
     )
     close_space_boundary_gaps = BooleanSetting(
-        default=False,
+        value=False,
         description='Close gaps in the set of space boundaries by adding '
                     'additional 2b space boundaries.',
         for_frontend=True
     )
     create_plots = BooleanSetting(
-        default=False,
+        value=False,
         description='Create plots for simulation results after the simulation '
                     'finished.',
         for_frontend=True
     )
     set_run_period = BooleanSetting(
-        default=False,
+        value=False,
         description="Choose whether run period for simulation execution "
                     "should be set manually instead of running annual "
                     "simulation."
     )
     run_period_start_month = NumberSetting(
-        default=1,
+        value=1,
         min_value=1,
         max_value=12,
         description="Choose start month of run period. Requires "
@@ -1057,7 +997,7 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
     run_period_start_day = NumberSetting(
-        default=1,
+        value=1,
         min_value=1,
         max_value=31,
         description="Choose start day of run period. Requires "
@@ -1065,7 +1005,7 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
     run_period_end_month = NumberSetting(
-        default=12,
+        value=12,
         min_value=1,
         max_value=12,
         description="Choose end month of run period. Requires "
@@ -1073,7 +1013,7 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
     run_period_end_day = NumberSetting(
-        default=31,
+        value=31,
         min_value=1,
         max_value=31,
         description="Choose end day of run period. Requires "
@@ -1081,47 +1021,47 @@ class BuildingSimSettings(BaseSimSettings):
         for_frontend=True
     )
     plot_singe_zone_guid = ChoiceSetting(
-        default='',
+        value='',
         choices={'': "Skip"},
         description="Choose the GlobalId of the IfcSpace for which results "
                     "should be plotted.",
         any_string=True
     )
     ahu_heating_overwrite = BooleanSetting(
-        default=None,
+        value=False,
         description="Choose if the central AHU should provide heating. "
     )
     ahu_cooling_overwrite = BooleanSetting(
-        default=None,
+        value=False,
         description="Choose if the central AHU should provide cooling."
     )
     ahu_dehumidification_overwrite = BooleanSetting(
-        default=None,
+        value=False,
         description="Choose if the central AHU should provide "
                     "dehumidification."
     )
     ahu_humidification_overwrite = BooleanSetting(
-        default=None,
+        value=False,
         description="Choose if the central AHU should provide humidification."
                     "otherwise this has no effect. "
     )
     ahu_heat_recovery_overwrite = BooleanSetting(
-        default=None,
+        value=False,
         description="Choose if the central AHU should zuse heat recovery."
     )
     ahu_heat_recovery_efficiency_overwrite = NumberSetting(
-        default=None,
+        value=0.8,
         min_value=0.5,
         max_value=0.99,
         description="Choose the heat recovery efficiency of the central AHU."
     )
     use_constant_infiltration_overwrite = BooleanSetting(
-        default=None,
+        value=False,
         description="If only constant base infiltration should be used and no "
                     "dynamic ventilation through e.g. windows."
     )
     base_infiltration_rate_overwrite = NumberSetting(
-        default=None,
+        value=None,
         min_value=0.001,
         max_value=5,
         description="Overwrite base value for the natural infiltration in 1/h "
