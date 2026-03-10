@@ -102,32 +102,249 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="bim2sim-plugins-pluginteaser-bim2sim-teaser-package">
-<h1>bim2sim.plugins.PluginTEASER.bim2sim_teaser package<a class="headerlink" href="#bim2sim-plugins-pluginteaser-bim2sim-teaser-package" title="Permalink to this heading"></a></h1>
+  <section id="module-bim2sim.plugins.PluginTEASER.bim2sim_teaser">
+<span id="bim2sim-plugins-pluginteaser-bim2sim-teaser-package"></span><h1>bim2sim.plugins.PluginTEASER.bim2sim_teaser package<a class="headerlink" href="#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser" title="Permalink to this heading"></a></h1>
+<p>TEASER plugin for bim2sim</p>
+<p>Holds logic to run a simulation based on prepared ifc data</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.LoadLibrariesTEASER">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.</span></span><span class="sig-name descname"><span class="pre">LoadLibrariesTEASER</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">playground</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.LoadLibrariesTEASER" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><code class="xref py py-class docutils literal notranslate"><span class="pre">ITask</span></code></a></p>
+<p>Load AixLib library for export</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.LoadLibrariesTEASER.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.LoadLibrariesTEASER.run" title="Permalink to this definition"></a></dt>
+<dd><p>Run tasks.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.LoadLibrariesTEASER.touches">
+<span class="sig-name descname"><span class="pre">touches</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('libraries',)</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.LoadLibrariesTEASER.touches" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.PluginTEASER">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.</span></span><span class="sig-name descname"><span class="pre">PluginTEASER</span></span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.PluginTEASER" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.plugins.html#bim2sim.plugins.Plugin" title="bim2sim.plugins.Plugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">Plugin</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.PluginTEASER.default_tasks">
+<span class="sig-name descname"><span class="pre">default_tasks</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.tasks.html#bim2sim.tasks.base.ITask" title="bim2sim.tasks.base.ITask"><span class="pre">ITask</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'bim2sim.tasks.common.load_ifc.LoadIFC'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.bps.sb_creation.CreateSpaceBoundaries'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.bps.sb_2b_generation.AddSpaceBoundaries2B'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.bps.sb_correction.CorrectSpaceBoundaries'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.common.create_relations.CreateRelations'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.bps.disaggr_creation.DisaggregationCreationAndTypeCheck'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.bps.enrich_material.EnrichMaterial'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.bps.enrich_use_cond.EnrichUseConditions'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.bps.combine_tz.CombineThermalZones'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.common.weather.Weather'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.plugins.PluginTEASER.bim2sim_teaser.LoadLibrariesTEASER'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj.SerializeTEASER'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.common.serialize_elements.SerializeElements'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser.ExportTEASER'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy.SimulateModelEBCPy'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'bim2sim.tasks.bps.plot_results.PlotBEPSResults'&gt;]</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.PluginTEASER.default_tasks" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.PluginTEASER.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'TEASER'</span></em><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.PluginTEASER.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.PluginTEASER.sim_settings">
+<span class="sig-name descname"><span class="pre">sim_settings</span></span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.PluginTEASER.sim_settings" title="Permalink to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings.TEASERSimSettings" title="bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings.TEASERSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">TEASERSimSettings</span></code></a></p>
+</dd></dl>
+
+</dd></dl>
+
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading"></a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.html">bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.html#bim2sim-plugins-pluginteaser-bim2sim-teaser-examples-e1-simple-project-bps-teaser-module">bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.html#bim2sim-plugins-pluginteaser-bim2sim-teaser-examples-e2-complex-project-teaser-module">bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_complex_project_teaser module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.html#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser">bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser.run_example_simple_building_teaser"><code class="docutils literal notranslate"><span class="pre">run_example_simple_building_teaser()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.html#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_complex_project_teaser">bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_complex_project_teaser module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_complex_project_teaser.run_example_complex_building_teaser"><code class="docutils literal notranslate"><span class="pre">run_example_complex_building_teaser()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.html#bim2sim-plugins-pluginteaser-bim2sim-teaser-examples-e3-load-teaser-simulation-results-module">bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e3_load_teaser_simulation_results module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.html#bim2sim-plugins-pluginteaser-bim2sim-teaser-examples-e4-visualize-zone-binding-module">bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e4_visualize_zone_binding module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.html#bim2sim-plugins-pluginteaser-bim2sim-teaser-examples-e5-serialize-teaser-prj-module">bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e5_serialize_teaser_prj module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.html#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e4_visualize_zone_binding">bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e4_visualize_zone_binding module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e4_visualize_zone_binding.visualize_zoning_of_complex_building"><code class="docutils literal notranslate"><span class="pre">visualize_zoning_of_complex_building()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.html#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e5_serialize_teaser_prj">bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e5_serialize_teaser_prj module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e5_serialize_teaser_prj.run_serialize_teaser_project_example"><code class="docutils literal notranslate"><span class="pre">run_serialize_teaser_project_example()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.html#bim2sim-plugins-pluginteaser-bim2sim-teaser-examples-e6-load-serialized-teaser-prj-module">bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e6_load_serialized_teaser_prj module</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html">bim2sim.plugins.PluginTEASER.bim2sim_teaser.export package</a></li>
-<li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html">bim2sim.plugins.PluginTEASER.bim2sim_teaser.models package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html">bim2sim.plugins.PluginTEASER.bim2sim_teaser.export package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Dummy"><code class="docutils literal notranslate"><span class="pre">Dummy</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.Dummy.represents"><code class="docutils literal notranslate"><span class="pre">Dummy.represents</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.FactoryError"><code class="docutils literal notranslate"><span class="pre">FactoryError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.TEASERExportInstance"><code class="docutils literal notranslate"><span class="pre">TEASERExportInstance</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.TEASERExportInstance.check_numeric"><code class="docutils literal notranslate"><span class="pre">TEASERExportInstance.check_numeric()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.TEASERExportInstance.check_param"><code class="docutils literal notranslate"><span class="pre">TEASERExportInstance.check_param()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.TEASERExportInstance.collect_params"><code class="docutils literal notranslate"><span class="pre">TEASERExportInstance.collect_params()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.TEASERExportInstance.dummy"><code class="docutils literal notranslate"><span class="pre">TEASERExportInstance.dummy</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.TEASERExportInstance.export_elements"><code class="docutils literal notranslate"><span class="pre">TEASERExportInstance.export_elements</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.TEASERExportInstance.factory"><code class="docutils literal notranslate"><span class="pre">TEASERExportInstance.factory()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.TEASERExportInstance.get_library_classes"><code class="docutils literal notranslate"><span class="pre">TEASERExportInstance.get_library_classes()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.TEASERExportInstance.handle_ceiling_floor"><code class="docutils literal notranslate"><span class="pre">TEASERExportInstance.handle_ceiling_floor()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.TEASERExportInstance.init_factory"><code class="docutils literal notranslate"><span class="pre">TEASERExportInstance.init_factory()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.TEASERExportInstance.library"><code class="docutils literal notranslate"><span class="pre">TEASERExportInstance.library</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.TEASERExportInstance.lookup"><code class="docutils literal notranslate"><span class="pre">TEASERExportInstance.lookup</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.TEASERExportInstance.represents"><code class="docutils literal notranslate"><span class="pre">TEASERExportInstance.represents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.TEASERExportInstance.request_param"><code class="docutils literal notranslate"><span class="pre">TEASERExportInstance.request_param()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.TEASERExportInstance.request_params"><code class="docutils literal notranslate"><span class="pre">TEASERExportInstance.request_params()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.export.TEASERExportInstance.requested_elements"><code class="docutils literal notranslate"><span class="pre">TEASERExportInstance.requested_elements</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html">bim2sim.plugins.PluginTEASER.bim2sim_teaser.models package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Building"><code class="docutils literal notranslate"><span class="pre">Building</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Building.add_thermal_zones_to_building"><code class="docutils literal notranslate"><span class="pre">Building.add_thermal_zones_to_building()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Building.represents"><code class="docutils literal notranslate"><span class="pre">Building.represents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Building.request_params"><code class="docutils literal notranslate"><span class="pre">Building.request_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.BuildingAHU"><code class="docutils literal notranslate"><span class="pre">BuildingAHU</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.BuildingAHU.overwrite_teaser_defaults"><code class="docutils literal notranslate"><span class="pre">BuildingAHU.overwrite_teaser_defaults()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.BuildingAHU.represents"><code class="docutils literal notranslate"><span class="pre">BuildingAHU.represents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.BuildingAHU.request_params"><code class="docutils literal notranslate"><span class="pre">BuildingAHU.request_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Ceiling"><code class="docutils literal notranslate"><span class="pre">Ceiling</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Ceiling.represents"><code class="docutils literal notranslate"><span class="pre">Ceiling.represents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Ceiling.request_params"><code class="docutils literal notranslate"><span class="pre">Ceiling.request_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Door"><code class="docutils literal notranslate"><span class="pre">Door</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Door.represents"><code class="docutils literal notranslate"><span class="pre">Door.represents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Door.request_params"><code class="docutils literal notranslate"><span class="pre">Door.request_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers"><code class="docutils literal notranslate"><span class="pre">ElementWithLayers</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ElementWithLayers.add_layers_to_element"><code class="docutils literal notranslate"><span class="pre">ElementWithLayers.add_layers_to_element()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Floor"><code class="docutils literal notranslate"><span class="pre">Floor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Floor.represents"><code class="docutils literal notranslate"><span class="pre">Floor.represents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Floor.request_params"><code class="docutils literal notranslate"><span class="pre">Floor.request_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.GroundFloor"><code class="docutils literal notranslate"><span class="pre">GroundFloor</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.GroundFloor.represents"><code class="docutils literal notranslate"><span class="pre">GroundFloor.represents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.GroundFloor.request_params"><code class="docutils literal notranslate"><span class="pre">GroundFloor.request_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.InnerWall"><code class="docutils literal notranslate"><span class="pre">InnerWall</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.InnerWall.represents"><code class="docutils literal notranslate"><span class="pre">InnerWall.represents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.InnerWall.request_params"><code class="docutils literal notranslate"><span class="pre">InnerWall.request_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Layer"><code class="docutils literal notranslate"><span class="pre">Layer</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Layer.represents"><code class="docutils literal notranslate"><span class="pre">Layer.represents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Layer.request_params"><code class="docutils literal notranslate"><span class="pre">Layer.request_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Material"><code class="docutils literal notranslate"><span class="pre">Material</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Material.request_params"><code class="docutils literal notranslate"><span class="pre">Material.request_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.OuterWall"><code class="docutils literal notranslate"><span class="pre">OuterWall</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.OuterWall.represents"><code class="docutils literal notranslate"><span class="pre">OuterWall.represents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.OuterWall.request_params"><code class="docutils literal notranslate"><span class="pre">OuterWall.request_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Rooftop"><code class="docutils literal notranslate"><span class="pre">Rooftop</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Rooftop.represents"><code class="docutils literal notranslate"><span class="pre">Rooftop.represents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Rooftop.request_params"><code class="docutils literal notranslate"><span class="pre">Rooftop.request_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER"><code class="docutils literal notranslate"><span class="pre">TEASER</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.TEASER.library"><code class="docutils literal notranslate"><span class="pre">TEASER.library</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ThermalZone"><code class="docutils literal notranslate"><span class="pre">ThermalZone</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ThermalZone.add_elements_to_thermal_zone"><code class="docutils literal notranslate"><span class="pre">ThermalZone.add_elements_to_thermal_zone()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ThermalZone.represents"><code class="docutils literal notranslate"><span class="pre">ThermalZone.represents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.ThermalZone.request_params"><code class="docutils literal notranslate"><span class="pre">ThermalZone.request_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.UseConditions"><code class="docutils literal notranslate"><span class="pre">UseConditions</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.UseConditions.overwrite_teaser_defaults"><code class="docutils literal notranslate"><span class="pre">UseConditions.overwrite_teaser_defaults()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.UseConditions.represents"><code class="docutils literal notranslate"><span class="pre">UseConditions.represents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.UseConditions.request_params"><code class="docutils literal notranslate"><span class="pre">UseConditions.request_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Window"><code class="docutils literal notranslate"><span class="pre">Window</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Window.represents"><code class="docutils literal notranslate"><span class="pre">Window.represents</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.models.Window.request_params"><code class="docutils literal notranslate"><span class="pre">Window.request_params()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#submodules">Submodules</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim-plugins-pluginteaser-bim2sim-teaser-task-create-result-df-module">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim-plugins-pluginteaser-bim2sim-teaser-task-create-teaser-prj-module">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim-plugins-pluginteaser-bim2sim-teaser-task-export-teaser-module">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim-plugins-pluginteaser-bim2sim-teaser-task-load-modelica-results-module">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim-plugins-pluginteaser-bim2sim-teaser-task-serialize-teaser-prj-module">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj module</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim-plugins-pluginteaser-bim2sim-teaser-task-simulate-dymola-ebcpy-module">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF"><code class="docutils literal notranslate"><span class="pre">CreateResultDF</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.calc_indirect_result"><code class="docutils literal notranslate"><span class="pre">CreateResultDF.calc_indirect_result()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.convert_time_index"><code class="docutils literal notranslate"><span class="pre">CreateResultDF.convert_time_index()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.format_dataframe"><code class="docutils literal notranslate"><span class="pre">CreateResultDF.format_dataframe()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.map_zonal_results"><code class="docutils literal notranslate"><span class="pre">CreateResultDF.map_zonal_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.reads"><code class="docutils literal notranslate"><span class="pre">CreateResultDF.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.run"><code class="docutils literal notranslate"><span class="pre">CreateResultDF.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.select_wanted_results"><code class="docutils literal notranslate"><span class="pre">CreateResultDF.select_wanted_results()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_result_df.CreateResultDF.touches"><code class="docutils literal notranslate"><span class="pre">CreateResultDF.touches</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER"><code class="docutils literal notranslate"><span class="pre">CreateTEASER</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.min_admissible_elements"><code class="docutils literal notranslate"><span class="pre">CreateTEASER.min_admissible_elements()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.overwrite_heatloads"><code class="docutils literal notranslate"><span class="pre">CreateTEASER.overwrite_heatloads()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.prepare_export"><code class="docutils literal notranslate"><span class="pre">CreateTEASER.prepare_export()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.reads"><code class="docutils literal notranslate"><span class="pre">CreateTEASER.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.rotate_teaser_building"><code class="docutils literal notranslate"><span class="pre">CreateTEASER.rotate_teaser_building()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.run"><code class="docutils literal notranslate"><span class="pre">CreateTEASER.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.create_teaser_prj.CreateTEASER.touches"><code class="docutils literal notranslate"><span class="pre">CreateTEASER.touches</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser.ExportTEASER"><code class="docutils literal notranslate"><span class="pre">ExportTEASER</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser.ExportTEASER.reads"><code class="docutils literal notranslate"><span class="pre">ExportTEASER.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.export_teaser.ExportTEASER.run"><code class="docutils literal notranslate"><span class="pre">ExportTEASER.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results.LoadModelicaResults"><code class="docutils literal notranslate"><span class="pre">LoadModelicaResults</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results.LoadModelicaResults.run"><code class="docutils literal notranslate"><span class="pre">LoadModelicaResults.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.load_modelica_results.LoadModelicaResults.touches"><code class="docutils literal notranslate"><span class="pre">LoadModelicaResults.touches</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj.SerializeTEASER"><code class="docutils literal notranslate"><span class="pre">SerializeTEASER</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj.SerializeTEASER.reads"><code class="docutils literal notranslate"><span class="pre">SerializeTEASER.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.serialize_teaser_prj.SerializeTEASER.run"><code class="docutils literal notranslate"><span class="pre">SerializeTEASER.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy">bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy.SimulateModelEBCPy"><code class="docutils literal notranslate"><span class="pre">SimulateModelEBCPy</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy.SimulateModelEBCPy.final"><code class="docutils literal notranslate"><span class="pre">SimulateModelEBCPy.final</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy.SimulateModelEBCPy.reads"><code class="docutils literal notranslate"><span class="pre">SimulateModelEBCPy.reads</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy.SimulateModelEBCPy.run"><code class="docutils literal notranslate"><span class="pre">SimulateModelEBCPy.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.task.simulate_dymola_ebcpy.SimulateModelEBCPy.touches"><code class="docutils literal notranslate"><span class="pre">SimulateModelEBCPy.touches</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -136,8 +353,33 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
-<section id="bim2sim-plugins-pluginteaser-bim2sim-teaser-sim-settings-module">
-<h2>bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings module<a class="headerlink" href="#bim2sim-plugins-pluginteaser-bim2sim-teaser-sim-settings-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings">
+<span id="bim2sim-plugins-pluginteaser-bim2sim-teaser-sim-settings-module"></span><h2>bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings module<a class="headerlink" href="#module-bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings.TEASERSimSettings">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings.</span></span><span class="sig-name descname"><span class="pre">TEASERSimSettings</span></span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings.TEASERSimSettings" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.html#bim2sim.sim_settings.BuildingSimSettings" title="bim2sim.sim_settings.BuildingSimSettings"><code class="xref py py-class docutils literal notranslate"><span class="pre">BuildingSimSettings</span></code></a></p>
+<p>Defines simulation settings for TEASER Plugin.</p>
+<p>This class defines the simulation settings for the TEASER Plugin. It
+inherits all choices from the BuildingSimulation settings. TEASER
+specific settings are added here.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings.TEASERSimSettings.path_aixlib">
+<span class="sig-name descname"><span class="pre">path_aixlib</span></span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings.TEASERSimSettings.path_aixlib" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings.TEASERSimSettings.sim_results">
+<span class="sig-name descname"><span class="pre">sim_results</span></span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings.TEASERSimSettings.sim_results" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings.TEASERSimSettings.zoning_criteria">
+<span class="sig-name descname"><span class="pre">zoning_criteria</span></span><a class="headerlink" href="#bim2sim.plugins.PluginTEASER.bim2sim_teaser.sim_settings.TEASERSimSettings.zoning_criteria" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 </section>
 

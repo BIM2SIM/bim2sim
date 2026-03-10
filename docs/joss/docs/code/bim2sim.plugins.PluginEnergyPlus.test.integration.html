@@ -108,8 +108,144 @@
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
-<section id="bim2sim-plugins-pluginenergyplus-test-integration-test-energyplus-module">
-<h2>bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus module<a class="headerlink" href="#bim2sim-plugins-pluginenergyplus-test-integration-test-energyplus-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus">
+<span id="bim2sim-plugins-pluginenergyplus-test-integration-test-energyplus-module"></span><h2>bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus module<a class="headerlink" href="#module-bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.IntegrationBaseEP">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.</span></span><span class="sig-name descname"><span class="pre">IntegrationBaseEP</span></span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.IntegrationBaseEP" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="bim2sim.utilities.html#bim2sim.utilities.test.IntegrationBase" title="bim2sim.utilities.test.IntegrationBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntegrationBase</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.IntegrationBaseEP.model_domain_path">
+<span class="sig-name descname"><span class="pre">model_domain_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.IntegrationBaseEP.model_domain_path" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.IntegrationBaseEP.setUp">
+<span class="sig-name descname"><span class="pre">setUp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.IntegrationBaseEP.setUp" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.IntegrationBaseEP.tearDown">
+<span class="sig-name descname"><span class="pre">tearDown</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.IntegrationBaseEP.tearDown" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.IntegrationBaseEP.weather_file_path">
+<span class="sig-name descname"><span class="pre">weather_file_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.IntegrationBaseEP.weather_file_path" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.</span></span><span class="sig-name descname"><span class="pre">TestEPIntegration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">methodName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'runTest'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.IntegrationBaseEP" title="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.IntegrationBaseEP"><code class="xref py py-class docutils literal notranslate"><span class="pre">IntegrationBaseEP</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TestCase</span></code></p>
+<p>Integration tests for multiple IFC example files.
+Tested are both original IFC files and files from Eric Fichter’s Space Boundary Generation tool.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_DigitalHub_SB89">
+<span class="sig-name descname"><span class="pre">test_DigitalHub_SB89</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_DigitalHub_SB89" title="Permalink to this definition"></a></dt>
+<dd><p>Test DigitalHub IFC, includes regression test</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_01_FZK_design_day">
+<span class="sig-name descname"><span class="pre">test_base_01_FZK_design_day</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_01_FZK_design_day" title="Permalink to this definition"></a></dt>
+<dd><p>Test Original IFC File from FZK-Haus (KIT)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_02_FZK_full_run">
+<span class="sig-name descname"><span class="pre">test_base_02_FZK_full_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_02_FZK_full_run" title="Permalink to this definition"></a></dt>
+<dd><p>Test Original IFC File from FZK-Haus (KIT)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_03_FZK_SB_design_day">
+<span class="sig-name descname"><span class="pre">test_base_03_FZK_SB_design_day</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_03_FZK_SB_design_day" title="Permalink to this definition"></a></dt>
+<dd><p>Test IFC File from FZK-Haus (KIT) with generated Space Boundaries</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_04_FZK_SB_full_run">
+<span class="sig-name descname"><span class="pre">test_base_04_FZK_SB_full_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_04_FZK_SB_full_run" title="Permalink to this definition"></a></dt>
+<dd><p>Test IFC File from FZK-Haus (KIT) with generated Space Boundaries</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_05_KIT_Inst_design_day">
+<span class="sig-name descname"><span class="pre">test_base_05_KIT_Inst_design_day</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_05_KIT_Inst_design_day" title="Permalink to this definition"></a></dt>
+<dd><p>Test Original IFC File from Institute (KIT)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_06_KIT_Inst_full_run">
+<span class="sig-name descname"><span class="pre">test_base_06_KIT_Inst_full_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_06_KIT_Inst_full_run" title="Permalink to this definition"></a></dt>
+<dd><p>Test Original IFC File from Institute (KIT)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_07_KIT_Inst_SB_design_day">
+<span class="sig-name descname"><span class="pre">test_base_07_KIT_Inst_SB_design_day</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_07_KIT_Inst_SB_design_day" title="Permalink to this definition"></a></dt>
+<dd><p>Test IFC File from Institute (KIT) with generated Space Boundaries</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_08_KIT_Inst_SB_full_run">
+<span class="sig-name descname"><span class="pre">test_base_08_KIT_Inst_SB_full_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_08_KIT_Inst_SB_full_run" title="Permalink to this definition"></a></dt>
+<dd><p>Test IFC File from Institute (KIT) with generated Space Boundaries</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_09_DH_design_day">
+<span class="sig-name descname"><span class="pre">test_base_09_DH_design_day</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_09_DH_design_day" title="Permalink to this definition"></a></dt>
+<dd><p>Test DigitalHub IFC</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_13_EDC_SB_design_day">
+<span class="sig-name descname"><span class="pre">test_base_13_EDC_SB_design_day</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_13_EDC_SB_design_day" title="Permalink to this definition"></a></dt>
+<dd><p>Test KIT KHH 3 storey IFC with generated Space Boundaries</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_14_EDC_SB_full_run">
+<span class="sig-name descname"><span class="pre">test_base_14_EDC_SB_full_run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_14_EDC_SB_full_run" title="Permalink to this definition"></a></dt>
+<dd><p>Test KIT KHH 3 storey IFC with generated Space Boundaries</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_17_ERC_design_day">
+<span class="sig-name descname"><span class="pre">test_base_17_ERC_design_day</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_17_ERC_design_day" title="Permalink to this definition"></a></dt>
+<dd><p>Test ERC Main Building</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_19_linear_SB_design_day">
+<span class="sig-name descname"><span class="pre">test_base_19_linear_SB_design_day</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_19_linear_SB_design_day" title="Permalink to this definition"></a></dt>
+<dd><p>Test Linear Building with generated Space Boundaries</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_20_olabarri_design_day">
+<span class="sig-name descname"><span class="pre">test_base_20_olabarri_design_day</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_20_olabarri_design_day" title="Permalink to this definition"></a></dt>
+<dd><p>Test Original IFC File from FZK-Haus (KIT)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_21_graz_einschichtig_full">
+<span class="sig-name descname"><span class="pre">test_base_21_graz_einschichtig_full</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_21_graz_einschichtig_full" title="Permalink to this definition"></a></dt>
+<dd><p>Test Testobjekt_einschichtig.ifc from Graz</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_22_graz_mehrschichtig_full">
+<span class="sig-name descname"><span class="pre">test_base_22_graz_mehrschichtig_full</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginEnergyPlus.test.integration.test_energyplus.TestEPIntegration.test_base_22_graz_mehrschichtig_full" title="Permalink to this definition"></a></dt>
+<dd><p>Test Testobjekt_mehrschichtig.ifc from Graz</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage">
 <span id="bim2sim-plugins-pluginenergyplus-test-integration-test-useage-module"></span><h2>bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage module<a class="headerlink" href="#module-bim2sim.plugins.PluginEnergyPlus.test.integration.test_useage" title="Permalink to this heading"></a></h2>

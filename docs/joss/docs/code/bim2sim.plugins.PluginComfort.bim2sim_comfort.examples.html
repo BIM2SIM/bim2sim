@@ -103,16 +103,39 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="bim2sim-plugins-plugincomfort-bim2sim-comfort-examples-package">
-<h1>bim2sim.plugins.PluginComfort.bim2sim_comfort.examples package<a class="headerlink" href="#bim2sim-plugins-plugincomfort-bim2sim-comfort-examples-package" title="Permalink to this heading"></a></h1>
+  <section id="module-bim2sim.plugins.PluginComfort.bim2sim_comfort.examples">
+<span id="bim2sim-plugins-plugincomfort-bim2sim-comfort-examples-package"></span><h1>bim2sim.plugins.PluginComfort.bim2sim_comfort.examples package<a class="headerlink" href="#module-bim2sim.plugins.PluginComfort.bim2sim_comfort.examples" title="Permalink to this heading"></a></h1>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
 </section>
-<section id="bim2sim-plugins-plugincomfort-bim2sim-comfort-examples-e1-simple-project-comfort-energyplus-module">
-<h2>bim2sim.plugins.PluginComfort.bim2sim_comfort.examples.e1_simple_project_comfort_energyplus module<a class="headerlink" href="#bim2sim-plugins-plugincomfort-bim2sim-comfort-examples-e1-simple-project-comfort-energyplus-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.plugins.PluginComfort.bim2sim_comfort.examples.e1_simple_project_comfort_energyplus">
+<span id="bim2sim-plugins-plugincomfort-bim2sim-comfort-examples-e1-simple-project-comfort-energyplus-module"></span><h2>bim2sim.plugins.PluginComfort.bim2sim_comfort.examples.e1_simple_project_comfort_energyplus module<a class="headerlink" href="#module-bim2sim.plugins.PluginComfort.bim2sim_comfort.examples.e1_simple_project_comfort_energyplus" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.bim2sim_comfort.examples.e1_simple_project_comfort_energyplus.run_example_1">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginComfort.bim2sim_comfort.examples.e1_simple_project_comfort_energyplus.</span></span><span class="sig-name descname"><span class="pre">run_example_1</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.examples.e1_simple_project_comfort_energyplus.run_example_1" title="Permalink to this definition"></a></dt>
+<dd><p>Run a thermal comfort analysis with EnergyPlus backend.</p>
+<p>This example runs a Thermal Comfort Analysis with the EnergyPlus backend.
+Specifies project directory and location of the IFC file. Then, it creates
+a bim2sim project with the Thermal Comfort backend that builds on the
+EnergyPlus backend. Workflow settings are specified (here, the zoning setup
+is specified to be with a full level of detail: each IfcSpace is
+represented by a single thermal Zone in EnergyPlus), before the project
+is executed with the previously specified settings.</p>
+</dd></dl>
+
 </section>
-<section id="bim2sim-plugins-plugincomfort-bim2sim-comfort-examples-e3-load-comfort-simulation-results-module">
-<h2>bim2sim.plugins.PluginComfort.bim2sim_comfort.examples.e3_load_comfort_simulation_results module<a class="headerlink" href="#bim2sim-plugins-plugincomfort-bim2sim-comfort-examples-e3-load-comfort-simulation-results-module" title="Permalink to this heading"></a></h2>
+<section id="module-bim2sim.plugins.PluginComfort.bim2sim_comfort.examples.e3_load_comfort_simulation_results">
+<span id="bim2sim-plugins-plugincomfort-bim2sim-comfort-examples-e3-load-comfort-simulation-results-module"></span><h2>bim2sim.plugins.PluginComfort.bim2sim_comfort.examples.e3_load_comfort_simulation_results module<a class="headerlink" href="#module-bim2sim.plugins.PluginComfort.bim2sim_comfort.examples.e3_load_comfort_simulation_results" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bim2sim.plugins.PluginComfort.bim2sim_comfort.examples.e3_load_comfort_simulation_results.run_example_load_existing_project">
+<span class="sig-prename descclassname"><span class="pre">bim2sim.plugins.PluginComfort.bim2sim_comfort.examples.e3_load_comfort_simulation_results.</span></span><span class="sig-name descname"><span class="pre">run_example_load_existing_project</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bim2sim.plugins.PluginComfort.bim2sim_comfort.examples.e3_load_comfort_simulation_results.run_example_load_existing_project" title="Permalink to this definition"></a></dt>
+<dd><p>Run a building performance simulation with the EnergyPlus backend.</p>
+<p>This example runs a BPS with the EnergyPlus backend. Specifies project
+directory and location of the IFC file. Then, it creates a bim2sim
+project with the EnergyPlus backend. Workflow settings are specified,
+before the project is executed with the previously specified settings.</p>
+</dd></dl>
+
 </section>
 </section>
 

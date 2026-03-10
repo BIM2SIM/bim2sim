@@ -492,6 +492,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="#test-install">Test install</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#structure-of-the-plugin">Structure of the plugin</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#how-to-create-a-project">How to create a project?</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#how-to-load-an-ifc-file">How to load an IFC file?</a></li>
@@ -527,6 +528,8 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l2"><a class="reference internal" href="PluginAixLib.html">PluginAixLib</a></li>
 <li class="toctree-l2"><a class="reference internal" href="PluginHKESim.html">PluginHKESim</a></li>
 <li class="toctree-l2"><a class="reference internal" href="PluginLCA.html">PluginLCA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="PluginOpenFOAM.html">PluginOpenFOAM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="User_hints.html">General hints and howtos</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../simulation-guide.html">Simulation-Guide</a></li>
@@ -582,6 +585,15 @@ window.runMermaid = runMermaid;</script>
 <section id="test-install">
 <h3>Test install<a class="headerlink" href="#test-install" title="Permalink to this heading"></a></h3>
 </section>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
+<p>Please also take a look at
+<code class="docutils literal notranslate"><span class="pre">bim2sim/plugins/PluginEnergyPlus/bim2sim_energyplus/examples</span></code>, which provides some
+runnable examples for the EnergyPlus plugin. You can use these examples to test your
+installation and learn from them. Additionally, they serve as good starting
+points for your own projects.”</p>
+<p>For running example jupyter notebooks (.ipynb) see: <a class="reference internal" href="User_hints.html#jupyter-notebook"><span class="std std-ref">hints jupyter notebook</span></a>.</p>
 </section>
 <section id="structure-of-the-plugin">
 <h2>Structure of the plugin<a class="headerlink" href="#structure-of-the-plugin" title="Permalink to this heading"></a></h2>
@@ -938,7 +950,7 @@ taskCreateResultDF --&gt; taskPlotBEPSResults
 <h3>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this heading"></a></h3>
 </section>
 <section id="default-tasks">
-<h3>Default tasks<a class="headerlink" href="#default-tasks" title="Permalink to this heading"></a></h3>
+<span id="energyplus-default-tasks"></span><h3>Default tasks<a class="headerlink" href="#default-tasks" title="Permalink to this heading"></a></h3>
 </section>
 <section id="additional-templates">
 <h3>Additional templates<a class="headerlink" href="#additional-templates" title="Permalink to this heading"></a></h3>
@@ -1009,7 +1021,7 @@ specific tasks.</p>
 <span id="id1"></span><h2>EnergyPlus specific tasks<a class="headerlink" href="#energyplus-specific-tasks" title="Permalink to this heading"></a></h2>
 <section id="validation-of-the-ifc-file">
 <h3>Validation of the IFC file<a class="headerlink" href="#validation-of-the-ifc-file" title="Permalink to this heading"></a></h3>
-<p id="ep-ifc-valid"><a class="reference internal" href="#IfcValidation"><span class="xref myst">Go to IfcValidation</span></a></p>
+<p id="ep-ifc-valid"><a class="reference internal" href="../code/bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.html#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_ifc_validation.IfcValidation" title="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_ifc_validation.IfcValidation"><span class="xref myst py py-class">Go to IfcValidation</span></a></p>
 <p>The EnergyPlus specific tasks start with an EnergyPlus specific validation
 of the space boundaries provided by the IFC file. This validation algorihtm
 is included in the default workflow to give an insight in the quality of the
@@ -1039,7 +1051,7 @@ if shadings should be added.</p>
 <p>Space Boundaries of type 2b can be added here if gaps are located in the
 provided set of space boundaries. The resulting set of space boundaries
 then forms a watertight model that can be further used for other simulation
-purposes such as <a class="reference internal" href="#ExportIdfForCfd"><span class="xref myst">CFD export</span></a>.</p>
+purposes such as <a class="reference internal" href="../code/bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.html#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export.ExportIdfForCfd" title="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export.ExportIdfForCfd"><span class="xref myst py py-class">CFD export</span></a>.</p>
 </section>
 <section id="set-the-weather-file">
 <h3>Set the Weather File<a class="headerlink" href="#set-the-weather-file" title="Permalink to this heading"></a></h3>
@@ -1048,25 +1060,25 @@ purposes such as <a class="reference internal" href="#ExportIdfForCfd"><span cla
 </section>
 <section id="initialize-and-export-the-energyplus-idf-file">
 <h3>Initialize and Export the EnergyPlus IDF File<a class="headerlink" href="#initialize-and-export-the-energyplus-idf-file" title="Permalink to this heading"></a></h3>
-<p id="ep-create-idf-for-export"><a class="reference internal" href="#CreateIdf"><span class="xref myst">Go to CreateIdf</span></a></p>
+<p id="ep-create-idf-for-export"><a class="reference internal" href="../code/bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.html#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_create_idf.CreateIdf" title="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_create_idf.CreateIdf"><span class="xref myst py py-class">Go to CreateIdf</span></a></p>
 <p>Write all preprocessed geometric data, materials, and boundary conditions
 to an EnergyPlus input file (IDF).</p>
 </section>
 <section id="idf-postprocessing">
 <h3>IDF Postprocessing<a class="headerlink" href="#idf-postprocessing" title="Permalink to this heading"></a></h3>
-<p id="ep-postprocess"><a class="reference internal" href="#IdfPostprocessing"><span class="xref myst">Go to IdfPostprocessing</span></a></p>
+<p id="ep-postprocess"><a class="reference internal" href="../code/bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.html#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_postprocessing.IdfPostprocessing" title="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_postprocessing.IdfPostprocessing"><span class="xref myst py py-class">Go to IdfPostprocessing</span></a></p>
 <p>Export data to csv. Some modifications may be required to meet your
 individual postprocessing needs here.</p>
 </section>
 <section id="export-idf-geometry-for-cfd-processing">
 <h3>Export IDF Geometry for CFD Processing<a class="headerlink" href="#export-idf-geometry-for-cfd-processing" title="Permalink to this heading"></a></h3>
-<p id="ep-cfd-export"><a class="reference internal" href="#ExportIdfForCfd"><span class="xref myst">Go to ExportIdfForCfd</span></a></p>
+<p id="ep-cfd-export"><a class="reference internal" href="../code/bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.html#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export.ExportIdfForCfd" title="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_idf_cfd_export.ExportIdfForCfd"><span class="xref myst py py-class">Go to ExportIdfForCfd</span></a></p>
 <p>Use the <a class="reference internal" href="#settings"><span class="xref myst">settings</span></a> to specify, if the IDF geometry should be
 converted to .stl for further use in CFD applications.</p>
 </section>
 <section id="run-energyplus-simulation">
 <h3>Run EnergyPlus Simulation<a class="headerlink" href="#run-energyplus-simulation" title="Permalink to this heading"></a></h3>
-<p id="ep-run-sim"><a class="reference internal" href="#RunEnergyPlusSimulation"><span class="xref myst">Go to RunEnergyPlusSimulation</span></a></p>
+<p id="ep-run-sim"><a class="reference internal" href="../code/bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.html#bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_run_simulation.RunEnergyPlusSimulation" title="bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.task.ep_run_simulation.RunEnergyPlusSimulation"><span class="xref myst py py-class">Go to RunEnergyPlusSimulation</span></a></p>
 <p>Run the EnergyPlus simulation. Use the <a class="reference internal" href="#settings"><span class="xref myst">settings</span></a> for further
 runtime specifications.</p>
 </section>

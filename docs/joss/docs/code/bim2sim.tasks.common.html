@@ -469,7 +469,8 @@ Industry_Foundation_Classes/IFC_materials</p>
 <dt>Instantiate the layerset and its layers and materials and link to</dt><dd><p>element.</p>
 </dd>
 </dl>
-<p>Layersets in IFC are used to describe the layer structure of e.g. walls.</p>
+<p>Layersets in IFC are used to describe the layer structure of e.g.
+walls.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>element: bim2sim element
 ifc_layerset_entity: ifc entity of layerset</p>
@@ -506,14 +507,34 @@ invalid: list of all elements that do not fulfill the conditions</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.filter_by_text">
-<span class="sig-name descname"><span class="pre">filter_by_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.filter.TextFilter" title="bim2sim.elements.mapping.filter.TextFilter"><span class="pre">TextFilter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_entities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">entity_instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.decision.html#bim2sim.kernel.decision.DecisionBunch" title="bim2sim.kernel.decision.DecisionBunch"><span class="pre">DecisionBunch</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.ProductBased" title="bim2sim.elements.base_elements.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.filter_by_text" title="Permalink to this definition"></a></dt>
-<dd><p>Generator method filtering ifc elements by given TextFilter.</p>
-<p>yields decision bunch for ambiguous results</p>
+<span class="sig-name descname"><span class="pre">filter_by_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text_filter</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bim2sim.elements.mapping.html#bim2sim.elements.mapping.filter.TextFilter" title="bim2sim.elements.mapping.filter.TextFilter"><span class="pre">TextFilter</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ifc_entities</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">entity_instance</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Generator</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.kernel.decision.html#bim2sim.kernel.decision.DecisionBunch" title="bim2sim.kernel.decision.DecisionBunch"><span class="pre">DecisionBunch</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.ProductBased" title="bim2sim.elements.base_elements.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.filter_by_text" title="Permalink to this definition"></a></dt>
+<dd><p>Filter IFC elements by analyzing text fragments.</p>
+<p>This method applies text-based filtering to identify elements. It
+handles:
+1. Automatic classification for entities with single matching class
+2. User decision for entities with multiple potential matching classes
+3. Collection of unidentified entities</p>
+<dl>
+<dt>Args:</dt><dd><p>text_filter: The TextFilter instance to use.
+ifc_entities: IFC entities to filter.</p>
+</dd>
+<dt>Yields:</dt><dd><p>DecisionBunch: User decisions for ambiguous matches.</p>
+</dd>
+<dt>Returns:</dt><dd><dl>
+<dt>tuple:</dt><dd><ul class="simple">
+<li><p>Dictionary mapping entities to their identified element</p></li>
+</ul>
+<p>classes
+- List of unidentified entities</p>
+</dd>
+</dl>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.get_ifc_types">
-<span class="sig-name descname"><span class="pre">get_ifc_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relevant_elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.ProductBased" title="bim2sim.elements.base_elements.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.get_ifc_types" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_ifc_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">relevant_elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="bim2sim.elements.html#bim2sim.elements.base_elements.ProductBased" title="bim2sim.elements.base_elements.ProductBased"><span class="pre">ProductBased</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#bim2sim.tasks.common.create_elements.CreateElementsOnIfcTypes.get_ifc_types" title="Permalink to this definition"></a></dt>
 <dd><p>Extract used ifc types from list of elements.</p>
 </dd></dl>
 
@@ -536,6 +557,54 @@ the fitting ifc elements are taken into account.
 During the creation of the bim2sim elements validations are performed,
 to make sure that the resulting bim2sim elements hold valid
 information.</p>
+<p>The element creation process follows a three-stage classification
+approach:</p>
+<ol class="arabic">
+<li><p><strong>Validation-Based Classification</strong>:
+* Elements are initially processed based on relevant element
+types and IFC classifications
+* Each element undergoes validation against predefined criteria
+* Valid elements are immediately added to the “valids” collection
+* Elements failing validation are placed in “unknown_entities”
+for further processing</p></li>
+<li><p><strong>Pattern Matching Classification</strong>:
+* For unidentified elements in “unknown_entities”, a text
+analysis is performed
+* The system examines IFC descriptions and compares them against
+regular expression patterns defined in element classes
+* Results are handled based on match confidence:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Single match: Element is automatically moved to “valids”</p></li>
+<li><p>Multiple matches: User decision is requested to determine the</p></li>
+</ul>
+<p>correct classification
+- No matches: Element remains in “unknown_entities” for final
+classification stage</p>
+</div></blockquote>
+</li>
+<li><p><strong>User-Assisted Classification</strong>:
+* Remaining unidentified elements are processed through the
+set_class_by_user function
+* To optimize user experience, similar elements are intelligently
+grouped using one of these strategies:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Exact name matching: Groups elements with identical names</p></li>
+<li><p>Name and description matching: Groups elements with identical</p></li>
+</ul>
+<p>names and descriptions
+- Fuzzy matching: Groups elements with similar names based on a
+configurable similarity threshold</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>This grouping significantly reduces the number of required user</p></li>
+</ul>
+<p>decisions
+* User decisions determine the final classification of each
+element or group</p>
+</li>
+</ol>
 <dl class="simple">
 <dt>Args:</dt><dd><p>ifc_files: list of ifc files in bim2sim structured format</p>
 </dd>

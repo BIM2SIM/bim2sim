@@ -9,6 +9,14 @@ bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.utils package
 Submodules
 ----------
 
+bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.utils.utils\_hash\_function module
+---------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils.utils_hash_function
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.utils.utils\_postprocessing module
 ---------------------------------------------------------------------------------------
 
@@ -21,6 +29,14 @@ bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.utils.utils\_visualization 
 --------------------------------------------------------------------------------------
 
 .. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils.utils_visualization
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+bim2sim.plugins.PluginEnergyPlus.bim2sim\_energyplus.utils.view\_space\_boundaries module
+-----------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils.view_space_boundaries
    :members:
    :undoc-members:
    :show-inheritance:

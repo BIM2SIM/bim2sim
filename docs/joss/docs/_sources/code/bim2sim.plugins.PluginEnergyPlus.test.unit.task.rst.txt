@@ -9,6 +9,14 @@ bim2sim.plugins.PluginEnergyPlus.test.unit.task package
 Submodules
 ----------
 
+bim2sim.plugins.PluginEnergyPlus.test.unit.task.test\_hash\_function module
+---------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginEnergyPlus.test.unit.task.test_hash_function
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bim2sim.plugins.PluginEnergyPlus.test.unit.task.test\_weather module
 --------------------------------------------------------------------
 
