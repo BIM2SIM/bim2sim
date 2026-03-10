@@ -467,6 +467,7 @@ class CheckLogicBase():
         self.ifc_units = ifc_units
         self.error_summary_prop: dict = {}
 
+    @staticmethod
     def run_check_guid_unique(ifc_file) -> (bool, dict):
         """Check the uniqueness of the guids of the IFC file.
 
@@ -520,6 +521,7 @@ class CheckLogicBase():
                     used_guids_upper.append(upper_guid)
         return (all_guids_unique, double_guids)
 
+    @staticmethod
     def run_check_guid_empty(ifc_file) -> (bool, dict):
         """Check it there is/are guid/s, which is/are empty in the IFC file.
 
