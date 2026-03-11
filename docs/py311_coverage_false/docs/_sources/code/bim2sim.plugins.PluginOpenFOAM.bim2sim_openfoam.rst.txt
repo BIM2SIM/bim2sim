@@ -1,0 +1,29 @@
+bim2sim.plugins.PluginOpenFOAM.bim2sim\_openfoam package
+========================================================
+
+.. automodule:: bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples
+   bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements
+   bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task
+   bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.utils
+
+Submodules
+----------
+
+bim2sim.plugins.PluginOpenFOAM.bim2sim\_openfoam.sim\_settings module
+---------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.sim_settings
+   :members:
+   :undoc-members:
+   :show-inheritance:
