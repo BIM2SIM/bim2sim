@@ -37,6 +37,13 @@ We will guide you through the process now.
 ```shell
 # create fresh python environment with conda (python 3.10 to 3.11 are supported currently)
 micromamba create -n bim2sim python=3.11 -c conda-forge
+
+# optional (instead of step before), when use coverage as part of testing
+# by installing pip -e '.[test]'
+# env.yml includes specifications for the environment (here pin setuptools to 80.9.0)
+micromamba create -n bim2sim -f env.yml
+
+
 # activate your environment
 micromamba activate bim2sim
 
