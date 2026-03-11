@@ -35,7 +35,8 @@ include:
   script:
     # if stage is doc, we need to install documentation specific dependencies
     - eval "$(micromamba shell hook --shell bash)"
-    - micromamba activate base
+    - micromamba create -n bim2sim -f env.yml
+    - micromamba activate bim2sim
     - pip install -e .[docu,PluginTEASER,PluginEnergyPlus,PluginAixLib,PluginCFD,PluginHKESim,PluginLCA,PluginComfort,PluginOpenFOAM]
 
 # Tests
@@ -43,7 +44,8 @@ include:
   stage: Test Base
   before_script:
     - eval "$(micromamba shell hook --shell bash)"
-    - micromamba activate base
+    - micromamba create -n bim2sim -f env.yml
+    - micromamba activate bim2sim
   script:
     - mkdir -p ~/bim2sim-coding/
     - mv ./* ~/bim2sim-coding/
@@ -70,7 +72,8 @@ include:
   stage: Test Plugin
   before_script:
     - eval "$(micromamba shell hook --shell bash)"
-    - micromamba activate base
+    - micromamba create -n bim2sim -f env.yml
+    - micromamba activate bim2sim
   script:
     - mkdir -p ~/bim2sim-coding/
     - mv ./* ~/bim2sim-coding/
@@ -98,7 +101,8 @@ include:
   stage: Test Regression
   before_script:
     - eval "$(micromamba shell hook --shell bash)"
-    - micromamba activate base
+    - micromamba create -n bim2sim -f env.yml
+    - micromamba activate bim2sim
   script:
     - mkdir -p ~/bim2sim-coding/
     - mv ./* ~/bim2sim-coding/
