@@ -151,7 +151,7 @@ py3.11:
   image: $CI_REGISTRY/bim2sim:py3.11-occ7.9.0
   variables:
     PYTHON_VERSION: "3.11"
-    COVERAGE: "true"
+    COVERAGE: "false"
 
 # Integration tests
 PluginTEASER:py3.10:
