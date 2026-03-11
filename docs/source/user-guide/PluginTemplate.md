@@ -36,7 +36,9 @@ version of [mamba](https://github.com/mamba-org/mamba)) is used.
 We will guide you through the process now.
 ```shell
 # create fresh python environment with conda (python 3.10 to 3.11 are supported currently)
-micromamba create -n bim2sim python=3.11 -c conda-forge
+# env.yml includes specifications for the environment
+micromamba create -n bim2sim -f env.yml
+micromamba activate bim2sim
 # activate your environment
 micromamba activate bim2sim
 
