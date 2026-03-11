@@ -23,7 +23,7 @@ class PluginComfort(Plugin):
     elements = {*bps_elements.items, Material}
     default_tasks = [
         common.LoadIFC,
-        common.CheckIfc,
+        # common.CheckIfc,
         common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
         bps.AddSpaceBoundaries2B,

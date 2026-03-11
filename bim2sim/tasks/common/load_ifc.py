@@ -8,6 +8,26 @@ from bim2sim.tasks.base import ITask
 from bim2sim.utilities.types import IFCDomain
 
 
+@staticmethod
+def extract_ifc_file_names(base_path):
+    """Extract ifc file names of a given directory.
+
+    Args:
+        base_path: Pathlib path that holds the different domain folders,
+                     which hold the ifc files.
+    Returns:
+        list: of ifc file names
+    """
+    if not base_path.is_dir():
+        raise AssertionError(f"Given base_path {base_path} is not a"
+                             f" directory. Please provide a directory.")
+    ifc_file_paths = list(base_path.glob("**/*.ifc")) + list(
+        base_path.glob("**/*.ifcxml")) + list(
+        base_path.glob("**/*.ifczip"))
+
+    return ifc_file_paths
+
+
 class LoadIFC(ITask):
     """Load all IFC files from PROJECT.ifc_base path.
 
@@ -16,15 +36,17 @@ class LoadIFC(ITask):
     Returns:
         ifc: list of one or multiple IfcFileClass elements
     """
+
     touches = ('ifc_files', )
 
     def run(self):
+        """Run function of LoadIFC."""
         self.logger.info("Loading IFC files")
         ifc_files = yield from self.load_ifc_files(self.paths.ifc_base)
         return ifc_files,
 
     def load_ifc_files(self, base_path: Path):
-        """Load all ifc files in given base_path or a specific file in this path
+        """Load all ifc files/file given in base_path.
 
         Loads the ifc files inside the different domain folders in the base
          path, and initializes the bim2sim ifc file classes.
@@ -33,20 +55,16 @@ class LoadIFC(ITask):
             base_path: Pathlib path that holds the different domain folders,
               which hold the ifc files.
         """
-        if not base_path.is_dir():
-            raise AssertionError(f"Given base_path {base_path} is not a"
-                                 f" directory. Please provide a directory.")
+        ifc_files_paths = extract_ifc_file_names(base_path)
+        self.logger.info(f"Found {len(ifc_files_paths)} IFC files in project "
+                         f"directory.")
         ifc_files_dict = {k: [] for k in ['arch', 'hydraulic', 'ventilation']}
         ifc_files_unsorted = []
         ifc_files = []
-        ifc_files_paths = list(base_path.glob("**/*.ifc")) + list(
-            base_path.glob("**/*.ifcxml")) + list(
-            base_path.glob("**/*.ifczip"))
-        self.logger.info(f"Found {len(ifc_files_paths)} IFC files in project "
-                         f"directory.")
         for i, total_ifc_path in enumerate(ifc_files_paths, start=1):
             self.logger.info(
-                f"Loading IFC file {total_ifc_path.name} {i}/{len(ifc_files_paths)}.")
+                f"Loading IFC file {total_ifc_path.name} {i}/"
+                "{len(ifc_files_paths)}.")
             ifc_domain = total_ifc_path.parent.name
             reset_guids = self.playground.sim_settings.reset_guids
             ifc_domain = IFCDomain[ifc_domain]
@@ -70,8 +88,9 @@ class LoadIFC(ITask):
             self.logger.error("No ifc found in project folder.")
             raise AssertionError("No ifc found. Check '%s'" % base_path)
         elif len(ifc_files) < len(ifc_files_unsorted):
-            self.logger.warning("Not all ifc files were added for further "
-                              "processing. IFCDomain may not be recognized.")
+            self.logger.warning(
+                "Not all ifc files were added for further "
+                "processing. IFCDomain may not be recognized.")
             raise AssertionError("Not all ifc processed. Check '%s'" %
                                  base_path)
         self.logger.info(f"Loaded {len(ifc_files)} IFC-files.")

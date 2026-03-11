@@ -450,7 +450,7 @@ class RelationBased(IFCBased):
     def __str__(self):
         return "%s" % self.__class__.__name__
 
-
+# TODO remove one of both classes RelationBased (see above)
 class RelationBased(IFCBased):
 
     pass

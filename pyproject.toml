@@ -125,6 +125,10 @@ PluginOpenFOAM = [
     "seaborn",
     "lbt-butterfly@git+https://github.com/BIM2SIM/butterfly"
 ]
+PluginIFCCheck = [
+    "ifctester==0.8.1",
+    "pystache==0.6.8" # is a dependency from ifctester, not automatically install here
+]
 docu = [
     "sphinx==6.2.1",
     "myst-parser",
