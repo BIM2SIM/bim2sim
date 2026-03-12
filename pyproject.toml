@@ -144,8 +144,10 @@ docu = [
     "tabulate",
 ]
 test = [
-    "coverage", # [toml] not needed using micromanba, maybe also new python version
+    "coverage",
     "coverage-badge",
+    "setuptools==80.9.0" # downgrade setuptools, because of coverage-badge
+    # see https://github.com/dbrgn/coverage-badge/issues/33
 ]
 
 [tool.coverage.run]
