@@ -17,14 +17,6 @@ bim2sim.tasks.common.base\_tasks module
    :undoc-members:
    :show-inheritance:
 
-bim2sim.tasks.common.check\_ifc module
---------------------------------------
-
-.. automodule:: bim2sim.tasks.common.check_ifc
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 bim2sim.tasks.common.create\_elements module
 --------------------------------------------
 

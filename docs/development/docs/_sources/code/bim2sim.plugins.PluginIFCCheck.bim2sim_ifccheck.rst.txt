@@ -1,0 +1,26 @@
+bim2sim.plugins.PluginIFCCheck.bim2sim\_ifccheck package
+========================================================
+
+.. automodule:: bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck.task
+
+Submodules
+----------
+
+bim2sim.plugins.PluginIFCCheck.bim2sim\_ifccheck.sim\_settings module
+---------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginIFCCheck.bim2sim_ifccheck.sim_settings
+   :members:
+   :undoc-members:
+   :show-inheritance:
