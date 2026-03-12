@@ -52,7 +52,7 @@ The preferred way is to set up your plugin in way it can be auto-detected
 by `bim2sim`.
 
 1. Create a package (or module) named `bim2sim_<plugin_name>`. (
-   Replace `<plugin_name>` with an actual name like `mysampleplugin`)
+   Replace `<plugin_name>` with an actual name like `mysample`)
 1. Make your `Plugin` available at top level of your package. Class definition
    or import are both fine.
    > NOTE:
@@ -61,7 +61,7 @@ by `bim2sim`.
 1. Put your package somewhere Python can find it. This can e.g. be done by
    adding it to `PYTHONPATH` or installing your package.
 
-Now you can run `bim2sim` as usual und use your `<plugin_name>` as any other
+Now you can run `bim2sim` as usual and use your `<plugin_name>` as any other
 Plugin.
 
 ### Use in script

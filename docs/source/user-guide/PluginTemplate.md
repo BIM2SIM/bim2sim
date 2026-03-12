@@ -16,7 +16,7 @@ plugin is used as general starting point without any third party dependencies.
 So it is a good starting point for development of own plugins or as test
 environment for debugging.
 
-(coreInstalltion)=
+(coreInstallation)=
 ## How to install?
 
 ### Step by step
