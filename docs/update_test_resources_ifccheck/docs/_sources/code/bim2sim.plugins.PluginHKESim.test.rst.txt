@@ -1,0 +1,16 @@
+bim2sim.plugins.PluginHKESim.test package
+=========================================
+
+.. automodule:: bim2sim.plugins.PluginHKESim.test
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   bim2sim.plugins.PluginHKESim.test.integration
+   bim2sim.plugins.PluginHKESim.test.unit
