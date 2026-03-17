@@ -2,7 +2,7 @@
 # PluginIFCCheck
 The [IFC Check Plugin](PluginIFCCheck) can be used for to run the basic task IFC
 Check. In general the IFC Check can be used to check the quality of the IFC
-files regarding the requirements of the use case (e.g. bps).
+files regarding the requirements of the use case (e.g. BPS).
 
 The IFC Check runs checks based on IDS (Information Delivery Specification). For
 more information see section [Generate IDS files](GenerateIDSfiles). By this
