@@ -162,7 +162,7 @@ class: with-border
 width: 100%
 ---
 
-Fig.: Howto check and correct errors with bonsai
+Fig.: How to check and correct errors with bonsai
 ```
 
 1. Load ifc file
