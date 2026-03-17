@@ -130,9 +130,9 @@ These files are located in `workingFolder/log`. The following files will be gene
 (GenerateIDSfiles)=
 #### Create IDS files
 
-The IDS standard is developed by BuildingSMART (more information regarding IDS
-see:
-https://www.buildingsmart.org/what-is-information-delivery-specification-ids/.
+The IDS standard is developed by BuildingSMART (for more information regarding IDS
+see 
+[https://www.buildingsmart.org/what-is-information-delivery-specification-ids/](https://www.buildingsmart.org/what-is-information-delivery-specification-ids/) ).
 
 The IDS file can created with an ordinary text editor, because the format of IDS
 files is just xml. The information are readable for humans (and machines). But
