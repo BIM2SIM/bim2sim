@@ -552,6 +552,36 @@ simulation immediately on your device. Otherwise, you can move the
 exported OpenFOAM case onto an adequate system with OpenFOAM/v2206 or newer to 
 run the simulation through one of the provided scripts.
 
+### Running Simulations with solar radiation
+The PluginOpenFOAM can be used to simulate a building with solar radiation. 
+However, during extensive testing, a bug in OpenFOAM v2206 and newer 
+versions was found that leads to sunlit areas being cooled down instead of 
+heated up. Therefore, as of now, it is not recommended to use the original 
+OpenFOAM implementation for simulations with solar radiation. Instead, a modified 
+version of OpenFOAM v2206, which inverts the sign of the solar radiation 
+heat flux, is provided here: [BIM2SIM/OpenFOAM-v2206S](https://github.com/BIM2SIM/OpenFOAM-v2206S).
+
+#### Installing OpenFOAM v2206S
+Just follow the installation instructions for the regular OpenFOAM 
+implementation provided in the [doc/Build.md](https://github.com/BIM2SIM/OpenFOAM-v2206S/blob/main/doc/Build.md) file.
+
+#### Using provided binaries on the RWTH Compute Cluster
+1. Download and unzip the [precompiled binaries](https://rwth-aachen.sciebo.de/s/FCAn2XB6bfiLdbG) to the cluster.
+2. Load the modules GCC/11.3.0 and OpenMPI/4.1.4 
+  ```shell
+  module load GCC/11.3.0
+  module load OpenMPI/4.1.4
+  ```
+3. Load the binaries:
+  ```shell
+  source $HOME/path-to-modified-openfoam/etc/bashrc
+  ```
+4. Test the installation:
+  ```shell
+  blockMesh
+  ```
+This should return the help message of the blockMesh function.
+
 ## How to analyze the project?
 ### What kind of results exist?
 The main result of a PluginOpenFOAM simulation is an OpenFOAM case. This is 
