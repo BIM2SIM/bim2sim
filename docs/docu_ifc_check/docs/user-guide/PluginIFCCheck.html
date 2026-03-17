@@ -549,16 +549,16 @@ window.runMermaid = runMermaid;</script>
 <h1>PluginIFCCheck<a class="headerlink" href="#pluginifccheck" title="Permalink to this heading"></a></h1>
 <p>The <a class="reference internal" href="#"><span class="doc std std-doc">IFC Check Plugin</span></a> can be used for to run the basic task IFC
 Check. In general the IFC Check can be used to check the quality of the IFC
-files regarding the requirements of the use case (e.g. bps).</p>
+files regarding the requirements of the use case (e.g. BPS).</p>
 <p>The IFC Check runs checks based on IDS (Information Delivery Specification). For
 more information see section <a class="reference internal" href="#generateidsfiles"><span class="std std-ref">Generate IDS files</span></a>. By this
 standard it is possible to create files (IDS files), which include the
 requirements regarding the format and content of the IFC files.</p>
 <p>In back-end of the IFC Check the python package ifctester is used. This package
-is part of the ifcopenshell framework. But actually IDS standard (version 1.0)
-could not cover all necessary checks. For instance it is not possible to check the
+is part of the ifcopenshell framework. The IDS standard (version 1.0)
+does not cover all required checks. For example, it is not possible to check the
 uniqueness of the GUID (Global Unique Identifier). Therefore the task IFC Check
-also include functions, which cover the missing checks. The general structure of
+also includes functions, which cover these missing checks. The general structure of
 the task IFC Check is shown in <a class="reference internal" href="#figstrifccheck"><span class="std std-ref">Fig.: General structure of the IFC Check
 Task</span></a></p>
 <figure class="align-default" id="id1">
@@ -582,7 +582,7 @@ Task</span></a></p>
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this heading"></a></h2>
 <p>Please also take a look at
 <code class="docutils literal notranslate"><span class="pre">bim2sim/plugins/PluginIFCCheck/bim2sim_ifccheck/examples</span></code>, which provides some
-runnable examples for the IFCCheck plugin. You can use these examples to test your
+examples for the IFCCheck plugin. You can use these examples to test your
 installation and learn from them. Additionally, they serve as good starting
 points for your own projects.”</p>
 </section>
@@ -676,9 +676,9 @@ These files are located in <code class="docutils literal notranslate"><span clas
 <h3>What programs/tools to use for further analysis or preparation?<a class="headerlink" href="#what-programs-tools-to-use-for-further-analysis-or-preparation" title="Permalink to this heading"></a></h3>
 <section id="create-ids-files">
 <span id="generateidsfiles"></span><h4>Create IDS files<a class="headerlink" href="#create-ids-files" title="Permalink to this heading"></a></h4>
-<p>The IDS standard is developed by BuildingSMART (more information regarding IDS
-see:
-https://www.buildingsmart.org/what-is-information-delivery-specification-ids/.</p>
+<p>The IDS standard is developed by BuildingSMART (for more information regarding IDS
+see
+<a class="reference external" href="https://www.buildingsmart.org/what-is-information-delivery-specification-ids/">https://www.buildingsmart.org/what-is-information-delivery-specification-ids/</a> ).</p>
 <p>The IDS file can created with an ordinary text editor, because the format of IDS
 files is just xml. The information are readable for humans (and machines). But
 the usage of specific tools is recommended. There are some open source tools like
@@ -707,7 +707,7 @@ the usage of specific tools is recommended. There are some open source tools lik
 <p>An easiest way to solve an issue in the ifc file can be to use Bonsai an
 extension for Blender. The process is explained below:</p>
 <figure class="align-default" id="id2">
-<span id="fighowtoifctester"></span><a class="with-border reference internal image-reference" href="img/dynamic/pluginIFCCheck/howto_use_ifctester_in_bonsai_numbers.png"><img alt="img/dynamic/pluginIFCCheck/howto_use_ifctester_in_bonsai_numbers.png" class="with-border" src="img/dynamic/pluginIFCCheck/howto_use_ifctester_in_bonsai_numbers.png" style="width: 100%;" /></a>
+<span id="fighowtoifctester"></span><a class="with-border reference internal image-reference" href="../_images/howto_use_ifctester_in_bonsai_numbers.png"><img alt="../_images/howto_use_ifctester_in_bonsai_numbers.png" class="with-border" src="../_images/howto_use_ifctester_in_bonsai_numbers.png" style="width: 100%;" /></a>
 <figcaption>
 <p><span class="caption-text">Fig.: Howto check and correct errors with bonsai</span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
 </figcaption>
