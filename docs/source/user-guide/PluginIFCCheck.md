@@ -13,7 +13,7 @@ In back-end of the IFC Check the python package ifctester is used. This package
 is part of the ifcopenshell framework. The IDS standard (version 1.0)
 does not cover all required checks. For example, it is not possible to check the
 uniqueness of the GUID (Global Unique Identifier). Therefore the task IFC Check
-also include functions, which cover the missing checks. The general structure of
+also includes functions, which cover these missing checks. The general structure of
 the task IFC Check is shown in [Fig.: General structure of the IFC Check
 Task](FigStrIFCCheck)
 
