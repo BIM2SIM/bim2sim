@@ -10,8 +10,8 @@ standard it is possible to create files (IDS files), which include the
 requirements regarding the format and content of the IFC files.
 
 In back-end of the IFC Check the python package ifctester is used. This package
-is part of the ifcopenshell framework. But actually IDS standard (version 1.0)
-could not cover all necessary checks. For instance it is not possible to check the
+is part of the ifcopenshell framework. The IDS standard (version 1.0)
+does not cover all required checks. For example, it is not possible to check the
 uniqueness of the GUID (Global Unique Identifier). Therefore the task IFC Check
 also include functions, which cover the missing checks. The general structure of
 the task IFC Check is shown in [Fig.: General structure of the IFC Check
