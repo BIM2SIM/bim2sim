@@ -236,22 +236,6 @@ tLoadIFC -- ifc_files --> stateLoadIFC
 
 end
     
-subgraph taskCheckIfc["task CheckIfc"]
- subgraph "" 
-
-  tCheckIfc["bim2sim > tasks > common >  
- CheckIfc"]
-  extCheckIfc("  Check ifc files for their quality regarding
-simulation. " )
- end
-
-stateCheckIfc[("state
- (reads/touches)")]
-    
-stateCheckIfc -- ifc_files --> tCheckIfc
-direction RL
-end
-    
 subgraph taskCreateElementsOnIfcTypes["task CreateElementsOnIfcTypes"]
  subgraph "" 
 
@@ -333,8 +317,7 @@ stateWeather -- elements --> tWeather
 tWeather -- weather_file --> stateWeather
 
 end
-    taskLoadIFC --> taskCheckIfc 
-taskCheckIfc --> taskCreateElementsOnIfcTypes 
+    taskLoadIFC --> taskCreateElementsOnIfcTypes 
 taskCreateElementsOnIfcTypes --> taskCreateSpaceBoundaries 
 taskCreateSpaceBoundaries --> taskEnrichUseConditions 
 taskEnrichUseConditions --> taskCreateRelations 
