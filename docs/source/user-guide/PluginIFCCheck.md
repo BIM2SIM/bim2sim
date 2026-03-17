@@ -32,8 +32,12 @@ Fig.: General structure of the IFC Check Task
 ## How to install?
 
 ### Step by step
-There is no need of extra installation besides the basic installation (see,
-[bim2sim core installation](coreInstallation))
+To install `PluginIFCCheck`: you need to do the following
+(in the root directory of the repo, here is the pyproject.toml file)
+```shell
+pip install -e '.[PluginIFCCheck]'
+```
+The [bim2sim core installation](coreInstalltion) needs to be done before.
 
 
 ### Test install
