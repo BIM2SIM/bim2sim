@@ -41,7 +41,7 @@ There is no need of extra installation besides the basic installation (see,
 ## Examples
 Please also take a look at
 `bim2sim/plugins/PluginIFCCheck/bim2sim_ifccheck/examples`, which provides some
-runnable examples for the IFCCheck plugin. You can use these examples to test your
+examples for the IFCCheck plugin. You can use these examples to test your
 installation and learn from them. Additionally, they serve as good starting
 points for your own projects."
 
