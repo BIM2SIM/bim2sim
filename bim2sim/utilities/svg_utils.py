@@ -80,20 +80,23 @@ def convert_ifc_to_svg(ifc_file_instance: IfcFileClass,
         # INCLUDE_CURVES=True,
         # EXCLUDE_SOLIDS_AND_SURFACES=False,
         APPLY_DEFAULT_MATERIALS=True,
-        DISABLE_TRIANGULATION=True
+        PRECISION=1e-6
     )
     settings.set(
         "dimensionality",
         ifcopenshell.ifcopenshell_wrapper.CURVES_SURFACES_AND_SOLIDS)  # 2
+    settings.set(
+        "iterator-output",
+        ifcopenshell.ifcopenshell_wrapper.NATIVE)
     svg_file_name = ifc_file_instance.ifc_file_name[:-4] + '.svg'
     svg_target_path = target_path / svg_file_name
 
     sr = ifcopenshell.geom.serializers.svg(
-        str(svg_target_path), settings)
+        str(svg_target_path), settings, ifcopenshell.geom.serializer_settings())
 
     file = ifc_file_instance.file
     sr.setFile(file)
-    sr.setSectionHeightsFromStoreys()
+    sr.setSectionHeightsFromStoreys(offset=0.8)
 
     sr.setDrawDoorArcs(True)
     sr.setPrintSpaceAreas(True)

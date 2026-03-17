@@ -125,6 +125,10 @@ PluginOpenFOAM = [
     "seaborn",
     "lbt-butterfly@git+https://github.com/BIM2SIM/butterfly"
 ]
+PluginIFCCheck = [
+    "ifctester==0.8.1",
+    "pystache==0.6.8" # is a dependency from ifctester, not automatically install here
+]
 docu = [
     "sphinx==6.2.1",
     "myst-parser",
@@ -140,8 +144,10 @@ docu = [
     "tabulate",
 ]
 test = [
-    "coverage", # [toml] not needed using micromanba, maybe also new python version
+    "coverage",
     "coverage-badge",
+    "setuptools==80.9.0" # downgrade setuptools, because of coverage-badge
+    # see https://github.com/dbrgn/coverage-badge/issues/33
 ]
 
 [tool.coverage.run]

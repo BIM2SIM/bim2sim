@@ -56,8 +56,7 @@
             ${task.sub_inst_cls}</a></th>
         </tr>
         <tr>
-            <td class="tg-fymr">Total ${task.sub_inst_cls} with errors:
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+            <td class="tg-fymr">Total ${task.sub_inst_cls} with errors:</th>
             <td class="tg-dvpl">
             ${len(task.error_summary_sub_inst)}/${len(task.sub_inst)}</th>
         </tr>

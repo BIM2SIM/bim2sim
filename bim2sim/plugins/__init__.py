@@ -64,7 +64,6 @@ class PluginBPSBase(Plugin):
     sim_settings = BuildingSimSettings
     default_tasks = [
         common.load_ifc.LoadIFC,
-        common.CheckIfc,
         common.create_elements,
         bps.CreateSpaceBoundaries,
         bps.DisaggregationCreationAndTypeCheck,
