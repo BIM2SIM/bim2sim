@@ -128,7 +128,8 @@ class CreateOpenFOAMGeometry(ITask):
             openfoam_case.current_bounds += openfoam_case.current_zone.space_boundaries_2B
         for bound in openfoam_case.current_bounds:
             new_stl_bound = StlBound(bound, openfoam_case.radiation_model,
-                                     openfoam_case.add_solar_radiation)
+                                     openfoam_case.add_solar_radiation,
+                                     openfoam_case.fixed_faces)
             openfoam_elements[new_stl_bound.solid_name] = new_stl_bound
             # openfoam_case.stl_bounds.append(new_stl_bound)
 

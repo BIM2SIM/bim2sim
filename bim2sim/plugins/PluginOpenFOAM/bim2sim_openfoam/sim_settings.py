@@ -347,9 +347,10 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         description='Number of physical cores per node.',
         for_frontend=True
     )
-    set_openfoam_version = ChoiceSetting(
+    set_openfoam_source = ChoiceSetting(
         value="Standard",
-        choices={"Standard": "Use v2206 from the Compute Cluster.",
+        choices={"Standard": "Use a preinstalled version from the Compute "
+                             "Cluster.",
                  "Modified": "Use a modified version saved to the rwth1588 "
                              "account.",
                  "Custom": "Leaves a dummy path in the run-files which must "
@@ -358,4 +359,26 @@ class OpenFOAMSimSettings(ComfortSimSettings):
                     'or by a path.',
         for_frontend=True,
         any_string=True
+    )
+
+    set_openfoam_version = ChoiceSetting(
+        value="v2206",
+        choices={"v2206": "OpenFOAM v2206",
+                 "v2306": "OpenFOAM v2306",
+                 "v2406": "OpenFOAM v2406"},
+        description='Specify which OpenFOAM version to use.',
+        for_frontend=True,
+    )
+
+    fixed_faces = ChoiceSetting(
+        value=['INNER'],
+        # value=['office', 'meeting', 'canteen', 'sanitary', 'kitchen'],
+        choices={'': 'No faces have a fixed temperature', 'INNER': 'Inner '
+                 'walls are fixed', 'OUTER': 'Outer walls are fixed',
+                 'FLOOR': 'Floor is fixed', 'CEILING': 'Ceiling is fixed'},
+        description='Choose faces that have a fixed temperature boundary '
+                    'condition in the OpenFOAM simulation',
+        multiple_choice=True,
+        any_string=True,
+        for_frontend=True
     )

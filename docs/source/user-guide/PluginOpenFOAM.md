@@ -566,7 +566,9 @@ Just follow the installation instructions for the regular OpenFOAM
 implementation provided in the [doc/Build.md](https://github.com/BIM2SIM/OpenFOAM-v2206S/blob/main/doc/Build.md) file.
 
 #### Using provided binaries on the RWTH Compute Cluster
-1. Download and unzip the [precompiled binaries](https://rwth-aachen.sciebo.de/s/FCAn2XB6bfiLdbG) to the cluster.
+1. Download and unzip the [precompiled binaries](https://rwth-aachen.sciebo.
+   de/s/FCAn2XB6bfiLdbG) to the cluster. Note that these are precompiled on 
+   CLAIX23 and might not work on other versions.
 2. Load the modules GCC/11.3.0 and OpenMPI/4.1.4 
   ```shell
   module load GCC/11.3.0

@@ -641,17 +641,23 @@ class SetOpenFOAMBoundaryConditions(ITask):
                 {name: OpenFOAMBaseBoundaryFields().qr})
         openfoam_case.qr.save(openfoam_case.openfoam_dir)
 
-    @staticmethod
-    def create_T(openfoam_case, openfoam_elements):
+    # @staticmethod
+    def create_T(self, openfoam_case, openfoam_elements):
         default_name_list = openfoam_case.default_surface_names
 
         stl_bounds, heaters, air_terminals, furniture, people = \
             of_utils.split_openfoam_elements(openfoam_elements)
         openfoam_case.T = T.T()
+
         openfoam_case.T.values['boundaryField'] = {}
         openfoam_case.T.values['internalField'] \
-            = (f'uniform '
-               f'{of_utils.float_cutoff(openfoam_case.current_zone.air_temp)}')
+            = (f'uniform '           
+                f'{of_utils.float_cutoff(openfoam_case.current_zone.air_temp)} '
+                f'\\Simulation time: '
+               f'{self.playground.sim_settings.simulation_date}, '
+               f'{self.playground.sim_settings.simulation_time}:00:00 '
+               f'\\Building rotation: '
+               f'{self.playground.sim_settings.building_rotation_overwrite}°')
 
         for bound in stl_bounds:
             openfoam_case.T.values['boundaryField'].update(
@@ -845,7 +851,6 @@ class SetOpenFOAMBoundaryConditions(ITask):
         sun_dir_str = ('(' + str(sun_dir[0]) + ' ' + str(sun_dir[1]) + ' ' +
                        str(sun_dir[2]) + ')')
         rP.values['solarLoadCoeffs'].update({'sunDirection': sun_dir_str})
-        # todo: Strahlungswerte hier verdoppeln um OF Bug auszugleichen?
         rP.values['solarLoadCoeffs'].update({'directSolarRad': openfoam_case.direct_solar_rad})
         rP.values['solarLoadCoeffs'].update({'diffuseSolarRad': openfoam_case.diffuse_solar_rad})
         openfoam_case.radiationProperties.save(

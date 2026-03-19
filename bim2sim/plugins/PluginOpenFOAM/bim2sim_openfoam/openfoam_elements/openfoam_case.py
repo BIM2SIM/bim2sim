@@ -37,4 +37,5 @@ class OpenFOAMCase:
         self.solar_hour_angle = None
         self.direct_solar_rad = None
         self.diffuse_solar_rad = None
+        self.fixed_faces = playground.sim_settings.fixed_faces
         self.timestep_df = None

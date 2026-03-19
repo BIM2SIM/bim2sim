@@ -14,10 +14,11 @@ logger = logging.getLogger(__name__)
 
 
 class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
-    def __init__(self, bound, radiation_model, add_solar_radiation):
+    def __init__(self, bound, radiation_model, add_solar_radiation, fixed_faces):
         super().__init__()
         self.radiation_model = radiation_model
         self.add_solar_radiation = add_solar_radiation
+        self.fixed_faces = fixed_faces
         self.bound = bound
         self.guid = bound.guid
         self.bound_element_type = (
@@ -119,9 +120,8 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
             qr = 'none'
         else:
             qr = 'qr'
-        fixed_faces = ['INNER']
-        if not self.add_solar_radiation:
-            # solar radiation often hits the floor and should be visible
+        fixed_faces = self.fixed_faces
+        if not self.add_solar_radiation and 'FLOOR' not in fixed_faces:
             fixed_faces.append('FLOOR')
         if no_heatloss:
             pass

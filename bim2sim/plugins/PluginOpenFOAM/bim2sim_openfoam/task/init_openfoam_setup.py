@@ -205,8 +205,9 @@ class InitializeOpenFOAMSetup(ITask):
         script_files = ['fullRun.sh', 'runMeshing.sh', 'runSimulation.sh']
         comp_acct = "" if not simsettings.cluster_compute_account else (
             "#SBATCH --account=" + simsettings.cluster_compute_account)
-        of_version = "module load OpenFOAM/v2206"
-        if simsettings.set_openfoam_version != "Standard":
+        if simsettings.set_openfoam_source == "Standard":
+            of_version = f"module load OpenFOAM/{simsettings.set_openfoam_version}"
+        else:
             if simsettings.set_openfoam_version == "Modified":
                 foam_path = "/work/rwth1588/openfoam-correctedSolar/etc/bashrc"
             elif simsettings.set_openfoam_version == "Custom":
