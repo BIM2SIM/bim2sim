@@ -1,0 +1,36 @@
+---
+title: plugin IFCCheck
+---
+flowchart TB
+    
+subgraph taskLoadIFC["task LoadIFC"]
+ subgraph "" 
+
+  tLoadIFC["bim2sim > tasks > common >  
+ LoadIFC"]
+  extLoadIFC(" Load all IFC files from PROJECT. " )
+ end
+
+stateLoadIFC[("state
+ (reads/touches)")]
+    
+tLoadIFC -- ifc_files --> stateLoadIFC
+
+end
+    
+subgraph taskCheckIfc["task CheckIfc"]
+ subgraph "" 
+
+  tCheckIfc["bim2sim > tasks > common >  
+ CheckIfc"]
+  extCheckIfc("  Check ifc files for their quality regarding
+simulation. " )
+ end
+
+stateCheckIfc[("state
+ (reads/touches)")]
+    
+stateCheckIfc -- ifc_files --> tCheckIfc
+direction RL
+end
+    taskLoadIFC --> taskCheckIfc 

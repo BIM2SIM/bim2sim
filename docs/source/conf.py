@@ -34,6 +34,8 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinxcontrib.mermaid',
 ]
+# Enable zoom for all mermaid diagrams
+mermaid_d3_zoom = True
 
 templates_path = ['_templates']
 exclude_patterns = []

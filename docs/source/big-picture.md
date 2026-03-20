@@ -23,9 +23,6 @@ that offers a lot of functionalities to simplify and unify this process.
 The general structure of bim2sim is shown below:
 
 
-(Hint: firefox has issue display mermaid figures completely, for more infos see
-issue [#766](https://github.com/BIM2SIM/bim2sim/issues/766))
-
 ```{mermaid}
 flowchart TB
 
