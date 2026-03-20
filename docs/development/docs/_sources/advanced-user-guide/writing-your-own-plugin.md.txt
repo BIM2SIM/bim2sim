@@ -52,7 +52,7 @@ The preferred way is to set up your plugin in way it can be auto-detected
 by `bim2sim`.
 
 1. Create a package (or module) named `bim2sim_<plugin_name>`. (
-   Replace `<plugin_name>` with an actual name like `mysampleplugin`)
+   Replace `<plugin_name>` with an actual name like `mysample`)
 1. Make your `Plugin` available at top level of your package. Class definition
    or import are both fine.
    > NOTE:
@@ -61,7 +61,7 @@ by `bim2sim`.
 1. Put your package somewhere Python can find it. This can e.g. be done by
    adding it to `PYTHONPATH` or installing your package.
 
-Now you can run `bim2sim` as usual und use your `<plugin_name>` as any other
+Now you can run `bim2sim` as usual and use your `<plugin_name>` as any other
 Plugin.
 
 ### Use in script
@@ -74,3 +74,20 @@ from bim2sim import Project, run_project, ConsoleDecisionHandler
 project = Project.create(plugin=MySamplePlugin)
 run_project(project, ConsoleDecisionHandler())
 ```
+## Start with PluginTemplate
+
+A good starting point is the PluginTemplate, which is included in the bim2sim
+repo. Following the general steps creating a new plugin are described:
+
+1. generate a new project including your new plugin / task
+   1. start from the PluginTemplate
+      1. copy the folder PluginTemplate (rename it) (../bim2sim/bim2sim/plugins/)
+      2. copy example project e1_template_plugin.py (../bim2sim/bim2sim/examples/)
+      3. adapt relevant links, imports and so on
+         1. also rename the plugin folders, otherwise it is not callable in
+           Project.create()
+   2. always run the example to check our adaptions
+2. write tests also/especially for development
+   1. there is a testTask
+      1. maybe needed to have access to specific variables
+      2. bim2sim/test/unit/tasks/\_\_init\_\_.py > class TestTask

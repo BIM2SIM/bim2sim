@@ -266,10 +266,10 @@ const runMermaid = async (rerun) => {
     all_mermaids = document.querySelectorAll(".mermaid");
     const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
 
-    if ("False" === "True") {
+    if ("True" === "True") {
         const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
         if(mermaids_to_add_zoom > 0) {
-            var svgs = d3.selectAll("");
+            var svgs = d3.selectAll(".mermaid svg");
             if(all_mermaids.length !== mermaids_processed.length) {
                 setTimeout(() => runMermaid(false), 200);
                 return;
@@ -381,7 +381,7 @@ const runMermaid = async (rerun) => {
                 svg.style.maxWidth = '100%';
                 svg.style.sdisplay = 'block';
 
-                if ("False" === "True") {
+                if ("True" === "True") {
                     setTimeout(() => {
                         const g = svg.querySelector('g');
                         if (g) {
@@ -1530,6 +1530,21 @@ window.runMermaid = runMermaid;</script>
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="code/bim2sim.plugins.PluginTemplate.html#module-bim2sim.plugins.PluginTemplate"><code class="xref">bim2sim.plugins.PluginTemplate</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginTemplate.bim2sim_template.html#module-bim2sim.plugins.PluginTemplate.bim2sim_template"><code class="xref">bim2sim.plugins.PluginTemplate.bim2sim_template</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginTemplate.bim2sim_template.task.html#module-bim2sim.plugins.PluginTemplate.bim2sim_template.task"><code class="xref">bim2sim.plugins.PluginTemplate.bim2sim_template.task</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="code/bim2sim.plugins.PluginTemplate.bim2sim_template.task.html#module-bim2sim.plugins.PluginTemplate.bim2sim_template.task.template_task"><code class="xref">bim2sim.plugins.PluginTemplate.bim2sim_template.task.template_task</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>

@@ -266,10 +266,10 @@ const runMermaid = async (rerun) => {
     all_mermaids = document.querySelectorAll(".mermaid");
     const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
 
-    if ("False" === "True") {
+    if ("True" === "True") {
         const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
         if(mermaids_to_add_zoom > 0) {
-            var svgs = d3.selectAll("");
+            var svgs = d3.selectAll(".mermaid svg");
             if(all_mermaids.length !== mermaids_processed.length) {
                 setTimeout(() => runMermaid(false), 200);
                 return;
@@ -381,7 +381,7 @@ const runMermaid = async (rerun) => {
                 svg.style.maxWidth = '100%';
                 svg.style.sdisplay = 'block';
 
-                if ("False" === "True") {
+                if ("True" === "True") {
                     setTimeout(() => {
                         const g = svg.querySelector('g');
                         if (g) {
@@ -1673,8 +1673,6 @@ window.runMermaid = runMermaid;</script>
         <li><a href="code/bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e10_openfoam_no_heating">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e11_openfoam_furniture_space_heater
 
@@ -1689,6 +1687,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="code/bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.html#module-bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e11_openfoam_run_full_sim_linux">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e12_openfoam_auto_refinement
 
@@ -2177,6 +2177,27 @@ window.runMermaid = runMermaid;</script>
 
       <ul>
         <li><a href="code/bim2sim.plugins.PluginTemplate.html#module-bim2sim.plugins.PluginTemplate">module</a>
+</li>
+      </ul></li>
+      <li>
+    bim2sim.plugins.PluginTemplate.bim2sim_template
+
+      <ul>
+        <li><a href="code/bim2sim.plugins.PluginTemplate.bim2sim_template.html#module-bim2sim.plugins.PluginTemplate.bim2sim_template">module</a>
+</li>
+      </ul></li>
+      <li>
+    bim2sim.plugins.PluginTemplate.bim2sim_template.task
+
+      <ul>
+        <li><a href="code/bim2sim.plugins.PluginTemplate.bim2sim_template.task.html#module-bim2sim.plugins.PluginTemplate.bim2sim_template.task">module</a>
+</li>
+      </ul></li>
+      <li>
+    bim2sim.plugins.PluginTemplate.bim2sim_template.task.template_task
+
+      <ul>
+        <li><a href="code/bim2sim.plugins.PluginTemplate.bim2sim_template.task.html#module-bim2sim.plugins.PluginTemplate.bim2sim_template.task.template_task">module</a>
 </li>
       </ul></li>
       <li>
@@ -3150,6 +3171,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.PluginTEASER.default_tasks">(bim2sim.plugins.PluginTEASER.bim2sim_teaser.PluginTEASER attribute)</a>
 </li>
         <li><a href="code/bim2sim.plugins.PluginTEASER.test.unit.task.html#bim2sim.plugins.PluginTEASER.test.unit.task.test_weather.PluginWeatherDummyTEASER.default_tasks">(bim2sim.plugins.PluginTEASER.test.unit.task.test_weather.PluginWeatherDummyTEASER attribute)</a>
+</li>
+        <li><a href="code/bim2sim.plugins.PluginTemplate.bim2sim_template.html#bim2sim.plugins.PluginTemplate.bim2sim_template.PluginTemplate.default_tasks">(bim2sim.plugins.PluginTemplate.bim2sim_template.PluginTemplate attribute)</a>
 </li>
       </ul></li>
       <li><a href="code/bim2sim.html#bim2sim.sim_settings.SettingsManager.defaults">defaults (bim2sim.sim_settings.SettingsManager attribute)</a>
@@ -5558,6 +5581,12 @@ window.runMermaid = runMermaid;</script>
 </li>
         <li><a href="code/bim2sim.plugins.PluginTemplate.html#module-bim2sim.plugins.PluginTemplate">bim2sim.plugins.PluginTemplate</a>
 </li>
+        <li><a href="code/bim2sim.plugins.PluginTemplate.bim2sim_template.html#module-bim2sim.plugins.PluginTemplate.bim2sim_template">bim2sim.plugins.PluginTemplate.bim2sim_template</a>
+</li>
+        <li><a href="code/bim2sim.plugins.PluginTemplate.bim2sim_template.task.html#module-bim2sim.plugins.PluginTemplate.bim2sim_template.task">bim2sim.plugins.PluginTemplate.bim2sim_template.task</a>
+</li>
+        <li><a href="code/bim2sim.plugins.PluginTemplate.bim2sim_template.task.html#module-bim2sim.plugins.PluginTemplate.bim2sim_template.task.template_task">bim2sim.plugins.PluginTemplate.bim2sim_template.task.template_task</a>
+</li>
         <li><a href="code/bim2sim.html#module-bim2sim.project">bim2sim.project</a>
 </li>
         <li><a href="code/bim2sim.html#module-bim2sim.sim_settings">bim2sim.sim_settings</a>
@@ -5705,6 +5734,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.PluginTEASER.name">(bim2sim.plugins.PluginTEASER.bim2sim_teaser.PluginTEASER attribute)</a>
 </li>
         <li><a href="code/bim2sim.plugins.PluginTEASER.test.unit.task.html#bim2sim.plugins.PluginTEASER.test.unit.task.test_weather.PluginWeatherDummyTEASER.name">(bim2sim.plugins.PluginTEASER.test.unit.task.test_weather.PluginWeatherDummyTEASER attribute)</a>
+</li>
+        <li><a href="code/bim2sim.plugins.PluginTemplate.bim2sim_template.html#bim2sim.plugins.PluginTemplate.bim2sim_template.PluginTemplate.name">(bim2sim.plugins.PluginTemplate.bim2sim_template.PluginTemplate attribute)</a>
 </li>
         <li><a href="code/bim2sim.html#bim2sim.sim_settings.Setting.name">(bim2sim.sim_settings.Setting attribute)</a>
 </li>
@@ -6156,6 +6187,8 @@ window.runMermaid = runMermaid;</script>
       <li><a href="code/bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.html#bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.PluginOpenFOAM">PluginOpenFOAM (class in bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam)</a>
 </li>
       <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.PluginTEASER">PluginTEASER (class in bim2sim.plugins.PluginTEASER.bim2sim_teaser)</a>
+</li>
+      <li><a href="code/bim2sim.plugins.PluginTemplate.bim2sim_template.html#bim2sim.plugins.PluginTemplate.bim2sim_template.PluginTemplate">PluginTemplate (class in bim2sim.plugins.PluginTemplate.bim2sim_template)</a>
 </li>
       <li><a href="code/bim2sim.plugins.PluginEnergyPlus.test.unit.task.html#bim2sim.plugins.PluginEnergyPlus.test.unit.task.test_weather.PluginWeatherDummyEP">PluginWeatherDummyEP (class in bim2sim.plugins.PluginEnergyPlus.test.unit.task.test_weather)</a>
 </li>
@@ -7185,6 +7218,8 @@ window.runMermaid = runMermaid;</script>
         <li><a href="code/bim2sim.plugins.PluginTEASER.bim2sim_teaser.html#bim2sim.plugins.PluginTEASER.bim2sim_teaser.PluginTEASER.sim_settings">(bim2sim.plugins.PluginTEASER.bim2sim_teaser.PluginTEASER attribute)</a>
 </li>
         <li><a href="code/bim2sim.plugins.PluginTEASER.test.unit.task.html#bim2sim.plugins.PluginTEASER.test.unit.task.test_weather.PluginWeatherDummyTEASER.sim_settings">(bim2sim.plugins.PluginTEASER.test.unit.task.test_weather.PluginWeatherDummyTEASER attribute)</a>
+</li>
+        <li><a href="code/bim2sim.plugins.PluginTemplate.bim2sim_template.html#bim2sim.plugins.PluginTemplate.bim2sim_template.PluginTemplate.sim_settings">(bim2sim.plugins.PluginTemplate.bim2sim_template.PluginTemplate attribute)</a>
 </li>
       </ul></li>
   </ul></td>
