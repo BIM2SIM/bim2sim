@@ -652,12 +652,7 @@ class SetOpenFOAMBoundaryConditions(ITask):
         openfoam_case.T.values['boundaryField'] = {}
         openfoam_case.T.values['internalField'] \
             = (f'uniform '           
-                f'{of_utils.float_cutoff(openfoam_case.current_zone.air_temp)} '
-                f'\\Simulation time: '
-               f'{self.playground.sim_settings.simulation_date}, '
-               f'{self.playground.sim_settings.simulation_time}:00:00 '
-               f'\\Building rotation: '
-               f'{self.playground.sim_settings.building_rotation_overwrite}°')
+                f'{of_utils.float_cutoff(openfoam_case.current_zone.air_temp)}')
 
         for bound in stl_bounds:
             openfoam_case.T.values['boundaryField'].update(

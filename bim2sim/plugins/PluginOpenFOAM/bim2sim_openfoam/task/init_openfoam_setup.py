@@ -208,10 +208,10 @@ class InitializeOpenFOAMSetup(ITask):
         if simsettings.set_openfoam_source == "Standard":
             of_version = f"module load OpenFOAM/{simsettings.set_openfoam_version}"
         else:
-            if simsettings.set_openfoam_version == "Modified":
+            if simsettings.set_openfoam_source == "Modified":
                 foam_path = "/work/rwth1588/openfoam-correctedSolar/etc/bashrc"
-            elif simsettings.set_openfoam_version == "Custom":
-                foam_path = "path/to/your/custom/openfoam/installation"
+            elif simsettings.set_openfoam_source == "Custom":
+                foam_path = "path/to/your/custom/openfoam/installation/bashrc"
             else:
                 foam_path = simsettings.set_openfoam_version
             of_version = f"source {foam_path}"

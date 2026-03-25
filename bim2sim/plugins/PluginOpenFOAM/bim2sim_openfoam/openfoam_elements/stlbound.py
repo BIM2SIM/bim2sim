@@ -98,7 +98,8 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                                                      'Hourly)')]
             self.heat_flux = prev_heat_flux
             if self.add_solar_radiation:
-                # add load radiation contribution to wall heat fluxes
+                # add load radiation contribution to wall heat fluxes if
+                # solar radiation is active
                 self.power += timestep_df[res_key + (
                     'Surface Inside Face Solar Radiation Heat Gain Rate per '
                     'Area [W/m2](Hourly)')] * self.bound_area
@@ -108,7 +109,11 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
             self.power = timestep_df[res_key + (
                 'Surface Window Net Heat Transfer '
                 'Rate [W](Hourly)')]
-            # remove solar load for realistic window surface bc
+            # This is the heat flux based on conduction and solar
+            # radiation. If the transmitted solar radiation part is not
+            # removed, the window acts as a heat source substituting the
+            # sun. It is therefore, to get realistic surface temperatures,
+            # subtracted.
             self.power -= timestep_df[res_key + ('Surface Window '
                                                  'Transmitted Solar '
                                                  'Radiation Rate [W]('
