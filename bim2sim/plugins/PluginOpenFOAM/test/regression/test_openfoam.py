@@ -39,7 +39,7 @@ class RegressionTestOpenFOAM(RegressionTestBase):
     def tearDown(self):
         os.chdir(self.working_dir)
         sys.stderr = self.old_stderr
-        # super().tearDown()
+        super().tearDown()
 
     @staticmethod
     def _make_table_worker(q: mp.Queue,
