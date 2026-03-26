@@ -142,7 +142,7 @@ class RegressionTestOpenFOAM(RegressionTestBase):
             if 'temp' in rel_root.lower():
                 # exclude temp file directories from further diff checks as
                 # they are obsolete
-                break
+                continue
             gen_root = new_dir / rel_root
 
             if not gen_root.exists():
@@ -427,6 +427,7 @@ class TestRegressionOpenFOAMCase(RegressionTestOpenFOAM, unittest.TestCase):
         project.sim_settings.people_amount = 4
         project.sim_settings.people_setting = 'Seated'
         project.sim_settings.radiation_precondition_time = 4000
+        project.sim_settings.fixed_faces = ['INNER', 'FLOOR']
         project.sim_settings.radiation_model = 'preconditioned_fvDOM'
         project.sim_settings.output_keys = ['output_outdoor_conditions',
                                             'output_zone_temperature',
