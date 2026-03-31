@@ -1031,6 +1031,19 @@ class SpaceBoundary(RelationBased):
         unify.Initialize(shape)
         unify.Build()
         shape = unify.Shape()
+        # apply removal of coincident and collinear points to all new faces
+        # to avoid errors lateron for mismatched vertex numbers
+        faces = PyOCCTools.get_faces_from_shape(shape)
+        if len(faces) > 1:
+            unify = ShapeUpgrade_UnifySameDomain()
+            unify.Initialize(shape)
+            unify.Build()
+            shape = unify.Shape()
+            faces = PyOCCTools.get_faces_from_shape(shape)
+        face = faces[0]
+        face = PyOCCTools.remove_coincident_and_collinear_points_from_face(
+            face)
+        shape = face
 
         if self.bound_element is not None:
             bi = self.bound_element
