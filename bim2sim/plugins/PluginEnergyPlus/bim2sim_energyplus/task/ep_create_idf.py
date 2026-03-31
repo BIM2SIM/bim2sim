@@ -437,7 +437,8 @@ class CreateIdf(ITask):
             if not any([isinstance(rel_elem, window) for window in
                         all_subclasses(Window, include_self=True)]):
                 # set construction for all but fenestration
-                if self.check_preprocessed_materials_and_constructions(
+                if rel_elem.layerset and \
+                        self.check_preprocessed_materials_and_constructions(
                         rel_elem, rel_elem.layerset.layers):
                     self.set_preprocessed_construction_elem(
                         rel_elem, rel_elem.layerset.layers, idf)
@@ -2129,9 +2130,13 @@ class IdfObject:
         if not self.physical:
             if self.out_bound_cond == "Surface":
                 self.construction_name = "Air Wall"
+            else:
+                return
         else:
             rel_elem = self.this_bound.bound_element
             if not rel_elem:
+                return
+            if not rel_elem.layerset:
                 return
             if any([isinstance(rel_elem, window) for window in
                     all_subclasses(Window, include_self=True)]):
@@ -2141,11 +2146,14 @@ class IdfObject:
                                          + '_' + str(
                     rel_elem.layerset.layers[0].thickness.to(ureg.metre).m)
             else:
-                self.construction_name = (rel_elem.key.replace(
-                    "Disaggregated", "") + '_' + str(len(
-                    rel_elem.layerset.layers)) + '_' + '_'.join(
-                    [str(l.thickness.to(ureg.metre).m) for l in
-                     rel_elem.layerset.layers]))
+                if rel_elem.layerset:
+                    self.construction_name = (rel_elem.key.replace(
+                        "Disaggregated", "") + '_' + str(len(
+                        rel_elem.layerset.layers)) + '_' + '_'.join(
+                        [str(l.thickness.to(ureg.metre).m) for l in
+                         rel_elem.layerset.layers]))
+                else:
+                    self.construction_name = None
 
     def set_idfobject_coordinates(self, obj, idf: IDF,
                                   inst_obj: Union[SpaceBoundary,
@@ -2166,6 +2174,9 @@ class IdfObject:
         # write bound_shape to obj
         obj_pnts = PyOCCTools.get_points_of_face(self.bound_shape)
         obj_coords = []
+        if not obj_pnts:
+            self.skip_bound = True
+            return
         for pnt in obj_pnts:
             co = tuple(round(p, 3) for p in pnt.Coord())
             obj_coords.append(co)

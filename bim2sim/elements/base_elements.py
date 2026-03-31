@@ -352,7 +352,8 @@ class IFCBased(Element):
         results = []
 
         # Check name matches
-        name_hits = [p.search(ifc_element.Name) for p in cls.pattern_ifc_type]
+        name_hits = [p.search(ifc_element.Name) for p in (
+                cls.pattern_ifc_type) if ifc_element.Name]
         name_hits = [hit for hit in name_hits if hit is not None]
         if name_hits:
             quality_logger.info(

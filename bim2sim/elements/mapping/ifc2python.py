@@ -406,6 +406,8 @@ def get_guid(ifcElement):
 def get_predefined_type(ifcElement) -> Union[str, None]:
     """Returns the predefined type of the IFC element"""
     try:
+        if not hasattr(ifcElement, 'PredefinedType'):
+            return None
         predefined_type = getattr(ifcElement, 'PredefinedType')
         # todo cache "USERDEFINED" and check where information is stored
         if predefined_type == "NOTDEFINED":
