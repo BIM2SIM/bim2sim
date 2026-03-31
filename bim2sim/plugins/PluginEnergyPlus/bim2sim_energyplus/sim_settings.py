@@ -268,7 +268,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         }
     )
     add_occupant_co2 = BooleanSetting(
-        value=True,
+        value=False,
         description='Choose if the CO2 generation by occupants should be '
                     'considered.',
     )
