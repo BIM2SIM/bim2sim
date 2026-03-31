@@ -12,7 +12,7 @@ from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace
 from OCC.Core.BRepTools import breptools, BRepTools_WireExplorer
 from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_WIRE
 from OCC.Core.TopExp import TopExp_Explorer
-from OCC.Core.TopoDS import topods
+from OCC.Core.TopoDS import topods, TopoDS_Shape
 from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 
 from OCC.Core.gp import gp_Dir, gp_XYZ, gp_Pln
@@ -2461,7 +2461,8 @@ class IdfObject:
         idf.removeidfobject(obj)
 
     @staticmethod
-    def process_other_shapes(inst_obj: Union[SpaceBoundary, SpaceBoundary2B],
+    def process_other_shapes(inst_obj: Union[SpaceBoundary, SpaceBoundary2B,
+        TopoDS_Shape],
                              obj):
         """Simplify non-circular shapes.
 
@@ -2476,7 +2477,10 @@ class IdfObject:
         """
         # print("TOO MANY EDGES")
         obj_pnts = []
-        exp = TopExp_Explorer(inst_obj.bound_shape, TopAbs_FACE)
+        if not isinstance(inst_obj, TopoDS_Shape):
+            exp = TopExp_Explorer(inst_obj.bound_shape, TopAbs_FACE)
+        else:
+            exp = TopExp_Explorer(inst_obj, TopAbs_FACE)
         face = topods.Face(exp.Current())
         umin, umax, vmin, vmax = breptools.UVBounds(face)
         surf = BRep_Tool.Surface(face)
@@ -2497,3 +2501,4 @@ class IdfObject:
         for pnt in obj_pnts:
             obj_coords.append(pnt.Coord())
         obj.setcoords(obj_coords)
+        return obj
