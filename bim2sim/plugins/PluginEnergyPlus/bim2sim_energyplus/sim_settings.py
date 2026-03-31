@@ -267,3 +267,8 @@ class EnergyPlusSimSettings(BuildingSimSettings):
             "DIN4108": "use DIN4108-2 for natural ventilation."
         }
     )
+    add_occupant_co2 = BooleanSetting(
+        value=True,
+        description='Choose if the CO2 generation by occupants should be '
+                    'considered.',
+    )
