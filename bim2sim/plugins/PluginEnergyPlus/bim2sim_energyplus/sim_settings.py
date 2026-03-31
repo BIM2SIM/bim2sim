@@ -115,7 +115,8 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         choices={
             'FullExterior': 'Full exterior solar distribution',
             'FullInteriorAndExterior': 'Full interior and exterior solar '
-                                       'distribution'
+                                       'distribution',
+            'FullInteriorAndExteriorWithReflections': 'Add reflections'
         },
         description='Choose solar distribution.',
         for_frontend=True
