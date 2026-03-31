@@ -693,6 +693,14 @@ class PlotComfortResults(PlotBEPSResults):
                 storey_name = \
                     zone_dict_ifc_names[key]['StoreyName'].split(
                         '_')[0]
+            elif ' / ' in zone_dict_ifc_names[key]['StoreyName']:
+                storey_name = \
+                    zone_dict_ifc_names[key]['StoreyName'].split(
+                        ' / ')[0]
+            elif '/' in zone_dict_ifc_names[key]['StoreyName']:
+                storey_name = \
+                    zone_dict_ifc_names[key]['StoreyName'].split(
+                        '/')[0]
             else:
                 storey_name = zone_dict_ifc_names[key]['StoreyName']
                 if storey_name.upper() == 'Erdgeschoss'.upper():
