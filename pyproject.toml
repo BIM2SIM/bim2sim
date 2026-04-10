@@ -148,7 +148,7 @@ test = [
     "coverage-badge",
 #    "setuptools==80.9.0" # downgrade setuptools, because of coverage-badge
     "setuptools<82.0.0",
-    "setuptools-scm"
+    "setuptools_scm"
     # see https://github.com/dbrgn/coverage-badge/issues/33
 ]
 
