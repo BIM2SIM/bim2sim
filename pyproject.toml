@@ -146,7 +146,8 @@ docu = [
 test = [
     "coverage",
     "coverage-badge",
-    "setuptools==80.9.0" # downgrade setuptools, because of coverage-badge
+#    "setuptools==80.9.0" # downgrade setuptools, because of coverage-badge
+    "setuptools<82.0.0"
     # see https://github.com/dbrgn/coverage-badge/issues/33
 ]
 
