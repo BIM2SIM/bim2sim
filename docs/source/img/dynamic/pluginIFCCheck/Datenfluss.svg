@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   sodipodi:docname="Datenfluss.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="true"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="343.65389"
+     inkscape:cy="393.85847"
+     inkscape:window-width="1920"
+     inkscape:window-height="1043"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g21261">
+    <inkscape:grid
+       type="xygrid"
+       id="grid824" />
+  </sodipodi:namedview>
+  <defs
+     id="defs2">
+    <marker
+       style="overflow:visible"
+       id="TriangleOutM"
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="TriangleOutM"
+       inkscape:isstock="true">
+      <path
+         transform="scale(0.4)"
+         style="fill-rule:evenodd;fill:context-stroke;stroke:context-stroke;stroke-width:1.0pt"
+         d="M 5.77,0.0 L -2.88,5.0 L -2.88,-5.0 L 5.77,0.0 z "
+         id="path27284" />
+    </marker>
+    <marker
+       style="overflow:visible;"
+       id="Arrow2Lend"
+       refX="0.0"
+       refY="0.0"
+       orient="auto"
+       inkscape:stockid="Arrow2Lend"
+       inkscape:isstock="true">
+      <path
+         transform="scale(1.1) rotate(180) translate(1,0)"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         style="stroke:context-stroke;fill-rule:evenodd;fill:context-stroke;stroke-width:0.62500000;stroke-linejoin:round;"
+         id="path27160" />
+    </marker>
+    <symbol
+       id="Document">
+      <title
+         id="title13839">Document</title>
+      <desc
+         id="desc13841">A document or report</desc>
+      <path
+         d="m 3.96875,9.2604167 h 31.75 V 25.135417 C 22.489583,23.8125 17.197917,34.395833 3.96875,27.78125 Z"
+         style="stroke-width:0.529167"
+         id="path13843" />
+    </symbol>
+    <symbol
+       id="Comment">
+      <title
+         id="title13988">Comment/Annotation</title>
+      <desc
+         id="desc13990">Additional descriptive clarification (connect by dotted line).</desc>
+      <path
+         d="m 35.71875,30.427083 h -31.75 V 9.2604167 h 31.75"
+         style="stroke-width:0.529167"
+         id="path13992" />
+    </symbol>
+    <symbol
+       id="AuxillaryOp">
+      <title
+         id="title13890">Auxiliary Operation</title>
+      <desc
+         id="desc13892">Offline operation.</desc>
+      <rect
+         x="9.260417"
+         y="9.260417"
+         width="21.166666"
+         height="21.166666"
+         style="stroke-width:0.529167"
+         id="rect13894" />
+    </symbol>
+    <symbol
+       id="Process">
+      <title
+         id="title13825">Process</title>
+      <desc
+         id="desc13827">Any processing function.</desc>
+      <rect
+         x="3.96875"
+         y="9.260417"
+         width="31.75"
+         height="21.166666"
+         style="stroke-width:0.529167"
+         id="rect13829" />
+    </symbol>
+    <symbol
+       id="CommunicationLink">
+      <title
+         id="title13974">Communication Link</title>
+      <desc
+         id="desc13976">Transcommunication link.</desc>
+      <path
+         d="M 17.197917,6.6145833 V 22.489583 l 5.291666,-5.291666 v 15.875"
+         style="fill:none;stroke-width:0.529167"
+         id="path13978" />
+    </symbol>
+    <marker
+       style="overflow:visible"
+       id="TriangleOutM-0"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="TriangleOutM"
+       inkscape:isstock="true">
+      <path
+         transform="scale(0.4)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path27284-1" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="TriangleOutM-0-6"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="TriangleOutM"
+       inkscape:isstock="true">
+      <path
+         transform="scale(0.4)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path27284-1-2" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="TriangleOutM-0-2"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="TriangleOutM"
+       inkscape:isstock="true">
+      <path
+         transform="scale(0.4)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path27284-1-0" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="TriangleOutM-0-6-4"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="TriangleOutM"
+       inkscape:isstock="true">
+      <path
+         transform="scale(0.4)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path27284-1-2-8" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="TriangleOutM-0-6-8"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="TriangleOutM"
+       inkscape:isstock="true">
+      <path
+         transform="scale(0.4)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path27284-1-2-2" />
+    </marker>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g20791"
+       transform="translate(-17.197916,6.6145837)"
+       inkscape:export-filename="/home/cudok/Documents/12_ifc_check_ids/05_documentation/Datenfluss.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300">
+      <use
+         xlink:href="#Document"
+         style="fill:#aaccee;stroke:#000000"
+         id="use14322"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%"
+         transform="translate(22.489583,22.489583)" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:6.35px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="37.214268"
+         y="42.531509"
+         id="text1996"><tspan
+           sodipodi:role="line"
+           id="tspan1994"
+           style="font-size:6.35px;stroke-width:0.264583"
+           x="37.214268"
+           y="42.531509">IFC</tspan></text>
+    </g>
+    <g
+       id="g20796"
+       transform="translate(-23.28334,-7.9375004)"
+       inkscape:export-filename="/home/cudok/Documents/12_ifc_check_ids/05_documentation/Datenfluss.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300">
+      <use
+         xlink:href="#Document"
+         style="fill:#aaccee;stroke:#000000"
+         id="use14322-9"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%"
+         transform="translate(91.28125,48.947916)" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:6.35px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="105.59355"
+         y="68.989845"
+         id="text1996-3"><tspan
+           sodipodi:role="line"
+           id="tspan1994-5"
+           style="font-size:6.35px;stroke-width:0.264583"
+           x="105.59355"
+           y="68.989845">IDS</tspan></text>
+    </g>
+    <g
+       id="g21261"
+       transform="translate(-1.0583322)"
+       inkscape:export-filename="/home/cudok/Documents/12_ifc_check_ids/05_Dokumentation/Datenfluss.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300">
+      <use
+         xlink:href="#Process"
+         style="fill:#aaccee;stroke:#000000"
+         id="use19199"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%"
+         transform="matrix(2.6833333,0,0,2.0000001,-9.3265624,55.562501)"
+         inkscape:export-filename="/home/cudok/Documents/12_ifc_check_ids/05_documentation/Datenfluss.png"
+         inkscape:export-xdpi="300"
+         inkscape:export-ydpi="300" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-weight:normal;font-size:6.35px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="29.446251"
+         y="80.681778"
+         id="text1996-7"
+         inkscape:export-filename="/home/cudok/Documents/12_ifc_check_ids/05_documentation/Datenfluss.png"
+         inkscape:export-xdpi="300"
+         inkscape:export-ydpi="300"><tspan
+           sodipodi:role="line"
+           id="tspan1994-0"
+           style="font-size:6.35px;stroke-width:0.264583"
+           x="29.446251"
+           y="80.681778">IFC-Check</tspan></text>
+    </g>
+    <use
+       xlink:href="#Process"
+       style="fill:#aaccee;stroke:#000000"
+       id="use21353"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%"
+       transform="matrix(1.1583333,0,0,1,40.646616,76.729168)"
+       inkscape:export-filename="/home/cudok/Documents/12_ifc_check_ids/05_documentation/Datenfluss.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:6.35px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="48.240471"
+       y="93.538528"
+       id="text1996-2"
+       inkscape:export-filename="/home/cudok/Documents/12_ifc_check_ids/05_documentation/Datenfluss.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300"><tspan
+         sodipodi:role="line"
+         id="tspan1994-53"
+         style="font-size:6.35px;stroke-width:0.264583"
+         x="48.240471"
+         y="93.538528">IFC-Tester</tspan></text>
+    <use
+       xlink:href="#Process"
+       style="fill:#aaccee;stroke:#000000"
+       id="use21353-9"
+       x="0"
+       y="0"
+       width="100%"
+       height="100%"
+       transform="matrix(1.1583333,0,0,1,-0.36380085,76.729168)"
+       inkscape:export-filename="/home/cudok/Documents/12_ifc_check_ids/05_documentation/Datenfluss.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:6.35px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="4.846828"
+       y="93.514587"
+       id="text1996-2-0"
+       inkscape:export-filename="/home/cudok/Documents/12_ifc_check_ids/05_documentation/Datenfluss.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300"><tspan
+         sodipodi:role="line"
+         id="tspan1994-53-2"
+         style="font-size:6.35px;stroke-width:0.264583"
+         x="4.846828"
+         y="93.514587">spec. tests</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleOutM)"
+       d="m 18.520833,59.002083 0,13.758334"
+       id="path27137"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/cudok/Documents/12_ifc_check_ids/05_documentation/Datenfluss.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleOutM-0)"
+       d="M 18.520833,59.002083 V 72.760417"
+       id="path27137-9"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/cudok/Documents/12_ifc_check_ids/05_documentation/Datenfluss.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleOutM-0-6)"
+       d="M 18.520833,59.002083 V 72.760417"
+       id="path27137-9-1"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/cudok/Documents/12_ifc_check_ids/05_documentation/Datenfluss.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleOutM-0-2)"
+       d="M 89.958333,68.791667 V 99.21875 l -6.614583,0"
+       id="path27137-9-7"
+       sodipodi:nodetypes="ccc"
+       inkscape:export-filename="/home/cudok/Documents/12_ifc_check_ids/05_documentation/Datenfluss.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300" />
+    <g
+       id="g20791-3"
+       transform="translate(-18.520833,95.250002)"
+       inkscape:export-filename="/home/cudok/Documents/12_ifc_check_ids/05_documentation/Datenfluss.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300">
+      <use
+         xlink:href="#Document"
+         style="fill:#aaccee;stroke:#000000"
+         id="use14322-1-0-7"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%"
+         transform="translate(19.84375,26.193745)" />
+      <use
+         xlink:href="#Document"
+         style="fill:#aaccee;stroke:#000000"
+         id="use14322-1-0"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%"
+         transform="translate(17.197916,23.018747)" />
+      <g
+         id="g31710"
+         transform="translate(0,-1.0583333)">
+        <use
+           xlink:href="#Document"
+           style="fill:#aaccee;stroke:#000000"
+           id="use14322-1"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%"
+           transform="translate(14.552083,21.166664)" />
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-weight:normal;font-size:6.35px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+           x="24.4259"
+           y="37.037922"
+           id="text1996-1"><tspan
+             sodipodi:role="line"
+             id="tspan1994-9"
+             style="font-size:6.35px;stroke-width:0.264583"
+             x="24.4259"
+             y="37.037922">report </tspan><tspan
+             sodipodi:role="line"
+             style="font-size:6.35px;stroke-width:0.264583"
+             x="24.4259"
+             y="44.975422"
+             id="tspan34676">(html)</tspan></text>
+      </g>
+      <g
+         id="g31710-4"
+         transform="translate(47.625,-1.3229163)">
+        <use
+           xlink:href="#Document"
+           style="fill:#aaccee;stroke:#000000"
+           id="use14322-1-06"
+           x="0"
+           y="0"
+           width="100%"
+           height="100%"
+           transform="translate(14.552083,21.166664)" />
+        <text
+           xml:space="preserve"
+           style="font-style:normal;font-weight:normal;font-size:6.35px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+           x="24.501863"
+           y="36.991245"
+           id="text1996-1-4"><tspan
+             sodipodi:role="line"
+             id="tspan1994-9-7"
+             style="font-size:6.35px;stroke-width:0.264583"
+             x="24.501863"
+             y="36.991245">report</tspan><tspan
+             sodipodi:role="line"
+             style="font-size:6.35px;stroke-width:0.264583"
+             x="24.501863"
+             y="44.928745"
+             id="tspan37972">(html)</tspan></text>
+      </g>
+    </g>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleOutM-0-6-4)"
+       d="m 15.875,107.15625 v 15.875"
+       id="path27137-9-1-5"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/cudok/Documents/12_ifc_check_ids/05_documentation/Datenfluss.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleOutM-0-6-8)"
+       d="m 63.5,107.15625 v 15.875"
+       id="path27137-9-1-6"
+       sodipodi:nodetypes="cc"
+       inkscape:export-filename="/home/cudok/Documents/12_ifc_check_ids/05_documentation/Datenfluss.png"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300" />
+  </g>
+</svg>
