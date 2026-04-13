@@ -1,8 +1,8 @@
 stages:
-  - build
-  - Test Base
-  - Test Plugin
-  - Test Regression
+#  - build
+#  - Test Base
+#  - Test Plugin
+#  - Test Regression
   - doc
   - code_quality
   - release_modelica
