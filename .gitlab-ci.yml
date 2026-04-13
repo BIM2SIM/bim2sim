@@ -1,5 +1,13 @@
 stages:
+  - build
+  - Test Base
+  - Test Plugin
+  - Test Regression
   - doc
+  - code_quality
+  - release_modelica
+  - release_energyplus
+  - deploy
 
 variables:
   # TODO variable inside variable seems not be working on our gitlab instance,
