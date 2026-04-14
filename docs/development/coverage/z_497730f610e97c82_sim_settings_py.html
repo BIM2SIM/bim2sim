@@ -54,9 +54,9 @@
             </div>
         </aside>
         <h2>
-            <span class="text">50 statements &nbsp;</span>
+            <span class="text">53 statements &nbsp;</span>
             <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">0<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">50<span class="text"> missing</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">53<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_c8825ac128fb6a91___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-14 07:23 +0000
+            created at 2026-04-14 12:01 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -359,8 +359,8 @@
     <p class="mis mis2 show_mis"><span class="n"><a id="t277" href="#t277">277</a></span><span class="t">                    <span class="str">'radiation for fvDOM radiation'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t278" href="#t278">278</a></span><span class="t">        <span class="nam">for_frontend</span><span class="op">=</span><span class="key">True</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t279" href="#t279">279</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis show_mis"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t">    <span class="nam">add_solar_radiation</span><span class="op">=</span><span class="nam">BooleanSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
-    <p class="mis mis2 show_mis"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t">        <span class="nam">value</span><span class="op">=</span><span class="key">True</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t280" href="#t280">280</a></span><span class="t">    <span class="nam">add_solar_radiation</span> <span class="op">=</span> <span class="nam">BooleanSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t281" href="#t281">281</a></span><span class="t">        <span class="nam">value</span><span class="op">=</span><span class="key">False</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t282" href="#t282">282</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">'Add solar radiation. Requires fvDOM as radiation model.'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t283" href="#t283">283</a></span><span class="t">        <span class="nam">for_frontend</span><span class="op">=</span><span class="key">True</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t284" href="#t284">284</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
@@ -429,6 +429,41 @@
     <p class="mis mis2 show_mis"><span class="n"><a id="t347" href="#t347">347</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">'Number of physical cores per node.'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t348" href="#t348">348</a></span><span class="t">        <span class="nam">for_frontend</span><span class="op">=</span><span class="key">True</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis mis2 show_mis"><span class="n"><a id="t349" href="#t349">349</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t350" href="#t350">350</a></span><span class="t">    <span class="nam">set_openfoam_source</span> <span class="op">=</span> <span class="nam">ChoiceSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t351" href="#t351">351</a></span><span class="t">        <span class="nam">value</span><span class="op">=</span><span class="str">"Standard"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t352" href="#t352">352</a></span><span class="t">        <span class="nam">choices</span><span class="op">=</span><span class="op">{</span><span class="str">"Standard"</span><span class="op">:</span> <span class="str">"Use a preinstalled version from the Compute "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t353" href="#t353">353</a></span><span class="t">                             <span class="str">"Cluster."</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t354" href="#t354">354</a></span><span class="t">                 <span class="str">"Modified"</span><span class="op">:</span> <span class="str">"Use a modified version saved to the rwth1588 "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t355" href="#t355">355</a></span><span class="t">                             <span class="str">"account."</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t356" href="#t356">356</a></span><span class="t">                 <span class="str">"Custom"</span><span class="op">:</span> <span class="str">"Leaves a dummy path in the run-files which must "</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t357" href="#t357">357</a></span><span class="t">                           <span class="str">"be replaced manually."</span><span class="op">}</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t358" href="#t358">358</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">'Specify which OpenFOAM version to use, either by choice '</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t359" href="#t359">359</a></span><span class="t">                    <span class="str">'or by a path.'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t360" href="#t360">360</a></span><span class="t">        <span class="nam">for_frontend</span><span class="op">=</span><span class="key">True</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t361" href="#t361">361</a></span><span class="t">        <span class="nam">any_string</span><span class="op">=</span><span class="key">True</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t362" href="#t362">362</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t363" href="#t363">363</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t364" href="#t364">364</a></span><span class="t">    <span class="nam">set_openfoam_version</span> <span class="op">=</span> <span class="nam">ChoiceSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t365" href="#t365">365</a></span><span class="t">        <span class="nam">value</span><span class="op">=</span><span class="str">"v2206"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t366" href="#t366">366</a></span><span class="t">        <span class="nam">choices</span><span class="op">=</span><span class="op">{</span><span class="str">"v2206"</span><span class="op">:</span> <span class="str">"OpenFOAM v2206"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t367" href="#t367">367</a></span><span class="t">                 <span class="str">"v2306"</span><span class="op">:</span> <span class="str">"OpenFOAM v2306"</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t368" href="#t368">368</a></span><span class="t">                 <span class="str">"v2406"</span><span class="op">:</span> <span class="str">"OpenFOAM v2406"</span><span class="op">}</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t369" href="#t369">369</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">'Specify which OpenFOAM version to use.'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t370" href="#t370">370</a></span><span class="t">        <span class="nam">for_frontend</span><span class="op">=</span><span class="key">True</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t371" href="#t371">371</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t372" href="#t372">372</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t373" href="#t373">373</a></span><span class="t">    <span class="nam">fixed_faces</span> <span class="op">=</span> <span class="nam">ChoiceSetting</span><span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t374" href="#t374">374</a></span><span class="t">        <span class="nam">value</span><span class="op">=</span><span class="op">[</span><span class="str">'INNER'</span><span class="op">]</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t375" href="#t375">375</a></span><span class="t">        <span class="com"># value=['office', 'meeting', 'canteen', 'sanitary', 'kitchen'],</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t376" href="#t376">376</a></span><span class="t">        <span class="nam">choices</span><span class="op">=</span><span class="op">{</span><span class="str">''</span><span class="op">:</span> <span class="str">'No faces have a fixed temperature'</span><span class="op">,</span> <span class="str">'INNER'</span><span class="op">:</span> <span class="str">'Inner '</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t377" href="#t377">377</a></span><span class="t">                 <span class="str">'walls are fixed'</span><span class="op">,</span> <span class="str">'OUTER'</span><span class="op">:</span> <span class="str">'Outer walls are fixed'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t378" href="#t378">378</a></span><span class="t">                 <span class="str">'FLOOR'</span><span class="op">:</span> <span class="str">'Floor is fixed'</span><span class="op">,</span> <span class="str">'CEILING'</span><span class="op">:</span> <span class="str">'Ceiling is fixed'</span><span class="op">}</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t379" href="#t379">379</a></span><span class="t">        <span class="nam">description</span><span class="op">=</span><span class="str">'Choose faces that have a fixed temperature boundary '</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t380" href="#t380">380</a></span><span class="t">                    <span class="str">'condition in the OpenFOAM simulation'</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t381" href="#t381">381</a></span><span class="t">        <span class="nam">multiple_choice</span><span class="op">=</span><span class="key">True</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t382" href="#t382">382</a></span><span class="t">        <span class="nam">any_string</span><span class="op">=</span><span class="key">True</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t383" href="#t383">383</a></span><span class="t">        <span class="nam">for_frontend</span><span class="op">=</span><span class="key">True</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t384" href="#t384">384</a></span><span class="t">    <span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -438,7 +473,7 @@
             <a class="nav" href="z_c8825ac128fb6a91___init___py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-04-14 07:23 +0000
+            created at 2026-04-14 12:01 +0000
         </p>
     </div>
 </footer>

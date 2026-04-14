@@ -97,6 +97,14 @@ bim2sim.plugins.PluginOpenFOAM.bim2sim\_openfoam.examples.e18\_openfoam\_import\
    :undoc-members:
    :show-inheritance:
 
+bim2sim.plugins.PluginOpenFOAM.bim2sim\_openfoam.examples.e19\_openfoam\_solar\_radiation module
+------------------------------------------------------------------------------------------------
+
+.. automodule:: bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e19_openfoam_solar_radiation
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 bim2sim.plugins.PluginOpenFOAM.bim2sim\_openfoam.examples.e1\_simple\_project\_cfd\_openfoam module
 ---------------------------------------------------------------------------------------------------
 

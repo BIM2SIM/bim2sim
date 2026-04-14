@@ -983,6 +983,24 @@ different simulation types.</p>
 <td class="text-left"><p>Number of physical cores per node.</p></td>
 <td class="text-left"><p></p></td>
 </tr>
+<tr class="row-odd"><td class="text-left"><p>set_openfoam_source</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘Standard’</p></td>
+<td class="text-left"><p>Choose the OpenFOAM source to use.</p></td>
+<td class="text-left"><p>‘Standard’: Use a preinstalled OpenFOAM version<br>’Modified’: Use a modified version saved to the rwth1588 account<br>’Custom’: Leaves a dummy path to replace.</p></td>
+</tr>
+<tr class="row-even"><td class="text-left"><p>set_openfoam_version</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘v2206’</p></td>
+<td class="text-left"><p>Choose the OpenFOAM version to use.</p></td>
+<td class="text-left"><p>‘v2206’, ‘v2306’, ‘v2406’</p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p>fixed_faces</p></td>
+<td class="text-left"><p>Choice</p></td>
+<td class="text-left"><p>‘[‘INNER’]’</p></td>
+<td class="text-left"><p>Choose faces to assign a fixed temperature boundary condition.</p></td>
+<td class="text-left"><p>‘’: No faces have a fixed temperature<br>’INNER’: Inner walls are fixed<br>’OUTER’: Outer walls are fixed<br>’FLOOR’: Floor is fixed<br>’CEILING’: Ceiling is fixed</p></td>
+</tr>
 </tbody>
 </table>
 </section>
