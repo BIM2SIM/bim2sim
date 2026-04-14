@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools", "setuptools-scm"]
+requires = ["setuptools"] #, "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -146,7 +146,9 @@ docu = [
 test = [
     "coverage",
     "coverage-badge",
-    "setuptools==80.9.0" # downgrade setuptools, because of coverage-badge
+#    "setuptools==80.9.0" # downgrade setuptools, because of coverage-badge
+    "setuptools<82.0.0",
+#    "setuptools_scm"
     # see https://github.com/dbrgn/coverage-badge/issues/33
 ]
 
