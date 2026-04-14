@@ -516,10 +516,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l4"><a class="reference internal" href="#additional-templates">Additional templates</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#how-to-run-the-simulation">How to run the simulation?</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#running-simulations-with-solar-radiation">Running Simulations with solar radiation</a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#how-to-run-the-simulation">How to run the simulation?</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#how-to-analyze-the-project">How to analyze the project?</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#what-kind-of-results-exist">What kind of results exist?</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#what-programs-tools-to-use-for-further-analysis">What programs/tools to use for further analysis?</a></li>
@@ -1112,47 +1109,6 @@ can be found in
 simulation immediately on your device. Otherwise, you can move the
 exported OpenFOAM case onto an adequate system with OpenFOAM/v2206 or newer to
 run the simulation through one of the provided scripts.</p>
-<section id="running-simulations-with-solar-radiation">
-<h3>Running Simulations with solar radiation<a class="headerlink" href="#running-simulations-with-solar-radiation" title="Permalink to this heading"></a></h3>
-<p>The PluginOpenFOAM can be used to simulate a building with solar radiation.
-However, during extensive testing, a bug in OpenFOAM v2206 and newer
-versions was found that leads to sunlit areas being cooled down instead of
-heated up. Therefore, as of now, it is not recommended to use the original
-OpenFOAM implementation for simulations with solar radiation. Instead, a modified
-version of OpenFOAM v2206, which inverts the sign of the solar radiation
-heat flux, is provided here: <a class="reference external" href="https://github.com/BIM2SIM/OpenFOAM-v2206S">BIM2SIM/OpenFOAM-v2206S</a>.</p>
-<section id="installing-openfoam-v2206s">
-<h4>Installing OpenFOAM v2206S<a class="headerlink" href="#installing-openfoam-v2206s" title="Permalink to this heading"></a></h4>
-<p>Just follow the installation instructions for the regular OpenFOAM
-implementation provided in the <a class="reference external" href="https://github.com/BIM2SIM/OpenFOAM-v2206S/blob/main/doc/Build.md">doc/Build.md</a> file.</p>
-</section>
-<section id="using-provided-binaries-on-the-rwth-compute-cluster">
-<h4>Using provided binaries on the RWTH Compute Cluster<a class="headerlink" href="#using-provided-binaries-on-the-rwth-compute-cluster" title="Permalink to this heading"></a></h4>
-<ol class="arabic simple">
-<li><p>Download and unzip the [precompiled binaries](https://rwth-aachen.sciebo.
-de/s/FCAn2XB6bfiLdbG) to the cluster. Note that these are precompiled on
-CLAIX23 and might not work on other versions.</p></li>
-<li><p>Load the modules GCC/11.3.0 and OpenMPI/4.1.4</p></li>
-</ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>module<span class="w"> </span>load<span class="w"> </span>GCC/11.3.0
-module<span class="w"> </span>load<span class="w"> </span>OpenMPI/4.1.4
-</pre></div>
-</div>
-<ol class="arabic simple" start="3">
-<li><p>Load the binaries:</p></li>
-</ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span><span class="nv">$HOME</span>/path-to-modified-openfoam/etc/bashrc
-</pre></div>
-</div>
-<ol class="arabic simple" start="4">
-<li><p>Test the installation:</p></li>
-</ol>
-<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>blockMesh
-</pre></div>
-</div>
-<p>This should return the help message of the blockMesh function.</p>
-</section>
-</section>
 </section>
 <section id="how-to-analyze-the-project">
 <h2>How to analyze the project?<a class="headerlink" href="#how-to-analyze-the-project" title="Permalink to this heading"></a></h2>
