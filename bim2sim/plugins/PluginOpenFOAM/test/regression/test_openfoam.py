@@ -142,7 +142,7 @@ class RegressionTestOpenFOAM(RegressionTestBase):
             if 'temp' in rel_root.lower():
                 # exclude temp file directories from further diff checks as
                 # they are obsolete
-                break
+                continue
             gen_root = new_dir / rel_root
 
             if not gen_root.exists():
@@ -268,11 +268,13 @@ class RegressionTestOpenFOAM(RegressionTestBase):
             diffs_found = False
         return diffs_found, str(out_path)
 
-    def create_regression_setup(self):
+    def create_regression_setup(self, path_specification=None):
         passed_regression_test = True
         ref_results_dir = Path(bim2sim.__file__).parent.parent \
             / "test/resources/arch/regression_results" \
             / self.project.name / 'OpenFOAM'
+        if path_specification:
+            ref_results_dir = ref_results_dir / path_specification
         sim_output_dir = self.project.paths.export / "OpenFOAM"
         regression_results_dir = (self.project.paths.root /
                                   "regression_results" / "cfd" /
@@ -290,8 +292,8 @@ class RegressionTestOpenFOAM(RegressionTestBase):
                 f"Regression test failed. Results are written to {report_path}.")
         return passed_regression_test
 
-    def run_regression_test(self):
-        return self.create_regression_setup()
+    def run_regression_test(self, path_specification=None):
+        return self.create_regression_setup(path_specification)
 
 
 class TestRegressionOpenFOAMCase(RegressionTestOpenFOAM, unittest.TestCase):
@@ -336,6 +338,7 @@ class TestRegressionOpenFOAMCase(RegressionTestOpenFOAM, unittest.TestCase):
         project.sim_settings.simulation_time = 12
         project.sim_settings.simulation_date = "01/14"
         project.sim_settings.add_heating = True
+        project.building_rotation_overwrite = 180
         project.sim_settings.heater_radiation = 0.6
         project.sim_settings.radiation_model = 'P1'
         project.sim_settings.add_airterminals = True
@@ -353,7 +356,7 @@ class TestRegressionOpenFOAMCase(RegressionTestOpenFOAM, unittest.TestCase):
         handler = DebugDecisionHandler(())
         handler.handle(project.run())
 
-        reg_test_res = self.run_regression_test()
+        reg_test_res = self.run_regression_test(path_specification='base')
         self.assertTrue(reg_test_res,
                         "OpenFOAM Regression test did not finish successfully "
                         "or created deviations.")
@@ -424,6 +427,7 @@ class TestRegressionOpenFOAMCase(RegressionTestOpenFOAM, unittest.TestCase):
         project.sim_settings.people_amount = 4
         project.sim_settings.people_setting = 'Seated'
         project.sim_settings.radiation_precondition_time = 4000
+        project.sim_settings.fixed_faces = ['INNER', 'FLOOR']
         project.sim_settings.radiation_model = 'preconditioned_fvDOM'
         project.sim_settings.output_keys = ['output_outdoor_conditions',
                                             'output_zone_temperature',
@@ -438,6 +442,61 @@ class TestRegressionOpenFOAMCase(RegressionTestOpenFOAM, unittest.TestCase):
         handler.handle(project.run())
 
         reg_test_res = self.run_regression_test()
+        self.assertTrue(reg_test_res,
+                        "OpenFOAM Regression test did not finish successfully "
+                        "or created deviations.")
+
+    def test_regression_solar_radiation(self):
+        """Run PluginOpenFOAM regression test with AC20-FZK-Haus.ifc and
+        solar radiation setup."""
+        ifc_path = {IFCDomain.arch: 'AC20-FZK-Haus.ifc'}
+        project = self.create_project(ifc_path, "openfoam")
+
+        project.plugin_cls.default_tasks = [
+            common.LoadIFC,
+            # common.CheckIfc,
+            common.CreateElementsOnIfcTypes,
+            bps.CreateSpaceBoundaries,
+            bps.AddSpaceBoundaries2B,
+            bps.CorrectSpaceBoundaries,
+            common.CreateRelations,
+            bps.DisaggregationCreationAndTypeCheck,
+            bps.EnrichMaterial,
+            bps.EnrichUseConditions,
+            common.Weather,
+            ep_tasks.CreateIdf,
+            comfort_tasks.ComfortSettings,
+            # ep_tasks.ExportIdfForCfd,
+            # common.SerializeElements,
+            ep_tasks.RunEnergyPlusSimulation,
+            of_tasks.InitializeOpenFOAMSetup,
+            of_tasks.CreateOpenFOAMGeometry,
+            of_tasks.AddOpenFOAMComfort,
+            of_tasks.CreateOpenFOAMMeshing,
+            of_tasks.SetOpenFOAMBoundaryConditions,
+            of_tasks.RunOpenFOAMMeshing,
+            of_tasks.RunOpenFOAMSimulation
+        ]
+
+        project.sim_settings.weather_file_path = \
+            (self.test_resources_path() /
+             'weather_files/DEU_NW_Aachen.105010_TMYx.epw')
+        # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+        project.sim_settings.cfd_export = True
+        project.sim_settings.select_space_guid = '2RSCzLOBz4FAK$_wE8VckM'
+        project.sim_settings.simulation_time = 12
+        project.sim_settings.simulation_date = "08/14"
+        project.sim_settings.add_heating = True
+        project.sim_settings.radiation_model = 'fvDOM'
+        project.sim_settings.add_solar_radiation = False
+        project.sim_settings.set_openfoam_source = 'Modified'
+        project.sim_settings.building_rotation_overwrite = 180
+        project.sim_settings.fixed_faces = []
+
+        handler = DebugDecisionHandler(())
+        handler.handle(project.run())
+
+        reg_test_res = self.run_regression_test(path_specification='solar')
         self.assertTrue(reg_test_res,
                         "OpenFOAM Regression test did not finish successfully "
                         "or created deviations.")
