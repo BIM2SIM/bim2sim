@@ -28,9 +28,9 @@
 
         
         <h2>Score</h2>
-        7.68 / 10
+        7.69 / 10
             
-            (previous score: 7.68 / 10)
+            (previous score: 7.69 / 10)
             
         
 
@@ -9944,7 +9944,6 @@
             Path(bim2sim.__file__).parent.parent / &#34;local&#34; / f&#34;library_{repo_name}&#34;)
     download_library(repo_url, branch_name, path_aixlib)
     project.sim_settings.path_aixlib = path_aixlib / repo_name / &#39;package.mo&#39;
-
     # Select results to output:
     project.sim_settings.sim_results = [
         &#34;heat_demand_total&#34;, &#34;cool_demand_total&#34;,
@@ -10038,7 +10037,7 @@
     # create plots based on the results after simulation
     project.sim_settings.create_plots = True
 
-    # # Run the project with pre configured answers for decisions
+    # Run the project with pre-configured answers for decisions
     space_boundary_genenerator = &#39;Other&#39;
     handle_proxies = (*(None,) * 12,)
     construction_year = 2015
@@ -10243,16 +10242,16 @@ if __name__ == &#39;__main__&#39;:</pre></td>
 
     @classmethod
     def _get_class_property_sets(cls, plugin: types.ModuleType) -&gt; Dict:
-        &#34;&#34;&#34;Get all property sets and properties.
-
-        Which are required for bim2sim for all classes of a plugin, that
-        represent an IFCProduct, and organize them on a dictionary for each
-        ifc_type Args: plugin: plugin used in the check tasks (bps or hvac)
+        &#34;&#34;&#34;
+        Gets all property sets and properties required for bim2sim for all
+        classes of a plugin, that represent an IFCProduct, and organize them on
+        a dictionary for each ifc_type
+        Args:
+            plugin: plugin used in the check tasks (bps or hvac)
 
         Returns:
             ps_summary: dictionary containing all the ifc_types on the
             plugin with the corresponding property sets
-
         &#34;&#34;&#34;
         ps_summary = {}
         cls_summary = cls._get_ifc_type_classes(plugin)
@@ -10265,8 +10264,18 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                     ps_summary[ifc_type][attr[0]] = attr[1].default_ps
         return ps_summary
 
-    def validate_sub_inst(self, sub_inst: list) -&gt; list:
-        &#34;&#34;&#34;Raise NotImplemented Error.&#34;&#34;&#34;</pre></td>
+    def get_relevant_elements(self, ifc: file):
+        &#34;&#34;&#34;
+        Gets all relevant ifc elements based on the plugin&#39;s classes that
+        represent an IFCProduct
+
+        Args:
+            ifc: IFC file translated with ifcopenshell
+
+        Returns:
+            ifc_elements: list of IFC instance (Products)
+
+        &#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -10307,10 +10316,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
             Path(bim2sim.__file__).parent.parent /
             &#39;test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw&#39;)
     # Set the install path to your EnergyPlus installation according to your
-    # system requirements
-    # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
-
-    # Set other simulation settings, otherwise all settings are set to default</pre></td>
+    # system requirements</pre></td>
             </tr>
             
             <tr>
@@ -10327,8 +10333,9 @@ if __name__ == &#39;__main__&#39;:</pre></td>
             bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
 
     @staticmethod
-    def _check_outer_boundary_poly_coord(bound: ifcos.entity_instance):
-        &#34;&#34;&#34;Check outer boundary of a surface on relating element.
+    def _check_outer_boundary_poly_coord(bound: entity_instance):
+        &#34;&#34;&#34;
+        Check outer boundary of a surface on relating element.
 
         Args:
             bound: Space boundary IFC instance
@@ -10341,7 +10348,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
             bound.ConnectionGeometry.SurfaceOnRelatingElement.OuterBoundary)
 
     @staticmethod
-    def _check_plane_position(bound: ifcos.entity_instance):
+    def _check_plane_position(bound: entity_instance):
         &#34;&#34;&#34;
         Check class of plane position of space boundary.
 
@@ -10356,7 +10363,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
             Position.is_a(&#39;IfcAxis2Placement3D&#39;)
 
     @staticmethod
-    def _check_location(bound: ifcos.entity_instance):
+    def _check_location(bound: entity_instance):
         &#34;&#34;&#34;
         Check that location of a space boundary is an IfcCartesianPoint.
 
@@ -10371,8 +10378,9 @@ if __name__ == &#39;__main__&#39;:</pre></td>
             Position.Location.is_a(&#39;IfcCartesianPoint&#39;)
 
     @staticmethod
-    def _check_axis(bound: ifcos.entity_instance):
-        &#34;&#34;&#34;Check that axis of space boundary is an IfcDirection.
+    def _check_axis(bound: entity_instance):
+        &#34;&#34;&#34;
+        Check that axis of space boundary is an IfcDirection.
 
         Args:
             bound: Space boundary IFC instance
@@ -10385,8 +10393,9 @@ if __name__ == &#39;__main__&#39;:</pre></td>
             Position.Axis.is_a(&#39;IfcDirection&#39;)
 
     @staticmethod
-    def _check_refdirection(bound: ifcos.entity_instance):
-        &#34;&#34;&#34;Check that reference direction of space boundary is an IfcDirection.
+    def _check_refdirection(bound: entity_instance):
+        &#34;&#34;&#34;
+        Check that reference direction of space boundary is an IfcDirection.
 
         Args:
             bound: Space boundary IFC instance
@@ -10399,9 +10408,8 @@ if __name__ == &#39;__main__&#39;:</pre></td>
             Position.RefDirection.is_a(&#39;IfcDirection&#39;)
 
     @classmethod
-    def _check_location_coord(cls, bound: ifcos.entity_instance):
-        &#34;&#34;&#34;Check the correctness of related coordinates.
-
+    def _check_location_coord(cls, bound: entity_instance):
+        &#34;&#34;&#34;
         Check if space boundary surface on relating element coordinates are
         correct.
 
@@ -10411,16 +10419,14 @@ if __name__ == &#39;__main__&#39;:</pre></td>
         Returns:
             True: if check succeeds
             False: if check fails
-
         &#34;&#34;&#34;
         return cls._check_coords(bound.ConnectionGeometry.
                                  SurfaceOnRelatingElement.BasisSurface.
                                  Position.Location)
 
     @classmethod
-    def _check_axis_dir_ratios(cls, bound: ifcos.entity_instance):
-        &#34;&#34;&#34;Check correctness of space boundary surface.
-
+    def _check_axis_dir_ratios(cls, bound: entity_instance):
+        &#34;&#34;&#34;
         Check if space boundary surface on relating element axis are correct.
 
         Args:
@@ -10435,9 +10441,8 @@ if __name__ == &#39;__main__&#39;:</pre></td>
             Position.Axis)
 
     @classmethod
-    def _check_refdirection_dir_ratios(cls, bound: ifcos.entity_instance):
-        &#34;&#34;&#34;Check correctness of space boundary surface.
-
+    def _check_refdirection_dir_ratios(cls, bound: entity_instance):
+        &#34;&#34;&#34;
         Check if space boundary surface on relating element reference direction
         are correct.
 
@@ -10453,14 +10458,12 @@ if __name__ == &#39;__main__&#39;:</pre></td>
             Position.RefDirection)
 
     @staticmethod
-    def _check_inst_sb(inst: ifcos.entity_instance):
-        &#34;&#34;&#34;Check association of an instance.
-
-        Check that an instance has associated space boundaries (space or
-        building element).
+    def _check_poly_points(polyline: entity_instance):
+        &#34;&#34;&#34;
+        Check if a polyline has the correct class.
 
         Args:
-            inst: IFC instance
+            polyline: Polyline IFC instance
 
         Returns:
             True: if check succeeds
@@ -10704,10 +10707,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
     project.sim_settings.add_airterminals = True
     answers = (&#39;ArchiCAD&#39;, &#39;ArchiCAD&#39;, *(&#39;Single office&#39;,)*4)
     # project.sim_settings.simulation_type = &#39;transient&#39;
-    # project.sim_settings.inlet_type = &#39;StlDiffusor&#39;
-    # project.sim_settings.outlet_type = &#39;None&#39;
-    # Run the project with the ConsoleDecisionHandler. This allows interactive
-    # input to answer upcoming questions regarding the imported IFC.</pre></td>
+    # project.sim_settings.inlet_type = &#39;StlDiffusor&#39;</pre></td>
             </tr>
             
             <tr>
@@ -10792,8 +10792,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
     project.sim_settings.select_space_guid = &#39;2RSCzLOBz4FAK$_wE8VckM&#39;
     project.sim_settings.add_heating = True
     project.sim_settings.add_floorheating = False
-    project.sim_settings.add_airterminals = True
-    # project.sim_settings.simulation_type = &#39;combined&#39;</pre></td>
+    project.sim_settings.add_airterminals = True</pre></td>
             </tr>
             
             <tr>
@@ -10888,26 +10887,22 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e18_openfoam_import_IFC-HVAC_multi_overflow:[66:86]
 ==bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam:[412:428]
-    project.sim_settings.cfd_export = True
-    # project.sim_settings.select_space_guid = &#39;3GmoJyFk9FvAnea6mogixJ&#39;
-    project.sim_settings.select_space_guid = &#39;3hiy47ppf5B8MyZqbpTfpc&#39;
-
-    # VR/AR lab: &#39;2o3MylYZzAnR8q1ofuG3sg&#39;
-    # Cafeteria: &#39;3GmoJyFk9FvAnea6mogixJ&#39;
-    project.sim_settings.inlet_type = &#39;Original&#39;
-    project.sim_settings.outlet_type = &#39;Original&#39;
-    project.sim_settings.add_heating = True
-    project.sim_settings.add_people = True
-    project.sim_settings.add_floorheating = False
-    project.sim_settings.add_airterminals = True
-    project.sim_settings.add_comfort = True
-    project.sim_settings.add_furniture = True
-    project.sim_settings.add_people = True
-    project.sim_settings.add_comfort = True
-    project.sim_settings.furniture_setting = &#39;Office&#39;
-    project.sim_settings.furniture_amount = 8
-    project.sim_settings.people_amount = 4
-    project.sim_settings.people_setting = &#39;Seated&#39;</pre></td>
+        project.sim_settings.cfd_export = True
+        project.sim_settings.select_space_guid = &#39;3hiy47ppf5B8MyZqbpTfpc&#39;
+        project.sim_settings.inlet_type = &#39;Original&#39;
+        project.sim_settings.outlet_type = &#39;Original&#39;
+        project.sim_settings.add_heating = True
+        project.sim_settings.add_people = True
+        project.sim_settings.add_floorheating = False
+        project.sim_settings.add_airterminals = True
+        project.sim_settings.add_comfort = True
+        project.sim_settings.add_furniture = True
+        project.sim_settings.add_people = True
+        project.sim_settings.add_comfort = True
+        project.sim_settings.furniture_setting = &#39;Office&#39;
+        project.sim_settings.furniture_amount = 8
+        project.sim_settings.people_amount = 4
+        project.sim_settings.people_setting = &#39;Seated&#39;</pre></td>
             </tr>
             
             <tr>
@@ -10987,8 +10982,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
     project.sim_settings.select_space_guid = &#39;2RSCzLOBz4FAK$_wE8VckM&#39;
     project.sim_settings.add_heating = True
     project.sim_settings.add_floorheating = False
-    project.sim_settings.add_airterminals = True
-    # project.sim_settings.simulation_type = &#39;combined&#39;</pre></td>
+    project.sim_settings.add_airterminals = True</pre></td>
             </tr>
             
             <tr>
@@ -11087,8 +11081,7 @@ plt.style.use([&#39;science&#39;, &#39;no-latex&#39;])
 plt.rcParams.update({
     &#39;font.size&#39;: 20,
     &#39;font.family&#39;: &#39;sans-serif&#39;,  # Use sans-serif font
-    &#39;font.sans-serif&#39;: [&#39;Arial&#39;, &#39;Helvetica&#39;, &#39;DejaVu Sans&#39;, &#39;sans-serif&#39;],
-    # Specify sans-serif fonts
+    &#39;font.sans-serif&#39;: [&#39;Arial&#39;, &#39;Helvetica&#39;, &#39;DejaVu Sans&#39;, &#39;sans-serif&#39;],  # Specify sans-serif fonts
     &#39;legend.frameon&#39;: True,
     &#39;legend.facecolor&#39;: &#39;white&#39;,
     &#39;legend.framealpha&#39;: 0.5,
@@ -11138,7 +11131,11 @@ plt.rcParams.update({
 
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
+    # project.sim_settings.select_space_guid = &#39;2dQFggKBb1fOc1CqZDIDlx&#39;
+    # project.sim_settings.select_space_guid = &#39;347jFE2yX7IhCEIALmupEH&#39;
     project.sim_settings.select_space_guid = &#39;2RSCzLOBz4FAK$_wE8VckM&#39;
+    # project.sim_settings.select_space_guid = &#39;0Lt8gR_E9ESeGH5uY_g9e9&#39;
+    # project.sim_settings.simulation_time = 11
     project.sim_settings.run_meshing = False
     project.sim_settings.run_cfd_simulation = False</pre></td>
             </tr>
@@ -11213,8 +11210,8 @@ class TestWeather(unittest.TestCase):
         self.project.finalize(True)
         self.test_dir.cleanup()
 
-    def test_weather_modelica(self):
-        &#34;&#34;&#34;Test if the weather file is correctly set for modelica.&#34;&#34;&#34;
+    def test_weather_energyplus(self):
+        &#34;&#34;&#34;Test if the weather file is correctly set for energyplus.&#34;&#34;&#34;
         self.test_dir = tempfile.TemporaryDirectory()
         ifc_paths = {
             IFCDomain.arch: test_rsrc_path / &#39;arch/ifc/AC20-FZK-Haus.ifc&#39;}
@@ -11268,7 +11265,7 @@ class TestWeather(unittest.TestCase):
             i = np.array(i) - min(i)
             j = np.array(j) - 1
             ni = max(i) + 1
-            calendar = np.empty([ni, 12])  # , dtype=&#39;S10&#39;)
+            calendar = np.empty([ni, 12])#, dtype=&#39;S10&#39;)
             calendar[:] = np.nan
             calendar[i, j] = data
             return i, j, calendar
@@ -11307,7 +11304,8 @@ class TestWeather(unittest.TestCase):
                 summary_inst=summary_inst,
                 summary_sbs=summary_sbs,
                 all_errors=all_errors))
-            out_file.close()</pre></td>
+            out_file.close()
+            # opens automatically browser tab showing the generated html report</pre></td>
             </tr>
             
             <tr>
@@ -11486,7 +11484,8 @@ class TestWeather(unittest.TestCase):
     project.sim_settings.select_space_guid = &#39;2RSCzLOBz4FAK$_wE8VckM&#39;
     project.sim_settings.add_heating = True
     project.sim_settings.add_floorheating = False
-    project.sim_settings.add_airterminals = True</pre></td>
+    project.sim_settings.add_airterminals = True
+    # project.sim_settings.simulation_type = &#39;combined&#39;</pre></td>
             </tr>
             
             <tr>
@@ -11627,6 +11626,7 @@ def check_none():
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.__init__:[24:39]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e5_serialize_teaser_prj:[88:102]
         common.LoadIFC,
+        # common.CheckIfc,
         common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
         bps.AddSpaceBoundaries2B,
@@ -11733,19 +11733,22 @@ def check_none():
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e18_openfoam_import_IFC-HVAC_multi_overflow:[34:50]
 ==bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam:[365:378]
-        ifc_paths = {
-            IFCDomain.arch:
-                Path(bim2sim.__file__).parent.parent /
-                &#39;test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc&#39;,
-            IFCDomain.ventilation:
-                Path(bim2sim.__file__).parent.parent /
-                &#39;test/resources/hydraulic/ifc/DigitalHub_Gebaeudetechnik&#39;
-                &#39;-LUEFTUNG_v2.ifc&#39;,
-            IFCDomain.hydraulic:
-                Path(bim2sim.__file__).parent.parent /
-                &#39;test/resources/hydraulic/ifc/DigitalHub_Gebaeudetechnik-HEIZUNG_v2&#39;
-                &#39;.ifc&#39;,
-        }</pre></td>
+    ifc_paths = {
+        IFCDomain.arch:
+            Path(bim2sim.__file__).parent.parent /
+            &#39;test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc&#39;,
+        IFCDomain.ventilation:
+            Path(bim2sim.__file__).parent.parent /
+            &#39;test/resources/hydraulic/ifc/DigitalHub_Gebaeudetechnik&#39;
+            &#39;-LUEFTUNG_v2.ifc&#39;,
+        IFCDomain.hydraulic:
+            Path(bim2sim.__file__).parent.parent /
+            &#39;test/resources/hydraulic/ifc/DigitalHub_Gebaeudetechnik-HEIZUNG_v2&#39;
+            &#39;.ifc&#39;,
+    }
+
+    # Create a project including the folder structure for the project with
+    # energyplus as backend</pre></td>
             </tr>
             
             <tr>
@@ -11782,7 +11785,6 @@ def check_none():
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
     project.sim_settings.select_space_guid = &#39;2RSCzLOBz4FAK$_wE8VckM&#39;
-    # project.sim_settings.simulation_time = 11
     project.sim_settings.run_meshing = False
     project.sim_settings.run_cfd_simulation = False</pre></td>
             </tr>
@@ -12001,7 +12003,12 @@ def check_none():
     # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
 
     # run annual simulation for EnergyPlus
-    project.sim_settings.run_full_simulation = True</pre></td>
+    project.sim_settings.run_full_simulation = True
+
+    # Set other simulation settings, otherwise all settings are set to default
+
+    # Run the project with the ConsoleDecisionHandler. This allows interactive
+    # input to answer upcoming questions regarding the imported IFC.</pre></td>
             </tr>
             
             <tr>
@@ -12198,10 +12205,12 @@ def check_none():
     # Create a project including the folder structure for the project with
     # energyplus as backend
     project = Project.create(project_path, ifc_paths, &#39;openfoam&#39;)
+
     project.sim_settings.prj_custom_usages = (Path(
         bim2sim.__file__).parent.parent /
             &#34;test/resources/arch/custom_usages/&#34;
             &#34;customUsagesFM_ARC_DigitalHub_with_SB89.json&#34;)
+
     # set weather file data
     project.sim_settings.weather_file_path = (
             Path(bim2sim.__file__).parent.parent /
@@ -12209,9 +12218,6 @@ def check_none():
     # Set the install path to your EnergyPlus installation according to your
     # system requirements
     project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
-
-    # run annual simulation for EnergyPlus
-    # project.sim_settings.run_full_simulation = True
 
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True</pre></td>
@@ -12311,13 +12317,9 @@ def check_none():
     # system requirements
     # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
 
-    # run annual simulation for EnergyPlus
-    # project.sim_settings.run_full_simulation = True
-
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
-    project.sim_settings.select_space_guid = &#39;2RSCzLOBz4FAK$_wE8VckM&#39;
-    # project.sim_settings.simulation_time = 11</pre></td>
+    project.sim_settings.select_space_guid = &#39;2RSCzLOBz4FAK$_wE8VckM&#39;</pre></td>
             </tr>
             
             <tr>
@@ -12348,9 +12350,13 @@ def check_none():
     # system requirements
     # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
 
+    # run annual simulation for EnergyPlus
+    # project.sim_settings.run_full_simulation = True
+
     # Set other simulation settings, otherwise all settings are set to default
     project.sim_settings.cfd_export = True
-    project.sim_settings.select_space_guid = &#39;2RSCzLOBz4FAK$_wE8VckM&#39;</pre></td>
+    project.sim_settings.select_space_guid = &#39;2RSCzLOBz4FAK$_wE8VckM&#39;
+    # project.sim_settings.simulation_time = 11</pre></td>
             </tr>
             
             <tr>
@@ -12422,7 +12428,7 @@ def check_none():
                    *(True,) * 7,
                    # boiler: efficiency
                    0.9,
-                   # boiler: flow temperature</pre></td>
+                   # boiler: nominal power consumption</pre></td>
             </tr>
             
             <tr>
@@ -12506,6 +12512,8 @@ def check_none():
         &#34;operative_temp_rooms&#34;, &#34;air_temp_rooms&#34;, &#34;air_temp_out&#34;
     ]
     project.sim_settings.create_plots = True
+    # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
+
     # Just select the tasks that are needed to load the previous simulation
     # results and create the result plots
     project.plugin_cls.default_tasks = [
@@ -12753,7 +12761,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                          &#34;Project did not finish successfully.&#34;)
 
     def test_run_b03_heating_with_all_aggregations(self):
-        &#34;&#34;&#34;Run project with 2022_11_21_update_B03_Heating_ownCells.ifc&#34;&#34;&#34;
+        &#34;&#34;&#34;Run project with 2022_11_21_update_B03_Heating_ownCells&#34;&#34;&#34;
         ifc_names = {IFCDomain.hydraulic:
                          &#39;2022_11_21_update_B03_Heating_ownCells.ifc&#39;}</pre></td>
             </tr>
@@ -12779,9 +12787,9 @@ if __name__ == &#39;__main__&#39;:</pre></td>
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    # @unittest.skip(&#34;Skipped due to performance for CI&#34;)
-    def test_base_13_EDC_SB_design_day(self):
-        &#34;&#34;&#34;Test KIT KHH 3 storey IFC with generated Space Boundaries&#34;&#34;&#34;</pre></td>
+    @unittest.skip(&#34;Skipped due to performance for CI&#34;)
+    def test_base_09_DH_design_day(self):
+        &#34;&#34;&#34;Test DigitalHub IFC&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -12805,9 +12813,9 @@ if __name__ == &#39;__main__&#39;:</pre></td>
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    # @unittest.skip(&#34;Skipped due to performance for CI&#34;)
-    def test_base_13_EDC_SB_design_day(self):
-        &#34;&#34;&#34;Test KIT KHH 3 storey IFC with generated Space Boundaries&#34;&#34;&#34;</pre></td>
+    @unittest.skip(&#34;Skipped due to performance for CI&#34;)
+    def test_base_09_DH_design_day(self):
+        &#34;&#34;&#34;Test DigitalHub IFC&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -12955,22 +12963,19 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.bim2sim_energyplus.utils.utils_visualization:[223:237]
 ==bim2sim.utilities.visualize_spaces:[67:84]
-    settings = ifcopenshell.geom.settings()
-    settings.set(settings.USE_PYTHON_OPENCASCADE, True)
-    settings.set(settings.USE_WORLD_COORDS, True)
-    settings.set(settings.PRECISION, 1e-6)
-    settings.set(
-        &#34;dimensionality&#34;,
-        ifcopenshell.ifcopenshell_wrapper.CURVES_SURFACES_AND_SOLIDS)  # 2
-    # settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-    # settings.set(settings.INCLUDE_CURVES, True)
+        settings = ifcopenshell.geom.settings()
+        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
+        settings.set(settings.USE_WORLD_COORDS, True)
+        settings.set(settings.PRECISION, 1e-6)
+        settings.set(
+            &#34;dimensionality&#34;,
+            ifcopenshell.ifcopenshell_wrapper.CURVES_SURFACES_AND_SOLIDS)  # 2
+        # settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+        # settings.set(settings.INCLUDE_CURVES, True)
 
-    # Call init_display
-    # TODO this messes with the logger, but method like below doesn&#39;t work
-    #  with open(os.devnull, &#39;w&#39;) as devnull:
-    display, start_display, add_menu, add_function_to_menu = init_display(
-        display_triedron=False, background_gradient_color1=3 * [255],
-        background_gradient_color2=3 * [255], size=(1920, 1080))
+        display, start_display, add_menu, add_function_to_menu = init_display(
+            display_triedron=False, background_gradient_color1=3 * [255],
+            background_gradient_color2=3 * [255], size=(1920, 1080))
 </pre></td>
             </tr>
             
@@ -12984,17 +12989,16 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.task.create_openfoam_geometry:[208:219]
 ==bim2sim.utilities.pyocc_tools:[797:807]
-                side_surface_right = PyOCCTools.make_faces_from_pnts([
-
-                    gp_Pnt(back_surface_min_max[1][0],
-                           back_surface_min_max[1][1],
-                           back_surface_min_max[0][2]),
-                    gp_Pnt(front_surface_min_max[1][0],
-                           front_surface_min_max[1][1],
-                           front_surface_min_max[0][2]),
-                    gp_Pnt(*front_surface_min_max[1]),
-                    gp_Pnt(*back_surface_min_max[1])]
-                )</pre></td>
+        side_surface_right = PyOCCTools.make_faces_from_pnts([
+            gp_Pnt(back_surface_min_max[1][0],
+                   back_surface_min_max[1][1],
+                   back_surface_min_max[0][2]),
+            gp_Pnt(front_surface_min_max[1][0],
+                   front_surface_min_max[1][1],
+                   front_surface_min_max[0][2]),
+            gp_Pnt(*front_surface_min_max[1]),
+            gp_Pnt(*back_surface_min_max[1])]
+        )</pre></td>
             </tr>
             
             <tr>
@@ -13092,21 +13096,16 @@ if __name__ == &#39;__main__&#39;:</pre></td>
     # Create a project including the folder structure for the project with
     # energyplus as backend
     project = Project.create(project_path, ifc_paths, &#39;openfoam&#39;)
-
     project.sim_settings.prj_custom_usages = (Path(
         bim2sim.__file__).parent.parent /
             &#34;test/resources/arch/custom_usages/&#34;
             &#34;customUsagesFM_ARC_DigitalHub_with_SB89.json&#34;)
-
     # set weather file data
     project.sim_settings.weather_file_path = (
             Path(bim2sim.__file__).parent.parent /
             &#39;test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw&#39;)
     # Set the install path to your EnergyPlus installation according to your
-    # system requirements
-    # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
-
-    # Set other simulation settings, otherwise all settings are set to default</pre></td>
+    # system requirements</pre></td>
             </tr>
             
             <tr>
@@ -13151,11 +13150,15 @@ if __name__ == &#39;__main__&#39;:</pre></td>
             Path(bim2sim.__file__).parent.parent /
             &#39;test/resources/arch/ifc/AC20-FZK-Haus.ifc&#39;,
     }
+
+    # Create a project including the folder structure for the project with
+    # energyplus as backend
     project = Project.create(project_path, ifc_paths, &#39;openfoam&#39;)
+
+    # set weather file data
     project.sim_settings.weather_file_path = (
             Path(bim2sim.__file__).parent.parent /
             &#39;test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw&#39;)
-
     # Set the install path to your EnergyPlus installation according to your
     # system requirements
     # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
@@ -13201,15 +13204,16 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.__init__:[32:41]
 ==bim2sim.plugins.PluginOpenFOAM.test.regression.test_openfoam:[321:331]
-        ep_tasks.RunEnergyPlusSimulation,
-        of_tasks.InitializeOpenFOAMSetup,
-        of_tasks.CreateOpenFOAMGeometry,
-        of_tasks.AddOpenFOAMComfort,
-        of_tasks.CreateOpenFOAMMeshing,
-        of_tasks.SetOpenFOAMBoundaryConditions,
-        of_tasks.RunOpenFOAMMeshing,
-        of_tasks.RunOpenFOAMSimulation
-    ]</pre></td>
+            ep_tasks.RunEnergyPlusSimulation,
+            of_tasks.InitializeOpenFOAMSetup,
+            of_tasks.CreateOpenFOAMGeometry,
+            of_tasks.AddOpenFOAMComfort,
+            of_tasks.CreateOpenFOAMMeshing,
+            of_tasks.SetOpenFOAMBoundaryConditions,
+            of_tasks.RunOpenFOAMMeshing,
+            of_tasks.RunOpenFOAMSimulation
+        ]
+</pre></td>
             </tr>
             
             <tr>
@@ -13313,6 +13317,7 @@ if __name__ == &#39;__main__&#39;:</pre></td>
 ==bim2sim.plugins.PluginComfort.bim2sim_comfort.__init__:[24:34]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e5_serialize_teaser_prj:[88:97]
         common.LoadIFC,
+        # common.CheckIfc,
         common.CreateElementsOnIfcTypes,
         bps.CreateSpaceBoundaries,
         bps.AddSpaceBoundaries2B,
@@ -13376,20 +13381,21 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                 <td><pre>Similar lines in 2 files
 ==bim2sim.tasks.checks.check_ifc:[1276:1298]
 ==bim2sim.tasks.checks.check_ifc_old:[840:863]
-                                           &#39;element axis direction ratios are &#39;
-                                           &#39;missing&#39;, error)
-            self.apply_validation_function(
-                self._check_refdirection_dir_ratios(bound),
-                &#39;RefDirectionDirectionRatios - &#39;
-                &#39;The space boundary surface on relating element position &#39;
-                &#39;reference direction is missing&#39;, error)
+                                       &#39;element axis direction ratios are &#39;
+                                       &#39;missing&#39;, error)
+        self.apply_validation_function(
+            self._check_refdirection_dir_ratios(bound),
+            &#39;RefDirectionDirectionRatios - &#39;
+            &#39;The space boundary surface on relating element position &#39;
+            &#39;reference direction is missing&#39;, error)
+
         return error
 
-    def validate_elements(self, inst: ifcos.entity_instance) -&gt; list:
-        &#34;&#34;&#34;Validate elements.
-
+    def validate_elements(self, inst: entity_instance) -&gt; list:
+        &#34;&#34;&#34;
         Validation function for an instance that compiles all instance
         validation functions.
+
         Args:
             inst:IFC instance being checked
 
@@ -13519,16 +13525,15 @@ if __name__ == &#39;__main__&#39;:
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e2_complex_project_teaser:[78:87]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e4_visualize_zone_binding:[65:75]
-        project.sim_settings.prj_use_conditions = (Path(
-            bim2sim.__file__).parent.parent /
-                                                   &#34;test/resources/arch/custom_usages/&#34;
-                                                   &#34;UseConditionsFM_ARC_DigitalHub.json&#34;)
-        project.sim_settings.prj_custom_usages = (Path(
-            bim2sim.__file__).parent.parent /
-                                                  &#34;test/resources/arch/custom_usages/&#34;
-                                                  &#34;customUsagesFM_ARC_DigitalHub_with_SB89.json&#34;)
-
-        # set weather file data</pre></td>
+    project.sim_settings.prj_use_conditions = (Path(
+        bim2sim.__file__).parent.parent /
+            &#34;test/resources/arch/custom_usages/&#34;
+            &#34;UseConditionsFM_ARC_DigitalHub.json&#34;)
+    project.sim_settings.prj_custom_usages = (Path(
+        bim2sim.__file__).parent.parent /
+            &#34;test/resources/arch/custom_usages/&#34;
+            &#34;customUsagesFM_ARC_DigitalHub_with_SB89.json&#34;)
+    # create plots based on the results after simulation</pre></td>
             </tr>
             
             <tr>
@@ -13645,8 +13650,9 @@ if __name__ == &#39;__main__&#39;:
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-
-</pre></td>
+    @unittest.skip(&#34;Not fully implemented yet&#34;)
+    def test_base_17_ERC_design_day(self):
+        &#34;&#34;&#34;Test ERC Main Building&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -13668,9 +13674,9 @@ if __name__ == &#39;__main__&#39;:
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    @unittest.skip(&#34;&#34;)
-    def test_DigitalHub_SB89(self):
-        &#34;&#34;&#34;Test DigitalHub IFC, includes regression test&#34;&#34;&#34;</pre></td>
+    @unittest.skip(&#34;Skipped due to performance for CI&#34;)
+    def test_base_08_KIT_Inst_SB_full_run(self):
+        &#34;&#34;&#34;Test IFC File from Institute (KIT) with generated Space Boundaries&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -13710,7 +13716,6 @@ if __name__ == &#39;__main__&#39;:
         project.sim_settings.create_external_elements = True
         answers = (2015,)
         # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
-
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
@@ -13737,16 +13742,14 @@ if __name__ == &#39;__main__&#39;:
             bim2sim.__file__).parent.parent / \
             &#34;test/resources/arch/custom_usages/&#34; \
             &#34;customUsagesAC20-FZK-Haus_with_SB55.json&#34;
-        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
         answers = (&#39;Other&#39;,)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    @unittest.skip(&#34;&#34;)
-    def test_base_04_FZK_SB_full_run(self):
-        &#34;&#34;&#34;Test IFC File from FZK-Haus (KIT) with generated Space Boundaries&#34;&#34;&#34;
-        # ifc_names = {IFCDomain.arch:  &#39;AC20-FZK-Haus_with_SB44.ifc&#39;}</pre></td>
+    # @unittest.skip(&#34;&#34;)
+    def test_base_05_KIT_Inst_design_day(self):
+        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -13763,16 +13766,14 @@ if __name__ == &#39;__main__&#39;:
             bim2sim.__file__).parent.parent / \
             &#34;test/resources/arch/custom_usages/&#34; \
             &#34;customUsagesAC20-FZK-Haus_with_SB55.json&#34;
-        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
         answers = (&#39;Other&#39;,)
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
 
-    @unittest.skip(&#34;&#34;)
-    def test_base_04_FZK_SB_full_run(self):
-        &#34;&#34;&#34;Test IFC File from FZK-Haus (KIT) with generated Space Boundaries&#34;&#34;&#34;
-        # ifc_names = {IFCDomain.arch:  &#39;AC20-FZK-Haus_with_SB44.ifc&#39;}</pre></td>
+    # @unittest.skip(&#34;&#34;)
+    def test_base_05_KIT_Inst_design_day(self):
+        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -13785,14 +13786,14 @@ if __name__ == &#39;__main__&#39;:
                 <td><pre>Similar lines in 2 files
 ==bim2sim.tasks.checks.check_ifc:[1216:1224]
 ==bim2sim.tasks.checks.check_ifc_old:[780:788]
-            self.apply_validation_function(
-                self._check_outer_boundary_composite(bound),
-                &#39;OuterBoundary - &#39;
-                &#39;The space boundary surface on relating element outer &#39;
-                &#39;boundary is missing&#39;, error)
-            self.apply_validation_function(self._check_segments(bound),
-                                           &#39;OuterBoundary Segments - &#39;
-                                           &#39;The space boundary surface on &#39;</pre></td>
+                self.apply_validation_function(
+                    self._check_outer_boundary_composite(bound),
+                    &#39;OuterBoundary - &#39;
+                    &#39;The space boundary surface on relating element outer &#39;
+                    &#39;boundary is missing&#39;, error)
+                self.apply_validation_function(self._check_segments(bound),
+                                               &#39;OuterBoundary Segments - &#39;
+                                               &#39;The space boundary surface on &#39;</pre></td>
             </tr>
             
             <tr>
@@ -13847,7 +13848,8 @@ if __name__ == &#39;__main__&#39;:
             out_file.write(templates[&#34;prop_template&#34;].render_unicode(
                 task=self,
                 summary_props=summary_props))
-            out_file.close()</pre></td>
+            out_file.close()
+            # opens automatically browser tab showing the generated html report</pre></td>
             </tr>
             
             <tr>
@@ -13899,7 +13901,8 @@ if __name__ == &#39;__main__&#39;:
     # project.sim_settings.run_full_simulation = True
 
     # Set other simulation settings, otherwise all settings are set to default
-    project.sim_settings.cfd_export = True</pre></td>
+    project.sim_settings.cfd_export = True
+    # project.sim_settings.select_space_guid = &#39;2RSCzLOBz4FAK$_wE8VckM&#39;</pre></td>
             </tr>
             
             <tr>
@@ -13913,14 +13916,14 @@ if __name__ == &#39;__main__&#39;:
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e13_run_openfoam_fvDOM:[68:77]
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e18_openfoam_import_IFC-HVAC_multi_overflow:[88:97]
     project.sim_settings.radiation_precondition_time = 4000
-
     project.sim_settings.radiation_model = &#39;preconditioned_fvDOM&#39;
     project.sim_settings.output_keys = [&#39;output_outdoor_conditions&#39;,
                                         &#39;output_zone_temperature&#39;,
                                         &#39;output_zone&#39;, &#39;output_infiltration&#39;,
                                         &#39;output_meters&#39;,
                                         &#39;output_internal_gains&#39;]
-    # project.sim_settings.level_heat_balance = False</pre></td>
+    # project.sim_settings.level_heat_balance = False
+</pre></td>
             </tr>
             
             <tr>
@@ -13933,13 +13936,15 @@ if __name__ == &#39;__main__&#39;:
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.people:[210:219]
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.openfoam_elements.stlbound:[143:150]
-                      &#39;qrRelaxation&#39;: 0.003,
-                      &#39;relaxation&#39;: 1.0,
-                      &#39;kappaMethod&#39;: &#39;fluidThermo&#39;,
-                      &#39;kappa&#39;: &#39;fluidThermo&#39;,
-                      &#39;value&#39;: f&#39;uniform &#39;
-                               f&#39;{of_utils.float_cutoff(self.temperature + 273.15)}&#39;
-                      }</pre></td>
+                 &#39;qrRelaxation&#39;: 0.003,
+                 &#39;relaxation&#39;: 1.0,
+                 &#39;kappaMethod&#39;: &#39;fluidThermo&#39;,
+                 &#39;kappa&#39;: &#39;fluidThermo&#39;,
+                 &#39;value&#39;: f&#39;uniform &#39;
+                          f&#39;{of_utils.float_cutoff(self.temperature + 273.15)}&#39;
+                 }
+
+</pre></td>
             </tr>
             
             <tr>
@@ -14058,16 +14063,11 @@ unit_mapping = {
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e4_visualize_zone_binding:[21:28]
     project_path = Path(
         tempfile.TemporaryDirectory(prefix=&#39;bim2sim_example1&#39;).name)
-
-    # Set the ifc path to use and define which domain the IFC belongs to
     ifc_paths = {
         IFCDomain.arch:
             Path(bim2sim.__file__).parent.parent /
             &#39;test/resources/arch/ifc/FM_ARC_DigitalHub_with_SB89.ifc&#39;,
-    }
-
-    # Create a project including the folder structure for the project with
-    # teaser as backend and no specified workflow (default workflow is taken)</pre></td>
+    }</pre></td>
             </tr>
             
             <tr>
@@ -14108,7 +14108,7 @@ unit_mapping = {
                          &#34;Project did not finish successfully.&#34;)
 
     def test_run_b03_heating(self):
-        &#34;&#34;&#34;Run project with 2022_11_21_update_B03_Heating_ownCells.ifc&#34;&#34;&#34;
+        &#34;&#34;&#34;Run project with 2022_11_21_update_B03_Heating_ownCells&#34;&#34;&#34;
         ifc_names = {IFCDomain.hydraulic:
                          &#39;2022_11_21_update_B03_Heating_ownCells.ifc&#39;}</pre></td>
             </tr>
@@ -14239,7 +14239,10 @@ unit_mapping = {
         reg_test_res = self.run_regression_test()
         self.assertEqual(True, reg_test_res,
                          &#34;EnergyPlus Regression test did not finish &#34;
-                         &#34;successfully or created deviations.&#34;)</pre></td>
+                         &#34;successfully or created deviations.&#34;)
+
+    def test_regression_AC20_FZK_Haus(self):
+        &#34;&#34;&#34;Run EnergyPlus regression test with AC20-FZK-Haus.ifc.&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -14336,16 +14339,27 @@ unit_mapping = {
                 <td><pre>Similar lines in 2 files
 ==bim2sim.tasks.checks.check_ifc:[1312:1322]
 ==bim2sim.tasks.checks.check_ifc_old:[880:901]
-            &#39;ContainedInStructure - &#39;
-            &#39;The instance is not contained in any &#39;
-            &#39;structure&#39;, error)
+                                       &#39;ContainedInStructure - &#39;
+                                       &#39;The instance is not contained in any &#39;
+                                       &#39;structure&#39;, error)
         self.apply_validation_function(self._check_inst_representation(inst),
                                        &#39;Representation - &#39;
                                        &#39;The instance has no geometric &#39;
                                        &#39;representation&#39;, error)
         return error
 
-</pre></td>
+    @staticmethod
+    def _check_level(bound: entity_instance):
+        &#34;&#34;&#34;
+        Check that the space boundary is of the second level type
+
+        Args:
+            bound: Space boundary IFC instance
+
+        Returns:
+            True: if check succeeds
+            False: if check fails
+        &#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -14365,8 +14379,7 @@ unit_mapping = {
                 summary_sbs=summary_sbs,
                 summary_props=summary_props))
             out_file.close()
-
-</pre></td>
+            # opens automatically browser tab showing the generated html report</pre></td>
             </tr>
             
             <tr>
@@ -14387,24 +14400,18 @@ unit_mapping = {
         self.sub_inst_cls = None
         self.plugin = None
 
-    def run(self, ifc_files: [IfcFileClass]):
+    def run(self, ifc_files: [IfcFileClass]) -&gt; [dict, dict]:
         &#34;&#34;&#34;
-        Analyzes sub_elements and elements of an IFC file.
-
-        Therefore validation functions check ifc files and export the errors
-        found as .html files.
-
-        It creates following reports:
-            error_summary: overview of all errors
-            error_summary_inst: summary of errors related to elements
-            error_summary_prop: summary of missing properties
-            error_summary_guid: summary of GUID errors
-            ifc_ids_check: results of checks based on IDS file
-        These html files are stored in the log folder of the project folder.
+        Analyzes sub_elements and elements of an IFC file for the validation
+        functions and export the errors found as .json and .html files.
 
         Args:
             ifc_files: bim2sim IfcFileClass holding the ifcopenshell ifc
                 instance
+
+        Returns:
+            error_summary_sub_inst: summary of errors related to sub_elements
+            error_summary_inst: summary of errors related to elements
         &#34;&#34;&#34;</pre></td>
             </tr>
             
@@ -14418,18 +14425,19 @@ unit_mapping = {
                 <td><pre>Similar lines in 2 files
 ==bim2sim.elements.bps_elements:[913:925]
 ==bim2sim.utilities.visualize_spaces:[67:80]
-        settings = ifcopenshell.geom.settings()
-        settings.set(settings.USE_PYTHON_OPENCASCADE, True)
-        settings.set(settings.USE_WORLD_COORDS, True)
-        settings.set(settings.PRECISION, 1e-6)
-        settings.set(
-            &#34;dimensionality&#34;,
-            ifcopenshell.ifcopenshell_wrapper.CURVES_SURFACES_AND_SOLIDS)  # 2
-        # settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
-        # settings.set(settings.INCLUDE_CURVES, True)
+    settings = ifcopenshell.geom.settings()
+    settings.set(settings.USE_PYTHON_OPENCASCADE, True)
+    settings.set(settings.USE_WORLD_COORDS, True)
+    settings.set(settings.PRECISION, 1e-6)
+    settings.set(
+        &#34;dimensionality&#34;,
+        ifcopenshell.ifcopenshell_wrapper.CURVES_SURFACES_AND_SOLIDS)  # 2
+    # settings.set(settings.EXCLUDE_SOLIDS_AND_SURFACES, False)
+    # settings.set(settings.INCLUDE_CURVES, True)
 
-        # check if the space boundary shapes need a unit conversion (i.e.,
-        # an additional transformation to the correct size and position)</pre></td>
+    # Call init_display
+    # TODO this messes with the logger, but method like below doesn&#39;t work
+    #  with open(os.devnull, &#39;w&#39;) as devnull:</pre></td>
             </tr>
             
             <tr>
@@ -14489,9 +14497,8 @@ unit_mapping = {
 ==bim2sim.elements.hvac_elements:[1002:1016]
     )
 
-    def _calc_dT_water(self, name) -&gt; ureg.Quantity:
-        &#34;&#34;&#34;Function to calculate the delta temperature of the boiler using the
-        return and flow temperature&#34;&#34;&#34;
+    def _calc_dT_water(self, name):
+        &#34;&#34;&#34; Water dt of consumer.&#34;&#34;&#34;
         return self.flow_temperature - self.return_temperature
 
     dT_water = attribute.Attribute(
@@ -14500,7 +14507,8 @@ unit_mapping = {
         functions=[_calc_dT_water],
     )
 
-</pre></td>
+    def _calc_body_mass(self, name):
+        &#34;&#34;&#34; Body mass of consumer.&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -14572,12 +14580,12 @@ unit_mapping = {
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginAixLib.bim2sim_aixlib.examples.e1_simple_project_hvac_aixlib:[41:47]
 ==bim2sim.plugins.PluginAixLib.test.integration.test_aixlib:[63:69]
-    project.sim_settings.aggregations = [
-        &#39;UnderfloorHeating&#39;,
-        &#39;Consumer&#39;,
-        &#39;PipeStrand&#39;,
-        &#39;ParallelPump&#39;,
-        &#39;ConsumerHeatingDistributorModule&#39;,</pre></td>
+        project.sim_settings.aggregations = [
+            &#39;UnderfloorHeating&#39;,
+            &#39;Consumer&#39;,
+            &#39;PipeStrand&#39;,
+            &#39;ParallelPump&#39;,
+            &#39;ConsumerHeatingDistributorModule&#39;,</pre></td>
             </tr>
             
             <tr>
@@ -14597,7 +14605,7 @@ unit_mapping = {
     }
 
     # Create a project including the folder structure for the project with
-    # energyplus as backend
+    # teaser as backend and no specified workflow (default workflow is taken)
     project = Project.create(project_path, ifc_paths, &#39;openfoam&#39;)</pre></td>
             </tr>
             
@@ -14632,8 +14640,10 @@ unit_mapping = {
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e9_openfoam_radiator_steady_simple_stldiffusor:[54:66]
     project.sim_settings.add_airterminals = True
     answers = (&#39;ArchiCAD&#39;, &#39;ArchiCAD&#39;, *(&#39;Single office&#39;,)*4)
+    # project.sim_settings.simulation_type = &#39;transient&#39;
     project.sim_settings.inlet_type = &#39;SimpleStlDiffusor&#39;
     project.sim_settings.outlet_type = &#39;SimpleStlDiffusor&#39;
+    # project.sim_settings.outlet_type = &#39;None&#39;
     # Run the project with the ConsoleDecisionHandler. This allows interactive
     # input to answer upcoming questions regarding the imported IFC.
     run_project(project, DebugDecisionHandler(answers))
@@ -14702,9 +14712,9 @@ if __name__ == &#39;__main__&#39;:
         self.assertEqual(0, handler.return_value,
                          &#34;Project did not finish successfully.&#34;)
 
-    @unittest.skip(&#34;&#34;)
-    def test_base_06_KIT_Inst_full_run(self):
-        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;
+    @unittest.skip(&#39;skip layers_full test until new answers are created&#39;)
+    def test_run_kitoffice_spaces_full_layers_full(self):
+        &#34;&#34;&#34;Run project with AC20-Institute-Var-2.ifc&#34;&#34;&#34;
         ifc_names = {IFCDomain.arch:  &#39;AC20-Institute-Var-2.ifc&#39;}</pre></td>
             </tr>
             
@@ -14822,12 +14832,15 @@ if __name__ == &#39;__main__&#39;:
                             attributes=[&#39;rated_power&#39;])
 
     def get_port_name(self, port):
+        # TODO heat pumps might have 4 ports (if source is modeld in BIM)
         if port.verbose_flow_direction == &#39;SINK&#39;:
             return &#39;port_a&#39;
         if port.verbose_flow_direction == &#39;SOURCE&#39;:
             return &#39;port_b&#39;
         else:
-            return super().get_port_name(port)</pre></td>
+            return super().get_port_name(port)
+
+</pre></td>
             </tr>
             
             <tr>
@@ -14844,6 +14857,7 @@ if __name__ == &#39;__main__&#39;:
                             attributes=[&#39;rated_power&#39;])
 
     def get_port_name(self, port):
+        # TODO: heat pumps might have 4 ports (if source is modeled in BIM)
         if port.verbose_flow_direction == &#39;SINK&#39;:
             return &#39;port_a&#39;
         if port.verbose_flow_direction == &#39;SOURCE&#39;:
@@ -14889,7 +14903,9 @@ if __name__ == &#39;__main__&#39;:
         if port.verbose_flow_direction == &#39;SOURCE&#39;:
             return &#39;port_b&#39;
         else:
-            return super().get_port_name(port)</pre></td>
+            return super().get_port_name(port)
+
+</pre></td>
             </tr>
             
             <tr>
@@ -14987,7 +15003,9 @@ if __name__ == &#39;__main__&#39;:
         if port.verbose_flow_direction == &#39;SOURCE&#39;:
             return &#39;port_b&#39;
         else:
-            return super().get_port_name(port)  # ToDo: Gas connection
+            return super().get_port_name(port)
+        # TODO: Gas and electric connection see
+        #  https://github.com/BIM2SIM/bim2sim/issues/80
 
 </pre></td>
             </tr>
@@ -15042,12 +15060,12 @@ if __name__ == &#39;__main__&#39;:
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginHKESim.bim2sim_hkesim.examples.e1_simple_project_hvac_hkesim:[38:44]
 ==bim2sim.plugins.PluginHKESim.test.integration.test_hkesim:[62:68]
-        project.sim_settings.aggregations = [
-            &#39;UnderfloorHeating&#39;,
-            &#39;Consumer&#39;,
-            &#39;PipeStrand&#39;,
-            &#39;ParallelPump&#39;,
-            &#39;ConsumerHeatingDistributorModule&#39;,</pre></td>
+    project.sim_settings.aggregations = [
+        &#39;UnderfloorHeating&#39;,
+        &#39;Consumer&#39;,
+        &#39;PipeStrand&#39;,
+        &#39;ParallelPump&#39;,
+        &#39;ConsumerHeatingDistributorModule&#39;,</pre></td>
             </tr>
             
             <tr>
@@ -15093,9 +15111,9 @@ if __name__ == &#39;__main__&#39;:
         self.assertEqual(0, handler.return_value,
                          &#34;Project did not finish successfully.&#34;)
 
-    @unittest.skip(&#39;skip layers_full test until new answers are created&#39;)
-    def test_run_kitoffice_spaces_medium_layers_full(self):
-        &#34;&#34;&#34;Run project with AC20-Institute-Var-2.ifc&#34;&#34;&#34;
+    @unittest.skip(&#34;&#34;)
+    def test_base_06_KIT_Inst_full_run(self):
+        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;
         ifc_names = {IFCDomain.arch:  &#39;AC20-Institute-Var-2.ifc&#39;}</pre></td>
             </tr>
             
@@ -15117,7 +15135,10 @@ if __name__ == &#39;__main__&#39;:
         reg_test_res = self.run_regression_test()
         self.assertEqual(True, reg_test_res,
                          &#34;EnergyPlus Regression test did not finish &#34;
-                         &#34;successfully or created deviations.&#34;)</pre></td>
+                         &#34;successfully or created deviations.&#34;)
+
+    def test_regression_AC20_FZK_Haus(self):
+        &#34;&#34;&#34;Run EnergyPlus regression test with AC20-FZK-Haus.ifc.&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -15150,12 +15171,13 @@ if __name__ == &#39;__main__&#39;:
 ==bim2sim.tasks.checks.check_ifc:[35:46]
 ==bim2sim.tasks.checks.check_ifc_old:[24:36]
 class CheckIfc(ITask):
-    &#34;&#34;&#34;Check ifc files for their quality regarding simulation.&#34;&#34;&#34;
-
+    &#34;&#34;&#34;
+    Check an IFC file, for a number of conditions (missing information,
+    incorrect information, etc) that could lead on future tasks to fatal errors.
+    &#34;&#34;&#34;
     reads = (&#39;ifc_files&#39;,)
 
     def __init__(self, playground: Playground):
-        &#34;&#34;&#34;Initialize CheckIFC.&#34;&#34;&#34;
         super().__init__(playground)
         self.error_summary_sub_inst: dict = {}
         self.error_summary_inst: dict = {}
@@ -15195,24 +15217,9 @@ class CheckIfc(ITask):
             Path(bim2sim.__file__).parent.parent /
             &#39;test/resources/arch/ifc/AC20-FZK-Haus.ifc&#39;,
     }
-
-    # Create a new project, based on the created temporary directory, the
-    # defined ifc_paths and the template plugin. The template plugin is just
-    # for explanation and holds some basic tasks to convert IFC data into
-    # bim2sim elements structure without creating any simulation models.
-    # By looking into the plugin definition we can find the following:
-    # default_tasks = [
-    #     common.LoadIFC,
-    #     common.CheckIfc,
-    #     common.CreateElements,
-    #     bps.CreateSpaceBoundaries,
-    #     common.BindStoreys,
-    #     common.Weather,
-    # ]
-    # This means that these 7 tasks are performed when not using interactive
-    # mode (see e2_interactive_project.py for more information about
-    # interactive mode). For detailed information about the different tasks
-    # please have a look at their documentation.
+    # With open_conf the default created config file will be opened and can be
+    # adjusted by the user and saved afterwards.
+    # todo open_conf is currently only tested under windows
 
     project = Project.create(</pre></td>
             </tr>
@@ -15232,7 +15239,8 @@ class CheckIfc(ITask):
             x_direction = np.array([1, 0, 0])
             z_direction = np.array([0, 0, 1])
         y_direction = np.cross(z_direction, x_direction)
-        directions = np.array((x_direction, y_direction, z_direction)).T</pre></td>
+        directions = np.array((x_direction, y_direction, z_direction)).T
+</pre></td>
             </tr>
             
             <tr>
@@ -15251,9 +15259,7 @@ class CheckIfc(ITask):
                 return vol
         vol = self.calc_volume_from_ifc_shape()
         return vol
-
-    def get_ports(self) -&gt; list:
-        &#34;&#34;&#34;Returns a list of ports of this product.&#34;&#34;&#34;</pre></td>
+</pre></td>
             </tr>
             
             <tr>
@@ -15286,12 +15292,11 @@ class CheckIfc(ITask):
                 <td><pre>Similar lines in 2 files
 ==bim2sim.plugins.PluginEnergyPlus.test.regression.test_energyplus:[197:202]
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e2_complex_project_bps_comfort_journal:[95:101]
-    answers = (space_boundary_genenerator,
-               *handle_proxies,
-               construction_year)
-    handler = DebugDecisionHandler(answers)
-    handler.handle(project.run())
-</pre></td>
+        answers = (space_boundary_genenerator,
+                   *handle_proxies,
+                   construction_year)
+        handler = DebugDecisionHandler(answers)
+        handler.handle(project.run())</pre></td>
             </tr>
             
             <tr>
@@ -15349,8 +15354,12 @@ class CheckIfc(ITask):
     # system requirements
     project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
 
+    # run annual simulation for EnergyPlus
+    # project.sim_settings.run_full_simulation = True
+
     # Set other simulation settings, otherwise all settings are set to default
-    project.sim_settings.cfd_export = True</pre></td>
+    project.sim_settings.cfd_export = True
+    # project.sim_settings.select_space_guid = &#39;2RSCzLOBz4FAK$_wE8VckM&#39;</pre></td>
             </tr>
             
             <tr>
@@ -15450,7 +15459,8 @@ if __name__ == &#39;__main__&#39;:</pre></td>
                                         &#39;output_zone&#39;, &#39;output_infiltration&#39;,
                                         &#39;output_meters&#39;,
                                         &#39;output_internal_gains&#39;]
-    # project.sim_settings.level_heat_balance = False</pre></td>
+    # project.sim_settings.level_heat_balance = False
+</pre></td>
             </tr>
             
             <tr>
@@ -15510,9 +15520,8 @@ if __name__ == &#39;__main__&#39;:</pre></td>
         self.assertEqual(0, handler.return_value,
                          &#34;Project did not finish successfully.&#34;)
 
-    @unittest.skip(&#34;&#34;)
-    def test_base_06_KIT_Inst_full_run(self):
-        &#34;&#34;&#34;Test Original IFC File from Institute (KIT)&#34;&#34;&#34;</pre></td>
+    def test_DH_spaces_medium_material_low(self):
+        &#34;&#34;&#34;Test DigitalHub IFC&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -15616,12 +15625,15 @@ if __name__ == &#39;__main__&#39;:
 ==bim2sim.plugins.PluginOpenFOAM.bim2sim_openfoam.examples.e2_complex_project_bps_comfort_journal:[42:52]
 ==bim2sim.plugins.PluginTEASER.bim2sim_teaser.examples.e1_simple_project_bps_teaser:[40:47]
     project.sim_settings.setpoints_from_template = True
+
     # overwrite existing layer structures and materials based on templates
     project.sim_settings.layers_and_materials = LOD.low
     # specify templates for the layer and material overwrite
     project.sim_settings.construction_class_walls = &#39;iwu_heavy&#39;
     project.sim_settings.construction_class_windows = \
-        &#39;Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach&#39;</pre></td>
+        &#39;Alu- oder Stahlfenster, Waermeschutzverglasung, zweifach&#39;
+
+    # set weather file data</pre></td>
             </tr>
             
             <tr>
@@ -15909,11 +15921,7 @@ if __name__ == &#39;__main__&#39;:
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
-                         &#34;Project did not finish successfully.&#34;)
-
-    # @unittest.skip(&#39;Skip because takes to long in CI&#39;)
-    def test_ERC_Low(self):
-        &#34;&#34;&#34;Test ERC Main Building&#34;&#34;&#34;</pre></td>
+                         &#34;Project did not finish successfully.&#34;)</pre></td>
             </tr>
             
             <tr>
@@ -15947,7 +15955,10 @@ if __name__ == &#39;__main__&#39;:
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
         self.assertEqual(0, handler.return_value,
-                         &#34;Project did not finish successfully.&#34;)</pre></td>
+                         &#34;Project did not finish successfully.&#34;)
+
+    def test_run_b03_heating(self):
+        &#34;&#34;&#34;Run project with 2022_11_21_update_B03_Heating_ownCells.ifc&#34;&#34;&#34;</pre></td>
             </tr>
             
             <tr>
@@ -15963,6 +15974,7 @@ if __name__ == &#39;__main__&#39;:
         handler = DebugDecisionHandler(answers)
         return_code = handler.handle(project.run())
         self.assertEqual(0, return_code)
+
 
 
 if __name__ == &#39;__main__&#39;:
@@ -16069,7 +16081,9 @@ if __name__ == &#39;__main__&#39;:
         project.sim_settings.split_bounds = True
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
-        project.sim_settings.run_full_simulation = False</pre></td>
+        project.sim_settings.run_full_simulation = False
+        # project.sim_settings.ep_install_path = &#39;C://EnergyPlusV9-4-0/&#39;
+</pre></td>
             </tr>
             
             <tr>
@@ -16103,11 +16117,14 @@ if __name__ == &#39;__main__&#39;:
         handler = DebugDecisionHandler(answers)
         for decision, answer in handler.decision_answer_mapping(project.run()):
             decision.value = answer
+
         self.assertEqual(0, handler.return_value)
 
-    @unittest.skip(&#34;&#34;)
-    def test_base_02_FZK_design_day(self):
-        &#34;&#34;&#34;Test Original IFC File from FZK-Haus (KIT)&#34;&#34;&#34;</pre></td>
+    def test_furniture_setup_DH(self):
+        &#34;&#34;&#34;Test DigitalHub, IFC2SB Version, Furniture setups&#34;&#34;&#34;
+
+        #### prepare for OpenFOAM Plugin (EnergyPlus is skipped here,
+        # so no boundary conditions are available in this test)</pre></td>
             </tr>
             
             <tr>
@@ -16214,11 +16231,10 @@ if __name__ == &#39;__main__&#39;:
             OuterBoundary.is_a(&#39;IfcCompositeCurve&#39;)
 
     @staticmethod
-    def _check_segments(bound: ifcos.entity_instance):
-        &#34;&#34;&#34;Check if the surface are poly-line.
-
+    def _check_segments(bound: entity_instance):
+        &#34;&#34;&#34;
         Check if the surface on relating element of a space boundary outer
-        boundaries segments are poly-line.
+        boundaries segments are polyline.
 
         Args:
             bound: Space boundary IFC instance
@@ -16231,12 +16247,13 @@ if __name__ == &#39;__main__&#39;:
                 bound.ConnectionGeometry.SurfaceOnRelatingElement.
                 OuterBoundary.Segments)
 
-    @staticmethod
-    def _check_coords(points: ifcos.entity_instance):
-        &#34;&#34;&#34;Check coordinates of a group of points (class and length).
+    @classmethod
+    def _check_segments_poly(cls, bound: entity_instance):
+        &#34;&#34;&#34;
+        Check segments of an outer boundary of a surface on relating element.
 
         Args:
-            points: Points IFC instance
+            bound: Space boundary IFC instance
 
         Returns:
             True: if check succeeds
@@ -16330,12 +16347,10 @@ if __name__ == &#39;__main__&#39;:
 ==bim2sim.tasks.bps.disaggr_creation:[50:57]
 ==bim2sim.tasks.bps.sb_creation:[82:87]
         for ele in elements.values():
-            # only handle BPSProductWithLayers
             if not any([isinstance(ele, bps_product_layer_ele) for
                         bps_product_layer_ele in
                         all_subclasses(BPSProductWithLayers)]):
-                continue
-            # no disaggregation needed</pre></td>
+                continue</pre></td>
             </tr>
             
             <tr>
@@ -16388,7 +16403,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.weather -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -16408,86 +16423,6 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_2b_generation)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.weather -&gt; bim2sim.utilities.common_functions)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_relations -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_relations -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.combine_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
                 <td><pre>Cyclic import (bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
@@ -16498,7 +16433,107 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_2b_generation)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.hvac_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.combine_tz -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.elements.mapping.filter -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -16518,6 +16553,36 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_elements -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_relations -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.weather -&gt; bim2sim.utilities.common_functions)</pre></td>
+            </tr>
+            
+            <tr>
+                <td>1</td>
+                <td>0</td>
+                <td>refactor</td>
+                <td><code>cyclic-import</code></td>
+                <td>R0401</td>
+                <td></td>
                 <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.load_ifc -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
@@ -16528,7 +16593,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -16538,7 +16603,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -16548,7 +16613,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.disaggr_creation -&gt; bim2sim.elements.aggregation.bps_aggregations -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -16558,7 +16623,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.create_relations -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_2b_generation -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -16568,7 +16633,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_creation -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_2b_generation -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -16578,7 +16643,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_use_cond -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.common -&gt; bim2sim.tasks.common.weather -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -16588,7 +16653,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.disaggr_creation -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.enrich_material -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -16598,27 +16663,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.combine_tz -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.plot_results -&gt; bim2sim.kernel.ifc_file -&gt; bim2sim.elements.mapping.finder)</pre></td>
-            </tr>
-            
-            <tr>
-                <td>1</td>
-                <td>0</td>
-                <td>refactor</td>
-                <td><code>cyclic-import</code></td>
-                <td>R0401</td>
-                <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_correction -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.plugins -&gt; bim2sim.tasks.bps -&gt; bim2sim.tasks.bps.sb_correction -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -16638,7 +16683,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
             </tr>
             
             <tr>
@@ -16648,7 +16693,7 @@ if __name__ == &#39;__main__&#39;:
                 <td><code>cyclic-import</code></td>
                 <td>R0401</td>
                 <td></td>
-                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.utilities.common_functions -&gt; bim2sim.elements.base_elements -&gt; bim2sim.elements.mapping.finder)</pre></td>
+                <td><pre>Cyclic import (bim2sim -&gt; bim2sim.project -&gt; bim2sim.sim_settings -&gt; bim2sim.elements.bps_elements -&gt; bim2sim.elements.base_elements -&gt; bim2sim.utilities.common_functions)</pre></td>
             </tr>
             
             <tr>
@@ -44097,16 +44142,6 @@ if __name__ == &#39;__main__&#39;:
                 <td><pre>Too few public methods (0/2)</pre></td>
             </tr>
             
-            <tr>
-                <td>15</td>
-                <td>8</td>
-                <td>error</td>
-                <td><code>no-member</code></td>
-                <td>E1101</td>
-                <td>PluginTemplate</td>
-                <td><pre>Module &#39;bim2sim.tasks.common&#39; has no &#39;CheckIfc&#39; member</pre></td>
-            </tr>
-            
         </table>
         
         <h3>Module <code>bim2sim.plugins.__init__</code> (<code>bim2sim/plugins/__init__.py</code>)</h3>
@@ -54010,12 +54045,12 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>refactor</td>
-                <td>1005</td>
+                <td>1008</td>
             </tr>
             
             <tr>
                 <td>error</td>
-                <td>116</td>
+                <td>115</td>
             </tr>
             
         </table>
@@ -54290,7 +54325,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>no-member</td>
-                <td>42</td>
+                <td>41</td>
             </tr>
             
             <tr>
@@ -54595,7 +54630,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>cyclic-import</td>
-                <td>29</td>
+                <td>32</td>
             </tr>
             
         </table>
@@ -55540,7 +55575,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>bim2sim.plugins.PluginTemplate.bim2sim_template</td>
-                <td>3</td>
+                <td>2</td>
             </tr>
             
             <tr>
@@ -55730,7 +55765,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>bim2sim.export.modelica.__init__</td>
-                <td>275</td>
+                <td>278</td>
             </tr>
             
             <tr>
@@ -56620,7 +56655,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>bim2sim/plugins/PluginTemplate/bim2sim_template/__init__.py</td>
-                <td>3</td>
+                <td>2</td>
             </tr>
             
             <tr>
@@ -56805,7 +56840,7 @@ if __name__ == &#39;__main__&#39;:
             
             <tr>
                 <td>bim2sim/export/modelica/__init__.py</td>
-                <td>298</td>
+                <td>301</td>
             </tr>
             
         </table>
