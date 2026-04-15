@@ -1,3 +1,5 @@
+import logging
+
 import OCC.Core.TopoDS
 from OCC.Core.Extrema import Extrema_ExtFlag_MIN
 from OCC.Core.TopOpeBRep import TopOpeBRep_ShapeIntersector
@@ -290,6 +292,9 @@ class OpenFOAMUtils:
 
     @staticmethod
     def split_into_three_factors(n):
+        if n <= 0:
+            logging.log(30, "No valid split for numbers <= 0 can be computed.")
+            return [0, 0, 0]
         factors = OpenFOAMUtils.prime_factors(n)
         factors.sort(reverse=True)  # Start with the largest primes first
         groups = [1, 1, 1]

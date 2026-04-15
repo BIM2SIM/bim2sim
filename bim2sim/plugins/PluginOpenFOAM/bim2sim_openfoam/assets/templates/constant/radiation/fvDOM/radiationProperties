@@ -33,11 +33,47 @@ fvDOMCoeffs
 
 }
 
+solarLoadCoeffs
+{
+
+    reflecting
+    {
+
+        nPhi		10;
+
+        nTheta		10;
+
+    }
+
+    sunDirectionModel       constant;
+
+    sunDirection        (0 -1 -1);
+
+    spectralDistribution        (1);
+
+    sunLoadModel                constant;
+
+    directSolarRad              100;
+
+    diffuseSolarRad             0;
+
+    solidCoupled		false;
+
+    wallCoupled		true;
+
+    useReflectedRays		true;
+
+}
+
+
+useSolarLoad      false;
+
 radiation           on;
 
 radiationModel		fvDOM;
 
 solverFreq		10;
+
 
 constantAbsorptionEmissionCoeffs
 {

@@ -76,7 +76,7 @@ def get_use_conditions_dict(custom_use_cond_path: Path) -> dict:
     else:
         use_cond_path = assets / 'enrichment/usage/UseConditions.json'
     if validateJSON(use_cond_path):
-        with open(use_cond_path, 'r+', encoding='utf-8') as file:
+        with open(use_cond_path, 'r', encoding='utf-8') as file:
             use_cond_dict = json.load(file)
             del use_cond_dict['version']
             return use_cond_dict
@@ -87,7 +87,7 @@ def get_use_conditions_dict(custom_use_cond_path: Path) -> dict:
 def get_common_pattern_usage() -> dict:
     common_pattern_path = assets / 'enrichment/usage/commonUsages.json'
     if validateJSON(common_pattern_path):
-        with open(common_pattern_path, 'r+', encoding='utf-8') as file:
+        with open(common_pattern_path, 'r', encoding='utf-8') as file:
             common_usages = json.load(file)
             return common_usages
     else:
@@ -99,7 +99,7 @@ def get_custom_pattern_usage(custom_usages_path: Path) -> dict:
     custom_usages = {}
     if custom_usages_path and custom_usages_path.is_file():
         if validateJSON(custom_usages_path):
-            with open(custom_usages_path, 'r+', encoding='utf-8') as file:
+            with open(custom_usages_path, 'r', encoding='utf-8') as file:
                 custom_usages_json = json.load(file)
                 if custom_usages_json["settings"]["use"]:
                     custom_usages = custom_usages_json["usage_definitions"]
@@ -220,7 +220,7 @@ def get_type_building_elements(data_file):
     type_building_elements_path = \
         assets / 'enrichment/material' / data_file
     if validateJSON(type_building_elements_path):
-        with open(type_building_elements_path, 'r+') as file:
+        with open(type_building_elements_path, 'r') as file:
             type_building_elements = json.load(file)
             del type_building_elements['version']
     else:
@@ -242,7 +242,7 @@ def get_material_templates():
     material_templates_path = \
         assets / 'enrichment/material/MaterialTemplates.json'
     if validateJSON(material_templates_path):
-        with open(material_templates_path, 'r+') as f:
+        with open(material_templates_path, 'r') as f:
             material_templates = json.load(f)
             del material_templates['version']
     else:

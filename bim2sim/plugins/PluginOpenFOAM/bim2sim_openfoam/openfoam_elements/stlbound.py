@@ -14,9 +14,11 @@ logger = logging.getLogger(__name__)
 
 
 class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
-    def __init__(self, bound, radiation_model):
+    def __init__(self, bound, radiation_model, add_solar_radiation, fixed_faces):
         super().__init__()
         self.radiation_model = radiation_model
+        self.add_solar_radiation = add_solar_radiation
+        self.fixed_faces = fixed_faces
         self.bound = bound
         self.guid = bound.guid
         self.bound_element_type = (
@@ -69,7 +71,8 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
         else:
             pass
 
-    def read_boundary_conditions(self, timestep_df, default_temp):
+    def read_boundary_conditions(self, timestep_df, default_temp,
+                                 solar_radiation):
         res_key = self.guid.upper() + ':'
         if not self.bound.physical:
             self.heat_flux = 0
@@ -94,24 +97,40 @@ class StlBound(OpenFOAMBaseBoundaryFields, OpenFOAMBaseElement):
                                                      'Rate per Area [W/m2]('
                                                      'Hourly)')]
             self.heat_flux = prev_heat_flux
+            if self.add_solar_radiation:
+                # add load radiation contribution to wall heat fluxes if
+                # solar radiation is active
+                self.power += timestep_df[res_key + (
+                    'Surface Inside Face Solar Radiation Heat Gain Rate per '
+                    'Area [W/m2](Hourly)')] * self.bound_area
+                self.heat_flux += timestep_df[res_key + (
+                    'Surface Inside Face Solar Radiation Heat Gain Rate per Area [W/m2](Hourly)')]
         else:
-            self.heat_flux = (timestep_df[res_key + (
-                'Surface Window Net Heat Transfer '
-                'Rate [W](Hourly)')] /
-                              self.bound_area)
             self.power = timestep_df[res_key + (
                 'Surface Window Net Heat Transfer '
                 'Rate [W](Hourly)')]
+            # This is the heat flux based on conduction and solar
+            # radiation. If the transmitted solar radiation part is not
+            # removed, the window acts as a heat source substituting the
+            # sun. It is therefore, to get realistic surface temperatures,
+            # subtracted.
+            self.power -= timestep_df[res_key + ('Surface Window '
+                                                 'Transmitted Solar '
+                                                 'Radiation Rate [W]('
+                                                 'Hourly)')]
+            self.heat_flux = (self.power / self.bound_area)
 
     def set_boundary_conditions(self, no_heatloss=False):
         if self.radiation_model == 'none':
             qr = 'none'
         else:
             qr = 'qr'
+        fixed_faces = self.fixed_faces
+        if not self.add_solar_radiation and 'FLOOR' not in fixed_faces:
+            fixed_faces.append('FLOOR')
         if no_heatloss:
             pass
-        elif any(i for i in ["INNER", "FLOOR"] if i in self.solid_name.upper()):
-        # else: #
+        elif any(i for i in fixed_faces if i in self.solid_name.upper()):
             self.T = {
                 'type': 'fixedValue',
                 'value': f'uniform '
