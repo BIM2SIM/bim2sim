@@ -282,3 +282,32 @@ class EnergyPlusSimSettings(BuildingSimSettings):
                              "uses PolygonClipping instead.",
             "PolygonClipping": "Use PolygonClipping. "}
     )
+    window_shading_solar_transmittance = NumberSetting(
+        value=0.3, min_value=0, max_value=0.999,
+        description="Solar transmittance of window shading material")
+    window_shading_solar_reflectance = NumberSetting(
+        value=0.5, min_value=0, max_value=0.999,
+        description="Solar reflectance of window shading material")
+    window_shading_visible_transmittance = NumberSetting(
+        value=0.3, min_value=0, max_value=0.999,
+        description="Visible transmittance of window shading material")
+    window_shading_visible_reflectance = NumberSetting(
+        value=0.5, min_value=0, max_value=0.999,
+        description="Visible reflectance of window shading material")
+    window_shading_infr_hemisph_emissivity = NumberSetting(
+        value=0.9, min_value=0.00001, max_value=0.999,
+        description="Infrared Hemispherical Emissivity of window shading "
+                    "material")
+    window_shading_infr_transmittance = NumberSetting(
+        value=0.05, min_value=0, max_value=0.999,
+        description="Infrared transmittance of window shading material")
+    window_shading_thickness = NumberSetting(
+        value=0.003, min_value=0.00001, max_value=1000,
+        description="Thickness of window shading material")
+    window_shading_conductivity = NumberSetting(
+        value=0.1, min_value=0.00001, max_value=10000,
+        description="Conductivity of window shading material")
+    window_shading_airflow_permeability = NumberSetting(
+        value=0.0, min_value=0.0, max_value=0.8,
+        description="Airflow Permeability of window shading material")
+

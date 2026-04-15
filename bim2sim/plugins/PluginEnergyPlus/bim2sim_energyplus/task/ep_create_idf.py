@@ -461,7 +461,8 @@ class CreateIdf(ITask):
             else:
                 # set construction elements for windows
                 self.set_preprocessed_window_material_elem(
-                    rel_elem, idf, sim_settings.add_window_shading)
+                    rel_elem, idf, sim_settings.add_window_shading,
+                    sim_settings)
 
         # Add air boundaries as construction as a material for virtual bounds
         if sim_settings.ep_version in ["9-2-0", "9-4-0"]:
@@ -555,7 +556,8 @@ class CreateIdf(ITask):
     @staticmethod
     def set_preprocessed_window_material_elem(rel_elem: Window,
                                               idf: IDF,
-                                              add_window_shading: False):
+                                              add_window_shading: False,
+                                              sim_settings: EnergyPlusSimSettings):
         """Set preprocessed window material.
 
         This function constructs windows with a
@@ -567,7 +569,8 @@ class CreateIdf(ITask):
             rel_elem: Window instance
             idf: idf file object
             add_window_shading: Add window shading (options: 'None',
-            'Interior', 'Exterior')
+            'Interior', 'Exterior',
+            sim_settings: EnergyPlusSimSettings)
         """
         material_name = \
             'WM_' + rel_elem.layerset.layers[0].material.name + '_' \
@@ -601,16 +604,18 @@ class CreateIdf(ITask):
         if add_window_shading:
             default_shading_name = "DefaultWindowShade"
             if not idf.getobject("WINDOWMATERIAL:SHADE", default_shading_name):
-                idf.newidfobject("WINDOWMATERIAL:SHADE",
-                                 Name=default_shading_name,
-                                 Solar_Transmittance=0.3,
-                                 Solar_Reflectance=0.5,
-                                 Visible_Transmittance=0.3,
-                                 Visible_Reflectance=0.5,
-                                 Infrared_Hemispherical_Emissivity=0.9,
-                                 Infrared_Transmittance=0.05,
-                                 Thickness=0.003,
-                                 Conductivity=0.1)
+                idf.newidfobject(
+                    "WINDOWMATERIAL:SHADE",
+                    Name=default_shading_name,
+                    Solar_Transmittance=sim_settings.window_shading_solar_transmittance,
+                    Solar_Reflectance=sim_settings.window_shading_solar_reflectance,
+                    Visible_Transmittance=sim_settings.window_shading_visible_transmittance,
+                    Visible_Reflectance=sim_settings.window_shading_visible_reflectance,
+                    Infrared_Hemispherical_Emissivity=sim_settings.window_shading_infr_hemisph_emissivity,
+                    Infrared_Transmittance=sim_settings.window_shading_infr_transmittance,
+                    Thickness=sim_settings.window_shading_thickness,
+                    Conductivity=sim_settings.window_shading_conductivity,
+                    Airflow_Permeability=sim_settings.window_shading_airflow_permeability)
             construction_name = 'Window_' + material_name + "_" \
                                 + add_window_shading
             if idf.getobject("CONSTRUCTION", construction_name) is None:
