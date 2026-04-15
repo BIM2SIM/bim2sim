@@ -209,6 +209,14 @@ class CreateIdf(ITask):
         IDF.setiddname(ep_install_path / 'Energy+.idd')
         # initialize the idf with a minimal idf setup
         idf = IDF(plugin_ep_path + '/data/Minimal.idf')
+        shadow_calc = idf.idfobjects['SHADOWCALCULATION']
+        if shadow_calc:
+            shadow_calc.Shading_Calculation_Method = (
+                sim_settings.shading_calc_method)
+        else:
+            idf.newidfobject(
+                "SHADOWCALCULATION",
+                Shading_Calculation_Method=sim_settings.shading_calc_method)
         # remove location and design days
         idf.removeallidfobjects('SIZINGPERIOD:DESIGNDAY')
         idf.removeallidfobjects('SITE:LOCATION')

@@ -273,3 +273,12 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         description='Choose if the CO2 generation by occupants should be '
                     'considered.',
     )
+    shading_calc_method = ChoiceSetting(
+        value="PolygonClipping",
+        choices={
+            "PixelCounting": "Use PixelCounting approach. If the "
+                             "computational resources are not "
+                             "sufficient for PixelCounting, EnergyPlus "
+                             "uses PolygonClipping instead.",
+            "PolygonClipping": "Use PolygonClipping. "}
+    )
