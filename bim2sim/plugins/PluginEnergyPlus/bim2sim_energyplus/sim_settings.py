@@ -92,9 +92,9 @@ class EnergyPlusSimSettings(BuildingSimSettings):
                               'SummerTypical days are available in weather '
                               'file.'},
         description='Choose whether to perform the system sizing for '
-                     'DesignDays, extreme weather periods, typical weather '
-                     'periods. value=Typical (i.e., apply system sizing for '
-                     'typical summer/winter days). '
+                    'DesignDays, extreme weather periods, typical weather '
+                    'periods. value=Typical (i.e., apply system sizing for '
+                    'typical summer/winter days). '
     )
     weather_file_for_sizing = PathSetting(
         value=None,
@@ -162,7 +162,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
     )
     output_keys = ChoiceSetting(
         value=['output_outdoor_conditions', 'output_zone_temperature',
-                 'output_zone', 'output_infiltration', 'output_meters'],
+               'output_zone', 'output_infiltration', 'output_meters'],
         choices={
             'output_outdoor_conditions': 'Add outputs for outdoor conditions.',
             'output_internal_gains': 'Add output for internal gains.',
@@ -197,11 +197,11 @@ class EnergyPlusSimSettings(BuildingSimSettings):
     )
     hvac_off_at_night = BooleanSetting(
         value=False, description='Disable all HVAC systems at night from '
-                                   '10pm to 6am.'
+                                 '10pm to 6am.'
     )
     control_operative_temperature = BooleanSetting(
         value=False, description='Use operative temperature instead of air '
-                                   'temperature for zonal temperature control.'
+                                 'temperature for zonal temperature control.'
     )
     ventilation_demand_control = ChoiceSetting(
         value=None,
@@ -218,8 +218,8 @@ class EnergyPlusSimSettings(BuildingSimSettings):
                                         'applied based on the differential '
                                         'dry bulb temperature.',
                  'DifferentialEnthalpy': 'The outdoor air economizer is '
-                                        'applied based on the differential '
-                                        'enthalpy.'},
+                                         'applied based on the differential '
+                                         'enthalpy.'},
         description='Choose which type of outdoor air economizer should be '
                     'applied to reduce cooling loads by an increased outdoor '
                     'air flow if cooling loads can be reduced. Default is '
@@ -257,8 +257,8 @@ class EnergyPlusSimSettings(BuildingSimSettings):
     )
     residential = BooleanSetting(
         value=False, description='Choose True to use residential settings '
-                                   'for natural ventilation (DIN4108-2), '
-                                   'False for non-residential houses.'
+                                 'for natural ventilation (DIN4108-2), '
+                                 'False for non-residential houses.'
     )
     natural_ventilation_approach = ChoiceSetting(
         value="Simple",
