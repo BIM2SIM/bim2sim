@@ -48,7 +48,7 @@ class ConnectElements(ITask):
 
         # Check ports
         self.logger.info("Checking ports of elements ...")
-        self.check_element_ports(elements)
+        self.remove_duplicate_ports(elements)
         # Make connections by relations
         self.logger.info("Connecting the relevant elements")
         self.logger.info(" - Connecting by relations ...")
@@ -117,11 +117,38 @@ class ConnectElements(ITask):
         return elements,
 
     @staticmethod
-    def check_element_ports(elements: dict):
-        """Checks position of all ports for each element.
+    def remove_duplicate_ports(elements: dict):
+        """Checks position of all ports for each element and handles
+        overlapping ports.
+
+        This method analyzes port positions within building elements
+        (e.g. pipes, fittings) and identifies overlapping ports that may
+        indicate data quality issues. When two ports of the same element
+        overlap and both connect to the same third port, they are merged into
+        a single bidirectional port.
 
         Args:
-            elements: dictionary of elements to be checked with GUID as key.
+            elements: Dictionary mapping GUIDs to element objects that should
+            be checked.
+                     Each element must have a 'ports' attribute containing its
+                     ports.
+
+        Quality Checks:
+            - Warns if ports of the same element are closer than 1 unit
+            (atol=1)
+            - Identifies overlapping ports using numpy.allclose with rtol=1e-7
+
+        Port Merging:
+            If overlapping ports A and B are found that both connect to the
+             same port C:
+            - Port B is removed from the element
+            - Port A is set as bidirectional (SINKANDSOURCE)
+            - Port A becomes the flow master
+            - The change is logged for documentation
+
+            WARNING: Poor quality of elements <IFC>: Overlapping ports (port1
+            and port2 @[x,y,z])
+            INFO: Removing <IFC port2> and set <IFC port1> as SINKANDSOURCE.
         """
         for ele in elements.values():
             for port_a, port_b in itertools.combinations(ele.ports, 2):
@@ -139,13 +166,14 @@ class ConnectElements(ITask):
                                    port not in [port_a, port_b]]
                     if port_a in all_ports and port_b in all_ports and len(
                             set(other_ports)) == 1:
-                        # Both ports connected to same other port -> merge ports
+                        # Both ports connected to same other port ->
+                        # merge ports
                         quality_logger.info(
                             "Removing %s and set %s as SINKANDSOURCE.",
                             port_b.ifc, port_a.ifc)
                         ele.ports.remove(port_b)
                         port_b.parent = None
-                        port_a.flow_direction = 0
+                        port_a.flow_direction.value = 0
                         port_a.flow_master = True
 
     @staticmethod
