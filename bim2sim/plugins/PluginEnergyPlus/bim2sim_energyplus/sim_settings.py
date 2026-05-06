@@ -61,7 +61,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
     ep_install_path = PathSetting.model_construct(
         value=Path('/usr/local/EnergyPlus-9-4-0/'),
         description='Choose EnergyPlus Installation Path',
-        for_frontend=False,
+        for_frontend=True,
     )
     system_sizing = BooleanSetting(
         value=True,
@@ -94,7 +94,8 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         description='Choose whether to perform the system sizing for '
                      'DesignDays, extreme weather periods, typical weather '
                      'periods. value=Typical (i.e., apply system sizing for '
-                     'typical summer/winter days). '
+                     'typical summer/winter days). ',
+        for_frontend=False,
     )
     weather_file_for_sizing = PathSetting(
         value=None,

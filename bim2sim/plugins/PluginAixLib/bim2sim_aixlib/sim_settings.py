@@ -16,6 +16,6 @@ class AixLibSimSettings(PlantSimSettings):
                     ' provided, the version for regression testing will be '
                     'used if it was already downloaded using the '
                     'prepare_regression_tests.py script.',
-        for_frontend=False,
+        for_frontend=True,
         mandatory=False
     )

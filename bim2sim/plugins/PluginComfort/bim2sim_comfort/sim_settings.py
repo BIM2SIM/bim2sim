@@ -33,8 +33,10 @@ class ComfortSimSettings(EnergyPlusSimSettings):
         for_frontend=True
     )
     comfort_occupancy_weighting = BooleanSetting(
-        value=False, description='Weight the comfort rating by occupancy '
-                                   'schedules.'
+        value=False,
+        description='Weight the comfort rating by occupancy '
+                                   'schedules.',
+        for_frontend=True,
     )
     plot_zone_usages = ChoiceSetting(
         value=[],
