@@ -473,7 +473,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
                     'corrections to boundary conditions.'
                     ' It is recommended to include GUIDs of neighboring'
                     ' storeys to reduce boundary condition errors.',
-        for_frontend=True,
+        for_frontend=False,
         mandatory=False
     )
 
@@ -508,14 +508,14 @@ class PlantSimSettings(BaseSimSettings):
         description="Which aggregations should be applied on the hydraulic "
                     "network",
         multiple_choice=True,
-        for_frontend=True
+        for_frontend=False
     )
 
     tolerance_connect_by_position = NumberSetting(
         value=10,
         description="Tolerance for distance for which ports should be "
                     "connected. Based on there position in IFC.",
-        for_frontend=True,
+        for_frontend=False,
         min_value=1
     )
 
@@ -523,7 +523,8 @@ class PlantSimSettings(BaseSimSettings):
         value=True,
         description="Choose if connection of elements via IfcDistributionPorts"
                     " should be validated by the geometric position of the "
-                    "ports."
+                    "ports.",
+        for_frontend=False
     )
 
 
@@ -782,6 +783,7 @@ class BuildingSimSettings(BaseSimSettings):
         },
         description="Select the most fitting construction class type for"
                     " the windows of the selected building.",
+        for_frontend=True,
     )
     construction_class_doors = ChoiceSetting(
         value='iwu_typical',
@@ -830,6 +832,7 @@ class BuildingSimSettings(BaseSimSettings):
         },
         description="Select the most fitting construction class type for"
                     " the windows of the selected building.",
+        for_frontend=True,
     )
     heating_tz_overwrite = BooleanSetting(
         value=None,
@@ -885,7 +888,7 @@ class BuildingSimSettings(BaseSimSettings):
         description="Use maintained illuminance required per zone based on "
                     "DIN V EN 18599 information to calculate internal loads"
                     "through lighting.",
-        for_frontend=True
+        for_frontend=False
     )
     sim_results = ChoiceSetting(
         value=[
@@ -986,7 +989,8 @@ class BuildingSimSettings(BaseSimSettings):
         value=False,
         description="Choose whether run period for simulation execution "
                     "should be set manually instead of running annual "
-                    "simulation."
+                    "simulation.",
+        for_frontend=False,
     )
     run_period_start_month = NumberSetting(
         value=1,
@@ -994,7 +998,7 @@ class BuildingSimSettings(BaseSimSettings):
         max_value=12,
         description="Choose start month of run period. Requires "
                     "set_run_period==True for activation.",
-        for_frontend=True
+        for_frontend=False
     )
     run_period_start_day = NumberSetting(
         value=1,
@@ -1002,7 +1006,7 @@ class BuildingSimSettings(BaseSimSettings):
         max_value=31,
         description="Choose start day of run period. Requires "
                     "set_run_period==True for activation.",
-        for_frontend=True
+        for_frontend=False
     )
     run_period_end_month = NumberSetting(
         value=12,
@@ -1010,7 +1014,7 @@ class BuildingSimSettings(BaseSimSettings):
         max_value=12,
         description="Choose end month of run period. Requires "
                     "set_run_period==True for activation.",
-        for_frontend=True
+        for_frontend=False
     )
     run_period_end_day = NumberSetting(
         value=31,
@@ -1018,14 +1022,14 @@ class BuildingSimSettings(BaseSimSettings):
         max_value=31,
         description="Choose end day of run period. Requires "
                     "set_run_period==True for activation.",
-        for_frontend=True
+        for_frontend=False
     )
     plot_singe_zone_guid = ChoiceSetting(
         value='',
         choices={'': "Skip"},
         description="Choose the GlobalId of the IfcSpace for which results "
                     "should be plotted.",
-        any_string=True
+        any_string=False
     )
     ahu_heating_overwrite = BooleanSetting(
         value=False,

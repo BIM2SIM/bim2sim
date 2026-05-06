@@ -65,6 +65,7 @@ class TEASERSimSettings(BuildingSimSettings):
             "cpu_time": "Computational time taken for simulation."
         },
         multiple_choice=True,
+        for_frontend=True,
     )
 
     zoning_criteria = ChoiceSetting(
@@ -102,6 +103,6 @@ class TEASERSimSettings(BuildingSimSettings):
                     ' provided, the version for regression testing will be '
                     'used if it was already downloaded using the '
                     'prepare_regression_tests.py script.',
-        for_frontend=False,
+        for_frontend=True,
         mandatory=False
     )

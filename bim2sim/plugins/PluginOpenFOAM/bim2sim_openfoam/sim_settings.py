@@ -74,7 +74,8 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         },
         description='Choose the outflow direction for original shapes from '
                     'IFC that should be automatically processed. Defaults to '
-                    'downward facing flows.'
+                    'downward facing flows.',
+        for_frontend=True,
     )
     select_space_guid = ChoiceSetting(
         value='',
@@ -228,7 +229,8 @@ class OpenFOAMSimSettings(ComfortSimSettings):
             'east': 'East side',
             'south': 'South side',
             'west': 'West side',
-        }
+        },
+        for_frontend=True,
     )
     add_people = BooleanSetting(
         value=False,
@@ -236,12 +238,14 @@ class OpenFOAMSimSettings(ComfortSimSettings):
         description='Choose if people should be added.'
     )
     use_energyplus_people_amount = BooleanSetting(
-        value=False, description='Choose if number of people should be '
+        value=False,
+        description='Choose if number of people should be '
                                    'assigned as defined in the EnergyPlus '
                                    'simulation. If true, people_amount is not '
                                    'considered but overwritten with the '
                                    'rounded up number of people from the '
-                                   'EnergyPlus simulation. '
+                                   'EnergyPlus simulation. ',
+        for_frontend=True,
     )
     people_setting = ChoiceSetting(
         value='Seated',
