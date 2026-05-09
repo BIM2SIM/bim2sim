@@ -310,4 +310,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
     window_shading_airflow_permeability = NumberSetting(
         value=0.0, min_value=0.0, max_value=0.8,
         description="Airflow Permeability of window shading material")
-
+    solar_shading_control = NumberSetting(
+        value=150, min_value=0.0, max_value=2000,
+        description="Solar radiation on surface to activate shading in W/m²."
+    )

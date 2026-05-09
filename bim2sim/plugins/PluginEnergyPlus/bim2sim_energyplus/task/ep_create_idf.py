@@ -99,7 +99,7 @@ class CreateIdf(ITask):
         if self.playground.sim_settings.add_window_shading:
             self.add_shading_control(
                 self.playground.sim_settings.add_window_shading, elements,
-                idf)
+                idf, self.playground.sim_settings.solar_shading_control)
         self.set_ground_temperature(idf, t_ground=get_spaces_with_bounds(
             elements)[0].t_ground)  # assuming all zones have same ground
         if self.playground.sim_settings.add_occupant_co2:
@@ -1499,7 +1499,7 @@ class CreateIdf(ITask):
             obj.setcoords(obj_coords)
 
     def add_shading_control(self, shading_type, elements,
-                            idf, solar=150):
+                            idf, solar):
         """Add a default shading control to IDF.
         Two criteria must be met such that the window shades are set: the
         indoor air temperature must exceed a certain temperature and the solar
