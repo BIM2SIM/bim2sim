@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Coverage for bim2sim/utilities/pyocc_tools.py: 33%</title>
+    <title>Coverage for bim2sim/utilities/pyocc_tools.py: 32%</title>
     <link rel="icon" sizes="32x32" href="favicon_32_cb_c827f16f.png">
     <link rel="stylesheet" href="style_cb_9ff733b0.css" type="text/css">
     <script src="coverage_html_cb_dd2e7eb5.js" defer></script>
@@ -12,7 +12,7 @@
     <div class="content">
         <h1>
             <span class="text">Coverage for </span><b>bim2sim&#8201;/&#8201;utilities&#8201;/&#8201;pyocc_tools.py</b>:
-            <span class="pc_cov">33%</span>
+            <span class="pc_cov">32%</span>
         </h1>
         <aside id="help_panel_wrapper">
             <input id="help_panel_state" type="checkbox">
@@ -54,9 +54,9 @@
             </div>
         </aside>
         <h2>
-            <span class="text">651 statements &nbsp;</span>
-            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">218<span class="text"> run</span></button>
-            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">433<span class="text"> missing</span></button>
+            <span class="text">692 statements &nbsp;</span>
+            <button type="button" class="run button_toggle_run" value="run" data-shortcut="r" title="Toggle lines run">224<span class="text"> run</span></button>
+            <button type="button" class="mis show_mis button_toggle_mis" value="mis" data-shortcut="m" title="Toggle lines missing">468<span class="text"> missing</span></button>
             <button type="button" class="exc show_exc button_toggle_exc" value="exc" data-shortcut="x" title="Toggle lines excluded">0<span class="text"> excluded</span></button>
         </h2>
         <p class="text">
@@ -65,7 +65,7 @@
             <a id="nextFileLink" class="nav" href="z_f47f9c6d57aa8e15_svg_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-09 12:53 +0000
+            created at 2026-05-09 14:15 +0000
         </p>
         <aside class="hidden">
             <button type="button" class="button_next_chunk" data-shortcut="j"></button>
@@ -1034,7 +1034,7 @@
     <p class="mis show_mis"><span class="n"><a id="t952" href="#t952">952</a></span><span class="t">        <span class="key">return</span> <span class="nam">new_shape</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t953" href="#t953">953</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="run"><span class="n"><a id="t954" href="#t954">954</a></span><span class="t">    <span class="op">@</span><span class="nam">staticmethod</span>&nbsp;</span><span class="r"></span></p>
-    <p class="run"><span class="n"><a id="t955" href="#t955">955</a></span><span class="t">    <span class="key">def</span> <span class="nam">fuse_shapes</span><span class="op">(</span><span class="nam">shapes</span><span class="op">:</span><span class="nam">List</span><span class="op">[</span><span class="nam">TopoDS_Shape</span><span class="op">]</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t955" href="#t955">955</a></span><span class="t">    <span class="key">def</span> <span class="nam">fuse_shapes</span><span class="op">(</span><span class="nam">shapes</span><span class="op">:</span> <span class="nam">List</span><span class="op">[</span><span class="nam">TopoDS_Shape</span><span class="op">]</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t956" href="#t956">956</a></span><span class="t">        <span class="key">if</span> <span class="key">not</span> <span class="nam">shapes</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t957" href="#t957">957</a></span><span class="t">            <span class="key">return</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t958" href="#t958">958</a></span><span class="t">        <span class="key">if</span> <span class="nam">len</span><span class="op">(</span><span class="nam">shapes</span><span class="op">)</span> <span class="op">&lt;</span> <span class="num">2</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
@@ -1294,6 +1294,85 @@
     <p class="mis show_mis"><span class="n"><a id="t1212" href="#t1212">1212</a></span><span class="t">        <span class="nam">trsf</span> <span class="op">=</span> <span class="nam">trsf_trans</span><span class="op">.</span><span class="nam">Multiplied</span><span class="op">(</span><span class="nam">trsf_rot</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
     <p class="pln"><span class="n"><a id="t1213" href="#t1213">1213</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p class="mis show_mis"><span class="n"><a id="t1214" href="#t1214">1214</a></span><span class="t">        <span class="key">return</span> <span class="nam">trsf</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1215" href="#t1215">1215</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1216" href="#t1216">1216</a></span><span class="t">    <span class="op">@</span><span class="nam">staticmethod</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1217" href="#t1217">1217</a></span><span class="t">    <span class="key">def</span> <span class="nam">fuse_shapes_advanced</span><span class="op">(</span><span class="nam">shape_list</span><span class="op">:</span> <span class="nam">List</span><span class="op">[</span><span class="nam">TopoDS_Shape</span><span class="op">]</span><span class="op">)</span> <span class="op">-></span> <span class="nam">Union</span><span class="op">[</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t1218" href="#t1218">1218</a></span><span class="t">            <span class="nam">TopoDS_Shape</span><span class="op">,</span> <span class="key">None</span><span class="op">]</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1219" href="#t1219">1219</a></span><span class="t">        <span class="str">"""Advanced fuse shape algorithm for list of shapes.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1220" href="#t1220">1220</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1221" href="#t1221">1221</a></span><span class="t"><span class="str">        Args:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1222" href="#t1222">1222</a></span><span class="t"><span class="str">            shape_list: List of TopoDS_Shape instances</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1223" href="#t1223">1223</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1224" href="#t1224">1224</a></span><span class="t"><span class="str">        Returns:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1225" href="#t1225">1225</a></span><span class="t"><span class="str">            fuse_shape: fused shapes (TopoDS_Shape) or None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1226" href="#t1226">1226</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1227" href="#t1227">1227</a></span><span class="t">        <span class="nam">more_distant_shapes</span> <span class="op">=</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1228" href="#t1228">1228</a></span><span class="t">        <span class="key">if</span> <span class="key">not</span> <span class="nam">shape_list</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1229" href="#t1229">1229</a></span><span class="t">            <span class="key">return</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1230" href="#t1230">1230</a></span><span class="t">        <span class="key">if</span> <span class="nam">len</span><span class="op">(</span><span class="nam">shape_list</span><span class="op">)</span> <span class="op">&lt;</span> <span class="num">2</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1231" href="#t1231">1231</a></span><span class="t">            <span class="key">return</span> <span class="nam">shape_list</span><span class="op">[</span><span class="num">0</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1232" href="#t1232">1232</a></span><span class="t">        <span class="nam">distant_shapes</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1233" href="#t1233">1233</a></span><span class="t">        <span class="nam">fuse_shape</span> <span class="op">=</span> <span class="key">None</span>  <span class="com"># shape_list[0]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1234" href="#t1234">1234</a></span><span class="t">        <span class="key">for</span> <span class="nam">i</span><span class="op">,</span> <span class="nam">shape</span> <span class="key">in</span> <span class="nam">enumerate</span><span class="op">(</span><span class="nam">shape_list</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1235" href="#t1235">1235</a></span><span class="t">            <span class="key">if</span> <span class="key">not</span> <span class="nam">shape</span><span class="op">.</span><span class="nam">IsNull</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1236" href="#t1236">1236</a></span><span class="t">                <span class="key">if</span> <span class="key">not</span> <span class="nam">fuse_shape</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1237" href="#t1237">1237</a></span><span class="t">                    <span class="nam">fuse_shape</span> <span class="op">=</span> <span class="nam">shape</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1238" href="#t1238">1238</a></span><span class="t">                    <span class="key">continue</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1239" href="#t1239">1239</a></span><span class="t">                <span class="key">if</span> <span class="op">(</span><span class="nam">BRepExtrema_DistShapeShape</span><span class="op">(</span><span class="nam">fuse_shape</span><span class="op">,</span> <span class="nam">shape</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t1240" href="#t1240">1240</a></span><span class="t">                                               <span class="nam">Extrema_ExtFlag_MIN</span><span class="op">)</span><span class="op">.</span><span class="nam">Value</span><span class="op">(</span><span class="op">)</span> <span class="op">&lt;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t1241" href="#t1241">1241</a></span><span class="t">                        <span class="num">1e-3</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1242" href="#t1242">1242</a></span><span class="t">                    <span class="nam">fuse_shape</span> <span class="op">=</span> <span class="nam">BRepAlgoAPI_Fuse</span><span class="op">(</span><span class="nam">fuse_shape</span><span class="op">,</span> <span class="nam">shape</span><span class="op">)</span><span class="op">.</span><span class="nam">Shape</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1243" href="#t1243">1243</a></span><span class="t">                <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1244" href="#t1244">1244</a></span><span class="t">                    <span class="nam">distant_shapes</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">shape</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1245" href="#t1245">1245</a></span><span class="t">        <span class="key">if</span> <span class="nam">len</span><span class="op">(</span><span class="nam">distant_shapes</span><span class="op">)</span> <span class="op">></span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1246" href="#t1246">1246</a></span><span class="t">            <span class="nam">more_distant_shapes</span> <span class="op">=</span> <span class="key">True</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1247" href="#t1247">1247</a></span><span class="t">        <span class="nam">counter</span> <span class="op">=</span> <span class="num">0</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1248" href="#t1248">1248</a></span><span class="t">        <span class="key">if</span> <span class="key">not</span> <span class="nam">fuse_shape</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1249" href="#t1249">1249</a></span><span class="t">            <span class="key">return</span> <span class="key">None</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1250" href="#t1250">1250</a></span><span class="t">        <span class="key">while</span> <span class="nam">more_distant_shapes</span> <span class="key">and</span> <span class="nam">counter</span> <span class="op">&lt;</span> <span class="num">10</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1251" href="#t1251">1251</a></span><span class="t">            <span class="nam">counter</span> <span class="op">+=</span> <span class="num">1</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1252" href="#t1252">1252</a></span><span class="t">            <span class="nam">distant_shapes2</span> <span class="op">=</span> <span class="op">[</span><span class="op">]</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1253" href="#t1253">1253</a></span><span class="t">            <span class="key">for</span> <span class="nam">i</span><span class="op">,</span> <span class="nam">shape</span> <span class="key">in</span> <span class="nam">enumerate</span><span class="op">(</span><span class="nam">distant_shapes</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1254" href="#t1254">1254</a></span><span class="t">                <span class="key">if</span> <span class="key">not</span> <span class="nam">shape</span><span class="op">.</span><span class="nam">IsNull</span><span class="op">(</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1255" href="#t1255">1255</a></span><span class="t">                    <span class="key">if</span> <span class="op">(</span><span class="nam">BRepExtrema_DistShapeShape</span><span class="op">(</span><span class="nam">fuse_shape</span><span class="op">,</span> <span class="nam">shape</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t1256" href="#t1256">1256</a></span><span class="t">                                                   <span class="nam">Extrema_ExtFlag_MIN</span><span class="op">)</span><span class="op">.</span><span class="nam">Value</span><span class="op">(</span><span class="op">)</span> <span class="op">&lt;</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t1257" href="#t1257">1257</a></span><span class="t">                            <span class="num">1e-3</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1258" href="#t1258">1258</a></span><span class="t">                        <span class="nam">fuse_shape</span> <span class="op">=</span> <span class="nam">BRepAlgoAPI_Fuse</span><span class="op">(</span><span class="nam">fuse_shape</span><span class="op">,</span> <span class="nam">shape</span><span class="op">)</span><span class="op">.</span><span class="nam">Shape</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1259" href="#t1259">1259</a></span><span class="t">                    <span class="key">else</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1260" href="#t1260">1260</a></span><span class="t">                        <span class="nam">distant_shapes2</span><span class="op">.</span><span class="nam">append</span><span class="op">(</span><span class="nam">shape</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1261" href="#t1261">1261</a></span><span class="t">            <span class="nam">distant_shapes</span> <span class="op">=</span> <span class="nam">distant_shapes2</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1262" href="#t1262">1262</a></span><span class="t">            <span class="key">if</span> <span class="nam">len</span><span class="op">(</span><span class="nam">distant_shapes</span><span class="op">)</span> <span class="op">==</span> <span class="num">0</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1263" href="#t1263">1263</a></span><span class="t">                <span class="nam">more_distant_shapes</span> <span class="op">=</span> <span class="key">False</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1264" href="#t1264">1264</a></span><span class="t">        <span class="key">return</span> <span class="nam">fuse_shape</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1265" href="#t1265">1265</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1266" href="#t1266">1266</a></span><span class="t">    <span class="op">@</span><span class="nam">staticmethod</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1267" href="#t1267">1267</a></span><span class="t">    <span class="key">def</span> <span class="nam">get_minimum_distance</span><span class="op">(</span><span class="nam">shape1</span><span class="op">:</span> <span class="nam">TopoDS_Shape</span><span class="op">,</span> <span class="nam">shape2</span><span class="op">:</span> <span class="nam">TopoDS_Shape</span><span class="op">)</span> <span class="op">-></span> <span class="op">(</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run run2"><span class="n"><a id="t1268" href="#t1268">1268</a></span><span class="t">            <span class="nam">float</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1269" href="#t1269">1269</a></span><span class="t">        <span class="str">"""Get minimum distance between two TopoDS_Shapes.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1270" href="#t1270">1270</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1271" href="#t1271">1271</a></span><span class="t"><span class="str">        Args:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1272" href="#t1272">1272</a></span><span class="t"><span class="str">            shape1 (TopoDS_Shape): The first TopoDS_Shape</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1273" href="#t1273">1273</a></span><span class="t"><span class="str">            shape2 (TopoDS_Shape): The second TopoDS_Shape</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1274" href="#t1274">1274</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1275" href="#t1275">1275</a></span><span class="t"><span class="str">        Returns:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1276" href="#t1276">1276</a></span><span class="t"><span class="str">            float: The minimum distance between shape1 and shape2</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1277" href="#t1277">1277</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1278" href="#t1278">1278</a></span><span class="t">        <span class="key">return</span> <span class="nam">BRepExtrema_DistShapeShape</span><span class="op">(</span><span class="nam">shape1</span><span class="op">,</span> <span class="nam">shape2</span><span class="op">,</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis mis2 show_mis"><span class="n"><a id="t1279" href="#t1279">1279</a></span><span class="t">                                          <span class="nam">Extrema_ExtFlag_MIN</span><span class="op">)</span><span class="op">.</span><span class="nam">Value</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1280" href="#t1280">1280</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1281" href="#t1281">1281</a></span><span class="t">    <span class="op">@</span><span class="nam">staticmethod</span>&nbsp;</span><span class="r"></span></p>
+    <p class="run"><span class="n"><a id="t1282" href="#t1282">1282</a></span><span class="t">    <span class="key">def</span> <span class="nam">get_point_to_shape_distance</span><span class="op">(</span><span class="nam">point</span><span class="op">:</span> <span class="nam">gp_Pnt</span><span class="op">,</span> <span class="nam">shape</span><span class="op">:</span> <span class="nam">TopoDS_Shape</span><span class="op">)</span> <span class="op">-></span> <span class="nam">float</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1283" href="#t1283">1283</a></span><span class="t">        <span class="str">"""Get minimum distance between a gp_Pnt and a TopoDS_shape.</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1284" href="#t1284">1284</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1285" href="#t1285">1285</a></span><span class="t"><span class="str">        Args:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1286" href="#t1286">1286</a></span><span class="t"><span class="str">            point (gp_Pnt): point to get distance from</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1287" href="#t1287">1287</a></span><span class="t"><span class="str">            shape (TopoDS_Shape): shape to get distance from</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1288" href="#t1288">1288</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1289" href="#t1289">1289</a></span><span class="t"><span class="str">        Returns:</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1290" href="#t1290">1290</a></span><span class="t"><span class="str">            float: The minimum distance between point and shape</span>&nbsp;</span><span class="r"></span></p>
+    <p class="pln"><span class="n"><a id="t1291" href="#t1291">1291</a></span><span class="t"><span class="str">        """</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1292" href="#t1292">1292</a></span><span class="t">        <span class="nam">vertex</span> <span class="op">=</span> <span class="nam">BRepBuilderAPI_MakeVertex</span><span class="op">(</span><span class="nam">point</span><span class="op">)</span><span class="op">.</span><span class="nam">Shape</span><span class="op">(</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
+    <p class="mis show_mis"><span class="n"><a id="t1293" href="#t1293">1293</a></span><span class="t">        <span class="key">return</span> <span class="nam">PyOCCTools</span><span class="op">.</span><span class="nam">get_minimum_distance</span><span class="op">(</span><span class="nam">vertex</span><span class="op">,</span> <span class="nam">shape</span><span class="op">)</span>&nbsp;</span><span class="r"></span></p>
 </main>
 <footer>
     <div class="content">
@@ -1303,7 +1382,7 @@
             <a class="nav" href="z_f47f9c6d57aa8e15_svg_utils_py.html">&#xbb; next</a>
             &nbsp; &nbsp; &nbsp;
             <a class="nav" href="https://coverage.readthedocs.io/en/7.13.5">coverage.py v7.13.5</a>,
-            created at 2026-05-09 12:53 +0000
+            created at 2026-05-09 14:15 +0000
         </p>
     </div>
 </footer>
