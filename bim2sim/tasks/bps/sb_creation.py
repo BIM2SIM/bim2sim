@@ -156,6 +156,7 @@ class CreateSpaceBoundaries(ITask):
         temp_elements.update(bound_dict)
         # from elements (due to duplications)
         for inst_obj in boundaries:
+            total_opening_area = 0
             if inst_obj.level_description == "2b":
                 continue
             inst_obj_space = inst_obj.ifc.RelatingSpace
@@ -180,7 +181,8 @@ class CreateSpaceBoundaries(ITask):
                 # wall (within inner loop) and reassign the current opening
                 # boundary to the surrounding boundary (which is the true
                 # parent boundary)
-                if (inst_obj.bound_area - op_bound.bound_area).m \
+                total_opening_area += op_bound.bound_area
+                if (inst_obj.bound_area - total_opening_area).m \
                         < opening_area_tolerance:
                     rel_bound, drop_list = self.reassign_opening_bounds(
                         inst_obj, op_bound, b_inst, drop_list,

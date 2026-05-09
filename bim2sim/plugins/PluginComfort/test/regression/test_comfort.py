@@ -189,6 +189,7 @@ class TestRegressionComfort(RegressionTestComfort, unittest.TestCase):
         project.sim_settings.add_shadings = True
         project.sim_settings.split_shadings = True
         project.sim_settings.run_full_simulation = True
+        project.sim_settings.serialize_elements = False
         # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
         answers = ()
         handler = DebugDecisionHandler(answers)

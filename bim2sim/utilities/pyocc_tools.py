@@ -952,7 +952,7 @@ class PyOCCTools:
         return new_shape
 
     @staticmethod
-    def fuse_shapes(shapes:List[TopoDS_Shape]):
+    def fuse_shapes(shapes: List[TopoDS_Shape]):
         if not shapes:
             return None
         if len(shapes) < 2:
@@ -1212,3 +1212,82 @@ class PyOCCTools:
         trsf = trsf_trans.Multiplied(trsf_rot)
 
         return trsf
+
+    @staticmethod
+    def fuse_shapes_advanced(shape_list: List[TopoDS_Shape]) -> Union[
+            TopoDS_Shape, None]:
+        """Advanced fuse shape algorithm for list of shapes.
+
+        Args:
+            shape_list: List of TopoDS_Shape instances
+
+        Returns:
+            fuse_shape: fused shapes (TopoDS_Shape) or None
+        """
+        more_distant_shapes = False
+        if not shape_list:
+            return None
+        if len(shape_list) < 2:
+            return shape_list[0]
+        distant_shapes = []
+        fuse_shape = None  # shape_list[0]
+        for i, shape in enumerate(shape_list):
+            if not shape.IsNull():
+                if not fuse_shape:
+                    fuse_shape = shape
+                    continue
+                if (BRepExtrema_DistShapeShape(fuse_shape, shape,
+                                               Extrema_ExtFlag_MIN).Value() <
+                        1e-3):
+                    fuse_shape = BRepAlgoAPI_Fuse(fuse_shape, shape).Shape()
+                else:
+                    distant_shapes.append(shape)
+        if len(distant_shapes) > 0:
+            more_distant_shapes = True
+        counter = 0
+        if not fuse_shape:
+            return None
+        while more_distant_shapes and counter < 10:
+            counter += 1
+            distant_shapes2 = []
+            for i, shape in enumerate(distant_shapes):
+                if not shape.IsNull():
+                    if (BRepExtrema_DistShapeShape(fuse_shape, shape,
+                                                   Extrema_ExtFlag_MIN).Value() <
+                            1e-3):
+                        fuse_shape = BRepAlgoAPI_Fuse(fuse_shape, shape).Shape()
+                    else:
+                        distant_shapes2.append(shape)
+            distant_shapes = distant_shapes2
+            if len(distant_shapes) == 0:
+                more_distant_shapes = False
+        return fuse_shape
+
+    @staticmethod
+    def get_minimum_distance(shape1: TopoDS_Shape, shape2: TopoDS_Shape) -> (
+            float):
+        """Get minimum distance between two TopoDS_Shapes.
+
+        Args:
+            shape1 (TopoDS_Shape): The first TopoDS_Shape
+            shape2 (TopoDS_Shape): The second TopoDS_Shape
+
+        Returns:
+            float: The minimum distance between shape1 and shape2
+        """
+        return BRepExtrema_DistShapeShape(shape1, shape2,
+                                          Extrema_ExtFlag_MIN).Value()
+
+    @staticmethod
+    def get_point_to_shape_distance(point: gp_Pnt, shape: TopoDS_Shape) -> float:
+        """Get minimum distance between a gp_Pnt and a TopoDS_shape.
+
+        Args:
+            point (gp_Pnt): point to get distance from
+            shape (TopoDS_Shape): shape to get distance from
+
+        Returns:
+            float: The minimum distance between point and shape
+        """
+        vertex = BRepBuilderAPI_MakeVertex(point).Shape()
+        return PyOCCTools.get_minimum_distance(vertex, shape)

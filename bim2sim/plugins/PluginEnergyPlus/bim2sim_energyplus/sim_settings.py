@@ -92,9 +92,9 @@ class EnergyPlusSimSettings(BuildingSimSettings):
                               'SummerTypical days are available in weather '
                               'file.'},
         description='Choose whether to perform the system sizing for '
-                     'DesignDays, extreme weather periods, typical weather '
-                     'periods. value=Typical (i.e., apply system sizing for '
-                     'typical summer/winter days). '
+                    'DesignDays, extreme weather periods, typical weather '
+                    'periods. value=Typical (i.e., apply system sizing for '
+                    'typical summer/winter days). '
     )
     weather_file_for_sizing = PathSetting(
         value=None,
@@ -115,7 +115,8 @@ class EnergyPlusSimSettings(BuildingSimSettings):
         choices={
             'FullExterior': 'Full exterior solar distribution',
             'FullInteriorAndExterior': 'Full interior and exterior solar '
-                                       'distribution'
+                                       'distribution',
+            'FullInteriorAndExteriorWithReflections': 'Add reflections'
         },
         description='Choose solar distribution.',
         for_frontend=True
@@ -161,7 +162,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
     )
     output_keys = ChoiceSetting(
         value=['output_outdoor_conditions', 'output_zone_temperature',
-                 'output_zone', 'output_infiltration', 'output_meters'],
+               'output_zone', 'output_infiltration', 'output_meters'],
         choices={
             'output_outdoor_conditions': 'Add outputs for outdoor conditions.',
             'output_internal_gains': 'Add output for internal gains.',
@@ -170,6 +171,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
             'output_zone': 'Add heating and cooling rates and energy on zone '
                            'level.',
             'output_infiltration': 'Add output for zone infiltration.',
+            'output_shading': 'Output shading device is on time fraction',
             'output_meters': 'Add heating and cooling meters.',
             'output_dxf': 'Output a dxf of the building geometry.',
         },
@@ -196,11 +198,11 @@ class EnergyPlusSimSettings(BuildingSimSettings):
     )
     hvac_off_at_night = BooleanSetting(
         value=False, description='Disable all HVAC systems at night from '
-                                   '10pm to 6am.'
+                                 '10pm to 6am.'
     )
     control_operative_temperature = BooleanSetting(
         value=False, description='Use operative temperature instead of air '
-                                   'temperature for zonal temperature control.'
+                                 'temperature for zonal temperature control.'
     )
     ventilation_demand_control = ChoiceSetting(
         value=None,
@@ -217,8 +219,8 @@ class EnergyPlusSimSettings(BuildingSimSettings):
                                         'applied based on the differential '
                                         'dry bulb temperature.',
                  'DifferentialEnthalpy': 'The outdoor air economizer is '
-                                        'applied based on the differential '
-                                        'enthalpy.'},
+                                         'applied based on the differential '
+                                         'enthalpy.'},
         description='Choose which type of outdoor air economizer should be '
                     'applied to reduce cooling loads by an increased outdoor '
                     'air flow if cooling loads can be reduced. Default is '
@@ -256,8 +258,8 @@ class EnergyPlusSimSettings(BuildingSimSettings):
     )
     residential = BooleanSetting(
         value=False, description='Choose True to use residential settings '
-                                   'for natural ventilation (DIN4108-2), '
-                                   'False for non-residential houses.'
+                                 'for natural ventilation (DIN4108-2), '
+                                 'False for non-residential houses.'
     )
     natural_ventilation_approach = ChoiceSetting(
         value="Simple",
@@ -266,4 +268,50 @@ class EnergyPlusSimSettings(BuildingSimSettings):
             "Simple": "use simplified ventilation based on TEASER templates.",
             "DIN4108": "use DIN4108-2 for natural ventilation."
         }
+    )
+    add_occupant_co2 = BooleanSetting(
+        value=False,
+        description='Choose if the CO2 generation by occupants should be '
+                    'considered.',
+    )
+    shading_calc_method = ChoiceSetting(
+        value="PolygonClipping",
+        choices={
+            "PixelCounting": "Use PixelCounting approach. If the "
+                             "computational resources are not "
+                             "sufficient for PixelCounting, EnergyPlus "
+                             "uses PolygonClipping instead.",
+            "PolygonClipping": "Use PolygonClipping. "}
+    )
+    window_shading_solar_transmittance = NumberSetting(
+        value=0.3, min_value=0, max_value=0.999,
+        description="Solar transmittance of window shading material")
+    window_shading_solar_reflectance = NumberSetting(
+        value=0.5, min_value=0, max_value=0.999,
+        description="Solar reflectance of window shading material")
+    window_shading_visible_transmittance = NumberSetting(
+        value=0.3, min_value=0, max_value=0.999,
+        description="Visible transmittance of window shading material")
+    window_shading_visible_reflectance = NumberSetting(
+        value=0.5, min_value=0, max_value=0.999,
+        description="Visible reflectance of window shading material")
+    window_shading_infr_hemisph_emissivity = NumberSetting(
+        value=0.9, min_value=0.00001, max_value=0.999,
+        description="Infrared Hemispherical Emissivity of window shading "
+                    "material")
+    window_shading_infr_transmittance = NumberSetting(
+        value=0.05, min_value=0, max_value=0.999,
+        description="Infrared transmittance of window shading material")
+    window_shading_thickness = NumberSetting(
+        value=0.003, min_value=0.00001, max_value=1000,
+        description="Thickness of window shading material")
+    window_shading_conductivity = NumberSetting(
+        value=0.1, min_value=0.00001, max_value=10000,
+        description="Conductivity of window shading material")
+    window_shading_airflow_permeability = NumberSetting(
+        value=0.0, min_value=0.0, max_value=0.8,
+        description="Airflow Permeability of window shading material")
+    solar_shading_control = NumberSetting(
+        value=150, min_value=0.0, max_value=2000,
+        description="Solar radiation on surface to activate shading in W/m²."
     )

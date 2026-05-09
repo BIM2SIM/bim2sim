@@ -32,6 +32,9 @@ class SerializeElements(ITask):
         """
         all_elements = {**elements,}
         serialized_elements = {}
+        if not self.playground.sim_settings.serialize_elements:
+            return serialized_elements,
+
         for ele in all_elements.values():
             se = SerializedElement(ele)
             serialized_elements[se.guid] = se

@@ -1067,3 +1067,8 @@ class BuildingSimSettings(BaseSimSettings):
         description="Overwrite base value for the natural infiltration in 1/h "
                     " without window openings"
     )
+    serialize_elements = BooleanSetting(
+        value=True,
+        description="Set to True if you want to serialize the elements to "
+                    "store the simulation data. Required for plotting"
+    )

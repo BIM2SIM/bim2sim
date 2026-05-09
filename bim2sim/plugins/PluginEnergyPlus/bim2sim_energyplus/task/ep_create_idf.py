@@ -12,7 +12,7 @@ from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeFace
 from OCC.Core.BRepTools import breptools, BRepTools_WireExplorer
 from OCC.Core.TopAbs import TopAbs_FACE, TopAbs_WIRE
 from OCC.Core.TopExp import TopExp_Explorer
-from OCC.Core.TopoDS import topods
+from OCC.Core.TopoDS import topods, TopoDS_Shape
 from OCC.Core._Geom import Handle_Geom_Plane_DownCast
 
 from OCC.Core.gp import gp_Dir, gp_XYZ, gp_Pln
@@ -99,9 +99,11 @@ class CreateIdf(ITask):
         if self.playground.sim_settings.add_window_shading:
             self.add_shading_control(
                 self.playground.sim_settings.add_window_shading, elements,
-                idf)
+                idf, self.playground.sim_settings.solar_shading_control)
         self.set_ground_temperature(idf, t_ground=get_spaces_with_bounds(
             elements)[0].t_ground)  # assuming all zones have same ground
+        if self.playground.sim_settings.add_occupant_co2:
+            self.set_occupant_co2(idf, outdoor_co2=420)
         self.set_output_variables(idf, self.playground.sim_settings)
         self.idf_validity_check(idf)
         logger.info("Save idf ...")
@@ -207,6 +209,14 @@ class CreateIdf(ITask):
         IDF.setiddname(ep_install_path / 'Energy+.idd')
         # initialize the idf with a minimal idf setup
         idf = IDF(plugin_ep_path + '/data/Minimal.idf')
+        shadow_calc = idf.idfobjects['SHADOWCALCULATION']
+        if shadow_calc:
+            shadow_calc.Shading_Calculation_Method = (
+                sim_settings.shading_calc_method)
+        else:
+            idf.newidfobject(
+                "SHADOWCALCULATION",
+                Shading_Calculation_Method=sim_settings.shading_calc_method)
         # remove location and design days
         idf.removeallidfobjects('SIZINGPERIOD:DESIGNDAY')
         idf.removeallidfobjects('SITE:LOCATION')
@@ -435,7 +445,8 @@ class CreateIdf(ITask):
             if not any([isinstance(rel_elem, window) for window in
                         all_subclasses(Window, include_self=True)]):
                 # set construction for all but fenestration
-                if self.check_preprocessed_materials_and_constructions(
+                if rel_elem.layerset and \
+                        self.check_preprocessed_materials_and_constructions(
                         rel_elem, rel_elem.layerset.layers):
                     self.set_preprocessed_construction_elem(
                         rel_elem, rel_elem.layerset.layers, idf)
@@ -450,7 +461,8 @@ class CreateIdf(ITask):
             else:
                 # set construction elements for windows
                 self.set_preprocessed_window_material_elem(
-                    rel_elem, idf, sim_settings.add_window_shading)
+                    rel_elem, idf, sim_settings.add_window_shading,
+                    sim_settings)
 
         # Add air boundaries as construction as a material for virtual bounds
         if sim_settings.ep_version in ["9-2-0", "9-4-0"]:
@@ -544,7 +556,8 @@ class CreateIdf(ITask):
     @staticmethod
     def set_preprocessed_window_material_elem(rel_elem: Window,
                                               idf: IDF,
-                                              add_window_shading: False):
+                                              add_window_shading: False,
+                                              sim_settings: EnergyPlusSimSettings):
         """Set preprocessed window material.
 
         This function constructs windows with a
@@ -556,7 +569,8 @@ class CreateIdf(ITask):
             rel_elem: Window instance
             idf: idf file object
             add_window_shading: Add window shading (options: 'None',
-            'Interior', 'Exterior')
+            'Interior', 'Exterior',
+            sim_settings: EnergyPlusSimSettings)
         """
         material_name = \
             'WM_' + rel_elem.layerset.layers[0].material.name + '_' \
@@ -590,16 +604,18 @@ class CreateIdf(ITask):
         if add_window_shading:
             default_shading_name = "DefaultWindowShade"
             if not idf.getobject("WINDOWMATERIAL:SHADE", default_shading_name):
-                idf.newidfobject("WINDOWMATERIAL:SHADE",
-                                 Name=default_shading_name,
-                                 Solar_Transmittance=0.3,
-                                 Solar_Reflectance=0.5,
-                                 Visible_Transmittance=0.3,
-                                 Visible_Reflectance=0.5,
-                                 Infrared_Hemispherical_Emissivity=0.9,
-                                 Infrared_Transmittance=0.05,
-                                 Thickness=0.003,
-                                 Conductivity=0.1)
+                idf.newidfobject(
+                    "WINDOWMATERIAL:SHADE",
+                    Name=default_shading_name,
+                    Solar_Transmittance=sim_settings.window_shading_solar_transmittance,
+                    Solar_Reflectance=sim_settings.window_shading_solar_reflectance,
+                    Visible_Transmittance=sim_settings.window_shading_visible_transmittance,
+                    Visible_Reflectance=sim_settings.window_shading_visible_reflectance,
+                    Infrared_Hemispherical_Emissivity=sim_settings.window_shading_infr_hemisph_emissivity,
+                    Infrared_Transmittance=sim_settings.window_shading_infr_transmittance,
+                    Thickness=sim_settings.window_shading_thickness,
+                    Conductivity=sim_settings.window_shading_conductivity,
+                    Airflow_Permeability=sim_settings.window_shading_airflow_permeability)
             construction_name = 'Window_' + material_name + "_" \
                                 + add_window_shading
             if idf.getobject("CONSTRUCTION", construction_name) is None:
@@ -1483,7 +1499,7 @@ class CreateIdf(ITask):
             obj.setcoords(obj_coords)
 
     def add_shading_control(self, shading_type, elements,
-                            idf, solar=150):
+                            idf, solar):
         """Add a default shading control to IDF.
         Two criteria must be met such that the window shades are set: the
         indoor air temperature must exceed a certain temperature and the solar
@@ -1574,6 +1590,28 @@ class CreateIdf(ITask):
 
         for building in idf.idfobjects['BUILDING']:
             building.Solar_Distribution = sim_settings.solar_distribution
+
+    @staticmethod
+    def set_occupant_co2(idf: IDF, outdoor_co2=420):
+        """Activate the simulation of CO2 generated by occupants.
+
+        Args:
+            idf: idf file object
+            outdoor_co2: outdoor air CO2 level in ppm.
+        """
+        idf.newidfobject("SCHEDULE:COMPACT",
+                         Name='Schedule_OutdoorAir_CO2_Concentration',
+                         Schedule_Type_Limits_Name='Control Type',
+                         Field_1='Through: 12/31',
+                         Field_2='For: AllDays',
+                         Field_3='Until: 24:00',
+                         Field_4=str(outdoor_co2),
+                         )
+        idf.newidfobject('ZONEAIRCONTAMINANTBALANCE',
+                         Carbon_Dioxide_Concentration='Yes',
+                         Outdoor_Carbon_Dioxide_Schedule_Name=
+                         'Schedule_OutdoorAir_CO2_Concentration',
+                         Generic_Contaminant_Concentration='No')
 
     @staticmethod
     def set_ground_temperature(idf: IDF, t_ground: ureg.Quantity):
@@ -1762,6 +1800,12 @@ class CreateIdf(ITask):
                               "Energy",
                 Reporting_Frequency="Hourly",
             )
+        if 'output_shading':
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Surface Shading Device Is On Time Fraction",
+                Reporting_Frequency="Hourly",
+            )
         if 'output_infiltration' in sim_settings.output_keys:
             idf.newidfobject(
                 "OUTPUT:VARIABLE",
@@ -1811,8 +1855,15 @@ class CreateIdf(ITask):
                               "Volume Flow Rate",
                 Reporting_Frequency="Hourly",
             )
-
-
+        if sim_settings.add_occupant_co2:
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Air CO2 Concentration",
+                Reporting_Frequency="Hourly")
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Zone Air CO2 Internal Gain Volume Flow Rate",
+                Reporting_Frequency="Hourly")
         if 'output_meters' in sim_settings.output_keys:
             idf.newidfobject(
                 "OUTPUT:METER",
@@ -2138,9 +2189,13 @@ class IdfObject:
         if not self.physical:
             if self.out_bound_cond == "Surface":
                 self.construction_name = "Air Wall"
+            else:
+                return
         else:
             rel_elem = self.this_bound.bound_element
             if not rel_elem:
+                return
+            if not rel_elem.layerset:
                 return
             if any([isinstance(rel_elem, window) for window in
                     all_subclasses(Window, include_self=True)]):
@@ -2150,11 +2205,14 @@ class IdfObject:
                                          + '_' + str(
                     rel_elem.layerset.layers[0].thickness.to(ureg.metre).m)
             else:
-                self.construction_name = (rel_elem.key.replace(
-                    "Disaggregated", "") + '_' + str(len(
-                    rel_elem.layerset.layers)) + '_' + '_'.join(
-                    [str(l.thickness.to(ureg.metre).m) for l in
-                     rel_elem.layerset.layers]))
+                if rel_elem.layerset:
+                    self.construction_name = (rel_elem.key.replace(
+                        "Disaggregated", "") + '_' + str(len(
+                        rel_elem.layerset.layers)) + '_' + '_'.join(
+                        [str(l.thickness.to(ureg.metre).m) for l in
+                         rel_elem.layerset.layers]))
+                else:
+                    self.construction_name = None
 
     def set_idfobject_coordinates(self, obj, idf: IDF,
                                   inst_obj: Union[SpaceBoundary,
@@ -2175,6 +2233,9 @@ class IdfObject:
         # write bound_shape to obj
         obj_pnts = PyOCCTools.get_points_of_face(self.bound_shape)
         obj_coords = []
+        if not obj_pnts:
+            self.skip_bound = True
+            return
         for pnt in obj_pnts:
             co = tuple(round(p, 3) for p in pnt.Coord())
             obj_coords.append(co)
@@ -2459,7 +2520,8 @@ class IdfObject:
         idf.removeidfobject(obj)
 
     @staticmethod
-    def process_other_shapes(inst_obj: Union[SpaceBoundary, SpaceBoundary2B],
+    def process_other_shapes(inst_obj: Union[SpaceBoundary, SpaceBoundary2B,
+        TopoDS_Shape],
                              obj):
         """Simplify non-circular shapes.
 
@@ -2474,7 +2536,10 @@ class IdfObject:
         """
         # print("TOO MANY EDGES")
         obj_pnts = []
-        exp = TopExp_Explorer(inst_obj.bound_shape, TopAbs_FACE)
+        if not isinstance(inst_obj, TopoDS_Shape):
+            exp = TopExp_Explorer(inst_obj.bound_shape, TopAbs_FACE)
+        else:
+            exp = TopExp_Explorer(inst_obj, TopAbs_FACE)
         face = topods.Face(exp.Current())
         umin, umax, vmin, vmax = breptools.UVBounds(face)
         surf = BRep_Tool.Surface(face)
@@ -2495,3 +2560,4 @@ class IdfObject:
         for pnt in obj_pnts:
             obj_coords.append(pnt.Coord())
         obj.setcoords(obj_coords)
+        return obj
