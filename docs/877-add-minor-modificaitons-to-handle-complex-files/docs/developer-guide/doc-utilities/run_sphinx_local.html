@@ -1,0 +1,183 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Run Sphinx local &mdash; bim2sim  0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css" />
+
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+      <script src="../../_static/jquery.js"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+      <script src="../../_static/doctools.js"></script>
+      <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="SimSettings to Markdown tables" href="simsettings_to_markdown.html" />
+    <link rel="prev" title="Visualization of bim2sim plugin structure" href="gen_plugin_visu.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html">
+            
+              <img src="../../_static/b2s_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../big-picture.html">Big Picture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user-guide.html">User-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simulation-guide.html">Simulation-Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../advanced-user-guide.html">Advanced User-Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../developer-guide.html">Developer-Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../contribute.html">How to Contribute?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../testing.html">Testing</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../doc-utilities.html">Utilities for documentation</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="gen_plugin_visu.html">Visualization of bim2sim plugin structure</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Run Sphinx local</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="simsettings_to_markdown.html">SimSettings to Markdown tables</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../code/modules.html">bim2sim</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">bim2sim </a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../developer-guide.html">Developer-Guide</a></li>
+          <li class="breadcrumb-item"><a href="../doc-utilities.html">Utilities for documentation</a></li>
+      <li class="breadcrumb-item active">Run Sphinx local</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/developer-guide/doc-utilities/run_sphinx_local.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="run-sphinx-local">
+<h1>Run Sphinx local<a class="headerlink" href="#run-sphinx-local" title="Permalink to this heading"></a></h1>
+<p>In the bim2sim project <a class="reference external" href="https://www.sphinx-doc.org">Sphinx</a> is used to generate
+the documentation. The documentation is generate via the CI.
+But to extend or adapt the documentation it is very useful to run the documentation generation locally. Following it is shown how to do that.</p>
+<p>First install the following python packages based on the pyproject.toml.
+Therefore you need to switch into the root directory of the bim2sim repo, which includes the project.toml file.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="nb">cd</span><span class="w"> </span><span class="o">[</span>bim2sim-Root<span class="o">]</span>/bim2sim/
+<span class="w">  </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;.[docu]&#39;</span>
+</pre></div>
+</div>
+<p>After that, switch in to the docs folder of the bim2sim repo.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>bim2sim-Root/bim2sim/docs
+</pre></div>
+</div>
+<p>Next, regenerate the description of the python code (classes/functions)
+For bim2sim itself:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sphinx-apidoc<span class="w"> </span>-M<span class="w"> </span>-o<span class="w"> </span>source/code<span class="w"> </span>../bim2sim
+</pre></div>
+</div>
+<p>And for documentation utilizes:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>sphinx-apidoc<span class="w"> </span>-M<span class="w"> </span>-o<span class="w"> </span>source/code<span class="w"> </span>utilities
+</pre></div>
+</div>
+<p>Next, delete the existing html-files (needed to prevent strange behaviour)</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>clean
+</pre></div>
+</div>
+<p>Next, generate fresh html-files</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>html
+</pre></div>
+</div>
+<p>Now, the html based documentation is available. Switch into the folder and open the file index.html.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>build/html
+</pre></div>
+</div>
+<p>Don’t run the command “sphinx-quickstart”, because this command overwrites the configuration of the bim2sim documentation.</p>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this heading"></a></h2>
+<section id="warning-import-failures-no-module-named-xxxx">
+<h3>Warning: import failures - No module named XXXX<a class="headerlink" href="#warning-import-failures-no-module-named-xxxx" title="Permalink to this heading"></a></h3>
+<p>Please install the dependencies for all plugins. (see
+<a class="reference internal" href="../../user-guide/PluginTEASER.html#howtoinstallteaser"><span class="std std-ref">TEASER</span></a>, <a class="reference internal" href="../../user-guide/PluginEnergyPlus.html#howtoinstallep"><span class="std std-ref">EnergyPlus</span></a>, <a class="reference internal" href="../../user-guide/PluginLCA.html#howtoinstalllca"><span class="std std-ref">LCA</span></a>,
+<a class="reference internal" href="../../user-guide/PluginAixLib.html#howtoinstallaixlib"><span class="std std-ref">AixLib</span></a> and <a class="reference internal" href="../../user-guide/PluginHKESim.html#howtoinstallhkesim"><span class="std std-ref">HKESim</span></a>)</p>
+</section>
+<section id="problems-with-code-documentation">
+<h3>Problems with code documentation<a class="headerlink" href="#problems-with-code-documentation" title="Permalink to this heading"></a></h3>
+<p>If there are problems regarding the generated code documentation. Please delete the folder ../source/code (in docs folder) and regenerate the code documentation (see above).</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>rm<span class="w"> </span>-r<span class="w"> </span>source/code
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gen_plugin_visu.html" class="btn btn-neutral float-left" title="Visualization of bim2sim plugin structure" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="simsettings_to_markdown.html" class="btn btn-neutral float-right" title="SimSettings to Markdown tables" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, RWTH Aachen University, EBC &amp; E3D; ROM Technik GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
