@@ -1800,6 +1800,12 @@ class CreateIdf(ITask):
                               "Energy",
                 Reporting_Frequency="Hourly",
             )
+        if 'output_shading':
+            idf.newidfobject(
+                "OUTPUT:VARIABLE",
+                Variable_Name="Surface Shading Device Is On Time Fraction",
+                Reporting_Frequency="Hourly",
+            )
         if 'output_infiltration' in sim_settings.output_keys:
             idf.newidfobject(
                 "OUTPUT:VARIABLE",

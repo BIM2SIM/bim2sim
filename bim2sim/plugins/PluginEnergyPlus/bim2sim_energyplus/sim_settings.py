@@ -171,6 +171,7 @@ class EnergyPlusSimSettings(BuildingSimSettings):
             'output_zone': 'Add heating and cooling rates and energy on zone '
                            'level.',
             'output_infiltration': 'Add output for zone infiltration.',
+            'output_shading': 'Output shading device is on time fraction',
             'output_meters': 'Add heating and cooling meters.',
             'output_dxf': 'Output a dxf of the building geometry.',
         },
