@@ -276,7 +276,7 @@ class BaseSimSettings(metaclass=AutoSettingNameMeta):
             # don't load settings which are not simulation relevant
             if cat.lower() not in [
                 self.__class__.__name__.lower(),
-                'Generic Simulation Settings'
+                'generic simulation settings'
             ]:
                 continue
             cat_from_cfg = config[cat]
