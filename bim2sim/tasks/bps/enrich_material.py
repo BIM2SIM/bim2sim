@@ -241,7 +241,8 @@ class EnrichMaterial(ITask):
             'kfw': 'TypeElements_KFW.json',
             'tabula_de': 'TypeElements_TABULA_DE.json',
             'tabula_dk': 'TypeElements_TABULA_DK.json',
-            'custom': 'TypeElements_Custom.json'
+            'custom': 'TypeElements_Custom.json',
+            'BA-era': 'TypeElements_BA-era.json'
         }
 
         # Special case for IWU windows

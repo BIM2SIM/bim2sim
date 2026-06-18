@@ -63,8 +63,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -237,8 +237,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -411,8 +411,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -585,8 +585,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -759,8 +759,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -933,8 +933,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -1107,8 +1107,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -1281,8 +1281,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -1455,8 +1455,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -1629,8 +1629,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -1803,8 +1803,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -1977,8 +1977,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -2151,8 +2151,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -2325,8 +2325,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -2499,8 +2499,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -2668,8 +2668,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -2842,8 +2842,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -3011,8 +3011,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -3180,8 +3180,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -3354,8 +3354,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -3523,8 +3523,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -3697,8 +3697,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -3871,8 +3871,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -4045,8 +4045,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -4218,8 +4218,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -4392,8 +4392,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -4566,8 +4566,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -4740,8 +4740,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -4914,8 +4914,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -5088,8 +5088,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -5262,8 +5262,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -5436,8 +5436,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -5610,8 +5610,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -5779,8 +5779,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -5948,8 +5948,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -6122,8 +6122,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -6296,8 +6296,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -6470,8 +6470,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -6644,8 +6644,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -6818,8 +6818,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -6987,8 +6987,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -7161,8 +7161,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -7335,8 +7335,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -7509,8 +7509,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -7683,8 +7683,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,
@@ -7857,8 +7857,8 @@
     ],
     "max_summer_infiltration": [
       1.0,
-      283.15,
-      290.15
+      288.15,
+      298.15
     ],
     "winter_reduction_infiltration": [
       0.2,

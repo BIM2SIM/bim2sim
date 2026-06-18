@@ -155,7 +155,7 @@ class AggregatedThermalZone(AggregationMixin, bps.ThermalZone):
             list_attrs = {'heating_profile': 24, 'cooling_profile': 24,
                           'persons_profile': 24,
                           'machines_profile': 24, 'lighting_profile': 24,
-                          'max_overheating_infiltration': 2,
+                          'max_overheating_infiltration': 3,
                           'max_summer_infiltration': 3,
                           'winter_reduction_infiltration': 3}
             length = list_attrs[name]
