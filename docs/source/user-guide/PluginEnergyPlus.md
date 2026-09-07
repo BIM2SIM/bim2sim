@@ -445,7 +445,7 @@ specific tasks.
 [Go to IfcValidation](IfcValidation)
 
 The EnergyPlus specific tasks start with an EnergyPlus specific validation 
-of the space boundaries provided by the IFC file. This validation algorihtm 
+of the space boundaries provided by the IFC file. This validation algorithm 
 is included in the default workflow to give an insight in the quality of the 
 provided IFC.
 

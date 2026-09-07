@@ -27,7 +27,7 @@ only via [conda-forge](https://conda-forge.org/) an installation only via PyPi
 is sadly not possible for now. Here the packagemanager micromamba (compact
 version of [mamba](https://github.com/mamba-org/mamba)) is used.
 
-0. install and setup micromamba (see [installtion micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html))
+0. install and setup micromamba (see [installation micromamba](https://mamba.readthedocs.io/en/latest/installation/micromamba-installation.html))
    1. For Windows users who have trouble with the Powershell installation we recommend using the Git Bash variant
 1. creating an virtual python environment
 2. clone `bim2sim` GitHub repository
@@ -75,7 +75,7 @@ To use one of the bim2sim plugins, please follow their additional install steps.
 <!-- If you want to make it permanent, you can add the above line to your shell's  -->
 <!-- configuration file (e.g., .bashrc or .bash_profile for Bash) so that it's  -->
 <!-- executed every time you start a new shell session. -->
-<!-- For Windows when you want to add multiple directorys to `PYTHONPATH` you need to -->
+<!-- For Windows when you want to add multiple directories to `PYTHONPATH` you need to -->
 <!-- do it all in one command. -->
 
 <!-- ```shell -->

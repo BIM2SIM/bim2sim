@@ -4,7 +4,7 @@
 [![coverage (W/O Plugins)](https://bim2sim.github.io/bim2sim/development/coverage/badge.svg)](https://bim2sim.github.io/bim2sim/development/coverage)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 
-bim2sim is a library to create simulation models for different purposes based on BIM models in the IFC format. The project is based on a base code that provides the possiblity to map the IFC data into a uniform meta strucuture. This structure can then be used to create simulation models for different purposes which is done by plugins. The corresponding project BIM2SIM (see founding section below) adressed the following four domains:
+bim2sim is a library to create simulation models for different purposes based on BIM models in the IFC format. The project is based on a base code that provides the possibility to map the IFC data into a uniform meta structure. This structure can then be used to create simulation models for different purposes which is done by plugins. The corresponding project BIM2SIM (see founding section below) addressed the following four domains:
 
 * Building Performance Simulation (BPS)
 * Heating, Ventilation, Air Conditioning (HVAC)
@@ -41,7 +41,7 @@ bim2sim is developed and released by the following three partners under the [LGP
 
 ## Upcoming Features:
 bim2sim is still under heavy development and you can find a lot of features that we want to improve or implement inside the issue section. Anyway here are some of the major ones that we plan to implement:
-* [ ] release of an interactive webtool that has its own inbuilt IFC viewer to support decision making along the model geenration process
+* [ ] release of an interactive webtool that has its own inbuilt IFC viewer to support decision making along the model generation process
 * [ ] interactive visualization of hydraulic networks graphs for HVAC part 
 * [ ] implementation of curtain walls for BPS part
 * [ ] support of AHU and ventilation simulations with Modelica
