@@ -6,7 +6,7 @@ tables is provided in `bim2sim/docs/utilities/settings_to_md.py`.
 
 To run the script, one can either provide the module name or the path to 
 the file as well as the class name. After setting a path for the outputs, 
-the Markdown tables are written to seperate files so that they can be 
+the Markdown tables are written to separate files so that they can be 
 copied to their respective location in the documentation (e.g. 
 `bim2sim/docs/source/advanced-user-guide/concepts/sim_settings.md`).
 

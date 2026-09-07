@@ -5,7 +5,7 @@
 ## What are Tasks for?
 
 Tasks are a class based concept and hold the main functionality of `bim2sim` 
-methods. They are implemented by inherting from the [ITask](ITask) 
+methods. They are implemented by inheriting from the [ITask](ITask) 
 (Interactive Task) class. Every task should have a specific goal to reach, like
 the loading of a IFC file, the export of a simulation model or the creation of a
  graph network to analyze the HVAC network topology. To keep the Tasks reusable

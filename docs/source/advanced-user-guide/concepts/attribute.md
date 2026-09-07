@@ -15,7 +15,7 @@ To resolve this problem of multiple available sources and even parameters which
 will be not included in the BIM model at all the `Attribute` system provides a solution.
 
 ## Concept / How does it work?
-Simulation required informations that are potentially available in the BIM model
+Simulation required information that are potentially available in the BIM model
 are stored in an [Attribute](attribute.md) at the corresponding [element](element).
 
 E.g. the already mentioned `net_area` is  implemented by the following lines in 
