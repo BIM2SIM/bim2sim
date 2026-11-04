@@ -1,0 +1,22 @@
+{
+  "id": "example_hkesim_simple",
+  "name": "Example HVAC HKESim Project",
+  "description": "Interactive hydraulic simulation example with HKESim backend. IFC path should be updated to match your local repository location.",
+  "ifc_path": "C:\\Users\\pja\\PycharmProjects\\bim2sim_gh\\test\\resources\\hydraulic\\ifc\\hvac_heating.ifc",
+  "backend": "hkesim",
+  "domain": "hydraulic",
+  "created_at": "2026-04-27T00:00:00Z",
+  "settings": {
+    "weather_file_path": "test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos",
+    "aggregations": [
+      "UnderfloorHeating",
+      "Consumer",
+      "PipeStrand",
+      "ParallelPump",
+      "ConsumerHeatingDistributorModule",
+      "GeneratorOneFluid"
+    ],
+    "group_unidentified": "name"
+  },
+  "notes": "Based on examples/e1_simple_project_hvac_hkesim.py. Uses the same IFC as the AixLib simple example, but with group_unidentified set to 'name' instead of 'name_and_description'. The weather_file_path is relative to the bim2sim package root and resolved automatically."
+}

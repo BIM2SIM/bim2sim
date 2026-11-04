@@ -1,0 +1,14 @@
+{
+  "id": "example_energyplus_simple",
+  "name": "Example EnergyPlus Simple Project",
+  "description": "Simple building performance simulation with the EnergyPlus backend, based on the FZK-Haus IFC. Runs a full annual simulation. IFC path should be updated to match your local repository location.",
+  "ifc_path": "C:\\Users\\pja\\PycharmProjects\\bim2sim_gh\\test\\resources\\arch\\ifc\\AC20-FZK-Haus.ifc",
+  "backend": "energyplus",
+  "domain": "arch",
+  "created_at": "2026-04-27T00:00:00Z",
+  "settings": {
+    "weather_file_path": "test/resources/weather_files/DEU_Koln.105130_IWEC.epw",
+    "run_full_simulation": true
+  },
+  "notes": "Based on examples/e1_simple_project_energyplus.py. All other settings are left at their defaults. Requires a working EnergyPlus installation with ep_install_path set correctly (see Advanced Settings) if run_full_simulation is enabled. The weather_file_path is relative to the bim2sim package root and resolved automatically; EnergyPlus requires an .epw file. The original example used the Aachen .epw, which is not present in the local test resources, so this template uses the Cologne file (DEU_Koln.105130_IWEC.epw) instead. Results will differ slightly from the Aachen-based original."
+}

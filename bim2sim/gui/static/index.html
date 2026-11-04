@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bim2sim GUI</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <div x-data="app" x-cloak>
+        <!-- Header -->
+        <header>
+            <div class="header-content">
+                <h1>bim2sim GUI</h1>
+                <div class="header-status">
+                    <span class="status-indicator" :class="{ 'connected': serverConnected }">
+                        <span class="dot"></span>
+                        <span x-text="serverConnected ? 'bim2sim Connected' : 'Connecting...'"></span>
+                    </span>
+                    <span class="status-indicator" :class="{ 'connected': blenderConnected }">
+                        <span class="dot"></span>
+                        <span x-text="blenderConnected ? 'Blender Connected' : 'Blender Offline'"></span>
+                    </span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Navigation -->
+            <nav class="main-nav">
+                <button @click="currentView = 'projects'" :class="{ 'active': currentView === 'projects' }">
+                    Projects
+                </button>
+                <button @click="currentView = 'decisions'" :class="{ 'active': currentView === 'decisions' }">
+                    Decisions
+                </button>
+                <button @click="currentView = 'log'" :class="{ 'active': currentView === 'log' }">
+                    Log
+                </button>
+                <button @click="currentView = 'settings'" :class="{ 'active': currentView === 'settings' }">
+                    Settings
+                </button>
+                <button @click="currentView = 'server'" :class="{ 'active': currentView === 'server' }">
+                    Server
+                </button>
+                <button @click="currentView = 'about'" :class="{ 'active': currentView === 'about' }">
+                    About
+                </button>
+            </nav>
+
+            <!-- Content Area -->
+            <div class="content">
+                <!-- Projects View -->
+                <div x-show="currentView === 'projects'" x-data="projectManager" class="view">
+                    <div class="decisions-header">
+                        <h2>Project Management</h2>
+                        <button class="btn btn-primary" @click="openCreateForm()"
+                                x-show="!showCreateForm">
+                            + New Project
+                        </button>
+                    </div>
+
+                    <div x-show="error" class="error" style="margin-bottom: 1rem;">
+                        <span x-text="error"></span>
+                    </div>
+
+                    <!-- === CREATE FORM === -->
+                    <div x-show="showCreateForm" class="create-form">
+                        <h3 x-text="editingProjectId ? 'Edit Project' : 'Create New Project'"></h3>
+
+                        <!-- Basic Info -->
+                        <div class="form-section">
+                            <h4>Basic Information</h4>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Project Name *</label>
+                                    <input type="text" class="text-input"
+                                           x-model="newProject.name"
+                                           placeholder="My Simulation Project">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Description</label>
+                                    <input type="text" class="text-input"
+                                           x-model="newProject.description"
+                                           placeholder="Optional description">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Backend *</label>
+                                    <select class="select-input"
+                                            x-model="newProject.backend"
+                                            @change="onBackendChanged()">
+                                        <option value="">-- Select Backend --</option>
+                                        <template x-for="b in backends" :key="b.name">
+                                            <option :value="b.name"
+                                                    :disabled="!b.available"
+                                                    x-text="b.label + (b.available ? '' : ' (not installed)')">
+                                            </option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Domain</label>
+                                    <input type="text" class="text-input"
+                                           x-model="newProject.domain" readonly
+                                           style="background: var(--bg);">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- File Paths -->
+                        <div class="form-section">
+                            <h4>File Paths</h4>
+                            <div class="form-group">
+                                <label class="form-label">IFC File Path *</label>
+                                <input type="text" class="text-input"
+                                       x-model="newProject.ifc_path"
+                                       placeholder="C:\path\to\model.ifc">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Weather File Path</label>
+                                <input type="text" class="text-input"
+                                       x-model="newProject.settings.weather_file_path"
+                                       placeholder="C:\path\to\weather.epw or .mos">
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Settings -->
+                        <div x-show="settingsLoading" class="loading">
+                            Loading settings for backend...
+                        </div>
+
+                        <template x-if="backendSettings && !settingsLoading">
+                            <div>
+                                <!-- Plugin-specific Settings -->
+                                <div class="form-section"
+                                     x-show="getFrontendSettings('plugin').length > 0 || getAdvancedSettings('plugin').length > 0">
+                                    <h4 x-text="backendSettings.label + ' Settings'"></h4>
+                                    <div class="settings-grid">
+                                        <template x-for="setting in getFrontendSettings('plugin')"
+                                                  :key="setting.name">
+                                            <div class="form-group setting-item">
+                                                <!-- Boolean -->
+                                                <template x-if="setting.type === 'boolean'">
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox"
+                                                               :checked="newProject.settings[setting.name]"
+                                                               @change="newProject.settings[setting.name] = $event.target.checked">
+                                                        <div>
+                                                            <span class="form-label" x-text="setting.name"></span>
+                                                            <div class="setting-desc" x-text="setting.description"></div>
+                                                        </div>
+                                                    </label>
+                                                </template>
+                                                <!-- Choice (single) -->
+                                                <template x-if="setting.type === 'choice' && !setting.multiple_choice">
+                                                    <div>
+                                                        <label class="form-label" x-text="setting.name"></label>
+                                                        <select class="select-input"
+                                                                x-model="newProject.settings[setting.name]">
+                                                            <template x-for="(desc, key) in setting.choices" :key="key">
+                                                                <option :value="key" x-text="key"></option>
+                                                            </template>
+                                                        </select>
+                                                        <div class="setting-desc" x-text="setting.description"></div>
+                                                    </div>
+                                                </template>
+                                                <!-- Choice (multiple) -->
+                                                <template x-if="setting.type === 'choice' && setting.multiple_choice">
+                                                    <div>
+                                                        <label class="form-label" x-text="setting.name"></label>
+                                                        <div class="multi-choice-list">
+                                                            <template x-for="(desc, key) in setting.choices" :key="key">
+                                                                <label class="checkbox-label compact">
+                                                                    <input type="checkbox"
+                                                                           :checked="(newProject.settings[setting.name] || []).includes(key)"
+                                                                           @change="
+                                                                               let arr = newProject.settings[setting.name] || [];
+                                                                               if ($event.target.checked) {
+                                                                                   arr = [...arr, key];
+                                                                               } else {
+                                                                                   arr = arr.filter(v => v !== key);
+                                                                               }
+                                                                               newProject.settings[setting.name] = arr;
+                                                                           ">
+                                                                    <span x-text="key" style="font-size: 0.875rem;"></span>
+                                                                </label>
+                                                            </template>
+                                                        </div>
+                                                        <div class="setting-desc" x-text="setting.description"></div>
+                                                    </div>
+                                                </template>
+                                                <!-- Number -->
+                                                <template x-if="setting.type === 'number'">
+                                                    <div>
+                                                        <label class="form-label" x-text="setting.name"></label>
+                                                        <input type="number" class="number-input"
+                                                               x-model.number="newProject.settings[setting.name]"
+                                                               :min="setting.min_value"
+                                                               :max="setting.max_value"
+                                                               :step="Number.isInteger(setting.default) ? 1 : 0.01">
+                                                        <div class="setting-desc" x-text="setting.description"></div>
+                                                    </div>
+                                                </template>
+                                                <!-- Path -->
+                                                <template x-if="setting.type === 'path'">
+                                                    <div>
+                                                        <label class="form-label" x-text="setting.name"></label>
+                                                        <input type="text" class="text-input"
+                                                               x-model="newProject.settings[setting.name]"
+                                                               placeholder="File path...">
+                                                        <div class="setting-desc" x-text="setting.description"></div>
+                                                    </div>
+                                                </template>
+                                                <!-- String fallback -->
+                                                <template x-if="setting.type === 'string'">
+                                                    <div>
+                                                        <label class="form-label" x-text="setting.name"></label>
+                                                        <input type="text" class="text-input"
+                                                               x-model="newProject.settings[setting.name]">
+                                                        <div class="setting-desc" x-text="setting.description"></div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    <!-- Advanced Plugin Settings -->
+                                    <div x-data="{ showAdvPlugin: false }"
+                                         x-show="getAdvancedSettings('plugin').length > 0"
+                                         style="margin-top: 0.75rem;">
+                                        <h5 @click="showAdvPlugin = !showAdvPlugin" class="advanced-toggle">
+                                            <span x-text="showAdvPlugin ? '▾ ' : '▸ '"></span>
+                                            Advanced Settings
+                                            <span class="advanced-count"
+                                                  x-text="'(' + getAdvancedSettings('plugin').length + ')'"></span>
+                                        </h5>
+                                        <div x-show="showAdvPlugin" class="settings-grid advanced-grid">
+                                            <template x-for="setting in getAdvancedSettings('plugin')"
+                                                      :key="setting.name">
+                                                <div class="form-group setting-item advanced-item">
+                                                    <template x-if="setting.type === 'boolean'">
+                                                        <label class="checkbox-label">
+                                                            <input type="checkbox"
+                                                                   :checked="newProject.settings[setting.name]"
+                                                                   @change="newProject.settings[setting.name] = $event.target.checked">
+                                                            <div>
+                                                                <span class="form-label" x-text="setting.name"></span>
+                                                                <div class="setting-desc" x-text="setting.description"></div>
+                                                            </div>
+                                                        </label>
+                                                    </template>
+                                                    <template x-if="setting.type === 'choice' && !setting.multiple_choice">
+                                                        <div>
+                                                            <label class="form-label" x-text="setting.name"></label>
+                                                            <select class="select-input"
+                                                                    x-model="newProject.settings[setting.name]">
+                                                                <template x-for="(desc, key) in setting.choices" :key="key">
+                                                                    <option :value="key" x-text="key"></option>
+                                                                </template>
+                                                            </select>
+                                                            <div class="setting-desc" x-text="setting.description"></div>
+                                                        </div>
+                                                    </template>
+                                                    <template x-if="setting.type === 'number'">
+                                                        <div>
+                                                            <label class="form-label" x-text="setting.name"></label>
+                                                            <input type="number" class="number-input"
+                                                                   x-model.number="newProject.settings[setting.name]"
+                                                                   :min="setting.min_value" :max="setting.max_value">
+                                                            <div class="setting-desc" x-text="setting.description"></div>
+                                                        </div>
+                                                    </template>
+                                                    <template x-if="setting.type === 'path'">
+                                                        <div>
+                                                            <label class="form-label" x-text="setting.name"></label>
+                                                            <input type="text" class="text-input"
+                                                                   x-model="newProject.settings[setting.name]"
+                                                                   placeholder="File path...">
+                                                            <div class="setting-desc" x-text="setting.description"></div>
+                                                        </div>
+                                                    </template>
+                                                    <template x-if="setting.type === 'string'">
+                                                        <div>
+                                                            <label class="form-label" x-text="setting.name"></label>
+                                                            <input type="text" class="text-input"
+                                                                   x-model="newProject.settings[setting.name]">
+                                                            <div class="setting-desc" x-text="setting.description"></div>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Base Settings (collapsible) -->
+                                <div class="form-section"
+                                     x-data="{ showBase: false }"
+                                     x-show="getFrontendSettings('base').length > 0">
+                                    <h4 @click="showBase = !showBase" style="cursor: pointer;">
+                                        <span x-text="showBase ? '▾ ' : '▸ '"></span>
+                                        General Settings
+                                        <span style="font-weight: normal; color: var(--text-secondary); font-size: 0.875rem;"
+                                              x-text="'(' + getFrontendSettings('base').length + ' options)'"></span>
+                                    </h4>
+                                    <div x-show="showBase" class="settings-grid">
+                                        <template x-for="setting in getFrontendSettings('base')"
+                                                  :key="setting.name">
+                                            <div class="form-group setting-item">
+                                                <template x-if="setting.type === 'boolean'">
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox"
+                                                               :checked="newProject.settings[setting.name]"
+                                                               @change="newProject.settings[setting.name] = $event.target.checked">
+                                                        <div>
+                                                            <span class="form-label" x-text="setting.name"></span>
+                                                            <div class="setting-desc" x-text="setting.description"></div>
+                                                        </div>
+                                                    </label>
+                                                </template>
+                                                <template x-if="setting.type === 'choice' && !setting.multiple_choice">
+                                                    <div>
+                                                        <label class="form-label" x-text="setting.name"></label>
+                                                        <select class="select-input"
+                                                                x-model="newProject.settings[setting.name]">
+                                                            <template x-for="(desc, key) in setting.choices" :key="key">
+                                                                <option :value="key" x-text="key"></option>
+                                                            </template>
+                                                        </select>
+                                                        <div class="setting-desc" x-text="setting.description"></div>
+                                                    </div>
+                                                </template>
+                                                <template x-if="setting.type === 'choice' && setting.multiple_choice">
+                                                    <div>
+                                                        <label class="form-label" x-text="setting.name"></label>
+                                                        <div class="multi-choice-list">
+                                                            <template x-for="(desc, key) in setting.choices" :key="key">
+                                                                <label class="checkbox-label compact">
+                                                                    <input type="checkbox"
+                                                                           :checked="(newProject.settings[setting.name] || []).includes(key)"
+                                                                           @change="
+                                                                               let arr = newProject.settings[setting.name] || [];
+                                                                               if ($event.target.checked) { arr = [...arr, key]; }
+                                                                               else { arr = arr.filter(v => v !== key); }
+                                                                               newProject.settings[setting.name] = arr;
+                                                                           ">
+                                                                    <span x-text="key" style="font-size: 0.875rem;"></span>
+                                                                </label>
+                                                            </template>
+                                                        </div>
+                                                        <div class="setting-desc" x-text="setting.description"></div>
+                                                    </div>
+                                                </template>
+                                                <template x-if="setting.type === 'number'">
+                                                    <div>
+                                                        <label class="form-label" x-text="setting.name"></label>
+                                                        <input type="number" class="number-input"
+                                                               x-model.number="newProject.settings[setting.name]"
+                                                               :min="setting.min_value" :max="setting.max_value">
+                                                        <div class="setting-desc" x-text="setting.description"></div>
+                                                    </div>
+                                                </template>
+                                                <template x-if="setting.type === 'path'">
+                                                    <div>
+                                                        <label class="form-label" x-text="setting.name"></label>
+                                                        <input type="text" class="text-input"
+                                                               x-model="newProject.settings[setting.name]"
+                                                               placeholder="File path...">
+                                                        <div class="setting-desc" x-text="setting.description"></div>
+                                                    </div>
+                                                </template>
+                                                <template x-if="setting.type === 'string'">
+                                                    <div>
+                                                        <label class="form-label" x-text="setting.name"></label>
+                                                        <input type="text" class="text-input"
+                                                               x-model="newProject.settings[setting.name]">
+                                                        <div class="setting-desc" x-text="setting.description"></div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    <!-- Advanced Base Settings -->
+                                    <div x-data="{ showAdvBase: false }"
+                                         x-show="getAdvancedSettings('base').length > 0"
+                                         style="margin-top: 0.75rem;">
+                                        <h5 @click="showAdvBase = !showAdvBase" class="advanced-toggle">
+                                            <span x-text="showAdvBase ? '▾ ' : '▸ '"></span>
+                                            Advanced General Settings
+                                            <span class="advanced-count"
+                                                  x-text="'(' + getAdvancedSettings('base').length + ')'"></span>
+                                        </h5>
+                                        <div x-show="showAdvBase" class="settings-grid advanced-grid">
+                                            <template x-for="setting in getAdvancedSettings('base')"
+                                                      :key="setting.name">
+                                                <div class="form-group setting-item advanced-item">
+                                                    <template x-if="setting.type === 'boolean'">
+                                                        <label class="checkbox-label">
+                                                            <input type="checkbox"
+                                                                   :checked="newProject.settings[setting.name]"
+                                                                   @change="newProject.settings[setting.name] = $event.target.checked">
+                                                            <div>
+                                                                <span class="form-label" x-text="setting.name"></span>
+                                                                <div class="setting-desc" x-text="setting.description"></div>
+                                                            </div>
+                                                        </label>
+                                                    </template>
+                                                    <template x-if="setting.type === 'choice' && !setting.multiple_choice">
+                                                        <div>
+                                                            <label class="form-label" x-text="setting.name"></label>
+                                                            <select class="select-input"
+                                                                    x-model="newProject.settings[setting.name]">
+                                                                <template x-for="(desc, key) in setting.choices" :key="key">
+                                                                    <option :value="key" x-text="key"></option>
+                                                                </template>
+                                                            </select>
+                                                            <div class="setting-desc" x-text="setting.description"></div>
+                                                        </div>
+                                                    </template>
+                                                    <template x-if="setting.type === 'number'">
+                                                        <div>
+                                                            <label class="form-label" x-text="setting.name"></label>
+                                                            <input type="number" class="number-input"
+                                                                   x-model.number="newProject.settings[setting.name]"
+                                                                   :min="setting.min_value" :max="setting.max_value">
+                                                            <div class="setting-desc" x-text="setting.description"></div>
+                                                        </div>
+                                                    </template>
+                                                    <template x-if="setting.type === 'path'">
+                                                        <div>
+                                                            <label class="form-label" x-text="setting.name"></label>
+                                                            <input type="text" class="text-input"
+                                                                   x-model="newProject.settings[setting.name]"
+                                                                   placeholder="File path...">
+                                                            <div class="setting-desc" x-text="setting.description"></div>
+                                                        </div>
+                                                    </template>
+                                                    <template x-if="setting.type === 'string'">
+                                                        <div>
+                                                            <label class="form-label" x-text="setting.name"></label>
+                                                            <input type="text" class="text-input"
+                                                                   x-model="newProject.settings[setting.name]">
+                                                            <div class="setting-desc" x-text="setting.description"></div>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </div>
+                                </div>
+                                        <template x-for="setting in getFrontendSettings('base')"
+                                                  :key="setting.name">
+                                            <div class="form-group setting-item">
+                                                <template x-if="setting.type === 'boolean'">
+                                                    <label class="checkbox-label">
+                                                        <input type="checkbox"
+                                                               :checked="newProject.settings[setting.name]"
+                                                               @change="newProject.settings[setting.name] = $event.target.checked">
+                                                        <div>
+                                                            <span class="form-label" x-text="setting.name"></span>
+                                                            <div class="setting-desc" x-text="setting.description"></div>
+                                                        </div>
+                                                    </label>
+                                                </template>
+                                                <template x-if="setting.type === 'choice' && !setting.multiple_choice">
+                                                    <div>
+                                                        <label class="form-label" x-text="setting.name"></label>
+                                                        <select class="select-input"
+                                                                x-model="newProject.settings[setting.name]">
+                                                            <template x-for="(desc, key) in setting.choices" :key="key">
+                                                                <option :value="key" x-text="key"></option>
+                                                            </template>
+                                                        </select>
+                                                        <div class="setting-desc" x-text="setting.description"></div>
+                                                    </div>
+                                                </template>
+                                                <template x-if="setting.type === 'choice' && setting.multiple_choice">
+                                                    <div>
+                                                        <label class="form-label" x-text="setting.name"></label>
+                                                        <div class="multi-choice-list">
+                                                            <template x-for="(desc, key) in setting.choices" :key="key">
+                                                                <label class="checkbox-label compact">
+                                                                    <input type="checkbox"
+                                                                           :checked="(newProject.settings[setting.name] || []).includes(key)"
+                                                                           @change="
+                                                                               let arr = newProject.settings[setting.name] || [];
+                                                                               if ($event.target.checked) {
+                                                                                   arr = [...arr, key];
+                                                                               } else {
+                                                                                   arr = arr.filter(v => v !== key);
+                                                                               }
+                                                                               newProject.settings[setting.name] = arr;
+                                                                           ">
+                                                                    <span x-text="key" style="font-size: 0.875rem;"></span>
+                                                                </label>
+                                                            </template>
+                                                        </div>
+                                                        <div class="setting-desc" x-text="setting.description"></div>
+                                                    </div>
+                                                </template>
+                                                <template x-if="setting.type === 'number'">
+                                                    <div>
+                                                        <label class="form-label" x-text="setting.name"></label>
+                                                        <input type="number" class="number-input"
+                                                               x-model.number="newProject.settings[setting.name]"
+                                                               :min="setting.min_value"
+                                                               :max="setting.max_value">
+                                                        <div class="setting-desc" x-text="setting.description"></div>
+                                                    </div>
+                                                </template>
+                                                <template x-if="setting.type === 'path'">
+                                                    <div>
+                                                        <label class="form-label" x-text="setting.name"></label>
+                                                        <input type="text" class="text-input"
+                                                               x-model="newProject.settings[setting.name]"
+                                                               placeholder="File path...">
+                                                        <div class="setting-desc" x-text="setting.description"></div>
+                                                    </div>
+                                                </template>
+                                                <template x-if="setting.type === 'string'">
+                                                    <div>
+                                                        <label class="form-label" x-text="setting.name"></label>
+                                                        <input type="text" class="text-input"
+                                                               x-model="newProject.settings[setting.name]">
+                                                        <div class="setting-desc" x-text="setting.description"></div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <!-- Form Actions -->
+                        <div class="form-actions">
+                            <button class="btn btn-secondary" @click="cancelCreate()">Cancel</button>
+                            <button class="btn btn-primary" @click="createProject()"
+                                    :disabled="!newProject.name || !newProject.backend || !newProject.ifc_path"
+                                    x-text="editingProjectId ? 'Save Changes' : 'Create Project'">
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- === PROJECT LIST === -->
+                    <div x-show="!showCreateForm">
+                        <div x-show="loading" class="loading">
+                            Loading projects...
+                        </div>
+
+                        <div x-show="!loading && projects.length === 0" class="placeholder">
+                            No projects yet. Click "New Project" to get started.
+                        </div>
+
+                        <div x-show="!loading && projects.length > 0" class="project-grid">
+                            <template x-for="project in projects" :key="project.id">
+                                <div class="project-card"
+                                     :class="{ 'selected': selectedProject?.id === project.id }"
+                                     @click="selectProject(project)">
+                                    <div class="project-header">
+                                        <h3 x-text="project.name"></h3>
+                                        <span class="status-badge" :class="'status-' + project.status">
+                                            <span x-text="getStatusText(project.status)"></span>
+                                        </span>
+                                    </div>
+                                    <p class="project-description" x-text="project.description"></p>
+                                    <div class="project-meta">
+                                        <div class="meta-item">
+                                            <span class="meta-label">Backend:</span>
+                                            <span x-text="project.backend"></span>
+                                        </div>
+                                        <div class="meta-item">
+                                            <span class="meta-label">Domain:</span>
+                                            <span x-text="project.domain"></span>
+                                        </div>
+                                    </div>
+                                    <div class="project-actions">
+                                        <button class="btn btn-primary"
+                                                @click.stop="executeProject(project.id)"
+                                                :disabled="project.status === 'running'"
+                                                x-show="project.status !== 'running'">
+                                            Execute
+                                        </button>
+                                        <button class="btn btn-danger"
+                                                @click.stop="stopProject(project.id)"
+                                                x-show="project.status === 'running'">
+                                            Stop
+                                        </button>
+                                        <button class="btn btn-secondary"
+                                                @click.stop="openEditForm(project)"
+                                                x-show="project.status !== 'running'">
+                                            Edit
+                                        </button>
+                                        <button class="btn btn-secondary"
+                                                @click.stop="deleteProject(project.id)"
+                                                x-show="project.status !== 'running'"
+                                                style="margin-left: auto;">
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Selected Project Details -->
+                        <div x-show="selectedProject" class="project-details">
+                            <h3>Project Details</h3>
+                            <div class="detail-grid">
+                                <div class="detail-item">
+                                    <span class="detail-label">ID:</span>
+                                    <span x-text="selectedProject?.id"></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">IFC Path:</span>
+                                    <span x-text="selectedProject?.ifc_path" class="detail-path"></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Created:</span>
+                                    <span x-text="selectedProject?.created_at"></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Status:</span>
+                                    <span x-text="getStatusText(selectedProject?.status)"></span>
+                                </div>
+                            </div>
+
+                            <!-- Run History -->
+                            <div class="run-history">
+                                <div class="decisions-header" style="margin-bottom: 1rem;">
+                                    <h3 style="margin: 0;">Run History</h3>
+                                    <button class="btn btn-secondary"
+                                            @click="loadRuns(selectedProject.id)">
+                                        Refresh
+                                    </button>
+                                </div>
+
+                                <div x-show="loadingRuns" class="loading">
+                                    Loading run history...
+                                </div>
+
+                                <div x-show="!loadingRuns && projectRuns.length === 0" class="placeholder">
+                                    No runs yet for this project.
+                                </div>
+
+                                <div x-show="!loadingRuns && projectRuns.length > 0" class="run-list">
+                                    <template x-for="run in projectRuns" :key="run.run_id">
+                                        <div class="run-item">
+                                            <div class="run-item-header" @click="toggleRunDetail(run)">
+                                                <span class="status-badge" :class="'status-' + run.status">
+                                                    <span x-text="run.status"></span>
+                                                </span>
+                                                <span class="run-time" x-text="formatRunTime(run.started_at)"></span>
+                                                <span class="run-duration" x-show="getRunDuration(run)"
+                                                      x-text="getRunDuration(run)"></span>
+                                                <span class="run-toggle-icon"
+                                                      x-text="expandedRunId === run.run_id ? '▾' : '▸'"></span>
+                                            </div>
+
+                                            <div x-show="expandedRunId === run.run_id" class="run-item-detail">
+                                                <div x-show="loadingRunDetail" class="loading">
+                                                    Loading details...
+                                                </div>
+
+                                                <template x-if="expandedRunDetail && expandedRunId === run.run_id">
+                                                    <div>
+                                                        <div x-show="expandedRunDetail.error" class="error">
+                                                            <span x-text="expandedRunDetail.error"></span>
+                                                        </div>
+
+                                                        <div x-show="expandedRunDetail.project_path" class="run-folder">
+                                                            <span class="run-folder-label">Folder</span>
+                                                            <code class="run-folder-path" x-text="expandedRunDetail.project_path"></code>
+                                                            <button class="btn btn-secondary run-folder-btn"
+                                                                    @click="copyRunPath(expandedRunDetail)">
+                                                                <span x-text="copiedPathRunId === expandedRunDetail.run_id ? 'Copied!' : 'Copy path'"></span>
+                                                            </button>
+                                                            <button class="btn btn-secondary run-folder-btn"
+                                                                    @click="openRunFolder(expandedRunDetail)">
+                                                                Open folder
+                                                            </button>
+                                                        </div>
+
+                                                        <h4>Settings used</h4>
+                                                        <pre class="run-settings-json" x-text="JSON.stringify(expandedRunDetail.settings_snapshot, null, 2)"></pre>
+
+                                                        <h4 style="display: flex; align-items: center; gap: 0.75rem;">
+                                                            <span>Log</span>
+                                                            <span style="font-weight: normal; color: var(--text-secondary); font-size: 0.8rem;"
+                                                                  x-text="'(' + (expandedRunDetail.logs?.length || 0) + ' entries)'"></span>
+                                                            <button class="btn btn-secondary" style="margin-left: auto; padding: 0.25rem 0.75rem; font-size: 0.8rem;"
+                                                                    @click="copyRunLog(expandedRunDetail)"
+                                                                    title="Copies status, settings and log of this run">
+                                                                <span x-text="copiedRunId === expandedRunDetail.run_id ? 'Copied!' : 'Copy run'"></span>
+                                                            </button>
+                                                        </h4>
+                                                        <div class="log-container run-log-container">
+                                                            <div x-show="!expandedRunDetail.logs || expandedRunDetail.logs.length === 0"
+                                                                 class="log-empty">
+                                                                No log entries recorded for this run.
+                                                            </div>
+                                                            <template x-for="(log, idx) in expandedRunDetail.logs" :key="idx">
+                                                                <div class="log-entry" :class="'log-' + log.level.toLowerCase()">
+                                                                    <span class="log-time" x-text="log.time"></span>
+                                                                    <span class="log-level" x-text="log.level"></span>
+                                                                    <span class="log-message" x-text="log.message"></span>
+                                                                </div>
+                                                            </template>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Decisions View -->
+                <div x-show="currentView === 'decisions'" x-data="decisionManager" class="view">
+                    <div class="decisions-header">
+                        <div>
+                            <h2>Decisions</h2>
+                            <div x-show="pending && decisions.length > 0" class="bunch-info">
+                                <span x-text="`Current DecisionBunch: ${decisions.length} decision(s) pending`"></span>
+                            </div>
+                            <!-- Debug: Blender Connection Status -->
+                            <div style="font-size: 0.8rem; margin-top: 0.5rem; padding: 0.5rem; background: #f1f5f9; border-radius: 4px;">
+                                <strong>DEBUG:</strong> Blender Connected:
+                                <span :style="{color: blenderConnected ? '#10b981' : '#ef4444'}"
+                                      x-text="blenderConnected ? 'YES' : 'NO'"></span>
+                                <br>
+                                <small x-show="!blenderConnected">
+                                    → Highlight buttons will be disabled
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Highlight Settings -->
+                        <div class="highlight-settings" x-data="{ showSettings: false }">
+                            <button class="btn btn-secondary" @click="showSettings = !showSettings">
+                                Highlight Options
+                            </button>
+
+                            <div x-show="showSettings" class="settings-panel" @click.away="showSettings = false">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" x-model="highlightSettings.zoom" @change="saveHighlightSettings()">
+                                    <span>Zoom to Element</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" x-model="highlightSettings.hideOthers" @change="saveHighlightSettings()">
+                                    <span>Hide Other Elements</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" x-model="highlightSettings.showContext" @change="saveHighlightSettings()">
+                                    <span>Show Context Elements</span>
+                                </label>
+                                <label class="number-label">
+                                    <span>Context Depth:</span>
+                                    <input type="number" min="0" max="5"
+                                           x-model.number="highlightSettings.contextDepth"
+                                           @change="saveHighlightSettings()">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div x-show="!pending && decisions.length === 0" class="placeholder">
+                        No pending decisions. Execute a project to start the workflow.
+                    </div>
+
+                    <div x-show="error" class="error">
+                        Error: <span x-text="error"></span>
+                    </div>
+
+                    <div x-show="pending && decisions.length > 0" class="decisions-container">
+                        <template x-for="decision in decisions" :key="decision.id">
+                            <div class="decision-card">
+                                <div class="decision-header">
+                                    <h3 x-text="decision.question"></h3>
+                                    <span class="decision-type" x-text="decision.type"></span>
+                                </div>
+
+                                <div x-show="decision.body" class="decision-body" x-text="decision.body"></div>
+
+                                <div class="decision-input">
+                                    <!-- DEBUG: Show decision structure -->
+                                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 0.5rem; padding: 0.5rem; background: #f1f5f9; border-radius: 4px;">
+                                        <strong>DEBUG INFO:</strong><br>
+                                        Type: <span x-text="decision.type"></span><br>
+                                        Has options: <span x-text="decision.options ? 'YES' : 'NO'"></span><br>
+                                        Options type: <span x-text="Array.isArray(decision.options) ? 'Array' : typeof decision.options"></span><br>
+                                        Options length: <span x-text="decision.options ? decision.options.length : 0"></span><br>
+                                        Has body: <span x-text="decision.body ? 'YES' : 'NO'"></span><br>
+                                        GUID: <span x-text="hasGUID(decision) ? getGUID(decision) : 'none'" :style="{color: hasGUID(decision) ? '#2563eb' : '#94a3b8', fontFamily: hasGUID(decision) ? 'monospace' : 'inherit'}"></span>
+                                    </div>
+
+                                    <!-- BoolDecision -->
+                                    <div x-show="decision.type === 'BoolDecision' || decision.type === 'DecisionBool'">
+                                        <label class="checkbox-input">
+                                            <input type="checkbox" x-model="answers[decision.id]">
+                                            <span>Yes / No</span>
+                                        </label>
+                                    </div>
+
+                                    <!-- ListDecision -->
+                                    <div x-show="decision.type === 'ListDecision' || decision.type === 'DecisionList'">
+                                        <div x-show="!decision.options || !Array.isArray(decision.options)" class="error">
+                                            ERROR: Options not available or not an array!<br>
+                                            Check console for decision structure.
+                                        </div>
+
+                                        <select x-show="decision.options && Array.isArray(decision.options)"
+                                                x-model="answers[decision.id]"
+                                                class="select-input"
+                                                @change="console.log('Selected:', $event.target.value, 'for', decision.id)">
+                                            <option value="">-- Select an option --</option>
+                                            <template x-for="(option, index) in decision.options" :key="index">
+                                                <option :value="index">
+                                                    <span x-text="option"></span>
+                                                </option>
+                                            </template>
+                                        </select>
+
+                                        <!-- Debug: Show first 3 options -->
+                                        <div x-show="decision.options && decision.options.length > 0" style="font-size: 0.75rem; color: #666; margin-top: 0.5rem;">
+                                            First option: <span x-text="decision.options[0]"></span><br>
+                                            Total: <span x-text="decision.options.length"></span> options
+                                        </div>
+                                    </div>
+
+                                    <!-- RealDecision -->
+                                    <div x-show="decision.type === 'RealDecision' || decision.type === 'DecisionReal'">
+                                        <input type="number" step="0.01"
+                                               x-model.number="answers[decision.id]"
+                                               class="number-input"
+                                               :placeholder="decision.default !== null ? 'Default: ' + decision.default : 'Enter a number'">
+                                    </div>
+
+                                    <!-- StringDecision -->
+                                    <div x-show="decision.type === 'StringDecision' || decision.type === 'DecisionString'">
+                                        <input type="text"
+                                               x-model="answers[decision.id]"
+                                               class="text-input"
+                                               :placeholder="decision.default !== null ? 'Default: ' + decision.default : 'Enter text'">
+                                    </div>
+
+                                    <!-- GUIDDecision -->
+                                    <div x-show="decision.type === 'GUIDDecision' || decision.type === 'DecisionGUID'">
+                                        <input type="text"
+                                               x-model="answers[decision.id]"
+                                               class="text-input"
+                                               placeholder="Enter GUID">
+                                    </div>
+
+                                    <!-- Fallback: Unknown type -->
+                                    <div x-show="!['BoolDecision','DecisionBool','ListDecision','DecisionList','RealDecision','DecisionReal','StringDecision','DecisionString','GUIDDecision','DecisionGUID'].includes(decision.type)">
+                                        <div class="error">
+                                            Unknown decision type: <span x-text="decision.type"></span>
+                                            <br>
+                                            <small>Check console for decision structure</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="decision-actions">
+                                    <div class="action-buttons">
+                                        <button class="btn btn-highlight"
+                                                @click="highlightElement(getGUID(decision))"
+                                                :disabled="!blenderConnected || !hasGUID(decision)"
+                                                x-show="hasGUID(decision)"
+                                                @mouseenter="console.log('Blender connected?', blenderConnected, 'Has GUID?', hasGUID(decision))">
+                                            <span x-text="!blenderConnected ? 'Blender Offline' : 'Highlight in Blender'"></span>
+                                        </button>
+
+                                        <!-- Debug: Show why button is disabled -->
+                                        <span x-show="hasGUID(decision) && !blenderConnected"
+                                              style="font-size: 0.75rem; color: #ef4444;">
+                                        </span>
+
+                                        <button class="btn btn-secondary btn-skip"
+                                                @click="skipDecision(decision.id)"
+                                                x-show="decision.allow_skip">
+                                            Skip This Decision
+                                        </button>
+                                    </div>
+
+                                    <div x-show="decision.allow_skip" class="skip-info">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div class="submit-section" style="flex-direction: column; align-items: center; gap: 0.75rem;">
+                            <div x-show="getUnansweredRequired().length > 0"
+                                 style="font-size: 0.875rem; color: var(--danger); text-align: center;">
+                                <span x-text="getUnansweredRequired().length"></span> required decision(s) still need an answer.
+                            </div>
+                            <div x-show="getUnansweredSkippable().length > 0"
+                                 style="font-size: 0.875rem; color: var(--text-secondary); text-align: center;">
+                                <span x-text="getUnansweredSkippable().length"></span> unanswered decision(s) will be skipped automatically.
+                            </div>
+                            <button class="btn btn-primary btn-large"
+                                    @click="submitAnswers()"
+                                    :disabled="loading || getUnansweredRequired().length > 0">
+                                <span x-text="loading ? 'Submitting...' : 'Submit All Answers'"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Log View -->
+                <div x-show="currentView === 'log'" x-data="logViewer" class="view">
+                    <div class="decisions-header">
+                        <h2>Execution Log</h2>
+                        <div class="action-buttons">
+                            <label class="checkbox-label" style="font-size: 0.875rem;">
+                                <input type="checkbox" x-model="autoRefresh">
+                                Auto-refresh
+                            </label>
+                            <label class="checkbox-label" style="font-size: 0.875rem;">
+                                <input type="checkbox" x-model="showNoise" @change="loadLogs()">
+                                Show polling/connection noise
+                            </label>
+                            <button class="btn btn-secondary" @click="loadLogs()">
+                                Refresh
+                            </button>
+                            <button class="btn btn-secondary" @click="copyLogs()"
+                                    :disabled="filteredLogs.length === 0"
+                                    title="Copies the entries currently shown (respects the filters)">
+                                <span x-text="copied ? 'Copied!' : 'Copy log'"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filter Bar -->
+                    <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem; align-items: center;">
+                        <input type="text" class="text-input" x-model="filter"
+                               placeholder="Filter log messages..."
+                               style="flex: 1;">
+                        <select class="select-input" x-model="logLevel" style="width: 140px;">
+                            <option value="all">All Levels</option>
+                            <option value="error">Error</option>
+                            <option value="warning">Warning</option>
+                            <option value="info">Info</option>
+                            <option value="debug">Debug</option>
+                        </select>
+                        <button class="btn btn-secondary" @click="clearFilter()"
+                                x-show="filter">Clear</button>
+                    </div>
+
+                    <!-- Log Container -->
+                    <div x-ref="logContainer" class="log-container">
+                        <div x-show="filteredLogs.length === 0" class="log-empty">
+                            No log entries yet. Execute a project to see output here.
+                        </div>
+                        <template x-for="(log, index) in filteredLogs" :key="index">
+                            <div class="log-entry" :class="getLevelClass(log.level)">
+                                <span class="log-time" x-text="log.time"></span>
+                                <span class="log-level" x-text="log.level"></span>
+                                <span class="log-message" x-text="log.message"></span>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;"
+                         x-text="filteredLogs.length + ' entries shown'"></div>
+                </div>
+
+                <!-- Settings View -->
+                <div x-show="currentView === 'settings'" x-data="globalSettings" class="view">
+                    <h2>Global Settings</h2>
+
+                    <div class="info">
+                        Machine-specific values, such as where EnergyPlus or the AixLib library is installed.
+                        They apply to every project as a fallback. A value set in the project itself takes precedence.
+                        Backends that don't use a setting simply ignore it.
+                    </div>
+
+                    <div x-show="error" class="error">
+                        <span x-text="error"></span>
+                    </div>
+
+                    <div x-show="loading" class="loading">Loading settings...</div>
+
+                    <div x-show="!loading">
+                        <!-- Suggested entries -->
+                        <div class="form-section">
+                            <h4>Installation paths</h4>
+                            <div class="settings-grid">
+                                <template x-for="entry in known" :key="entry.name">
+                                    <div class="form-group setting-item">
+                                        <label class="form-label" x-text="entry.label"></label>
+                                        <input type="text" class="text-input"
+                                               x-model="values[entry.name]"
+                                               :placeholder="entry.placeholder">
+                                        <div class="setting-desc" x-text="entry.description"></div>
+                                        <div class="setting-desc">
+                                            <code x-text="entry.name"></code>
+                                            <span x-show="entry.is_path && values[entry.name] && pathChecks[entry.name] === true"
+                                                  class="path-ok"> -- path found</span>
+                                            <span x-show="entry.is_path && !entry.create_if_missing && values[entry.name] && pathChecks[entry.name] === false"
+                                                  class="path-missing"> -- path not found (as of last save)</span>
+                                            <span x-show="entry.create_if_missing && values[entry.name] && pathChecks[entry.name] === false"
+                                                  class="setting-desc"> -- folder will be created on the first run</span>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Custom entries -->
+                        <div class="form-section">
+                            <h4>Other settings</h4>
+                            <div class="setting-desc" style="margin-bottom: 0.75rem;">
+                                Any SimSettings name works here, for example a Dymola-related setting.
+                            </div>
+
+                            <div x-show="custom.length === 0" class="setting-desc">No other settings defined.</div>
+
+                            <template x-for="(row, index) in custom" :key="index">
+                                <div class="custom-setting-row">
+                                    <input type="text" class="text-input" x-model="row.key"
+                                           placeholder="Setting name">
+                                    <input type="text" class="text-input" x-model="row.value"
+                                           placeholder="Value">
+                                    <button class="btn btn-secondary" @click="removeCustom(index)"
+                                            title="Remove this entry">Remove</button>
+                                </div>
+                            </template>
+
+                            <button class="btn btn-secondary" @click="addCustom()"
+                                    style="margin-top: 0.5rem;">+ Add setting</button>
+                        </div>
+
+                        <div class="form-actions">
+                            <span x-show="saved" class="path-ok" style="align-self: center;">Saved</span>
+                            <button class="btn btn-primary" @click="save()" :disabled="saving">
+                                <span x-text="saving ? 'Saving...' : 'Save'"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Server View -->
+                <div x-show="currentView === 'server'" class="view">
+                    <h2>Server Management</h2>
+
+                    <div class="server-status">
+                        <h3>GUI Server</h3>
+                        <div class="status-box">
+                            <span class="status-label">Status:</span>
+                            <span class="status-value" :class="{ 'success': serverConnected }">
+                                <span x-text="serverConnected ? 'Running' : 'Offline'"></span>
+                            </span>
+                        </div>
+                        <div class="status-box">
+                            <span class="status-label">Address:</span>
+                            <span class="status-value" x-text="serverAddress"></span>
+                        </div>
+                    </div>
+
+                    <div class="server-status">
+                        <h3>Blender Connection</h3>
+                        <div class="status-box">
+                            <span class="status-label">Status:</span>
+                            <span class="status-value" :class="{ 'success': blenderConnected }">
+                                <span x-text="blenderConnected ? 'Connected' : 'Waiting for connection...'"></span>
+                            </span>
+                        </div>
+                        <div class="status-box" x-show="blenderConnected && blenderInfo">
+                            <span class="status-label">Client:</span>
+                            <span class="status-value" x-text="blenderInfo?.address || 'Unknown'"></span>
+                        </div>
+                        <div class="status-box">
+                            <span class="status-label">TCP Port:</span>
+                            <span class="status-value">65432</span>
+                        </div>
+                        <p class="info" x-show="!blenderConnected">
+                            Waiting for Blender to connect. Make sure the bim2sim addon is installed
+                            and click "Connect" in Blender's N-Panel.
+                        </p>
+                        <p class="info success-info" x-show="blenderConnected">
+                            Blender is connected and ready for visualization commands.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- About View -->
+                <div x-show="currentView === 'about'" class="view">
+                    <h2>About bim2sim GUI</h2>
+                    <div class="about-content">
+                        <p><strong>Version:</strong> 0.5.0</p>
+                        <p><strong>Status:</strong> Phase 2 - Frontend Development Ongoing</p>
+
+                        <h3>Implementation Progress</h3>
+                        <ul class="progress-list">
+                            <li class="done">Phase 1: Backend Foundation</li>
+                            <li class="done">Phase 2: Project & Decision Management</li>
+                            <li class="current">Phase 3: Integration & Testing</li>
+                            <li>Phase 4: Advanced Features</li>
+                        </ul>
+
+                        <h3>Technology Stack</h3>
+                        <ul>
+                            <li><strong>Backend:</strong> Flask + Flask-SocketIO</li>
+                            <li><strong>Frontend:</strong> Alpine.js + Vanilla JavaScript</li>
+                            <li><strong>Communication:</strong> REST API + WebSocket + TCP</li>
+                            <li><strong>Visualization:</strong> Blender + Bonsai BIM</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>bim2sim GUI - Building Information Modeling to Simulation</p>
+        </footer>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>

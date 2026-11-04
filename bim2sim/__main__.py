@@ -3,16 +3,20 @@
 This tool can be used to create simulation models based on IFC4 files.
 
 Usage:
+    bim2sim gui [--host <host>] [--port <port>] [--no-browser]
     bim2sim project create <project_path> [-i <source>] [-s <target>] [-o]
     bim2sim project load [<project_path>]
-    bim2sim tcp <host> <port>
     bim2sim --help
     bim2sim --version
 
 Options:
+    gui                 Start GUI server for web-based project management
+    --host <host>       Host to bind GUI server to [default: localhost]
+    --port <port>       Port to bind GUI server to [default: 8080]
+    --no-browser        Don't open browser automatically
+
     load                Load project from current working directory or given path
     create              Create project folder on given relative or absolute path
-    tcp                 Connect to a TCP server at the given host and port.
     -h --help           Show this screen.
     -v --version        Show version.
     -s <target> --sim <target>  Simulation to convert to.
@@ -20,14 +24,13 @@ Options:
     -o --open           Open config file
 """
 from importlib.metadata import version
-import socket
 import docopt
-from tcp_connection import TCPClient
-
+import logging
 
 from bim2sim import run_project
 from bim2sim.project import Project, FolderStructure
 from bim2sim.kernel.decision.console import ConsoleDecisionHandler
+
 
 def get_version():
     """Get package version"""
@@ -36,49 +39,60 @@ def get_version():
     except Exception:
         return "unknown"
 
-def start_tcp_client(host, port):
-    """Start a TCP client to connect to the Blender server."""
+
+def start_gui(host='localhost', port=8080, open_browser=True):
+    """Start GUI server."""
     try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
-            client_socket.connect((host, int(port)))
-            print(f"Connected to server at {host}:{port}")
+        from bim2sim.gui.server import run_gui_server
 
-            while True:
-                message = input("Enter message to send (or 'exit' to quit): ")
-                if message.lower() == 'exit':
-                    print("Closing connection.")
-                    break
+        print(f"Starting bim2sim GUI server...")
+        print(f"GUI will be available at: http://{host}:{port}")
+        print(f"Press CTRL+C to stop")
+        print()
 
-                client_socket.sendall(message.encode())
-                response = client_socket.recv(1024).decode()
-                print(f"Server response: {response}")
-    except ConnectionRefusedError:
-        print(f"Could not connect to server at {host}:{port}. Please ensure the server is running.")
+        run_gui_server(host=host, port=int(port), open_browser=open_browser)
+
+    except ImportError as e:
+        print(f"Error: Could not import GUI module: {e}")
+        print("Please install required dependencies:")
+        print("  pip install flask flask-socketio flask-cors")
+        return 1
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"Error starting GUI: {e}")
+        return 1
+
+    return 0
+
 
 def commandline_interface():
     """User interface"""
 
     args = docopt.docopt(__doc__, version=get_version())
 
-    # arguments
+    # Setup basic logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
+    # GUI mode
+    if args.get('gui'):
+        host = args.get('--host') or 'localhost'
+        port = args.get('--port') or '8080'
+        open_browser = not args.get('--no-browser')
+
+        exit_code = start_gui(host=host, port=port, open_browser=open_browser)
+        exit(exit_code)
+
+    # Project management
     project = args.get('project')
     load = args.get('load')
     create = args.get('create')
-    tcp = args.get('tcp')
 
     path = args.get('<project_path>')
     target = args.get('--sim')
     source = args.get('--ifc')
     open_conf = args.get('--open')
-    host = args.get('<host>')
-    port = args.get('<port>')
-
-    if args.get('--tcp'):
-        tcp_client = TCPClient(host='localhost', port=65432)
-        tcp_client.start()
-        print("TCP Client gestartet und mit dem Server verbunden.")
 
     if project:
         if create:
@@ -89,16 +103,10 @@ def commandline_interface():
             handler = ConsoleDecisionHandler()
             run_project(pro, handler)
             handler.shutdown(True)
-    elif tcp:
-        if host and port:
-            tcp_client = TCPClient(host='localhost', port=65432)
-            tcp_client.start()
-            print("Verbunden mit dem Server.")
-            tcp_client.send_message("Initiale Nachricht an den Server")
-        else:
-            print("Error: Host and port must be specified for TCP connection.")
     else:
-        print("Invalid arguments")
-        exit()
+        print("Invalid arguments. Use --help for usage information.")
+        exit(1)
 
-commandline_interface()
+
+if __name__ == '__main__':
+    commandline_interface()

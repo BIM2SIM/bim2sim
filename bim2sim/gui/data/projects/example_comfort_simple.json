@@ -1,0 +1,22 @@
+{
+  "id": "example_comfort_simple",
+  "name": "Example Thermal Comfort Project",
+  "description": "Thermal comfort analysis with the Comfort backend (built on EnergyPlus), based on the FZK-Haus IFC. Adds exterior window shading and renames plot keys for cleaner result plots. IFC path should be updated to match your local repository location.",
+  "ifc_path": "C:\\Users\\pja\\PycharmProjects\\bim2sim_gh\\test\\resources\\arch\\ifc\\AC20-FZK-Haus.ifc",
+  "backend": "comfort",
+  "domain": "arch",
+  "created_at": "2026-04-27T00:00:00Z",
+  "settings": {
+    "weather_file_path": "test/resources/weather_files/DEU_Koln.105130_IWEC.epw",
+    "layers_and_materials": "LOD.low",
+    "construction_class_walls": "iwu_heavy",
+    "construction_class_windows": "Waermeschutzverglasung, dreifach",
+    "run_full_simulation": true,
+    "setpoints_from_template": true,
+    "add_window_shading": "Exterior",
+    "cooling_tz_overwrite": false,
+    "rename_plot_keys": true,
+    "create_plots": true
+  },
+  "notes": "Based on examples/e1_simple_project_comfort_energyplus.py. The Comfort backend builds on EnergyPlus, so it inherits all EnergyPlus settings (including run_full_simulation and ep_install_path, see Advanced Settings) plus its own comfort-specific settings such as rename_plot_keys and prj_use_conditions (which defaults to a comfort-specific UseConditions.json bundled with the plugin)."
+}

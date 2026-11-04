@@ -34,7 +34,7 @@ def run_example_complex_building_energyplus():
 
     # Set the install path to your EnergyPlus installation according to your
     # system requirements
-    # project.sim_settings.ep_install_path = 'C://EnergyPlusV9-4-0/'
+    project.sim_settings.ep_install_path = 'D://EnergyPlus/'
 
     # combine spaces to thermal zones based on their usage
     # use cooling
@@ -52,7 +52,7 @@ def run_example_complex_building_energyplus():
     # set weather file data
     project.sim_settings.weather_file_path = (
             Path(bim2sim.__file__).parent.parent /
-            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.epw')
+            'test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos')
     # Run a simulation directly with dymola after model creation
 
     # Select results to output:
@@ -70,7 +70,7 @@ def run_example_complex_building_energyplus():
     project.sim_settings.prj_use_conditions = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"
-            "UseConditionsFM_ARC_DigitalHub.json")
+            "UseConditionsFM_ARC_DigitalHub_fixed002.json")
     project.sim_settings.prj_custom_usages = (Path(
         bim2sim.__file__).parent.parent /
             "test/resources/arch/custom_usages/"

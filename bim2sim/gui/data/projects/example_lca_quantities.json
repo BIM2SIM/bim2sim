@@ -1,0 +1,13 @@
+{
+  "id": "example_lca_quantities",
+  "name": "Example LCA Quantities Export",
+  "description": "Generates material quantity output for a life cycle assessment (LCA), based on the ERC Mainbuilding IFC. Produces two CSV files in the export folder: material quantities and a per-element overview. IFC path should be updated to match your local repository location.",
+  "ifc_path": "C:\\Users\\pja\\PycharmProjects\\bim2sim_gh\\test\\resources\\arch\\ifc\\ERC_Mainbuilding_Arch.ifc",
+  "backend": "lca",
+  "domain": "arch",
+  "created_at": "2026-04-27T00:00:00Z",
+  "settings": {
+    "weather_file_path": "test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos"
+  },
+  "notes": "Based on examples/e1_export_quantities_for_lca.py. No decisions are expected for this IFC file with the LCA backend. After execution, check the export folder for Material_quantities_ERC_Mainbuilding_Arch.csv (mass of each material used) and Quantities_overview_ERC_Mainbuilding_Arch.csv (per-element breakdown with materials)."
+}

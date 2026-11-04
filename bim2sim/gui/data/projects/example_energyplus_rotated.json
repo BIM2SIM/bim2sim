@@ -1,0 +1,15 @@
+{
+  "id": "example_energyplus_rotated",
+  "name": "Example EnergyPlus Rotated Building Project",
+  "description": "Building performance simulation with the EnergyPlus backend, based on the FZK-Haus IFC, with the building rotated 180 degrees clockwise. Useful for testing orientation-dependent results such as solar gains. IFC path should be updated to match your local repository location.",
+  "ifc_path": "C:\\Users\\pja\\PycharmProjects\\bim2sim_gh\\test\\resources\\arch\\ifc\\AC20-FZK-Haus.ifc",
+  "backend": "energyplus",
+  "domain": "arch",
+  "created_at": "2026-04-27T00:00:00Z",
+  "settings": {
+    "weather_file_path": "test/resources/weather_files/DEU_Koln.105130_IWEC.epw",
+    "run_full_simulation": true,
+    "building_rotation_overwrite": 180
+  },
+  "notes": "Based on examples/e4_simple_rotated_project_energyplus.py. Identical to the simple EnergyPlus example, but with building_rotation_overwrite set to 180 degrees. Requires a working EnergyPlus installation with ep_install_path set correctly (see Advanced Settings) since run_full_simulation is enabled."
+}

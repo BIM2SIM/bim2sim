@@ -1,0 +1,14 @@
+{
+  "id": "example_aixlib_complex",
+  "name": "Example HVAC AixLib Complex Project",
+  "description": "Complex hydraulic simulation example with AixLib backend, based on the DigitalHub IFC. Uses a lowered fuzzy threshold to reduce the number of decisions. IFC path should be updated to match your local repository location.",
+  "ifc_path": "C:\\Users\\pja\\PycharmProjects\\bim2sim_gh\\test\\resources\\hydraulic\\ifc\\DigitalHub_Gebaeudetechnik-HEIZUNG_v2.ifc",
+  "backend": "aixlib",
+  "domain": "hydraulic",
+  "created_at": "2026-04-27T00:00:00Z",
+  "settings": {
+    "weather_file_path": "test/resources/weather_files/DEU_NW_Aachen.105010_TMYx.mos",
+    "fuzzy_threshold": 0.5
+  },
+  "notes": "Based on examples/e2_complex_project_hvac_aixlib.py. The fuzzy_threshold setting is IFC-specific and was chosen to reduce the number of decisions for this particular building; it may need re-evaluation for other IFC files. The weather_file_path is relative to the bim2sim package root and resolved automatically."
+}
