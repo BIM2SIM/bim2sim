@@ -1147,3 +1147,30 @@ footer {
     padding: 0.25rem 0.75rem;
     font-size: 0.8rem;
 }
+
+/* Blender start button and pending state in the header */
+.status-indicator.pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.status-indicator.pending .dot {
+    background: var(--warning);
+    animation: pulse 1.2s infinite;
+}
+
+.header-status {
+    align-items: center;
+}
+
+.header-btn {
+    padding: 0.35rem 0.9rem;
+    font-size: 0.85rem;
+    border-radius: 20px;
+}
+
+.blender-launch-error {
+    max-width: 22rem;
+    font-size: 0.8rem;
+    color: var(--danger);
+}

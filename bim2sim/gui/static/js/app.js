@@ -42,6 +42,225 @@ function formatLogsAsText(logs) {
 }
 
 document.addEventListener('alpine:init', () => {
+    // Shared Blender state: connection, the process this GUI started, and
+    // which IFC is loaded. A store (not component state) because the header,
+    // the project cards and the Server tab all need the same values.
+    Alpine.store('blender', {
+        connected: false,
+        info: null,
+        process: { running: false, seconds_since_launch: null },
+        ifc: { known: false, loaded: false, path: '', loading: false,
+               loadingPath: '', error: null },
+        launching: false,         // a launch request is in flight
+        error: null,
+        selectedProject: null,    // { id, name, ifc_path }, set by the project list
+        pendingProject: null,     // project whose IFC loads once Blender connects
+        lastStatusRequest: 0,
+
+        // ---- state shown in the header --------------------------------
+        /**
+         * connected | starting | unconnected | offline
+         *  starting    - we started Blender recently, not connected yet
+         *  unconnected - our Blender runs for a while but never connected
+         *                (auto-connect failed, user must press Connect)
+         */
+        get state() {
+            if (this.connected) return 'connected';
+            if (this.process && this.process.running) {
+                const age = this.process.seconds_since_launch;
+                return (age !== null && age < 60) ? 'starting' : 'unconnected';
+            }
+            return 'offline';
+        },
+
+        get label() {
+            return {
+                connected: 'Blender Connected',
+                starting: 'Blender starting...',
+                unconnected: 'Blender running, not connected',
+                offline: 'Blender Offline'
+            }[this.state];
+        },
+
+        // ---- fed by the app component ---------------------------------
+        setConnection(connected, info) {
+            const was = this.connected;
+            this.connected = !!connected;
+
+            if (!this.connected) {
+                this.info = null;
+                this.ifc = { known: false, loaded: false, path: '', loading: false,
+                             loadingPath: '', error: null };
+                return;
+            }
+            if (info) this.info = info;
+
+            if (!was && this.pendingProject) {
+                // The server sends the pending IFC the moment Blender connects
+                this.ifc.loading = true;
+                this.ifc.loadingPath = this.pendingProject.ifc_path;
+                this.ifc.error = null;
+                this._loadTimeout(this.pendingProject.ifc_path);
+                this.pendingProject = null;
+            }
+
+            // After a page reload Blender won't repeat its status by itself
+            if (!this.ifc.known) this.requestStatus();
+        },
+
+        handleMessage(data) {
+            if (!data) return;
+            if (data.type === 'status') {
+                this.ifc.known = true;
+                this.ifc.loaded = !!data.ifc_loaded;
+                this.ifc.path = data.ifc_path || '';
+            } else if (data.type === 'ifc_load_result') {
+                this.ifc.loading = false;
+                this.ifc.loadingPath = '';
+                if (data.success) {
+                    this.ifc.known = true;
+                    this.ifc.loaded = true;
+                    this.ifc.path = data.ifc_path || this.ifc.path;
+                    this.ifc.error = null;
+                } else {
+                    this.ifc.error = data.error || 'Blender could not load the IFC file.';
+                }
+            }
+        },
+
+        async refreshProcess() {
+            try {
+                const response = await fetch('/api/blender/process');
+                if (response.ok) this.process = await response.json();
+            } catch (error) {
+                // Endpoint unavailable (older server): treat as not started
+                this.process = { running: false, seconds_since_launch: null };
+            }
+        },
+
+        async requestStatus() {
+            // At most every 15 s, in case an older add-on never answers
+            const now = Date.now();
+            if (now - this.lastStatusRequest < 15000) return;
+            this.lastStatusRequest = now;
+            try {
+                await fetch('/api/blender/refresh-status', { method: 'POST' });
+            } catch (error) { /* not critical */ }
+        },
+
+        // ---- per-project helpers for the cards ------------------------
+        _norm(path) {
+            return String(path || '').replace(/\\/g, '/').toLowerCase();
+        },
+
+        isLoaded(project) {
+            return !!project && this.connected && this.ifc.loaded &&
+                this._norm(this.ifc.path) === this._norm(project.ifc_path);
+        },
+
+        isLoading(project) {
+            return !!project && this.ifc.loading &&
+                this._norm(this.ifc.loadingPath) === this._norm(project.ifc_path);
+        },
+
+        isStartingFor(project) {
+            return !!project && !this.connected && !!this.pendingProject &&
+                this.pendingProject.id === project.id;
+        },
+
+        projectLabel(project) {
+            if (this.isLoading(project)) return 'Loading in Blender...';
+            if (this.isLoaded(project)) return 'Loaded in Blender';
+            if (this.isStartingFor(project)) return 'Waiting for Blender...';
+            return this.connected ? 'Load in Blender' : 'Open in Blender';
+        },
+
+        projectDisabled(project) {
+            return this.launching || this.isLoading(project) || this.isLoaded(project);
+        },
+
+        // ---- actions ----------------------------------------------------
+        /** Header button: start Blender, loading the selected project's IFC. */
+        async start() {
+            return this._launch(this.selectedProject);
+        },
+
+        /** Project card: load the IFC, starting Blender first if needed. */
+        async openProject(project) {
+            if (!project) return;
+            if (this.connected) return this._loadIfc(project);
+            return this._launch(project);
+        },
+
+        async _launch(project) {
+            this.launching = true;
+            this.error = null;
+            try {
+                const body = { auto_connect: true };
+                if (project) body.project_id = project.id;
+                const response = await fetch('/api/blender/launch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Could not start Blender');
+                }
+                // Server keeps the IFC and sends it once Blender connects
+                if (project) this.pendingProject = project;
+                await this.refreshProcess();
+            } catch (error) {
+                console.error('Error starting Blender:', error);
+                this._setError(error.message);
+            } finally {
+                this.launching = false;
+            }
+        },
+
+        async _loadIfc(project) {
+            this.error = null;
+            this.ifc.loading = true;
+            this.ifc.loadingPath = project.ifc_path;
+            this.ifc.error = null;
+            try {
+                const response = await fetch('/api/blender/load-ifc', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ project_id: project.id })
+                });
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.error || 'Could not load the IFC file');
+                }
+                // The result arrives later as an ifc_load_result message
+                this._loadTimeout(project.ifc_path);
+            } catch (error) {
+                console.error('Error loading IFC in Blender:', error);
+                this.ifc.loading = false;
+                this.ifc.loadingPath = '';
+                this._setError(error.message);
+            }
+        },
+
+        // Give up waiting for Blender's answer (e.g. an older add-on that
+        // never reports back), so the button doesn't stay "Loading" forever.
+        _loadTimeout(path) {
+            setTimeout(() => {
+                if (this.ifc.loading && this.ifc.loadingPath === path) {
+                    this.ifc.loading = false;
+                    this.ifc.loadingPath = '';
+                    this._setError('No answer from Blender. Check its console.');
+                }
+            }, 5 * 60 * 1000);
+        },
+
+        _setError(message) {
+            this.error = message;
+            setTimeout(() => { if (this.error === message) this.error = null; }, 10000);
+        }
+    });
+
     Alpine.data('app', () => ({
         // State
         currentView: 'projects',
@@ -94,12 +313,14 @@ document.addEventListener('alpine:init', () => {
                 console.log('Blender connected:', data);
                 this.blenderConnected = true;
                 this.blenderInfo = data;
+                Alpine.store('blender').setConnection(true, data);
             });
 
             this.socket.on('blender_disconnected', (data) => {
                 console.log('Blender disconnected:', data);
                 this.blenderConnected = false;
                 this.blenderInfo = null;
+                Alpine.store('blender').setConnection(false);
             });
 
             this.socket.on('blender_message', (data) => {
@@ -108,6 +329,8 @@ document.addEventListener('alpine:init', () => {
                 if (data.type === 'status') {
                     this.blenderStatus = data;
                 }
+                // status / ifc_load_result update which IFC is loaded
+                Alpine.store('blender').handleMessage(data);
             });
 
             // Project status updates from backend
@@ -142,6 +365,8 @@ document.addEventListener('alpine:init', () => {
                     if (data.blender_info) {
                         this.blenderInfo = data.blender_info;
                     }
+                    Alpine.store('blender').setConnection(
+                        this.blenderConnected, data.blender_info);
 
                     // Log status changes
                     if (wasConnected !== this.blenderConnected) {
@@ -153,6 +378,8 @@ document.addEventListener('alpine:init', () => {
                 console.error('Failed to check server status:', error);
                 this.serverConnected = false;
             }
+
+            await Alpine.store('blender').refreshProcess();
 
             // Poll every 3 seconds
             setTimeout(() => this.checkServerStatus(), 3000);
@@ -394,6 +621,9 @@ document.addEventListener('alpine:init', () => {
 
         selectProject(project) {
             this.selectedProject = project;
+            Alpine.store('blender').selectedProject = {
+                id: project.id, name: project.name, ifc_path: project.ifc_path
+            };
             this.expandedRunId = null;
             this.expandedRunDetail = null;
             this.loadRuns(project.id);
@@ -550,6 +780,7 @@ document.addEventListener('alpine:init', () => {
                 });
                 if (!response.ok) throw new Error('Failed to delete project');
                 this.selectedProject = null;
+                Alpine.store('blender').selectedProject = null;
                 await this.loadProjects();
             } catch (error) {
                 console.error('Error deleting project:', error);

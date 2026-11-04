@@ -87,6 +87,10 @@ class GUIServer:
         self.blender_server = BlenderTCPServer(host='localhost', port=65432)
         blender_api.set_blender_server(self.blender_server)
 
+        # Launcher needs the TCP server to know if Blender is connected
+        from bim2sim.gui.api import blender_launcher
+        blender_launcher.set_blender_server(self.blender_server)
+
         # Set callbacks
         self.blender_server.on_client_connected = self._on_blender_connected
         self.blender_server.on_client_disconnected = self._on_blender_disconnected
@@ -278,6 +282,13 @@ class GUIServer:
             'address': str(address),
             'timestamp': time.time()
         })
+
+        # Send an IFC that was requested while Blender was still starting
+        try:
+            from bim2sim.gui.api import blender_launcher
+            blender_launcher.on_blender_connected()
+        except Exception as e:
+            logger.error(f"Error sending pending IFC to Blender: {e}")
 
     def _on_blender_disconnected(self, address):
         """Callback when Blender client disconnects."""

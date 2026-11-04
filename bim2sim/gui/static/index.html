@@ -19,10 +19,26 @@
                         <span class="dot"></span>
                         <span x-text="serverConnected ? 'bim2sim Connected' : 'Connecting...'"></span>
                     </span>
-                    <span class="status-indicator" :class="{ 'connected': blenderConnected }">
+                    <span class="status-indicator"
+                          :class="{ 'connected': $store.blender.state === 'connected',
+                                    'pending': $store.blender.state === 'starting' || $store.blender.state === 'unconnected' }"
+                          :title="$store.blender.state === 'unconnected'
+                                  ? 'Blender is running but not connected. Click Connect in the bim2sim panel in Blender.'
+                                  : ''">
                         <span class="dot"></span>
-                        <span x-text="blenderConnected ? 'Blender Connected' : 'Blender Offline'"></span>
+                        <span x-text="$store.blender.label"></span>
                     </span>
+                    <button class="btn btn-secondary header-btn"
+                            x-show="$store.blender.state === 'offline'"
+                            @click="$store.blender.start()"
+                            :disabled="$store.blender.launching"
+                            :title="$store.blender.selectedProject
+                                    ? 'Starts Blender and loads the IFC of the selected project: ' + $store.blender.selectedProject.name
+                                    : 'Starts Blender'">
+                        <span x-text="$store.blender.launching ? 'Starting...' : 'Start Blender'"></span>
+                    </button>
+                    <span class="blender-launch-error" x-show="$store.blender.error"
+                          x-text="$store.blender.error"></span>
                 </div>
             </div>
         </header>
@@ -591,6 +607,14 @@
                                             Stop
                                         </button>
                                         <button class="btn btn-secondary"
+                                                @click.stop="$store.blender.openProject(project)"
+                                                :disabled="$store.blender.projectDisabled(project)"
+                                                :title="$store.blender.connected
+                                                        ? 'Loads this IFC in Blender (replaces the IFC currently loaded there)'
+                                                        : 'Starts Blender and loads this IFC once it has connected'">
+                                            <span x-text="$store.blender.projectLabel(project)"></span>
+                                        </button>
+                                        <button class="btn btn-secondary"
                                                 @click.stop="openEditForm(project)"
                                                 x-show="project.status !== 'running'">
                                             Edit
@@ -1071,21 +1095,54 @@
                         <div class="status-box">
                             <span class="status-label">Status:</span>
                             <span class="status-value" :class="{ 'success': blenderConnected }">
-                                <span x-text="blenderConnected ? 'Connected' : 'Waiting for connection...'"></span>
+                                <span x-text="{ connected: 'Connected',
+                                                starting: 'Starting...',
+                                                unconnected: 'Running, not connected',
+                                                offline: 'Waiting for connection...' }[$store.blender.state]"></span>
                             </span>
                         </div>
                         <div class="status-box" x-show="blenderConnected && blenderInfo">
                             <span class="status-label">Client:</span>
                             <span class="status-value" x-text="blenderInfo?.address || 'Unknown'"></span>
                         </div>
+                        <div class="status-box" x-show="blenderConnected">
+                            <span class="status-label">IFC in Blender:</span>
+                            <span class="status-value">
+                                <span x-show="$store.blender.ifc.loading">Loading...</span>
+                                <span x-show="!$store.blender.ifc.loading && $store.blender.ifc.loaded"
+                                      x-text="($store.blender.ifc.path || '').split(/[\\/]/).pop()"></span>
+                                <span x-show="!$store.blender.ifc.loading && !$store.blender.ifc.loaded">none loaded</span>
+                            </span>
+                        </div>
                         <div class="status-box">
                             <span class="status-label">TCP Port:</span>
                             <span class="status-value">65432</span>
                         </div>
-                        <p class="info" x-show="!blenderConnected">
-                            Waiting for Blender to connect. Make sure the bim2sim addon is installed
-                            and click "Connect" in Blender's N-Panel.
+                        <p class="info" x-show="$store.blender.state === 'offline'">
+                            Waiting for Blender to connect. Start Blender here, or start it yourself and click
+                            "Connect" in the bim2sim panel (N-Panel). The Blender path can be set in the
+                            Settings tab.
+                            <span x-show="$store.blender.selectedProject">
+                                The IFC of the selected project
+                                (<strong x-text="$store.blender.selectedProject?.name"></strong>)
+                                is loaded as soon as Blender is connected.
+                            </span>
                         </p>
+                        <p class="info" x-show="$store.blender.state === 'starting'">
+                            Blender is starting and will connect automatically.
+                        </p>
+                        <p class="info" x-show="$store.blender.state === 'unconnected'">
+                            Blender is running but has not connected. Automatic connection did not work,
+                            so click "Connect" in the bim2sim panel (N-Panel) in Blender. Make sure the
+                            bim2sim add-on is enabled.
+                        </p>
+                        <button class="btn btn-primary" style="margin-top: 0.5rem;"
+                                x-show="$store.blender.state === 'offline'"
+                                @click="$store.blender.start()" :disabled="$store.blender.launching">
+                            <span x-text="$store.blender.launching ? 'Starting...' : 'Start Blender'"></span>
+                        </button>
+                        <p class="error" x-show="$store.blender.error" x-text="$store.blender.error"></p>
+                        <p class="error" x-show="$store.blender.ifc.error" x-text="$store.blender.ifc.error"></p>
                         <p class="info success-info" x-show="blenderConnected">
                             Blender is connected and ready for visualization commands.
                         </p>

@@ -29,7 +29,7 @@ SETTINGS_FILE = Path(__file__).parent.parent / 'data' / 'global_settings.json'
 # Keys that configure the GUI itself rather than a bim2sim SimSetting. They
 # are stored alongside the others but must never be applied to sim_settings
 # or end up in a run's simulation-settings snapshot.
-GUI_ONLY_KEYS = {'workspace_dir'}
+GUI_ONLY_KEYS = {'workspace_dir', 'blender_path'}
 
 # Suggested entries shown in the frontend. Anything else can be added as a
 # custom entry (e.g. Dymola-related settings).
@@ -51,6 +51,16 @@ KNOWN_GLOBAL_SETTINGS = [
         'description': 'Folder containing Energy+.idd '
                        '(EnergyPlus and Comfort backends).',
         'placeholder': 'D:/Software/EnergyPlus/',
+        'is_path': True,
+    },
+    {
+        'name': 'blender_path',
+        'label': 'Blender executable',
+        'description': 'blender.exe of the Blender installation that has '
+                       'Bonsai and the bim2sim add-on enabled. Used by '
+                       '"Start Blender". If empty, common install '
+                       'locations are searched.',
+        'placeholder': 'C:/Program Files/Blender Foundation/Blender 4.2/blender.exe',
         'is_path': True,
     },
     {
